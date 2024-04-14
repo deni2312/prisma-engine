@@ -1,5 +1,7 @@
 # Prisma Engine
 
+![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+
 Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 3D applications. It is a personal project created to showcase the capabilities of modern OpenGL. The engine is constantly evolving, so there could be significant changes from one version to another.
 
 ## Features
@@ -49,7 +51,7 @@ vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake
 6. (Optionally) In  `configuration\settings.json` file you can change some settings like width, height and camera options.
 
 ## Editor Layout
-- **Renderer Pipeline:** On the left side of the editor, you can switch between the Forward and Deferred renderer pipelines.
+**Renderer Pipeline**
 
 
 
