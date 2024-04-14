@@ -82,7 +82,6 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
         currentMesh->finalMatrix(nodeRoot->finalMatrix(),false);
         currentMesh->parent(nodeRoot);
         currentMesh->computeAABB();
-        //currentMesh->collisionData({Prisma::Physics::Collider::BOX_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true});
         nodeRoot->addChild(currentMesh,false);
         m_scene->meshes.push_back(currentMesh);
     }

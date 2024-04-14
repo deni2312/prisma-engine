@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "../../include/GlobalData/GlobalData.h"
+#include <glm/gtx/string_cast.hpp>
 
 std::shared_ptr<Prisma::MeshIndirect> Prisma::MeshIndirect::instance = nullptr;
 

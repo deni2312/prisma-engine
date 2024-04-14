@@ -33,10 +33,11 @@ namespace Prisma {
 
     private:
 
-        glm::mat4 m_currentModel;
         glm::vec3 m_scale;
-        glm::quat m_rotation;
+        glm::vec3 m_rotation;
         glm::vec3 m_translation;
+
+        glm::mat4 m_currentModel;
 
         std::shared_ptr<Prisma::Texture> m_rotateTexture;
         std::shared_ptr<Prisma::Texture> m_translateTexture;

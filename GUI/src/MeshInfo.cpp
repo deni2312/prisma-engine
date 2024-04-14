@@ -7,43 +7,14 @@
 void Prisma::MeshInfo::drawGizmo(Prisma::MeshInfo::MeshData meshData) {
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-    glm::mat4 model = meshData.mesh->matrix();
-    glm::mat4 delta;
-    ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model), glm::value_ptr(delta));
+    glm::mat4 model = meshData.mesh->finalMatrix();
+    ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
 
-    glm::vec3 rotation;
-    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(delta), glm::value_ptr(m_translation), glm::value_ptr(rotation), glm::value_ptr(m_scale));
-    m_rotation = glm::quat(glm::radians(glm::degrees(glm::eulerAngles(m_rotation))+rotation));
-    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(m_translation), glm::value_ptr(rotation), glm::value_ptr(m_scale));
+    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale));
 
-    glm::vec3 halfExtents = (meshData.mesh->aabbData().max - meshData.mesh->aabbData().min) * 0.5f;
-    glm::vec3 origin(meshData.mesh->aabbData().min.x + halfExtents.x, meshData.mesh->aabbData().min.y + halfExtents.y,
-        meshData.mesh->aabbData().min.z + halfExtents.z);
-    glm::mat4 PrismaMatrix = glm::translate(glm::mat4(1.0f), m_translation + origin);
+    meshData.mesh->matrix(model);
 
-    auto scalingVector = PrismaMatrix[3] * (glm::vec4(m_scale - glm::vec3(1.0f), 1.0));
-
-    glm::mat4 trans_to_pivot = glm::translate(glm::mat4(1.0f), -(m_translation + origin));
-    glm::mat4 trans_from_pivot = glm::translate(glm::mat4(1.0f), m_translation + origin);
-    glm::vec3 eulerRotation = glm::degrees(glm::eulerAngles(m_rotation));
-    glm::vec3 eulerRotation1 = glm::radians(eulerRotation);
-    glm::mat4 finalRotation = glm::rotate(glm::mat4(1.0f), eulerRotation1.x, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), eulerRotation1.y, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), eulerRotation1.z, glm::vec3(0.0f, 0.0f, 1.0f));
-    glm::mat4 rotate_matrix = finalRotation;
-
-    glm::mat4 resultRotation = trans_from_pivot * rotate_matrix * trans_to_pivot;
-
-    PrismaMatrix = glm::scale(glm::mat4(1.0f), m_scale) * resultRotation * PrismaMatrix;
-    PrismaMatrix[3] = PrismaMatrix[3] - scalingVector;
-    PrismaMatrix[3][3] = 1;
-
-    glm::vec3 extents = (meshData.mesh->aabbData().max - meshData.mesh->aabbData().min) * 0.5f;
-    PrismaMatrix = glm::translate(PrismaMatrix, glm::vec3(-meshData.mesh->aabbData().min.x - extents.x, -meshData.mesh->aabbData().min.y - extents.y, -meshData.mesh->aabbData().min.z - extents.z));
-    
-    m_currentModel = Prisma::createModelMatrix(m_translation, finalRotation, m_scale);
-    
-    meshData.mesh->matrix(m_currentModel);
-
-    meshData.mesh->finalMatrix(PrismaMatrix);
+    meshData.mesh->finalMatrix(model);
 
     if (ImGuizmo::IsUsing()) {
         skipUpdate = true;
@@ -77,54 +48,12 @@ void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
         }
 
 
-        glm::vec3 eulerRotation = glm::degrees(glm::eulerAngles(m_rotation));
-        glm::vec3 eulerRotation1 = glm::radians(eulerRotation);
-        glm::mat4 finalRotation=glm::rotate(glm::mat4(1.0f),eulerRotation1.x,glm::vec3(1.0f,0.0f,0.0f))*glm::rotate(glm::mat4(1.0f),eulerRotation1.y,glm::vec3(0.0f,1.0f,0.0f))*glm::rotate(glm::mat4(1.0f),eulerRotation1.z,glm::vec3(0.0f,0.0f,1.0f));
 
-        if(ImGui::InputFloat3("Translation",glm::value_ptr(m_translation))){
-            m_currentModel=Prisma::createModelMatrix(m_translation,finalRotation,m_scale);
-        }
+        ImGui::InputFloat3("Translation",glm::value_ptr(m_translation),"%.3f", ImGuiInputTextFlags_ReadOnly);
 
-        if(ImGui::InputFloat3("Rotation",glm::value_ptr(eulerRotation))){
-            m_rotation=glm::quat(glm::radians(eulerRotation));
-            eulerRotation1 = glm::radians(eulerRotation);
-            finalRotation=glm::rotate(glm::mat4(1.0f),eulerRotation1.x,glm::vec3(1.0f,0.0f,0.0f))*glm::rotate(glm::mat4(1.0f),eulerRotation1.y,glm::vec3(0.0f,1.0f,0.0f))*glm::rotate(glm::mat4(1.0f),eulerRotation1.z,glm::vec3(0.0f,0.0f,1.0f));
-            //rotation=Prisma::eulerToQuaternion(eulerRotation.x,eulerRotation.y,eulerRotation.z);
-            m_currentModel=Prisma::createModelMatrix(m_translation,finalRotation,m_scale);
-        }
+        ImGui::InputFloat3("Rotation",glm::value_ptr(m_rotation), "%.3f", ImGuiInputTextFlags_ReadOnly);
 
-
-        if(ImGui::InputFloat3("Scale",glm::value_ptr(m_scale))){
-            m_currentModel=Prisma::createModelMatrix(m_translation,finalRotation,m_scale);
-        }
-
-        if(ImGui::Button("Apply")){
-
-            glm::vec3 halfExtents = (meshData.mesh->aabbData().max - meshData.mesh->aabbData().min)*0.5f;
-            glm::vec3 origin(meshData.mesh->aabbData().min.x + halfExtents.x, meshData.mesh->aabbData().min.y + halfExtents.y,
-                             meshData.mesh->aabbData().min.z + halfExtents.z);
-            glm::mat4 PrismaMatrix=glm::translate(glm::mat4(1.0f),m_translation+origin);
-
-            auto scalingVector=PrismaMatrix[3]*(glm::vec4(m_scale-glm::vec3(1.0f),1.0));
-
-            glm::mat4 trans_to_pivot   = glm::translate(glm::mat4(1.0f), -(m_translation+origin));
-            glm::mat4 trans_from_pivot = glm::translate(glm::mat4(1.0f), m_translation+origin);
-            glm::mat4 rotate_matrix=finalRotation;
-
-            glm::mat4 resultRotation=trans_from_pivot * rotate_matrix * trans_to_pivot;
-
-            PrismaMatrix=glm::scale(glm::mat4(1.0f),m_scale)*resultRotation*PrismaMatrix;
-            PrismaMatrix[3]=PrismaMatrix[3]-scalingVector;
-            PrismaMatrix[3][3]=1;
-
-            glm::vec3 extents = (meshData.mesh->aabbData().max - meshData.mesh->aabbData().min)*0.5f;
-            PrismaMatrix=glm::translate(PrismaMatrix,glm::vec3(-meshData.mesh->aabbData().min.x-extents.x,-meshData.mesh->aabbData().min.y-extents.y,-meshData.mesh->aabbData().min.z-extents.z));
-            meshData.mesh->matrix(m_currentModel);
-
-            meshData.mesh->finalMatrix(PrismaMatrix);
-            
-            skipUpdate=true;
-        }
+        ImGui::InputFloat3("Scale", glm::value_ptr(m_scale), "%.3f", ImGuiInputTextFlags_ReadOnly);
 
         float mass = 0;
         for (auto component : meshData.mesh->components()) {
@@ -147,9 +76,7 @@ void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
 std::function<void(glm::mat4 &)> Prisma::MeshInfo::updateMesh() {
     return [&](const glm::mat4& model){
         m_currentModel=model;
-        glm::vec3 skew;
-        glm::vec4 perspective;
-        glm::decompose(m_currentModel, m_scale, m_rotation, m_translation, skew, perspective);
+        ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale));
     };
 }
 

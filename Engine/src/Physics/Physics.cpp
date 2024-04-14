@@ -47,27 +47,14 @@ void Prisma::Physics::update(float delta) {
             trans = obj->getWorldTransform();
         }
         auto mesh=(Mesh*)obj->getUserPointer();
-        auto PrismaMatrix=glm::mat4(1.0f);
-        trans.getOpenGLMatrix(glm::value_ptr(PrismaMatrix));
-        glm::vec3 extents = (mesh->aabbData().max - mesh->aabbData().min)*0.5f;
+        auto prismaMatrix=glm::mat4(1.0f);
+        trans.getOpenGLMatrix(glm::value_ptr(prismaMatrix));
 
         auto scaling=glm::vec3(body->getCollisionShape()->getLocalScaling().getX(),body->getCollisionShape()->getLocalScaling().getY(),body->getCollisionShape()->getLocalScaling().getZ());
-        glm::vec3 origin(mesh->aabbData().min.x + extents.x, mesh->aabbData().min.y + extents.y,
-                         mesh->aabbData().min.z + extents.z);
-        glm::mat4 trans_to_pivot   = glm::translate(glm::mat4(1.0f), -(glm::vec3(PrismaMatrix[3])+origin));
-        glm::mat4 trans_from_pivot = glm::translate(glm::mat4(1.0f), glm::vec3(PrismaMatrix[3])+origin);
-        glm::mat4 rotate_matrix=glm::mat3(PrismaMatrix);
 
-        glm::mat4 resultRotation=trans_from_pivot * rotate_matrix * trans_to_pivot;
+        prismaMatrix = glm::scale(glm::mat4(1.0f), scaling)*prismaMatrix;
 
-        auto scalingVector=PrismaMatrix[3]*(glm::vec4(scaling-glm::vec3(1.0f),1.0));
-        PrismaMatrix=glm::scale(glm::mat4(1.0f),scaling)*resultRotation*PrismaMatrix;
-        PrismaMatrix[3]=PrismaMatrix[3]-scalingVector;
-        PrismaMatrix[3][3]=1;
-
-        PrismaMatrix=glm::translate(PrismaMatrix,glm::vec3(-mesh->aabbData().min.x-extents.x,-mesh->aabbData().min.y-extents.y,-mesh->aabbData().min.z-extents.z));
-
-        mesh->finalMatrix(PrismaMatrix);
+        mesh->finalMatrix(prismaMatrix);
     }
 }
 

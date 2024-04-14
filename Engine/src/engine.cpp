@@ -22,6 +22,7 @@
 #include "../include/Handlers/ComponentsHandler.h"
 #include "../include/Postprocess/Postprocess.h"
 #include "../include/Helpers/Timer.h"
+#include <glm/gtx/string_cast.hpp>
 
 
 
@@ -96,6 +97,7 @@ bool Prisma::Engine::run()
     initScene();
     while (!PrismaFunc::getInstance().shouldClose()) {
         if (data->camera && currentGlobalScene) {
+
             data->timer.start();
             PrismaFunc::getInstance().clear();
             data->imguiDebug->start();
