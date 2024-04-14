@@ -1,0 +1,111 @@
+#include "../../include/Pipelines/PipelineCSM.h"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "../../include/SceneData/MeshIndirect.h"
+#include "../../include/GlobalData/GlobalData.h"
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include "../../include/GlobalData/GlobalData.h"
+#include "../../include/Helpers/SettingsLoader.h"
+#include <glm/gtx/string_cast.hpp>
+
+
+static std::shared_ptr<Shader> m_shader = nullptr;
+
+Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_width{ width }, m_height{ height } {
+
+    if (!m_shader) {
+        m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl");
+    }
+
+    glGenFramebuffers(1, &m_fbo);
+    // create depth texture
+    unsigned int depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    // attach depth texture as FBO's depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_id = glGetTextureHandleARB(depthMap);
+    glMakeTextureHandleResidentARB(m_id);
+
+    m_shader->use();
+    m_posLightmatrix = m_shader->getUniformPosition("lightSpaceMatrix");
+}
+
+void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
+    m_lightDir = lightPos;
+    glm::mat4 lightProjection, lightView;
+    //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, m_nearPlane, m_farPlane);
+    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    m_lightSpaceMatrix = lightProjection * lightView;
+
+    m_shader->use();
+    
+    m_shader->setMat4(m_posLightmatrix, m_lightSpaceMatrix);
+
+    GLint viewport[4];
+
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    glViewport(0, 0, m_width, m_height);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    //Render scene
+    const auto& indirectLoaded = Prisma::MeshIndirect::getInstance().indirectLoaded();
+
+    glBindVertexArray(indirectLoaded.m_vao);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectLoaded.m_drawBuffer);
+    // Call glMultiDrawElementsIndirect to render
+    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
+}
+
+glm::mat4 Prisma::PipelineCSM::lightMatrix() {
+    return m_lightSpaceMatrix;
+}
+
+uint64_t Prisma::PipelineCSM::id() {
+    return m_id;
+}
+
+float Prisma::PipelineCSM::farPlane() {
+    return m_farPlane;
+}
+
+void Prisma::PipelineCSM::farPlane(float farPlane)
+{
+    m_farPlane = farPlane;
+}
+
+float Prisma::PipelineCSM::nearPlane()
+{
+    return m_nearPlane;
+}
+
+void Prisma::PipelineCSM::nearPlane(float nearPlane)
+{
+    m_nearPlane = nearPlane;
+}
+
+void Prisma::PipelineCSM::lightDir(glm::vec3 lightDir) {
+    m_lightDir = lightDir;
+}
+
+glm::vec3 Prisma::PipelineCSM::lightDir() {
+    return m_lightDir;
+}

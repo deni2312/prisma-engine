@@ -1,0 +1,12 @@
+#pragma once
+#include <string>
+#include "glm/glm.hpp"
+
+const int MAX_DIR_LIGHTS = 1024;
+const int MAX_OMNI_LIGHTS = 1024;
+const int MAX_CLUSTER_SIZE = 100;
+const std::string DIR_DEFAULT_BLACK = "../../../Resources/res/black.png";
+const std::string DIR_DEFAULT_NORMAL = "../../../Resources/res/normal.jpg";
+const std::string DIR_DEFAULT_SETTINGS = "../../../configuration/settings.json";
+const std::string DIR_DEFAULT_SCENE = "../../../Resources/Cubes/cubes.gltf";
+const glm::vec4 CLEAR_COLOR = glm::vec4(0.0f);

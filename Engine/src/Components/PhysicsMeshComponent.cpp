@@ -1,0 +1,123 @@
+#include "../../include/Components/PhysicsMeshComponent.h"
+
+void Prisma::PhysicsMeshComponent::start() {
+    ComponentType componentType;
+    m_status.currentitem=static_cast<int>(m_collisionData.collider);
+    m_status.items.push_back("BOX COLLIDER");
+    m_status.items.push_back("SPHERE COLLIDER");
+    componentType=std::make_tuple(Prisma::Component::TYPES::STRINGLIST,"Collider",&m_status);
+
+    ComponentType componentMass;
+    componentMass=std::make_tuple(Prisma::Component::TYPES::FLOAT,"Mass",&m_collisionDataCopy.mass);
+
+
+    ComponentType componentButton;
+    m_apply=[&](){
+        m_collisionData.mass = m_collisionDataCopy.mass;
+        m_collisionData.collider=static_cast<Prisma::Physics::Collider>(m_status.currentitem);
+        updateCollisionData();
+        skipUpdate = true;
+    };
+    componentButton=std::make_tuple(Prisma::Component::TYPES::BUTTON,"Apply Physics",&m_apply);
+
+    addGlobal(componentType);
+
+    addGlobal(componentMass);
+
+    addGlobal(componentButton);
+
+    updateCollisionData();
+    name("Physics Mesh Component");
+}
+
+void Prisma::PhysicsMeshComponent::update() {
+    if(updateData){
+        updateCollisionData();
+    }
+}
+
+void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData collisionData) {
+    m_collisionData = collisionData;
+}
+
+void Prisma::PhysicsMeshComponent::updateCollisionData() {
+    auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
+    auto aabbData = mesh->aabbData();
+    auto physicsWorld = Prisma::Physics::getInstance().physicsWorld();
+
+    if (m_shape && m_body) {
+        physicsWorld->collisionShapes.remove(m_shape);
+        physicsWorld->dynamicsWorld->removeRigidBody(m_body);
+    }
+
+    glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
+
+    colliderDispatcher(m_collisionData.collider);
+
+    bool isDynamic = (m_collisionData.mass != 0.f);
+    if (isDynamic) {
+        m_shape->calculateLocalInertia(m_collisionData.mass, m_collisionData.localInertia);
+    }
+    btTransform transform;
+    transform.setIdentity();
+    glm::vec3 origin(aabbData.min.x + halfExtents.x, aabbData.min.y + halfExtents.y,
+                     aabbData.min.z + halfExtents.z);
+
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose(mesh->matrix(), scale, rotation, translation, skew, perspective);
+    origin = glm::vec4(translation + origin, 1.0);
+
+    transform.setFromOpenGLMatrix(glm::value_ptr(parent()->matrix()));
+
+    transform.setOrigin(btVector3(origin.x, origin.y, origin.z));
+
+    m_shape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
+
+    if (m_collisionData.rigidbody) {
+        //using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+        auto *myMotionState = new btDefaultMotionState(transform);
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(m_collisionData.mass, myMotionState, m_shape,
+                                                        m_collisionData.localInertia);
+        m_body = new btRigidBody(rbInfo);
+
+        m_body->setWorldTransform(transform);
+
+        m_body->setUserPointer(mesh);
+
+        physicsWorld->dynamicsWorld->addRigidBody(m_body);
+    }
+    physicsWorld->collisionShapes.push_back(m_shape);
+}
+
+void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
+    auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
+    auto aabbData = mesh->aabbData();
+    switch (collider) {
+        case Prisma::Physics::Collider::BOX_COLLIDER: {
+            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
+            m_shape = new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
+            break;
+        }
+        case Prisma::Physics::Collider::SPHERE_COLLIDER: {
+            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
+            halfExtents.x = 0;
+            halfExtents.y = 0;
+            float length = glm::length(halfExtents);
+            m_shape = new btSphereShape(length);
+            break;
+        }
+
+    }
+}
+
+Prisma::Physics::CollisionData Prisma::PhysicsMeshComponent::collisionData() {
+    return m_collisionData;
+}
+
+Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {
+
+}

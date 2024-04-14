@@ -1,0 +1,1 @@
+*.hdr *.png *.jpg *.glb *.gltf *.bin *.hdr filter=lfs diff=lfs merge=lfs -text
