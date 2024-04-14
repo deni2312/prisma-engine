@@ -34,7 +34,9 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
         skipUpdate = true;
     }
 
-    if (hasShadow) {
+    auto shadow = lightData->shadow();
+
+    if (hasShadow && shadow) {
         auto shadow = lightData->shadow();
 
         float farPlane = shadow->farPlane();
@@ -87,8 +89,9 @@ void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightO
         skipUpdate = true;
     }
 
-    if (hasShadow) {
-        auto shadow = lightData->shadow();
+    auto shadow = lightData->shadow();
+
+    if (hasShadow && shadow) {
 
         float farPlane = shadow->farPlane();
         float nearPlane = shadow->nearPlane();

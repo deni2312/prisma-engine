@@ -33,7 +33,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
 
-    /*auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(nodeHelper.find(m_sceneNode->root, "Point")->children()[0]);
+    auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(nodeHelper.find(m_sceneNode->root, "Point")->children()[0]);
 
     if (light) {
         std::random_device rd; // Obtain a random number from hardware
@@ -56,7 +56,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
             m_lights.push_back(lightCopy);
             m_sceneNode->root->addChild(lightCopy);
         }
-    }*/
+    }
 }
 
 bool UserEngine::update()

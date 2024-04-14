@@ -26,12 +26,13 @@ To start using Prisma Engine in your projects, follow these steps:
 
 1. Clone the repository:
 ```bash
-git clone --recursive https:
+git clone --recursive https://github.com/deni2312/prisma-engine.git
 ```
 2. Install dependencies with vcpkg:
 ```bash
 cd prisma-engine
-git clone https:cd vcpkg
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
 .\bootstrap-vcpkg.bat
 .\vcpkg integrate install
 cd ..
