@@ -7,7 +7,7 @@
 void Prisma::MeshInfo::drawGizmo(Prisma::MeshInfo::MeshData meshData) {
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-    glm::mat4 model = meshData.mesh->finalMatrix();
+    glm::mat4 model = meshData.mesh->matrix();
     ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
 
     ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale));

@@ -79,6 +79,7 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         auto currentMesh = getMesh(mesh, scene);
+        currentMesh->matrix(nodeRoot->finalMatrix(), false);
         currentMesh->finalMatrix(nodeRoot->finalMatrix(),false);
         currentMesh->parent(nodeRoot);
         currentMesh->computeAABB();
