@@ -64,13 +64,13 @@ An example of sponza scene that runs 1000 point lights through clustered shading
 
 <p align="center">
 
-![VIDEO](https://www.youtube.com/embed/QSJAYbaVJJw?si=0lUMrJFlNmtH9PKq)
+![VIDEO](https://www.youtube.com/watch?v=QSJAYbaVJJw)
 
 ### Physics
 
 An example of a scene with bullet physics, point shadows and the dynamic loading of a sponza scene
 
-![VIDEO](https://www.youtube.com/embed/W6aWU5asums?si=gKxVKaRrpFjaW2Kj)
+![VIDEO](https://www.youtube.com/watch?v=W6aWU5asums)
 
 
 
