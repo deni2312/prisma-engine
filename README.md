@@ -61,17 +61,16 @@ vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 
 An example of sponza scene that runs 1000 point lights through clustered shading with some post-processing
+
 <p align="center">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/QSJAYbaVJJw?si=0lUMrJFlNmtH9PKq" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</p>  
+
+![VIDEO](https://www.youtube.com/embed/QSJAYbaVJJw?si=0lUMrJFlNmtH9PKq)
 
 ### Physics
 
 An example of a scene with bullet physics, point shadows and the dynamic loading of a sponza scene
 
-<p align="center">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/W6aWU5asums?si=gKxVKaRrpFjaW2Kj" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</p>  
+![VIDEO](https://www.youtube.com/embed/W6aWU5asums?si=gKxVKaRrpFjaW2Kj)
 
 
 
