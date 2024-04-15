@@ -52,7 +52,7 @@ void Prisma::Physics::update(float delta) {
 
         auto scaling=glm::vec3(body->getCollisionShape()->getLocalScaling().getX(),body->getCollisionShape()->getLocalScaling().getY(),body->getCollisionShape()->getLocalScaling().getZ());
 
-        prismaMatrix = prismaMatrix * glm::scale(glm::mat4(1.0f), scaling);
+        prismaMatrix = glm::scale(glm::mat4(1.0f), scaling)*prismaMatrix;
 
         mesh->finalMatrix(prismaMatrix);
     }
