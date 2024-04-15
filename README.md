@@ -1,7 +1,12 @@
-# Prisma Engine
+<p>
+<h1 align="center">
+Prisma Engine
+</p>
+<center>
+    <img src="https://github.com/deni2312/prisma-engine/bin/images/screenshot.png" alt="DamagedHelmet">
+</center>
 
-![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
-
+## 
 Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 3D applications. It is a personal project created to showcase the capabilities of modern OpenGL. The engine is constantly evolving, so there could be significant changes from one version to another.
 
 ## Features
@@ -50,14 +55,32 @@ vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 6. (Optionally) In  `configuration\settings.json` file you can change some settings like width, height and camera options.
 
-## Editor Layout
-**Renderer Pipeline**
+## Demos
+
+### Sponza
+
+
+An example of sponza scene that runs 1000 point lights through clustered shading with some post-processing
+<p align="center">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/QSJAYbaVJJw?si=0lUMrJFlNmtH9PKq" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</p>  
+
+### Physics
+
+An example of a scene with bullet physics, point shadows and the dynamic loading of a sponza scene
+
+<p align="center">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/W6aWU5asums?si=gKxVKaRrpFjaW2Kj" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</p>  
+
 
 
 
 ## Default scene
 
-The scene is fully physicalized, allowing you to interact with the physics and manipulate objects within it as you please.
+The scene models showcased can be found on the official repository for KhronosGroup's glTF Sample Models:
+
+https://github.com/KhronosGroup/glTF-Sample-Models
 
 # Contributing to Prisma Engine
 
@@ -96,6 +119,7 @@ Thank you for contributing to Prisma Engine!
 - https://github.com/ocornut/imgui
 - https://github.com/DaveH355/clustered-shading
 - https://github.com/bulletphysics/bullet3
+- https://github.com/KhronosGroup/glTF-Sample-Models
 
 
 
