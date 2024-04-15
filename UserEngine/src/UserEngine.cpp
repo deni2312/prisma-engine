@@ -13,7 +13,7 @@
 
 UserEngine::UserEngine() : Prisma::Engine{}
 {
-	m_sceneNode = getScene("../../../Resources/Sponza/Sponza.gltf", {true});
+	m_sceneNode = getScene("../../../Resources/Helmet/DamagedHelmet.gltf", {true});
 
 	Prisma::Texture texture;
 	texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
@@ -33,30 +33,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
 
-    auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(nodeHelper.find(m_sceneNode->root, "Point")->children()[0]);
-
-    if (light) {
-        std::random_device rd; // Obtain a random number from hardware
-        std::mt19937 gen(rd()); // Seed the generator
-        std::uniform_real_distribution<float> disColor(0.0f, 1.0f); // Random color range
-
-        for (int i = 0; i < 1022; i++) {
-            auto lightCopy = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
-
-            // Random color
-            glm::vec3 randomColor(disColor(gen), 0, disColor(gen));
-
-            // Modify the light type properties
-            auto type = light->type();
-            type.radius = 1.5f;
-            type.position = glm::vec4(0,i*0.1,0, 1.0f);
-            type.diffuse = glm::vec4(randomColor, 1.0f);
-            lightCopy->type(type);
-            lightCopy->name("Light" + std::to_string(i));
-            m_lights.push_back(lightCopy);
-            m_sceneNode->root->addChild(lightCopy);
-        }
-    }
+   
     
 }
 

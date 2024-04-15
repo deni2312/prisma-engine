@@ -71,7 +71,7 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
     glm::decompose(mesh->matrix(), scale, rotation, translation, skew, perspective);
     origin = glm::vec4(translation + origin, 1.0);
 
-    transform.setFromOpenGLMatrix(glm::value_ptr(glm::inverse(glm::scale(glm::mat4(1.0f),scale))*mesh->matrix()));
+    transform.setFromOpenGLMatrix(glm::value_ptr(mesh->matrix()* glm::inverse(glm::scale(glm::mat4(1.0f), scale))));
 
     m_shape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
 
