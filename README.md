@@ -60,13 +60,13 @@ vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake
 ### Sponza
 
 
-An example of sponza scene that runs 1000 point lights through clustered shading with some post-processing
+An example of sponza scene that runs 1000 point lights through clustered shading with some post-processing (Click on the image for the youtube video)
 
 [![Sponza](https://img.youtube.com/vi/QSJAYbaVJJw/0.jpg)](https://www.youtube.com/watch?v=QSJAYbaVJJw)
 
 ### Physics
 
-An example of a scene with bullet physics, point shadows and the dynamic loading of a sponza scene
+An example of a scene with bullet physics, point shadows and the dynamic loading of a sponza scene (Click on the image for the youtube video)
 
 [![Sponza](https://img.youtube.com/vi/W6aWU5asums/0.jpg)](https://www.youtube.com/watch?v=W6aWU5asums)
 
