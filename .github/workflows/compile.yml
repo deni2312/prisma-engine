@@ -8,7 +8,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - run: git clone https://github.com/Microsoft/vcpkg.git
-      
+      - run: dir
       - run: .\\vcpkg\\bootstrap-vcpkg.bat
       - run: .\\vcpkg\\vcpkg integrate install
       - run: .\\vcpkg\\vcpkg install
