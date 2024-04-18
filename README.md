@@ -45,11 +45,7 @@ cd vcpkg
 cd ..
 .\vcpkg\vcpkg install
   ```
-3. Open Visual studio and go to Project --> CMake Settings --> CMake Command arguments and set it:
-```bash
-vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake
-  ```
-4. Then delete and reload cache (by right clicking on the project)
+3. Open the project with visual studio
 
 5. Click on main.cpp and run the default scene
 
