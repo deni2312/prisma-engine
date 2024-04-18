@@ -397,6 +397,7 @@ FodyWeavers.xsd
 *.sln.iml
 
 out/
+vcpkg/
 vcpkg_installed/
 CMakeSettings.json
 Models/bread
