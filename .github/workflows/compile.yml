@@ -14,5 +14,5 @@ jobs:
       - run: .\\vcpkg\\vcpkg install
       - run: mkdir build
       - run: cmake -B build/ -S .
-      - run: cmake --build build\\
+      - run: cmake --build build\
       - run: echo ""
