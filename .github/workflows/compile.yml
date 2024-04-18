@@ -9,9 +9,9 @@ jobs:
         uses: actions/checkout@v2
       - run: git clone https://github.com/Microsoft/vcpkg.git
       
-      - run: sudo .\\vcpkg\\bootstrap-vcpkg.bat
-      - run: sudo .\\vcpkg\\vcpkg integrate install
-      - run: sudo .\\vcpkg\\vcpkg install
+      - run: .\\vcpkg\\bootstrap-vcpkg.bat
+      - run: .\\vcpkg\\vcpkg integrate install
+      - run: .\\vcpkg\\vcpkg install
       - run: mkdir build
       - run: cmake -B build/ -S . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
       - run: cmake --build build/
