@@ -399,7 +399,6 @@ FodyWeavers.xsd
 out/
 vcpkg_installed/
 CMakeSettings.json
-vcpkg.json
 Models/bread
 build/
 cmake-build-debug/
