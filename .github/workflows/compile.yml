@@ -13,6 +13,6 @@ jobs:
       - run: .\\vcpkg\\vcpkg integrate install
       - run: .\\vcpkg\\vcpkg install
       - run: mkdir build
-      - run: cmake -B build/ -S . -DCMAKE_TOOLCHAIN_FILE=\.\vcpkg\\scripts\\buildsystems\\vcpkg.cmake
+      - run: cmake -B build/ -S . -DCMAKE_TOOLCHAIN_FILE=.\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake
       - run: cmake --build build\\
       - run: echo ""
