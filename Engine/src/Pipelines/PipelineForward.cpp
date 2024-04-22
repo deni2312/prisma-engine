@@ -79,12 +79,7 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 	m_shader->setUVec3(m_gridSizePos, Prisma::ClusterCalculation::grids());
 	m_shader->setUVec2(m_screenDimensionsPos, { m_settings.width,m_settings.height });
 
-    const auto& indirectLoaded = Prisma::MeshIndirect::getInstance().indirectLoaded();
-
-	glBindVertexArray(indirectLoaded.m_vao);
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectLoaded.m_drawBuffer);
-
-	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
+	Prisma::MeshIndirect::getInstance().renderMeshes();
 
 	Prisma::PipelineSkybox::getInstance().render(camera);
 

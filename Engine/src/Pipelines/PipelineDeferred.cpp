@@ -109,12 +109,7 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_shader->use();
 
-    const auto& indirectLoaded = Prisma::MeshIndirect::getInstance().indirectLoaded();
-
-    glBindVertexArray(indirectLoaded.m_vao);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectLoaded.m_drawBuffer);
-    // Call glMultiDrawElementsIndirect to render
-    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
+    Prisma::MeshIndirect::getInstance().renderMeshes();
 
     // Unbind the buffer
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);

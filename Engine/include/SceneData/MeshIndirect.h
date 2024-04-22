@@ -69,7 +69,9 @@ namespace Prisma {
 		MeshIndirect(const MeshIndirect&) = delete;
 		MeshIndirect& operator=(const MeshIndirect&) = delete;
 		void load();
-		Prisma::IndirectLoaded indirectLoaded();
+
+		void renderMeshes();
+
 		void update();
 		void updateSize();
 		void updateModels();

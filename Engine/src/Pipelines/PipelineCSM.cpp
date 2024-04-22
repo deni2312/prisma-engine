@@ -62,14 +62,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     glViewport(0, 0, m_width, m_height);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glClear(GL_DEPTH_BUFFER_BIT);
-    //Render scene
-    const auto& indirectLoaded = Prisma::MeshIndirect::getInstance().indirectLoaded();
-
-    glBindVertexArray(indirectLoaded.m_vao);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectLoaded.m_drawBuffer);
-    // Call glMultiDrawElementsIndirect to render
-    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+    Prisma::MeshIndirect::getInstance().renderMeshes();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.

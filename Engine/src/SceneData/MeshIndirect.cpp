@@ -17,9 +17,12 @@ void Prisma::MeshIndirect::load()
     updateSize();
 }
 
-Prisma::IndirectLoaded Prisma::MeshIndirect::indirectLoaded()
+void Prisma::MeshIndirect::renderMeshes()
 {
-    return m_indirectLoaded;
+    m_vao->bind();
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 }
 
 void Prisma::MeshIndirect::update()
