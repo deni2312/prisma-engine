@@ -5,6 +5,7 @@
 const int MAX_DIR_LIGHTS = 1024;
 const int MAX_OMNI_LIGHTS = 1024;
 const int MAX_CLUSTER_SIZE = 100;
+const int MAX_BONE_INFLUENCE = 4;
 const std::string DIR_DEFAULT_BLACK = "../../../Resources/res/black.png";
 const std::string DIR_DEFAULT_NORMAL = "../../../Resources/res/normal.jpg";
 const std::string DIR_DEFAULT_SETTINGS = "../../../configuration/settings.json";

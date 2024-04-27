@@ -49,7 +49,7 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
     }
 }
 
-inline float Prisma::SceneLoader::calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold) {
+float Prisma::SceneLoader::calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold) {
     // Calculate coefficients for the quadratic equation
     float a = Kq;
     float b = Kl;
@@ -312,4 +312,54 @@ glm::mat4 Prisma::SceneLoader::getTransform(aiMatrix4x4 matrix)
     }
     transform = glm::transpose(transform);
     return transform;
+}
+
+void Prisma::SceneLoader::setVertexBoneData(Prisma::AnimatedMesh::AnimateVertex& vertex, int boneID, float weight)
+{
+    for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+    {
+        if (vertex.m_BoneIDs[i] < 0)
+        {
+            vertex.m_Weights[i] = weight;
+            vertex.m_BoneIDs[i] = boneID;
+            break;
+        }
+    }
+}
+
+
+void Prisma::SceneLoader::extractBoneWeightForVertices(std::shared_ptr<Prisma::AnimatedMesh> animatedMesh, std::vector<Prisma::AnimatedMesh::AnimateVertex>& vertices, aiMesh* mesh, const aiScene* scene)
+{
+    auto& boneInfoMap = animatedMesh->boneInfoMap();
+    int& boneCount = animatedMesh->boneInfoCounter();
+
+    for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+    {
+        int boneID = -1;
+        std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+        if (boneInfoMap.find(boneName) == boneInfoMap.end())
+        {
+            Prisma::AnimatedMesh::BoneInfo newBoneInfo;
+            newBoneInfo.id = boneCount;
+            newBoneInfo.offset = getTransform(mesh->mBones[boneIndex]->mOffsetMatrix);
+            boneInfoMap[boneName] = newBoneInfo;
+            boneID = boneCount;
+            boneCount++;
+        }
+        else
+        {
+            boneID = boneInfoMap[boneName].id;
+        }
+        assert(boneID != -1);
+        auto weights = mesh->mBones[boneIndex]->mWeights;
+        int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+
+        for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+        {
+            int vertexId = weights[weightIndex].mVertexId;
+            float weight = weights[weightIndex].mWeight;
+            assert(vertexId <= vertices.size());
+            setVertexBoneData(vertices[vertexId], boneID, weight);
+        }
+    }
 }

@@ -77,14 +77,14 @@ float Prisma::PipelineOmniShadow::farPlane() {
     return m_farPlane;
 }
 
-inline void Prisma::PipelineOmniShadow::farPlane(float farPlane) {
+void Prisma::PipelineOmniShadow::farPlane(float farPlane) {
     m_farPlane = farPlane;
 }
 
-inline float Prisma::PipelineOmniShadow::nearPlane() {
+float Prisma::PipelineOmniShadow::nearPlane() {
     return m_nearPlane;
 }
 
-inline void Prisma::PipelineOmniShadow::nearPlane(float nearPlane) {
+void Prisma::PipelineOmniShadow::nearPlane(float nearPlane) {
     m_nearPlane = nearPlane;
 }

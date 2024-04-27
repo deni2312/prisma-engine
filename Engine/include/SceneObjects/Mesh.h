@@ -54,16 +54,10 @@ namespace Prisma {
 
         std::vector<std::shared_ptr<Prisma::Component>> components();
 
-        auto& boneInfoMap() { return m_BoneInfoMap; }
-        int& boneInfoCounter() { return m_BoneCounter; }
-
-
         unsigned int vectorId();
-    private:
+    protected:
         std::shared_ptr<VerticesData> m_vertices;
         std::shared_ptr<Prisma::MaterialComponent> m_material;
-        std::map<std::string, BoneInfo> m_BoneInfoMap;
-        int m_BoneCounter = 0;
 
         std::vector<std::shared_ptr<Prisma::Component>> m_components;
 
