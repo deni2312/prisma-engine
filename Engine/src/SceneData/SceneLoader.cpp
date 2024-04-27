@@ -117,7 +117,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
     currentMesh->name(mesh->mName.C_Str());
 
 
-    if (mesh->mNumBones < 0) {
+    if (mesh->mNumBones == 0) {
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
             Prisma::Mesh::Vertex vertex{};
