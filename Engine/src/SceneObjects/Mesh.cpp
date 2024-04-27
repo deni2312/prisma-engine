@@ -101,6 +101,14 @@ std::vector<std::shared_ptr<Prisma::Component>> Prisma::Mesh::components() {
     return m_components;
 }
 
+inline auto& Prisma::Mesh::boneInfoMap() { 
+    return m_BoneInfoMap; 
+}
+
+inline int& Prisma::Mesh::boneInfoCounter() {
+    return m_BoneCounter; 
+}
+
 void Prisma::Mesh::removeComponent(int index) {
     m_components.erase(m_components.begin()+index);
 }

@@ -13,9 +13,7 @@ namespace Prisma {
 		struct LightDir;
 		struct LightOmni;
 	}
-}
 
-namespace Prisma {
 	struct Scene {
 
 		struct ModelData {
@@ -26,6 +24,7 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Node> root;
 		std::shared_ptr<Prisma::Camera> camera;
 		std::vector<std::shared_ptr<Prisma::Mesh>> meshes;
+		std::vector<std::shared_ptr<Prisma::Mesh>> animateMeshes;
 		ModelData modelData;
 		std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightDir>>> dirLights;
 		std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightOmni>>> omniLights;
