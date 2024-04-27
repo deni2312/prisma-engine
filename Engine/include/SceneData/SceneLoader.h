@@ -19,6 +19,9 @@ namespace Prisma {
 			bool srgb = false;
 		};
 		std::shared_ptr<Scene> loadScene(std::string scene, SceneParameters sceneParameters);
+
+
+
 	private:
 
 		float calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold);
