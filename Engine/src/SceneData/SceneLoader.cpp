@@ -102,54 +102,114 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
 
 std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const aiScene* scene)
 {
-    auto currentMesh = std::make_shared<Prisma::Mesh>();
-    currentMesh->name(mesh->mName.C_Str());
-    auto data=std::make_shared<Prisma::Mesh::VerticesData>();
+    std::shared_ptr<Prisma::Mesh> currentMesh = nullptr;
+    std::shared_ptr<Prisma::Mesh::VerticesData> data = std::make_shared<Prisma::Mesh::VerticesData>();
+    std::shared_ptr<Prisma::AnimatedMesh::AnimateVerticesData> animeteData = std::make_shared<Prisma::AnimatedMesh::AnimateVerticesData>();
 
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-    {
-        Prisma::Mesh::Vertex vertex{};
-        glm::vec3 vector; 
-        vector.x = mesh->mVertices[i].x;
-        vector.y = mesh->mVertices[i].y;
-        vector.z = mesh->mVertices[i].z;
-        vertex.position = vector;
-        if (mesh->HasNormals())
-        {
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.normal = vector;
-        }
-        
-        if (mesh->mTextureCoords[0])
-        {
-            glm::vec2 vec;
 
-            vec.x = mesh->mTextureCoords[0][i].x;
-            vec.y = mesh->mTextureCoords[0][i].y;
-            vertex.texCoords = vec;
-
-            vector.x = mesh->mTangents[i].x;
-            vector.y = mesh->mTangents[i].y;
-            vector.z = mesh->mTangents[i].z;
-            vertex.tangent = vector;
-            // bitangent
-            vector.x = mesh->mBitangents[i].x;
-            vector.y = mesh->mBitangents[i].y;
-            vector.z = mesh->mBitangents[i].z;
-            vertex.bitangent = vector;
-        }
-        else
-            vertex.texCoords = glm::vec2(0.0f, 0.0f);
-
-        data->vertices.push_back(vertex);
+    if (mesh->mNumBones > 0) {
+        currentMesh = std::make_shared<Prisma::AnimatedMesh>();
     }
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-    {
-        aiFace face = mesh->mFaces[i];
-        for (unsigned int j = 0; j < face.mNumIndices; j++)
-            data->indices.push_back(face.mIndices[j]);
+    else {
+        currentMesh = std::make_shared<Prisma::Mesh>();
+    }
+
+    currentMesh->name(mesh->mName.C_Str());
+
+
+    if (mesh->mNumBones < 0) {
+        for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+        {
+            Prisma::Mesh::Vertex vertex{};
+            glm::vec3 vector;
+            vector.x = mesh->mVertices[i].x;
+            vector.y = mesh->mVertices[i].y;
+            vector.z = mesh->mVertices[i].z;
+            vertex.position = vector;
+            if (mesh->HasNormals())
+            {
+                vector.x = mesh->mNormals[i].x;
+                vector.y = mesh->mNormals[i].y;
+                vector.z = mesh->mNormals[i].z;
+                vertex.normal = vector;
+            }
+
+            if (mesh->mTextureCoords[0])
+            {
+                glm::vec2 vec;
+
+                vec.x = mesh->mTextureCoords[0][i].x;
+                vec.y = mesh->mTextureCoords[0][i].y;
+                vertex.texCoords = vec;
+
+                vector.x = mesh->mTangents[i].x;
+                vector.y = mesh->mTangents[i].y;
+                vector.z = mesh->mTangents[i].z;
+                vertex.tangent = vector;
+                // bitangent
+                vector.x = mesh->mBitangents[i].x;
+                vector.y = mesh->mBitangents[i].y;
+                vector.z = mesh->mBitangents[i].z;
+                vertex.bitangent = vector;
+            }
+            else
+                vertex.texCoords = glm::vec2(0.0f, 0.0f);
+
+            data->vertices.push_back(vertex);
+        }
+        for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+        {
+            aiFace face = mesh->mFaces[i];
+            for (unsigned int j = 0; j < face.mNumIndices; j++)
+                data->indices.push_back(face.mIndices[j]);
+        }
+    }
+    else {
+        for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+        {
+            Prisma::AnimatedMesh::AnimateVertex vertex{};
+            glm::vec3 vector;
+            vector.x = mesh->mVertices[i].x;
+            vector.y = mesh->mVertices[i].y;
+            vector.z = mesh->mVertices[i].z;
+            vertex.position = vector;
+            if (mesh->HasNormals())
+            {
+                vector.x = mesh->mNormals[i].x;
+                vector.y = mesh->mNormals[i].y;
+                vector.z = mesh->mNormals[i].z;
+                vertex.normal = vector;
+            }
+
+            if (mesh->mTextureCoords[0])
+            {
+                glm::vec2 vec;
+
+                vec.x = mesh->mTextureCoords[0][i].x;
+                vec.y = mesh->mTextureCoords[0][i].y;
+                vertex.texCoords = vec;
+
+                vector.x = mesh->mTangents[i].x;
+                vector.y = mesh->mTangents[i].y;
+                vector.z = mesh->mTangents[i].z;
+                vertex.tangent = vector;
+                // bitangent
+                vector.x = mesh->mBitangents[i].x;
+                vector.y = mesh->mBitangents[i].y;
+                vector.z = mesh->mBitangents[i].z;
+                vertex.bitangent = vector;
+            }
+            else
+                vertex.texCoords = glm::vec2(0.0f, 0.0f);
+
+            animeteData->vertices.push_back(vertex);
+        }
+        for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+        {
+            aiFace face = mesh->mFaces[i];
+            for (unsigned int j = 0; j < face.mNumIndices; j++)
+                animeteData->indices.push_back(face.mIndices[j]);
+        }
     }
 
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -176,7 +236,13 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
     }
 
     currentMesh->material(currentMaterial);
-    currentMesh->loadModel(data);
+
+    if (mesh->mNumBones > 0) {
+        std::dynamic_pointer_cast<AnimatedMesh>(currentMesh)->loadAnimateModel(animeteData);
+    }
+    else {
+        currentMesh->loadModel(data);
+    }
 
     return currentMesh;
 }

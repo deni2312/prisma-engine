@@ -36,6 +36,7 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Mesh> getMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<Prisma::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,bool srgb=false);
 		void loadLights(const aiScene* currentScene, std::shared_ptr<Node> root);
+
 		std::vector<Prisma::Texture> textures_loaded;
 		std::shared_ptr<Scene> m_scene;
 		std::string m_folder;
