@@ -79,12 +79,23 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         auto currentMesh = getMesh(mesh, scene);
+        auto isAnimate = std::dynamic_pointer_cast<AnimatedMesh>(currentMesh);
         currentMesh->matrix(nodeRoot->finalMatrix(), false);
         currentMesh->finalMatrix(nodeRoot->finalMatrix(),false);
         currentMesh->parent(nodeRoot);
-        currentMesh->computeAABB();
+
+        if (!isAnimate) {
+            currentMesh->computeAABB();
+        }
+
         nodeRoot->addChild(currentMesh,false);
-        m_scene->meshes.push_back(currentMesh);
+        if (isAnimate) {
+            m_scene->animateMeshes.push_back(isAnimate);
+        }
+        else {
+            m_scene->meshes.push_back(currentMesh);
+        }
+        
     }
 
     for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -244,7 +255,6 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
     else {
         currentMesh->loadModel(data);
     }
-
     return currentMesh;
 }
 

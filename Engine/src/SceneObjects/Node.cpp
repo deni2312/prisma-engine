@@ -40,6 +40,9 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 		if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(child)) {
 			currentGlobalScene->omniLights.push_back(std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(child));
 		}
+		if (std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
+			currentGlobalScene->animateMeshes.push_back(std::dynamic_pointer_cast<AnimatedMesh>(child));
+		}
 	}
 	updateSizes = true;
 }
