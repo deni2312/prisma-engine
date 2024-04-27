@@ -210,6 +210,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
             for (unsigned int j = 0; j < face.mNumIndices; j++)
                 animeteData->indices.push_back(face.mIndices[j]);
         }
+        extractBoneWeightForVertices(std::dynamic_pointer_cast<AnimatedMesh>(currentMesh), animeteData, mesh, scene);
     }
 
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -394,7 +395,7 @@ void Prisma::SceneLoader::setVertexBoneData(Prisma::AnimatedMesh::AnimateVertex&
 }
 
 
-void Prisma::SceneLoader::extractBoneWeightForVertices(std::shared_ptr<Prisma::AnimatedMesh> animatedMesh, std::vector<Prisma::AnimatedMesh::AnimateVertex>& vertices, aiMesh* mesh, const aiScene* scene)
+void Prisma::SceneLoader::extractBoneWeightForVertices(std::shared_ptr<Prisma::AnimatedMesh> animatedMesh, std::shared_ptr<AnimatedMesh::AnimateVerticesData> vertices, aiMesh* mesh, const aiScene* scene)
 {
     auto& boneInfoMap = animatedMesh->boneInfoMap();
     int& boneCount = animatedMesh->boneInfoCounter();
@@ -424,8 +425,8 @@ void Prisma::SceneLoader::extractBoneWeightForVertices(std::shared_ptr<Prisma::A
         {
             int vertexId = weights[weightIndex].mVertexId;
             float weight = weights[weightIndex].mWeight;
-            assert(vertexId <= vertices.size());
-            setVertexBoneData(vertices[vertexId], boneID, weight);
+            assert(vertexId <= vertices->vertices.size());
+            setVertexBoneData(vertices->vertices[vertexId], boneID, weight);
         }
     }
 }

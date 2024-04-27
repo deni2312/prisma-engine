@@ -31,7 +31,7 @@ namespace Prisma {
 
 		void setVertexBoneData(Prisma::AnimatedMesh::AnimateVertex& vertex, int boneID, float weight);
 
-		void extractBoneWeightForVertices(std::shared_ptr<Prisma::AnimatedMesh> animatedMesh,std::vector<Prisma::AnimatedMesh::AnimateVertex>& vertices, aiMesh* mesh, const aiScene* scene);
+		void extractBoneWeightForVertices(std::shared_ptr<Prisma::AnimatedMesh> animatedMesh,std::shared_ptr<AnimatedMesh::AnimateVerticesData> vertices, aiMesh* mesh, const aiScene* scene);
 
 		std::shared_ptr<Prisma::Mesh> getMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<Prisma::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,bool srgb=false);
