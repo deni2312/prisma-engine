@@ -28,6 +28,8 @@ namespace Prisma {
 
 		void nodeIteration(std::shared_ptr<Node> nodeRoot,aiNode* node, const aiScene* scene);
 
+		void setVertexBoneDataToDefault(Prisma::AnimatedMesh::AnimateVertex& vertex);
+
 		void setVertexBoneData(Prisma::AnimatedMesh::AnimateVertex& vertex, int boneID, float weight);
 
 		void extractBoneWeightForVertices(std::shared_ptr<Prisma::AnimatedMesh> animatedMesh,std::shared_ptr<AnimatedMesh::AnimateVerticesData> vertices, aiMesh* mesh, const aiScene* scene);

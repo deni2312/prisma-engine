@@ -112,6 +112,15 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
     }
 }
 
+void Prisma::SceneLoader::setVertexBoneDataToDefault(Prisma::AnimatedMesh::AnimateVertex& vertex)
+{
+    for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+    {
+        vertex.m_BoneIDs[i] = -1;
+        vertex.m_Weights[i] = 0.0f;
+    }
+}
+
 std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const aiScene* scene)
 {
     std::shared_ptr<Prisma::Mesh> currentMesh = nullptr;
@@ -180,6 +189,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
             Prisma::AnimatedMesh::AnimateVertex vertex{};
+
+            setVertexBoneDataToDefault(vertex);
             glm::vec3 vector;
             vector.x = mesh->mVertices[i].x;
             vector.y = mesh->mVertices[i].y;

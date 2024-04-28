@@ -68,7 +68,7 @@ bool UserEngine::update()
         light->type(type);
     }
 
-    animator->UpdateAnimation(1/fps());
+    animator->UpdateAnimation((float)1/(float)60);
 
 
     return false;
