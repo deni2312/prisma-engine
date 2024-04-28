@@ -81,8 +81,8 @@ void Prisma::MeshIndirect::updateSize()
     //GENERATE CACHE DATA
     m_currentVertexSize = m_verticesData.vertices.size();
     m_currentIndexSize = m_verticesData.indices.size();
-    m_currentVertexMax = m_verticesData.vertices.size() + m_cacheSize;
-    m_currentIndexMax = m_verticesData.indices.size() + m_cacheSize;
+    m_currentVertexMax = m_verticesData.vertices.size();
+    m_currentIndexMax = m_verticesData.indices.size();
 
     m_verticesData.vertices.resize(m_currentVertexMax);
     m_verticesData.indices.resize(m_currentIndexMax);
@@ -129,6 +129,12 @@ void Prisma::MeshIndirect::updateModels()
         models.push_back(model->finalMatrix());
     }
     m_ssboModel->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
+
+    std::vector<glm::mat4> modelsAnimation;
+    for (const auto& model : currentGlobalScene->animateMeshes) {
+        modelsAnimation.push_back(model->finalMatrix());
+    }
+    m_ssboModelAnimation->modifyData(0, sizeof(glm::mat4) * modelsAnimation.size(), modelsAnimation.data());
 }
 
 Prisma::MeshIndirect::MeshIndirect()
@@ -146,6 +152,9 @@ Prisma::MeshIndirect::MeshIndirect()
 
     m_ssboModel = std::make_shared<Prisma::SSBO>(1);
     m_ssboMaterial = std::make_shared<Prisma::SSBO>(0);
+
+    m_ssboModelAnimation = std::make_shared<Prisma::SSBO>(6);
+    m_ssboMaterialAnimation = std::make_shared<Prisma::SSBO>(7);
 }
 
 Prisma::MeshIndirect& Prisma::MeshIndirect::getInstance()
@@ -164,4 +173,12 @@ void Prisma::MeshIndirect::updateTextureSize() {
     }
     m_ssboMaterial->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
     m_ssboMaterial->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
+
+    m_materialDataAnimation.clear();
+    auto meshesAnimation = currentGlobalScene->animateMeshes;
+    for (auto material : meshesAnimation) {
+        m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
+    }
+    m_ssboMaterialAnimation->resize(sizeof(Prisma::MaterialData) * (m_materialDataAnimation.size()));
+    m_ssboMaterialAnimation->modifyData(0, sizeof(Prisma::MaterialData) * m_materialDataAnimation.size(), m_materialDataAnimation.data());
 }

@@ -23,8 +23,6 @@ namespace Prisma {
 
 	class MeshIndirect {
 	private:
-		std::shared_ptr<Shader> m_shader;
-
 		//BINDING DATA
 
 		std::shared_ptr<Prisma::VAO> m_vao;
@@ -60,7 +58,15 @@ namespace Prisma {
 		std::vector<DrawElementsIndirectCommand> m_drawCommands;
 		std::shared_ptr<Prisma::SSBO> m_ssboModel;
 		std::shared_ptr<Prisma::SSBO> m_ssboMaterial;
+
+
+		Prisma::Mesh::VerticesData m_verticesDataAnimation;
+		std::vector<DrawElementsIndirectCommand> m_drawCommandsAnimation;
+		std::shared_ptr<Prisma::SSBO> m_ssboModelAnimation;
+		std::shared_ptr<Prisma::SSBO> m_ssboMaterialAnimation;
+
 		std::vector<Prisma::MaterialData> m_materialData;
+		std::vector<Prisma::MaterialData> m_materialDataAnimation;
 
         static std::shared_ptr<MeshIndirect> instance;
 
