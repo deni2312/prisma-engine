@@ -227,8 +227,8 @@ void Prisma::MeshIndirect::updateAnimation()
     m_currentVertexAnimation = 0;
     for (const auto& mesh : meshes)
     {
-        const auto& indices = mesh->verticesData().indices;
-        const auto& vertices = mesh->verticesData().vertices;
+        const auto& indices = mesh->animateVerticesData()->indices;
+        const auto& vertices = mesh->animateVerticesData()->vertices;
         DrawElementsIndirectCommand command{};
         command.count = static_cast<GLuint>(indices.size());
         command.instanceCount = 1;
