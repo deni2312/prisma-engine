@@ -1,6 +1,7 @@
 #pragma once
 #include "Animation.h"
 
+
 namespace Prisma {
 
 	class Animation;
@@ -17,11 +18,16 @@ namespace Prisma {
 
 		void CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform);
 
+		void mesh(Prisma::Node* mesh);
+
 		std::vector<glm::mat4> GetFinalBoneMatrices();
 
 	private:
 		std::vector<glm::mat4> m_FinalBoneMatrices;
 		std::shared_ptr<Animation> m_CurrentAnimation;
+
+		Prisma::Node* m_mesh;
+
 		float m_CurrentTime;
 		float m_DeltaTime;
 	};

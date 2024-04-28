@@ -21,6 +21,7 @@ int& Prisma::AnimatedMesh::boneInfoCounter()
 
 void Prisma::AnimatedMesh::animator(std::shared_ptr<Animator> animator) {
 	m_animator = animator;
+	m_animator->mesh(this);
 }
 
 std::shared_ptr<Prisma::Animator> Prisma::AnimatedMesh::animator() {

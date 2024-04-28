@@ -36,11 +36,7 @@ void Prisma::Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::m
 
 	Bone* Bone = m_CurrentAnimation->FindBone(nodeName);
 
-	if (Bone)
-	{
-		Bone->Update(m_CurrentTime);
-		nodeTransform = Bone->GetLocalTransform();
-	}
+	
 
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
@@ -54,6 +50,10 @@ void Prisma::Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::m
 
 	for (int i = 0; i < node->childrenCount; i++)
 		CalculateBoneTransform(&node->children[i], globalTransformation);
+}
+
+void Prisma::Animator::mesh(Node* mesh) {
+	m_mesh = mesh;
 }
 
 std::vector<glm::mat4> Prisma::Animator::GetFinalBoneMatrices()
