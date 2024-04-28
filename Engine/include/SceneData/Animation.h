@@ -19,6 +19,7 @@ namespace Prisma {
 
 
 	class Animation {
+	public:
 		Animation() = default;
 
 		Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model)

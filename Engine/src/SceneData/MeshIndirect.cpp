@@ -133,15 +133,19 @@ void Prisma::MeshIndirect::updateModels()
 
 Prisma::MeshIndirect::MeshIndirect()
 {
-    m_vao=std::make_shared<Prisma::VAO>();
     glGenBuffers(1, &m_indirectDraw);
+    glGenBuffers(1, &m_indirectDrawAnimation);
+
+    m_vao=std::make_shared<Prisma::VAO>();
     m_vbo=std::make_shared<Prisma::VBO>();
     m_ebo=std::make_shared<Prisma::EBO>();
 
+    m_vaoAnimation = std::make_shared<Prisma::VAO>();
+    m_vboAnimation = std::make_shared<Prisma::VBO>();
+    m_eboAnimation = std::make_shared<Prisma::EBO>();
+
     m_ssboModel = std::make_shared<Prisma::SSBO>(1);
     m_ssboMaterial = std::make_shared<Prisma::SSBO>(0);
-    m_indirectLoaded.m_vao = m_vao->id();
-    m_indirectLoaded.m_drawBuffer = m_indirectDraw;
 }
 
 Prisma::MeshIndirect& Prisma::MeshIndirect::getInstance()

@@ -21,11 +21,6 @@ namespace Prisma {
 		unsigned int  baseInstance;
 	};
 
-	struct IndirectLoaded {
-		unsigned int m_vao;
-		unsigned int m_drawBuffer;
-	};
-
 	class MeshIndirect {
 	private:
 		std::shared_ptr<Shader> m_shader;
@@ -36,11 +31,19 @@ namespace Prisma {
         std::shared_ptr<Prisma::VBO> m_vbo;
         std::shared_ptr<Prisma::EBO> m_ebo;
 
+		std::shared_ptr<Prisma::VAO> m_vaoAnimation;
+		std::shared_ptr<Prisma::VBO> m_vboAnimation;
+		std::shared_ptr<Prisma::EBO> m_eboAnimation;
+
 		//INDIRECT INDEX
 
 		unsigned int m_indirectDraw;
 		unsigned int m_currentIndex;
 		unsigned int m_currentVertex;
+
+		unsigned int m_indirectDrawAnimation;
+		unsigned int m_currentIndexAnimation;
+		unsigned int m_currentVertexAnimation;
 
 		//CURRENT CACHE DATA
 
@@ -60,8 +63,6 @@ namespace Prisma {
 		std::vector<Prisma::MaterialData> m_materialData;
 
         static std::shared_ptr<MeshIndirect> instance;
-
-		Prisma::IndirectLoaded m_indirectLoaded;
 
 	public:
 		static MeshIndirect& getInstance();
