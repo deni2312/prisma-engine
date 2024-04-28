@@ -81,8 +81,8 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         auto currentMesh = getMesh(mesh, scene);
         auto isAnimate = std::dynamic_pointer_cast<AnimatedMesh>(currentMesh);
-        currentMesh->matrix(nodeRoot->finalMatrix(), false);
-        currentMesh->finalMatrix(nodeRoot->finalMatrix(),false);
+        currentMesh->matrix(glm::mat4(1.0f), false);
+        currentMesh->finalMatrix(glm::mat4(1.0f), false);
         currentMesh->parent(nodeRoot);
 
         if (!isAnimate) {

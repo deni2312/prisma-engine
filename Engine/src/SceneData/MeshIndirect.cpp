@@ -137,13 +137,13 @@ void Prisma::MeshIndirect::updateModels()
 {
     std::vector<glm::mat4> models;
     for (const auto& model : currentGlobalScene->meshes) {
-        models.push_back(model->finalMatrix());
+        models.push_back(model->parent()->finalMatrix());
     }
     m_ssboModel->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
 
     std::vector<glm::mat4> modelsAnimation;
     for (const auto& model : currentGlobalScene->animateMeshes) {
-        modelsAnimation.push_back(model->finalMatrix());
+        modelsAnimation.push_back(model->parent()->finalMatrix());
     }
     m_ssboModelAnimation->modifyData(0, sizeof(glm::mat4) * modelsAnimation.size(), modelsAnimation.data());
 }
