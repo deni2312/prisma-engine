@@ -77,6 +77,7 @@ void Prisma::Node::matrix(glm::mat4 matrix, bool updateChildren)
             if (p) {
                 transform = p->finalMatrix();
             }
+			std::cout <<name()<< p->name() << std::endl;
             finalMatrix(transform * m_matrix);
             updateChild(this);
         }
