@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include "../SceneObjects/Mesh.h"
+#include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Camera.h"
 #include "../Helpers/Shader.h"
 #include "../Containers/SSBO.h"
@@ -60,7 +61,7 @@ namespace Prisma {
 		std::shared_ptr<Prisma::SSBO> m_ssboMaterial;
 
 
-		Prisma::Mesh::VerticesData m_verticesDataAnimation;
+		Prisma::AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
 		std::vector<DrawElementsIndirectCommand> m_drawCommandsAnimation;
 		std::shared_ptr<Prisma::SSBO> m_ssboModelAnimation;
 		std::shared_ptr<Prisma::SSBO> m_ssboMaterialAnimation;
@@ -69,6 +70,8 @@ namespace Prisma {
 		std::vector<Prisma::MaterialData> m_materialDataAnimation;
 
         static std::shared_ptr<MeshIndirect> instance;
+
+		void updateAnimation();
 
 	public:
 		static MeshIndirect& getInstance();

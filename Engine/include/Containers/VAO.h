@@ -9,7 +9,7 @@ namespace Prisma {
 
         void bind();
 
-        void addAttribPointer(unsigned int id, unsigned int stride, unsigned int size, void *offset);
+        void addAttribPointer(unsigned int id, unsigned int stride, unsigned int size, void *offset,unsigned int type=GL_FLOAT);
 
         static void resetVao();
 

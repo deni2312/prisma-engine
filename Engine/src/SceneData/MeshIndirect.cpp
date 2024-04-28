@@ -120,6 +120,9 @@ void Prisma::MeshIndirect::updateSize()
     }
     // Upload the draw commands to the buffer
     glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
+
+    updateAnimation();
+
 }
 
 void Prisma::MeshIndirect::updateModels()
@@ -155,6 +158,90 @@ Prisma::MeshIndirect::MeshIndirect()
 
     m_ssboModelAnimation = std::make_shared<Prisma::SSBO>(6);
     m_ssboMaterialAnimation = std::make_shared<Prisma::SSBO>(7);
+}
+
+void Prisma::MeshIndirect::updateAnimation()
+{
+    //CLEAR DATA
+    m_verticesDataAnimation.vertices.clear();
+    m_verticesDataAnimation.indices.clear();
+    m_materialDataAnimation.clear();
+    m_drawCommandsAnimation.clear();
+
+    auto meshes = currentGlobalScene->animateMeshes;
+
+    //PUSH VERTICES
+    for (auto vertices : meshes) {
+        m_verticesDataAnimation.vertices.insert(m_verticesDataAnimation.vertices.end(), vertices->verticesData().vertices.begin(), vertices->verticesData().vertices.end());
+    }
+    //PUSH INDICES
+    for (auto indices : meshes) {
+        m_verticesDataAnimation.indices.insert(m_verticesDataAnimation.indices.end(), indices->verticesData().indices.begin(), indices->verticesData().indices.end());
+    }
+    std::vector<glm::mat4> models;
+    for (auto model : meshes) {
+        models.push_back(model->finalMatrix());
+    }
+
+    //PUSH MODEL MATRICES TO AN SSBO WITH ID 1
+    m_ssboModelAnimation->resize(sizeof(glm::mat4) * (models.size()));
+    m_ssboModelAnimation->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
+
+    //PUSH MATERIAL TO AN SSBO WITH ID 0
+    for (auto material : meshes) {
+        m_materialDataAnimation.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
+    }
+    m_ssboMaterialAnimation->resize(sizeof(Prisma::MaterialData) * (m_materialDataAnimation.size()));
+    m_ssboMaterialAnimation->modifyData(0, sizeof(Prisma::MaterialData) * m_materialDataAnimation.size(), m_materialDataAnimation.data());
+
+
+    //GENERATE DATA TO SEND INDIRECT
+    m_vao->bind();
+
+    //GENERATE CACHE DATA
+    m_currentVertexSize = m_verticesDataAnimation.vertices.size();
+    m_currentIndexSize = m_verticesDataAnimation.indices.size();
+    m_currentVertexMax = m_verticesDataAnimation.vertices.size();
+    m_currentIndexMax = m_verticesDataAnimation.indices.size();
+
+    m_verticesDataAnimation.vertices.resize(m_currentVertexMax);
+    m_verticesDataAnimation.indices.resize(m_currentIndexMax);
+
+    m_vbo->writeData(m_currentVertexMax * sizeof(Prisma::AnimatedMesh::AnimateVertex), &m_verticesDataAnimation.vertices[0], GL_DYNAMIC_DRAW);
+
+    m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesDataAnimation.indices[0], GL_DYNAMIC_DRAW);
+
+    m_vao->addAttribPointer(0, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)0);
+    m_vao->addAttribPointer(1, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, normal));
+    m_vao->addAttribPointer(2, 2, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, texCoords));
+    m_vao->addAttribPointer(3, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, tangent));
+    m_vao->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
+    m_vao->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
+    m_vao->addAttribPointer(5, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_BoneIDs),GL_INT);
+    m_vao->addAttribPointer(6, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_Weights));
+
+    //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
+
+    m_currentIndexAnimation = 0;
+    m_currentVertexAnimation = 0;
+    for (const auto& mesh : meshes)
+    {
+        const auto& indices = mesh->verticesData().indices;
+        const auto& vertices = mesh->verticesData().vertices;
+        DrawElementsIndirectCommand command{};
+        command.count = static_cast<GLuint>(indices.size());
+        command.instanceCount = 1;
+        command.firstIndex = m_currentIndexAnimation;
+        command.baseVertex = m_currentVertexAnimation;
+        command.baseInstance = 0;
+
+        m_drawCommands.push_back(command);
+        m_currentIndexAnimation = m_currentIndexAnimation + indices.size();
+        m_currentVertexAnimation = m_currentVertexAnimation + vertices.size();
+    }
+    // Upload the draw commands to the buffer
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommandsAnimation.size() * sizeof(DrawElementsIndirectCommand), m_drawCommandsAnimation.data(), GL_DYNAMIC_DRAW);
 }
 
 Prisma::MeshIndirect& Prisma::MeshIndirect::getInstance()
