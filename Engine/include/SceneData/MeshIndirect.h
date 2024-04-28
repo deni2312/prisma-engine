@@ -81,6 +81,7 @@ namespace Prisma {
 		void load();
 
 		void renderMeshes();
+		void renderAnimateMeshes();
 
 		void update();
 		void updateSize();

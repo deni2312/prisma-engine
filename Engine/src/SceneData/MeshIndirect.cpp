@@ -25,6 +25,14 @@ void Prisma::MeshIndirect::renderMeshes()
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 }
 
+void Prisma::MeshIndirect::renderAnimateMeshes()
+{
+    m_vaoAnimation->bind();
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
+    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->animateMeshes.size()), 0);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+}
+
 void Prisma::MeshIndirect::update()
 {
     auto meshes = currentGlobalScene->meshes;
