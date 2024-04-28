@@ -24,7 +24,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::NodeHelper nodeHelper;
 
-    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Beta_Surface")->children()[0]);
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Cube.003"));
 
     if (animatedMesh) {
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/DamagedHelmet.gltf", animatedMesh);
