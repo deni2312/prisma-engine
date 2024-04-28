@@ -51,16 +51,17 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
 	m_shaderAnimate->use();
 
-	m_irradianceAnimatePos = m_shader->getUniformPosition("irradianceMap");
-	m_prefilterAnimatePos = m_shader->getUniformPosition("prefilterMap");
-	m_lutAnimatePos = m_shader->getUniformPosition("brdfLUT");
-	m_viewAnimatePos = m_shader->getUniformPosition("viewPos");
-	m_irradianceAnimatePos = m_shader->getUniformPosition("irradianceMap");
+	m_irradianceAnimatePos = m_shaderAnimate->getUniformPosition("irradianceMap");
+	m_prefilterAnimatePos = m_shaderAnimate->getUniformPosition("prefilterMap");
+	m_lutAnimatePos = m_shaderAnimate->getUniformPosition("brdfLUT");
+	m_viewAnimatePos = m_shaderAnimate->getUniformPosition("viewPos");
+	m_irradianceAnimatePos = m_shaderAnimate->getUniformPosition("irradianceMap");
 
-	m_nearAnimatePos = m_shader->getUniformPosition("zNear");
-	m_farAnimatePos = m_shader->getUniformPosition("zFar");
-	m_gridSizeAnimatePos = m_shader->getUniformPosition("gridSize");
-	m_screenDimensionsAnimatePos = m_shader->getUniformPosition("screenDimensions");
+	m_nearAnimatePos = m_shaderAnimate->getUniformPosition("zNear");
+	m_farAnimatePos = m_shaderAnimate->getUniformPosition("zFar");
+	m_gridSizeAnimatePos = m_shaderAnimate->getUniformPosition("gridSize");
+	m_screenDimensionsAnimatePos = m_shaderAnimate->getUniformPosition("screenDimensions");
+
 
 	for (unsigned int i = 0; i < MAX_BONES; ++i)
 		m_bonesPos.push_back(m_shaderAnimate->getUniformPosition("finalBonesMatrices[" + std::to_string(i) + "]"));
