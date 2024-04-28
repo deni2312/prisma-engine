@@ -76,6 +76,18 @@ float Prisma::SceneLoader::calculateOmniLightRadius(float Kc, float Kl, float Kq
 
 void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* node, const aiScene* scene)
 {
+
+    for (unsigned int i = 0; i < node->mNumChildren; i++)
+    {
+        auto currentNode = std::make_shared<Node>();
+        glm::mat4 transform = getTransform(node->mChildren[i]->mTransformation);
+        currentNode->matrix(transform, false);
+        currentNode->finalMatrix(nodeRoot->finalMatrix() * transform, false);
+        currentNode->name(node->mChildren[i]->mName.C_Str());
+        currentNode->parent(nodeRoot);
+        nodeRoot->addChild(currentNode, false);
+        nodeIteration(nodeRoot->children()[i], node->mChildren[i], scene);
+    }
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -97,18 +109,6 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
             m_scene->meshes.push_back(currentMesh);
         }
         
-    }
-
-    for (unsigned int i = 0; i < node->mNumChildren; i++)
-    {
-        auto currentNode = std::make_shared<Node>();
-        glm::mat4 transform = getTransform(node->mChildren[i]->mTransformation);
-        currentNode->matrix(transform,false);
-        currentNode->finalMatrix(nodeRoot->finalMatrix() * transform,false);
-        currentNode->name(node->mChildren[i]->mName.C_Str());
-        currentNode->parent(nodeRoot);
-        nodeRoot->addChild(currentNode,false);
-        nodeIteration(nodeRoot->children()[i], node->mChildren[i], scene);
     }
 }
 
