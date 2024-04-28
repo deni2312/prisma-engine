@@ -5,6 +5,7 @@
 #include "glm/gtx/string_cast.hpp"
 #include "../../include/Components/Component.h"
 #include "../../include/Components/MaterialComponent.h"
+#include "../../include/Helpers/PrismaMath.h"
 
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters)
 {
@@ -377,18 +378,6 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
             break;
         }
     }
-}
-
-glm::mat4 Prisma::SceneLoader::getTransform(aiMatrix4x4 matrix)
-{
-    glm::mat4 transform;
-    for (int j = 0; j < 4; j++) {
-        for (int k = 0; k < 4; k++) {
-            transform[j][k] = matrix[j][k];
-        }
-    }
-    transform = glm::transpose(transform);
-    return transform;
 }
 
 void Prisma::SceneLoader::setVertexBoneData(Prisma::AnimatedMesh::AnimateVertex& vertex, int boneID, float weight)

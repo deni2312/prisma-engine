@@ -3,6 +3,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include <assimp/matrix4x4.h>
+#include <assimp/quaternion.h>
 
 namespace Prisma{
 
@@ -40,6 +42,28 @@ namespace Prisma{
 
         return q;
     }
+
+    static glm::mat4 getTransform(aiMatrix4x4 matrix) {
+        glm::mat4 transform;
+        for (int j = 0; j < 4; j++) {
+            for (int k = 0; k < 4; k++) {
+                transform[j][k] = matrix[j][k];
+            }
+        }
+        transform = glm::transpose(transform);
+        return transform;
+    }
+
+    static glm::vec3 getVec(const aiVector3D& vec)
+    {
+        return glm::vec3(vec.x, vec.y, vec.z);
+    }
+
+    static glm::quat getQuat(const aiQuaternion& pOrientation)
+    {
+        return glm::quat(pOrientation.w, pOrientation.x, pOrientation.y, pOrientation.z);
+    }
+
 
     static HitInfo rayAABBIntersect(const glm::vec3& rayStart, const glm::vec3& rayEnd, const glm::vec3& bbMin, const glm::vec3& bbMax) {
         glm::vec3 rayDir = glm::normalize(rayEnd - rayStart);

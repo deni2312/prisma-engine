@@ -27,7 +27,6 @@ namespace Prisma {
 		float calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold);
 
 		void nodeIteration(std::shared_ptr<Node> nodeRoot,aiNode* node, const aiScene* scene);
-		glm::mat4 getTransform(aiMatrix4x4 matrix);
 
 		void setVertexBoneData(Prisma::AnimatedMesh::AnimateVertex& vertex, int boneID, float weight);
 
