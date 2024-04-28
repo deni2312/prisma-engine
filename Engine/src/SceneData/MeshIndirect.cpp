@@ -172,11 +172,11 @@ void Prisma::MeshIndirect::updateAnimation()
 
     //PUSH VERTICES
     for (auto vertices : meshes) {
-        m_verticesDataAnimation.vertices.insert(m_verticesDataAnimation.vertices.end(), vertices->verticesData().vertices.begin(), vertices->verticesData().vertices.end());
+        m_verticesDataAnimation.vertices.insert(m_verticesDataAnimation.vertices.end(), vertices->animateVerticesData()->vertices.begin(), vertices->animateVerticesData()->vertices.end());
     }
     //PUSH INDICES
     for (auto indices : meshes) {
-        m_verticesDataAnimation.indices.insert(m_verticesDataAnimation.indices.end(), indices->verticesData().indices.begin(), indices->verticesData().indices.end());
+        m_verticesDataAnimation.indices.insert(m_verticesDataAnimation.indices.end(), indices->animateVerticesData()->indices.begin(), indices->animateVerticesData()->indices.end());
     }
     std::vector<glm::mat4> models;
     for (auto model : meshes) {
@@ -196,7 +196,7 @@ void Prisma::MeshIndirect::updateAnimation()
 
 
     //GENERATE DATA TO SEND INDIRECT
-    m_vao->bind();
+    m_vaoAnimation->bind();
 
     //GENERATE CACHE DATA
     m_currentVertexSize = m_verticesDataAnimation.vertices.size();
@@ -207,18 +207,18 @@ void Prisma::MeshIndirect::updateAnimation()
     m_verticesDataAnimation.vertices.resize(m_currentVertexMax);
     m_verticesDataAnimation.indices.resize(m_currentIndexMax);
 
-    m_vbo->writeData(m_currentVertexMax * sizeof(Prisma::AnimatedMesh::AnimateVertex), &m_verticesDataAnimation.vertices[0], GL_DYNAMIC_DRAW);
+    m_vboAnimation->writeData(m_currentVertexMax * sizeof(Prisma::AnimatedMesh::AnimateVertex), &m_verticesDataAnimation.vertices[0], GL_DYNAMIC_DRAW);
 
-    m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesDataAnimation.indices[0], GL_DYNAMIC_DRAW);
+    m_eboAnimation->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesDataAnimation.indices[0], GL_DYNAMIC_DRAW);
 
-    m_vao->addAttribPointer(0, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)0);
-    m_vao->addAttribPointer(1, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, normal));
-    m_vao->addAttribPointer(2, 2, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, texCoords));
-    m_vao->addAttribPointer(3, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, tangent));
-    m_vao->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
-    m_vao->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
-    m_vao->addAttribPointer(5, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_BoneIDs),GL_INT);
-    m_vao->addAttribPointer(6, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_Weights));
+    m_vaoAnimation->addAttribPointer(0, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)0);
+    m_vaoAnimation->addAttribPointer(1, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, normal));
+    m_vaoAnimation->addAttribPointer(2, 2, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, texCoords));
+    m_vaoAnimation->addAttribPointer(3, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, tangent));
+    m_vaoAnimation->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
+    m_vaoAnimation->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
+    m_vaoAnimation->addAttribPointer(5, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_BoneIDs),GL_INT);
+    m_vaoAnimation->addAttribPointer(6, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_Weights));
 
     //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
