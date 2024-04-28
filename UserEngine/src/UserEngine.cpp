@@ -12,6 +12,8 @@
 #include <glm/gtc/random.hpp>
 #include "../../Engine/include/SceneData/Animation.h"
 
+std::shared_ptr<Prisma::Animator> animator;
+
 UserEngine::UserEngine() : Prisma::Engine{}
 {
 	m_sceneNode = getScene("../../../Resources/Helmet/DamagedHelmet.gltf", {true});
@@ -26,7 +28,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     if (animatedMesh) {
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/DamagedHelmet.gltf", animatedMesh);
-        auto animator= std::make_shared<Prisma::Animator>(animation);
+        animator= std::make_shared<Prisma::Animator>(animation);
         animatedMesh->animator(animator);
     }
 
@@ -41,8 +43,6 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
     
-    
-
 }
 
 bool UserEngine::update()
@@ -67,6 +67,9 @@ bool UserEngine::update()
         type.position = newPos;
         light->type(type);
     }
+
+    animator->UpdateAnimation(1/fps());
+
 
     return false;
 }

@@ -28,9 +28,9 @@ layout(std140, binding = 1) uniform MeshData
     mat4 projection;
 };
 
-layout(std430, binding = 1) buffer Matrices
+layout(std430, binding = 6) buffer AnimationMatrices
 {
-    mat4 modelMatrices[];
+    mat4 modelAnimationMatrices[];
 };
 
 struct ShadowData {
@@ -52,7 +52,7 @@ void main()
             continue;
         if (boneIds[i] >= MAX_BONES)
         {
-            totalPosition = vec4(pos, 1.0f);
+            totalPosition = vec4(aPos, 1.0f);
             break;
         }
         vec4 localPosition = finalBonesMatrices[boneIds[i]] * vec4(aPos, 1.0f);
@@ -60,13 +60,13 @@ void main()
     }
 
     drawId = gl_DrawID;
-    FragPos = vec3(modelMatrices[gl_DrawID] * vec4(aPos, 1.0));
+    FragPos = vec3(modelAnimationMatrices[gl_DrawID] * vec4(aPos, 1.0));
     TexCoords = aTexCoords;
-    mat3 normalMatrix = mat3(transpose(inverse(mat3(modelMatrices[gl_DrawID]))));
+    mat3 normalMatrix = mat3(transpose(inverse(mat3(modelAnimationMatrices[gl_DrawID]))));
     Normal = normalMatrix * aNormal;
     for (int i = 0; i < lenMat.r; i++) {
         shadowDirData[i] = shadowMatrices[i].shadow * vec4(FragPos, 1.0);
     }
 
-    gl_Position = projection * view * vec4(FragPos, 1.0);
+    gl_Position = projection * view * modelAnimationMatrices[gl_DrawID] * vec4(aPos, 1.0);
 }

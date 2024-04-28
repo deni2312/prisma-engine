@@ -224,7 +224,6 @@ void Prisma::MeshIndirect::updateAnimation()
     m_vaoAnimation->addAttribPointer(2, 2, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, texCoords));
     m_vaoAnimation->addAttribPointer(3, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, tangent));
     m_vaoAnimation->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
-    m_vaoAnimation->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
     m_vaoAnimation->addAttribPointer(5, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_BoneIDs),GL_INT);
     m_vaoAnimation->addAttribPointer(6, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_Weights));
 
@@ -244,7 +243,7 @@ void Prisma::MeshIndirect::updateAnimation()
         command.baseVertex = m_currentVertexAnimation;
         command.baseInstance = 0;
 
-        m_drawCommands.push_back(command);
+        m_drawCommandsAnimation.push_back(command);
         m_currentIndexAnimation = m_currentIndexAnimation + indices.size();
         m_currentVertexAnimation = m_currentVertexAnimation + vertices.size();
     }

@@ -111,6 +111,7 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 	m_shaderAnimate->setFloat(m_nearAnimatePos, m_settings.nearPlane);
 	m_shaderAnimate->setUVec3(m_gridSizeAnimatePos, Prisma::ClusterCalculation::grids());
 	m_shaderAnimate->setUVec2(m_screenDimensionsAnimatePos, { m_settings.width,m_settings.height });
+
 	auto boneMatrices=currentGlobalScene->animateMeshes[0]->animator()->GetFinalBoneMatrices();
 
 	for (unsigned int i = 0; i < MAX_BONES; ++i)
