@@ -36,7 +36,6 @@
                 2,
                 3,
                 4,
-                5,
                 6,
                 7,
                 16
@@ -146,6 +145,18 @@
         },
         {
             "mesh" : 5,
+            "name" : "node_damagedHelmet_-6514.002",
+            "translation" : [
+                -4.222452163696289,
+                0,
+                0
+            ]
+        },
+        {
+            "children" : [
+                5
+            ],
+            "mesh" : 6,
             "name" : "node_damagedHelmet_-6514.001",
             "rotation" : [
                 0.7071068286895752,
@@ -160,26 +171,6 @@
             ],
             "translation" : [
                 1.2992095947265625,
-                -0.6153082847595215,
-                0
-            ]
-        },
-        {
-            "mesh" : 6,
-            "name" : "node_damagedHelmet_-6514.002",
-            "rotation" : [
-                0.7071068286895752,
-                0,
-                0,
-                0.7071067094802856
-            ],
-            "scale" : [
-                0.10306958854198456,
-                0.10306956619024277,
-                0.10306956619024277
-            ],
-            "translation" : [
-                0.8640031814575195,
                 -0.6153082847595215,
                 0
             ]
@@ -744,7 +735,7 @@
             "emissiveTexture" : {
                 "index" : 19
             },
-            "name" : "Material_MR.001",
+            "name" : "Material_MR.002",
             "normalTexture" : {
                 "index" : 20
             },
@@ -766,7 +757,7 @@
             "emissiveTexture" : {
                 "index" : 23
             },
-            "name" : "Material_MR.002",
+            "name" : "Material_MR.001",
             "normalTexture" : {
                 "index" : 24
             },
@@ -857,7 +848,7 @@
             ]
         },
         {
-            "name" : "mesh_helmet_LP_13930damagedHelmet.001",
+            "name" : "mesh_helmet_LP_13930damagedHelmet.002",
             "primitives" : [
                 {
                     "attributes" : {
@@ -872,7 +863,7 @@
             ]
         },
         {
-            "name" : "mesh_helmet_LP_13930damagedHelmet.002",
+            "name" : "mesh_helmet_LP_13930damagedHelmet.001",
             "primitives" : [
                 {
                     "attributes" : {
