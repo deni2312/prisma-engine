@@ -36,8 +36,12 @@ void Prisma::Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::m
 
 	Bone* Bone = m_CurrentAnimation->FindBone(nodeName);
 
+	if (Bone)
+	{
+		Bone->Update(m_CurrentTime);
+		nodeTransform = Bone->GetLocalTransform();
+	}
 	
-
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
 	auto boneInfoMap = m_CurrentAnimation->GetBoneIDMap();
