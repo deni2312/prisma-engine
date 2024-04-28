@@ -5,9 +5,16 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include "../SceneObjects/AnimatedMesh.h"
+#include "../GlobalData/Defines.h"
 #include "Bone.h"
 
 namespace Prisma {
+	class AnimatedMesh;
+}
+
+namespace Prisma {
+
+	struct BoneInfo;
 
 	struct AssimpNodeData
 	{
@@ -17,96 +24,31 @@ namespace Prisma {
 		std::vector<AssimpNodeData> children;
 	};
 
-
 	class Animation {
 	public:
 		Animation() = default;
 
-		Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model)
-		{
-			Assimp::Importer importer;
-			const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
-			assert(scene && scene->mRootNode);
-			auto animation = scene->mAnimations[0];
-			m_Duration = animation->mDuration;
-			m_TicksPerSecond = animation->mTicksPerSecond;
-			aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
-			globalTransformation = globalTransformation.Inverse();
-			ReadHierarchyData(m_RootNode, scene->mRootNode);
-			ReadMissingBones(animation, model);
-		}
+		Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model);
 
-		~Animation()
-		{
-		}
+		~Animation();
 
-		Bone* FindBone(const std::string& name)
-		{
-			auto iter = std::find_if(m_Bones.begin(), m_Bones.end(),
-				[&](const Bone& Bone)
-				{
-					return Bone.GetBoneName() == name;
-				}
-			);
-			if (iter == m_Bones.end()) return nullptr;
-			else return &(*iter);
-		}
+		Bone* FindBone(const std::string& name);
 
 
-		inline float GetTicksPerSecond() { return m_TicksPerSecond; }
-		inline float GetDuration() { return m_Duration; }
-		inline const AssimpNodeData& GetRootNode() { return m_RootNode; }
-		inline const std::map<std::string, Prisma::AnimatedMesh::BoneInfo>& GetBoneIDMap()
-		{
-			return m_BoneInfoMap;
-		}
+		float GetTicksPerSecond() { return m_TicksPerSecond; }
+		float GetDuration() { return m_Duration; }
+		const AssimpNodeData& GetRootNode() { return m_RootNode; }
+		const std::map<std::string, Prisma::BoneInfo>& GetBoneIDMap();
 
 	private:
-		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model)
-		{
-			int size = animation->mNumChannels;
+		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model);
 
-			auto& boneInfoMap = model->boneInfoMap();//getting m_BoneInfoMap from Model class
-			int& boneCount = model->boneInfoCounter(); //getting the m_BoneCounter from Model class
-
-			//reading channels(bones engaged in an animation and their keyframes)
-			for (int i = 0; i < size; i++)
-			{
-				auto channel = animation->mChannels[i];
-				std::string boneName = channel->mNodeName.data;
-
-				if (boneInfoMap.find(boneName) == boneInfoMap.end())
-				{
-					boneInfoMap[boneName].id = boneCount;
-					boneCount++;
-				}
-				m_Bones.push_back(Bone(channel->mNodeName.data,
-					boneInfoMap[channel->mNodeName.data].id, channel));
-			}
-
-			m_BoneInfoMap = boneInfoMap;
-		}
-
-		void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src)
-		{
-			assert(src);
-
-			dest.name = src->mName.data;
-			dest.transformation = getTransform(src->mTransformation);
-			dest.childrenCount = src->mNumChildren;
-
-			for (int i = 0; i < src->mNumChildren; i++)
-			{
-				AssimpNodeData newData;
-				ReadHierarchyData(newData, src->mChildren[i]);
-				dest.children.push_back(newData);
-			}
-		}
+		void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src);
 		float m_Duration;
 		int m_TicksPerSecond;
 		std::vector<Bone> m_Bones;
 		AssimpNodeData m_RootNode;
-		std::map<std::string, Prisma::AnimatedMesh::BoneInfo> m_BoneInfoMap;
+		std::map<std::string, Prisma::BoneInfo> m_BoneInfoMap;
 	};
 
 }

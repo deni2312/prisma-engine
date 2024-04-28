@@ -405,7 +405,7 @@ void Prisma::SceneLoader::extractBoneWeightForVertices(std::shared_ptr<Prisma::A
         std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
         if (boneInfoMap.find(boneName) == boneInfoMap.end())
         {
-            Prisma::AnimatedMesh::BoneInfo newBoneInfo;
+            Prisma::BoneInfo newBoneInfo;
             newBoneInfo.id = boneCount;
             newBoneInfo.offset = getTransform(mesh->mBones[boneIndex]->mOffsetMatrix);
             boneInfoMap[boneName] = newBoneInfo;

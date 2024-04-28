@@ -25,6 +25,7 @@ std::shared_ptr<PrivateDataForward> dataForward;
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{ width }, m_height{ height }
 {
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/ForwardPipeline/vertex.glsl", "../../../Engine/Shaders/ForwardPipeline/fragment.glsl");
+	m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_forward.glsl", "../../../Engine/Shaders/ForwardPipeline/fragment.glsl");
 	Prisma::FBO::FBOData fboData;
 	fboData.width = m_width;
 	fboData.height = m_height;
@@ -47,6 +48,22 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     m_fbo = std::make_shared<Prisma::FBO>(fboData);
 	m_fullscreenPipeline = std::make_shared<Prisma::PipelineFullScreen>();
+
+	m_shaderAnimate->use();
+
+	m_irradianceAnimatePos = m_shader->getUniformPosition("irradianceMap");
+	m_prefilterAnimatePos = m_shader->getUniformPosition("prefilterMap");
+	m_lutAnimatePos = m_shader->getUniformPosition("brdfLUT");
+	m_viewAnimatePos = m_shader->getUniformPosition("viewPos");
+	m_irradianceAnimatePos = m_shader->getUniformPosition("irradianceMap");
+
+	m_nearAnimatePos = m_shader->getUniformPosition("zNear");
+	m_farAnimatePos = m_shader->getUniformPosition("zFar");
+	m_gridSizeAnimatePos = m_shader->getUniformPosition("gridSize");
+	m_screenDimensionsAnimatePos = m_shader->getUniformPosition("screenDimensions");
+
+	for (unsigned int i = 0; i < MAX_BONES; ++i)
+		m_bonesPos.push_back(m_shaderAnimate->getUniformPosition("finalBonesMatrices[" + std::to_string(i) + "]"));
 
 #ifndef NPHYSICS_DEBUG
     drawDebugger=new DrawDebugger();
@@ -80,6 +97,26 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 	m_shader->setUVec2(m_screenDimensionsPos, { m_settings.width,m_settings.height });
 
 	Prisma::MeshIndirect::getInstance().renderMeshes();
+
+
+	m_shaderAnimate->use();
+
+	m_shaderAnimate->setInt64(m_irradianceAnimatePos, Prisma::PipelineDiffuseIrradiance::getInstance().id());
+	m_shaderAnimate->setInt64(m_prefilterAnimatePos, Prisma::PipelinePrefilter::getInstance().id());
+	m_shaderAnimate->setInt64(m_lutAnimatePos, Prisma::PipelineLUT::getInstance().id());
+	m_shaderAnimate->setVec3(m_viewAnimatePos, camera->position());
+
+	m_shaderAnimate->setFloat(m_nearAnimatePos, m_settings.nearPlane);
+	m_shaderAnimate->setFloat(m_farAnimatePos, m_settings.farPlane);
+	m_shaderAnimate->setFloat(m_nearAnimatePos, m_settings.nearPlane);
+	m_shaderAnimate->setUVec3(m_gridSizeAnimatePos, Prisma::ClusterCalculation::grids());
+	m_shaderAnimate->setUVec2(m_screenDimensionsAnimatePos, { m_settings.width,m_settings.height });
+	auto boneMatrices=currentGlobalScene->animateMeshes[0]->animator()->GetFinalBoneMatrices();
+
+	for (unsigned int i = 0; i < MAX_BONES; ++i)
+		m_shaderAnimate->setMat4(m_bonesPos[i], boneMatrices[i]);
+
+	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
 	Prisma::PipelineSkybox::getInstance().render(camera);
 

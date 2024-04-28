@@ -9,7 +9,7 @@ std::shared_ptr<Prisma::AnimatedMesh::AnimateVerticesData> Prisma::AnimatedMesh:
 	return m_animateVertices;
 }
 
-std::map<std::string, Prisma::AnimatedMesh::BoneInfo>& Prisma::AnimatedMesh::boneInfoMap()
+std::map<std::string, Prisma::BoneInfo>& Prisma::AnimatedMesh::boneInfoMap()
 {
 	return m_BoneInfoMap;
 }
@@ -17,4 +17,12 @@ std::map<std::string, Prisma::AnimatedMesh::BoneInfo>& Prisma::AnimatedMesh::bon
 int& Prisma::AnimatedMesh::boneInfoCounter()
 {
 	return m_BoneCounter;
+}
+
+void Prisma::AnimatedMesh::animator(std::shared_ptr<Animator> animator) {
+	m_animator = animator;
+}
+
+std::shared_ptr<Prisma::Animator> Prisma::AnimatedMesh::animator() {
+	return m_animator;
 }

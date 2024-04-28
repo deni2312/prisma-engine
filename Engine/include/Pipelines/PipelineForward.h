@@ -34,9 +34,23 @@ namespace Prisma {
 		unsigned int m_gridSizePos;
 		unsigned int m_screenDimensionsPos;
 
+		unsigned int m_irradianceAnimatePos;
+		unsigned int m_prefilterAnimatePos;
+		unsigned int m_lutAnimatePos;
+		unsigned int m_viewAnimatePos;
+
+		unsigned int m_nearAnimatePos;
+		unsigned int m_farAnimatePos;
+		unsigned int m_gridSizeAnimatePos;
+		unsigned int m_screenDimensionsAnimatePos;
+
+
+		std::vector<unsigned int> m_bonesPos;
+
 		Prisma::Settings m_settings;
 
 		std::shared_ptr<Shader> m_shader;
+		std::shared_ptr<Shader> m_shaderAnimate;
 		glm::mat4 m_projection;
 		std::shared_ptr<Prisma::FBO> m_fbo;
 		std::shared_ptr<Prisma::FBO> m_output;
