@@ -261,10 +261,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 
     currentMesh->material(currentMaterial);
 
-    if (mesh->mNumBones > 0) {
+    if (mesh->HasBones()) {
         std::dynamic_pointer_cast<AnimatedMesh>(currentMesh)->loadAnimateModel(animeteData);
-
-        
     }
     else {
         currentMesh->loadModel(data);
