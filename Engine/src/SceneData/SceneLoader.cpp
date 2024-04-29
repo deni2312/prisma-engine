@@ -138,7 +138,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
     currentMesh->name(mesh->mName.C_Str());
 
 
-    if (mesh->mNumBones == 0) {
+    if (!mesh->HasBones()) {
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
             Prisma::Mesh::Vertex vertex{};
@@ -185,7 +185,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
                 data->indices.push_back(face.mIndices[j]);
         }
     }
-    else {
+    else{
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
             Prisma::AnimatedMesh::AnimateVertex vertex{};
@@ -263,6 +263,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 
     if (mesh->mNumBones > 0) {
         std::dynamic_pointer_cast<AnimatedMesh>(currentMesh)->loadAnimateModel(animeteData);
+
+        
     }
     else {
         currentMesh->loadModel(data);
