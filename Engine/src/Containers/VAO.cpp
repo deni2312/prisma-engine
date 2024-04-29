@@ -13,7 +13,12 @@ void Prisma::VAO::bind() {
 void Prisma::VAO::addAttribPointer(unsigned int id, unsigned int stride, unsigned int size, void *offset, unsigned int type) {
     bind();
     glEnableVertexAttribArray(id);
-    glVertexAttribPointer(id, stride, type, GL_FALSE, size, offset);
+    if (type == GL_INT) {
+        glVertexAttribIPointer(id, stride, type, size, offset);
+    }
+    else {
+        glVertexAttribPointer(id, stride, type, GL_FALSE, size, offset);
+    }
 }
 
 void Prisma::VAO::resetVao() {
