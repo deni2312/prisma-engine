@@ -231,7 +231,7 @@ void Prisma::MeshIndirect::updateAnimation()
         m_vaoAnimation->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
         m_vaoAnimation->addAttribPointer(5, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_BoneIDs), GL_INT);
         m_vaoAnimation->addAttribPointer(6, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_Weights));
-
+        glBindVertexArray(0);
         //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
 
