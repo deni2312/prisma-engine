@@ -24,10 +24,10 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::NodeHelper nodeHelper;
 
-    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Beta_Joints")->children()[0]);
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Vampire")->children()[0]);
 
     if (animatedMesh) {
-        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/animation.gltf", animatedMesh);
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/DamagedHelmet.gltf", animatedMesh);
         animator= std::make_shared<Prisma::Animator>(animation);
         animatedMesh->animator(animator);
     }
