@@ -42,7 +42,7 @@ void Prisma::Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::m
 		nodeTransform = Bone->GetLocalTransform();
 	}
 	else {
-		std::cout << "Bone not found " + nodeName<< std::endl;
+		//std::cout << "Bone not found " + nodeName<< std::endl;
 	}
 	
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;

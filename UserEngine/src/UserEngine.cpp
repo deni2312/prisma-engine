@@ -27,7 +27,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
     auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Vampire")->children()[0]);
 
     if (animatedMesh) {
-        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/DamagedHelmet.gltf", animatedMesh);
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/vampire.dae", animatedMesh);
         animator= std::make_shared<Prisma::Animator>(animation);
         animatedMesh->animator(animator);
     }

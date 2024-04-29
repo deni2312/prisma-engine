@@ -3808,19 +3808,6 @@
                     "index" : 27
                 }
             }
-        },
-        {
-            "doubleSided" : true,
-            "name" : "Vampire_MAT",
-            "pbrMetallicRoughness" : {
-                "baseColorFactor" : [
-                    0.800000011920929,
-                    0.800000011920929,
-                    0.800000011920929,
-                    0
-                ],
-                "roughnessFactor" : 0.5
-            }
         }
     ],
     "meshes" : [
@@ -3949,7 +3936,7 @@
                         "WEIGHTS_0" : 42
                     },
                     "indices" : 43,
-                    "material" : 7
+                    "material" : 1
                 }
             ]
         }
