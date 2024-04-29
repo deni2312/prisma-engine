@@ -6,9 +6,9 @@ Prisma::Animator::Animator(std::shared_ptr<Animation> animation)
 	m_CurrentTime = 0.0;
 	m_CurrentAnimation = animation;
 
-	m_FinalBoneMatrices.reserve(100);
+	m_FinalBoneMatrices.reserve(MAX_BONES);
 
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < MAX_BONES; i++)
 		m_FinalBoneMatrices.push_back(glm::mat4(1.0f));
 }
 
@@ -40,6 +40,9 @@ void Prisma::Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::m
 	{
 		Bone->Update(m_CurrentTime);
 		nodeTransform = Bone->GetLocalTransform();
+	}
+	else {
+		std::cout << "Bone not found " + nodeName<< std::endl;
 	}
 	
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;

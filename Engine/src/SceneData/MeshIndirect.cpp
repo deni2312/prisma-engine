@@ -68,7 +68,7 @@ void Prisma::MeshIndirect::updateSize()
     }
     std::vector<glm::mat4> models;
     for (auto model : meshes) {
-        models.push_back(model->finalMatrix());
+        models.push_back(model->parent()->finalMatrix());
     }
 
     //PUSH MODEL MATRICES TO AN SSBO WITH ID 1
@@ -190,7 +190,7 @@ void Prisma::MeshIndirect::updateAnimation()
         }
         std::vector<glm::mat4> models;
         for (auto model : meshes) {
-            models.push_back(model->finalMatrix());
+            models.push_back(model->parent()->finalMatrix());
         }
 
         //PUSH MODEL MATRICES TO AN SSBO WITH ID 1

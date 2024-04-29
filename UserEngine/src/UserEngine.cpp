@@ -24,10 +24,10 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::NodeHelper nodeHelper;
 
-    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Cube.003"));
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Beta_Joints")->children()[0]);
 
     if (animatedMesh) {
-        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/DamagedHelmet.gltf", animatedMesh);
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/animation.gltf", animatedMesh);
         animator= std::make_shared<Prisma::Animator>(animation);
         animatedMesh->animator(animator);
     }
@@ -67,8 +67,8 @@ bool UserEngine::update()
         type.position = newPos;
         light->type(type);
     }
-
-    animator->UpdateAnimation((float)1/(float)60);
+    float deltaTime = (float)1 / (float)fps();
+    animator->UpdateAnimation(deltaTime);
 
 
     return false;

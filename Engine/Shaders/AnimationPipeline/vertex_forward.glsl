@@ -68,5 +68,5 @@ void main()
         shadowDirData[i] = shadowMatrices[i].shadow * vec4(FragPos, 1.0);
     }
 
-    gl_Position = projection * view * modelAnimationMatrices[gl_DrawID] * totalPosition;
+    gl_Position = projection * view * totalPosition;
 }
