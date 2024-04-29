@@ -44,8 +44,7 @@ namespace Prisma {
 		unsigned int m_gridSizeAnimatePos;
 		unsigned int m_screenDimensionsAnimatePos;
 
-
-		std::vector<unsigned int> m_bonesPos;
+		std::shared_ptr<SSBO> m_ssboAnimation;
 
 		Prisma::Settings m_settings;
 

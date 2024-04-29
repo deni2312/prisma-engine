@@ -62,9 +62,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 	m_gridSizeAnimatePos = m_shaderAnimate->getUniformPosition("gridSize");
 	m_screenDimensionsAnimatePos = m_shaderAnimate->getUniformPosition("screenDimensions");
 
-
-	for (unsigned int i = 0; i < MAX_BONES; ++i)
-		m_bonesPos.push_back(m_shaderAnimate->getUniformPosition("finalBonesMatrices[" + std::to_string(i) + "]"));
+	m_ssboAnimation = std::make_shared<SSBO>(8);
+	m_ssboAnimation->resize(sizeof(glm::mat4) * MAX_BONES);
 
 #ifndef NPHYSICS_DEBUG
     drawDebugger=new DrawDebugger();
@@ -115,8 +114,7 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 
 	auto boneMatrices=currentGlobalScene->animateMeshes[0]->animator()->GetFinalBoneMatrices();
 
-	for (unsigned int i = 0; i < MAX_BONES; ++i)
-		m_shaderAnimate->setMat4(m_bonesPos[i], boneMatrices[i]);
+	m_ssboAnimation->modifyData(0, boneMatrices.size() * sizeof(glm::mat4), boneMatrices.data());
 
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 

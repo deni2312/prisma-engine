@@ -43,6 +43,11 @@ layout(std430, binding = 4) buffer ShadowMatrices
     ShadowData shadowMatrices[];
 };
 
+layout(std430, binding = 8) buffer BoneMatrices
+{
+    mat4 boneMatrices[];
+};
+
 void main()
 {
     vec4 totalPosition = vec4(0.0f);
@@ -50,12 +55,12 @@ void main()
     {
         if (boneIds[i] == -1)
             continue;
-        if (boneIds[i] >= MAX_BONES)
+        if (boneIds[i] >= boneMatrices.length())
         {
             totalPosition = vec4(aPos, 1.0f);
             break;
         }
-        vec4 localPosition = finalBonesMatrices[boneIds[i]] * vec4(aPos, 1.0f);
+        vec4 localPosition = boneMatrices[boneIds[i]] * vec4(aPos, 1.0f);
         totalPosition += localPosition * weights[i];
     }
 
