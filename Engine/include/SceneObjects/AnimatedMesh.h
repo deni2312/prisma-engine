@@ -49,7 +49,7 @@ namespace Prisma {
     private:
         std::map<std::string, Prisma::BoneInfo> m_BoneInfoMap;
         std::shared_ptr<AnimateVerticesData> m_animateVertices;
-        std::shared_ptr<Animator> m_animator;
+        std::shared_ptr<Animator> m_animator = nullptr;
 
         int m_BoneCounter = 0;
     };

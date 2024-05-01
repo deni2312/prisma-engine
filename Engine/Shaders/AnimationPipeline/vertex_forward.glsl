@@ -7,9 +7,8 @@ layout(location = 4) in vec2 aBitangent;
 layout(location = 5) in ivec4 boneIds;
 layout(location = 6) in vec4 weights;
 
-const int MAX_BONES = 100;
+const int MAX_BONES = 128;
 const int MAX_BONE_INFLUENCE = 4;
-uniform mat4 finalBonesMatrices[MAX_BONES];
 
 out vec3 FragPos;
 
@@ -43,9 +42,13 @@ layout(std430, binding = 4) buffer ShadowMatrices
     ShadowData shadowMatrices[];
 };
 
+struct SSBOAnimation {
+    mat4 animations[MAX_BONES];
+};
+
 layout(std430, binding = 8) buffer BoneMatrices
 {
-    mat4 boneMatrices[];
+    SSBOAnimation boneMatrices[];
 };
 
 void main()
@@ -55,12 +58,12 @@ void main()
     {
         if (boneIds[i] == -1)
             continue;
-        if (boneIds[i] >= boneMatrices.length())
+        if (boneIds[i] >= MAX_BONES)
         {
             totalPosition = vec4(aPos, 1.0f);
             break;
         }
-        vec4 localPosition = boneMatrices[boneIds[i]] * vec4(aPos, 1.0f);
+        vec4 localPosition = boneMatrices[gl_DrawID].animations[boneIds[i]] * vec4(aPos, 1.0f);
         totalPosition += localPosition * weights[i];
     }
 

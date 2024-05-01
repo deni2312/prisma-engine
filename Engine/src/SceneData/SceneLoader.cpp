@@ -103,7 +103,12 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
 
         nodeRoot->addChild(currentMesh,false);
         if (isAnimate) {
-            m_scene->animateMeshes.push_back(isAnimate);
+            if (m_scene->animateMeshes.size() < MAX_ANIMATION_MESHES) {
+                m_scene->animateMeshes.push_back(isAnimate);
+            }
+            else {
+                std::cerr << "MAX ANIMATION MESHES REACHED" << std::endl;
+            }
         }
         else {
             m_scene->meshes.push_back(currentMesh);

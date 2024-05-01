@@ -2,6 +2,8 @@
 #include <memory>
 #include "glm/glm.hpp"
 #include "../Containers/SSBO.h"
+#include "../GlobalData/Defines.h"
+#include <vector>
 
 namespace Prisma {
 	class AnimationHandler {
@@ -17,7 +19,10 @@ namespace Prisma {
 
 	private:
 		std::shared_ptr<SSBO> m_ssboAnimation;
-
+		struct SSBOAnimation {
+			glm::mat4 animations[MAX_BONES];
+		};
+		void copyMatrices(SSBOAnimation& animation, std::vector<glm::mat4>& animationsData);
 		static std::shared_ptr<AnimationHandler> instance;
 	};
 }
