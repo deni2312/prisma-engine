@@ -42,7 +42,7 @@ namespace Prisma {
 
 	private:
 		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model);
-
+		glm::mat4 m_inverseTransform;
 		void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src);
 		float m_Duration;
 		int m_TicksPerSecond;

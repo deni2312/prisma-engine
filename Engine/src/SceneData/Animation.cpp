@@ -8,8 +8,7 @@ Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<P
 	auto animation = scene->mAnimations[0];
 	m_Duration = animation->mDuration;
 	m_TicksPerSecond = animation->mTicksPerSecond;
-	aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
-	globalTransformation = globalTransformation.Inverse();
+	m_inverseTransform = glm::inverse(model->parent()->finalMatrix());
 	ReadHierarchyData(m_RootNode, scene->mRootNode);
 	ReadMissingBones(animation, model);
 }
@@ -65,7 +64,7 @@ void Prisma::Animation::ReadHierarchyData(AssimpNodeData& dest, const aiNode* sr
 	assert(src);
 
 	dest.name = src->mName.data;
-	dest.transformation = getTransform(src->mTransformation);
+	dest.transformation = m_inverseTransform*getTransform(src->mTransformation);
 	dest.childrenCount = src->mNumChildren;
 
 	for (int i = 0; i < src->mNumChildren; i++)
