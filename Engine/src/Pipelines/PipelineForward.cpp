@@ -63,9 +63,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 	m_gridSizeAnimatePos = m_shaderAnimate->getUniformPosition("gridSize");
 	m_screenDimensionsAnimatePos = m_shaderAnimate->getUniformPosition("screenDimensions");
 
-	m_ssboAnimation = std::make_shared<SSBO>(8);
-	m_ssboAnimation->resize(sizeof(glm::mat4) * MAX_BONES);
-
 #ifndef NPHYSICS_DEBUG
     drawDebugger=new DrawDebugger();
     Physics::getInstance().physicsWorld()->dynamicsWorld->setDebugDrawer(drawDebugger);
@@ -112,10 +109,6 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 	m_shaderAnimate->setFloat(m_nearAnimatePos, m_settings.nearPlane);
 	m_shaderAnimate->setUVec3(m_gridSizeAnimatePos, Prisma::ClusterCalculation::grids());
 	m_shaderAnimate->setUVec2(m_screenDimensionsAnimatePos, { m_settings.width,m_settings.height });
-
-	auto boneMatrices=currentGlobalScene->animateMeshes[0]->animator()->GetFinalBoneMatrices();
-
-	m_ssboAnimation->modifyData(0, boneMatrices.size() * sizeof(glm::mat4), boneMatrices.data());
 
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 

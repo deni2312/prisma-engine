@@ -8,6 +8,7 @@
 #include "../include/GlobalData/Defines.h"
 #include "../include/Handlers/LightHandler.h"
 #include "../include/Handlers/MeshHandler.h"
+#include "../include/Handlers/AnimationHandler.h"
 #include "../include/SceneData/MeshIndirect.h"
 #include "../include/Containers/FBO.h"
 #include "../include/GlobalData/GlobalData.h"
@@ -66,6 +67,8 @@ Prisma::Engine::Engine()
     Physics::getInstance();
 
     Postprocess::getInstance();
+
+    AnimationHandler::getInstance();
     
     data->pipeline = Prisma::Engine::Pipeline::FORWARD;
 
@@ -117,6 +120,7 @@ bool Prisma::Engine::run()
             data->timer.start();
 
             MeshHandler::getInstance().updateCamera();
+            AnimationHandler::getInstance().updateAnimations();
             MeshIndirect::getInstance().update();
             LightHandler::getInstance().update();
 
