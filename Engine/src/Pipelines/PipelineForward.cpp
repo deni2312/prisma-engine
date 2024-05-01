@@ -115,10 +115,6 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 
 	auto boneMatrices=currentGlobalScene->animateMeshes[0]->animator()->GetFinalBoneMatrices();
 
-	for (int i = 0; i < boneMatrices.size(); i++) {
-		boneMatrices[i] = glm::mat4(1.0f);
-	}
-
 	m_ssboAnimation->modifyData(0, boneMatrices.size() * sizeof(glm::mat4), boneMatrices.data());
 
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
