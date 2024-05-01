@@ -9,11 +9,25 @@ void Prisma::MeshInfo::drawGizmo(Prisma::MeshInfo::MeshData meshData) {
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
     glm::mat4 model = meshData.mesh->parent()->matrix();
     glm::mat4 inverseParent = glm::inverse(meshData.mesh->parent()->finalMatrix());
+
+    auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.mesh);
+
+    if (isAnimate) {
+        model = meshData.mesh->parent()->parent()->matrix();
+        inverseParent = glm::inverse(meshData.mesh->parent()->parent()->finalMatrix());
+    }
+
+
     ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
 
     ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale));
 
-    meshData.mesh->parent()->matrix(model);
+    if (isAnimate) {
+        meshData.mesh->parent()->parent()->matrix(model);
+    }
+    else {
+        meshData.mesh->parent()->matrix(model);
+    }
 
     //meshData.mesh->finalMatrix(model);
 
