@@ -1,5 +1,4 @@
-#version 460 core
-#extension GL_ARB_bindless_texture : enable
+
 
 in vec3 FragPos;
 in vec2 TexCoords;
@@ -18,14 +17,23 @@ struct MaterialData {
     vec2 padding;
 };
 
+MaterialData currentMaterial;
+
+#if defined(ANIMATE)
+layout(std430, binding = 7) buffer MaterialAnimation
+{
+    MaterialData materialDataAnimation[];
+};
+#else
 layout(std430, binding = 0) buffer Material
 {
     MaterialData materialData[];
 };
+#endif
 
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(materialData[drawId].normal, TexCoords).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(currentMaterial.normal, TexCoords).xyz * 2.0 - 1.0;
 
     vec3 Q1 = dFdx(FragPos);
     vec3 Q2 = dFdy(FragPos);
@@ -42,14 +50,19 @@ vec3 getNormalFromMap()
 
 void main()
 {
+#if defined(ANIMATE)
+    currentMaterial = materialDataAnimation[drawId];
+#else
+    currentMaterial = materialData[drawId];
+#endif
     // store the fragment position vector in the first gbuffer texture
     gPosition.rgb = FragPos;
     // also store the per-fragment normals into the gbuffer
     gNormal.rgb = getNormalFromMap();
     // and the diffuse per-fragment color
-    gAlbedoSpec.rgb = texture(materialData[drawId].diffuse, TexCoords).rgb;
+    gAlbedoSpec.rgb = texture(currentMaterial.diffuse, TexCoords).rgb;
 
-    vec4 roughnessMetalnessTexture = texture(materialData[drawId].roughness_metalness, TexCoords);
+    vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
 
     gAlbedoSpec.a= roughnessMetalnessTexture.b;
     gNormal.a = roughnessMetalnessTexture.g;

@@ -23,26 +23,6 @@ namespace Prisma {
 	private:
 		unsigned int m_width;
 		unsigned int m_height;
-		unsigned int m_irradiancePos;
-		unsigned int m_prefilterPos;
-		unsigned int m_lutPos;
-        unsigned int m_viewPos;
-		unsigned int m_planesCSM;
-
-		unsigned int m_nearPos;
-		unsigned int m_farPos;
-		unsigned int m_gridSizePos;
-		unsigned int m_screenDimensionsPos;
-
-		unsigned int m_irradianceAnimatePos;
-		unsigned int m_prefilterAnimatePos;
-		unsigned int m_lutAnimatePos;
-		unsigned int m_viewAnimatePos;
-
-		unsigned int m_nearAnimatePos;
-		unsigned int m_farAnimatePos;
-		unsigned int m_gridSizeAnimatePos;
-		unsigned int m_screenDimensionsAnimatePos;
 
 		Prisma::Settings m_settings;
 

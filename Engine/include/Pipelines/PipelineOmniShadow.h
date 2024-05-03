@@ -26,6 +26,11 @@ namespace Prisma {
         unsigned int m_farPlanePos;
         unsigned int m_lightPos;
         std::vector<unsigned int> m_shadowPosition;
+
+        unsigned int m_farPlanePosAnimation;
+        unsigned int m_lightPosAnimation;
+        std::vector<unsigned int> m_shadowPositionAnimation;
+
         uint64_t m_id;
         float m_farPlane=100;
 

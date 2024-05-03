@@ -17,13 +17,15 @@
 
 Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb):m_width{ width },m_height{ height }
 {
-    m_shader = std::make_shared<Shader>("../../../Engine/Shaders/DeferredPipeline/vertex.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl");
+    Shader::ShaderHeaders header;
+    header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n";
+    m_shader = std::make_shared<Shader>("../../../Engine/Shaders/DeferredPipeline/vertex.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl",nullptr, header);
     m_shaderD = std::make_shared<Shader>("../../../Engine/Shaders/DeferredPipeline/vertex_d.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment_d.glsl");
+    header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n#define ANIMATE 1\n";
+    m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_deferred.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl",nullptr,header);
+
     m_ssr=std::make_shared<Prisma::PipelineSSR>();
     m_shaderD->use();
-    m_irradiancePos = m_shaderD->getUniformPosition("irradianceMap");
-    m_prefilterPos = m_shaderD->getUniformPosition("prefilterMap");
-    m_lutPos = m_shaderD->getUniformPosition("brdfLUT");
 
     glGenFramebuffers(1, &m_gBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
@@ -75,12 +77,6 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
     m_positionLocation = m_shaderD->getUniformPosition("gPosition");
     m_normalLocation = m_shaderD->getUniformPosition("gNormal");
     m_albedoLocation = m_shaderD->getUniformPosition("gAlbedo");
-    m_viewPosLocation = m_shaderD->getUniformPosition("viewPos");
-
-    m_nearPos = m_shaderD->getUniformPosition("zNear");
-    m_farPos = m_shaderD->getUniformPosition("zFar");
-    m_gridSizePos = m_shaderD->getUniformPosition("gridSize");
-    m_screenDimensionsPos = m_shaderD->getUniformPosition("screenDimensions");
 
     m_settings = Prisma::SettingsLoader::instance().getSettings();
 
@@ -111,6 +107,10 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
 
     Prisma::MeshIndirect::getInstance().renderMeshes();
 
+    m_shaderAnimate->use();
+
+    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+
     // Unbind the buffer
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
@@ -120,17 +120,6 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
     m_shaderD->setInt64(m_albedoLocation, m_albedo);
     m_shaderD->setInt64(m_normalLocation, m_normal);
     m_shaderD->setInt64(m_positionLocation, m_position);
-    m_shaderD->setInt64(m_irradiancePos, Prisma::PipelineDiffuseIrradiance::getInstance().id());
-    m_shaderD->setInt64(m_prefilterPos, Prisma::PipelinePrefilter::getInstance().id());
-    m_shaderD->setInt64(m_lutPos, Prisma::PipelineLUT::getInstance().id());
-    m_shaderD->setVec3(m_viewPosLocation, camera->position());
-
-
-    m_shaderD->setFloat(m_nearPos, m_settings.nearPlane);
-    m_shaderD->setFloat(m_farPos, m_settings.farPlane);
-    m_shaderD->setFloat(m_nearPos, m_settings.nearPlane);
-    m_shaderD->setUVec3(m_gridSizePos, Prisma::ClusterCalculation::grids());
-    m_shaderD->setUVec2(m_screenDimensionsPos, { m_settings.width,m_settings.height });
     Prisma::IBLBuilder::getInstance().renderQuad();
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_gBuffer);
@@ -140,11 +129,6 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
     );
     Prisma::PipelineSkybox::getInstance().render(camera);
     m_fbo->unbind();
-
-    /*m_fboSSR->bind();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    m_ssr->update(m_fbo->texture(),m_albedo,m_normal);
-    m_fboSSR->unbind();*/
 
     m_output->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);

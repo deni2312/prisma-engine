@@ -7,7 +7,7 @@ Line::Line() {
     m_lineColor = glm::vec3(1,1,1);
     m_MVP = glm::mat4(1.0f);
 
-    m_shader = std::make_shared<Shader>("../../../Engine/Shaders/LineDebugPipeline/vertex.glsl", "../../../Engine/Shaders/LineDebugPipeline/fragment.glsl");
+    m_shader = std::make_shared<Prisma::Shader>("../../../Engine/Shaders/LineDebugPipeline/vertex.glsl", "../../../Engine/Shaders/LineDebugPipeline/fragment.glsl");
     m_shader->use();
     m_colorPos=m_shader->getUniformPosition("color");
     m_MVPPos=m_shader->getUniformPosition("MVP");

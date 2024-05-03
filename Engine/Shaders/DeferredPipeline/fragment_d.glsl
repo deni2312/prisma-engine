@@ -30,8 +30,6 @@ layout(std430, binding = 5) restrict buffer clusterSSBO
     Cluster clusters[];
 };
 
-uniform vec3 viewPos;
-
 struct ShadowData {
     mat4 shadow;
 };
@@ -79,9 +77,14 @@ layout(std430, binding = 3) buffer Omni
     OmniData omniData[];
 };
 
-layout(bindless_sampler) uniform samplerCube irradianceMap;
-layout(bindless_sampler) uniform samplerCube prefilterMap;
-layout(bindless_sampler) uniform sampler2D brdfLUT;
+layout(std140, binding = 3) uniform FragmentData
+{
+    vec4 viewPos;
+    samplerCube irradianceMap;
+    samplerCube prefilterMap;
+    sampler2D brdfLUT;
+    vec2 paddingFragment;
+};
 
 const float PI = 3.14159265359;
 
@@ -149,7 +152,7 @@ float ShadowCalculation(vec3 fragPos,vec3 lightPos,int depthMapId)
     float shadow = 0.0;
     float bias = 0.15;
     int samples = 20;
-    float viewDistance = length(viewPos - fragPos);
+    float viewDistance = length(viewPos.xyz - fragPos);
     float diskRadius = (1.0 + (viewDistance / omniData[depthMapId].far_plane.r)) / 25.0;
     for(int i = 0; i < samples; ++i)
     {
@@ -213,7 +216,7 @@ void main()
     float roughness = texture(gNormal, TexCoords).a;
     float metallic = texture(gAlbedo, TexCoords).a;
 
-    vec3 V = normalize(viewPos - FragPos);
+    vec3 V = normalize(viewPos.xyz - FragPos);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);

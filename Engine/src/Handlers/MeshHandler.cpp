@@ -2,6 +2,9 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/ClusterCalculation.h"
+#include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
+#include "../../include/Pipelines/PipelinePrefilter.h"
+#include "../../include/Pipelines/PipelineLUT.h"
 
 std::shared_ptr<Prisma::MeshHandler> Prisma::MeshHandler::instance = nullptr;
 
@@ -20,6 +23,15 @@ void Prisma::MeshHandler::updateCluster()
 	m_uboCluster->modifyData(0, sizeof(Prisma::MeshHandler::UBOCluster), &m_uboClusterData);
 }
 
+void Prisma::MeshHandler::updateFragment()
+{
+	m_fragment.irradiancePos= Prisma::PipelineDiffuseIrradiance::getInstance().id();
+	m_fragment.prefilterPos=Prisma::PipelinePrefilter::getInstance().id();
+	m_fragment.lutPos = Prisma::PipelineLUT::getInstance().id();
+	m_fragment.viewPos = glm::vec4(currentGlobalScene->camera->position(),1.0f);
+	m_uboFragment->modifyData(0, sizeof(Prisma::MeshHandler::UBOFragment), &m_fragment);
+}
+
 Prisma::MeshHandler& Prisma::MeshHandler::getInstance()
 {
 	if (!instance) {
@@ -32,6 +44,7 @@ Prisma::MeshHandler::MeshHandler()
 {
 	m_ubo = std::make_shared<Ubo>(sizeof(Prisma::MeshHandler::UBOData), 1);
 	m_uboCluster = std::make_shared<Ubo>(sizeof(Prisma::MeshHandler::UBOCluster), 2);
+	m_uboFragment = std::make_shared<Ubo>(sizeof(Prisma::MeshHandler::UBOFragment), 3);
 	m_uboData = std::make_shared<Prisma::MeshHandler::UBOData>();
 	m_settings = Prisma::SettingsLoader::instance().getSettings();
 }

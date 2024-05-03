@@ -1,10 +1,8 @@
-#version 460 core
-#extension GL_ARB_bindless_texture : enable
+
 out vec4 FragColor;
 
 in vec3 FragPos;
 in vec2 TexCoords;
-uniform vec3 viewPos;
 in vec3 Normal;
 flat in int drawId;
 in vec4 shadowDirData[16];
@@ -47,6 +45,15 @@ layout(std140, binding = 1) uniform MeshData
     mat4 projection;
 };
 
+layout(std140, binding = 3) uniform FragmentData
+{
+    vec4 viewPos;
+    samplerCube irradianceMap;
+    samplerCube prefilterMap;
+    sampler2D brdfLUT;
+    vec2 paddingFragment;
+};
+
 struct OmniData {
     vec4 position;
     vec4 diffuse;
@@ -64,14 +71,19 @@ struct MaterialData {
     vec2 padding;
 };
 
-layout(bindless_sampler) uniform samplerCube irradianceMap;
-layout(bindless_sampler) uniform samplerCube prefilterMap;
-layout(bindless_sampler) uniform sampler2D brdfLUT;
+MaterialData currentMaterial;
 
+#if defined(ANIMATE)
+layout(std430, binding = 7) buffer MaterialAnimation
+{
+    MaterialData materialDataAnimation[];
+};
+#else
 layout(std430, binding = 0) buffer Material
 {
     MaterialData materialData[];
 };
+#endif
 
 layout(std430, binding = 2) buffer Directional
 {
@@ -99,7 +111,7 @@ const float PI = 3.14159265359;
 
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(materialData[drawId].normal, TexCoords).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(currentMaterial.normal, TexCoords).xyz * 2.0 - 1.0;
 
     vec3 Q1 = dFdx(FragPos);
     vec3 Q2 = dFdy(FragPos);
@@ -178,7 +190,7 @@ float ShadowCalculation(vec3 fragPos,vec3 lightPos,int depthMapId)
     float shadow = 0.0;
     float bias = 0.15;
     int samples = 20;
-    float viewDistance = length(viewPos - fragPos);
+    float viewDistance = length(viewPos.xyz - fragPos);
     float diskRadius = (1.0 + (viewDistance / omniData[depthMapId].far_plane.r)) / 25.0;
     for(int i = 0; i < samples; ++i)
     {
@@ -233,14 +245,19 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace,vec3 lightPos,vec3 N,u
 
 void main()
 {
-    vec3 albedo = texture(materialData[drawId].diffuse, TexCoords).rgb;
-    vec4 roughnessMetalnessTexture = texture(materialData[drawId].roughness_metalness, TexCoords);
+    #if defined(ANIMATE)
+    currentMaterial = materialDataAnimation[drawId];
+    #else
+    currentMaterial = materialData[drawId];
+    #endif
+    vec3 albedo = texture(currentMaterial.diffuse, TexCoords).rgb;
+    vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
     float metallic = roughnessMetalnessTexture.b;
     float roughness = roughnessMetalnessTexture.g;
 
     vec3 N = getNormalFromMap();
 
-    vec3 V = normalize(viewPos - FragPos);
+    vec3 V = normalize(viewPos.xyz - FragPos);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);

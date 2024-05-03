@@ -120,6 +120,7 @@ bool Prisma::Engine::run()
             data->timer.start();
 
             MeshHandler::getInstance().updateCamera();
+            MeshHandler::getInstance().updateFragment();
             AnimationHandler::getInstance().updateAnimations();
             MeshIndirect::getInstance().update();
             LightHandler::getInstance().update();

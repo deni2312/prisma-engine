@@ -32,8 +32,7 @@ namespace Prisma {
 
 		~Animation();
 
-		Bone* FindBone(const std::string& name);
-
+		std::shared_ptr<Bone> FindBone(const std::string& name);
 
 		float GetTicksPerSecond() { return m_TicksPerSecond; }
 		float GetDuration() { return m_Duration; }
@@ -46,7 +45,7 @@ namespace Prisma {
 		void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src);
 		float m_Duration;
 		int m_TicksPerSecond;
-		std::vector<Bone> m_Bones;
+		std::map<const std::string, std::shared_ptr<Bone>> m_Bones;
 		AssimpNodeData m_RootNode;
 		std::map<std::string, Prisma::BoneInfo> m_BoneInfoMap;
 	};
