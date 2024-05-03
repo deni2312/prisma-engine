@@ -17,16 +17,9 @@ Prisma::Animation::~Animation()
 {
 }
 
-Prisma::Bone* Prisma::Animation::FindBone(const std::string& name)
+std::shared_ptr<Prisma::Bone> Prisma::Animation::FindBone(const std::string& name)
 {
-	auto iter = std::find_if(m_Bones.begin(), m_Bones.end(),
-		[&](const Bone& Bone)
-		{
-			return Bone.GetBoneName() == name;
-		}
-	);
-	if (iter == m_Bones.end()) return nullptr;
-	else return &(*iter);
+	return m_Bones[name];
 }
 
 const std::map<std::string, Prisma::BoneInfo>& Prisma::Animation::GetBoneIDMap()
@@ -52,8 +45,9 @@ void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shar
 			boneInfoMap[boneName].id = boneCount;
 			boneCount++;
 		}
-		m_Bones.push_back(Bone(channel->mNodeName.data,
-			boneInfoMap[channel->mNodeName.data].id, channel));
+		const std::string name = channel->mNodeName.data;
+		m_Bones[name]=std::make_shared<Bone>(channel->mNodeName.data,
+			boneInfoMap[channel->mNodeName.data].id, channel);
 	}
 
 	m_BoneInfoMap = boneInfoMap;

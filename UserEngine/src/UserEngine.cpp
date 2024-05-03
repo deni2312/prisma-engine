@@ -13,6 +13,7 @@
 #include "../../Engine/include/SceneData/Animation.h"
 
 std::shared_ptr<Prisma::Animator> animator;
+std::shared_ptr<Prisma::Animator> animator1;
 
 UserEngine::UserEngine() : Prisma::Engine{}
 {
@@ -24,12 +25,19 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::NodeHelper nodeHelper;
 
-    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Beta_Surface")->children()[0]);
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
+    auto animatedMesh1 = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_visor")->children()[0]);
 
     if (animatedMesh) {
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/animation.gltf", animatedMesh);
         animator= std::make_shared<Prisma::Animator>(animation);
         animatedMesh->animator(animator);
+    }
+
+    if (animatedMesh1) {
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/animation1.gltf", animatedMesh1);
+        animator1 = std::make_shared<Prisma::Animator>(animation);
+        animatedMesh->animator(animator1);
     }
 
     
@@ -41,7 +49,8 @@ UserEngine::UserEngine() : Prisma::Engine{}
 bool UserEngine::update()
 {
     float deltaTime = 1 / fps();
-    //animator->UpdateAnimation(deltaTime);
+    animator->UpdateAnimation(deltaTime);
+    animator1->UpdateAnimation(deltaTime);
 
 
     return false;

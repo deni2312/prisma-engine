@@ -17,7 +17,7 @@ namespace Prisma {
 
 		void PlayAnimation(std::shared_ptr<Animation> pAnimation);
 
-		void CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform,Prisma::AnimationHandler::SSBOAnimation& animation);
+		void CalculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform,Prisma::AnimationHandler::SSBOAnimation& animation);
 
 		void mesh(Prisma::Node* mesh);
 

@@ -25,22 +25,18 @@ void Prisma::Animator::PlayAnimation(std::shared_ptr<Animation> pAnimation)
 	m_CurrentTime = 0.0f;
 }
 
-void Prisma::Animator::CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform, Prisma::AnimationHandler::SSBOAnimation& animation)
+void Prisma::Animator::CalculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform, Prisma::AnimationHandler::SSBOAnimation& animation)
 {
-	std::string nodeName = node->name;
+	const std::string& nodeName = node->name;
 	glm::mat4 nodeTransform = node->transformation;
 
-	Bone* Bone = m_CurrentAnimation->FindBone(nodeName);
+	auto Bone = m_CurrentAnimation->FindBone(nodeName);
 
 	if (Bone)
 	{
 		Bone->Update(m_CurrentTime);
 		nodeTransform = Bone->GetLocalTransform();
 	}
-	else {
-		//std::cout << "Bone not found " + nodeName<< std::endl;
-	}
-	
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
 	auto boneInfoMap = m_CurrentAnimation->GetBoneIDMap();
