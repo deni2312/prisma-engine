@@ -56,7 +56,7 @@ cd ..
 ### Sponza
 
 
-An example of sponza scene that runs 1000 point lights through clustered shading with some post-processing (Click on the image for the youtube video)
+An example of sponza scene that runs 1000 point lights through clustered shading with some post-processing, with animations took by mixamo (Click on the image for the youtube video)
 
 https://www.youtube.com/watch?v=T0_1JGvYyl0
 
@@ -113,6 +113,7 @@ Thank you for contributing to Prisma Engine!
 - https://github.com/DaveH355/clustered-shading
 - https://github.com/bulletphysics/bullet3
 - https://github.com/KhronosGroup/glTF-Sample-Models
+- https://www.mixamo.com/
 
 
 
