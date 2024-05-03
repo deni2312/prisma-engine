@@ -124,8 +124,8 @@ bool Prisma::Engine::run()
             AnimationHandler::getInstance().updateAnimations();
             MeshIndirect::getInstance().update();
             LightHandler::getInstance().update();
-
             data->timer.stop();
+
 
             data->imguiData->performances.at(2)->second = data->timer.duration_seconds();
 

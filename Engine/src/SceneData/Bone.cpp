@@ -115,7 +115,6 @@ glm::mat4 Prisma::Bone::InterpolateRotation(float animationTime) const
 		auto rotation = glm::normalize(m_Rotations[0].orientation);
 		return glm::toMat4(rotation);
 	}
-
 	int p0Index = GetRotationIndex(animationTime);
 	int p1Index = p0Index + 1;
 	float scaleFactor = GetScaleFactor(m_Rotations[p0Index].timeStamp,

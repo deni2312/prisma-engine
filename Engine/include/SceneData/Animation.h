@@ -37,7 +37,7 @@ namespace Prisma {
 		float GetTicksPerSecond() { return m_TicksPerSecond; }
 		float GetDuration() { return m_Duration; }
 		const AssimpNodeData& GetRootNode() { return m_RootNode; }
-		const std::map<std::string, Prisma::BoneInfo>& GetBoneIDMap();
+		const std::map<std::string, Prisma::BoneInfo>& GetBoneIDMap() const;
 
 	private:
 		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model);

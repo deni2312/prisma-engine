@@ -22,7 +22,7 @@ std::shared_ptr<Prisma::Bone> Prisma::Animation::FindBone(const std::string& nam
 	return m_Bones[name];
 }
 
-const std::map<std::string, Prisma::BoneInfo>& Prisma::Animation::GetBoneIDMap()
+const std::map<std::string, Prisma::BoneInfo>& Prisma::Animation::GetBoneIDMap() const
 {
 	return m_BoneInfoMap;
 }
