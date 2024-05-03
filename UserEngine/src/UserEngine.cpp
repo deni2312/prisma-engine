@@ -41,7 +41,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 bool UserEngine::update()
 {
     float deltaTime = 1 / fps();
-    animator->UpdateAnimation(deltaTime);
+    //animator->UpdateAnimation(deltaTime);
 
 
     return false;

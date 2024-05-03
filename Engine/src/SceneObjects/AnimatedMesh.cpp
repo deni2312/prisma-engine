@@ -1,4 +1,5 @@
 #include "../../include/SceneObjects/AnimatedMesh.h"
+#include "../../include/GlobalData/GlobalData.h"
 
 void Prisma::AnimatedMesh::loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices) {
 	m_animateVertices = vertices;
