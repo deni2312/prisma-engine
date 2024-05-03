@@ -55,7 +55,7 @@ std::string Prisma::Bone::GetBoneName() const { return m_Name; }
 
 int Prisma::Bone::GetBoneID() { return m_ID; }
 
-int Prisma::Bone::GetPositionIndex(float animationTime)
+int Prisma::Bone::GetPositionIndex(float animationTime) const
 {
 	for (int index = 0; index < m_NumPositions - 1; ++index)
 	{
@@ -65,7 +65,7 @@ int Prisma::Bone::GetPositionIndex(float animationTime)
 	assert(0);
 }
 
-int Prisma::Bone::GetRotationIndex(float animationTime)
+int Prisma::Bone::GetRotationIndex(float animationTime) const
 {
 	for (int index = 0; index < m_NumRotations - 1; ++index)
 	{
@@ -75,7 +75,7 @@ int Prisma::Bone::GetRotationIndex(float animationTime)
 	assert(0);
 }
 
-int Prisma::Bone::GetScaleIndex(float animationTime)
+int Prisma::Bone::GetScaleIndex(float animationTime) const
 {
 	for (int index = 0; index < m_NumScalings - 1; ++index)
 	{
@@ -85,7 +85,7 @@ int Prisma::Bone::GetScaleIndex(float animationTime)
 	assert(0);
 }
 
-float Prisma::Bone::GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime)
+float Prisma::Bone::GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime) const
 {
 	float scaleFactor = 0.0f;
 	float midWayLength = animationTime - lastTimeStamp;
@@ -94,7 +94,7 @@ float Prisma::Bone::GetScaleFactor(float lastTimeStamp, float nextTimeStamp, flo
 	return scaleFactor;
 }
 
-glm::mat4 Prisma::Bone::InterpolatePosition(float animationTime)
+glm::mat4 Prisma::Bone::InterpolatePosition(float animationTime) const
 {
 	if (1 == m_NumPositions)
 		return glm::translate(glm::mat4(1.0f), m_Positions[0].position);
@@ -108,7 +108,7 @@ glm::mat4 Prisma::Bone::InterpolatePosition(float animationTime)
 	return glm::translate(glm::mat4(1.0f), finalPosition);
 }
 
-glm::mat4 Prisma::Bone::InterpolateRotation(float animationTime)
+glm::mat4 Prisma::Bone::InterpolateRotation(float animationTime) const
 {
 	if (1 == m_NumRotations)
 	{
@@ -127,7 +127,7 @@ glm::mat4 Prisma::Bone::InterpolateRotation(float animationTime)
 
 }
 
-glm::mat4 Prisma::Bone::InterpolateScaling(float animationTime)
+glm::mat4 Prisma::Bone::InterpolateScaling(float animationTime) const
 {
 	if (1 == m_NumScalings)
 		return glm::scale(glm::mat4(1.0f), m_Scales[0].scale);

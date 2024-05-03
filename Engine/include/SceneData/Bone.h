@@ -42,22 +42,22 @@ namespace Prisma {
 
 
 
-		int GetPositionIndex(float animationTime);
+		int GetPositionIndex(float animationTime) const;
 
-		int GetRotationIndex(float animationTime);
+		int GetRotationIndex(float animationTime) const;
 
-		int GetScaleIndex(float animationTime);
+		int GetScaleIndex(float animationTime) const;
 
 
 	private:
 
-		float GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime);
+		float GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime) const;
 
-		glm::mat4 InterpolatePosition(float animationTime);
+		glm::mat4 InterpolatePosition(float animationTime) const;
 
-		glm::mat4 InterpolateRotation(float animationTime);
+		glm::mat4 InterpolateRotation(float animationTime) const;
 
-		glm::mat4 InterpolateScaling(float animationTime);
+		glm::mat4 InterpolateScaling(float animationTime) const;
 
 		std::vector<KeyPosition> m_Positions;
 		std::vector<KeyRotation> m_Rotations;
