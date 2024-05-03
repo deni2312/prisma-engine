@@ -86,7 +86,6 @@ If you encounter a bug, please submit an issue with detailed information about h
 
 ## Next updates
 
-- **Skeletal Meshes**
 - **Code refactoring**
 - **Cache physic states**
 - **Transparency**
