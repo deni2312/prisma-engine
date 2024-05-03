@@ -56,7 +56,7 @@ cd ..
 ### Sponza
 
 
-An example of sponza scene that runs 1000 point lights through clustered shading with some post-processing, with animations took by mixamo (Click on the image for the youtube video)
+An example of a Sponza scene that utilizes 1000 point lights through clustered shading, with some post-processing, and includes animations taken from Mixamo. (Click on the image for the youtube video)
 
 https://www.youtube.com/watch?v=T0_1JGvYyl0
 
