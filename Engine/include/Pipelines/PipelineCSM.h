@@ -33,6 +33,7 @@ namespace Prisma {
         unsigned int m_fbo;
 
         unsigned int m_posLightmatrix;
+        unsigned int m_posLightmatrixAnimation;
 
         glm::vec3 m_lightDir=glm::vec3(0.0f);
 

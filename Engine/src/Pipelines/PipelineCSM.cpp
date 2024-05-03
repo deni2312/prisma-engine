@@ -11,11 +11,13 @@
 
 
 static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
+static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
 
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_width{ width }, m_height{ height } {
 
     if (!m_shader) {
         m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl");
+        m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl");
     }
 
     glGenFramebuffers(1, &m_fbo);
@@ -41,6 +43,9 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
 
     m_shader->use();
     m_posLightmatrix = m_shader->getUniformPosition("lightSpaceMatrix");
+
+    m_shaderAnimation->use();
+    m_posLightmatrixAnimation = m_shaderAnimation->getUniformPosition("lightSpaceMatrix");
 }
 
 void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
@@ -63,6 +68,12 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glClear(GL_DEPTH_BUFFER_BIT);
     Prisma::MeshIndirect::getInstance().renderMeshes();
+
+    m_shaderAnimation->use();
+
+    m_shaderAnimation->setMat4(m_posLightmatrixAnimation, m_lightSpaceMatrix);
+
+    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
