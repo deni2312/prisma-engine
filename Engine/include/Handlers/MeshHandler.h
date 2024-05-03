@@ -21,6 +21,14 @@ namespace Prisma {
 			float padding[2];
 		};
 
+		struct alignas(16) UBOFragment {
+			glm::vec4 viewPos;
+			uint64_t irradiancePos;
+			uint64_t prefilterPos;
+			uint64_t lutPos;
+			glm::vec2 padding;
+		};
+
 		static const unsigned int VIEW_OFFSET = 0;
 		static const unsigned int PROJECTION_OFFSET = sizeof(glm::mat4);
 
@@ -30,6 +38,7 @@ namespace Prisma {
 		MeshHandler& operator=(const MeshHandler&) = delete;
 		void updateCamera();
 		void updateCluster();
+		void updateFragment();
 
 		static MeshHandler& getInstance();
 
@@ -39,7 +48,9 @@ namespace Prisma {
         std::shared_ptr<UBOData> m_uboData;
 		std::shared_ptr<Ubo> m_ubo;
 		std::shared_ptr<Ubo> m_uboCluster;
+		std::shared_ptr<Ubo> m_uboFragment;
 		UBOCluster m_uboClusterData;
+		UBOFragment m_fragment;
 		Prisma::Settings m_settings;
 		static std::shared_ptr<MeshHandler> instance;
 	};

@@ -32,19 +32,10 @@ namespace Prisma {
 		unsigned int m_positionLocation;
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;
-		unsigned int m_viewPosLocation;
 		std::shared_ptr<Prisma::FBO> m_output;
 		std::shared_ptr<Prisma::FBO> m_fbo;
         std::shared_ptr<Prisma::FBO> m_fboSSR;
         std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
-		unsigned int m_irradiancePos;
-		unsigned int m_prefilterPos;
-		unsigned int m_lutPos;
-
-		unsigned int m_nearPos;
-		unsigned int m_farPos;
-		unsigned int m_gridSizePos;
-		unsigned int m_screenDimensionsPos;
 
 		Prisma::Settings m_settings;
 
