@@ -17,9 +17,12 @@
 
 Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb):m_width{ width },m_height{ height }
 {
-    m_shader = std::make_shared<Shader>("../../../Engine/Shaders/DeferredPipeline/vertex.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl");
+    Shader::ShaderHeaders header;
+    header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n";
+    m_shader = std::make_shared<Shader>("../../../Engine/Shaders/DeferredPipeline/vertex.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl",nullptr, header);
     m_shaderD = std::make_shared<Shader>("../../../Engine/Shaders/DeferredPipeline/vertex_d.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment_d.glsl");
-    m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_deferred.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl");
+    header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n#define ANIMATE 1\n";
+    m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_deferred.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl",nullptr,header);
 
     m_ssr=std::make_shared<Prisma::PipelineSSR>();
     m_shaderD->use();

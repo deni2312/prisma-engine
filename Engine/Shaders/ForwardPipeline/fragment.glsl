@@ -1,5 +1,4 @@
-#version 460 core
-#extension GL_ARB_bindless_texture : enable
+
 out vec4 FragColor;
 
 in vec3 FragPos;
@@ -72,10 +71,19 @@ struct MaterialData {
     vec2 padding;
 };
 
+MaterialData currentMaterial;
+
+#if defined(ANIMATE)
+layout(std430, binding = 7) buffer MaterialAnimation
+{
+    MaterialData materialDataAnimation[];
+};
+#else
 layout(std430, binding = 0) buffer Material
 {
     MaterialData materialData[];
 };
+#endif
 
 layout(std430, binding = 2) buffer Directional
 {
@@ -103,7 +111,7 @@ const float PI = 3.14159265359;
 
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(materialData[drawId].normal, TexCoords).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(currentMaterial.normal, TexCoords).xyz * 2.0 - 1.0;
 
     vec3 Q1 = dFdx(FragPos);
     vec3 Q2 = dFdy(FragPos);
@@ -237,8 +245,13 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace,vec3 lightPos,vec3 N,u
 
 void main()
 {
-    vec3 albedo = texture(materialData[drawId].diffuse, TexCoords).rgb;
-    vec4 roughnessMetalnessTexture = texture(materialData[drawId].roughness_metalness, TexCoords);
+    #if defined(ANIMATE)
+    currentMaterial = materialDataAnimation[drawId];
+    #else
+    currentMaterial = materialData[drawId];
+    #endif
+    vec3 albedo = texture(currentMaterial.diffuse, TexCoords).rgb;
+    vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
     float metallic = roughnessMetalnessTexture.b;
     float roughness = roughnessMetalnessTexture.g;
 

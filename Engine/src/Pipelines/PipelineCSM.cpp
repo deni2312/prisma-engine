@@ -10,7 +10,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 
-static std::shared_ptr<Shader> m_shader = nullptr;
+static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
 
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_width{ width }, m_height{ height } {
 

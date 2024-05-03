@@ -277,7 +277,7 @@ void Prisma::MeshIndirect::updateTextureSize() {
     m_materialDataAnimation.clear();
     auto meshesAnimation = currentGlobalScene->animateMeshes;
     for (auto material : meshesAnimation) {
-        m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
+        m_materialDataAnimation.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
     }
     m_ssboMaterialAnimation->resize(sizeof(Prisma::MaterialData) * (m_materialDataAnimation.size()));
     m_ssboMaterialAnimation->modifyData(0, sizeof(Prisma::MaterialData) * m_materialDataAnimation.size(), m_materialDataAnimation.data());

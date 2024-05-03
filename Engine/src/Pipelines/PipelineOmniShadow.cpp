@@ -4,7 +4,7 @@
 #include "../../include/SceneData/MeshIndirect.h"
 #include "../../include/GlobalData/GlobalData.h"
 
-static std::shared_ptr<Shader> m_shader = nullptr;
+static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
 
 Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int height):m_width{width},m_height{height} {
 
