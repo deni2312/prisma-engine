@@ -5,11 +5,13 @@
 #include "../../include/GlobalData/GlobalData.h"
 
 static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
+static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
 
 Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int height):m_width{width},m_height{height} {
 
     if(!m_shader){
         m_shader=std::make_shared<Shader>("../../../Engine/Shaders/OmniShadowPipeline/vertex.glsl", "../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl","../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl");
+        m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_omni.glsl", "../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl", "../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl");
     }
 
     glGenFramebuffers(1, &m_fbo);
@@ -36,6 +38,12 @@ Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int 
     m_lightPos=m_shader->getUniformPosition("lightPos");
     for (unsigned int i = 0; i < 6; ++i)
         m_shadowPosition.push_back(m_shader->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
+
+    m_shaderAnimation->use();
+    m_farPlanePosAnimation = m_shaderAnimation->getUniformPosition("far_plane");
+    m_lightPosAnimation = m_shaderAnimation->getUniformPosition("lightPos");
+    for (unsigned int i = 0; i < 6; ++i)
+        m_shadowPositionAnimation.push_back(m_shaderAnimation->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
     m_id = glGetTextureHandleARB(depthCubemap);
     glMakeTextureHandleResidentARB(m_id);
 }
@@ -64,6 +72,16 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos) {
     m_shader->setVec3(m_lightPos, lightPos);
 
     Prisma::MeshIndirect::getInstance().renderMeshes();
+
+    m_shaderAnimation->use();
+
+    for (unsigned int i = 0; i < 6; ++i) {
+        m_shaderAnimation->setMat4(m_shadowPositionAnimation[i], m_shadowTransforms[i]);
+    }
+    m_shaderAnimation->setFloat(m_farPlanePosAnimation, m_farPlane);
+    m_shaderAnimation->setVec3(m_lightPosAnimation, lightPos);
+
+    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.

@@ -58,7 +58,9 @@ cd ..
 
 An example of sponza scene that runs 1000 point lights through clustered shading with some post-processing (Click on the image for the youtube video)
 
-[![Sponza](https://img.youtube.com/vi/QSJAYbaVJJw/0.jpg)](https://www.youtube.com/watch?v=QSJAYbaVJJw)
+https://www.youtube.com/watch?v=T0_1JGvYyl0
+
+[![Sponza](https://img.youtube.com/vi/T0_1JGvYyl0/0.jpg)](https://www.youtube.com/watch?v=T0_1JGvYyl0)
 
 ### Physics
 
