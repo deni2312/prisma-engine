@@ -40,27 +40,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
 bool UserEngine::update()
 {
-    static float time = 0.0f;
-    constexpr float speed = 1.0f;  // Adjust this to change the speed of movement
-
-    // Update time
-    time += speed * 1/fps();  // Assuming deltaTime() gives the time since last frame
-
-    // Update light positions based on sine or cosine
-    for (int i = 0; i < m_lights.size(); ++i) {
-        auto light = m_lights[i];
-
-        // Move lights along Y-axis using sine or cosine functions
-        float xOffset = sin(time + i * 0.5f) * 4.0f;  // Adjust amplitude and frequency
-        glm::vec4 newPos = light->type().position;
-        newPos.x = xOffset;
-
-        // Update the light's position
-        auto type = light->type();
-        type.position = newPos;
-        light->type(type);
-    }
-    float deltaTime = (float)1 / (float)fps();
+    float deltaTime = 1 / fps();
     animator->UpdateAnimation(deltaTime);
 
 

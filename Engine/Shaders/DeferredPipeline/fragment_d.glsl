@@ -7,10 +7,14 @@ layout(bindless_sampler) uniform sampler2D gPosition;
 layout(bindless_sampler) uniform sampler2D gNormal;
 layout(bindless_sampler) uniform sampler2D gAlbedo;
 
-uniform float zNear;
-uniform float zFar;
-uniform uvec3 gridSize;
-uniform uvec2 screenDimensions;
+layout(std140, binding = 2) uniform ClusterData
+{
+    uvec4 gridSize;
+    uvec4 screenDimensions;
+    float zNear;
+    float zFar;
+    float padding[2];
+};
 
 
 struct Cluster
@@ -253,7 +257,7 @@ void main()
 
     // Locating which cluster this fragment is part of
     uint zTile = uint((log(abs(vec3(view * vec4(FragPos, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
-    vec2 tileSize = screenDimensions / gridSize.xy;
+    vec2 tileSize = screenDimensions.xy / gridSize.xy;
     uvec3 tile = uvec3(gl_FragCoord.xy / tileSize, zTile);
     uint tileIndex =
         tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);

@@ -14,8 +14,6 @@ out vec4 shadowDirData[16];
 
 flat out int drawId;
 
-uniform mat4 lightSpaceMatrix;
-
 layout(std140, binding = 1) uniform MeshData
 {
     mat4 view;

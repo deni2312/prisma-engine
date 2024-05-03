@@ -2,6 +2,7 @@
 #include <memory>
 #include "glm/glm.hpp"
 #include "../Containers/Ubo.h"
+#include "../Helpers/Settings.h"
 
 namespace Prisma {
 	class MeshHandler {
@@ -11,6 +12,15 @@ namespace Prisma {
 			glm::mat4 view;
 			glm::mat4 projection;
 		};
+
+		struct alignas(16) UBOCluster {
+			glm::uvec4 gridSize;
+			glm::uvec4 screenDimensions;
+			float zNear;
+			float zFar;
+			float padding[2];
+		};
+
 		static const unsigned int VIEW_OFFSET = 0;
 		static const unsigned int PROJECTION_OFFSET = sizeof(glm::mat4);
 
@@ -19,6 +29,7 @@ namespace Prisma {
 		MeshHandler(const MeshHandler&) = delete;
 		MeshHandler& operator=(const MeshHandler&) = delete;
 		void updateCamera();
+		void updateCluster();
 
 		static MeshHandler& getInstance();
 
@@ -27,6 +38,9 @@ namespace Prisma {
     private:
         std::shared_ptr<UBOData> m_uboData;
 		std::shared_ptr<Ubo> m_ubo;
+		std::shared_ptr<Ubo> m_uboCluster;
+		UBOCluster m_uboClusterData;
+		Prisma::Settings m_settings;
 		static std::shared_ptr<MeshHandler> instance;
 	};
 }
