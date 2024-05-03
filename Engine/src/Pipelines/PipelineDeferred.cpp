@@ -19,6 +19,8 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 {
     m_shader = std::make_shared<Shader>("../../../Engine/Shaders/DeferredPipeline/vertex.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl");
     m_shaderD = std::make_shared<Shader>("../../../Engine/Shaders/DeferredPipeline/vertex_d.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment_d.glsl");
+    m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_deferred.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl");
+
     m_ssr=std::make_shared<Prisma::PipelineSSR>();
     m_shaderD->use();
 
@@ -101,6 +103,10 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
     m_shader->use();
 
     Prisma::MeshIndirect::getInstance().renderMeshes();
+
+    m_shaderAnimate->use();
+
+    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
     // Unbind the buffer
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);

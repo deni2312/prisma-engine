@@ -24,6 +24,7 @@ namespace Prisma {
 		unsigned int m_height;
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderD;
+		std::shared_ptr<Shader> m_shaderAnimate;
 		glm::mat4 m_projection;
 		unsigned int m_gBuffer;
 		uint64_t m_position;
