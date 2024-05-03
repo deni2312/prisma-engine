@@ -26,7 +26,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
     Prisma::NodeHelper nodeHelper;
 
     auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
-    auto animatedMesh1 = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_visor")->children()[0]);
+    auto animatedMesh1 = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh.001")->children()[0]);
 
     if (animatedMesh) {
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Sponza/animation.gltf", animatedMesh);
@@ -35,9 +35,9 @@ UserEngine::UserEngine() : Prisma::Engine{}
     }
 
     if (animatedMesh1) {
-        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Sponza/animation.gltf", animatedMesh1);
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Sponza/animation1.gltf", animatedMesh1);
         animator1 = std::make_shared<Prisma::Animator>(animation);
-        animatedMesh->animator(animator1);
+        animatedMesh1->animator(animator1);
     }
 
     auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(nodeHelper.find(m_sceneNode->root, "Point")->children()[0]);
