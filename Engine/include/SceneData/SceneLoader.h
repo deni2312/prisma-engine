@@ -19,15 +19,25 @@ namespace Prisma {
 			bool srgb = false;
 		};
 		std::shared_ptr<Scene> loadScene(std::string scene, SceneParameters sceneParameters);
+
+
+
 	private:
 
 		float calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold);
 
 		void nodeIteration(std::shared_ptr<Node> nodeRoot,aiNode* node, const aiScene* scene);
-		glm::mat4 getTransform(aiMatrix4x4 matrix);
+
+		void setVertexBoneDataToDefault(Prisma::AnimatedMesh::AnimateVertex& vertex);
+
+		void setVertexBoneData(Prisma::AnimatedMesh::AnimateVertex& vertex, int boneID, float weight);
+
+		void extractBoneWeightForVertices(std::shared_ptr<Prisma::AnimatedMesh> animatedMesh,std::shared_ptr<AnimatedMesh::AnimateVerticesData> vertices, aiMesh* mesh, const aiScene* scene);
+
 		std::shared_ptr<Prisma::Mesh> getMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<Prisma::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,bool srgb=false);
 		void loadLights(const aiScene* currentScene, std::shared_ptr<Node> root);
+
 		std::vector<Prisma::Texture> textures_loaded;
 		std::shared_ptr<Scene> m_scene;
 		std::string m_folder;

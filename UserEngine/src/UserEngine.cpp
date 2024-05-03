@@ -10,11 +10,13 @@
 
 #include <random>
 #include <glm/gtc/random.hpp>
+#include "../../Engine/include/SceneData/Animation.h"
+
+std::shared_ptr<Prisma::Animator> animator;
 
 UserEngine::UserEngine() : Prisma::Engine{}
 {
 	m_sceneNode = getScene("../../../Resources/Helmet/DamagedHelmet.gltf", {true});
-
 	Prisma::Texture texture;
 	texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
 	texture.data({ 4096,4096,3 });
@@ -22,43 +24,25 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::NodeHelper nodeHelper;
 
-    nodeHelper.nodeIterator(m_sceneNode->root,[](auto mesh,auto parent){
-        auto currentMesh=std::dynamic_pointer_cast<Prisma::Mesh>(mesh);
-        if(currentMesh){
-            auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
-            physicsComponent->collisionData({Prisma::Physics::Collider::BOX_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true});
-            currentMesh->addComponent(physicsComponent);
-        }
-    });
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "Beta_Surface")->children()[0]);
+
+    if (animatedMesh) {
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/animation.gltf", animatedMesh);
+        animator= std::make_shared<Prisma::Animator>(animation);
+        animatedMesh->animator(animator);
+    }
+
+    
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
     
-    
-
 }
 
 bool UserEngine::update()
 {
-    static float time = 0.0f;
-    constexpr float speed = 1.0f;  // Adjust this to change the speed of movement
+    float deltaTime = 1 / fps();
+    animator->UpdateAnimation(deltaTime);
 
-    // Update time
-    time += speed * 1/fps();  // Assuming deltaTime() gives the time since last frame
-
-    // Update light positions based on sine or cosine
-    for (int i = 0; i < m_lights.size(); ++i) {
-        auto light = m_lights[i];
-
-        // Move lights along Y-axis using sine or cosine functions
-        float xOffset = sin(time + i * 0.5f) * 4.0f;  // Adjust amplitude and frequency
-        glm::vec4 newPos = light->type().position;
-        newPos.x = xOffset;
-
-        // Update the light's position
-        auto type = light->type();
-        type.position = newPos;
-        light->type(type);
-    }
 
     return false;
 }

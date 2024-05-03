@@ -6,6 +6,7 @@
 #include "../Components/MaterialComponent.h"
 #include "../Physics/Physics.h"
 #include "../Components/Component.h"
+#include <map>
 
 namespace Prisma {
     class Mesh : public Prisma::Node{
@@ -26,6 +27,12 @@ namespace Prisma {
             glm::vec3 max;
             glm::vec3 center;
         };
+        struct BoneInfo
+        {
+            int id;
+            glm::mat4 offset;
+        };
+
         void loadModel(std::shared_ptr<VerticesData> vertices);
         const VerticesData& verticesData() const;
 
@@ -48,7 +55,7 @@ namespace Prisma {
         std::vector<std::shared_ptr<Prisma::Component>> components();
 
         unsigned int vectorId();
-    private:
+    protected:
         std::shared_ptr<VerticesData> m_vertices;
         std::shared_ptr<Prisma::MaterialComponent> m_material;
 

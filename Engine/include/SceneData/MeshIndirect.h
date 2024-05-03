@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include "../SceneObjects/Mesh.h"
+#include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Camera.h"
 #include "../Helpers/Shader.h"
 #include "../Containers/SSBO.h"
@@ -21,26 +22,27 @@ namespace Prisma {
 		unsigned int  baseInstance;
 	};
 
-	struct IndirectLoaded {
-		unsigned int m_vao;
-		unsigned int m_drawBuffer;
-	};
-
 	class MeshIndirect {
 	private:
-		std::shared_ptr<Shader> m_shader;
-
 		//BINDING DATA
 
 		std::shared_ptr<Prisma::VAO> m_vao;
         std::shared_ptr<Prisma::VBO> m_vbo;
         std::shared_ptr<Prisma::EBO> m_ebo;
 
+		std::shared_ptr<Prisma::VAO> m_vaoAnimation;
+		std::shared_ptr<Prisma::VBO> m_vboAnimation;
+		std::shared_ptr<Prisma::EBO> m_eboAnimation;
+
 		//INDIRECT INDEX
 
 		unsigned int m_indirectDraw;
 		unsigned int m_currentIndex;
 		unsigned int m_currentVertex;
+
+		unsigned int m_indirectDrawAnimation;
+		unsigned int m_currentIndexAnimation;
+		unsigned int m_currentVertexAnimation;
 
 		//CURRENT CACHE DATA
 
@@ -57,11 +59,19 @@ namespace Prisma {
 		std::vector<DrawElementsIndirectCommand> m_drawCommands;
 		std::shared_ptr<Prisma::SSBO> m_ssboModel;
 		std::shared_ptr<Prisma::SSBO> m_ssboMaterial;
+
+
+		Prisma::AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
+		std::vector<DrawElementsIndirectCommand> m_drawCommandsAnimation;
+		std::shared_ptr<Prisma::SSBO> m_ssboModelAnimation;
+		std::shared_ptr<Prisma::SSBO> m_ssboMaterialAnimation;
+
 		std::vector<Prisma::MaterialData> m_materialData;
+		std::vector<Prisma::MaterialData> m_materialDataAnimation;
 
         static std::shared_ptr<MeshIndirect> instance;
 
-		Prisma::IndirectLoaded m_indirectLoaded;
+		void updateAnimation();
 
 	public:
 		static MeshIndirect& getInstance();
@@ -69,7 +79,10 @@ namespace Prisma {
 		MeshIndirect(const MeshIndirect&) = delete;
 		MeshIndirect& operator=(const MeshIndirect&) = delete;
 		void load();
-		Prisma::IndirectLoaded indirectLoaded();
+
+		void renderMeshes();
+		void renderAnimateMeshes();
+
 		void update();
 		void updateSize();
 		void updateModels();

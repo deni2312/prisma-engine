@@ -8,10 +8,6 @@ uniform vec3 viewPos;
 in vec3 Normal;
 flat in int drawId;
 in vec4 shadowDirData[16];
-uniform float zNear;
-uniform float zFar;
-uniform uvec3 gridSize;
-uniform uvec2 screenDimensions;
 
 
 struct Cluster
@@ -36,10 +32,14 @@ struct DirectionalData
     vec2 padding;
 };
 
-layout(std140, binding = 2) uniform LightSpaceMatrices
+layout(std140, binding = 2) uniform ClusterData
 {
-    mat4 lightSpaceMatrices[16];
-}; 
+    uvec4 gridSize;
+    uvec4 screenDimensions;
+    float zNear;
+    float zFar;
+    float padding[2];
+};
 
 layout(std140, binding = 1) uniform MeshData
 {
@@ -284,7 +284,7 @@ void main()
 
     // Locating which cluster this fragment is part of
     uint zTile = uint((log(abs(vec3(view*vec4(FragPos,1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
-    vec2 tileSize = screenDimensions / gridSize.xy;
+    vec2 tileSize = screenDimensions.xy / gridSize.xy;
     uvec3 tile = uvec3(gl_FragCoord.xy / tileSize, zTile);
     uint tileIndex =
         tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);

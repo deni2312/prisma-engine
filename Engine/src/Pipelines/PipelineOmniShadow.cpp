@@ -62,14 +62,8 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos) {
     }
     m_shader->setFloat(m_farPlanePos, m_farPlane);
     m_shader->setVec3(m_lightPos, lightPos);
-    //Render scene
-    const auto& indirectLoaded = Prisma::MeshIndirect::getInstance().indirectLoaded();
 
-    glBindVertexArray(indirectLoaded.m_vao);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectLoaded.m_drawBuffer);
-    // Call glMultiDrawElementsIndirect to render
-    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+    Prisma::MeshIndirect::getInstance().renderMeshes();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
@@ -83,14 +77,14 @@ float Prisma::PipelineOmniShadow::farPlane() {
     return m_farPlane;
 }
 
-inline void Prisma::PipelineOmniShadow::farPlane(float farPlane) {
+void Prisma::PipelineOmniShadow::farPlane(float farPlane) {
     m_farPlane = farPlane;
 }
 
-inline float Prisma::PipelineOmniShadow::nearPlane() {
+float Prisma::PipelineOmniShadow::nearPlane() {
     return m_nearPlane;
 }
 
-inline void Prisma::PipelineOmniShadow::nearPlane(float nearPlane) {
+void Prisma::PipelineOmniShadow::nearPlane(float nearPlane) {
     m_nearPlane = nearPlane;
 }

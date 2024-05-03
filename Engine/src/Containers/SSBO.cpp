@@ -1,13 +1,23 @@
 #include "../../include/Containers/SSBO.h"
 #include "../../include/Helpers/GarbageCollector.h"
+#include <iostream>
+
+static std::vector<unsigned int> usedId;
 
 Prisma::SSBO::SSBO(unsigned int ssbo) {
-    glGenBuffers(1, &m_ssbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssbo, m_ssbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    Prisma::GarbageCollector::getInstance().add({Prisma::GarbageCollector::GarbageType::BUFFER,m_ssbo});
-    m_id = ssbo;
+    auto find = std::find(usedId.begin(), usedId.end(), ssbo);
+    if (find != usedId.end()) {
+        std::cerr << "SSBO ID " << ssbo << " ALREADY USED" << std::endl;
+    }
+    else {
+        usedId.push_back(ssbo);
+        glGenBuffers(1, &m_ssbo);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssbo, m_ssbo);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        Prisma::GarbageCollector::getInstance().add({ Prisma::GarbageCollector::GarbageType::BUFFER,m_ssbo });
+        m_id = ssbo;
+    }
 }
 
 void Prisma::SSBO::resize(unsigned int size, unsigned int type)

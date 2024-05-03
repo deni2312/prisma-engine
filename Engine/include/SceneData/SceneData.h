@@ -1,6 +1,7 @@
 #pragma once
 #include "../SceneObjects/Node.h"
 #include "../SceneObjects/Mesh.h"
+#include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Light.h"
 #include "../SceneObjects/Camera.h"
 #include <vector>
@@ -13,9 +14,7 @@ namespace Prisma {
 		struct LightDir;
 		struct LightOmni;
 	}
-}
 
-namespace Prisma {
 	struct Scene {
 
 		struct ModelData {
@@ -26,6 +25,7 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Node> root;
 		std::shared_ptr<Prisma::Camera> camera;
 		std::vector<std::shared_ptr<Prisma::Mesh>> meshes;
+		std::vector<std::shared_ptr<Prisma::AnimatedMesh>> animateMeshes;
 		ModelData modelData;
 		std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightDir>>> dirLights;
 		std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightOmni>>> omniLights;
