@@ -250,7 +250,13 @@ void main()
     #else
     currentMaterial = materialData[drawId];
     #endif
-    vec3 albedo = texture(currentMaterial.diffuse, TexCoords).rgb;
+
+    vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords);
+
+    vec3 albedo = diffuseTexture.rgb;
+    if (diffuseTexture.a < 0.1) {
+        discard;
+    }
     vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
     float metallic = roughnessMetalnessTexture.b;
     float roughness = roughnessMetalnessTexture.g;
