@@ -90,9 +90,11 @@ void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
             };
             auto name = getLast(animation->name());
             ImGui::Text("%s", name.c_str());
-            float current = animator->currentTime()/animation->GetDuration()*100;
+            float current = animator->currentTime();
             //ImGui::ProgressBar(current);
-            ImGui::SliderFloat("Slider", &current, 0.0f, 100.0f); // Slider for float value between 0 and 1
+            if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->GetDuration())) {
+                animator->frame(current);
+            }
         }
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
         showComponents(meshData);

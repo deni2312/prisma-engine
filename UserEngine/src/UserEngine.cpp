@@ -30,7 +30,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     if (animatedMesh) {
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Sponza/animation.gltf", animatedMesh);
-        animator= std::make_shared<Prisma::Animator>(animation);
+        animator = std::make_shared<Prisma::Animator>(animation);
         animatedMesh->animator(animator);
     }
 
@@ -65,6 +65,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
         }
     }
 
+
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
     
 }
@@ -94,6 +95,7 @@ bool UserEngine::update()
         light->type(type);
     }
 
+    animator1->updateAnimation(1.0f / fps());
 
     return false;
 }
