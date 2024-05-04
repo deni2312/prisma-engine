@@ -54,6 +54,7 @@ layout(std430, binding = 8) buffer BoneMatrices
 void main()
 {
     vec4 totalPosition = vec4(0.0f);
+    vec3 localNormal = vec3(0.0f);
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
     {
         if (boneIds[i] == -1)
@@ -65,13 +66,14 @@ void main()
         }
         vec4 localPosition = boneMatrices[gl_DrawID].animations[boneIds[i]] * vec4(aPos, 1.0f);
         totalPosition += localPosition * weights[i];
+        localNormal = mat3(boneMatrices[gl_DrawID].animations[boneIds[i]]) * aNormal;
     }
 
     drawId = gl_DrawID;
     FragPos = vec3(modelAnimationMatrices[gl_DrawID] * vec4(aPos, 1.0));
     TexCoords = aTexCoords;
     mat3 normalMatrix = mat3(transpose(inverse(mat3(modelAnimationMatrices[gl_DrawID]))));
-    Normal = normalMatrix * aNormal;
+    Normal = normalMatrix * normalize(localNormal);
     for (int i = 0; i < lenMat.r; i++) {
         shadowDirData[i] = shadowMatrices[i].shadow * vec4(FragPos, 1.0);
     }
