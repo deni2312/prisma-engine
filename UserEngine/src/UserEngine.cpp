@@ -94,9 +94,6 @@ bool UserEngine::update()
         light->type(type);
     }
 
-    animator->UpdateAnimation(deltaTime);
-    animator1->UpdateAnimation(deltaTime);
-
 
     return false;
 }

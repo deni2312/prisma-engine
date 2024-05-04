@@ -25,13 +25,17 @@ std::vector<Prisma::AnimationHandler::SSBOAnimation>& Prisma::AnimationHandler::
 
 Prisma::AnimationHandler::AnimationHandler()
 {
-
 	m_ssboAnimation = std::make_shared<SSBO>(8);
 	m_ssboAnimation->resize(sizeof(SSBOAnimation)*MAX_ANIMATION_MESHES);
 	m_animations.resize(MAX_ANIMATION_MESHES);
+	for (int i = 0; i < m_animations.size(); i++) {
+		for (int j = 0; j < MAX_BONES; j++) {
+			m_animations[i].animations[j] = glm::mat4(1.0f);
+		}
+	}
 }
 
-inline void Prisma::AnimationHandler::copyMatrices(SSBOAnimation& animation, std::vector<glm::mat4>& animationsData) {
+void Prisma::AnimationHandler::copyMatrices(SSBOAnimation& animation, std::vector<glm::mat4>& animationsData) {
 	for (int i = 0; i < animationsData.size(); i++) {
 		animation.animations[i] = animationsData[i];
 	}

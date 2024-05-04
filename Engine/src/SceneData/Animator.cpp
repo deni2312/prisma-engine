@@ -56,6 +56,14 @@ void Prisma::Animator::mesh(Node* mesh) {
 	m_mesh = mesh;
 }
 
+std::shared_ptr<Prisma::Animation> Prisma::Animator::animation() {
+	return m_CurrentAnimation;
+}
+
+float Prisma::Animator::currentTime() const {
+	return m_CurrentTime;
+}
+
 int Prisma::Animator::findUUID()
 {
 	auto meshes = currentGlobalScene->animateMeshes;

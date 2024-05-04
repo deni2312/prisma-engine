@@ -38,7 +38,7 @@ void Prisma::MeshInfo::drawGizmo(Prisma::MeshInfo::MeshData meshData) {
 }
 
 void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
-    if(meshData.mesh) {
+    if (meshData.mesh) {
 
         float windowWidth = meshData.translate * meshData.width / 2.0f;
         auto nextRight = [&](float pos) {
@@ -64,9 +64,9 @@ void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
 
 
 
-        ImGui::InputFloat3("Translation",glm::value_ptr(m_translation),"%.3f", ImGuiInputTextFlags_ReadOnly);
+        ImGui::InputFloat3("Translation", glm::value_ptr(m_translation), "%.3f", ImGuiInputTextFlags_ReadOnly);
 
-        ImGui::InputFloat3("Rotation",glm::value_ptr(m_rotation), "%.3f", ImGuiInputTextFlags_ReadOnly);
+        ImGui::InputFloat3("Rotation", glm::value_ptr(m_rotation), "%.3f", ImGuiInputTextFlags_ReadOnly);
 
         ImGui::InputFloat3("Scale", glm::value_ptr(m_scale), "%.3f", ImGuiInputTextFlags_ReadOnly);
 
@@ -80,10 +80,22 @@ void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
         if (mass <= 0.0) {
             drawGizmo(meshData);
         }
-
+        auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.mesh);
+        if (isAnimate) {
+            auto animator = isAnimate->animator();
+            auto animation = animator->animation();
+            auto getLast = [](std::string s) {
+                size_t found = s.find_last_of('/');
+                return found != std::string::npos ? s.substr(found + 1) : s;
+            };
+            auto name = getLast(animation->name());
+            ImGui::Text("%s", name.c_str());
+            float current = animator->currentTime()/animation->GetDuration()*100;
+            //ImGui::ProgressBar(current);
+            ImGui::SliderFloat("Slider", &current, 0.0f, 100.0f); // Slider for float value between 0 and 1
+        }
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
         showComponents(meshData);
-
         ImGui::End();
     }
 }

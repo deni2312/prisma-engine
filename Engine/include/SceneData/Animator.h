@@ -21,6 +21,10 @@ namespace Prisma {
 
 		void mesh(Prisma::Node* mesh);
 
+		std::shared_ptr<Animation> animation();
+
+		float currentTime() const;
+
 	private:
 		std::shared_ptr<Animation> m_CurrentAnimation;
 

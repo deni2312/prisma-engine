@@ -38,8 +38,10 @@ namespace Prisma {
 		float GetDuration() { return m_Duration; }
 		const AssimpNodeData& GetRootNode() { return m_RootNode; }
 		const std::map<std::string, Prisma::BoneInfo>& GetBoneIDMap() const;
+		std::string name() const;
 
 	private:
+		std::string m_animationPath;
 		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model);
 		glm::mat4 m_inverseTransform;
 		void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src);

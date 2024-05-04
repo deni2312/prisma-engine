@@ -1,6 +1,6 @@
 #include "../../include/SceneData/Animation.h"
 
-Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model)
+Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model):m_animationPath{animationPath}
 {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
@@ -25,6 +25,10 @@ std::shared_ptr<Prisma::Bone> Prisma::Animation::FindBone(const std::string& nam
 const std::map<std::string, Prisma::BoneInfo>& Prisma::Animation::GetBoneIDMap() const
 {
 	return m_BoneInfoMap;
+}
+
+std::string Prisma::Animation::name() const {
+	return m_animationPath;
 }
 
 void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model)
