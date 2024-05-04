@@ -46,13 +46,14 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
 
     m_shaderAnimation->use();
     m_posLightmatrixAnimation = m_shaderAnimation->getUniformPosition("lightSpaceMatrix");
+    m_projectionLength = glm::vec4(-10.0f, 10.0f, -10.0f, 10.0f);
 }
 
 void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     m_lightDir = lightPos;
     glm::mat4 lightProjection, lightView;
     //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, m_nearPlane, m_farPlane);
+    lightProjection = glm::ortho(m_projectionLength.x, m_projectionLength.y, m_projectionLength.z, m_projectionLength.w , m_nearPlane, m_farPlane);
     lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
     m_lightSpaceMatrix = lightProjection * lightView;
 
@@ -81,6 +82,15 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
 
 glm::mat4 Prisma::PipelineCSM::lightMatrix() {
     return m_lightSpaceMatrix;
+}
+
+void Prisma::PipelineCSM::projectionLength(glm::vec4 projectionLength) {
+    m_projectionLength = projectionLength;
+    updateLights = true;
+}
+
+glm::vec4 Prisma::PipelineCSM::projectionLength() {
+    return m_projectionLength;
 }
 
 uint64_t Prisma::PipelineCSM::id() {

@@ -42,15 +42,24 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
         float farPlane = shadow->farPlane();
         float nearPlane = shadow->nearPlane();
 
+        auto csmShadow = std::dynamic_pointer_cast<Prisma::PipelineCSM>(shadow);
+
+        glm::vec4 projection = csmShadow->projectionLength();
+
         if (ImGui::InputFloat("Far Plane ", &farPlane)) {
             shadow->farPlane(farPlane);
+            skipUpdate = true;
         }
 
         if (ImGui::InputFloat("Near Plane ", &nearPlane)) {
             shadow->nearPlane(nearPlane);
+            skipUpdate = true;
         }
 
-        skipUpdate = true;
+        if (ImGui::InputFloat3("Projection ", glm::value_ptr(projection))) {
+            csmShadow->projectionLength(projection);
+            skipUpdate = true;
+        }
     }
 
 
@@ -98,13 +107,14 @@ void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightO
 
         if (ImGui::InputFloat("Far Plane ", &farPlane)) {
             shadow->farPlane(farPlane);
+            skipUpdate = true;
         }
 
         if (ImGui::InputFloat("Near Plane ", &nearPlane)) {
             shadow->nearPlane(nearPlane);
+            skipUpdate = true;
         }
 
-        skipUpdate = true;
     }
 
     ImGui::End();

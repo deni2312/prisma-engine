@@ -26,6 +26,10 @@ namespace Prisma {
 
         glm::mat4 lightMatrix();
 
+        void projectionLength(glm::vec4 projectionLength);
+
+        glm::vec4 projectionLength();
+
     private:
         unsigned int m_width;
         unsigned int m_height;
@@ -42,6 +46,7 @@ namespace Prisma {
         uint64_t m_id;
         float m_farPlane = 100;
         float m_nearPlane = 0.1f;
+        glm::vec4 m_projectionLength;
 
         std::shared_ptr<Prisma::Ubo> m_ubo;
 
