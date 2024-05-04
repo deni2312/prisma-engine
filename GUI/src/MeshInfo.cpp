@@ -83,17 +83,19 @@ void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
         auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.mesh);
         if (isAnimate) {
             auto animator = isAnimate->animator();
-            auto animation = animator->animation();
-            auto getLast = [](std::string s) {
-                size_t found = s.find_last_of('/');
-                return found != std::string::npos ? s.substr(found + 1) : s;
-            };
-            auto name = getLast(animation->name());
-            ImGui::Text("%s", name.c_str());
-            float current = animator->currentTime();
-            //ImGui::ProgressBar(current);
-            if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->GetDuration())) {
-                animator->frame(current);
+            if (animator) {
+                auto animation = animator->animation();
+                auto getLast = [](std::string s) {
+                    size_t found = s.find_last_of('/');
+                    return found != std::string::npos ? s.substr(found + 1) : s;
+                };
+                auto name = getLast(animation->name());
+                ImGui::Text("%s", name.c_str());
+                float current = animator->currentTime();
+                //ImGui::ProgressBar(current);
+                if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->GetDuration())) {
+                    animator->frame(current);
+                }
             }
         }
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
