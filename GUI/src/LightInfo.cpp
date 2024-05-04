@@ -56,7 +56,7 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
             skipUpdate = true;
         }
 
-        if (ImGui::InputFloat3("Projection ", glm::value_ptr(projection))) {
+        if (ImGui::InputFloat4("Projection ", glm::value_ptr(projection))) {
             csmShadow->projectionLength(projection);
             skipUpdate = true;
         }
