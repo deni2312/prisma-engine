@@ -7,8 +7,8 @@
 void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-    glm::mat4 model = meshData.mesh->parent()->matrix();
-    glm::mat4 inverseParent = glm::inverse(meshData.mesh->parent()->finalMatrix());
+    glm::mat4 model = meshData.mesh->parent()->finalMatrix();
+    glm::mat4 inverseParent = glm::inverse(meshData.mesh->parent()->parent()->finalMatrix());
 
     auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.mesh);
 
@@ -26,7 +26,7 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
         meshData.mesh->parent()->parent()->matrix(model);
     }
     else {
-        meshData.mesh->parent()->matrix(model);
+        meshData.mesh->parent()->matrix(inverseParent*model);
     }
 
     //meshData.mesh->finalMatrix(model);
