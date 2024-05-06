@@ -8,6 +8,7 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Helpers/SettingsLoader.h"
 #include <glm/gtx/string_cast.hpp>
+#include "../../../GUI/include/TextureInfo.h"
 
 
 static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
@@ -51,6 +52,9 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
     m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
 
     auto settings = Prisma::SettingsLoader::instance().getSettings();
+
+    Prisma::TextureInfo::getInstance().add({ depthMap, "Depth_DirectionalMap" });
+
 }
 
 void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
