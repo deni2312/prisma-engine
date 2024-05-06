@@ -5,6 +5,7 @@
 #include "GenericShadow.h"
 #include "glm/glm.hpp"
 #include "../Containers/Ubo.h"
+#include "../Helpers/Settings.h"
 
 namespace Prisma {
 
@@ -30,6 +31,14 @@ namespace Prisma {
 
         glm::vec4 projectionLength();
 
+        std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
+
+        std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view);
+
+        glm::mat4 getLightSpaceMatrix(const float nearPlane, const float farPlane);
+
+        std::vector<glm::mat4> getLightSpaceMatrices();
+
     private:
         unsigned int m_width;
         unsigned int m_height;
@@ -47,6 +56,11 @@ namespace Prisma {
         float m_farPlane = 100;
         float m_nearPlane = 0.1f;
         glm::vec4 m_projectionLength;
+
+        std::vector<float> m_shadowCascadeLevels;
+
+        Prisma::Settings m_settings;
+
 
         std::shared_ptr<Prisma::Ubo> m_ubo;
 
