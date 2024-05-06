@@ -18,7 +18,7 @@
                         1,
                         1
                     ],
-                    "intensity" : 1,
+                    "intensity" : 10,
                     "type" : "directional",
                     "name" : "Sun"
                 }
