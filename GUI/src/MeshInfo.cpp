@@ -14,7 +14,7 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
 
     if (isAnimate) {
         model = meshData.mesh->parent()->parent()->matrix();
-        inverseParent = glm::inverse(meshData.mesh->parent()->parent()->finalMatrix());
+        inverseParent = glm::inverse(meshData.mesh->parent()->parent()->parent()->finalMatrix());
     }
 
 
@@ -23,7 +23,7 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
     ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale));
 
     if (isAnimate) {
-        meshData.mesh->parent()->parent()->matrix(model);
+        meshData.mesh->parent()->parent()->matrix(inverseParent*model);
     }
     else {
         meshData.mesh->parent()->matrix(inverseParent*model);
