@@ -4,6 +4,7 @@
 #include "GL/glew.h"
 #include "../../include/Helpers/GarbageCollector.h"
 #include <iostream>
+#include <tuple>
 
 bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bool noRepeat)
 {
@@ -52,7 +53,8 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
         }else{
             m_id=textureID;
         }
-        Prisma::GarbageCollector::getInstance().add({Prisma::GarbageCollector::GarbageType::TEXTURE,m_id});
+
+        Prisma::GarbageCollector::getInstance().addTexture({ textureID, m_id });
         return true;
     }
     else

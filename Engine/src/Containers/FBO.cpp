@@ -37,7 +37,7 @@ Prisma::FBO::FBO(FBOData fboData)
     m_id = glGetTextureHandleARB(textureID);
     glMakeTextureHandleResidentARB(m_id);
     Prisma::GarbageCollector::getInstance().add({Prisma::GarbageCollector::GarbageType::FBO,m_framebufferID});
-    Prisma::GarbageCollector::getInstance().add({Prisma::GarbageCollector::GarbageType::TEXTURE,m_id});
+    Prisma::GarbageCollector::getInstance().addTexture({ textureID,m_id});
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

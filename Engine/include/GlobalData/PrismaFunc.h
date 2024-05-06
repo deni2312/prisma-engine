@@ -9,7 +9,7 @@
 
 namespace Prisma {
 
-	class CallbackHandler;
+	struct CallbackHandler;
 
 	class PrismaFunc {
 	public:

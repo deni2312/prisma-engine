@@ -95,6 +95,7 @@ void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
                 //ImGui::ProgressBar(current);
                 if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->GetDuration())) {
                     animator->frame(current);
+                    skipUpdate = true;
                 }
             }
         }

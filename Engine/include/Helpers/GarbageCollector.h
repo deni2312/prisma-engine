@@ -23,6 +23,8 @@ namespace Prisma {
 
         void add(std::pair<GarbageType,unsigned int> garbage);
 
+        void addTexture(std::pair<unsigned int,uint64_t> texture);
+
         void clear();
 
         GarbageCollector();
@@ -31,6 +33,7 @@ namespace Prisma {
         static std::shared_ptr<GarbageCollector> instance;
 
         std::vector<std::pair<GarbageType,unsigned int>> m_garbage;
+        std::vector<std::pair<unsigned int, uint64_t>> m_garbageTexture;
     };
 
 }

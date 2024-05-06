@@ -143,8 +143,8 @@ namespace Prisma {
             checkCompileErrors(ID, "PROGRAM");
         }
 
-        void dispatchCompute(glm::vec3 size) {
-            glDispatchCompute((unsigned int)size.x, (unsigned int)size.y, size.z);
+        void dispatchCompute(glm::ivec3 size) {
+            glDispatchCompute((unsigned int)size.x, (unsigned int)size.y, (unsigned int)size.z);
         }
 
         void wait(unsigned int type) {
@@ -185,14 +185,14 @@ namespace Prisma {
             glUniform2fv(position, 1, &value[0]);
         }
 
-        void setUVec2(int position, const glm::vec2& value) const
+        void setUVec2(int position, const glm::ivec2& value) const
         {
-            glUniform2ui(position, value.x, value.y);
+            glUniform2ui(position, (unsigned int)value.x, (unsigned int)value.y);
         }
 
-        void setUVec3(int position, const glm::vec3& value) const
+        void setUVec3(int position, const glm::ivec3& value) const
         {
-            glUniform3ui(position, value.x, value.y, value.z);
+            glUniform3ui(position, (unsigned int)value.x, (unsigned int)value.y, (unsigned int)value.z);
         }
 
         void setVec2(int position, float x, float y) const
