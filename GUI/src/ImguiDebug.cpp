@@ -157,7 +157,6 @@ void Prisma::ImguiDebug::drawGui()
     ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(), m_status.postprocess.size());
     if (ImGui::Button("Textures"))
     {
-        
         ImGui::OpenPopup("Textures");
     }
     Prisma::TextureInfo::getInstance().showTextures();

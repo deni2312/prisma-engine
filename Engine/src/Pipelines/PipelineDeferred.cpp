@@ -13,6 +13,7 @@
 #include <iostream>
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/ClusterCalculation.h"
+#include "../../../GUI/include/TextureInfo.h"
 
 
 Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb):m_width{ width },m_height{ height }
@@ -77,6 +78,11 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
     m_positionLocation = m_shaderD->getUniformPosition("gPosition");
     m_normalLocation = m_shaderD->getUniformPosition("gNormal");
     m_albedoLocation = m_shaderD->getUniformPosition("gAlbedo");
+
+    Prisma::TextureInfo::getInstance().add({ gPosition, "Deferred_Position"});
+    Prisma::TextureInfo::getInstance().add({ gNormal, "Deferred_Normal"});
+    Prisma::TextureInfo::getInstance().add({ gAlbedoSpec, "Deferred_Albedo"});
+
 
     m_settings = Prisma::SettingsLoader::instance().getSettings();
 

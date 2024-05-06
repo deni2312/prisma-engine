@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include "glm/glm.hpp"
+#include <string>
 
 namespace Prisma {
     class TextureInfo {
@@ -12,14 +13,14 @@ namespace Prisma {
 
         void showTextures();
 
-        void add(std::pair<unsigned int, glm::vec2> id);
+        void add(std::pair<unsigned int, std::string> id);
 
         TextureInfo(const TextureInfo&) = delete;
         TextureInfo& operator=(const TextureInfo&) = delete;
         static TextureInfo& getInstance();
 
     private:
-        std::vector<std::pair<unsigned int,glm::vec2>> m_textures;
+        std::vector<std::pair<unsigned int,std::string>> m_textures;
         static std::shared_ptr<TextureInfo> instance;
         bool m_position = false;
     };

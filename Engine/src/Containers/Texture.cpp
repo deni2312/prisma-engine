@@ -55,7 +55,7 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
             m_id=textureID;
         }
 
-        Prisma::TextureInfo::getInstance().add({ textureID, {100,100} });
+        Prisma::TextureInfo::getInstance().add({ textureID, texture });
 
         Prisma::GarbageCollector::getInstance().addTexture({ textureID, m_id });
         return true;
