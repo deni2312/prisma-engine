@@ -4,7 +4,7 @@
 #include <tuple>
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 
-void Prisma::MeshInfo::drawGizmo(Prisma::MeshInfo::MeshData meshData) {
+void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
     glm::mat4 model = meshData.mesh->parent()->matrix();
@@ -37,7 +37,7 @@ void Prisma::MeshInfo::drawGizmo(Prisma::MeshInfo::MeshData meshData) {
 
 }
 
-void Prisma::MeshInfo::showSelected(Prisma::MeshInfo::MeshData meshData) {
+void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) {
     if (meshData.mesh) {
 
         float windowWidth = meshData.translate * meshData.width / 2.0f;
@@ -112,7 +112,7 @@ std::function<void(glm::mat4 &)> Prisma::MeshInfo::updateMesh() {
     };
 }
 
-void Prisma::MeshInfo::showComponents(MeshData meshData) {
+void Prisma::MeshInfo::showComponents(const MeshData& meshData) {
     auto components=meshData.mesh->components();
     for(const auto& component: components){
         ImGui::Separator();

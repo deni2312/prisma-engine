@@ -19,6 +19,7 @@
 #include "../../Engine/include/Helpers/IBLBuilder.h"
 #include "../../GUI/include/ImGuiStyle.h"
 #include "../../Engine/include/Postprocess/Postprocess.h"
+#include "../include/TextureInfo.h"
 #include "ImGuizmo.h"
 
 struct PrivateIO {
@@ -114,6 +115,11 @@ void Prisma::ImguiDebug::drawGui()
                     skipUpdate=true;
                 }
             }
+
+            if (ImGui::MenuItem("Textures")) {
+                Prisma::TextureInfo::getInstance().showTextures();
+            }
+
             ImGui::EndMenu();
         }
         size = ImGui::GetWindowSize();
@@ -149,8 +155,15 @@ void Prisma::ImguiDebug::drawGui()
     }
     ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
     ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(), m_status.postprocess.size());
+    if (ImGui::Button("Textures"))
+    {
+        
+        ImGui::OpenPopup("Textures");
+    }
+    Prisma::TextureInfo::getInstance().showTextures();
     ImGui::Dummy(ImVec2(0.0f, 10.0f));
     ImGui::Separator();
+
     Prisma::ImGuiTabs::getInstance().showNodes(currentGlobalScene->root,1,m_imguiCamera);
     // Check if the node is clicked
     ImGui::End();
@@ -168,6 +181,7 @@ void Prisma::ImguiDebug::drawGui()
     meshData.height = m_height;
     meshData.scale = m_scale;
     meshData.initOffset = m_initOffset;
+
     if (currentSelectMesh) {
         meshData.mesh = currentSelectMesh;
         meshInfo.showSelected(meshData);

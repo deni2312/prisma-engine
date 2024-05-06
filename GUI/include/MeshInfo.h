@@ -23,8 +23,8 @@ namespace Prisma {
             float initOffset;
         };
 
-        void showSelected(MeshData meshData);
-        void showComponents(MeshData meshData);
+        void showSelected(const MeshData& meshData);
+        void showComponents(const MeshData& meshData);
         void varsDispatcher(Prisma::Component::ComponentType types);
 
         MeshInfo();
@@ -46,7 +46,7 @@ namespace Prisma {
         ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
         ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
 
-        void drawGizmo(Prisma::MeshInfo::MeshData meshData);
+        void drawGizmo(const Prisma::MeshInfo::MeshData& meshData);
     };
 }
 
