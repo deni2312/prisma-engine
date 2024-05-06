@@ -45,9 +45,6 @@ namespace Prisma {
 
         unsigned int m_fbo;
 
-        unsigned int m_posLightmatrix;
-        unsigned int m_posLightmatrixAnimation;
-
         glm::vec3 m_lightDir=glm::vec3(0.0f);
 
         glm::mat4 m_lightSpaceMatrix;
@@ -60,7 +57,6 @@ namespace Prisma {
         std::vector<float> m_shadowCascadeLevels;
 
         Prisma::Settings m_settings;
-
 
         std::shared_ptr<Prisma::Ubo> m_ubo;
 

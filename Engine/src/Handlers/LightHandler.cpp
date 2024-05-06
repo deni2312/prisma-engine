@@ -23,6 +23,71 @@ Prisma::LightHandler::LightHandler()
     m_init=true;
 }
 
+void Prisma::LightHandler::updateDirectional()
+{
+    const auto& scene = currentGlobalScene;
+
+    m_dataDirectional = std::make_shared<Prisma::LightHandler::SSBODataDirectional>();
+    m_dataShadow = std::make_shared<Prisma::LightHandler::SSBODataShadow>();
+    for (int i = 0; i < scene->dirLights.size(); i++) {
+        auto light = scene->dirLights[i];
+        m_dataDirectional->lights.push_back(scene->dirLights[i]->type());
+        auto dirMatrix = scene->dirLights[i]->finalMatrix();
+        auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
+        shadow->lightDir(m_dataDirectional->lights[i].direction);
+        shadow->update(dirMatrix * m_dataDirectional->lights[i].direction);
+        m_dataShadow->shadows.push_back({ shadow->lightMatrix() });
+        m_dataDirectional->lights[i].direction = dirMatrix * m_dataDirectional->lights[i].direction;
+        m_dataDirectional->lights[i].shadowMap = shadow->id();
+        m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
+    }
+    glm::vec4 dirLength;
+    dirLength.r = scene->dirLights.size();
+    m_dirLights->modifyData(0, sizeof(glm::vec4),
+        glm::value_ptr(dirLength));
+    m_dirLights->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(Prisma::LightType::LightDir),
+        m_dataDirectional->lights.data());
+    m_shadowDir->modifyData(0, sizeof(glm::vec4),
+        glm::value_ptr(dirLength));
+    m_shadowDir->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(ShadowData),
+        m_dataShadow->shadows.data());
+}
+
+void Prisma::LightHandler::updateOmni()
+{
+    const auto& scene = currentGlobalScene;
+
+    m_dataOmni = std::make_shared<Prisma::LightHandler::SSBODataOmni>();
+    for (int i = 0; i < scene->omniLights.size(); i++) {
+        auto light = scene->omniLights[i];
+        m_dataOmni->lights.push_back(light->type());
+        glm::mat4 omniMatrix;
+        if (light->parent()) {
+            omniMatrix = light->parent()->finalMatrix();
+        }
+        else {
+            omniMatrix = light->matrix();
+        }
+        m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
+        if (light->shadow()) {
+            light->shadow()->update(m_dataOmni->lights[i].position);
+            m_dataOmni->lights[i].shadowMap = light->shadow()->id();
+            m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
+        }
+        m_dataOmni->lights[i].padding = scene->omniLights[i]->hasShadow() ? 2.0f : 0.0f;
+        m_dataOmni->lights[i].radius = m_dataOmni->lights[i].radius;
+    }
+
+    glm::vec4 omniLength;
+    omniLength.r = scene->omniLights.size();
+    m_omniLights->modifyData(0, sizeof(glm::vec4),
+        glm::value_ptr(omniLength));
+
+    m_omniLights->modifyData(sizeof(glm::vec4), scene->omniLights.size() * sizeof(Prisma::LightType::LightOmni),
+        m_dataOmni->lights.data());
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+}
+
 Prisma::LightHandler& Prisma::LightHandler::getInstance()
 {
     if (!instance) {
@@ -34,64 +99,11 @@ Prisma::LightHandler& Prisma::LightHandler::getInstance()
 void Prisma::LightHandler::update()
 {
     const auto& scene = currentGlobalScene;
+    updateDirectional();
 
     if(m_init || updateData || updateSizes || updateLights) {
         if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS) {
-            
-            m_dataDirectional = std::make_shared<Prisma::LightHandler::SSBODataDirectional>();
-            m_dataShadow = std::make_shared<Prisma::LightHandler::SSBODataShadow>();
-            for (int i = 0; i < scene->dirLights.size(); i++) {
-                auto light = scene->dirLights[i];
-                m_dataDirectional->lights.push_back(scene->dirLights[i]->type());
-                auto dirMatrix = scene->dirLights[i]->finalMatrix();
-                auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
-                shadow->lightDir(m_dataDirectional->lights[i].direction);
-                shadow->update(dirMatrix * m_dataDirectional->lights[i].direction);
-                m_dataShadow->shadows.push_back({ shadow->lightMatrix() });
-                m_dataDirectional->lights[i].direction = dirMatrix * m_dataDirectional->lights[i].direction;
-                m_dataDirectional->lights[i].shadowMap = shadow->id();
-                m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
-            }
-            glm::vec4 dirLength;
-            dirLength.r = scene->dirLights.size();
-            m_dirLights->modifyData(0, sizeof(glm::vec4),
-                glm::value_ptr(dirLength));
-            m_dirLights->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(Prisma::LightType::LightDir),
-                m_dataDirectional->lights.data());
-            m_shadowDir->modifyData(0, sizeof(glm::vec4),
-                glm::value_ptr(dirLength));
-            m_shadowDir->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(ShadowData),
-                m_dataShadow->shadows.data());
-
-            m_dataOmni = std::make_shared<Prisma::LightHandler::SSBODataOmni>();
-            for (int i = 0; i < scene->omniLights.size(); i++) {
-                auto light = scene->omniLights[i];
-                m_dataOmni->lights.push_back(light->type());
-                glm::mat4 omniMatrix;
-                if (light->parent()) {
-                    omniMatrix = light->parent()->finalMatrix();
-                }
-                else {
-                    omniMatrix = light->matrix();
-                }
-                m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
-                if (light->shadow()) {
-                    light->shadow()->update(m_dataOmni->lights[i].position);
-                    m_dataOmni->lights[i].shadowMap = light->shadow()->id();
-                    m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
-                }
-                m_dataOmni->lights[i].padding = scene->omniLights[i]->hasShadow() ? 2.0f : 0.0f;
-                m_dataOmni->lights[i].radius = m_dataOmni->lights[i].radius;
-            }
-
-            glm::vec4 omniLength;
-            omniLength.r = scene->omniLights.size();
-            m_omniLights->modifyData(0, sizeof(glm::vec4),
-                glm::value_ptr(omniLength));
-
-            m_omniLights->modifyData(sizeof(glm::vec4), scene->omniLights.size() * sizeof(Prisma::LightType::LightOmni),
-                                     m_dataOmni->lights.data());
-            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+            updateOmni();
         } else {
             std::cerr << "Too many lights" << std::endl;
         }

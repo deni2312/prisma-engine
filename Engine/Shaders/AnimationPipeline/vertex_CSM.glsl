@@ -20,8 +20,6 @@ layout(std430, binding = 8) buffer BoneMatrices
     SSBOAnimation boneMatrices[];
 };
 
-uniform mat4 lightSpaceMatrix;
-
 void main()
 {
     vec4 totalPosition = vec4(0.0f);
@@ -37,5 +35,5 @@ void main()
         vec4 localPosition = boneMatrices[gl_DrawID].animations[boneIds[i]] * vec4(aPos, 1.0f);
         totalPosition += localPosition * weights[i];
     }
-    gl_Position = lightSpaceMatrix * modelAnimationMatrices[gl_DrawID] * totalPosition;
+    gl_Position = modelAnimationMatrices[gl_DrawID] * totalPosition;
 }

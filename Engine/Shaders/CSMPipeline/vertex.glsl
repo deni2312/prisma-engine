@@ -6,9 +6,7 @@ layout(std430, binding = 1) buffer Matrices
     mat4 modelMatrices[];
 };
 
-uniform mat4 lightSpaceMatrix;
-
 void main()
 {
-    gl_Position = lightSpaceMatrix * modelMatrices[gl_DrawID] * vec4(aPos, 1.0);
+    gl_Position = modelMatrices[gl_DrawID] * vec4(aPos, 1.0);
 }

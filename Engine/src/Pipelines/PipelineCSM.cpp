@@ -21,54 +21,56 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
         m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl");
     }
 
+    m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
+
     glGenFramebuffers(1, &m_fbo);
-    // create depth texture
-    unsigned int depthMap;
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    // attach depth texture as FBO's depth buffer
+
+    unsigned int lightDepthMaps;
+
+    glGenTextures(1, &lightDepthMaps);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, lightDepthMaps);
+    glTexImage3D(
+        GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, width, height, int(m_shadowCascadeLevels.size()) + 1,
+        0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    constexpr float bordercolor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, bordercolor);
+
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, lightDepthMaps, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    m_id = glGetTextureHandleARB(depthMap);
+    m_id = glGetTextureHandleARB(lightDepthMaps);
     glMakeTextureHandleResidentARB(m_id);
 
     m_shader->use();
-    m_posLightmatrix = m_shader->getUniformPosition("lightSpaceMatrix");
 
     m_shaderAnimation->use();
-    m_posLightmatrixAnimation = m_shaderAnimation->getUniformPosition("lightSpaceMatrix");
     m_projectionLength = glm::vec4(-10.0f, 10.0f, -10.0f, 10.0f);
-
-    m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
 
     auto settings = Prisma::SettingsLoader::instance().getSettings();
 
-    Prisma::TextureInfo::getInstance().add({ depthMap, "Depth_DirectionalMap" });
+    Prisma::TextureInfo::getInstance().add({ lightDepthMaps, "Depth_DirectionalMap" });
+
+    m_ubo = std::make_shared<Ubo>(sizeof(glm::mat4)*16,4);
 
 }
 
 void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     m_lightDir = lightPos;
-    glm::mat4 lightProjection, lightView;
-    //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-    lightProjection = glm::ortho(m_projectionLength.x, m_projectionLength.y, m_projectionLength.z, m_projectionLength.w , m_nearPlane, m_farPlane);
-    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-    m_lightSpaceMatrix = lightProjection * lightView;
+    
+    auto lightMatrices = getLightSpaceMatrices();
+
+    m_ubo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
 
     m_shader->use();
     
-    m_shader->setMat4(m_posLightmatrix, m_lightSpaceMatrix);
-
     GLint viewport[4];
 
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -79,8 +81,6 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     Prisma::MeshIndirect::getInstance().renderMeshes();
 
     m_shaderAnimation->use();
-
-    m_shaderAnimation->setMat4(m_posLightmatrixAnimation, m_lightSpaceMatrix);
 
     Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 

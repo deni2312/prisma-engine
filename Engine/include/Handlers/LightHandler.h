@@ -37,6 +37,11 @@ namespace Prisma {
 
 
         static std::shared_ptr<LightHandler> instance;
+
+		void updateDirectional();
+
+		void updateOmni();
+
         bool m_init;
 	public:
 		static LightHandler& getInstance();
