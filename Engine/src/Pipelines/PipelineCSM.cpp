@@ -17,8 +17,8 @@ static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_width{ width }, m_height{ height } {
 
     if (!m_shader) {
-        m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl");
-        m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl");
+        m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
+        m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
     }
 
     m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
@@ -29,6 +29,8 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
 
     glGenTextures(1, &lightDepthMaps);
     glBindTexture(GL_TEXTURE_2D_ARRAY, lightDepthMaps);
+
+
     glTexImage3D(
         GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, width, height, int(m_shadowCascadeLevels.size()) + 1,
         0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
@@ -78,11 +80,9 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     glViewport(0, 0, m_width, m_height);
     glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glClear(GL_DEPTH_BUFFER_BIT);
+    glCullFace(GL_FRONT);  // peter panning
     Prisma::MeshIndirect::getInstance().renderMeshes();
-
-    m_shaderAnimation->use();
-
-    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+    glCullFace(GL_BACK);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
@@ -128,7 +128,6 @@ std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const gl
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
-
     const auto proj = glm::perspective(
         glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, nearPlane,
         farPlane);
@@ -202,6 +201,10 @@ std::vector<glm::mat4> Prisma::PipelineCSM::getLightSpaceMatrices()
         }
     }
     return ret;
+}
+
+std::vector<float>& Prisma::PipelineCSM::cascadeLevels() {
+    return m_shadowCascadeLevels;
 }
 
 uint64_t Prisma::PipelineCSM::id() {

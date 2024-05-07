@@ -24,6 +24,8 @@ namespace Prisma {
 		unsigned int m_width;
 		unsigned int m_height;
 
+		std::vector<unsigned int> m_cascadePlaneDistances;
+
 		Prisma::Settings m_settings;
 
 		std::shared_ptr<Shader> m_shader;

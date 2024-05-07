@@ -10,7 +10,6 @@ out vec3 FragPos;
 out vec2 TexCoords;
 
 out vec3 Normal;
-out vec4 shadowDirData[16];
 
 flat out int drawId;
 
@@ -42,9 +41,5 @@ void main()
     TexCoords = aTexCoords;
     mat3 normalMatrix = mat3(transpose(inverse(mat3(modelMatrices[gl_DrawID]))));
     Normal = normalMatrix * aNormal;
-    for (int i=0; i < lenMat.r; i++) {
-        shadowDirData[i] = shadowMatrices[i].shadow * vec4(FragPos, 1.0);
-    }
-
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }

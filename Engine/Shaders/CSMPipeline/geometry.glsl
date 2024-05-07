@@ -3,7 +3,7 @@
 layout(triangles, invocations = 5) in;
 layout(triangle_strip, max_vertices = 3) out;
 
-layout(std140, binding = 4) uniform MeshData
+layout(std140, binding = 4) uniform LightSpaceMatrices
 {
 	mat4 lightSpaceMatrices[16];
 };

@@ -5,12 +5,13 @@
 #include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../../include/Pipelines/PipelinePrefilter.h"
 #include "../../include/Pipelines/PipelineLUT.h"
+#include <glm/gtx/string_cast.hpp>
 
 std::shared_ptr<Prisma::MeshHandler> Prisma::MeshHandler::instance = nullptr;
 
 void Prisma::MeshHandler::updateCamera() {
 	auto cameraMatrix = currentGlobalScene->camera->matrix();
-	MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::VIEW_OFFSET, sizeof(glm::mat4), glm::value_ptr(cameraMatrix));
+	MeshHandler::getInstance().ubo()->modifyData(0, sizeof(glm::mat4), glm::value_ptr(cameraMatrix));
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
