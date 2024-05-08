@@ -15,7 +15,7 @@ Prisma::AnimationHandler& Prisma::AnimationHandler::getInstance()
 
 void Prisma::AnimationHandler::updateAnimations()
 {
-	m_ssboAnimation->modifyData(0, m_animations.size() * sizeof(SSBOAnimation), m_animations.data());
+	m_ssboAnimation->modifyData(0, currentGlobalScene->animateMeshes.size() * sizeof(SSBOAnimation), m_animations.data());
 }
 
 std::vector<Prisma::AnimationHandler::SSBOAnimation>& Prisma::AnimationHandler::animations()
@@ -32,11 +32,5 @@ Prisma::AnimationHandler::AnimationHandler()
 		for (int j = 0; j < MAX_BONES; j++) {
 			m_animations[i].animations[j] = glm::mat4(1.0f);
 		}
-	}
-}
-
-void Prisma::AnimationHandler::copyMatrices(SSBOAnimation& animation, std::vector<glm::mat4>& animationsData) {
-	for (int i = 0; i < animationsData.size(); i++) {
-		animation.animations[i] = animationsData[i];
 	}
 }

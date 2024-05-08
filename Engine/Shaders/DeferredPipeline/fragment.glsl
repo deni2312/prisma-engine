@@ -58,12 +58,13 @@ void main()
 
 
     vec4 albedoTexture = texture(currentMaterial.diffuse, TexCoords);
-    // and the diffuse per-fragment color
-    gAlbedoSpec.rgb = albedoTexture.rgb;
 
     if (albedoTexture.a < 0.1) {
         discard;
     }
+
+    // and the diffuse per-fragment color
+    gAlbedoSpec.rgb = albedoTexture.rgb;
 
     // store the fragment position vector in the first gbuffer texture
     gPosition.rgb = FragPos;

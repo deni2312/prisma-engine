@@ -57,8 +57,6 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
 
     auto settings = Prisma::SettingsLoader::instance().getSettings();
 
-    Prisma::TextureInfo::getInstance().add({ lightDepthMaps, "Depth_DirectionalMap" });
-
     m_ubo = std::make_shared<Ubo>(sizeof(glm::mat4)*16,4);
 
 }

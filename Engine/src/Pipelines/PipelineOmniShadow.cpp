@@ -47,7 +47,6 @@ Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int 
         m_shadowPositionAnimation.push_back(m_shaderAnimation->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
     m_id = glGetTextureHandleARB(depthCubemap);
     glMakeTextureHandleResidentARB(m_id);
-    Prisma::TextureInfo::getInstance().add({ depthCubemap, "Depth_OmniMap" });
 }
 
 void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos) {

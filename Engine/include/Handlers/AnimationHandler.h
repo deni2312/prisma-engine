@@ -24,7 +24,6 @@ namespace Prisma {
 
 	private:
 		std::shared_ptr<SSBO> m_ssboAnimation;
-		void copyMatrices(SSBOAnimation& animation, std::vector<glm::mat4>& animationsData);
 		std::vector<SSBOAnimation> m_animations;
 
 		static std::shared_ptr<AnimationHandler> instance;

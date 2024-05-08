@@ -31,13 +31,16 @@ void Prisma::LightHandler::updateDirectional()
 
         auto shadow = currentGlobalScene->dirLights[0]->shadow();
 
-        auto& levels = std::dynamic_pointer_cast<PipelineCSM>(shadow)->cascadeLevels();
-        glm::vec4 length;
-        length.x = levels.size();
-        length.y = shadow->farPlane();
-        
-        m_dirCSM->modifyData(0, 16 * sizeof(float), levels.data());
-        m_dirCSM->modifyData(16*sizeof(float), sizeof(glm::vec4), glm::value_ptr(length));
+        if (shadow && currentGlobalScene->dirLights[0]->hasShadow()) {
+
+            auto& levels = std::dynamic_pointer_cast<PipelineCSM>(shadow)->cascadeLevels();
+            glm::vec4 length;
+            length.x = levels.size();
+            length.y = shadow->farPlane();
+
+            m_dirCSM->modifyData(0, 16 * sizeof(float), levels.data());
+            m_dirCSM->modifyData(16 * sizeof(float), sizeof(glm::vec4), glm::value_ptr(length));
+        }
     }
 
     m_dataDirectional = std::make_shared<Prisma::LightHandler::SSBODataDirectional>();
@@ -92,7 +95,6 @@ void Prisma::LightHandler::updateOmni()
 
     m_omniLights->modifyData(sizeof(glm::vec4), scene->omniLights.size() * sizeof(Prisma::LightType::LightOmni),
         m_dataOmni->lights.data());
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 Prisma::LightHandler& Prisma::LightHandler::getInstance()
