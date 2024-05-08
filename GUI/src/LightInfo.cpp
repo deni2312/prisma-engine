@@ -1,6 +1,7 @@
 #include "../include/LightInfo.h"
 #include "glm/gtc/type_ptr.hpp"
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 
 void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDir>* lightData,const Prisma::MeshInfo::MeshData& meshData)
@@ -14,11 +15,31 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
     nextRight(meshData.initOffset);
     ImGui::Begin(lightData->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    glm::vec3 eulerRotation = glm::degrees(type.direction);
+    // Decompose the matrix
+    glm::vec3 scale, skew;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec4 perspective;
+    glm::decompose(lightData->parent()->finalMatrix(), scale, rotation, translation, skew, perspective);
 
-    if (ImGui::InputFloat3("Rotation ", glm::value_ptr(eulerRotation))) {
-        type.direction = glm::vec4(glm::radians(eulerRotation),1.0f);
-        lightData->type(type);
+    // Convert quaternion to Euler angles (XYZ)
+    glm::vec3 euler = glm::degrees(glm::eulerAngles(rotation));
+
+
+    if (ImGui::InputFloat3("Rotation ", glm::value_ptr(euler))) {
+        euler = glm::radians(euler);
+        glm::mat4 rotationMatrix(1.0f); // Identity matrix
+
+        // Rotate around Z axis
+        rotationMatrix = glm::rotate(rotationMatrix, euler.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // Rotate around Y axis
+        rotationMatrix = glm::rotate(rotationMatrix, euler.y, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        // Rotate around X axis
+        rotationMatrix = glm::rotate(rotationMatrix, euler.x, glm::vec3(1.0f, 0.0f, 0.0f));
+
+        lightData->parent()->matrix(rotationMatrix);
         skipUpdate = true;
     }
 
@@ -111,4 +132,17 @@ void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightO
     }
 
     ImGui::End();
+}
+
+glm::vec3 Prisma::LightInfo::directionToEulerAngles(const glm::vec3& direction) {
+    // Compute yaw (heading) angle
+    float yaw = atan2(direction.x, direction.z);
+
+    // Compute pitch (elevation) angle
+    float pitch = asin(direction.y);
+
+    // Since we only have the direction vector and no roll information, roll is set to 0
+    float roll = 0.0f;
+
+    return glm::vec3(pitch, yaw, roll);
 }

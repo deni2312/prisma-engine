@@ -22,6 +22,8 @@ namespace Prisma {
         glm::mat4 m_currentModelDir;
 
         glm::mat4 m_currentModelOmni;
+
+        glm::vec3 directionToEulerAngles(const glm::vec3& direction);
     };
 }
 
