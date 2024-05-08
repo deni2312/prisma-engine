@@ -327,7 +327,12 @@ void main()
 
         float NdotL = max(dot(N, L), 0.0);
 
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, vec3(directionalData[i].direction), N, i));
+        if (directionalData[i].padding.x < 1.0) {
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        }
+        else {
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, vec3(directionalData[i].direction), N, i));
+        }
     }
 
     // Locating which cluster this fragment is part of
