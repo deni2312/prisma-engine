@@ -13,8 +13,8 @@ Prisma::LightHandler::LightHandler()
     m_omniLights = std::make_shared<Prisma::SSBO>(3);
     m_omniLights->resize(MAX_OMNI_LIGHTS * sizeof(Prisma::LightType::LightOmni) + sizeof(glm::vec4));
 
-    m_shadowDir = std::make_shared<Prisma::SSBO>(4);
-    m_shadowDir->resize(MAX_DIR_LIGHTS * sizeof(ShadowData) + sizeof(glm::vec4));
+    m_dirCSM = std::make_shared<Prisma::SSBO>(9);
+    m_dirCSM->resize(16 * sizeof(float) + sizeof(glm::vec4));
 
     glm::vec3 size = ClusterCalculation::grids();
 
@@ -27,8 +27,20 @@ void Prisma::LightHandler::updateDirectional()
 {
     const auto& scene = currentGlobalScene;
 
+    if (scene->dirLights.size()>0) {
+
+        auto shadow = currentGlobalScene->dirLights[0]->shadow();
+
+        auto& levels = std::dynamic_pointer_cast<PipelineCSM>(shadow)->cascadeLevels();
+        glm::vec4 length;
+        length.x = levels.size();
+        length.y = shadow->farPlane();
+        
+        m_dirCSM->modifyData(0, 16 * sizeof(float), levels.data());
+        m_dirCSM->modifyData(16*sizeof(float), sizeof(glm::vec4), glm::value_ptr(length));
+    }
+
     m_dataDirectional = std::make_shared<Prisma::LightHandler::SSBODataDirectional>();
-    m_dataShadow = std::make_shared<Prisma::LightHandler::SSBODataShadow>();
     for (int i = 0; i < scene->dirLights.size(); i++) {
         auto light = scene->dirLights[i];
         m_dataDirectional->lights.push_back(scene->dirLights[i]->type());
@@ -36,7 +48,6 @@ void Prisma::LightHandler::updateDirectional()
         auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
         shadow->lightDir(m_dataDirectional->lights[i].direction);
         shadow->update(dirMatrix * m_dataDirectional->lights[i].direction);
-        m_dataShadow->shadows.push_back({ shadow->lightMatrix() });
         m_dataDirectional->lights[i].direction = dirMatrix * m_dataDirectional->lights[i].direction;
         m_dataDirectional->lights[i].shadowMap = shadow->id();
         m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
@@ -47,10 +58,6 @@ void Prisma::LightHandler::updateDirectional()
         glm::value_ptr(dirLength));
     m_dirLights->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(Prisma::LightType::LightDir),
         m_dataDirectional->lights.data());
-    m_shadowDir->modifyData(0, sizeof(glm::vec4),
-        glm::value_ptr(dirLength));
-    m_shadowDir->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(ShadowData),
-        m_dataShadow->shadows.data());
 }
 
 void Prisma::LightHandler::updateOmni()

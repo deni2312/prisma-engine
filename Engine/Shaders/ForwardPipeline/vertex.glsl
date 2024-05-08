@@ -24,16 +24,6 @@ layout(std430, binding = 1) buffer Matrices
     mat4 modelMatrices[];
 };
 
-struct ShadowData {
-    mat4 shadow;
-};
-
-layout(std430, binding = 4) buffer ShadowMatrices
-{
-    vec4 lenMat;
-    ShadowData shadowMatrices[];
-};
-
 void main()
 {
     drawId = gl_DrawID;

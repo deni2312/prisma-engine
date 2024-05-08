@@ -25,12 +25,6 @@ namespace Prisma {
 
         void update(glm::vec3 lightPos) override;
 
-        glm::mat4 lightMatrix();
-
-        void projectionLength(glm::vec4 projectionLength);
-
-        glm::vec4 projectionLength();
-
         std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
 
         std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view);
@@ -49,12 +43,9 @@ namespace Prisma {
 
         glm::vec3 m_lightDir=glm::vec3(0.0f);
 
-        glm::mat4 m_lightSpaceMatrix;
-
         uint64_t m_id;
         float m_farPlane = 200;
         float m_nearPlane = 0.1f;
-        glm::vec4 m_projectionLength;
 
         std::vector<float> m_shadowCascadeLevels;
 

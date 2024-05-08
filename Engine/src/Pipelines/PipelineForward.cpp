@@ -71,18 +71,12 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_shader->use();
 
-	auto& levels = std::dynamic_pointer_cast<PipelineCSM>(currentGlobalScene->dirLights[0]->shadow())->cascadeLevels();
-
-	for (int i = 0; i < levels.size(); i++) {
-		m_shader->setFloat(m_cascadePlaneDistances[i], levels[i]);
-	}
-
 	Prisma::MeshIndirect::getInstance().renderMeshes();
 
 
-	//m_shaderAnimate->use();
+	m_shaderAnimate->use();
 
-	//Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
 	Prisma::PipelineSkybox::getInstance().render(camera);
 

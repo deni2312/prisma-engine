@@ -54,7 +54,6 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
     m_shader->use();
 
     m_shaderAnimation->use();
-    m_projectionLength = glm::vec4(-10.0f, 10.0f, -10.0f, 10.0f);
 
     auto settings = Prisma::SettingsLoader::instance().getSettings();
 
@@ -82,23 +81,15 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     glClear(GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);  // peter panning
     Prisma::MeshIndirect::getInstance().renderMeshes();
+
+    m_shaderAnimation->use();
+
+    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+
     glCullFace(GL_BACK);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
-}
-
-glm::mat4 Prisma::PipelineCSM::lightMatrix() {
-    return m_lightSpaceMatrix;
-}
-
-void Prisma::PipelineCSM::projectionLength(glm::vec4 projectionLength) {
-    m_projectionLength = projectionLength;
-    updateLights = true;
-}
-
-glm::vec4 Prisma::PipelineCSM::projectionLength() {
-    return m_projectionLength;
 }
 
 std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const glm::mat4& projview)

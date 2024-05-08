@@ -5,15 +5,11 @@ in vec3 FragPos;
 in vec2 TexCoords;
 in vec3 Normal;
 flat in int drawId;
-int cascadeCount = 4;
-float farPlane = 200;
 
 layout(std140, binding = 4) uniform LightSpaceMatrices
 {
     mat4 lightSpaceMatrices[16];
 };
-
-uniform float cascadePlaneDistances[16];
 
 struct Cluster
 {
@@ -104,15 +100,14 @@ layout(std430, binding = 3) buffer Omni
     OmniData omniData[];
 };
 
-struct ShadowData {
-    mat4 shadow;
+layout(std430, binding = 9) buffer CSMShadow
+{
+    float cascadePlanes[16];
+    float sizeCSM;
+    float farPlaneCSM;
+    vec2 paddingCSM;
 };
 
-layout(std430, binding = 4) buffer ShadowMatrices
-{
-    vec4 lenMat;
-    ShadowData shadowMatrices[];
-};
 
 const float PI = 3.14159265359;
 
@@ -220,9 +215,9 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace,vec3 lightPos,vec3 N,u
     float depthValue = abs(fragPosViewSpace.z);
 
     int layer = -1;
-    for (int i = 0; i < cascadeCount; ++i)
+    for (int i = 0; i < sizeCSM; ++i)
     {
-        if (depthValue < cascadePlaneDistances[i])
+        if (depthValue < cascadePlanes[i])
         {
             layer = i;
             break;
@@ -230,7 +225,7 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace,vec3 lightPos,vec3 N,u
     }
     if (layer == -1)
     {
-        layer = cascadeCount;
+        layer = int(sizeCSM);
     }
 
     vec4 fragPosLightSpace = lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
@@ -251,13 +246,13 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace,vec3 lightPos,vec3 N,u
     vec3 normal = normalize(N);
     float bias = max(0.05 * (1.0 - dot(normal, lightPos)), 0.005);
     const float biasModifier = 0.5f;
-    if (layer == cascadeCount)
+    if (layer == int(sizeCSM))
     {
-        bias *= 1 / (farPlane * biasModifier);
+        bias *= 1 / (farPlaneCSM * biasModifier);
     }
     else
     {
-        bias *= 1 / (cascadePlaneDistances[layer] * biasModifier);
+        bias *= 1 / (cascadePlanes[layer] * biasModifier);
     }
 
 
@@ -309,7 +304,7 @@ void main()
 
     for (int i = 0; i < lenDir.r; i++) {
 
-        vec3 L = normalize(-vec3(directionalData[i].direction));
+        vec3 L = normalize(vec3(directionalData[i].direction));
         vec3 H = normalize(V + L);
 
 
@@ -331,13 +326,8 @@ void main()
         kD *= 1.0 - metallic;
 
         float NdotL = max(dot(N, L), 0.0);
-        
-        if (directionalData[i].padding.x < 1.0) {
-            Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-        }
-        else {
-            Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, vec3(directionalData[i].direction), N, i));
-        }
+
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, vec3(directionalData[i].direction), N, i));
     }
 
     // Locating which cluster this fragment is part of
@@ -404,5 +394,5 @@ void main()
     vec3 ambient = kD * diffuse + specular;
     Lo = ambient+Lo;
 
-    FragColor = vec4(Lo, 1.0) * (1 - ShadowCalculationDirectional(FragPos, -vec3(directionalData[0].direction), N, 0));
+    FragColor = vec4(Lo, 1.0);
 }

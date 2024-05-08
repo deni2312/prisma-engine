@@ -30,20 +30,10 @@ layout(std430, binding = 5) restrict buffer clusterSSBO
     Cluster clusters[];
 };
 
-struct ShadowData {
-    mat4 shadow;
-};
-
 layout(std140, binding = 1) uniform MeshData
 {
     mat4 view;
     mat4 projection;
-};
-
-layout(std430, binding = 4) buffer ShadowMatrices
-{
-    vec4 lenMat;
-    ShadowData shadowMatrices[];
 };
 
 struct DirectionalData
@@ -170,39 +160,8 @@ float ShadowCalculation(vec3 fragPos,vec3 lightPos,int depthMapId)
 
 float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N, unsigned int i)
 {
-    vec4 FragPosLightSpace = shadowMatrices[i].shadow*vec4(fragPosWorldSpace,1.0);
-    // perform perspective divide
-    vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
-    // transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(directionalData[i].depthMap, projCoords.xy).r;
-    // get depth of current fragment from light's perspective
-    float currentDepth = projCoords.z;
-    // calculate bias (based on depth map resolution and slope)
-    vec3 normal = normalize(N);
-    vec3 lightDir = normalize(lightPos - fragPosWorldSpace);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-    // check whether current frag pos is in shadow
-    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
-    // PCF
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(directionalData[i].depthMap, 0);
-    for (int x = -1; x <= 1; ++x)
-    {
-        for (int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = texture(directionalData[i].depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-        }
-    }
-    shadow /= 9.0;
 
-    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
-    if (projCoords.z > 1.0)
-        shadow = 0.0;
-
-    return shadow;
+    return 1.0;
 }
 
 in vec2 TexCoords;

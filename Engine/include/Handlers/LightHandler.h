@@ -18,22 +18,12 @@ namespace Prisma {
 			std::vector<Prisma::LightType::LightOmni> lights;
 		};
 
-		struct ShadowData {
-			glm::mat4 shadows;
-		};
-
-		struct SSBODataShadow {
-			glm::vec4 size;
-			std::vector<ShadowData> shadows;
-		};
-
 		std::shared_ptr<Prisma::LightHandler::SSBODataDirectional> m_dataDirectional;
 		std::shared_ptr<Prisma::LightHandler::SSBODataOmni> m_dataOmni;
-		std::shared_ptr<Prisma::LightHandler::SSBODataShadow> m_dataShadow;
 
 		std::shared_ptr<Prisma::SSBO> m_omniLights;
 		std::shared_ptr<Prisma::SSBO> m_dirLights;
-		std::shared_ptr<Prisma::SSBO> m_shadowDir;
+		std::shared_ptr<Prisma::SSBO> m_dirCSM;
 
 
         static std::shared_ptr<LightHandler> instance;
