@@ -209,6 +209,7 @@ float Prisma::PipelineCSM::farPlane() {
 void Prisma::PipelineCSM::farPlane(float farPlane)
 {
     m_farPlane = farPlane;
+    m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
 }
 
 float Prisma::PipelineCSM::nearPlane()
