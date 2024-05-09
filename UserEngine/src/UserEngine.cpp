@@ -33,7 +33,6 @@ UserEngine::UserEngine() : Prisma::Engine{}
         animatedMesh->animator(animator);
     }
 
-
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
     
 }
