@@ -14,6 +14,8 @@ namespace Prisma {
 
         void bind();
 
+        void getData(unsigned int size,void* data);
+
         void unbind();
 
     private:

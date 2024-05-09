@@ -6,12 +6,14 @@
 #include "glm/glm.hpp"
 #include <string>
 #include "../../Engine/include/Containers/FBO.h"
+#include "../../Engine/include/Containers/SSBO.h"
+#include "../../Engine/include/SceneObjects/Mesh.h"
 
 namespace Prisma {
     class PixelCapture {
     public:
         PixelCapture();
-        void capture();
+        std::shared_ptr<Prisma::Mesh> capture(glm::vec2 position);
         PixelCapture(const PixelCapture&) = delete;
         PixelCapture& operator=(const PixelCapture&) = delete;
         static PixelCapture& getInstance();

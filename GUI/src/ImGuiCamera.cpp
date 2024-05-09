@@ -3,6 +3,7 @@
 #include "../../Engine/include/SceneObjects/Mesh.h"
 #include "GLFW/glfw3.h"
 #include <iostream>
+#include "../include/PixelCapture.h"
 
 Prisma::ImGuiCamera::ImGuiCamera()
 {
@@ -110,6 +111,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
         // Here you would handle mouse button clicks
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x<m_constraints.maxX && y<m_constraints.maxY && x>m_constraints.minX && y>m_constraints.minY && !m_constraints.isOver) {
 
+            Prisma::PixelCapture::getInstance().capture(glm::vec2(x, y));
             // Ray casting from mouse coordinates
             std::pair<glm::vec3, glm::vec3> rayData = m_imguiSelector->castRayFromMouse(x, y);
             glm::vec3 rayOrigin = m_position;
@@ -118,7 +120,6 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
             if(result) {
                 m_currentSelect = result->other;
                 auto model=result->other->matrix();
-                std::cout << result->other->name();
                 m_constraints.model(model);
             }else{
                 auto model=glm::mat4(1.0f);

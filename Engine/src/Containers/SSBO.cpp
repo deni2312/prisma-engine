@@ -39,6 +39,13 @@ void Prisma::SSBO::bind() {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_id, m_ssbo);
 }
 
+void Prisma::SSBO::getData(unsigned int size, void* data)
+{
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size, data);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
 void Prisma::SSBO::unbind() {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }

@@ -169,7 +169,6 @@ void Prisma::ImguiDebug::drawGui()
     ImGui::End();
 
     m_fileBrowser->show(m_width,m_height,m_initOffset,m_scale,m_translate);
-    Prisma::PixelCapture::getInstance().capture();
     auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());
     auto currentSelectLightDir = dynamic_cast<Light<LightType::LightDir>*>(m_imguiCamera.currentSelect());
     auto currentSelectLightOmni = dynamic_cast<Light<LightType::LightOmni>*>(m_imguiCamera.currentSelect());
