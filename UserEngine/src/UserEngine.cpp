@@ -25,7 +25,13 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::NodeHelper nodeHelper;
 
-    
+	auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
+
+    if (animatedMesh) {
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/animation.gltf", animatedMesh);
+        animator = std::make_shared<Prisma::Animator>(animation);
+        animatedMesh->animator(animator);
+    }
 
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
@@ -34,7 +40,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
 bool UserEngine::update()
 {
-
+    animator->updateAnimation(1.0 / fps());
     return false;
 }
 

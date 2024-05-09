@@ -15,7 +15,6 @@ out vec3 FragPos;
 out vec2 TexCoords;
 
 out vec3 Normal;
-out vec4 shadowDirData[16];
 
 flat out int drawId;
 
@@ -30,16 +29,6 @@ layout(std140, binding = 1) uniform MeshData
 layout(std430, binding = 6) buffer AnimationMatrices
 {
     mat4 modelAnimationMatrices[];
-};
-
-struct ShadowData {
-    mat4 shadow;
-};
-
-layout(std430, binding = 4) buffer ShadowMatrices
-{
-    vec4 lenMat;
-    ShadowData shadowMatrices[];
 };
 
 struct SSBOAnimation {
@@ -74,9 +63,6 @@ void main()
     TexCoords = aTexCoords;
     mat3 normalMatrix = mat3(transpose(inverse(mat3(modelAnimationMatrices[gl_DrawID]))));
     Normal = normalMatrix * normalize(localNormal);
-    for (int i = 0; i < lenMat.r; i++) {
-        shadowDirData[i] = shadowMatrices[i].shadow * vec4(FragPos, 1.0);
-    }
 
     gl_Position = projection * view * modelAnimationMatrices[gl_DrawID] * totalPosition;
 }

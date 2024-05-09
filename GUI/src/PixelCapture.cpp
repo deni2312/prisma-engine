@@ -21,6 +21,8 @@ Prisma::PixelCapture::PixelCapture()
 
     m_shader = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex.glsl", "../../../GUI/Shaders/PixelCapture/fragment.glsl");
 
+    m_shaderAnimation = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex_animation.glsl", "../../../GUI/Shaders/PixelCapture/fragment_animation.glsl");
+
     m_shader->use();
 }
 
@@ -35,6 +37,10 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 
     Prisma::MeshIndirect::getInstance().renderMeshes();
 
+    m_shaderAnimation->use();
+
+    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+
     glFlush();
     glFinish();
 
@@ -46,10 +52,20 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 
     m_fbo->unbind();
 
-    int meshId = data[0]-1;
 
-    if (meshId < currentGlobalScene->meshes.size() && meshId>=0) {
-        return currentGlobalScene->meshes[meshId];
+    if (data[2] == 0) {
+        int meshId = data[0] - 1;
+
+        if (meshId < currentGlobalScene->meshes.size() && meshId >= 0) {
+            return currentGlobalScene->meshes[meshId];
+        }
+    }
+    else {
+        int meshId = data[1] - 1;
+
+        if (meshId < currentGlobalScene->animateMeshes.size() && meshId >= 0) {
+            return currentGlobalScene->animateMeshes[meshId];
+        }
     }
     return nullptr;
 }

@@ -22,6 +22,7 @@ namespace Prisma {
         std::shared_ptr<Prisma::FBO> m_fbo;
 
         std::shared_ptr<Prisma::Shader> m_shader;
+        std::shared_ptr<Prisma::Shader> m_shaderAnimation;
 
         static std::shared_ptr<PixelCapture> instance;
     };
