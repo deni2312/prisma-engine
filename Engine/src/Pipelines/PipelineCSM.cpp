@@ -67,6 +67,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     auto lightMatrices = getLightSpaceMatrices();
 
     m_ubo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
+    int i = 0;
 
     m_shader->use();
     
@@ -129,7 +130,8 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     }
     center /= corners.size();
 
-    const auto lightView = glm::lookAt(center + m_lightDir, center, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    const auto lightView = glm::lookAt(center + m_lightDir, center, glm::vec3(0.0f, 0.0f, 1.0f));
 
     float minX = std::numeric_limits<float>::max();
     float maxX = std::numeric_limits<float>::lowest();
