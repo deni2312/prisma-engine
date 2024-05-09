@@ -40,7 +40,6 @@ Prisma::ImguiDebug::ImguiDebug(GLFWwindow* window, const unsigned int& width, co
     data->engine->setCallback(m_imguiCamera.callback());
     PrismaFunc::getInstance().setCallback(m_imguiCamera.callback());
     auto settings=data->engine->settings();
-    auto imguiSelector=m_imguiCamera.imguiSelector();
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     data->io = ImGui::GetIO();
@@ -66,9 +65,6 @@ Prisma::ImguiDebug::ImguiDebug(GLFWwindow* window, const unsigned int& width, co
     m_translate = 1.0f - m_scale;
     m_projection = glm::perspective(glm::radians(settings.angle), (float)settings.width / (float)settings.height, settings.nearPlane, settings.farPlane);
     m_model = glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,m_translate,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
-    imguiSelector->screenData()->projectionMatrix = m_model * m_projection;
-    imguiSelector->screenData()->width=settings.width;
-    imguiSelector->screenData()->height=settings.height;
     m_fileBrowser=std::make_shared<Prisma::FileBrowser>();
     m_effects = std::make_shared<Prisma::Effects>();
     Prisma::Postprocess::getInstance().addPostProcess(m_effects);
@@ -214,7 +210,7 @@ void Prisma::ImguiDebug::start()
 
 void Prisma::ImguiDebug::close()
 {
-    m_imguiCamera.constraints({m_translate * m_width/2,m_initOffset,m_translate * m_width/2+m_scale*m_width,m_initOffset+m_height * m_scale,meshInfo.updateMesh(),ImGuizmo::IsOver()});
+    m_imguiCamera.constraints({m_translate * m_width/2,m_initOffset,m_translate * m_width/2+m_scale*m_width,m_initOffset+m_height * m_scale,meshInfo.updateMesh(),ImGuizmo::IsOver(),m_scale});
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     double currentFrameTime = glfwGetTime();
@@ -223,8 +219,6 @@ void Prisma::ImguiDebug::close()
     }    
     m_lastFrameTime = currentFrameTime;
     m_imguiCamera.velocity(1.0f / fps());
-    auto imguiSelector= m_imguiCamera.imguiSelector();
-    imguiSelector->screenData()->viewMatrix = m_camera->matrix();
 
     m_imguiCamera.updateCamera(m_camera);
     m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());

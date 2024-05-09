@@ -1,7 +1,6 @@
 #pragma once
 #include "../../Engine/include/SceneObjects/Camera.h"
 #include "../../Engine/include/Helpers/Settings.h"
-#include "ImGuiSelector.h"
 #include <memory>
 
 namespace Prisma {
@@ -15,6 +14,7 @@ namespace Prisma {
             float maxY;
             std::function<void(glm::mat4&)> model;
 			bool isOver;
+			float scale;
         };
 
 		ImGuiCamera();
@@ -29,8 +29,6 @@ namespace Prisma {
         void constraints(CameraConstarints constraints);
 
 		std::shared_ptr<Prisma::CallbackHandler> callback();
-
-        std::shared_ptr<ImGuiSelector> imguiSelector();
 	private:
 
 		glm::vec3 m_position = glm::vec3(0.0f);
@@ -49,8 +47,6 @@ namespace Prisma {
 		bool pressed = false;
 
 		std::shared_ptr<Prisma::CallbackHandler> m_callback;
-
-        std::shared_ptr<ImGuiSelector> m_imguiSelector;
 
         Node* m_currentSelect;
         CameraConstarints m_constraints;

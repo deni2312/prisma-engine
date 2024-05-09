@@ -3,6 +3,7 @@
 #include "../../Engine/include/SceneData/MeshIndirect.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../../Engine/include/GlobalData/GlobalData.h"
+#include "../../Engine/include/Handlers/MeshHandler.h"
 
 std::shared_ptr<Prisma::PixelCapture> Prisma::PixelCapture::instance = nullptr;
 
@@ -19,12 +20,13 @@ Prisma::PixelCapture::PixelCapture()
     m_fbo = std::make_shared<Prisma::FBO>(fboData);
 
     m_shader = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex.glsl", "../../../GUI/Shaders/PixelCapture/fragment.glsl");
+
+    m_shader->use();
 }
 
 std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 {
-    auto settings = Prisma::SettingsLoader::instance().getSettings();
-
+    Prisma::MeshHandler::getInstance().updateCamera();
     m_fbo->bind();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -44,15 +46,12 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 
     m_fbo->unbind();
 
-    int meshId = data[0];
+    int meshId = data[0]-1;
 
-    std::cout << meshId<<std::endl;
-
-    if (meshId < currentGlobalScene->meshes.size()) {
-        std::cout << currentGlobalScene->meshes[meshId]->name() << std::endl;
+    if (meshId < currentGlobalScene->meshes.size() && meshId>=0) {
+        return currentGlobalScene->meshes[meshId];
     }
-
-    return std::make_shared<Mesh>();
+    return nullptr;
 }
 
 Prisma::PixelCapture& Prisma::PixelCapture::getInstance()

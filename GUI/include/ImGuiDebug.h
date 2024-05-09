@@ -7,7 +7,6 @@
 #include "ImGuiCamera.h"
 #include "LightInfo.h"
 #include "ImGuiTabs.h"
-#include "GLFW/glfw3.h"
 #include "MeshInfo.h"
 #include "FolderView.h"
 #include <memory>

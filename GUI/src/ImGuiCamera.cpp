@@ -1,14 +1,13 @@
 #include "../include/ImGuiCamera.h"
 #include "../../Engine/include/GlobalData/Keys.h"
 #include "../../Engine/include/SceneObjects/Mesh.h"
-#include "GLFW/glfw3.h"
 #include <iostream>
 #include "../include/PixelCapture.h"
+#include "../../Engine/include/Helpers/SettingsLoader.h"
 
 Prisma::ImGuiCamera::ImGuiCamera()
 {
     m_callback = std::make_shared<Prisma::CallbackHandler>();
-    m_imguiSelector=std::make_shared<ImGuiSelector>();
     m_currentSelect=nullptr;
 }
 
@@ -111,15 +110,20 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
         // Here you would handle mouse button clicks
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x<m_constraints.maxX && y<m_constraints.maxY && x>m_constraints.minX && y>m_constraints.minY && !m_constraints.isOver) {
 
-            Prisma::PixelCapture::getInstance().capture(glm::vec2(x, y));
-            // Ray casting from mouse coordinates
-            std::pair<glm::vec3, glm::vec3> rayData = m_imguiSelector->castRayFromMouse(x, y);
-            glm::vec3 rayOrigin = m_position;
-            glm::vec3 rayDir = rayData.second;
-            auto result=m_imguiSelector->raycastWorld(rayOrigin,rayDir*100000.0f);
+            auto settings = Prisma::SettingsLoader::instance().getSettings();
+            
+            x = x - m_constraints.minX;
+            x = x / m_constraints.scale;
+
+            y = y - m_constraints.minY;
+            y = y / m_constraints.scale;
+            y = settings.height - y;
+
+            auto result=Prisma::PixelCapture::getInstance().capture(glm::vec2(x , y ));
+
             if(result) {
-                m_currentSelect = result->other;
-                auto model=result->other->matrix();
+                m_currentSelect = result.get();
+                auto model=result->matrix();
                 m_constraints.model(model);
             }else{
                 auto model=glm::mat4(1.0f);
@@ -128,10 +132,6 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
             }
         }
     };
-}
-
-std::shared_ptr<Prisma::ImGuiSelector> Prisma::ImGuiCamera::imguiSelector() {
-    return m_imguiSelector;
 }
 
 Prisma::Node *Prisma::ImGuiCamera::currentSelect() {
