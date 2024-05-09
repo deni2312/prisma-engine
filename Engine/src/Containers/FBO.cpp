@@ -1,6 +1,7 @@
 #include "../../include/Containers/FBO.h"
 #include "../../include/Helpers/GarbageCollector.h"
 #include <iostream>
+#include "../../../GUI/include/TextureInfo.h"
 
 Prisma::FBO::FBO(FBOData fboData)
     : m_fboData{ fboData }, m_vao{0} {
@@ -38,6 +39,7 @@ Prisma::FBO::FBO(FBOData fboData)
     glMakeTextureHandleResidentARB(m_id);
     Prisma::GarbageCollector::getInstance().add({Prisma::GarbageCollector::GarbageType::FBO,m_framebufferID});
     Prisma::GarbageCollector::getInstance().addTexture({ textureID,m_id});
+    Prisma::TextureInfo::getInstance().add({ textureID, "FBO"});
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
