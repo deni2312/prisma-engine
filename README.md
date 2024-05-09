@@ -69,6 +69,16 @@ An example of a scene with bullet physics, point shadows and the dynamic loading
 [![Sponza](https://img.youtube.com/vi/W6aWU5asums/0.jpg)](https://www.youtube.com/watch?v=W6aWU5asums)
 
 
+### Cascaded Shadow Mapping
+
+
+An example of NVIDIA Orca scene that has Cascaded Shadow Maps, animations and 1000 lights rendered in realtime. (Click on the image for the youtube video)
+
+https://www.youtube.com/watch?v=PT4RTldmVqc
+
+[![Sponza](https://img.youtube.com/vi/PT4RTldmVqc/0.jpg)](https://www.youtube.com/watch?v=PT4RTldmVqc)
+
+
 
 ## Default scene
 
@@ -89,7 +99,6 @@ If you encounter a bug, please submit an issue with detailed information about h
 - **Code refactoring**
 - **Cache physic states**
 - **Transparency**
-- **Cascade shadow maps for directional lights**
 - **Frustum culling(compute shader)**
 - **Run/Debug buttons**
 
@@ -98,6 +107,7 @@ If you encounter a bug, please submit an issue with detailed information about h
 
 All the software is under MIT (see the LICENSE file) and the icons are from <a target="_blank" href="https://icons8.com">Icons8</a>
 
+The NVIDIA Orca scene has a  CC BY-NC-SA 4.0 ( https://creativecommons.org/licenses/by-nc-sa/4.0/ )
 
 ## Feature Requests
 
@@ -107,6 +117,8 @@ Thank you for contributing to Prisma Engine!
 
 # Bibliography/Sitography
 
+
+- https://developer.nvidia.com/ue4-sun-temple
 - https://learnopengl.com/
 - https://ogldev.org/
 - https://github.com/ocornut/imgui
