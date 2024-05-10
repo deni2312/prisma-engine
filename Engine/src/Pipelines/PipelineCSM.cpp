@@ -67,7 +67,6 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     auto lightMatrices = getLightSpaceMatrices();
 
     m_ubo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
-    int i = 0;
 
     m_shader->use();
     
