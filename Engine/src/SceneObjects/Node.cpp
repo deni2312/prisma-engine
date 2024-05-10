@@ -31,7 +31,7 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 {
 	m_children.push_back(child);
 	if (updateScene) {
-		if (std::dynamic_pointer_cast<Prisma::Mesh>(child)) {
+		if (std::dynamic_pointer_cast<Prisma::Mesh>(child) && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
 			currentGlobalScene->meshes.push_back(std::dynamic_pointer_cast<Mesh>(child));
 		}
 		if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(child)) {
