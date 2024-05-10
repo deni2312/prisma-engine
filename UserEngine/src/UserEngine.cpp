@@ -17,7 +17,7 @@ std::shared_ptr<Prisma::Animator> animator1;
 
 UserEngine::UserEngine() : Prisma::Engine{}
 {
-	m_sceneNode = getScene("../../../Resources/Helmet/DamagedHelmet.gltf", {true});
+	m_sceneNode = getScene("../../../Resources/Landscape/landscape.gltf", {true});
 	Prisma::Texture texture;
 	texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
 	texture.data({ 4096,4096,3 });
@@ -25,22 +25,13 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     Prisma::NodeHelper nodeHelper;
 
-	auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
-
-    if (animatedMesh) {
-        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Helmet/animation.gltf", animatedMesh);
-        animator = std::make_shared<Prisma::Animator>(animation);
-        animatedMesh->animator(animator);
-    }
-
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
     
 }
 
 bool UserEngine::update()
 {
-    animator->updateAnimation(1.0 / fps());
-    return false;
+	return false;
 }
 
 void UserEngine::mouseCallback()
