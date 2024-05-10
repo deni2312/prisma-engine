@@ -372,7 +372,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
             lightOmni.position = glm::vec4(color, 1.0f);
             lightOmni.farPlane.x = 100.0f;
             lightOmni.shadowMap = 0;
-            lightOmni.radius = 1;
+            lightOmni.radius = 5;
 
             lightOmni.attenuation=glm::vec4(assimpLight->mAttenuationConstant, assimpLight->mAttenuationLinear, assimpLight->mAttenuationQuadratic,1.0f);
 
