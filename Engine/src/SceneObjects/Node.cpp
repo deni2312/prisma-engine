@@ -12,7 +12,7 @@ Prisma::Node::Node() :m_matrix{ glm::mat4(1.0f) },m_finalMatrix{glm::mat4(1.0f)}
 	uuidNode = uuidNode + 1;
 }
 
-void Prisma::Node::name(std::string name)
+void Prisma::Node::name(const std::string& name)
 {
 	m_name = name;
 }
@@ -72,7 +72,7 @@ void Prisma::Node::removeChild(uint64_t uuid)
 	updateSizes = true;
 }
 
-void Prisma::Node::matrix(glm::mat4 matrix, bool updateChildren)
+void Prisma::Node::matrix(const glm::mat4& matrix, bool updateChildren)
 {
     if(!Prisma::mat4Equals(m_matrix,matrix)) {
         m_matrix = matrix;
@@ -94,7 +94,7 @@ glm::mat4 Prisma::Node::matrix() const
 	return m_matrix;
 }
 
-void Prisma::Node::finalMatrix(glm::mat4 matrix, bool update)
+void Prisma::Node::finalMatrix(const glm::mat4& matrix, bool update)
 {
     if(!Prisma::mat4Equals(m_finalMatrix,matrix)) {
         m_finalMatrix = matrix;

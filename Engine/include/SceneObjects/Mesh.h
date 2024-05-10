@@ -36,7 +36,7 @@ namespace Prisma {
         void loadModel(std::shared_ptr<VerticesData> vertices);
         const VerticesData& verticesData() const;
 
-        void finalMatrix(glm::mat4 matrix, bool update = true) override;
+        void finalMatrix(const glm::mat4& matrix, bool update = true) override;
         glm::mat4 finalMatrix() const override;
 
         unsigned int vao() const;

@@ -8,14 +8,14 @@ namespace Prisma {
 	class Node {
 	public:
 		Node();
-		void name(std::string name);
+		void name(const std::string& name);
 		std::string name() const;
 		const std::vector<std::shared_ptr<Node>>& children() const;
 		void addChild(std::shared_ptr<Node> child,bool updateScene=true);
 		void removeChild(uint64_t uuid);
-		virtual void matrix(glm::mat4 matrix,bool updateChildren=true);
+		virtual void matrix(const glm::mat4& matrix,bool updateChildren=true);
 		virtual glm::mat4 matrix() const;
-		virtual void finalMatrix(glm::mat4 matrix,bool update=true);
+		virtual void finalMatrix(const glm::mat4& matrix,bool update=true);
 		virtual glm::mat4 finalMatrix() const;
 		void parent(std::shared_ptr<Node> parent);
 		std::shared_ptr<Node> parent() const;

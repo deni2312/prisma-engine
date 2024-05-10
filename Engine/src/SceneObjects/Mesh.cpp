@@ -17,7 +17,7 @@ const Prisma::Mesh::VerticesData& Prisma::Mesh::verticesData() const
     return *m_vertices;
 }
 
-void Prisma::Mesh::finalMatrix(glm::mat4 matrix, bool update)
+void Prisma::Mesh::finalMatrix(const glm::mat4& matrix, bool update)
 {
     Prisma::Node::finalMatrix(matrix);
 }

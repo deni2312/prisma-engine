@@ -5,14 +5,14 @@
 namespace Prisma {
 	class Camera : public Prisma::Node {
     public:
-        void position(glm::vec3 position);
-        glm::vec3 position();
-        void center(glm::vec3 center);
-        glm::vec3 center();
-        void up(glm::vec3 up);
-        glm::vec3 up();
+        void position(const glm::vec3& position);
+        glm::vec3 position() const;
+        void center(const glm::vec3& center);
+        glm::vec3 center() const;
+        void up(const glm::vec3& up);
+        glm::vec3 up() const;
 
-        void matrix(glm::mat4 matrix, bool update = true) override;
+        void matrix(const glm::mat4& matrix, bool update = true) override;
         glm::mat4 matrix() const override;
     private:
         glm::vec3 m_position;
