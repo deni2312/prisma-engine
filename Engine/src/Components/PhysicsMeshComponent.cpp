@@ -97,7 +97,6 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
 void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
     auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
     auto aabbData = mesh->aabbData();
-    std::cout << collider << std::endl;
     switch (collider) {
         case Prisma::Physics::Collider::BOX_COLLIDER: {
             glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
