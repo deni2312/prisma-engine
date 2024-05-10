@@ -54,7 +54,7 @@ void Prisma::Physics::update(float delta) {
 
         prismaMatrix = prismaMatrix * glm::scale(glm::mat4(1.0f), scaling);
 
-        mesh->parent()->finalMatrix(prismaMatrix);
+        mesh->parent()->matrix(prismaMatrix);
     }
 }
 
