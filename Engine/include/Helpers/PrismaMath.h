@@ -5,6 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <assimp/matrix4x4.h>
 #include <assimp/quaternion.h>
+#include "bullet/btBulletDynamicsCommon.h"
 
 namespace Prisma{
 
@@ -57,6 +58,11 @@ namespace Prisma{
     static glm::vec3 getVec(const aiVector3D& vec)
     {
         return glm::vec3(vec.x, vec.y, vec.z);
+    }
+
+    static btVector3 getVecBT(const glm::vec3& vec)
+    {
+        return btVector3(vec.x, vec.y, vec.z);
     }
 
     static glm::quat getQuat(const aiQuaternion& pOrientation)

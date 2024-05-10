@@ -5,6 +5,7 @@ void Prisma::PhysicsMeshComponent::start() {
     m_status.currentitem=static_cast<int>(m_collisionData.collider);
     m_status.items.push_back("BOX COLLIDER");
     m_status.items.push_back("SPHERE COLLIDER");
+    m_status.items.push_back("LANDSCAPE COLLIDER");
     componentType=std::make_tuple(Prisma::Component::TYPES::STRINGLIST,"Collider",&m_status);
 
     ComponentType componentMass;
@@ -94,6 +95,7 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
 void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
     auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
     auto aabbData = mesh->aabbData();
+    std::cout << collider << std::endl;
     switch (collider) {
         case Prisma::Physics::Collider::BOX_COLLIDER: {
             glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
@@ -106,6 +108,20 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
             halfExtents.y = 0;
             float length = glm::length(halfExtents);
             m_shape = new btSphereShape(length);
+            break;
+        }
+        case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
+            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
+
+            btTriangleMesh* terrainMesh = new btTriangleMesh();
+
+            auto vertices = mesh->verticesData();
+
+
+            for (int i = 0; i < vertices.indices.size(); i=i+3) {
+                terrainMesh->addTriangle(getVecBT(vertices.vertices[vertices.indices[i]].position), getVecBT(vertices.vertices[vertices.indices[i+1]].position), getVecBT(vertices.vertices[vertices.indices[i+2]].position));
+            }
+            m_shape = new btBvhTriangleMeshShape(terrainMesh,true);
             break;
         }
 

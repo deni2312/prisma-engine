@@ -9,7 +9,8 @@ namespace Prisma {
 
         enum Collider{
             BOX_COLLIDER,
-            SPHERE_COLLIDER
+            SPHERE_COLLIDER,
+            LANDSCAPE_COLLIDER
         };
 
         struct CollisionData{
