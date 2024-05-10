@@ -6,6 +6,7 @@ void Prisma::PhysicsMeshComponent::start() {
     m_status.items.push_back("BOX COLLIDER");
     m_status.items.push_back("SPHERE COLLIDER");
     m_status.items.push_back("LANDSCAPE COLLIDER");
+    m_status.items.push_back("CONVEX COLLIDER");
     componentType=std::make_tuple(Prisma::Component::TYPES::STRINGLIST,"Collider",&m_status);
 
     ComponentType componentMass;
@@ -15,7 +16,10 @@ void Prisma::PhysicsMeshComponent::start() {
     ComponentType componentButton;
     m_apply=[&](){
         m_collisionData.mass = m_collisionDataCopy.mass;
-        m_collisionData.collider=static_cast<Prisma::Physics::Collider>(m_status.currentitem);
+        if (m_collisionData.collider!= static_cast<Prisma::Physics::Collider>(m_status.currentitem)) {
+            m_collisionData.collider = static_cast<Prisma::Physics::Collider>(m_status.currentitem);
+            colliderDispatcher(m_collisionData.collider);
+        }
         updateCollisionData();
         skipUpdate = true;
     };
@@ -26,7 +30,7 @@ void Prisma::PhysicsMeshComponent::start() {
     addGlobal(componentMass);
 
     addGlobal(componentButton);
-
+    colliderDispatcher(m_collisionData.collider);
     updateCollisionData();
     name("Physics Mesh Component");
 }
@@ -52,8 +56,6 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
     }
 
     glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
-
-    colliderDispatcher(m_collisionData.collider);
 
     bool isDynamic = (m_collisionData.mass != 0.f);
     if (isDynamic) {
@@ -122,6 +124,21 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
                 terrainMesh->addTriangle(getVecBT(vertices.vertices[vertices.indices[i]].position), getVecBT(vertices.vertices[vertices.indices[i+1]].position), getVecBT(vertices.vertices[vertices.indices[i+2]].position));
             }
             m_shape = new btBvhTriangleMeshShape(terrainMesh,true);
+            break;
+        }
+
+        case Prisma::Physics::Collider::CONVEX_COLLIDER: {
+            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
+
+            auto vertices = mesh->verticesData();
+            
+            m_shape = new btConvexHullShape();
+
+            for (int i = 0; i < vertices.indices.size(); i = i + 3) {
+                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVecBT(vertices.vertices[vertices.indices[i]].position));
+                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVecBT(vertices.vertices[vertices.indices[i+1]].position));
+                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVecBT(vertices.vertices[vertices.indices[i + 2]].position));
+            }
             break;
         }
 
