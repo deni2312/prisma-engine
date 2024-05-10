@@ -9,6 +9,7 @@ struct OmniData {
     vec4 diffuse;
     vec4 specular;
     vec4 far_plane;
+    vec4 attenuation;
     vec2 depthMap;
     float padding;
     float radius;

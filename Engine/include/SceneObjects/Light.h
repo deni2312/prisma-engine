@@ -22,6 +22,7 @@ namespace Prisma {
 			glm::vec4 diffuse;
 			glm::vec4 specular;
             glm::vec4 farPlane;
+			glm::vec4 attenuation;
             uint64_t shadowMap = 0;
             float padding = 0;
 			float radius = 1;

@@ -62,6 +62,7 @@ struct OmniData {
     vec4 diffuse;
     vec4 specular;
     vec4 far_plane;
+    vec4 attenuation;
     samplerCube depthMap;
     float padding;
     float radius;
@@ -351,7 +352,9 @@ void main()
         vec3 L = normalize(distance);
         vec3 H = normalize(V + L);
 
-        if (length(distance) <= omniData[lightIndex].radius) {
+        float totalDistance = length(distance);
+
+        if (totalDistance <= omniData[lightIndex].radius) {
 
             vec3 radiance = vec3(omniData[lightIndex].diffuse);
 
@@ -372,11 +375,13 @@ void main()
 
             float NdotL = max(dot(N, L), 0.0);
 
+            float attenuation = 1 / (omniData[lightIndex].attenuation.x + omniData[lightIndex].attenuation.y * totalDistance + omniData[lightIndex].attenuation.z * totalDistance * totalDistance);
+
             if (omniData[lightIndex].padding.x < 1.0) {
-                Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+                Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
             }
             else {
-                Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculation(FragPos, vec3(omniData[lightIndex].position), int(lightIndex)));
+                Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation * (1 - ShadowCalculation(FragPos, vec3(omniData[lightIndex].position), int(lightIndex)));
             }
 
         }

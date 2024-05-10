@@ -85,7 +85,6 @@ void Prisma::LightHandler::updateOmni()
             m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
         }
         m_dataOmni->lights[i].padding = scene->omniLights[i]->hasShadow() ? 2.0f : 0.0f;
-        m_dataOmni->lights[i].radius = m_dataOmni->lights[i].radius;
     }
 
     glm::vec4 omniLength;
