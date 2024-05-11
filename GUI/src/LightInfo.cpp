@@ -19,11 +19,11 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
     glm::vec3 scale;
     glm::quat rotation;
     glm::vec3 translation;
-    glm::vec4 perspective;
 
     glm::mat4 model = lightData->parent()->matrix();
     glm::mat4 inverseParent = glm::inverse(lightData->parent()->parent()->finalMatrix());
     ImGuiIO& io = ImGui::GetIO();
+    mCurrentGizmoOperation = ImGuizmo::ROTATE;
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
     ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
 
@@ -89,10 +89,28 @@ void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightO
     };
     nextRight(meshData.initOffset);
     ImGui::Begin(lightData->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-    if (ImGui::InputFloat3("Translation ", glm::value_ptr(type.position))) {
-        lightData->type(type);
+
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+
+    glm::mat4 model = lightData->parent()->matrix();
+    glm::mat4 inverseParent = glm::inverse(lightData->parent()->parent()->finalMatrix());
+    ImGuiIO& io = ImGui::GetIO();
+    mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
+
+    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(translation), glm::value_ptr(rotation), glm::value_ptr(scale));
+
+    lightData->parent()->matrix(inverseParent * model);
+
+
+    if (ImGuizmo::IsUsing()) {
         skipUpdate = true;
     }
+
+    ImGui::InputFloat3("Translation ", glm::value_ptr(type.position));
 
     if (ImGui::InputFloat3("Diffuse ", glm::value_ptr(type.diffuse))) {
         lightData->type(type);
