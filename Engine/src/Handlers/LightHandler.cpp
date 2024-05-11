@@ -52,7 +52,6 @@ void Prisma::LightHandler::updateDirectional()
         shadow->lightDir(m_dataDirectional->lights[i].direction);
         shadow->update(dirMatrix * m_dataDirectional->lights[i].direction);
         m_dataDirectional->lights[i].direction = dirMatrix * m_dataDirectional->lights[i].direction;
-        m_dataDirectional->lights[i].shadowMap = shadow->id();
         m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
     }
     glm::vec4 dirLength;
@@ -81,7 +80,6 @@ void Prisma::LightHandler::updateOmni()
         m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
         if (light->shadow()) {
             light->shadow()->update(m_dataOmni->lights[i].position);
-            m_dataOmni->lights[i].shadowMap = light->shadow()->id();
             m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
         }
         m_dataOmni->lights[i].padding = scene->omniLights[i]->hasShadow() ? 2.0f : 0.0f;
@@ -107,10 +105,10 @@ Prisma::LightHandler& Prisma::LightHandler::getInstance()
 void Prisma::LightHandler::update()
 {
     const auto& scene = currentGlobalScene;
-    updateDirectional();
 
     if(m_init || updateData || updateSizes || updateLights) {
         if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS) {
+            updateDirectional();
             updateOmni();
         } else {
             std::cerr << "Too many lights" << std::endl;

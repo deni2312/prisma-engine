@@ -344,7 +344,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
             lightNode->addChild(light, false);
             light->finalMatrix(lightNode->finalMatrix(), false);
             light->parent(lightNode);
-            light->createShadow(4096, 4096);
+            light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
 
             m_scene->dirLights.push_back(light);
 
@@ -383,7 +383,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
             lightNode->addChild(light, false);
             light->finalMatrix(lightNode->finalMatrix(), false);
             light->parent(lightNode);
-            light->createShadow(1024, 1024);
+            light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
 
             m_scene->omniLights.push_back(light);
             break;

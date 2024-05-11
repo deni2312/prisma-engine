@@ -54,10 +54,12 @@ namespace Prisma {
         void createShadow(unsigned int width, unsigned int height){
             if(std::is_same<LightType::LightOmni,T>()){
                 m_shadow=std::make_shared<PipelineOmniShadow>(width,height);
+				m_type.shadowMap = m_shadow->id();
             }
 
 			if (std::is_same<LightType::LightDir, T>()) {
 				m_shadow = std::make_shared<PipelineCSM>(width, height);
+				m_type.shadowMap = m_shadow->id();
 			}
 			updateLights = true;
         }
