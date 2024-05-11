@@ -6,7 +6,7 @@ in vec2 TexCoords;
 in vec3 Normal;
 flat in int drawId;
 
-layout(std140, binding = 4) uniform LightSpaceMatrices
+layout(std430, binding = 10) buffer LightSpaceMatrices
 {
     mat4 lightSpaceMatrices[16];
 };

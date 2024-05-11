@@ -16,11 +16,10 @@ layout(std140, binding = 2) uniform ClusterData
     float padding[2];
 };
 
-layout(std140, binding = 4) uniform LightSpaceMatrices
+layout(std430, binding = 10) buffer LightSpaceMatrices
 {
     mat4 lightSpaceMatrices[16];
 };
-
 
 struct Cluster
 {

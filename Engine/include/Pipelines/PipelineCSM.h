@@ -6,6 +6,7 @@
 #include "glm/glm.hpp"
 #include "../Containers/Ubo.h"
 #include "../Helpers/Settings.h"
+#include "../Containers/SSBO.h"
 
 namespace Prisma {
 
@@ -51,7 +52,7 @@ namespace Prisma {
 
         Prisma::Settings m_settings;
 
-        std::shared_ptr<Prisma::Ubo> m_ubo;
+        std::shared_ptr<Prisma::SSBO> m_ssbo;
 
     };
 }

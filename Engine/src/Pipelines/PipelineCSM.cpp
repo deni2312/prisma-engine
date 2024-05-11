@@ -57,7 +57,8 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
 
     auto settings = Prisma::SettingsLoader::instance().getSettings();
 
-    m_ubo = std::make_shared<Ubo>(sizeof(glm::mat4)*16,4);
+    m_ssbo = std::make_shared<Prisma::SSBO>(10);
+    m_ssbo->resize(sizeof(glm::mat4) * 16);
 
 }
 
@@ -66,7 +67,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     
     auto lightMatrices = getLightSpaceMatrices();
 
-    m_ubo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
+    m_ssbo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
 
     m_shader->use();
     
