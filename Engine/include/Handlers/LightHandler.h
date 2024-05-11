@@ -32,6 +32,8 @@ namespace Prisma {
 
 		void updateOmni();
 
+		void updateCSM();
+
         bool m_init;
 	public:
 		static LightHandler& getInstance();

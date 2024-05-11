@@ -45,12 +45,14 @@ void Prisma::LightHandler::updateDirectional()
 
     m_dataDirectional = std::make_shared<Prisma::LightHandler::SSBODataDirectional>();
     for (int i = 0; i < scene->dirLights.size(); i++) {
-        auto light = scene->dirLights[i];
+        const auto& light = scene->dirLights[i];
         m_dataDirectional->lights.push_back(scene->dirLights[i]->type());
-        auto dirMatrix = scene->dirLights[i]->finalMatrix();
+        const auto& dirMatrix = scene->dirLights[i]->finalMatrix();
         auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
-        shadow->lightDir(m_dataDirectional->lights[i].direction);
-        shadow->update(dirMatrix * m_dataDirectional->lights[i].direction);
+        if (shadow) {
+            shadow->lightDir(m_dataDirectional->lights[i].direction);
+            shadow->update(dirMatrix * m_dataDirectional->lights[i].direction);
+        }
         m_dataDirectional->lights[i].direction = dirMatrix * m_dataDirectional->lights[i].direction;
         m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
     }
@@ -68,7 +70,7 @@ void Prisma::LightHandler::updateOmni()
 
     m_dataOmni = std::make_shared<Prisma::LightHandler::SSBODataOmni>();
     for (int i = 0; i < scene->omniLights.size(); i++) {
-        auto light = scene->omniLights[i];
+        const auto& light = scene->omniLights[i];
         m_dataOmni->lights.push_back(light->type());
         glm::mat4 omniMatrix;
         if (light->parent()) {
@@ -94,6 +96,20 @@ void Prisma::LightHandler::updateOmni()
         m_dataOmni->lights.data());
 }
 
+void Prisma::LightHandler::updateCSM()
+{
+    const auto& scene = currentGlobalScene;
+
+    if (scene->dirLights.size() > 0) {
+
+        auto shadow = currentGlobalScene->dirLights[0]->shadow();
+
+        const auto& dirMatrix = scene->dirLights[0]->finalMatrix();
+
+        shadow->update(dirMatrix * currentGlobalScene->dirLights[0]->type().direction);
+    }
+}
+
 Prisma::LightHandler& Prisma::LightHandler::getInstance()
 {
     if (!instance) {
@@ -105,6 +121,8 @@ Prisma::LightHandler& Prisma::LightHandler::getInstance()
 void Prisma::LightHandler::update()
 {
     const auto& scene = currentGlobalScene;
+
+    updateCSM();
 
     if(m_init || updateData || updateSizes || updateLights) {
         if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS) {
