@@ -35,6 +35,8 @@ namespace Prisma {
             std::vector<unsigned int> indices;
         };
 
+        virtual void computeAABB() override;
+
         void loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices);
 
         std::shared_ptr<AnimateVerticesData> animateVerticesData();

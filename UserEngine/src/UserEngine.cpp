@@ -27,7 +27,7 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     nodeHelper.nodeIterator(m_sceneNode->root, [](auto mesh, auto parent) {
         auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(mesh);
-        if (currentMesh && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(mesh)) {
+        if (currentMesh) {
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
             physicsComponent->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
             currentMesh->addComponent(physicsComponent);

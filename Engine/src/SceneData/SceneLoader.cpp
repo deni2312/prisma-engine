@@ -97,9 +97,7 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
         currentMesh->finalMatrix(glm::mat4(1.0f), false);
         currentMesh->parent(nodeRoot);
 
-        if (!isAnimate) {
-            currentMesh->computeAABB();
-        }
+        currentMesh->computeAABB();
 
         nodeRoot->addChild(currentMesh,false);
         if (isAnimate) {

@@ -1,6 +1,36 @@
 #include "../../include/SceneObjects/AnimatedMesh.h"
 #include "../../include/GlobalData/GlobalData.h"
 
+void Prisma::AnimatedMesh::computeAABB()
+{
+    auto vertices = animateVerticesData()->vertices;
+    auto indices = animateVerticesData()->indices;
+    if (vertices.empty()) {
+        m_aabbData = AABBData{ glm::vec3(0.0f), glm::vec3(0.0f) };
+    }
+
+    glm::vec3 minPoint = vertices[0].position;
+    glm::vec3 maxPoint = vertices[0].position;
+
+    for (const auto& vertex : vertices) {
+        minPoint = glm::min(minPoint, vertex.position);
+        maxPoint = glm::max(maxPoint, vertex.position);
+    }
+
+    m_aabbData.min = minPoint;
+    m_aabbData.max = maxPoint;
+
+    glm::vec3 center(0.0f);
+
+    for (const auto& index : indices) {
+        center += vertices[index].position;
+    }
+
+    center /= static_cast<float>(vertices.size());
+
+    m_aabbData.center = center;
+}
+
 void Prisma::AnimatedMesh::loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices) {
 	m_animateVertices = vertices;
 }

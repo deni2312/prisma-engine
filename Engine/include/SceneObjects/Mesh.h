@@ -44,10 +44,8 @@ namespace Prisma {
         void material(std::shared_ptr<Prisma::MaterialComponent> material);
         std::shared_ptr<Prisma::MaterialComponent> material();
         void vectorId(unsigned int vectorId);
-        void computeAABB();
+        virtual void computeAABB();
         AABBData aabbData();
-        void collisionData(Prisma::Physics::CollisionData collisionData);
-        Prisma::Physics::CollisionData collisionData();
 
         void addComponent(std::shared_ptr<Prisma::Component> component);
         void removeComponent(int index);
