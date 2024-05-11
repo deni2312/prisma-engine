@@ -38,7 +38,6 @@ UserEngine::UserEngine() : Prisma::Engine{}
     auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
 
     if (animatedMesh) {
-        std::cout << "a";
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Landscape/animation.gltf", animatedMesh);
         animator = std::make_shared<Prisma::Animator>(animation);
         animatedMesh->animator(animator);

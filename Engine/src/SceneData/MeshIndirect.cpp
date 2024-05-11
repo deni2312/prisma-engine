@@ -99,9 +99,6 @@ void Prisma::MeshIndirect::updateSize()
         m_currentVertexMax = m_verticesData.vertices.size();
         m_currentIndexMax = m_verticesData.indices.size();
 
-        m_verticesData.vertices.resize(m_currentVertexMax);
-        m_verticesData.indices.resize(m_currentIndexMax);
-
         m_vbo->writeData(m_currentVertexMax * sizeof(Prisma::Mesh::Vertex), &m_verticesData.vertices[0], GL_DYNAMIC_DRAW);
 
         m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
@@ -221,8 +218,7 @@ void Prisma::MeshIndirect::updateAnimation()
         m_currentVertexMax = m_verticesDataAnimation.vertices.size();
         m_currentIndexMax = m_verticesDataAnimation.indices.size();
 
-        m_verticesDataAnimation.vertices.resize(m_currentVertexMax);
-        m_verticesDataAnimation.indices.resize(m_currentIndexMax);
+        
 
         m_vboAnimation->writeData(m_currentVertexMax * sizeof(Prisma::AnimatedMesh::AnimateVertex), &m_verticesDataAnimation.vertices[0], GL_DYNAMIC_DRAW);
 
