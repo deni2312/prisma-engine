@@ -36,11 +36,16 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
 
     auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
+    auto animatedMesh1 = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "WorldWar_zombie")->children()[0]);
 
     if (animatedMesh) {
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Landscape/animation.gltf", animatedMesh);
+        auto animation1 = std::make_shared<Prisma::Animation>("../../../Resources/Landscape/animation1.gltf", animatedMesh1);
+
         animator = std::make_shared<Prisma::Animator>(animation);
+        animator1 = std::make_shared<Prisma::Animator>(animation1);
         animatedMesh->animator(animator);
+        animatedMesh1->animator(animator1);
     }
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
@@ -49,6 +54,8 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
 bool UserEngine::update()
 {
+    animator->updateAnimation(1.0 / fps());
+    animator1->updateAnimation(1.0 / fps());
 	return false;
 }
 
