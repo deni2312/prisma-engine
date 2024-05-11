@@ -8,7 +8,7 @@ Prisma::ClusterCalculation::ClusterCalculation(unsigned int numClusters)
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/ComputePipeline/compute.glsl");
 	m_shaderLights = std::make_shared<Shader>("../../../Engine/Shaders/ComputePipeline/compute_lights.glsl");
 	m_ssbo = std::make_shared<Prisma::SSBO>(5);
-	m_ssbo->resize(numClusters * sizeof(Cluster), GL_STATIC_COPY);
+	m_ssbo->resize(numClusters * sizeof(Cluster), GL_STATIC_DRAW);
 	m_shader->use();
 	m_nearPos = m_shader->getUniformPosition("zNear");
 	m_farPos = m_shader->getUniformPosition("zFar");

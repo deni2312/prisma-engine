@@ -8,7 +8,7 @@ namespace Prisma {
     public:
         SSBO(unsigned int ssbo);
 
-        void resize(unsigned int size,unsigned int type=GL_DYNAMIC_COPY);
+        void resize(unsigned int size,unsigned int type=GL_DYNAMIC_DRAW);
 
         void modifyData(unsigned int offset, unsigned int size, void* data);
 

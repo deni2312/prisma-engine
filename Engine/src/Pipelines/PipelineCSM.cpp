@@ -19,6 +19,8 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
     if (!m_shader) {
         m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
         m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
+        m_ssbo = std::make_shared<Prisma::SSBO>(10);
+        m_ssbo->resize(sizeof(glm::mat4) * 16);
     }
 
     m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
@@ -56,9 +58,6 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
     m_shaderAnimation->use();
 
     auto settings = Prisma::SettingsLoader::instance().getSettings();
-
-    m_ssbo = std::make_shared<Prisma::SSBO>(10);
-    m_ssbo->resize(sizeof(glm::mat4) * 16);
 
 }
 
