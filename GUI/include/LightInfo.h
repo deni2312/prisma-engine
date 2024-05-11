@@ -23,6 +23,9 @@ namespace Prisma {
 
         glm::mat4 m_currentModelOmni;
 
+        ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::ROTATE;
+        ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
+
         glm::vec3 directionToEulerAngles(const glm::vec3& direction);
     };
 }

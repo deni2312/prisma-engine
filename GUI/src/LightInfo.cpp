@@ -16,32 +16,31 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
     ImGui::Begin(lightData->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     // Decompose the matrix
-    glm::vec3 scale, skew;
+    glm::vec3 scale;
     glm::quat rotation;
     glm::vec3 translation;
     glm::vec4 perspective;
-    glm::decompose(lightData->parent()->finalMatrix(), scale, rotation, translation, skew, perspective);
+
+    glm::mat4 model = lightData->parent()->matrix();
+    glm::mat4 inverseParent = glm::inverse(lightData->parent()->parent()->finalMatrix());
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
+
+    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(translation), glm::value_ptr(rotation), glm::value_ptr(scale));
+    
+    lightData->parent()->matrix(inverseParent * model);
+
+
+    if (ImGuizmo::IsUsing()) {
+        skipUpdate = true;
+    }
 
     // Convert quaternion to Euler angles (XYZ)
     glm::vec3 euler = glm::degrees(glm::eulerAngles(rotation));
 
 
-    if (ImGui::InputFloat3("Rotation ", glm::value_ptr(euler))) {
-        euler = glm::radians(euler);
-        glm::mat4 rotationMatrix(1.0f); // Identity matrix
-
-        // Rotate around Z axis
-        rotationMatrix = glm::rotate(rotationMatrix, euler.z, glm::vec3(0.0f, 0.0f, 1.0f));
-
-        // Rotate around Y axis
-        rotationMatrix = glm::rotate(rotationMatrix, euler.y, glm::vec3(0.0f, 1.0f, 0.0f));
-
-        // Rotate around X axis
-        rotationMatrix = glm::rotate(rotationMatrix, euler.x, glm::vec3(1.0f, 0.0f, 0.0f));
-
-        lightData->parent()->matrix(rotationMatrix);
-        skipUpdate = true;
-    }
+    ImGui::InputFloat3("Rotation ", glm::value_ptr(euler));
 
     if (ImGui::InputFloat3("Diffuse ", glm::value_ptr(type.diffuse))) {
         lightData->type(type);
