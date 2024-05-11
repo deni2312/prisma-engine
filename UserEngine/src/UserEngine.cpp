@@ -27,12 +27,22 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
     nodeHelper.nodeIterator(m_sceneNode->root, [](auto mesh, auto parent) {
         auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(mesh);
-        if (currentMesh) {
+        if (currentMesh && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(mesh)) {
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
             physicsComponent->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
             currentMesh->addComponent(physicsComponent);
         }
         });
+
+
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
+
+    if (animatedMesh) {
+        std::cout << "a";
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Landscape/animation.gltf", animatedMesh);
+        animator = std::make_shared<Prisma::Animator>(animation);
+        animatedMesh->animator(animator);
+    }
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
     
