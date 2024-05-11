@@ -54,8 +54,8 @@ Prisma::PrismaFunc::PrismaFunc()
     glewExperimental = GL_TRUE;
     glEnable(GL_DEPTH_TEST);
     glClearColor(CLEAR_COLOR.x, CLEAR_COLOR.y, CLEAR_COLOR.z, CLEAR_COLOR.w);
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     privatePrisma = std::make_shared<PrivatePrisma>();
 }
 
