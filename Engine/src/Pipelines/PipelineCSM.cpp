@@ -11,14 +11,16 @@
 #include "../../../GUI/include/TextureInfo.h"
 
 
-static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
-static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
+static std::shared_ptr<Prisma::Shader> shader = nullptr;
+static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
+
+
 
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_width{ width }, m_height{ height } {
 
-    if (!m_shader) {
-        m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
-        m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
+    if (!shader) {
+        shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
+        shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
         m_ssbo = std::make_shared<Prisma::SSBO>(10);
         m_ssbo->resize(sizeof(glm::mat4) * 16);
     }
@@ -53,9 +55,9 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
     m_id = glGetTextureHandleARB(lightDepthMaps);
     glMakeTextureHandleResidentARB(m_id);
 
-    m_shader->use();
+    shader->use();
 
-    m_shaderAnimation->use();
+    shaderAnimation->use();
 
     auto settings = Prisma::SettingsLoader::instance().getSettings();
 
@@ -63,31 +65,32 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
 
 void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     m_lightDir = lightPos;
-    
-    auto lightMatrices = getLightSpaceMatrices();
+    if (m_ssbo) {
+        auto lightMatrices = getLightSpaceMatrices();
 
-    m_ssbo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
+        m_ssbo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
 
-    m_shader->use();
-    
-    GLint viewport[4];
+        shader->use();
 
-    glGetIntegerv(GL_VIEWPORT, viewport);
+        GLint viewport[4];
 
-    glViewport(0, 0, m_width, m_height);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glCullFace(GL_FRONT);  // peter panning
-    Prisma::MeshIndirect::getInstance().renderMeshes();
+        glGetIntegerv(GL_VIEWPORT, viewport);
 
-    m_shaderAnimation->use();
+        glViewport(0, 0, m_width, m_height);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);  // peter panning
+        Prisma::MeshIndirect::getInstance().renderMeshes();
 
-    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+        shaderAnimation->use();
 
-    glCullFace(GL_BACK);
+        Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
+        glCullFace(GL_BACK);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
+    }
 }
 
 std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const glm::mat4& projview)

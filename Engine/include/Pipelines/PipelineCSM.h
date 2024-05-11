@@ -52,7 +52,7 @@ namespace Prisma {
 
         Prisma::Settings m_settings;
 
-        std::shared_ptr<Prisma::SSBO> m_ssbo;
+        std::shared_ptr<Prisma::SSBO> m_ssbo = nullptr;
 
     };
 }
