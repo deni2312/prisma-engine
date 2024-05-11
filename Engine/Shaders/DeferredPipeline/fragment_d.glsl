@@ -16,7 +16,7 @@ layout(std140, binding = 2) uniform ClusterData
     float padding[2];
 };
 
-layout(std430, binding = 10) buffer LightSpaceMatrices
+layout(std430, binding = 10) readonly buffer LightSpaceMatrices
 {
     mat4 lightSpaceMatrices[16];
 };
@@ -60,20 +60,20 @@ struct OmniData {
     float radius;
 };
 
-layout(std430, binding = 2) buffer Directional
+layout(std430, binding = 2) readonly buffer Directional
 {
     vec4 lenDir;
     DirectionalData directionalData[];
 };
 
-layout(std430, binding = 3) buffer Omni
+layout(std430, binding = 3) readonly buffer Omni
 {
     vec4 lenOmni;
     OmniData omniData[];
 };
 
 
-layout(std430, binding = 9) buffer CSMShadow
+layout(std430, binding = 9) readonly buffer CSMShadow
 {
     float cascadePlanes[16];
     float sizeCSM;

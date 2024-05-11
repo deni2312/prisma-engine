@@ -28,7 +28,7 @@ layout(std430, binding = 5) restrict buffer clusterSSBO
     Cluster clusters[];
 };
 
-layout(std430, binding = 3) buffer Omni
+layout(std430, binding = 3) readonly buffer Omni
 {
     vec4 lenOmni;
     OmniData omniData[];

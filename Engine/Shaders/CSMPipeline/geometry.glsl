@@ -3,7 +3,7 @@
 layout(triangles, invocations = 5) in;
 layout(triangle_strip, max_vertices = 3) out;
 
-layout(std430, binding = 10) buffer LightSpaceMatrices
+layout(std430, binding = 10) readonly buffer LightSpaceMatrices
 {
 	mat4 lightSpaceMatrices[16];
 };

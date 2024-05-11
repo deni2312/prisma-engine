@@ -6,7 +6,7 @@ layout(location = 6) in vec4 weights;
 const int MAX_BONES = 128;
 const int MAX_BONE_INFLUENCE = 4;
 
-layout(std430, binding = 6) buffer AnimationMatrices
+layout(std430, binding = 6) readonly buffer AnimationMatrices
 {
     mat4 modelAnimationMatrices[];
 };
@@ -15,7 +15,7 @@ struct SSBOAnimation {
     mat4 animations[MAX_BONES];
 };
 
-layout(std430, binding = 8) buffer BoneMatrices
+layout(std430, binding = 8) readonly buffer BoneMatrices
 {
     SSBOAnimation boneMatrices[];
 };

@@ -20,12 +20,12 @@ struct MaterialData {
 MaterialData currentMaterial;
 
 #if defined(ANIMATE)
-layout(std430, binding = 7) buffer MaterialAnimation
+layout(std430, binding = 7) readonly buffer MaterialAnimation
 {
     MaterialData materialDataAnimation[];
 };
 #else
-layout(std430, binding = 0) buffer Material
+layout(std430, binding = 0) readonly buffer Material
 {
     MaterialData materialData[];
 };

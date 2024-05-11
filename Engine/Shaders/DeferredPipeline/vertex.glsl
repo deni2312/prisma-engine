@@ -19,7 +19,7 @@ layout(std140, binding = 1) uniform MeshData
     mat4 projection;
 };
 
-layout(std430, binding = 1) buffer Matrices
+layout(std430, binding = 1) readonly buffer Matrices
 {
     mat4 modelMatrices[];
 };
