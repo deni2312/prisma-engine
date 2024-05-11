@@ -31,7 +31,6 @@ Prisma::Physics::Physics() {
 }
 
 void Prisma::Physics::update(float delta) {
-    auto meshes=currentGlobalScene->meshes;
     m_physicsWorld->dynamicsWorld->stepSimulation(delta, 10);
     for (int j = m_physicsWorld->dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
     {
