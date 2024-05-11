@@ -130,7 +130,24 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     center /= corners.size();
 
 
-    const auto lightView = glm::lookAt(center + m_lightDir, center, glm::vec3(0.0f, 0.0f, 1.0f));
+    auto direction = center + m_lightDir;
+
+    glm::mat4 lightView;
+
+    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f); // Define the world's up direction
+
+    // Check if direction and worldUp are parallel
+    if (glm::dot(direction, worldUp) > 0.99f) {
+        // If they are nearly parallel, adjust the worldUp vector
+        worldUp = glm::vec3(0.0f, 0.0f, 1.0f); // Set a different perpendicular direction
+    }
+
+    glm::vec3 right = glm::normalize(glm::cross(worldUp, direction)); // Compute the right vector
+    glm::vec3 up = glm::cross(direction, right); // Compute the corrected up vector
+
+    // Construct the view matrix using the corrected up vector
+    lightView = glm::lookAt(direction, center, up);
+
 
     float minX = std::numeric_limits<float>::max();
     float maxX = std::numeric_limits<float>::lowest();

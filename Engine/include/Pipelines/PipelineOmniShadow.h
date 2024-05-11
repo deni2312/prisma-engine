@@ -20,7 +20,7 @@ namespace Prisma {
     private:
         unsigned int m_width;
         unsigned int m_height;
-        float m_nearPlane=1;
+        float m_nearPlane=0.1;
 
         unsigned int m_fbo;
         unsigned int m_farPlanePos;
