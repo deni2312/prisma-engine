@@ -23,6 +23,8 @@ namespace Prisma {
 
         void updateCollisionData();
 
+        void updateData(bool update);
+
         Prisma::Physics::CollisionData collisionData();
 
     private:
@@ -32,6 +34,7 @@ namespace Prisma {
         Prisma::Physics::CollisionData m_collisionDataCopy{};
         btCollisionShape *m_shape = nullptr;
         btRigidBody *m_body = nullptr;
+        bool m_update = true;
         void colliderDispatcher(Prisma::Physics::Collider collider);
 
     };

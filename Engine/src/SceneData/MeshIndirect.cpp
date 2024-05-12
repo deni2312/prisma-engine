@@ -39,8 +39,6 @@ void Prisma::MeshIndirect::renderAnimateMeshes()
 
 void Prisma::MeshIndirect::update()
 {
-    auto meshes = currentGlobalScene->meshes;
-
     if (updateSizes) {
         updateSize();
     }
@@ -66,16 +64,17 @@ void Prisma::MeshIndirect::updateSize()
 
 
         //PUSH VERTICES
-        for (auto vertices : meshes) {
+        for (const auto& vertices : meshes) {
             m_verticesData.vertices.insert(m_verticesData.vertices.end(), vertices->verticesData().vertices.begin(), vertices->verticesData().vertices.end());
         }
         //PUSH INDICES
-        for (auto indices : meshes) {
+        for (const auto& indices : meshes) {
             m_verticesData.indices.insert(m_verticesData.indices.end(), indices->verticesData().indices.begin(), indices->verticesData().indices.end());
         }
         std::vector<glm::mat4> models;
-        for (auto model : meshes) {
-            models.push_back(model->parent()->finalMatrix());
+        for (int i = 0; i < meshes.size(); i++) {
+            models.push_back(meshes[i]->parent()->finalMatrix());
+            meshes[i]->vectorId(i);
         }
 
         //PUSH MODEL MATRICES TO AN SSBO WITH ID 1
@@ -83,7 +82,7 @@ void Prisma::MeshIndirect::updateSize()
         m_ssboModel->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
 
         //PUSH MATERIAL TO AN SSBO WITH ID 0
-        for (auto material : meshes) {
+        for (const auto& material : meshes) {
             m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
         }
         m_ssboMaterial->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
@@ -185,16 +184,17 @@ void Prisma::MeshIndirect::updateAnimation()
 
 
         //PUSH VERTICES
-        for (auto vertices : meshes) {
+        for (const auto& vertices : meshes) {
             m_verticesDataAnimation.vertices.insert(m_verticesDataAnimation.vertices.end(), vertices->animateVerticesData()->vertices.begin(), vertices->animateVerticesData()->vertices.end());
         }
         //PUSH INDICES
-        for (auto indices : meshes) {
+        for (const auto& indices : meshes) {
             m_verticesDataAnimation.indices.insert(m_verticesDataAnimation.indices.end(), indices->animateVerticesData()->indices.begin(), indices->animateVerticesData()->indices.end());
         }
         std::vector<glm::mat4> models;
-        for (auto model : meshes) {
-            models.push_back(model->parent()->finalMatrix());
+        for (int i = 0; i < meshes.size(); i++) {
+            models.push_back(meshes[i]->parent()->finalMatrix());
+            meshes[i]->vectorId(i);
         }
 
         //PUSH MODEL MATRICES TO AN SSBO WITH ID 1

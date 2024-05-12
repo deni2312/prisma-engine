@@ -4,6 +4,12 @@
 #include <tuple>
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 
+struct ImGuiMeshInfo {
+    std::shared_ptr<Prisma::PhysicsMeshComponent> physicsComponent = nullptr;
+};
+
+static ImGuiMeshInfo meshInfoData;
+
 void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
@@ -28,7 +34,9 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
     else {
         meshData.mesh->parent()->matrix(inverseParent*model);
     }
-
+    if (meshInfoData.physicsComponent) {
+        meshInfoData.physicsComponent->updateData(true);
+    }
     //meshData.mesh->finalMatrix(model);
 
     if (ImGuizmo::IsUsing()) {
@@ -71,10 +79,12 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
         ImGui::InputFloat3("Scale", glm::value_ptr(m_scale), "%.3f", ImGuiInputTextFlags_ReadOnly);
 
         float mass = 0;
+        meshInfoData.physicsComponent = nullptr;
         for (auto component : meshData.mesh->components()) {
             auto physicsMesh = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(component);
             if (physicsMesh) {
                 mass = physicsMesh->collisionData().mass;
+                meshInfoData.physicsComponent = physicsMesh;
             }
         }
         if (mass <= 0.0) {
