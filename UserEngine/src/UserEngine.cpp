@@ -35,8 +35,6 @@ UserEngine::UserEngine() : Prisma::Engine{}
         });
     auto torusInstance = Prisma::Mesh::instantiate(std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_sceneNode->root, "Torus")->children()[0]));
 
-    std::cout << torusInstance;
-
     auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
     auto animatedMesh1 = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "WorldWar_zombie")->children()[0]);
 

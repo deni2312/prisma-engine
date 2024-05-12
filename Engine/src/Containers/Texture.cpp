@@ -47,6 +47,12 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        GLfloat value, max_anisotropy = 8.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &value);
+
+        value = (value > max_anisotropy) ? max_anisotropy : value;
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, value);
+
         stbi_image_free(data);
         if(resident) {
             m_id = glGetTextureHandleARB(textureID);

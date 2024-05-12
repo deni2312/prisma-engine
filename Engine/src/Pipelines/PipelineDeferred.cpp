@@ -14,6 +14,7 @@
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/ClusterCalculation.h"
 #include "../../../GUI/include/TextureInfo.h"
+#include "../../include/Postprocess/Postprocess.h"
 
 
 Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb):m_width{ width },m_height{ height }
@@ -132,6 +133,8 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
     );
     Prisma::PipelineSkybox::getInstance().render(camera);
     m_fbo->unbind();
+
+    Prisma::Postprocess::getInstance().fboRaw(m_fbo);
 
     m_output->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
