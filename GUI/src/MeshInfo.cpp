@@ -35,7 +35,7 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
         meshData.mesh->parent()->matrix(inverseParent*model);
     }
     if (meshInfoData.physicsComponent) {
-        meshInfoData.physicsComponent->updateData(true);
+        meshInfoData.physicsComponent->updateCollisionData();
     }
     //meshData.mesh->finalMatrix(model);
 

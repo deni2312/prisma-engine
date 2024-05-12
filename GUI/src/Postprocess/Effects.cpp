@@ -58,6 +58,7 @@ Prisma::Effects::Effects() {
 	fboData.width = settings.width;
 	fboData.height = settings.height;
 	fboData.enableDepth = true;
+	fboData.enableSrgb = true;
 
 	m_brightnessFbo = std::make_shared<Prisma::FBO>(fboData);
 	Prisma::TextureInfo::getInstance().add({ pingpongColorbuffers[0],"Bloom1"});

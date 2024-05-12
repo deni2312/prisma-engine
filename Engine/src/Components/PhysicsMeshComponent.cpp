@@ -36,10 +36,7 @@ void Prisma::PhysicsMeshComponent::start() {
 }
 
 void Prisma::PhysicsMeshComponent::update() {
-    if(m_update){
-        updateCollisionData();
-        m_update = false;
-    }
+
 }
 
 void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData collisionData) {
@@ -107,10 +104,6 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
         physicsWorld->dynamicsWorld->addRigidBody(m_body);
     }
     physicsWorld->collisionShapes.push_back(m_shape);
-}
-
-void Prisma::PhysicsMeshComponent::updateData(bool update) {
-    m_update = update;
 }
 
 void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
