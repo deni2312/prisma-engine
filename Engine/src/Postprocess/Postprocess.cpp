@@ -18,14 +18,8 @@ Prisma::Postprocess::Postprocess()
 void Prisma::Postprocess::render()
 {
     m_fbo->bind();
-
     for (auto effect : m_effects) {
-        if (!effect->raw()) {
-            effect->render(m_fbo->texture());
-        }
-        else {
-            effect->render(m_fboRaw->texture());
-        }
+            effect->render(m_fbo, m_fboRaw);
     }
     m_fbo->unbind();
 }

@@ -1,21 +1,14 @@
 #pragma once
 #include <iostream>
+#include "../Containers/FBO.h"
 
 namespace Prisma {
 
 	class PostprocessEffect {
 	public:
-		virtual void render(uint64_t texture) {
+		virtual void render(std::shared_ptr<Prisma::FBO> texture, std::shared_ptr<Prisma::FBO> raw) {
 			
 		};
-
-		void raw(bool raw) {
-			m_raw = raw;
-		}
-
-		bool raw() const {
-			return m_raw;
-		}
 
 	private:
 		bool m_raw = false;

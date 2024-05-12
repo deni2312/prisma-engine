@@ -6,28 +6,32 @@ in vec2 TexCoords;
 
 layout(bindless_sampler) uniform sampler2D screenTexture;
 
+uniform bool horizontal;
+uniform float weight[5] = float[](0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162);
+
 void main()
 {
-    vec2 texelSize = 1.0 / textureSize(screenTexture, 0);
-    vec3 color = texture(screenTexture, TexCoords).rgb;
+    vec2 tex_offset = 1.0 / textureSize(screenTexture, 0); // gets size of single texel
 
-    // Sobel edge detection
-    vec3 sobel = vec3(0.0);
-    sobel += texture(screenTexture, TexCoords + texelSize * vec2(-1, -1)).rgb * 1.0;
-    sobel += texture(screenTexture, TexCoords + texelSize * vec2(-1, 0)).rgb * 2.0;
-    sobel += texture(screenTexture, TexCoords + texelSize * vec2(-1, 1)).rgb * 1.0;
-    sobel += texture(screenTexture, TexCoords + texelSize * vec2(1, -1)).rgb * -1.0;
-    sobel += texture(screenTexture, TexCoords + texelSize * vec2(1, 0)).rgb * -2.0;
-    sobel += texture(screenTexture, TexCoords + texelSize * vec2(1, 1)).rgb * -1.0;
+    vec3 currentTexture = texture(screenTexture, TexCoords).rgb;
 
-    float sobelLength = length(sobel);
-    vec3 edge = vec3(step(0.4, sobelLength)); // Adjust the threshold for edge detection
+    vec3 result = currentTexture * weight[0];
+    if (horizontal)
+    {
+        for (int i = 1; i < 5; ++i)
+        {
+            result += texture(screenTexture, TexCoords + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+            result += texture(screenTexture, TexCoords - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+        }
+    }
+    else
+    {
+        for (int i = 1; i < 5; ++i)
+        {
+            result += texture(screenTexture, TexCoords + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+            result += texture(screenTexture, TexCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+        }
+    }
 
-    // Reduce number of colors
-    color = floor(color * 5.0) / 5.0;
-
-    // Combine color and edge
-    color = mix(color, vec3(0.0), edge);
-
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(result, 1.0);
 }
