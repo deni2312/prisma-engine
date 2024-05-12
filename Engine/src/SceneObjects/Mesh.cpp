@@ -6,6 +6,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
+#include <string>
 
 void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices)
 {
@@ -29,10 +30,21 @@ glm::mat4 Prisma::Mesh::finalMatrix() const
 
 std::shared_ptr<Prisma::Mesh> Prisma::Mesh::instantiate(std::shared_ptr<Mesh> mesh)
 {
-    auto newInstance = std::make_shared<Mesh>();
-    newInstance->loadModel(std::make_shared<VerticesData>(*mesh->m_vertices));
-    newInstance->material(std::make_shared<MaterialComponent>(*mesh->material()));
-    newInstance->matrix(mesh->matrix());
+    std::shared_ptr<Mesh> newInstance = nullptr;
+    if (mesh) {
+        newInstance = std::make_shared<Mesh>();
+        newInstance->loadModel(std::make_shared<VerticesData>(*mesh->m_vertices));
+        newInstance->material(std::make_shared<MaterialComponent>(*mesh->material()));
+        newInstance->matrix(mesh->matrix());
+        newInstance->name(mesh->name()+std::to_string(newInstance->uuid()));
+        std::shared_ptr<Node> parent = std::make_shared<Node>();
+        parent->name(mesh->parent()->name() + std::to_string(parent->uuid()));
+        parent->matrix(mesh->parent()->matrix());
+        parent->addChild(newInstance);
+        parent->parent(mesh->parent()->parent());
+        newInstance->parent(parent);
+        currentGlobalScene->root->addChild(parent);
+    }
     return newInstance;
 }
 
