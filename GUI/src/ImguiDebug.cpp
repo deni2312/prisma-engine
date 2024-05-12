@@ -259,6 +259,7 @@ void Prisma::ImguiDebug::initStatus()
     m_status.postprocess.push_back("SEPPIA");
     m_status.postprocess.push_back("CARTOON");
     m_status.postprocess.push_back("VIGNETTE");
+    m_status.postprocess.push_back("BLOOM");
 }
 
 std::string Prisma::ImguiDebug::openFolder()

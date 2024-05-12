@@ -16,6 +16,7 @@
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/ClusterCalculation.h"
 #include <random>
+#include "../../include/Postprocess/Postprocess.h"
 
 struct PrivateDataForward {
 
@@ -85,6 +86,7 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	m_fbo->unbind();
+	Prisma::Postprocess::getInstance().fboRaw(m_fbo);
 	m_output->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_fullscreenPipeline->render(m_fbo->texture());

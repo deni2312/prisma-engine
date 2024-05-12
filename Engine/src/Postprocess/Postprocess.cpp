@@ -18,8 +18,14 @@ Prisma::Postprocess::Postprocess()
 void Prisma::Postprocess::render()
 {
     m_fbo->bind();
+
     for (auto effect : m_effects) {
-        effect->render(m_fbo->texture());
+        if (!effect->raw()) {
+            effect->render(m_fbo->texture());
+        }
+        else {
+            effect->render(m_fboRaw->texture());
+        }
     }
     m_fbo->unbind();
 }
@@ -32,4 +38,8 @@ void Prisma::Postprocess::addPostProcess(std::shared_ptr<Prisma::PostprocessEffe
 void Prisma::Postprocess::fbo(std::shared_ptr<Prisma::FBO> fbo)
 {
     m_fbo = fbo;
+}
+
+void Prisma::Postprocess::fboRaw(std::shared_ptr<Prisma::FBO> fbo) {
+    m_fboRaw = fbo;
 }

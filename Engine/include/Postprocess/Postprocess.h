@@ -18,10 +18,12 @@ namespace Prisma {
 		void addPostProcess(std::shared_ptr<Prisma::PostprocessEffect> postprocessEffect);
 
 		void fbo(std::shared_ptr<Prisma::FBO> fbo);
+		void fboRaw(std::shared_ptr<Prisma::FBO> fbo);
 
 	private:
 		std::vector<std::shared_ptr<Prisma::PostprocessEffect>> m_effects;
 		std::shared_ptr<Prisma::FBO> m_fbo;
+		std::shared_ptr<Prisma::FBO> m_fboRaw;
 		static std::shared_ptr<Postprocess> instance;
 	};
 

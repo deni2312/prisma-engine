@@ -12,7 +12,8 @@ namespace Prisma {
 			NORMAL,
 			SEPPIA,
 			CARTOON,
-			VIGNETTE
+			VIGNETTE,
+			BLOOM
 		};
 
 		Effects() {
@@ -27,6 +28,10 @@ namespace Prisma {
 			m_shaderVignette = std::make_shared<Shader>("../../../GUI/Shaders/Vignette/vertex.glsl", "../../../GUI/Shaders/Vignette/fragment.glsl");
 			m_shaderVignette->use();
 			m_bindlessPosVignette = m_shaderVignette->getUniformPosition("screenTexture");
+
+			m_shaderBloom = std::make_shared<Shader>("../../../GUI/Shaders/Bloom/vertex.glsl", "../../../GUI/Shaders/Bloom/fragment.glsl");
+			m_shaderBloom->use();
+			m_bindlessPosBloom = m_shaderBloom->getUniformPosition("screenTexture");
 		}
 
 		void effect(EFFECTS effect) {
@@ -34,8 +39,8 @@ namespace Prisma {
 		}
 
 
-		virtual void render(uint64_t texture) {
-
+		virtual void render(uint64_t texture) override {
+			raw(false);
 			switch (m_effects) {
 			case EFFECTS::NORMAL:
 				break;
@@ -54,6 +59,12 @@ namespace Prisma {
 				m_shaderVignette->setInt64(m_bindlessPosVignette, texture);
 				Prisma::IBLBuilder::getInstance().renderQuad();
 				break;
+			case EFFECTS::BLOOM:
+				raw(true);
+				m_shaderBloom->use();
+				m_shaderBloom->setInt64(m_bindlessPosBloom, texture);
+				Prisma::IBLBuilder::getInstance().renderQuad();
+				break;
 			}
 		}
 	private:
@@ -65,6 +76,9 @@ namespace Prisma {
 
 		std::shared_ptr<Shader> m_shaderVignette;
 		unsigned int m_bindlessPosVignette;
+
+		std::shared_ptr<Shader> m_shaderBloom;
+		unsigned int m_bindlessPosBloom;
 
 		EFFECTS m_effects = EFFECTS::NORMAL;
 	};
