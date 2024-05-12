@@ -26,8 +26,6 @@ namespace Prisma {
 
 		std::vector<unsigned int> m_cascadePlaneDistances;
 
-		Prisma::Settings m_settings;
-
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderAnimate;
 		glm::mat4 m_projection;

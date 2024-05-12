@@ -38,8 +38,6 @@ namespace Prisma {
         std::shared_ptr<Prisma::FBO> m_fboSSR;
         std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
 
-		Prisma::Settings m_settings;
-
         std::shared_ptr<Prisma::PipelineSSR> m_ssr;
     };
 }

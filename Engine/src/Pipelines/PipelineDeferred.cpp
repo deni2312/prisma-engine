@@ -83,9 +83,6 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
     Prisma::TextureInfo::getInstance().add({ gNormal, "Deferred_Normal"});
     Prisma::TextureInfo::getInstance().add({ gAlbedoSpec, "Deferred_Albedo"});
 
-
-    m_settings = Prisma::SettingsLoader::instance().getSettings();
-
     Prisma::FBO::FBOData fboData;
 	fboData.width = m_width;
 	fboData.height = m_height;

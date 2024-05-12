@@ -46,8 +46,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 		m_cascadePlaneDistances.push_back(m_shader->getUniformPosition("cascadePlaneDistances[" + std::to_string(i) + "]"));
 	}
 
-	m_settings = Prisma::SettingsLoader::instance().getSettings();
-
     m_fbo = std::make_shared<Prisma::FBO>(fboData);
 	m_fullscreenPipeline = std::make_shared<Prisma::PipelineFullScreen>();
 

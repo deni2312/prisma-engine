@@ -59,8 +59,6 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
 
     shaderAnimation->use();
 
-    auto settings = Prisma::SettingsLoader::instance().getSettings();
-
 }
 
 void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
