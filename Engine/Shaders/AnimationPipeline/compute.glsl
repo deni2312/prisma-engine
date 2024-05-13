@@ -8,6 +8,7 @@ struct AnimationData {
     vec4 rotations[MAX_BONES];
     vec4 timestamp[MAX_BONES];
     vec4 scales[MAX_BONES];
+
 };
 
 uniform float timeline;
@@ -44,7 +45,7 @@ int GetPositionIndex(float animationTime)
     }
 }
 
-int GetRotationIndex(float animationTime)
+/*int GetRotationIndex(float animationTime)
 {
     for (int index = 0; index < numPositions - 1; ++index)
     {
@@ -60,7 +61,7 @@ int GetScaleIndex(float animationTime)
         if (animationTime < animationData[indexAnimation].scales[index + 1].w)
             return index;
     }
-}
+}*/
 
 mat4 InterpolatePosition(float animationTime) {
     if (1 == numPositions) {

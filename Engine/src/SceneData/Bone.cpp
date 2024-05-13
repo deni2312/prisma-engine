@@ -147,6 +147,8 @@ glm::mat4 Prisma::Bone::InterpolatePosition(float animationTime) const
 		m_Positions[p1Index].timeStamp, animationTime);
 	glm::vec3 finalPosition = glm::mix(m_Positions[p0Index].position, m_Positions[p1Index].position
 		, scaleFactor);
+
+
 	return glm::translate(glm::mat4(1.0f), finalPosition);
 }
 
