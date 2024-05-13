@@ -29,7 +29,6 @@ namespace Prisma {
         Prisma::ImguiDebug::ImGuiStatus m_status;
         std::function<void()> m_apply;
         Prisma::Physics::CollisionData m_collisionData{};
-        Prisma::Physics::CollisionData m_collisionDataCopy{};
         btCollisionShape *m_shape = nullptr;
         btRigidBody *m_body = nullptr;
         void colliderDispatcher(Prisma::Physics::Collider collider);

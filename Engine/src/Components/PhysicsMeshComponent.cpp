@@ -10,12 +10,11 @@ void Prisma::PhysicsMeshComponent::start() {
     componentType=std::make_tuple(Prisma::Component::TYPES::STRINGLIST,"Collider",&m_status);
 
     ComponentType componentMass;
-    componentMass=std::make_tuple(Prisma::Component::TYPES::FLOAT,"Mass",&m_collisionDataCopy.mass);
+    componentMass=std::make_tuple(Prisma::Component::TYPES::FLOAT,"Mass",&m_collisionData.mass);
 
 
     ComponentType componentButton;
     m_apply=[&](){
-        m_collisionData.mass = m_collisionDataCopy.mass;
         if (m_collisionData.collider!= static_cast<Prisma::Physics::Collider>(m_status.currentitem)) {
             m_collisionData.collider = static_cast<Prisma::Physics::Collider>(m_status.currentitem);
             colliderDispatcher(m_collisionData.collider);
