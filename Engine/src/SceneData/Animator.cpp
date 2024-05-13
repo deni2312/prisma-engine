@@ -28,7 +28,7 @@ void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation)
 void Prisma::Animator::calculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform, Prisma::AnimationHandler::SSBOAnimation& animation)
 {
 	const std::string& nodeName = node->name;
-	glm::mat4 nodeTransform = node->transformation;
+	glm::mat4 nodeTransform;
 
 	auto Bone = m_CurrentAnimation->FindBone(nodeName);
 
@@ -37,12 +37,16 @@ void Prisma::Animator::calculateBoneTransform(const AssimpNodeData* node, const 
 		Bone->Update(m_CurrentTime);
 		nodeTransform = Bone->GetLocalTransform();
 	}
+	else {
+		nodeTransform = node->transformation;
+	}
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
 	const auto& boneInfoMap = m_CurrentAnimation->GetBoneIDMap();
-	if (boneInfoMap->find(nodeName) != boneInfoMap->end())
-	{
-		animation.animations[(*boneInfoMap)[nodeName].id] = globalTransformation * (*boneInfoMap)[nodeName].offset;
+	auto it = boneInfoMap->find(nodeName);
+	if (it != boneInfoMap->end()) {
+		const auto& boneInfo = (*it).second;
+		animation.animations[boneInfo.id] = globalTransformation * boneInfo.offset;
 	}
 
 	for (int i = 0; i < node->childrenCount; i++)
