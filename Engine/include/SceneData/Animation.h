@@ -7,6 +7,7 @@
 #include "../SceneObjects/AnimatedMesh.h"
 #include "../GlobalData/Defines.h"
 #include "Bone.h"
+#include "../Containers/SSBO.h"
 
 namespace Prisma {
 	class AnimatedMesh;
@@ -32,7 +33,7 @@ namespace Prisma {
 
 		~Animation();
 
-		std::shared_ptr<Bone> FindBone(const std::string& name);
+		std::pair<std::shared_ptr<Bone>, int> FindBone(const std::string& name);
 
 		int GetTicksPerSecond() { return m_TicksPerSecond; }
 		float GetDuration() { return m_Duration; }
@@ -47,8 +48,10 @@ namespace Prisma {
 		void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src);
 		float m_Duration;
 		int m_TicksPerSecond;
-		std::map<const std::string, std::shared_ptr<Bone>> m_Bones;
+		std::map<const std::string, std::pair<std::shared_ptr<Bone>,int>> m_Bones;
 		AssimpNodeData m_RootNode;
+		std::shared_ptr<Prisma::SSBO> m_ssbo;
+		std::shared_ptr<Prisma::SSBO> m_ssboData;
 		std::map<std::string, Prisma::BoneInfo> m_BoneInfoMap;
 	};
 

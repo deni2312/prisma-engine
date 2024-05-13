@@ -3,6 +3,10 @@
 Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model):m_animationPath{animationPath}
 {
 	Assimp::Importer importer;
+	m_ssbo = std::make_shared<Prisma::SSBO>(11);
+	m_ssboData = std::make_shared<Prisma::SSBO>(12);
+	m_ssbo->resize(sizeof(glm::vec4) * MAX_BONES * MAX_BONES);
+	m_ssboData->resize(sizeof(glm::mat4));
 	const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
 	assert(scene && scene->mRootNode);
 	auto animation = scene->mAnimations[0];
@@ -17,7 +21,7 @@ Prisma::Animation::~Animation()
 {
 }
 
-std::shared_ptr<Prisma::Bone> Prisma::Animation::FindBone(const std::string& name)
+std::pair<std::shared_ptr<Prisma::Bone>, int> Prisma::Animation::FindBone(const std::string& name)
 {
 	return m_Bones[name];
 }
@@ -38,6 +42,8 @@ void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shar
 	std::map<std::string, Prisma::BoneInfo>& boneInfoMap = model->boneInfoMap();//getting m_BoneInfoMap from Model class
 	int& boneCount = model->boneInfoCounter(); //getting the m_BoneCounter from Model class
 
+	const int sizeBone = sizeof(glm::vec4) * 4 * 3 * MAX_BONES;
+
 	//reading channels(bones engaged in an animation and their keyframes)
 	for (int i = 0; i < size; i++)
 	{
@@ -50,8 +56,10 @@ void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shar
 			boneCount++;
 		}
 		const std::string name = channel->mNodeName.data;
-		m_Bones[name]=std::make_shared<Bone>(channel->mNodeName.data,
+		m_Bones[name].first=std::make_shared<Bone>(channel->mNodeName.data,
 			boneInfoMap[channel->mNodeName.data].id, channel);
+		m_Bones[name].second = i;
+		m_ssbo->modifyData(i * sizeBone, sizeof(glm::vec4) * MAX_BONES, m_Bones[name].first->positions().data());
 	}
 
 	m_BoneInfoMap = boneInfoMap;

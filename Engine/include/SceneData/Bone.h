@@ -21,7 +21,7 @@ namespace Prisma {
 	struct KeyRotation
 	{
 		glm::quat orientation;
-		float timeStamp;
+		glm::vec4 timeStamp;
 	};
 
 	struct KeyScale
@@ -35,7 +35,7 @@ namespace Prisma {
 	public:
 		Bone(const std::string& name, int ID, const aiNodeAnim* channel);
 
-		void Update(float animationTime);
+		void Update(float animationTime,int index);
 		glm::mat4 GetLocalTransform();
 		std::string GetBoneName() const;
 		int GetBoneID();
@@ -48,6 +48,9 @@ namespace Prisma {
 
 		int GetScaleIndex(float animationTime) const;
 
+		std::vector<KeyPosition>& positions();
+		std::vector<KeyRotation>& rotations();
+		std::vector<KeyScale>& scales();
 
 	private:
 
