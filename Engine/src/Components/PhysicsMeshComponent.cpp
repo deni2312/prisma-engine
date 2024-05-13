@@ -22,7 +22,7 @@ void Prisma::PhysicsMeshComponent::start() {
         updateCollisionData();
         skipUpdate = true;
     };
-    componentButton=std::make_tuple(Prisma::Component::TYPES::BUTTON,"Apply Physics",&m_apply);
+    componentButton=std::make_tuple(Prisma::Component::TYPES::BUTTON,"Apply Collider",&m_apply);
 
     addGlobal(componentType);
 

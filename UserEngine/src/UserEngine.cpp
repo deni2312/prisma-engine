@@ -53,7 +53,8 @@ UserEngine::UserEngine() : Prisma::Engine{}
 
 bool UserEngine::update()
 {
-    
+    animator->updateAnimation(1 / fps());
+    animator1->updateAnimation(1 / fps());
 	return false;
 }
 
