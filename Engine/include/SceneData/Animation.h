@@ -37,7 +37,7 @@ namespace Prisma {
 		int GetTicksPerSecond() { return m_TicksPerSecond; }
 		float GetDuration() { return m_Duration; }
 		const AssimpNodeData& GetRootNode() { return m_RootNode; }
-		const std::map<std::string, Prisma::BoneInfo>& GetBoneIDMap() const;
+		std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> GetBoneIDMap();
 		std::string name() const;
 
 	private:
@@ -49,7 +49,7 @@ namespace Prisma {
 		int m_TicksPerSecond;
 		std::map<const std::string, std::shared_ptr<Bone>> m_Bones;
 		AssimpNodeData m_RootNode;
-		std::map<std::string, Prisma::BoneInfo> m_BoneInfoMap;
+		std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> m_BoneInfoMap;
 	};
 
 }

@@ -3,6 +3,7 @@
 Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model):m_animationPath{animationPath}
 {
 	Assimp::Importer importer;
+	m_BoneInfoMap = std::make_shared<std::map<std::string, Prisma::BoneInfo>>();
 	const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
 	assert(scene && scene->mRootNode);
 	auto animation = scene->mAnimations[0];
@@ -22,7 +23,7 @@ std::shared_ptr<Prisma::Bone> Prisma::Animation::FindBone(const std::string& nam
 	return m_Bones[name];
 }
 
-const std::map<std::string, Prisma::BoneInfo>& Prisma::Animation::GetBoneIDMap() const
+std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> Prisma::Animation::GetBoneIDMap()
 {
 	return m_BoneInfoMap;
 }
@@ -54,7 +55,7 @@ void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shar
 			boneInfoMap[channel->mNodeName.data].id, channel);
 	}
 
-	m_BoneInfoMap = boneInfoMap;
+	*m_BoneInfoMap = boneInfoMap;
 }
 
 void Prisma::Animation::ReadHierarchyData(AssimpNodeData& dest, const aiNode* src)
