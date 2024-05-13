@@ -67,6 +67,8 @@ Prisma::ImguiDebug::ImguiDebug(GLFWwindow* window, const unsigned int& width, co
     m_model = glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,m_translate,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
     m_fileBrowser=std::make_shared<Prisma::FileBrowser>();
     m_effects = std::make_shared<Prisma::Effects>();
+    m_effectsBloom = std::make_shared<Prisma::Effects>();
+    Prisma::Postprocess::getInstance().addPostProcess(m_effectsBloom);
     Prisma::Postprocess::getInstance().addPostProcess(m_effects);
     initStatus();
 }
@@ -152,6 +154,7 @@ void Prisma::ImguiDebug::drawGui()
     }
     ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
     ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(), m_status.postprocess.size());
+    ImGui::Checkbox("BLOOM", &m_bloom);
     if (ImGui::Button("Textures"))
     {
         ImGui::OpenPopup("Textures");
@@ -259,7 +262,6 @@ void Prisma::ImguiDebug::initStatus()
     m_status.postprocess.push_back("SEPPIA");
     m_status.postprocess.push_back("CARTOON");
     m_status.postprocess.push_back("VIGNETTE");
-    m_status.postprocess.push_back("BLOOM");
 }
 
 std::string Prisma::ImguiDebug::openFolder()
@@ -295,4 +297,11 @@ void Prisma::ImguiDebug::updateStatus()
     data->engine->pipeline(static_cast<Prisma::Engine::Pipeline>(m_status.currentitem));
 
     m_effects->effect(static_cast<Prisma::Effects::EFFECTS>(m_status.currentPostprocess));
+
+    if (m_bloom) {
+        m_effectsBloom->effect(Prisma::Effects::EFFECTS::BLOOM);
+    }
+    else {
+        m_effectsBloom->effect(Prisma::Effects::EFFECTS::NORMAL);
+    }
 }

@@ -74,16 +74,19 @@ void Prisma::Effects::render(std::shared_ptr<Prisma::FBO> texture, std::shared_p
 	case EFFECTS::NORMAL:
 		break;
 	case EFFECTS::SEPPIA:
+		glClear(GL_DEPTH_BUFFER_BIT);
 		m_shaderSeppia->use();
 		m_shaderSeppia->setInt64(m_bindlessPosSeppia, texture->texture());
 		Prisma::IBLBuilder::getInstance().renderQuad();
 		break;
 	case EFFECTS::CARTOON:
+		glClear(GL_DEPTH_BUFFER_BIT);
 		m_shaderCartoon->use();
 		m_shaderCartoon->setInt64(m_bindlessPosCartoon, texture->texture());
 		Prisma::IBLBuilder::getInstance().renderQuad();
 		break;
 	case EFFECTS::VIGNETTE:
+		glClear(GL_DEPTH_BUFFER_BIT);
 		m_shaderVignette->use();
 		m_shaderVignette->setInt64(m_bindlessPosVignette, texture->texture());
 		Prisma::IBLBuilder::getInstance().renderQuad();
@@ -120,6 +123,8 @@ void Prisma::Effects::render(std::shared_ptr<Prisma::FBO> texture, std::shared_p
 		m_shaderHdr->setInt64(m_bindlessPosHdr, raw->texture());
 		m_shaderHdr->setInt64(m_bindlessPosHBloom, m_bloomTexture[!horizontal]);
 		Prisma::IBLBuilder::getInstance().renderQuad();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		texture->bind();
 
 		break;
 	}

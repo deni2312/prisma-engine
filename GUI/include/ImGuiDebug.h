@@ -73,5 +73,9 @@ namespace Prisma {
 
 		std::shared_ptr<Prisma::Effects> m_effects;
 
+		std::shared_ptr<Prisma::Effects> m_effectsBloom;
+
+		bool m_bloom = false;
+
     };
 }
