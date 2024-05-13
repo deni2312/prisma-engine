@@ -35,6 +35,8 @@ namespace Prisma {
 
 		std::pair<std::shared_ptr<Bone>, int> FindBone(const std::string& name);
 
+		glm::mat4& getUpdate();
+
 		int GetTicksPerSecond() { return m_TicksPerSecond; }
 		float GetDuration() { return m_Duration; }
 		const AssimpNodeData& GetRootNode() { return m_RootNode; }

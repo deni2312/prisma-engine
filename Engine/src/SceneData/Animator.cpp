@@ -1,5 +1,6 @@
 #include "../../include/SceneData/Animator.h"
 #include "../../include/GlobalData/GlobalData.h"
+#include <glm/gtx/string_cast.hpp>
 
 
 Prisma::Animator::Animator(std::shared_ptr<Animation> animation)
@@ -24,6 +25,15 @@ void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation)
 	m_CurrentAnimation = pAnimation;
 	m_CurrentTime = 0.0f;
 }
+glm::mat4 subtractMatrices(const glm::mat4& mat1, const glm::mat4& mat2) {
+	glm::mat4 result;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result[i][j] = mat1[i][j] - mat2[i][j];
+		}
+	}
+	return result;
+}
 
 void Prisma::Animator::calculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform, Prisma::AnimationHandler::SSBOAnimation& animation)
 {
@@ -35,7 +45,8 @@ void Prisma::Animator::calculateBoneTransform(const AssimpNodeData* node, const 
 	if (Bone.first)
 	{
 		Bone.first->Update(m_CurrentTime,Bone.second);
-		nodeTransform = Bone.first->GetLocalTransform();
+		nodeTransform = m_CurrentAnimation->getUpdate();
+		std::cout << glm::to_string(subtractMatrices(nodeTransform,Bone.first->GetLocalTransform())) << std::endl;
 	}
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;
 

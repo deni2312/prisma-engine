@@ -21,7 +21,6 @@ namespace Prisma {
 	struct KeyRotation
 	{
 		glm::quat orientation;
-		glm::vec4 timeStamp;
 	};
 
 	struct KeyScale
@@ -51,6 +50,7 @@ namespace Prisma {
 		std::vector<KeyPosition>& positions();
 		std::vector<KeyRotation>& rotations();
 		std::vector<KeyScale>& scales();
+		std::vector<glm::vec4>& timestamps();;
 
 	private:
 
@@ -64,6 +64,7 @@ namespace Prisma {
 
 		std::vector<KeyPosition> m_Positions;
 		std::vector<KeyRotation> m_Rotations;
+		std::vector<glm::vec4> m_TimeStamps;
 		std::vector<KeyScale> m_Scales;
 		int m_NumPositions;
 		int m_NumRotations;

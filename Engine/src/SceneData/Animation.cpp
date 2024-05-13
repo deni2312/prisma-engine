@@ -26,6 +26,13 @@ std::pair<std::shared_ptr<Prisma::Bone>, int> Prisma::Animation::FindBone(const 
 	return m_Bones[name];
 }
 
+glm::mat4& Prisma::Animation::getUpdate()
+{
+	glm::mat4 data;
+	m_ssboData->getData(sizeof(glm::mat4), &data);
+	return data;
+}
+
 const std::map<std::string, Prisma::BoneInfo>& Prisma::Animation::GetBoneIDMap() const
 {
 	return m_BoneInfoMap;
@@ -61,7 +68,8 @@ void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shar
 			boneInfoMap[channel->mNodeName.data].id, channel);
 		m_Bones[name].second = i;
 		m_ssbo->modifyData(i * sizeBone, sizeof(glm::vec4) * MAX_BONES, m_Bones[name].first->positions().data());
-		m_ssbo->modifyData(i * sizeBone + sizeof(glm::vec4) * MAX_BONES, sizeof(glm::vec4)*2 * MAX_BONES, m_Bones[name].first->rotations().data());
+		m_ssbo->modifyData(i * sizeBone + sizeof(glm::vec4) * MAX_BONES, sizeof(glm::vec4) * MAX_BONES, m_Bones[name].first->rotations().data());
+		m_ssbo->modifyData(i * sizeBone + sizeof(glm::vec4) * 2 * MAX_BONES, sizeof(glm::vec4) * MAX_BONES, m_Bones[name].first->timestamps().data());
 		m_ssbo->modifyData(i * sizeBone + sizeof(glm::vec4) * 3 * MAX_BONES, sizeof(glm::vec4) * MAX_BONES, m_Bones[name].first->scales().data());
 	}
 

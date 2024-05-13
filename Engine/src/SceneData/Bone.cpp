@@ -46,8 +46,8 @@ Prisma::Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel)
 		float timeStamp = channel->mRotationKeys[rotationIndex].mTime;
 		KeyRotation data;
 		data.orientation = getQuat(aiOrientation);
-		data.timeStamp.r = timeStamp;
 		m_Rotations.push_back(data);
+		m_TimeStamps.push_back({timeStamp,0,0,0});
 	}
 
 	m_NumScalings = channel->mNumScalingKeys;
@@ -99,7 +99,7 @@ int Prisma::Bone::GetRotationIndex(float animationTime) const
 {
 	for (int index = 0; index < m_NumRotations - 1; ++index)
 	{
-		if (animationTime < m_Rotations[index + 1].timeStamp.r)
+		if (animationTime < m_TimeStamps[index + 1].r)
 			return index;
 	}
 	assert(0);
@@ -125,6 +125,10 @@ std::vector<Prisma::KeyRotation>& Prisma::Bone::rotations() {
 
 std::vector<Prisma::KeyScale>& Prisma::Bone::scales() {
 	return m_Scales; 
+}
+
+std::vector<glm::vec4>& Prisma::Bone::timestamps() {
+	return m_TimeStamps; 
 }
 
 float Prisma::Bone::GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime) const
@@ -161,10 +165,11 @@ glm::mat4 Prisma::Bone::InterpolateRotation(float animationTime) const
 	}
 	int p0Index = GetRotationIndex(animationTime);
 	int p1Index = p0Index + 1;
-	float scaleFactor = GetScaleFactor(m_Rotations[p0Index].timeStamp.r,
-		m_Rotations[p1Index].timeStamp.r, animationTime);
+	float scaleFactor = GetScaleFactor(m_TimeStamps[p0Index].r,
+		m_TimeStamps[p1Index].r, animationTime);
 	glm::quat finalRotation = glm::slerp(m_Rotations[p0Index].orientation, m_Rotations[p1Index].orientation
 		, scaleFactor);
+
 	finalRotation = glm::normalize(finalRotation);
 	return glm::toMat4(finalRotation);
 
