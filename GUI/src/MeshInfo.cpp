@@ -78,18 +78,14 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
 
         ImGui::InputFloat3("Scale", glm::value_ptr(m_scale), "%.3f", ImGuiInputTextFlags_ReadOnly);
 
-        float mass = 0;
         meshInfoData.physicsComponent = nullptr;
         for (auto component : meshData.mesh->components()) {
             auto physicsMesh = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(component);
             if (physicsMesh) {
-                mass = physicsMesh->collisionData().mass;
                 meshInfoData.physicsComponent = physicsMesh;
             }
         }
-        if (mass <= 0.0) {
-            drawGizmo(meshData);
-        }
+        drawGizmo(meshData);
         auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.mesh);
         if (isAnimate) {
             auto animator = isAnimate->animator();
