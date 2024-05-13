@@ -13,6 +13,7 @@ namespace Prisma {
 			SEPPIA,
 			CARTOON,
 			VIGNETTE,
+			VOLUMETRIC,
 			BLOOM
 		};
 
@@ -44,6 +45,9 @@ namespace Prisma {
 
 		std::shared_ptr<Shader> m_shaderBrightness;
 		unsigned int m_bindlessPosBrightness;
+
+		std::shared_ptr<Shader> m_shaderVolumetric;
+		unsigned int m_bindlessPosVolumetric;
 
 		uint64_t m_bloomTexture[2];
 

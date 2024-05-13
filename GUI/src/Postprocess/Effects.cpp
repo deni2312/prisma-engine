@@ -24,6 +24,11 @@ Prisma::Effects::Effects() {
 	m_shaderBrightness->use();
 	m_bindlessPosBrightness = m_shaderBrightness->getUniformPosition("screenTexture");
 
+	m_shaderVolumetric = std::make_shared<Shader>("../../../GUI/Shaders/Volumetric/vertex.glsl", "../../../GUI/Shaders/Volumetric/fragment.glsl");
+	m_shaderVolumetric->use();
+
+	m_bindlessPosVolumetric = m_shaderVolumetric->getUniformPosition("screenTexture");
+
 	m_shaderHdr = std::make_shared<Shader>("../../../GUI/Shaders/BloomHdr/vertex.glsl", "../../../GUI/Shaders/BloomHdr/fragment.glsl");
 	m_shaderHdr->use();
 	m_bindlessPosHdr = m_shaderHdr->getUniformPosition("hdrTexture");
@@ -89,6 +94,12 @@ void Prisma::Effects::render(std::shared_ptr<Prisma::FBO> texture, std::shared_p
 		glClear(GL_DEPTH_BUFFER_BIT);
 		m_shaderVignette->use();
 		m_shaderVignette->setInt64(m_bindlessPosVignette, texture->texture());
+		Prisma::IBLBuilder::getInstance().renderQuad();
+		break;
+	case EFFECTS::VOLUMETRIC:
+		glClear(GL_DEPTH_BUFFER_BIT);
+		m_shaderVolumetric->use();
+		m_shaderVolumetric->setInt64(m_bindlessPosVolumetric, texture->texture());
 		Prisma::IBLBuilder::getInstance().renderQuad();
 		break;
 	case EFFECTS::BLOOM:
