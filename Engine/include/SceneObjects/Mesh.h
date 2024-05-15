@@ -57,13 +57,9 @@ namespace Prisma {
 
         std::vector<std::shared_ptr<Prisma::Component>> components();
 
-        void status(STATUS status) {
-            m_status = status;
-        }
+        void status(STATUS status);
 
-        STATUS status() {
-            return m_status;
-        }
+        STATUS status() const;
 
         unsigned int vectorId();
     protected:

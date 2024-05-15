@@ -117,7 +117,7 @@ void Prisma::Mesh::status(Prisma::Mesh::STATUS status) {
     m_status = status;
 }
 
-Prisma::Mesh::STATUS Prisma::Mesh::status() {
+Prisma::Mesh::STATUS Prisma::Mesh::status() const{
     return m_status;
 }
 
