@@ -11,11 +11,6 @@
 namespace Prisma {
     class Mesh : public Prisma::Node{
     public:
-        enum STATUS {
-            ADD,
-            REMOVE
-        };
-
         struct Vertex {
             glm::vec3 position;
             glm::vec3 normal;
@@ -57,16 +52,10 @@ namespace Prisma {
 
         std::vector<std::shared_ptr<Prisma::Component>> components();
 
-        void status(STATUS status);
-
-        STATUS status() const;
-
         unsigned int vectorId();
     protected:
         std::shared_ptr<VerticesData> m_vertices;
         std::shared_ptr<Prisma::MaterialComponent> m_material;
-
-        STATUS m_status;
 
         std::vector<std::shared_ptr<Prisma::Component>> m_components;
 

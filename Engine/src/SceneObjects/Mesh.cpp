@@ -113,14 +113,6 @@ std::vector<std::shared_ptr<Prisma::Component>> Prisma::Mesh::components() {
     return m_components;
 }
 
-void Prisma::Mesh::status(Prisma::Mesh::STATUS status) {
-    m_status = status;
-}
-
-Prisma::Mesh::STATUS Prisma::Mesh::status() const{
-    return m_status;
-}
-
 void Prisma::Mesh::removeComponent(int index) {
     m_components.erase(m_components.begin()+index);
 }

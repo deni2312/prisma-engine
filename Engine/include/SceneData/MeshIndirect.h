@@ -73,12 +73,20 @@ namespace Prisma {
 
 		void updateAnimation();
 
+		std::vector<unsigned int> m_cacheAdd;
+		std::vector<unsigned int> m_cacheRemove;
+
+
 	public:
 		static MeshIndirect& getInstance();
 
 		MeshIndirect(const MeshIndirect&) = delete;
 		MeshIndirect& operator=(const MeshIndirect&) = delete;
 		void load();
+
+		void add(unsigned int add);
+
+		void remove(unsigned int remove);
 
 		void renderMeshes();
 		void renderAnimateMeshes();

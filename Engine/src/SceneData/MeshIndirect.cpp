@@ -17,6 +17,14 @@ void Prisma::MeshIndirect::load()
     updateSize();
 }
 
+void Prisma::MeshIndirect::add(std::pair<unsigned int, bool> add) {
+    m_cacheAdd.push_back(add);
+}
+
+void Prisma::MeshIndirect::remove(std::pair<unsigned int, bool> remove) {
+    m_cacheRemove.push_back(remove);
+}
+
 void Prisma::MeshIndirect::renderMeshes()
 {
     if (currentGlobalScene->meshes.size() > 0) {

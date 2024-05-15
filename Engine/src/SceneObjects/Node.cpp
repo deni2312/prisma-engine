@@ -3,6 +3,7 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include "glm/ext.hpp"
 #include "../../include/Helpers/PrismaMath.h"
+#include "../../include/SceneData/MeshIndirect.h"
 
 static uint64_t uuidNode = 0;
 
@@ -32,6 +33,7 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 	m_children.push_back(child);
 	if (updateScene) {
 		if (std::dynamic_pointer_cast<Prisma::Mesh>(child) && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
+			MeshIndirect::getInstance().add({ currentGlobalScene->meshes.size(),false });
 			currentGlobalScene->meshes.push_back(std::dynamic_pointer_cast<Mesh>(child));
 		}
 		if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(child)) {
@@ -42,6 +44,7 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 		}
 		if (currentGlobalScene->animateMeshes.size() < MAX_ANIMATION_MESHES) {
 			if (std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
+				MeshIndirect::getInstance().add({ currentGlobalScene->animateMeshes.size(),true });
 				currentGlobalScene->animateMeshes.push_back(std::dynamic_pointer_cast<AnimatedMesh>(child));
 			}
 		}
@@ -55,21 +58,18 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 
 void Prisma::Node::removeChild(uint64_t uuid)
 {
-	auto it = std::find_if(m_children.begin(), m_children.end(),
-		[&](std::shared_ptr<Prisma::Node> node)
-        {
-            if(node->uuid() == uuid){
-                node->parent(nullptr);
-                return true;
-            }
-            return false;
-        });
-
-	if (it != m_children.end())
-	{
-		m_children.erase(it);
+	unsigned int index = -1;
+	for (int i = 0; i < m_children.size(); i++) {
+		if (m_children[i]->uuid() == uuid) {
+			index = i;
+			break;
+		}
 	}
-	updateSizes = true;
+	if (index != -1) {
+		MeshIndirect::getInstance().remove({ index, static_cast<bool>(std::dynamic_pointer_cast<Prisma::AnimatedMesh>(m_children[index])) });
+		m_children.erase(m_children.begin()+index);
+		updateSizes = true;
+	}
 }
 
 void Prisma::Node::matrix(const glm::mat4& matrix, bool updateChildren)
