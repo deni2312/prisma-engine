@@ -36,7 +36,7 @@ namespace Prisma {
 		Bone(const std::string& name, int ID, const aiNodeAnim* channel);
 
 		void Update(float animationTime);
-		glm::mat4 GetLocalTransform();
+		const glm::mat4& GetLocalTransform() const;
 		std::string GetBoneName() const;
 		int GetBoneID();
 

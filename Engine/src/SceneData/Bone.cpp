@@ -49,7 +49,7 @@ void Prisma::Bone::Update(float animationTime)
 	m_LocalTransform = translation * rotation * scale;
 }
 
-glm::mat4 Prisma::Bone::GetLocalTransform() { return m_LocalTransform; }
+const glm::mat4& Prisma::Bone::GetLocalTransform() const { return m_LocalTransform; }
 
 std::string Prisma::Bone::GetBoneName() const { return m_Name; }
 
