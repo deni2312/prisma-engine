@@ -51,8 +51,18 @@ UserEngine::UserEngine() : Prisma::Engine{}
     
 }
 
+bool addings = true;
+
 bool UserEngine::update()
 {
+    if (addings) {
+        Prisma::NodeHelper nodeHelper;
+        for (int i = 0; i < 1; i++) {
+            auto instance = Prisma::Mesh::instantiate(std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_sceneNode->root, "Plane")->children()[0]));
+        }
+        addings = false;
+    }
+
     animator->updateAnimation(1 / fps());
     animator1->updateAnimation(1 / fps());
 	return false;

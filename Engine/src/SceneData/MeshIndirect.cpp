@@ -113,32 +113,35 @@ void Prisma::MeshIndirect::updateSize()
         uint64_t sizeVbo = 0;
         uint64_t sizeEbo = 0;
 
+        uint64_t vboCache = 0;
+        uint64_t eboCache = 0;
+
+        for (int i = 0; i < meshes.size() - m_cacheAdd.size(); i++) {
+            vboCache = vboCache + meshes[i]->verticesData().vertices.size();
+            eboCache = eboCache + meshes[i]->verticesData().indices.size();
+        }
+
+        std::cout << m_verticesData.vertices.size() << " " << vboCache << std::endl;
+
         //PUSH VERTICES
         for (int i = 0; i < m_cacheAdd.size();i++) {
             sizeVbo = sizeVbo + meshes[m_cacheAdd[i]]->verticesData().vertices.size();
-            m_verticesData.vertices.insert(m_verticesData.vertices.end(), meshes[m_cacheAdd[i]]->verticesData().vertices.begin(), meshes[m_cacheAdd[i]]->verticesData().vertices.end());
+            m_verticesData.vertices.insert(m_verticesData.vertices.begin() + vboCache, meshes[m_cacheAdd[i]]->verticesData().vertices.begin(), meshes[m_cacheAdd[i]]->verticesData().vertices.end());
         }
         //PUSH INDICES
         for (int i = 0; i < m_cacheAdd.size(); i++) {
             sizeEbo = sizeEbo + meshes[m_cacheAdd[i]]->verticesData().indices.size();
-            m_verticesData.indices.insert(m_verticesData.indices.end(), meshes[m_cacheAdd[i]]->verticesData().indices.begin(), meshes[m_cacheAdd[i]]->verticesData().indices.end());
+            m_verticesData.indices.insert(m_verticesData.indices.begin() + eboCache, meshes[m_cacheAdd[i]]->verticesData().indices.begin(), meshes[m_cacheAdd[i]]->verticesData().indices.end());
         }
 
-        uint64_t vboCache = 0;
-        uint64_t eboCache = 0;
-
-        for (int i = 0; i < meshes.size(); i++) {
-            vboCache = vboCache + meshes[i]->verticesData().vertices.size();
-            eboCache = eboCache + meshes[i]->verticesData().indices.size();
-        }
         if (m_cacheAdd.size() > 0) {
             //GENERATE CACHE DATA 
-
-            if (vboCache >= m_currentVertexMax || m_currentVertexMax == 0) {
-                m_currentVertexMax = m_verticesData.vertices.size()+m_cacheSize;
-                m_currentIndexMax = m_verticesData.indices.size() + m_cacheSize;
+            if (vboCache > m_currentVertexMax || m_currentVertexMax == 0) {
+                m_currentVertexMax = m_verticesData.vertices.size() + m_cacheSize;
+                m_currentIndexMax = m_verticesData.indices.size() +m_cacheSize;
                 m_verticesData.vertices.resize(m_currentVertexMax);
                 m_verticesData.indices.resize(m_currentIndexMax);
+                
                 m_vbo->writeData(m_currentVertexMax * sizeof(Prisma::Mesh::Vertex), &m_verticesData.vertices[0], GL_DYNAMIC_DRAW);
                 m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
 
@@ -275,7 +278,7 @@ void Prisma::MeshIndirect::updateAnimation()
         if (m_cacheAddAnimate.size() > 0) {
             //GENERATE CACHE DATA 
 
-            if (vboCache >= m_currentVertexMaxAnimation || m_currentVertexMaxAnimation == 0) {
+            if (vboCache > m_currentVertexMaxAnimation || m_currentVertexMaxAnimation == 0) {
                 m_currentVertexMaxAnimation = m_verticesDataAnimation.vertices.size() + m_cacheSize;
                 m_currentIndexMaxAnimation = m_verticesDataAnimation.indices.size() + m_cacheSize;
                 m_verticesDataAnimation.vertices.resize(m_currentVertexMaxAnimation);
@@ -296,6 +299,7 @@ void Prisma::MeshIndirect::updateAnimation()
                 m_eboAnimation->writeSubData(sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int), &m_verticesDataAnimation.indices[eboCache]);
             }
         }
+
 
         m_cacheAddAnimate.clear();
         m_cacheRemoveAnimate.clear();
