@@ -5,7 +5,7 @@ namespace Prisma {
     std::shared_ptr<Prisma::Scene> currentGlobalScene = nullptr;
     glm::mat4 currentProjection = glm::mat4(1.0f);
     bool updateLights = false;
-    bool updateSizes = false;
+    bool updateSizes = true;
     bool updateData = false;
     bool skipUpdate = false;
     bool updateTextures = false;

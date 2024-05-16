@@ -103,6 +103,7 @@ void Prisma::MeshIndirect::updateSize()
         //GENERATE CACHE DATA
         m_currentVertexSize = m_verticesData.vertices.size();
         m_currentIndexSize = m_verticesData.indices.size();
+
         m_currentVertexMax = m_verticesData.vertices.size();
         m_currentIndexMax = m_verticesData.indices.size();
 

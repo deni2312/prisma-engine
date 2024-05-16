@@ -15,6 +15,13 @@ void Prisma::EBO::writeData(unsigned int size, void *offset, unsigned int type) 
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, offset, type);
 }
 
+void Prisma::EBO::writeSubData(unsigned int size, unsigned int offset, void* data)
+{
+    bind();
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset,size,data);
+}
+
 unsigned int Prisma::EBO::id() const {
     return m_id;
 }
+

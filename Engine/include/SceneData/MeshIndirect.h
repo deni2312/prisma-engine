@@ -73,8 +73,8 @@ namespace Prisma {
 
 		void updateAnimation();
 
-		std::vector<unsigned int> m_cacheAdd;
-		std::vector<unsigned int> m_cacheRemove;
+		std::vector<std::pair<unsigned int,bool>> m_cacheAdd;
+		std::vector<std::pair<unsigned int, bool>> m_cacheRemove;
 
 
 	public:
@@ -84,9 +84,9 @@ namespace Prisma {
 		MeshIndirect& operator=(const MeshIndirect&) = delete;
 		void load();
 
-		void add(unsigned int add);
+		void add(std::pair<unsigned int, bool> add);
 
-		void remove(unsigned int remove);
+		void remove(std::pair<unsigned int, bool> remove);
 
 		void renderMeshes();
 		void renderAnimateMeshes();
