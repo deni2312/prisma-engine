@@ -116,27 +116,43 @@ void Prisma::MeshIndirect::updateSize()
         uint64_t vboCache = 0;
         uint64_t eboCache = 0;
 
+        // Calculate the initial cache sizes
         for (int i = 0; i < meshes.size() - m_cacheAdd.size(); i++) {
-            vboCache = vboCache + meshes[i]->verticesData().vertices.size();
-            eboCache = eboCache + meshes[i]->verticesData().indices.size();
+            vboCache += meshes[i]->verticesData().vertices.size();
+            eboCache += meshes[i]->verticesData().indices.size();
         }
 
-        std::cout << m_verticesData.vertices.size() << " " << vboCache << std::endl;
+        // Keep track of the current position in the cache
+        uint64_t currentVboCache = vboCache;
+        uint64_t currentEboCache = eboCache;
 
-        //PUSH VERTICES
-        for (int i = 0; i < m_cacheAdd.size();i++) {
-            sizeVbo = sizeVbo + meshes[m_cacheAdd[i]]->verticesData().vertices.size();
-            m_verticesData.vertices.insert(m_verticesData.vertices.begin() + vboCache, meshes[m_cacheAdd[i]]->verticesData().vertices.begin(), meshes[m_cacheAdd[i]]->verticesData().vertices.end());
-        }
-        //PUSH INDICES
+        // PUSH VERTICES
         for (int i = 0; i < m_cacheAdd.size(); i++) {
-            sizeEbo = sizeEbo + meshes[m_cacheAdd[i]]->verticesData().indices.size();
-            m_verticesData.indices.insert(m_verticesData.indices.begin() + eboCache, meshes[m_cacheAdd[i]]->verticesData().indices.begin(), meshes[m_cacheAdd[i]]->verticesData().indices.end());
+            sizeVbo += meshes[m_cacheAdd[i]]->verticesData().vertices.size();
+            m_verticesData.vertices.insert(
+                m_verticesData.vertices.begin() + currentVboCache,
+                meshes[m_cacheAdd[i]]->verticesData().vertices.begin(),
+                meshes[m_cacheAdd[i]]->verticesData().vertices.end()
+            );
+            // Update the current position in the VBO cache
+            currentVboCache += meshes[m_cacheAdd[i]]->verticesData().vertices.size();
+        }
+
+        // PUSH INDICES
+        for (int i = 0; i < m_cacheAdd.size(); i++) {
+            sizeEbo += meshes[m_cacheAdd[i]]->verticesData().indices.size();
+            m_verticesData.indices.insert(
+                m_verticesData.indices.begin() + currentEboCache,
+                meshes[m_cacheAdd[i]]->verticesData().indices.begin(),
+                meshes[m_cacheAdd[i]]->verticesData().indices.end()
+            );
+            // Update the current position in the EBO cache
+            currentEboCache += meshes[m_cacheAdd[i]]->verticesData().indices.size();
         }
 
         if (m_cacheAdd.size() > 0) {
             //GENERATE CACHE DATA 
-            if (vboCache > m_currentVertexMax || m_currentVertexMax == 0) {
+            if (currentVboCache > m_currentVertexMax || m_currentVertexMax == 0) {
                 m_currentVertexMax = m_verticesData.vertices.size() + m_cacheSize;
                 m_currentIndexMax = m_verticesData.indices.size() +m_cacheSize;
                 m_verticesData.vertices.resize(m_currentVertexMax);
@@ -156,6 +172,7 @@ void Prisma::MeshIndirect::updateSize()
                 m_vbo->writeSubData(sizeVbo * sizeof(Prisma::Mesh::Vertex), vboCache * sizeof(Prisma::Mesh::Vertex), &m_verticesData.vertices[vboCache]);
                 m_ebo->writeSubData(sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int), &m_verticesData.indices[eboCache]);
             }
+
         }
 
         m_cacheAdd.clear();
@@ -257,28 +274,48 @@ void Prisma::MeshIndirect::updateAnimation()
 
         uint64_t sizeVbo = 0;
         uint64_t sizeEbo = 0;
-        //PUSH VERTICES
-        for (int i = 0; i < m_cacheAddAnimate.size();i++) {
-            sizeVbo = sizeVbo + meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.size();
-            m_verticesDataAnimation.vertices.insert(m_verticesDataAnimation.vertices.end(), meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.begin(), meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.end());
-        }
-        //PUSH INDICES
-        for (int i = 0; i < m_cacheAddAnimate.size(); i++) {
-            sizeEbo = sizeEbo + meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.size();
-            m_verticesDataAnimation.indices.insert(m_verticesDataAnimation.indices.end(), meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.begin(), meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.end());
-        }
 
         uint64_t vboCache = 0;
         uint64_t eboCache = 0;
 
-        for (int i = 0; i < meshes.size(); i++) {
-            vboCache = vboCache + meshes[i]->animateVerticesData()->vertices.size();
-            eboCache = eboCache + meshes[i]->animateVerticesData()->indices.size();
+        // Calculate the initial cache sizes
+        for (int i = 0; i < meshes.size() - m_cacheAddAnimate.size(); i++) {
+            vboCache += meshes[i]->animateVerticesData()->vertices.size();
+            eboCache += meshes[i]->animateVerticesData()->indices.size();
         }
+
+        // Keep track of the current position in the cache
+        uint64_t currentVboCache = vboCache;
+        uint64_t currentEboCache = eboCache;
+
+        // PUSH VERTICES
+        for (int i = 0; i < m_cacheAddAnimate.size(); i++) {
+            sizeVbo += meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.size();
+            m_verticesDataAnimation.vertices.insert(
+                m_verticesDataAnimation.vertices.begin() + currentVboCache,
+                meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.begin(),
+                meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.end()
+            );
+            // Update the current position in the VBO cache
+            currentVboCache += meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.size();
+        }
+
+        // PUSH INDICES
+        for (int i = 0; i < m_cacheAddAnimate.size(); i++) {
+            sizeEbo += meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.size();
+            m_verticesDataAnimation.indices.insert(
+                m_verticesDataAnimation.indices.begin() + currentEboCache,
+                meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.begin(),
+                meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.end()
+            );
+            // Update the current position in the EBO cache
+            currentEboCache += meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.size();
+        }
+
         if (m_cacheAddAnimate.size() > 0) {
             //GENERATE CACHE DATA 
 
-            if (vboCache > m_currentVertexMaxAnimation || m_currentVertexMaxAnimation == 0) {
+            if (currentVboCache > m_currentVertexMaxAnimation || m_currentVertexMaxAnimation == 0) {
                 m_currentVertexMaxAnimation = m_verticesDataAnimation.vertices.size() + m_cacheSize;
                 m_currentIndexMaxAnimation = m_verticesDataAnimation.indices.size() + m_cacheSize;
                 m_verticesDataAnimation.vertices.resize(m_currentVertexMaxAnimation);
