@@ -17,12 +17,33 @@ void Prisma::MeshIndirect::load()
     updateSize();
 }
 
-void Prisma::MeshIndirect::add(std::pair<unsigned int, bool> add) {
+void Prisma::MeshIndirect::init()
+{
+    for (int i = 0; i < currentGlobalScene->meshes.size(); i++) {
+        MeshIndirect::getInstance().add(i);
+    }
+
+    for (int i = 0; i < currentGlobalScene->animateMeshes.size(); i++) {
+        MeshIndirect::getInstance().addAnimate(i);
+    }
+}
+
+void Prisma::MeshIndirect::add(unsigned int add) {
     m_cacheAdd.push_back(add);
 }
 
-void Prisma::MeshIndirect::remove(std::pair<unsigned int, bool> remove) {
+void Prisma::MeshIndirect::remove(unsigned int remove) {
     m_cacheRemove.push_back(remove);
+}
+
+void Prisma::MeshIndirect::addAnimate(unsigned int add)
+{
+    m_cacheAddAnimate.push_back(add);
+}
+
+void Prisma::MeshIndirect::removeAnimate(unsigned int remove)
+{
+    m_cacheRemoveAnimate.push_back(remove);
 }
 
 void Prisma::MeshIndirect::renderMeshes()
@@ -65,20 +86,9 @@ void Prisma::MeshIndirect::updateSize()
     if (meshes.size() > 0) {
 
         //CLEAR DATA
-        m_verticesData.vertices.clear();
-        m_verticesData.indices.clear();
         m_materialData.clear();
         m_drawCommands.clear();
 
-
-        //PUSH VERTICES
-        for (const auto& vertices : meshes) {
-            m_verticesData.vertices.insert(m_verticesData.vertices.end(), vertices->verticesData().vertices.begin(), vertices->verticesData().vertices.end());
-        }
-        //PUSH INDICES
-        for (const auto& indices : meshes) {
-            m_verticesData.indices.insert(m_verticesData.indices.end(), indices->verticesData().indices.begin(), indices->verticesData().indices.end());
-        }
         std::vector<glm::mat4> models;
         for (int i = 0; i < meshes.size(); i++) {
             models.push_back(meshes[i]->parent()->finalMatrix());
@@ -100,23 +110,50 @@ void Prisma::MeshIndirect::updateSize()
         //GENERATE DATA TO SEND INDIRECT
         m_vao->bind();
 
-        //GENERATE CACHE DATA
-        m_currentVertexSize = m_verticesData.vertices.size();
-        m_currentIndexSize = m_verticesData.indices.size();
+        uint64_t sizeVbo = 0;
+        uint64_t sizeEbo = 0;
 
-        m_currentVertexMax = m_verticesData.vertices.size();
-        m_currentIndexMax = m_verticesData.indices.size();
+        //PUSH VERTICES
+        for (int i = 0; i < m_cacheAdd.size();i++) {
+            sizeVbo = sizeVbo + meshes[m_cacheAdd[i]]->verticesData().vertices.size();
+            m_verticesData.vertices.insert(m_verticesData.vertices.end(), meshes[m_cacheAdd[i]]->verticesData().vertices.begin(), meshes[m_cacheAdd[i]]->verticesData().vertices.end());
+        }
+        //PUSH INDICES
+        for (int i = 0; i < m_cacheAdd.size(); i++) {
+            sizeEbo = sizeEbo + meshes[m_cacheAdd[i]]->verticesData().indices.size();
+            m_verticesData.indices.insert(m_verticesData.indices.end(), meshes[m_cacheAdd[i]]->verticesData().indices.begin(), meshes[m_cacheAdd[i]]->verticesData().indices.end());
+        }
 
-        m_vbo->writeData(m_currentVertexMax * sizeof(Prisma::Mesh::Vertex), &m_verticesData.vertices[0], GL_DYNAMIC_DRAW);
+        uint64_t vboCache = 0;
+        uint64_t eboCache = 0;
 
-        m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
+        for (int i = 0; i < meshes.size(); i++) {
+            vboCache = vboCache + meshes[i]->verticesData().vertices.size();
+            eboCache = eboCache + meshes[i]->verticesData().indices.size();
+        }
+        if (m_cacheAdd.size() > 0) {
+            //GENERATE CACHE DATA 
+
+            if (vboCache >= m_currentVertexMax || m_currentVertexMax == 0) {
+                m_currentVertexMax = m_verticesData.vertices.size();
+                m_currentIndexMax = m_verticesData.indices.size();
+                m_vbo->writeData(m_currentVertexMax * sizeof(Prisma::Mesh::Vertex), &m_verticesData.vertices[0], GL_DYNAMIC_DRAW);
+                m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
+            }
+            else {
+                m_vbo->writeSubData(sizeVbo * sizeof(Prisma::Mesh::Vertex), vboCache * sizeof(Prisma::Mesh::Vertex), &m_verticesData.vertices[vboCache]);
+                m_ebo->writeSubData(sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int), &m_verticesData.indices[eboCache]);
+            }
+        }
+
+        m_cacheAdd.clear();
+        m_cacheRemove.clear();
 
         m_vao->addAttribPointer(0, 3, sizeof(Prisma::Mesh::Vertex), (void*)0);
         m_vao->addAttribPointer(1, 3, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
         m_vao->addAttribPointer(2, 2, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
         m_vao->addAttribPointer(3, 3, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, tangent));
         m_vao->addAttribPointer(4, 3, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, bitangent));
-
 
         //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
@@ -183,23 +220,12 @@ Prisma::MeshIndirect::MeshIndirect()
 void Prisma::MeshIndirect::updateAnimation()
 {
     auto meshes = currentGlobalScene->animateMeshes;
-
     if (meshes.size() > 0) {
+
         //CLEAR DATA
-        m_verticesDataAnimation.vertices.clear();
-        m_verticesDataAnimation.indices.clear();
         m_materialDataAnimation.clear();
         m_drawCommandsAnimation.clear();
 
-
-        //PUSH VERTICES
-        for (const auto& vertices : meshes) {
-            m_verticesDataAnimation.vertices.insert(m_verticesDataAnimation.vertices.end(), vertices->animateVerticesData()->vertices.begin(), vertices->animateVerticesData()->vertices.end());
-        }
-        //PUSH INDICES
-        for (const auto& indices : meshes) {
-            m_verticesDataAnimation.indices.insert(m_verticesDataAnimation.indices.end(), indices->animateVerticesData()->indices.begin(), indices->animateVerticesData()->indices.end());
-        }
         std::vector<glm::mat4> models;
         for (int i = 0; i < meshes.size(); i++) {
             models.push_back(meshes[i]->parent()->finalMatrix());
@@ -222,16 +248,44 @@ void Prisma::MeshIndirect::updateAnimation()
         m_vaoAnimation->bind();
 
         //GENERATE CACHE DATA
-        m_currentVertexSize = m_verticesDataAnimation.vertices.size();
-        m_currentIndexSize = m_verticesDataAnimation.indices.size();
-        m_currentVertexMax = m_verticesDataAnimation.vertices.size();
-        m_currentIndexMax = m_verticesDataAnimation.indices.size();
 
-        
+        uint64_t sizeVbo = 0;
+        uint64_t sizeEbo = 0;
+        //PUSH VERTICES
+        for (int i = 0; i < m_cacheAddAnimate.size();i++) {
+            sizeVbo = sizeVbo + meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.size();
+            m_verticesDataAnimation.vertices.insert(m_verticesDataAnimation.vertices.end(), meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.begin(), meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.end());
+        }
+        //PUSH INDICES
+        for (int i = 0; i < m_cacheAddAnimate.size(); i++) {
+            sizeEbo = sizeEbo + meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.size();
+            m_verticesDataAnimation.indices.insert(m_verticesDataAnimation.indices.end(), meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.begin(), meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.end());
+        }
 
-        m_vboAnimation->writeData(m_currentVertexMax * sizeof(Prisma::AnimatedMesh::AnimateVertex), &m_verticesDataAnimation.vertices[0], GL_DYNAMIC_DRAW);
+        uint64_t vboCache = 0;
+        uint64_t eboCache = 0;
 
-        m_eboAnimation->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesDataAnimation.indices[0], GL_DYNAMIC_DRAW);
+        for (int i = 0; i < meshes.size(); i++) {
+            vboCache = vboCache + meshes[i]->animateVerticesData()->vertices.size();
+            eboCache = eboCache + meshes[i]->animateVerticesData()->indices.size();
+        }
+        if (m_cacheAddAnimate.size() > 0) {
+            //GENERATE CACHE DATA 
+
+            if (vboCache >= m_currentVertexMaxAnimation || m_currentVertexMaxAnimation == 0) {
+                m_currentVertexMaxAnimation = m_verticesDataAnimation.vertices.size();
+                m_currentIndexMaxAnimation = m_verticesDataAnimation.indices.size();
+                m_vboAnimation->writeData(m_currentVertexMaxAnimation * sizeof(Prisma::AnimatedMesh::AnimateVertex), &m_verticesDataAnimation.vertices[0], GL_DYNAMIC_DRAW);
+                m_eboAnimation->writeData(m_currentIndexMaxAnimation * sizeof(unsigned int), &m_verticesDataAnimation.indices[0], GL_DYNAMIC_DRAW);
+            }
+            else {
+                m_vboAnimation->writeSubData(sizeVbo * sizeof(Prisma::AnimatedMesh::AnimateVertex), vboCache * sizeof(Prisma::AnimatedMesh::AnimateVertex), &m_verticesDataAnimation.vertices[vboCache]);
+                m_eboAnimation->writeSubData(sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int), &m_verticesDataAnimation.indices[eboCache]);
+            }
+        }
+
+        m_cacheAddAnimate.clear();
+        m_cacheRemoveAnimate.clear();
 
         m_vaoAnimation->addAttribPointer(0, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)0);
         m_vaoAnimation->addAttribPointer(1, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, normal));
@@ -240,7 +294,6 @@ void Prisma::MeshIndirect::updateAnimation()
         m_vaoAnimation->addAttribPointer(4, 3, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, bitangent));
         m_vaoAnimation->addAttribPointer(5, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_BoneIDs), GL_INT);
         m_vaoAnimation->addAttribPointer(6, 4, sizeof(Prisma::AnimatedMesh::AnimateVertex), (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_Weights));
-        glBindVertexArray(0);
         //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
 

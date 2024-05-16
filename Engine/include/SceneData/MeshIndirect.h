@@ -47,11 +47,12 @@ namespace Prisma {
 		//CURRENT CACHE DATA
 
 		const unsigned int m_cacheSize = 1000;
-		uint64_t m_currentVertexSize;
-		uint64_t m_currentIndexSize;
-		uint64_t m_currentVertexMax;
-		uint64_t m_currentIndexMax;
-		unsigned int m_meshSize;
+
+		uint64_t m_currentVertexMax = 0;
+		uint64_t m_currentIndexMax = 0;
+
+		uint64_t m_currentVertexMaxAnimation = 0;
+		uint64_t m_currentIndexMaxAnimation = 0;
 
 		//VERTICES DATA
 
@@ -73,9 +74,12 @@ namespace Prisma {
 
 		void updateAnimation();
 
-		std::vector<std::pair<unsigned int,bool>> m_cacheAdd;
-		std::vector<std::pair<unsigned int, bool>> m_cacheRemove;
+		std::vector<unsigned int> m_cacheAddAnimate;
+		std::vector<unsigned int> m_cacheRemoveAnimate;
 
+
+		std::vector<unsigned int> m_cacheAdd;
+		std::vector<unsigned int> m_cacheRemove;
 
 	public:
 		static MeshIndirect& getInstance();
@@ -84,9 +88,15 @@ namespace Prisma {
 		MeshIndirect& operator=(const MeshIndirect&) = delete;
 		void load();
 
-		void add(std::pair<unsigned int, bool> add);
+		void init();
 
-		void remove(std::pair<unsigned int, bool> remove);
+		void add(unsigned int add);
+
+		void remove(unsigned int remove);
+
+		void addAnimate(unsigned int add);
+
+		void removeAnimate(unsigned int remove);
 
 		void renderMeshes();
 		void renderAnimateMeshes();
