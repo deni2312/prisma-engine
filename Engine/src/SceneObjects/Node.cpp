@@ -96,8 +96,8 @@ void Prisma::Node::removeChild(uint64_t uuid)
 			currentGlobalScene->dirLights.erase(find);
 		}
 		else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(m_children[index])) {
-			auto find = std::find_if(currentGlobalScene->omniLights.begin(), currentGlobalScene->omniLights.end(), [uuid](auto mesh) {
-				if (mesh->uuid() == uuid) {
+			auto find = std::find_if(currentGlobalScene->omniLights.begin(), currentGlobalScene->omniLights.end(), [uuid](auto light) {
+				if (light->uuid() == uuid) {
 					return true;
 				}
 				return false;

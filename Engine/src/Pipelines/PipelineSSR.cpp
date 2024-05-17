@@ -7,19 +7,21 @@ Prisma::PipelineSSR::PipelineSSR() {
                                         "../../../Engine/Shaders/SSRPipeline/fragment.glsl");
 
     m_shader->use();
-    m_albedoPos=m_shader->getUniformPosition("textureFrame");
+    m_albedoPos=m_shader->getUniformPosition("textureAlbedo");
     m_normalPos=m_shader->getUniformPosition("textureNorm");
-    m_metalnessPos=m_shader->getUniformPosition("textureMetallic");
-    m_samplingPos=m_shader->getUniformPosition("samplingCoefficient");
+    m_positionPos=m_shader->getUniformPosition("texturePosition");
+    m_samplingPos=m_shader->getUniformPosition("screenSize");
 
 }
 
-void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t metalness, uint64_t normal) {
+void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t normal) {
+    MeshHandler::getInstance().updateCamera();
+
     m_shader->use();
     m_shader->setInt64(m_albedoPos,albedo);
     m_shader->setInt64(m_normalPos,normal);
-    m_shader->setInt64(m_metalnessPos,metalness);
-    m_shader->setFloat(m_samplingPos,0.2);
+    m_shader->setInt64(m_positionPos,position);
+    m_shader->setVec2(m_samplingPos,glm::vec2(1440,2560));
 
     Prisma::IBLBuilder::getInstance().renderQuad();
 }
