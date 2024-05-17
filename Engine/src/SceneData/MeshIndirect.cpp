@@ -117,7 +117,6 @@ void Prisma::MeshIndirect::updateSize()
             m_cacheAdd.clear();
             for (int i = 0; i < currentGlobalScene->meshes.size(); i++) {
                 MeshIndirect::getInstance().add(i);
-                std::cout << currentGlobalScene->meshes[i]->name() << std::endl;
             }
             m_currentVertexMax = 0;
         }

@@ -111,18 +111,16 @@ void Prisma::Node::removeChild(uint64_t uuid)
 
 void Prisma::Node::matrix(const glm::mat4& matrix, bool updateChildren)
 {
-    if(!Prisma::mat4Equals(m_matrix,matrix)) {
-        m_matrix = matrix;
-        updateData = true;
-        if (updateChildren) {
-            auto p = parent();
-            glm::mat4 transform(1.0f);
-            if (p) {
-                transform = p->finalMatrix();
-            }
-            finalMatrix(transform * m_matrix);
-            updateChild(this);
+    m_matrix = matrix;
+    updateData = true;
+    if (updateChildren) {
+        auto p = parent();
+        glm::mat4 transform(1.0f);
+        if (p) {
+            transform = p->finalMatrix();
         }
+        finalMatrix(transform * m_matrix);
+        updateChild(this);
     }
 }
 
@@ -133,10 +131,8 @@ glm::mat4 Prisma::Node::matrix() const
 
 void Prisma::Node::finalMatrix(const glm::mat4& matrix, bool update)
 {
-    if(!Prisma::mat4Equals(m_finalMatrix,matrix)) {
-        m_finalMatrix = matrix;
-        updateData = true;
-    }
+    m_finalMatrix = matrix;
+    updateData = true;
 }
 
 glm::mat4 Prisma::Node::finalMatrix() const
