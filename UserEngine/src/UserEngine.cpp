@@ -59,6 +59,7 @@ bool UserEngine::update()
         Prisma::NodeHelper nodeHelper;
         for (int i = 0; i < 1; i++) {
             auto instance = Prisma::Mesh::instantiate(std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_sceneNode->root, "Plane")->children()[0]));
+            instance->parent()->removeChild(instance->uuid());
         }
         addings = false;
     }

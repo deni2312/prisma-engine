@@ -110,6 +110,18 @@ void Prisma::MeshIndirect::updateSize()
         //GENERATE DATA TO SEND INDIRECT
         m_vao->bind();
 
+
+        if (m_cacheRemove.size() > 0) {
+            m_verticesData.vertices.clear();
+            m_verticesData.indices.clear();
+            m_cacheAdd.clear();
+            for (int i = 0; i < currentGlobalScene->meshes.size(); i++) {
+                MeshIndirect::getInstance().add(i);
+                std::cout << currentGlobalScene->meshes[i]->name() << std::endl;
+            }
+            m_currentVertexMax = 0;
+        }
+
         uint64_t sizeVbo = 0;
         uint64_t sizeEbo = 0;
 
@@ -125,7 +137,6 @@ void Prisma::MeshIndirect::updateSize()
         // Keep track of the current position in the cache
         uint64_t currentVboCache = vboCache;
         uint64_t currentEboCache = eboCache;
-
         // PUSH VERTICES
         for (int i = 0; i < m_cacheAdd.size(); i++) {
             sizeVbo += meshes[m_cacheAdd[i]]->verticesData().vertices.size();
@@ -152,6 +163,7 @@ void Prisma::MeshIndirect::updateSize()
 
         if (m_cacheAdd.size() > 0) {
             //GENERATE CACHE DATA 
+
             if (currentVboCache > m_currentVertexMax || m_currentVertexMax == 0) {
                 m_currentVertexMax = m_verticesData.vertices.size() + m_cacheSize;
                 m_currentIndexMax = m_verticesData.indices.size() +m_cacheSize;
@@ -315,7 +327,7 @@ void Prisma::MeshIndirect::updateAnimation()
         if (m_cacheAddAnimate.size() > 0) {
             //GENERATE CACHE DATA 
 
-            if (currentVboCache > m_currentVertexMaxAnimation || m_currentVertexMaxAnimation == 0) {
+            if (currentVboCache > m_currentVertexMaxAnimation || m_cacheRemoveAnimate.size()>0 || m_currentVertexMaxAnimation == 0) {
                 m_currentVertexMaxAnimation = m_verticesDataAnimation.vertices.size() + m_cacheSize;
                 m_currentIndexMaxAnimation = m_verticesDataAnimation.indices.size() + m_cacheSize;
                 m_verticesDataAnimation.vertices.resize(m_currentVertexMaxAnimation);

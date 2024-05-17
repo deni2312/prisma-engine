@@ -68,9 +68,41 @@ void Prisma::Node::removeChild(uint64_t uuid)
 	if (index != -1) {
 		if (std::dynamic_pointer_cast<Prisma::AnimatedMesh>(m_children[index])) {
 			MeshIndirect::getInstance().removeAnimate(index);
+			auto find = std::find_if(currentGlobalScene->animateMeshes.begin(), currentGlobalScene->animateMeshes.end(), [uuid](auto mesh) {
+				if (mesh->uuid() == uuid) {
+					return true;
+				}
+				return false;
+				});
+			currentGlobalScene->animateMeshes.erase(find);
 		}
-		else {
+		else if(std::dynamic_pointer_cast<Prisma::Mesh>(m_children[index])){
 			MeshIndirect::getInstance().remove(index);
+			auto find = std::find_if(currentGlobalScene->meshes.begin(), currentGlobalScene->meshes.end(), [uuid](auto mesh) {
+				if (mesh->uuid() == uuid) {
+					return true;
+				}
+				return false;
+				});
+			currentGlobalScene->meshes.erase(find);
+		}
+		else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(m_children[index])) {
+			auto find = std::find_if(currentGlobalScene->dirLights.begin(), currentGlobalScene->dirLights.end(), [uuid](auto light) {
+				if (light->uuid() == uuid) {
+					return true;
+				}
+				return false;
+				});
+			currentGlobalScene->dirLights.erase(find);
+		}
+		else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(m_children[index])) {
+			auto find = std::find_if(currentGlobalScene->omniLights.begin(), currentGlobalScene->omniLights.end(), [uuid](auto mesh) {
+				if (mesh->uuid() == uuid) {
+					return true;
+				}
+				return false;
+				});
+			currentGlobalScene->omniLights.erase(find);
 		}
 		m_children.erase(m_children.begin()+index);
 		updateSizes = true;
