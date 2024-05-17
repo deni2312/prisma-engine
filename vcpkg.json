@@ -6,6 +6,7 @@
     "assimp",
     "nlohmann-json",
     "bullet3",
+    "tinygltf",
     {"name": "imgui", "features": ["glfw-binding","opengl3-binding"]},
     "imguizmo"
   ],

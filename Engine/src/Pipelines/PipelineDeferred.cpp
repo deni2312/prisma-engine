@@ -136,10 +136,10 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
 
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);
 
-    m_fboSSR->bind();
+    /*m_fboSSR->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     m_ssr->update(m_albedo, m_position, m_normal);
-    m_fboSSR->unbind();
+    m_fboSSR->unbind();*/
 
     m_output->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);

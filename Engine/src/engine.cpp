@@ -24,6 +24,7 @@
 #include "../include/Postprocess/Postprocess.h"
 #include "../include/Helpers/Timer.h"
 #include <glm/gtx/string_cast.hpp>
+#include "../include/SceneData/SceneExporter.h"
 
 
 
@@ -240,6 +241,7 @@ std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(std::string scene, Prism
     data->sceneParameters = sceneParameters;
     currentGlobalScene = sceneLoader.loadScene(scene,sceneParameters);
     currentGlobalScene->camera = data->camera;
+    
     MeshIndirect::getInstance().init();
     return currentGlobalScene;
 }

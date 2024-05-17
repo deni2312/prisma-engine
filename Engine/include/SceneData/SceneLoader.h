@@ -20,7 +20,8 @@ namespace Prisma {
 		};
 		std::shared_ptr<Scene> loadScene(std::string scene, SceneParameters sceneParameters);
 
-
+		const aiScene* assimpScene();
+		const aiScene* m_aScene;
 
 	private:
 
@@ -41,9 +42,11 @@ namespace Prisma {
 		std::vector<Prisma::Texture> textures_loaded;
 		std::shared_ptr<Scene> m_scene;
 		std::string m_folder;
-		Prisma::Texture black;
-		Prisma::Texture normal;
-		NodeHelper nodeFinder;
+		Prisma::Texture m_black;
+		Prisma::Texture m_normal;
+		NodeHelper m_nodeFinder;
+
+
 		SceneParameters m_sceneParameters;
 	};
 }

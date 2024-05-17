@@ -6,12 +6,14 @@
 #include "../../include/Components/Component.h"
 #include "../../include/Components/MaterialComponent.h"
 #include "../../include/Helpers/PrismaMath.h"
+#include "../../../vcpkg_installed/x64-windows/include/assimp/Exporter.hpp"
+#include "../../include/SceneData/SceneExporter.h"
 
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters)
 {
 
-    black.loadTexture(DIR_DEFAULT_BLACK);
-    normal.loadTexture(DIR_DEFAULT_NORMAL);
+    m_black.loadTexture(DIR_DEFAULT_BLACK);
+    m_normal.loadTexture(DIR_DEFAULT_NORMAL);
     m_sceneParameters = sceneParameters;
     // Extracting the directory to the last folder
     size_t lastSlash = scene.find_last_of("/");
@@ -30,24 +32,29 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
         }
     }
 	Assimp::Importer importer;
-	const aiScene* currentScene = importer.ReadFile(scene, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    if (currentScene) {
+	m_aScene = importer.ReadFile(scene, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    if (m_aScene) {
         m_scene = std::make_shared<Scene>();
         std::shared_ptr<Node> root = std::make_shared<Node>();
-        root->name(currentScene->mRootNode->mName.C_Str());
-        glm::mat4 transform = getTransform(currentScene->mRootNode->mTransformation);
+        root->name(m_aScene->mRootNode->mName.C_Str());
+        glm::mat4 transform = getTransform(m_aScene->mRootNode->mTransformation);
         root->matrix(transform,false);
         root->finalMatrix(transform,false);
         root->parent(nullptr);
         m_scene->root = root;
-        nodeIteration(root, currentScene->mRootNode, currentScene);
-        loadLights(currentScene, root);
+        nodeIteration(root, m_aScene->mRootNode, m_aScene);
+        loadLights(m_aScene, root);
+
         return m_scene;
     }
     else {
         std::cerr << "Could not find the directory" << std::endl;
         return nullptr;
     }
+}
+
+const aiScene* Prisma::SceneLoader::assimpScene() {
+    return m_aScene;
 }
 
 float Prisma::SceneLoader::calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold) {
@@ -247,17 +254,17 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
     currentMaterial->roughness_metalness(loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS));
     std::vector<Prisma::Texture> emptyVector;
     if (currentMaterial->diffuse().empty()) {
-        emptyVector.push_back(black);
+        emptyVector.push_back(m_black);
         currentMaterial->diffuse(emptyVector);
         std::cout << "No diffuse texture " + currentMesh->name()+" MaterialComponent name: "+ material->GetName().C_Str() << std::endl;
     }
     if (currentMaterial->normal().empty()) {
-        emptyVector.push_back(normal);
+        emptyVector.push_back(m_normal);
         currentMaterial->normal(emptyVector);
         std::cout << "No normal texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }
     if (currentMaterial->roughness_metalness().empty()) {
-        emptyVector.push_back(black);
+        emptyVector.push_back(m_black);
         currentMaterial->roughness_metalness(emptyVector);
         std::cout << "No roughness or metalness texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }
@@ -338,7 +345,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
             light->type(lightDir);
 
             light->name(assimpLight->mName.C_Str());
-            auto lightNode = nodeFinder.find(root, light->name());
+            auto lightNode = m_nodeFinder.find(root, light->name());
             lightNode->addChild(light, false);
             light->finalMatrix(lightNode->finalMatrix(), false);
             light->parent(lightNode);
@@ -376,7 +383,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
 
             light->type(lightOmni);
             light->name(assimpLight->mName.C_Str());
-            auto lightNode = nodeFinder.find(root, light->name());
+            auto lightNode = m_nodeFinder.find(root, light->name());
             light->parent(lightNode);
             lightNode->addChild(light, false);
             light->finalMatrix(lightNode->finalMatrix(), false);
