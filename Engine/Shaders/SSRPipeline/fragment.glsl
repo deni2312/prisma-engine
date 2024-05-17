@@ -77,7 +77,7 @@ void main() {
         vec4 reflectedColor = texture(textureAlbedo, reflectedUV);
 
         // Mix the reflected color with the original albedo based on metalness
-        outColor = mix(vec4(albedo.xyz,1.0), reflectedColor, metalness);
+        outColor = mix(vec4(albedo.xyz,1.0), vec4(reflectedColor.xyz,1.0), metalness);
     }
     else {
         // If no reflection, just use the original albedo
