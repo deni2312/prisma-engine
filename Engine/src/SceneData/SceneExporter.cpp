@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../../include/GlobalData/GlobalData.h"
 #include <assimp/Exporter.hpp>
+#include "../../../vcpkg_installed/x64-windows/include/assimp/DefaultLogger.hpp"
 
 std::shared_ptr<Prisma::Exporter> Prisma::Exporter::instance = nullptr;
 Assimp::Importer importer;
@@ -23,20 +24,23 @@ void Prisma::Exporter::exportScene()
     m_scene = importer.ReadFile(DIR_DEFAULT_SCENE, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     const_cast<aiScene*>(m_scene)->mMeshes = new aiMesh*[currentGlobalScene->meshes.size()];
+    const_cast<aiScene*>(m_scene)->mNumMeshes = currentGlobalScene->meshes.size();
 
-    for (int i = 0; i < currentGlobalScene->meshes.size();i++) {
-        const_cast<aiScene*>(m_scene)->mMeshes[i] = getMesh(currentGlobalScene->meshes[i]);
-    }
 
     const_cast<aiScene*>(m_scene)->mNumMaterials = 1;
     const_cast<aiScene*>(m_scene)->mMaterials = new aiMaterial * [m_scene->mNumMaterials];
     const_cast<aiScene*>(m_scene)->mMaterials[0] = new aiMaterial();
 
+    for (int i = 0; i < currentGlobalScene->meshes.size();i++) {
+        const_cast<aiScene*>(m_scene)->mMeshes[i] = getMesh(currentGlobalScene->meshes[i]);
+    }
+
     addNodesRecursively(currentGlobalScene->root, m_scene->mRootNode);
 
     std::string outputFilePath = "C:\\Users\\denis\\Downloads\\prisma-engine\\Resources\\Landscape\\landscape1.gltf";
     aiReturn result = exporter.Export(m_scene, "gltf2", outputFilePath);
-
+    Assimp::DefaultLogger::create(ASSIMP_DEFAULT_LOG_NAME, Assimp::Logger::VERBOSE);
+    Assimp::DefaultLogger::get()->attachStream(Assimp::LogStream::createDefaultStream(aiDefaultLogStream_STDOUT), Assimp::Logger::Debugging);
 
     if (result != aiReturn_SUCCESS) {
         std::cerr << "Error exporting: " << exporter.GetErrorString() << std::endl;
@@ -69,8 +73,15 @@ void Prisma::Exporter::addNodesRecursively(const std::shared_ptr<Prisma::Node>& 
             next->mChildren[i] = childNode;
             if (std::dynamic_pointer_cast<Mesh>(sceneNode->children()[i])) {
                 next->mChildren[i]->mMeshes = new unsigned int[1];
-                next->mChildren[i]->mMeshes[0] = 5;
-                next->mChildren[i]->mNumMeshes = 0;
+                int index = 0;
+                for (auto mesh : currentGlobalScene->meshes) {
+                    if (mesh->uuid() == sceneNode->children()[i]->uuid()) {
+                        next->mChildren[i]->mMeshes[0] = index;
+                        next->mChildren[i]->mNumMeshes = 0;
+                        break;
+                    }
+                    index++;
+                }
             }
             else {
                 next->mChildren[i]->mNumMeshes = 0;
@@ -87,7 +98,7 @@ void Prisma::Exporter::addNodesRecursively(const std::shared_ptr<Prisma::Node>& 
 
 aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
     aiMesh* ai_mesh = new aiMesh();
-
+    ai_mesh->mMaterialIndex = 0;
     // Set the number of vertices and allocate space
     ai_mesh->mNumVertices = mesh->verticesData().vertices.size();
     ai_mesh->mVertices = new aiVector3D[ai_mesh->mNumVertices];
