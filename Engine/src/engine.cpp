@@ -241,7 +241,7 @@ std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(std::string scene, Prism
     data->sceneParameters = sceneParameters;
     currentGlobalScene = sceneLoader.loadScene(scene,sceneParameters);
     currentGlobalScene->camera = data->camera;
-    
+    Prisma::Exporter::getInstance().exportScene();
     MeshIndirect::getInstance().init();
     return currentGlobalScene;
 }
