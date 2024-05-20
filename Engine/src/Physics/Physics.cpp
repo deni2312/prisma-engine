@@ -45,21 +45,25 @@ void Prisma::Physics::update(float delta) {
         {
             trans = obj->getWorldTransform();
         }
-        auto mesh=(Mesh*)obj->getUserPointer();
+        auto mesh = (Mesh*)obj->getUserPointer();
         auto isAnimate = dynamic_cast<AnimatedMesh*>(mesh);
 
-        auto prismaMatrix=glm::mat4(1.0f);
+        auto prismaMatrix = glm::mat4(1.0f);
         trans.getOpenGLMatrix(glm::value_ptr(prismaMatrix));
 
-        auto scaling=glm::vec3(body->getCollisionShape()->getLocalScaling().getX(),body->getCollisionShape()->getLocalScaling().getY(),body->getCollisionShape()->getLocalScaling().getZ());
+        auto scaling = glm::vec3(body->getCollisionShape()->getLocalScaling().getX(), body->getCollisionShape()->getLocalScaling().getY(), body->getCollisionShape()->getLocalScaling().getZ());
 
         prismaMatrix = prismaMatrix * glm::scale(glm::mat4(1.0f), scaling);
+        
+        const auto& matrix = isAnimate ? mesh->parent()->parent()->matrix() : mesh->parent()->matrix();
 
-        if (isAnimate) {
-            mesh->parent()->parent()->matrix(prismaMatrix);
-        }
-        else {
-            mesh->parent()->matrix(prismaMatrix);
+        if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
+            if (isAnimate) {
+                mesh->parent()->parent()->matrix(prismaMatrix);
+            }
+            else {
+                mesh->parent()->matrix(prismaMatrix);
+            }
         }
     }
 }

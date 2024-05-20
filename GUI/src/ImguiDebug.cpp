@@ -22,6 +22,7 @@
 #include "../include/TextureInfo.h"
 #include "../include/PixelCapture.h"
 #include "ImGuizmo.h"
+#include "../../Engine/include/SceneData/SceneExporter.h"
 
 struct PrivateIO {
     ImGuiIO io;
@@ -94,6 +95,11 @@ void Prisma::ImguiDebug::drawGui()
                     data->engine->loadNewScene();
                 }
             }
+
+            if (ImGui::MenuItem("Save")) {
+                Prisma::Exporter::getInstance().exportScene();
+            }
+
             if (ImGui::MenuItem("Add model")) {
                 std::string model = openFolder();
                 if (model != "") {
