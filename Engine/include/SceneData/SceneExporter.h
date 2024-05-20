@@ -22,5 +22,7 @@ namespace Prisma {
 
 		aiMesh* getMesh(std::shared_ptr<Prisma::Mesh> mesh);
 
+		aiMatrix4x4 glmToAiMatrix4x4(const glm::mat4& from);
+
 	};
 }
