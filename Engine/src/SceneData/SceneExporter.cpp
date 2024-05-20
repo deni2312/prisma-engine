@@ -27,7 +27,6 @@ void Prisma::Exporter::exportScene()
 
     const_cast<aiScene*>(m_scene)->mMeshes = new aiMesh*[sizeMesh];
     const_cast<aiScene*>(m_scene)->mNumMeshes = sizeMesh;
-    const_cast<aiScene*>(m_scene)->mFlags = 0;
 
     const_cast<aiScene*>(m_scene)->mNumMaterials = 1;
     const_cast<aiScene*>(m_scene)->mMaterials = new aiMaterial * [m_scene->mNumMaterials];
@@ -39,6 +38,19 @@ void Prisma::Exporter::exportScene()
 
     for (int i = 0; i < currentGlobalScene->animateMeshes.size(); i++) {
         const_cast<aiScene*>(m_scene)->mMeshes[currentGlobalScene->meshes.size()+i] = getMesh(currentGlobalScene->animateMeshes[i]);
+    }
+
+    unsigned int sizeLight = currentGlobalScene->dirLights.size() + currentGlobalScene->omniLights.size();
+
+    const_cast<aiScene*>(m_scene)->mNumLights = sizeLight;
+    const_cast<aiScene*>(m_scene)->mLights = new aiLight * [sizeLight];
+
+    for (int i = 0; i < currentGlobalScene->dirLights.size(); i++) {
+        const_cast<aiScene*>(m_scene)->mLights[i] = getLightDir(currentGlobalScene->dirLights[i]);
+    }
+
+    for (int i = 0; i < currentGlobalScene->omniLights.size(); i++) {
+        const_cast<aiScene*>(m_scene)->mLights[currentGlobalScene->dirLights.size()+i] = getLightOmni(currentGlobalScene->omniLights[i]);
     }
 
     addNodesRecursively(currentGlobalScene->root, m_scene->mRootNode);
@@ -219,6 +231,48 @@ aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
 
     // Return the constructed aiMesh
     return ai_mesh;
+}
+
+aiLight* Prisma::Exporter::getLightOmni(std::shared_ptr<Prisma::Light<Prisma::LightType::LightOmni>> light)
+{
+    aiLight* lightData = new aiLight();
+    lightData->mName = light->name();
+    // Fill aiLight structure for omnidirectional light
+    lightData->mType = aiLightSource_POINT; // Type of light
+    // Assuming Prisma::Light has a method to get the position of the light
+    lightData->mPosition = aiVector3D(light->type().position.x, light->type().position.y, light->type().position.z);
+
+    // Assuming Prisma::Light has a method to get the color of the light
+    lightData->mColorDiffuse = aiColor3D(light->type().diffuse.r, light->type().diffuse.g, light->type().diffuse.b);
+    // Assuming Prisma::Light has methods to get other attributes like ambient and specular colors
+    lightData->mColorSpecular = aiColor3D(light->type().specular.r, light->type().specular.g, light->type().specular.b);
+
+    // Set additional parameters as needed, such as attenuation factors
+    lightData->mAttenuationConstant = light->type().attenuation.x;
+    lightData->mAttenuationLinear = light->type().attenuation.y;
+    lightData->mAttenuationQuadratic = light->type().attenuation.z;
+
+    return lightData;
+}
+
+aiLight* Prisma::Exporter::getLightDir(std::shared_ptr<Prisma::Light<Prisma::LightType::LightDir>> light)
+{
+    aiLight* lightData = new aiLight();
+
+    lightData->mName = light->name();
+
+    // Fill aiLight structure for directional light
+    lightData->mType = aiLightSource_DIRECTIONAL; // Type of light
+    // Assuming Prisma::Light has a method to get the direction of the light
+    lightData->mDirection = aiVector3D(light->type().direction.x, light->type().direction.y, light->type().direction.z);
+
+    // Assuming Prisma::Light has a method to get the color of the light
+    lightData->mColorDiffuse = aiColor3D(light->type().diffuse.r, light->type().diffuse.g, light->type().diffuse.b);
+
+    // Assuming Prisma::Light has methods to get other attributes like ambient and specular colors
+    lightData->mColorSpecular = aiColor3D(light->type().specular.r, light->type().specular.g, light->type().specular.b);
+
+    return lightData;
 }
 
 aiMatrix4x4 Prisma::Exporter::glmToAiMatrix4x4(const glm::mat4& from) {
