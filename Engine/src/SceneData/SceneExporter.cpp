@@ -89,6 +89,15 @@ void Prisma::Exporter::addNodesRecursively(const std::shared_ptr<Prisma::Node>& 
                     index++;
                 }
 
+                for (auto mesh : currentGlobalScene->animateMeshes) {
+                    if (mesh->uuid() == sceneNode->children()[i]->uuid()) {
+                        next->mChildren[i]->mMeshes[0] = index;
+                        next->mChildren[i]->mNumMeshes = 1;
+                        break;
+                    }
+                    index++;
+                }
+
 
             }
             else {
@@ -183,7 +192,7 @@ aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
         }
 
         // If mesh has bones, set bone data
-        ai_mesh->mNumBones = anim_mesh->boneInfoMap().size();
+        /*ai_mesh->mNumBones = anim_mesh->boneInfoMap().size();
         ai_mesh->mBones = new aiBone * [ai_mesh->mNumBones];
         int i = 0;
         for (auto& boneInfo : anim_mesh->boneInfoMap()) {
@@ -191,7 +200,6 @@ aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
             aiBone* ai_bone = new aiBone();
             ai_bone->mName = aiString(bone.first);
             ai_bone->mOffsetMatrix = glmToAiMatrix4x4(bone.second.offset); // Assuming bone.offsetMatrix is of type aiMatrix4x4
-
             ai_bone->mNumWeights = 4;
             ai_bone->mWeights = new aiVertexWeight[ai_bone->mNumWeights];
             for (unsigned int j = 0; j < ai_bone->mNumWeights; ++j) {
@@ -203,8 +211,7 @@ aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
 
             ai_mesh->mBones[i] = ai_bone;
             i++;
-        }
-
+        }*/
 
         // Set mesh name
         ai_mesh->mName = aiString(mesh->name());

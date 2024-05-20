@@ -865,7 +865,8 @@
             ]
         },
         {
-            "name": "vanguard_Mesh_node"
+            "name": "vanguard_Mesh_node",
+            "mesh": 3
         },
         {
             "name": "mixamorig:Hips",
@@ -2432,7 +2433,8 @@
             ]
         },
         {
-            "name": "WorldWar_zombie_node"
+            "name": "WorldWar_zombie_node",
+            "mesh": 4
         },
         {
             "name": "mixamorig:Hips_node",
