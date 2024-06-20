@@ -130,27 +130,32 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     }
     center /= corners.size();
 
+
     auto direction = center + m_lightDir;
 
-    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::mat4 lightView;
 
+    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f); // Define the world's up direction
+
+    // Check if direction and worldUp are parallel
     if (glm::dot(direction, worldUp) > 0.99f) {
-        worldUp = glm::vec3(0.0f, 0.0f, 1.0f);
+        // If they are nearly parallel, adjust the worldUp vector
+        worldUp = glm::vec3(0.0f, 0.0f, 1.0f); // Set a different perpendicular direction
     }
 
-    glm::vec3 right = glm::normalize(glm::cross(worldUp, direction));
-    glm::vec3 up = glm::cross(direction, right);
+    glm::vec3 right = glm::normalize(glm::cross(worldUp, direction)); // Compute the right vector
+    glm::vec3 up = glm::cross(direction, right); // Compute the corrected up vector
 
-    glm::mat4 lightView = glm::lookAt(direction, center, up);
+    // Construct the view matrix using the corrected up vector
+    lightView = glm::lookAt(direction, center, up);
 
-    // Initialize min and max values
+
     float minX = std::numeric_limits<float>::max();
     float maxX = std::numeric_limits<float>::lowest();
     float minY = std::numeric_limits<float>::max();
     float maxY = std::numeric_limits<float>::lowest();
     float minZ = std::numeric_limits<float>::max();
     float maxZ = std::numeric_limits<float>::lowest();
-
     for (const auto& v : corners)
     {
         const auto trf = lightView * v;
@@ -162,22 +167,28 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
         maxZ = std::max(maxZ, trf.z);
     }
 
-    // Align the orthographic projection to the shadow map resolution grid
-    float worldUnitsPerTexel = (maxX - minX) / static_cast<float>(m_width);
-    minX = std::floor(minX / worldUnitsPerTexel) * worldUnitsPerTexel;
-    maxX = std::floor(maxX / worldUnitsPerTexel) * worldUnitsPerTexel;
-    minY = std::floor(minY / worldUnitsPerTexel) * worldUnitsPerTexel;
-    maxY = std::floor(maxY / worldUnitsPerTexel) * worldUnitsPerTexel;
-
-    // Using a constant depth range for stability
+    // Tune this parameter according to the scene
     constexpr float zMult = 10.0f;
-    minZ = -farPlane * zMult;
-    maxZ = farPlane * zMult;
+    if (minZ < 0)
+    {
+        minZ *= zMult;
+    }
+    else
+    {
+        minZ /= zMult;
+    }
+    if (maxZ < 0)
+    {
+        maxZ /= zMult;
+    }
+    else
+    {
+        maxZ *= zMult;
+    }
 
-    glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+    const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
     return lightProjection * lightView;
 }
-
 
 std::vector<glm::mat4> Prisma::PipelineCSM::getLightSpaceMatrices()
 {
