@@ -202,9 +202,8 @@ aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
             face.mIndices[1] = anim_mesh->animateVerticesData()->indices[3 * i + 1];
             face.mIndices[2] = anim_mesh->animateVerticesData()->indices[3 * i + 2];
         }
-
         // If mesh has bones, set bone data
-        /*ai_mesh->mNumBones = anim_mesh->boneInfoMap().size();
+        ai_mesh->mNumBones = anim_mesh->boneInfoMap().size();
         ai_mesh->mBones = new aiBone * [ai_mesh->mNumBones];
         int i = 0;
         for (auto& boneInfo : anim_mesh->boneInfoMap()) {
@@ -216,14 +215,15 @@ aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
             ai_bone->mWeights = new aiVertexWeight[ai_bone->mNumWeights];
             for (unsigned int j = 0; j < ai_bone->mNumWeights; ++j) {
                 auto weights = anim_mesh->animateVerticesData()->vertices[bone.second.id];
-
-                ai_bone->mWeights[j].mVertexId = weights.m_BoneIDs[j];
-                ai_bone->mWeights[j].mWeight = weights.m_Weights[j];
+                if (weights.m_BoneIDs[j] != -1) {
+                    ai_bone->mWeights[j].mVertexId = weights.m_BoneIDs[j];
+                    ai_bone->mWeights[j].mWeight = weights.m_Weights[j];
+                }
             }
 
             ai_mesh->mBones[i] = ai_bone;
             i++;
-        }*/
+        }
 
         // Set mesh name
         ai_mesh->mName = aiString(mesh->name());
