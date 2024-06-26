@@ -48,17 +48,24 @@ void Prisma::Exporter::exportScene()
         aiString name(material.second->material_name());
         aiMat->AddProperty(&name, AI_MATKEY_NAME);
 
+        // Add the diffuse texture property
         if (material.second->diffuse().size() > 0) {
-            aiString texturePathDiffuse(material.second->diffuse()[0].name().c_str());
-            std::cout << material.second->diffuse()[0].name().c_str() << std::endl;
+            std::string textureName = getFileName(material.second->diffuse()[0].name());
+            aiString texturePathDiffuse(textureName.c_str());
             aiMat->AddProperty(&texturePathDiffuse, AI_MATKEY_TEXTURE_DIFFUSE(0));
         }
+
+        // Add the normal texture property
         if (material.second->normal().size() > 0) {
-            aiString texturePathNormal(material.second->normal()[0].name().c_str());
+            std::string textureName = getFileName(material.second->normal()[0].name());
+            aiString texturePathNormal(textureName.c_str());
             aiMat->AddProperty(&texturePathNormal, AI_MATKEY_TEXTURE_NORMALS(0));
         }
+
+        // Add the roughness/metalness texture property
         if (material.second->roughness_metalness().size() > 0) {
-            aiString texturePathRoughness(material.second->roughness_metalness()[0].name().c_str());
+            std::string textureName = getFileName(material.second->roughness_metalness()[0].name());
+            aiString texturePathRoughness(textureName.c_str());
             aiMat->AddProperty(&texturePathRoughness, AI_MATKEY_TEXTURE_SPECULAR(0));
         }
         const_cast<aiScene*>(m_scene)->mMaterials[i] = aiMat;
@@ -319,6 +326,14 @@ aiLight* Prisma::Exporter::getLightDir(std::shared_ptr<Prisma::Light<Prisma::Lig
     lightData->mColorSpecular = aiColor3D(light->type().specular.r, light->type().specular.g, light->type().specular.b);
 
     return lightData;
+}
+
+std::string Prisma::Exporter::getFileName(const std::string& filePath) {
+    size_t pos = filePath.find_last_of("/\\");
+    if (pos != std::string::npos) {
+        return filePath.substr(pos + 1);
+    }
+    return filePath;
 }
 
 unsigned int Prisma::Exporter::materialIndex(std::shared_ptr<MaterialComponent> material) {

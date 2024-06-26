@@ -29,5 +29,7 @@ namespace Prisma {
 		aiMatrix4x4 glmToAiMatrix4x4(const glm::mat4& from);
 
 		unsigned int materialIndex(std::shared_ptr<MaterialComponent> material);
+
+		std::string getFileName(const std::string& filePath);
 	};
 }

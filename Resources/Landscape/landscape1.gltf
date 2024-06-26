@@ -594,13 +594,13 @@
     ],
     "images": [
         {
-            "uri": "../../../Resources/Landscape/Ground054_1K-JPG_Color.jpg"
+            "uri": "Ground054_1K-JPG_Color.jpg"
         },
         {
-            "uri": "../../../Resources/Landscape/Ground054_1K-JPG_NormalDX.jpg"
+            "uri": "Ground054_1K-JPG_NormalDX.jpg"
         },
         {
-            "uri": "../../../Resources/Landscape/black-Ground054_1K-JPG_Roughness.png"
+            "uri": "black-Ground054_1K-JPG_Roughness.png"
         }
     ],
     "materials": [
