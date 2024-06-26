@@ -17,7 +17,7 @@ std::shared_ptr<Prisma::Animator> animator1;
 
 UserEngine::UserEngine() : Prisma::Engine{}
 {
-	m_sceneNode = getScene("../../../Resources/Landscape/landscape.gltf", {true});
+	m_sceneNode = getScene("../../../Resources/Landscape/landscape1.gltf", {true});
 	Prisma::Texture texture;
 	texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
 	texture.data({ 4096,4096,3 });
@@ -43,14 +43,7 @@ bool addings = true;
 
 bool UserEngine::update()
 {
-    if (addings) {
-        Prisma::NodeHelper nodeHelper;
-        for (int i = 0; i < 1; i++) {
-            auto instance = Prisma::Mesh::instantiate(std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_sceneNode->root, "Plane")->children()[0]));
-            instance->parent()->removeChild(instance->uuid());
-        }
-        addings = false;
-    }
+
 
 	return false;
 }

@@ -31,6 +31,12 @@ namespace Prisma {
 
         std::vector<Prisma::Texture> roughness_metalness();
 
+        unsigned int material_id();
+
+        void material_name(std::string name);
+
+        std::string material_name();
+
     private:
 
 		std::vector<Prisma::Texture> m_diffuse;
@@ -40,6 +46,10 @@ namespace Prisma {
         std::shared_ptr<std::string> m_diffuseName;
         std::shared_ptr<std::string> m_normalName;
         std::shared_ptr<std::string> m_metalness_roughnessName;
+
+        unsigned int m_id;
+
+        std::string m_materialName;
 
         ComponentType m_componentTypeDiffuse;
         ComponentType m_componentTypeNormal;

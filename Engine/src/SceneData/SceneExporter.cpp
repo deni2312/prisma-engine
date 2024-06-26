@@ -7,6 +7,7 @@
 std::shared_ptr<Prisma::Exporter> Prisma::Exporter::instance = nullptr;
 Assimp::Importer importer;
 Assimp::Exporter exporter;
+std::map<unsigned int, std::shared_ptr<Prisma::MaterialComponent>> materials;
 
 
 Prisma::Exporter::Exporter()
@@ -28,9 +29,43 @@ void Prisma::Exporter::exportScene()
     const_cast<aiScene*>(m_scene)->mMeshes = new aiMesh*[sizeMesh];
     const_cast<aiScene*>(m_scene)->mNumMeshes = sizeMesh;
 
-    const_cast<aiScene*>(m_scene)->mNumMaterials = 1;
+    materials.clear();
+
+    for (int i = 0; i < currentGlobalScene->meshes.size(); i++) {
+        auto material = currentGlobalScene->meshes[i]->material();
+        if (materials.find(material->material_id()) == materials.end()) {
+            materials[material->material_id()] = material;
+        }
+    }
+
+    const_cast<aiScene*>(m_scene)->mNumMaterials = materials.size();
     const_cast<aiScene*>(m_scene)->mMaterials = new aiMaterial * [m_scene->mNumMaterials];
-    const_cast<aiScene*>(m_scene)->mMaterials[0] = new aiMaterial();
+
+    int i = 0;
+
+    for (auto material : materials) {
+        aiMaterial* aiMat = new aiMaterial();
+        aiString name(material.second->material_name());
+        aiMat->AddProperty(&name, AI_MATKEY_NAME);
+
+        if (material.second->diffuse().size() > 0) {
+            aiString texturePathDiffuse(material.second->diffuse()[0].name().c_str());
+            std::cout << material.second->diffuse()[0].name().c_str() << std::endl;
+            aiMat->AddProperty(&texturePathDiffuse, AI_MATKEY_TEXTURE_DIFFUSE(0));
+        }
+        if (material.second->normal().size() > 0) {
+            aiString texturePathNormal(material.second->normal()[0].name().c_str());
+            aiMat->AddProperty(&texturePathNormal, AI_MATKEY_TEXTURE_NORMALS(0));
+        }
+        if (material.second->roughness_metalness().size() > 0) {
+            aiString texturePathRoughness(material.second->roughness_metalness()[0].name().c_str());
+            aiMat->AddProperty(&texturePathRoughness, AI_MATKEY_TEXTURE_SPECULAR(0));
+        }
+        const_cast<aiScene*>(m_scene)->mMaterials[i] = aiMat;
+
+        i++;
+    }
+
 
     for (int i = 0; i < currentGlobalScene->meshes.size();i++) {
         const_cast<aiScene*>(m_scene)->mMeshes[i] = getMesh(currentGlobalScene->meshes[i]);
@@ -154,6 +189,11 @@ aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
         ai_mesh->mNumFaces = mesh->verticesData().indices.size() / 3;
         ai_mesh->mFaces = new aiFace[ai_mesh->mNumFaces];
 
+        auto index = materialIndex(mesh->material());
+
+        if (index > 0) {
+            ai_mesh->mMaterialIndex = index;
+        }
         // Fill face data
         for (unsigned int i = 0; i < ai_mesh->mNumFaces; ++i) {
             aiFace& face = ai_mesh->mFaces[i];
@@ -221,6 +261,12 @@ aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
                 }
             }
 
+            auto index = materialIndex(anim_mesh->material());
+
+            if (index > 0) {
+                ai_mesh->mMaterialIndex = index;
+            }
+
             ai_mesh->mBones[i] = ai_bone;
             i++;
         }
@@ -273,6 +319,18 @@ aiLight* Prisma::Exporter::getLightDir(std::shared_ptr<Prisma::Light<Prisma::Lig
     lightData->mColorSpecular = aiColor3D(light->type().specular.r, light->type().specular.g, light->type().specular.b);
 
     return lightData;
+}
+
+unsigned int Prisma::Exporter::materialIndex(std::shared_ptr<MaterialComponent> material) {
+    int i = 0;
+
+    for (auto currentMaterial : materials) {
+        if (currentMaterial.first == material->material_id()) {
+            return i;
+        }
+        i++;
+    }
+    return -1;
 }
 
 aiMatrix4x4 Prisma::Exporter::glmToAiMatrix4x4(const glm::mat4& from) {

@@ -1,6 +1,8 @@
 #include "../../include/Components/MaterialComponent.h"
 #include "../../include/GlobalData/GlobalData.h"
 
+static unsigned int materialId = 0;
+
 void Prisma::MaterialComponent::diffuse(std::vector <Prisma::Texture> diffuse) {
     m_diffuse=diffuse;
     updateTextures=true;
@@ -30,6 +32,8 @@ void Prisma::MaterialComponent::start() {
     addGlobal(m_componentTypeNormal);
     addGlobal(m_componentTypeMetalnessRoughness);
     name("Material Component");
+    m_id = materialId;
+    materialId++;
 }
 
 void Prisma::MaterialComponent::update() {
@@ -47,4 +51,17 @@ void Prisma::MaterialComponent::roughness_metalness(std::vector <Prisma::Texture
 
 std::vector <Prisma::Texture> Prisma::MaterialComponent::roughness_metalness() {
     return m_roughness_metalness;
+}
+
+unsigned int Prisma::MaterialComponent::material_id()
+{
+    return m_id;
+}
+
+void Prisma::MaterialComponent::material_name(std::string name) {
+    m_materialName = name;
+}
+
+std::string Prisma::MaterialComponent::material_name() {
+    return m_materialName;
 }
