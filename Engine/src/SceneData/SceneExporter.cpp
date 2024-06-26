@@ -124,7 +124,7 @@ void Prisma::Exporter::addNodesRecursively(const std::shared_ptr<Prisma::Node>& 
     }
 
     auto childrenSize = sceneNode->children().size();
-    if (childrenSize > 0) {
+    if (childrenSize > 0 && !(std::dynamic_pointer_cast<Light<LightType::LightDir>>(sceneNode->children()[0]) || std::dynamic_pointer_cast<Light<LightType::LightOmni>>(sceneNode->children()[0]))) {
         next->mNumChildren = static_cast<unsigned int>(childrenSize);
         next->mChildren = new aiNode*[childrenSize]();
         for (unsigned int i = 0; i < childrenSize; i++) {
@@ -153,8 +153,7 @@ void Prisma::Exporter::addNodesRecursively(const std::shared_ptr<Prisma::Node>& 
                 }
 
 
-            }
-            else {
+            }else{
                 next->mChildren[i]->mNumMeshes = 0;
             }
             next->mChildren[i]->mParent = next;
