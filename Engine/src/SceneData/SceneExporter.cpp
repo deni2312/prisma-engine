@@ -124,52 +124,44 @@ void Prisma::Exporter::addNodesRecursively(const std::shared_ptr<Prisma::Node>& 
     }
 
     auto childrenSize = sceneNode->children().size();
-    if (childrenSize > 0) {
-        if (!(std::dynamic_pointer_cast<Light<LightType::LightDir>>(sceneNode->children()[0]) || std::dynamic_pointer_cast<Light<LightType::LightOmni>>(sceneNode->children()[0]))) {
-            next->mNumChildren = static_cast<unsigned int>(childrenSize);
-            next->mChildren = new aiNode * [childrenSize]();
-            for (unsigned int i = 0; i < childrenSize; i++) {
-                aiNode* childNode = new aiNode();
-                childNode->mName = sceneNode->children()[i]->name();
-                next->mChildren[i] = childNode;
-                if (std::dynamic_pointer_cast<Mesh>(sceneNode->children()[i])) {
-                    next->mChildren[i]->mMeshes = new unsigned int[1];
-                    int index = 0;
-                    for (auto mesh : currentGlobalScene->meshes) {
-                        if (mesh->uuid() == sceneNode->children()[i]->uuid()) {
-                            next->mChildren[i]->mMeshes[0] = index;
-                            next->mChildren[i]->mNumMeshes = 1;
-                            break;
-                        }
-                        index++;
+    if (childrenSize > 0 && !(std::dynamic_pointer_cast<Light<LightType::LightDir>>(sceneNode->children()[0]) || std::dynamic_pointer_cast<Light<LightType::LightOmni>>(sceneNode->children()[0]))) {
+        next->mNumChildren = static_cast<unsigned int>(childrenSize);
+        next->mChildren = new aiNode * [childrenSize]();
+        for (unsigned int i = 0; i < childrenSize; i++) {
+            aiNode* childNode = new aiNode();
+            childNode->mName = sceneNode->children()[i]->name();
+            next->mChildren[i] = childNode;
+            if (std::dynamic_pointer_cast<Mesh>(sceneNode->children()[i])) {
+                next->mChildren[i]->mMeshes = new unsigned int[1];
+                int index = 0;
+                for (auto mesh : currentGlobalScene->meshes) {
+                    if (mesh->uuid() == sceneNode->children()[i]->uuid()) {
+                        next->mChildren[i]->mMeshes[0] = index;
+                        next->mChildren[i]->mNumMeshes = 1;
+                        break;
                     }
+                    index++;
+                }
 
-                    for (auto mesh : currentGlobalScene->animateMeshes) {
-                        if (mesh->uuid() == sceneNode->children()[i]->uuid()) {
-                            next->mChildren[i]->mMeshes[0] = index;
-                            next->mChildren[i]->mNumMeshes = 1;
-                            break;
-                        }
-                        index++;
+                for (auto mesh : currentGlobalScene->animateMeshes) {
+                    if (mesh->uuid() == sceneNode->children()[i]->uuid()) {
+                        next->mChildren[i]->mMeshes[0] = index;
+                        next->mChildren[i]->mNumMeshes = 1;
+                        break;
                     }
+                    index++;
+                }
 
 
-                }
-                else {
-                    next->mChildren[i]->mNumMeshes = 0;
-                }
-                next->mChildren[i]->mParent = next;
-                next->mChildren[i]->mTransformation = glmToAiMatrix4x4(sceneNode->children()[i]->matrix());
-                addNodesRecursively(sceneNode->children()[i], childNode);
             }
-        }
-        else {
-            
+            else {
+                next->mChildren[i]->mNumMeshes = 0;
+            }
+            next->mChildren[i]->mParent = next;
+            next->mChildren[i]->mTransformation = glmToAiMatrix4x4(sceneNode->children()[i]->matrix());
+            addNodesRecursively(sceneNode->children()[i], childNode);
         }
     }
-
-
-
 }
 
 aiMesh* Prisma::Exporter::getMesh(std::shared_ptr<Prisma::Mesh> mesh) {
