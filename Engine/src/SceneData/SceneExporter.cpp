@@ -70,8 +70,72 @@ struct NodeExport {
             n.children.push_back(child);
         }
     }
+
+    virtual void a() {}
 };
 
+// Define MeshExport structure inheriting from NodeExport
+struct MeshExport : public NodeExport {
+    // Additional properties for mesh export
+    std::vector<Prisma::Mesh::Vertex> vertices;
+    std::vector<unsigned int> faces;
+
+    virtual void a() override {}
+
+    // Serialize MeshExport to JSON
+    friend void to_json(json& j, const MeshExport& m) {
+        // First, serialize the base NodeExport properties
+        json baseJson;
+        to_json(baseJson, static_cast<const NodeExport&>(m));
+
+        // Then serialize the additional mesh properties
+        j = baseJson;
+
+        // Convert Vertex properties to arrays of floats
+        std::vector<json> verticesJson;
+        for (const auto& vertex : m.vertices) {
+            verticesJson.push_back({
+                {"position", {vertex.position.x, vertex.position.y, vertex.position.z}},
+                {"normal", {vertex.normal.x, vertex.normal.y, vertex.normal.z}},
+                {"texCoords", {vertex.texCoords.x, vertex.texCoords.y}},
+                {"tangent", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
+                {"bitangent", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
+                });
+        }
+
+        j["vertices"] = verticesJson;
+        j["faces"] = m.faces;
+    }
+
+    // Deserialize MeshExport from JSON
+    friend void from_json(const json& j, MeshExport& m) {
+        // Deserialize base NodeExport properties
+        from_json(j, static_cast<NodeExport&>(m));
+
+        // Convert arrays of floats back to Vertex properties
+        auto verticesJson = j.at("vertices").get<std::vector<json>>();
+        m.vertices.resize(verticesJson.size());
+        for (size_t i = 0; i < verticesJson.size(); ++i) {
+            auto& vertexJson = verticesJson[i];
+            m.vertices[i].position = glm::vec3(vertexJson.at("position").get<std::vector<float>>().at(0),
+                vertexJson.at("position").get<std::vector<float>>().at(1),
+                vertexJson.at("position").get<std::vector<float>>().at(2));
+            m.vertices[i].normal = glm::vec3(vertexJson.at("normal").get<std::vector<float>>().at(0),
+                vertexJson.at("normal").get<std::vector<float>>().at(1),
+                vertexJson.at("normal").get<std::vector<float>>().at(2));
+            m.vertices[i].texCoords = glm::vec2(vertexJson.at("texCoords").get<std::vector<float>>().at(0),
+                vertexJson.at("texCoords").get<std::vector<float>>().at(1));
+            m.vertices[i].tangent = glm::vec3(vertexJson.at("tangent").get<std::vector<float>>().at(0),
+                vertexJson.at("tangent").get<std::vector<float>>().at(1),
+                vertexJson.at("tangent").get<std::vector<float>>().at(2));
+            m.vertices[i].bitangent = glm::vec3(vertexJson.at("bitangent").get<std::vector<float>>().at(0),
+                vertexJson.at("bitangent").get<std::vector<float>>().at(1),
+                vertexJson.at("bitangent").get<std::vector<float>>().at(2));
+        }
+
+        m.faces = j.at("faces").get<std::vector<unsigned int>>();
+    }
+};
 
 std::shared_ptr<Prisma::Exporter> Prisma::Exporter::instance = nullptr;
 Assimp::Importer importer;
@@ -82,6 +146,15 @@ std::map<unsigned int, std::shared_ptr<Prisma::MaterialComponent>> materials;
 Prisma::Exporter::Exporter()
 {
 
+}
+
+std::shared_ptr<MeshExport> getMesh(const std::shared_ptr<Prisma::Node>& sceneNode) {
+    std::shared_ptr<MeshExport> mesh = std::make_shared<MeshExport>();
+    auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(sceneNode);
+    mesh->transform.transform = glm::mat4(1.0f);
+    mesh->vertices = currentMesh->verticesData().vertices;
+    mesh->faces = currentMesh->verticesData().indices;
+    return mesh;
 }
 
 void addNodesExport(const std::shared_ptr<Prisma::Node>& sceneNode, std::shared_ptr<NodeExport> nodeNext) {
@@ -95,11 +168,18 @@ void addNodesExport(const std::shared_ptr<Prisma::Node>& sceneNode, std::shared_
 
     for (unsigned int i = 0; i < childrenSize; i++) {
         std::shared_ptr<NodeExport> node = std::make_shared<NodeExport>();
+
+        auto currentNode = sceneNode->children()[i];
+        if (std::dynamic_pointer_cast<Prisma::Mesh>(currentNode) && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(currentNode)) {
+            node = getMesh(currentNode);
+        }
+
         node->name = sceneNode->children()[i]->name();
         nodeNext->children.push_back(node);
         addNodesExport(sceneNode->children()[i], node);
     }
 }
+
 void printScene(std::shared_ptr<NodeExport> nodeNext, int depth = 0) {
     if (!nodeNext) {
         return;
@@ -146,7 +226,7 @@ void Prisma::Exporter::exportScene()
     auto newRootNode = std::make_shared<NodeExport>();
     from_json(jIn, *newRootNode);
 
-    printScene(newRootNode);
+    //printScene(newRootNode);
 }
 
 Prisma::Exporter& Prisma::Exporter::getInstance()
