@@ -12,6 +12,15 @@
 
 using json = nlohmann::json;
 
+
+enum ExportTypes {
+    NODE,
+    MESH,
+    MESH_ANIM,
+    LIGHT_OMNI,
+    LIGHT_DIR
+};
+
 // Define a Transform structure
 struct Transform {
     glm::mat4 transform;
@@ -24,14 +33,14 @@ struct Transform {
             transformData[i] = matrix[i];
         }
         j = json{
-            {"transform", transformData}
+            {"t", transformData}
         };
     }
 
     // Deserialize Transform from JSON
     friend void from_json(const json& j, Transform& t) {
         std::vector<float> transformData;
-        j.at("transform").get_to(transformData);
+        j.at("t").get_to(transformData);
         t.transform = glm::make_mat4(transformData.data());
     }
 };
@@ -41,46 +50,126 @@ struct NodeExport {
     std::string name;
     Transform transform;
     std::vector<std::shared_ptr<NodeExport>> children;
+    std::vector<Prisma::Mesh::Vertex> vertices;
+    std::vector<unsigned int> faces;
+
+    ExportTypes type = ExportTypes::NODE;
 
     // Serialize NodeExport to JSON
     friend void to_json(json& j, const NodeExport& n) {
+        switch (n.type) {
+        case ExportTypes::NODE: {
+            std::vector<NodeExport> nodes;
 
-        std::vector<NodeExport> nodes;
+            for (auto node : n.children) {
+                nodes.push_back(*node);
+            }
 
-        for (auto node : n.children) {
-            nodes.push_back(*node);
+            j = json{
+                {"name", n.name},
+                {"type", n.type},
+                {"t", n.transform},
+                {"c", nodes}
+            };
+        }
+            break;
+        case ExportTypes::MESH: {
+
+            std::vector<NodeExport> nodes;
+
+            for (auto node : n.children) {
+                nodes.push_back(*node);
+            }
+
+            j = json{
+                {"name", n.name},
+                {"type", n.type},
+                {"t", n.transform},
+                {"c", nodes}
+            };
+
+            // Then serialize the additional mesh properties
+
+            // Convert Vertex properties to arrays of floats
+            std::vector<json> verticesJson;
+            for (const auto& vertex : n.vertices) {
+                verticesJson.push_back({
+                    {"p", {vertex.position.x, vertex.position.y, vertex.position.z}},
+                    {"n", {vertex.normal.x, vertex.normal.y, vertex.normal.z}},
+                    {"texCoords", {vertex.texCoords.x, vertex.texCoords.y}},
+                    {"ta", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
+                    {"bi", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
+                    });
+            }
+
+            j["vertices"] = verticesJson;
+            j["faces"] = n.faces;
+            }
+            break;
         }
 
-        j = json{
-            {"name", n.name},
-            {"transform", n.transform},
-            {"children", nodes}
-        };
     }
 
     // Deserialize NodeExport from JSON
     friend void from_json(const json& j, NodeExport& n) {
-        j.at("name").get_to(n.name);
-        j.at("transform").get_to(n.transform);
-        std::vector<json> childrenJson;
-        j.at("children").get_to(childrenJson);
-        for (const auto& childJson : childrenJson) {
-            auto child = std::make_shared<NodeExport>();
-            from_json(childJson, *child);
-            n.children.push_back(child);
+        switch (n.type) {
+        case ExportTypes::NODE: {
+            j.at("name").get_to(n.name);
+            j.at("type").get_to(n.type);
+            j.at("t").get_to(n.transform);
+            std::vector<json> childrenJson;
+            j.at("c").get_to(childrenJson);
+            for (const auto& childJson : childrenJson) {
+                auto child = std::make_shared<NodeExport>();
+                from_json(childJson, *child);
+                n.children.push_back(child);
+            }
+        }
+            break;
+        case ExportTypes::MESH: {
+            j.at("name").get_to(n.name);
+            j.at("type").get_to(n.type);
+            j.at("t").get_to(n.transform);
+            std::vector<json> childrenJson;
+            j.at("c").get_to(childrenJson);
+            for (const auto& childJson : childrenJson) {
+                auto child = std::make_shared<NodeExport>();
+                from_json(childJson, *child);
+                n.children.push_back(child);
+            }
+            // Convert arrays of floats back to Vertex properties
+            auto verticesJson = j.at("vertices").get<std::vector<json>>();
+            n.vertices.resize(verticesJson.size());
+            for (size_t i = 0; i < verticesJson.size(); ++i) {
+                auto& vertexJson = verticesJson[i];
+                n.vertices[i].position = glm::vec3(vertexJson.at("p").get<std::vector<float>>().at(0),
+                    vertexJson.at("p").get<std::vector<float>>().at(1),
+                    vertexJson.at("p").get<std::vector<float>>().at(2));
+                n.vertices[i].normal = glm::vec3(vertexJson.at("n").get<std::vector<float>>().at(0),
+                    vertexJson.at("n").get<std::vector<float>>().at(1),
+                    vertexJson.at("n").get<std::vector<float>>().at(2));
+                n.vertices[i].texCoords = glm::vec2(vertexJson.at("texCoords").get<std::vector<float>>().at(0),
+                    vertexJson.at("texCoords").get<std::vector<float>>().at(1));
+                n.vertices[i].tangent = glm::vec3(vertexJson.at("ta").get<std::vector<float>>().at(0),
+                    vertexJson.at("ta").get<std::vector<float>>().at(1),
+                    vertexJson.at("ta").get<std::vector<float>>().at(2));
+                n.vertices[i].bitangent = glm::vec3(vertexJson.at("bi").get<std::vector<float>>().at(0),
+                    vertexJson.at("bi").get<std::vector<float>>().at(1),
+                    vertexJson.at("bi").get<std::vector<float>>().at(2));
+            }
+
+            n.faces = j.at("faces").get<std::vector<unsigned int>>();
+            }
+            break;
         }
     }
-
-    virtual void a() {}
 };
 
 // Define MeshExport structure inheriting from NodeExport
-struct MeshExport : public NodeExport {
+/*struct MeshExport : public NodeExport {
     // Additional properties for mesh export
     std::vector<Prisma::Mesh::Vertex> vertices;
     std::vector<unsigned int> faces;
-
-    virtual void a() override {}
 
     // Serialize MeshExport to JSON
     friend void to_json(json& j, const MeshExport& m) {
@@ -95,11 +184,11 @@ struct MeshExport : public NodeExport {
         std::vector<json> verticesJson;
         for (const auto& vertex : m.vertices) {
             verticesJson.push_back({
-                {"position", {vertex.position.x, vertex.position.y, vertex.position.z}},
-                {"normal", {vertex.normal.x, vertex.normal.y, vertex.normal.z}},
+                {"p", {vertex.position.x, vertex.position.y, vertex.position.z}},
+                {"n", {vertex.normal.x, vertex.normal.y, vertex.normal.z}},
                 {"texCoords", {vertex.texCoords.x, vertex.texCoords.y}},
-                {"tangent", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
-                {"bitangent", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
+                {"ta", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
+                {"bi", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
                 });
         }
 
@@ -117,25 +206,25 @@ struct MeshExport : public NodeExport {
         m.vertices.resize(verticesJson.size());
         for (size_t i = 0; i < verticesJson.size(); ++i) {
             auto& vertexJson = verticesJson[i];
-            m.vertices[i].position = glm::vec3(vertexJson.at("position").get<std::vector<float>>().at(0),
-                vertexJson.at("position").get<std::vector<float>>().at(1),
-                vertexJson.at("position").get<std::vector<float>>().at(2));
-            m.vertices[i].normal = glm::vec3(vertexJson.at("normal").get<std::vector<float>>().at(0),
-                vertexJson.at("normal").get<std::vector<float>>().at(1),
-                vertexJson.at("normal").get<std::vector<float>>().at(2));
+            m.vertices[i].position = glm::vec3(vertexJson.at("p").get<std::vector<float>>().at(0),
+                vertexJson.at("p").get<std::vector<float>>().at(1),
+                vertexJson.at("p").get<std::vector<float>>().at(2));
+            m.vertices[i].normal = glm::vec3(vertexJson.at("n").get<std::vector<float>>().at(0),
+                vertexJson.at("n").get<std::vector<float>>().at(1),
+                vertexJson.at("n").get<std::vector<float>>().at(2));
             m.vertices[i].texCoords = glm::vec2(vertexJson.at("texCoords").get<std::vector<float>>().at(0),
                 vertexJson.at("texCoords").get<std::vector<float>>().at(1));
-            m.vertices[i].tangent = glm::vec3(vertexJson.at("tangent").get<std::vector<float>>().at(0),
-                vertexJson.at("tangent").get<std::vector<float>>().at(1),
-                vertexJson.at("tangent").get<std::vector<float>>().at(2));
-            m.vertices[i].bitangent = glm::vec3(vertexJson.at("bitangent").get<std::vector<float>>().at(0),
-                vertexJson.at("bitangent").get<std::vector<float>>().at(1),
-                vertexJson.at("bitangent").get<std::vector<float>>().at(2));
+            m.vertices[i].tangent = glm::vec3(vertexJson.at("ta").get<std::vector<float>>().at(0),
+                vertexJson.at("ta").get<std::vector<float>>().at(1),
+                vertexJson.at("ta").get<std::vector<float>>().at(2));
+            m.vertices[i].bitangent = glm::vec3(vertexJson.at("bi").get<std::vector<float>>().at(0),
+                vertexJson.at("bi").get<std::vector<float>>().at(1),
+                vertexJson.at("bi").get<std::vector<float>>().at(2));
         }
 
         m.faces = j.at("faces").get<std::vector<unsigned int>>();
     }
-};
+};*/
 
 std::shared_ptr<Prisma::Exporter> Prisma::Exporter::instance = nullptr;
 Assimp::Importer importer;
@@ -148,14 +237,14 @@ Prisma::Exporter::Exporter()
 
 }
 
-std::shared_ptr<MeshExport> getMesh(const std::shared_ptr<Prisma::Node>& sceneNode) {
+/*std::shared_ptr<MeshExport> getMesh(const std::shared_ptr<Prisma::Node>& sceneNode) {
     std::shared_ptr<MeshExport> mesh = std::make_shared<MeshExport>();
     auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(sceneNode);
     mesh->transform.transform = glm::mat4(1.0f);
     mesh->vertices = currentMesh->verticesData().vertices;
     mesh->faces = currentMesh->verticesData().indices;
     return mesh;
-}
+}*/
 
 void addNodesExport(const std::shared_ptr<Prisma::Node>& sceneNode, std::shared_ptr<NodeExport> nodeNext) {
     if (!sceneNode) {
@@ -168,10 +257,14 @@ void addNodesExport(const std::shared_ptr<Prisma::Node>& sceneNode, std::shared_
 
     for (unsigned int i = 0; i < childrenSize; i++) {
         std::shared_ptr<NodeExport> node = std::make_shared<NodeExport>();
-
+        node->type = ExportTypes::NODE;
         auto currentNode = sceneNode->children()[i];
         if (std::dynamic_pointer_cast<Prisma::Mesh>(currentNode) && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(currentNode)) {
-            node = getMesh(currentNode);
+            node->type = ExportTypes::MESH;
+            auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(currentNode);
+            node->transform.transform = glm::mat4(1.0f);
+            node->vertices = currentMesh->verticesData().vertices;
+            node->faces = currentMesh->verticesData().indices;
         }
 
         node->name = sceneNode->children()[i]->name();
@@ -214,7 +307,7 @@ void Prisma::Exporter::exportScene()
 
     // Write JSON to file
     std::ofstream outFile("output.prisma");
-    outFile << j.dump(4);
+    outFile << j.dump();
     outFile.close();
 
 
@@ -226,7 +319,7 @@ void Prisma::Exporter::exportScene()
     auto newRootNode = std::make_shared<NodeExport>();
     from_json(jIn, *newRootNode);
 
-    //printScene(newRootNode);
+    printScene(newRootNode);
 }
 
 Prisma::Exporter& Prisma::Exporter::getInstance()
