@@ -45,14 +45,13 @@ struct Transform {
     }
 };
 
-// Define a Node structure
 struct NodeExport {
     std::string name;
     Transform transform;
     std::vector<std::shared_ptr<NodeExport>> children;
     std::vector<Prisma::Mesh::Vertex> vertices;
     std::vector<unsigned int> faces;
-
+    std::vector<std::pair<std::string, std::string>> textures; // Texture directory and type pairs
     ExportTypes type = ExportTypes::NODE;
 
     // Serialize NodeExport to JSON
@@ -72,9 +71,8 @@ struct NodeExport {
                 {"c", nodes}
             };
         }
-            break;
+                              break;
         case ExportTypes::MESH: {
-
             std::vector<NodeExport> nodes;
 
             for (auto node : n.children) {
@@ -85,10 +83,9 @@ struct NodeExport {
                 {"name", n.name},
                 {"type", n.type},
                 {"t", n.transform},
-                {"c", nodes}
+                {"c", nodes},
+                {"textures", n.textures} // Serialize textures
             };
-
-            // Then serialize the additional mesh properties
 
             // Convert Vertex properties to arrays of floats
             std::vector<json> verticesJson;
@@ -104,10 +101,9 @@ struct NodeExport {
 
             j["vertices"] = verticesJson;
             j["faces"] = n.faces;
-            }
-            break;
         }
-
+                              break;
+        }
     }
 
     // Deserialize NodeExport from JSON
@@ -125,7 +121,7 @@ struct NodeExport {
                 n.children.push_back(child);
             }
         }
-            break;
+                              break;
         case ExportTypes::MESH: {
             j.at("name").get_to(n.name);
             j.at("type").get_to(n.type);
@@ -137,6 +133,14 @@ struct NodeExport {
                 from_json(childJson, *child);
                 n.children.push_back(child);
             }
+
+            // Deserialize textures
+            if (j.contains("textures")) {
+                n.textures.clear(); // Clear existing textures in case of update
+                auto texturesJson = j.at("textures").get<std::vector<std::pair<std::string, std::string>>>();
+                n.textures.insert(n.textures.end(), texturesJson.begin(), texturesJson.end());
+            }
+
             // Convert arrays of floats back to Vertex properties
             auto verticesJson = j.at("vertices").get<std::vector<json>>();
             n.vertices.resize(verticesJson.size());
@@ -159,11 +163,12 @@ struct NodeExport {
             }
 
             n.faces = j.at("faces").get<std::vector<unsigned int>>();
-            }
-            break;
+        }
+                              break;
         }
     }
 };
+
 
 // Define MeshExport structure inheriting from NodeExport
 /*struct MeshExport : public NodeExport {
@@ -246,6 +251,14 @@ Prisma::Exporter::Exporter()
     return mesh;
 }*/
 
+std::string getFileName(const std::string& filePath) {
+    size_t pos = filePath.find_last_of("/\\");
+    if (pos != std::string::npos) {
+        return filePath.substr(pos + 1);
+    }
+    return filePath;
+}
+
 void addNodesExport(const std::shared_ptr<Prisma::Node>& sceneNode, std::shared_ptr<NodeExport> nodeNext) {
     if (!sceneNode) {
         return;
@@ -265,6 +278,22 @@ void addNodesExport(const std::shared_ptr<Prisma::Node>& sceneNode, std::shared_
             node->transform.transform = glm::mat4(1.0f);
             node->vertices = currentMesh->verticesData().vertices;
             node->faces = currentMesh->verticesData().indices;
+            if (currentMesh->material()->diffuse().size() > 0) {
+                std::string textureName = getFileName(currentMesh->material()->diffuse()[0].name());
+                node->textures.push_back({ "DIFFUSE", textureName });
+            }
+
+            // Add the normal texture property
+            if (currentMesh->material()->normal().size() > 0) {
+                std::string textureName = getFileName(currentMesh->material()->normal()[0].name());
+                node->textures.push_back({ "NORMAL", textureName });
+            }
+
+            // Add the roughness/metalness texture property
+            if (currentMesh->material()->roughness_metalness().size() > 0) {
+                std::string textureName = getFileName(currentMesh->material()->roughness_metalness()[0].name());
+                node->textures.push_back({ "ROUGHNESS_METALNESS", textureName });
+            }
         }
 
         node->name = sceneNode->children()[i]->name();
