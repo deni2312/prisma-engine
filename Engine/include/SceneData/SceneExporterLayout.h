@@ -168,6 +168,7 @@ namespace Prisma {
                             textures.push_back(defaultBlack);
                         }
                         else {
+                            texture.name(t.second);
                             texture.loadTexture(t.second,true);
                             textures.push_back(texture);
                         }
@@ -180,6 +181,7 @@ namespace Prisma {
                             textures.push_back(defaultNormal);
                         }
                         else {
+                            texture.name(t.second);
                             texture.loadTexture(t.second);
                             textures.push_back(texture);
                         }
@@ -192,6 +194,7 @@ namespace Prisma {
                             textures.push_back(defaultBlack);
                         }
                         else {
+                            texture.name(t.second);
                             texture.loadTexture(t.second);
                             textures.push_back(texture);
                         }

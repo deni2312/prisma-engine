@@ -299,12 +299,14 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
         std::cout << "No diffuse texture " + currentMesh->name()+" MaterialComponent name: "+ material->GetName().C_Str() << std::endl;
     }
     if (currentMaterial->normal().empty()) {
-        emptyVector.push_back(defaultBlack);
+        emptyVector.clear();
+        emptyVector.push_back(defaultNormal);
         currentMaterial->normal(emptyVector);
         std::cout << "No normal texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }
     if (currentMaterial->roughness_metalness().empty()) {
-        emptyVector.push_back(defaultNormal);
+        emptyVector.clear();
+        emptyVector.push_back(defaultBlack);
         currentMaterial->roughness_metalness(emptyVector);
         std::cout << "No roughness or metalness texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }
