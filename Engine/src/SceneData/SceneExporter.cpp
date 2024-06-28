@@ -74,15 +74,3 @@ Prisma::Exporter& Prisma::Exporter::getInstance()
     }
     return *instance;
 }
-
-void Prisma::Exporter::addNodesRecursively(const std::shared_ptr<Prisma::Node>& sceneNode) {
-    if (!sceneNode) {
-        return;
-    }
-
-    unsigned int childrenSize = sceneNode->children().size();
-
-    for (unsigned int i = 0; i < childrenSize; i++) {
-        addNodesRecursively(sceneNode->children()[i]);
-    }
-}

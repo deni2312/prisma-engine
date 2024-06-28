@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "../SceneObjects/Node.h"
 #include "../SceneObjects/AnimatedMesh.h"
+#include "../SceneObjects/Light.h"
 
 namespace Prisma {
 
@@ -36,14 +37,6 @@ namespace Prisma {
             t.transform = glm::make_mat4(transformData.data());
         }
     };
-
-    std::string getFileName(const std::string& filePath) {
-        size_t pos = filePath.find_last_of("/\\");
-        if (pos != std::string::npos) {
-            return filePath.substr(pos + 1);
-        }
-        return filePath;
-    }
 
     void to_json(json& j, std::shared_ptr<Prisma::Node> n) {
             Transform t;
@@ -94,6 +87,13 @@ namespace Prisma {
                 j["type"] = "MESH";
                 j["vertices"] = verticesJson;
                 j["faces"] = mesh->verticesData().indices;
+            }
+            else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(n)) {
+                j["type"] = "LIGHT_DIRECTIONAL";
+                auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(n);
+                j["direction"] = { {light->type().direction.x,light->type().direction.y,light->type().direction.z} };
+                j["diffuse"] = { {light->type().diffuse.x,light->type().diffuse.y,light->type().diffuse.z} };
+                j["specular"] = { {light->type().specular.x,light->type().specular.y,light->type().specular.z} };
             }
     }
     // Deserialize NodeExport from JSON

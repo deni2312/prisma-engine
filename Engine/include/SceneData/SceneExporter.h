@@ -17,7 +17,6 @@ namespace Prisma{
 		Exporter& operator=(const Exporter&) = delete;
 	private:
 		static std::shared_ptr<Exporter> instance;
-        void addNodesRecursively(const std::shared_ptr<Prisma::Node>& sceneNode);
 		std::string getFileName(const std::string& filePath);
 	};
 }
