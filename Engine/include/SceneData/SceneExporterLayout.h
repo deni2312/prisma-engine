@@ -168,7 +168,7 @@ namespace Prisma {
                             textures.push_back(defaultBlack);
                         }
                         else {
-                            texture.loadTexture(t.second);
+                            texture.loadTexture(t.second,true);
                             textures.push_back(texture);
                         }
                         material->diffuse(textures);
