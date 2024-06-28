@@ -52,19 +52,22 @@ void Prisma::Exporter::exportScene()
     json j = currentGlobalScene->root;
 
     // Write JSON to file
-    std::ofstream outFile("output.prisma");
+    std::ofstream outFile("../../../Resources/Landscape/output.prisma");
     outFile << j.dump();
     outFile.close();
 
+}
 
+std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& sceneName)
+{
     // Read JSON from file
-    std::ifstream inFile("output.prisma");
+    std::ifstream inFile(sceneName);
     json jIn;
     inFile >> jIn;
 
     auto newRootNode = std::make_shared<Prisma::Node>();
     from_json(jIn, newRootNode);
-
+    return newRootNode;
 }
 
 Prisma::Exporter& Prisma::Exporter::getInstance()

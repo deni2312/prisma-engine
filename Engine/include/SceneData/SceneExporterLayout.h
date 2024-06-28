@@ -40,10 +40,13 @@ namespace Prisma {
 
     void to_json(json& j, std::shared_ptr<Prisma::Node> n) {
             Transform t;
+            Transform k;
             t.transform = n->matrix();
+            k.transform = n->finalMatrix();
             j = json{
                 {"name", n->name()},
                 {"t", t},
+                {"k", k},
                 {"c",n->children()}
             };
             j["type"] = "NODE";
@@ -108,12 +111,15 @@ namespace Prisma {
     void from_json(json& j, std::shared_ptr<Prisma::Node> n) {
         std::string name;
         Transform t;
+        Transform k;
         std::string type;
         j.at("name").get_to(name);
         j.at("t").get_to(t);
+        j.at("k").get_to(k);
         j.at("type").get_to(type);
         n->name(name);
         n->matrix(t.transform);
+        n->finalMatrix(k.transform);
         std::vector<json> childrenJson;
         j.at("c").get_to(childrenJson);
         for (json& childJson : childrenJson) {
@@ -127,6 +133,7 @@ namespace Prisma {
             else if (childJson["type"] == "LIGHT_OMNI") {
                 child = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
             }
+            child->parent(n);
             from_json(childJson, child);
             n->addChild(child,false);
         }
@@ -161,7 +168,6 @@ namespace Prisma {
                 }
                 mesh->material(material);
             }
-
             // Convert arrays of floats back to Vertex properties
             auto verticesJson = j.at("vertices").get<std::vector<json>>();
             std::vector<Prisma::Mesh::Vertex> vertices;
@@ -188,6 +194,7 @@ namespace Prisma {
             verticesData->vertices = vertices;
             verticesData->indices = j.at("faces").get<std::vector<unsigned int>>();
             mesh->loadModel(verticesData);
+            mesh->computeAABB();
         }
         else if(type == "LIGHT_DIRECTIONAL"){
             auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(n);
@@ -196,6 +203,7 @@ namespace Prisma {
             lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0), j.at("diffuse").get<std::vector<float>>().at(1), j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
             lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0), j.at("specular").get<std::vector<float>>().at(1), j.at("specular").get<std::vector<float>>().at(2), 1.0);
             light->type(lightType);
+            light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
         }
         else if (type == "LIGHT_OMNI") {
             auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(n);
@@ -204,6 +212,7 @@ namespace Prisma {
             lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0), j.at("diffuse").get<std::vector<float>>().at(1), j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
             lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0), j.at("specular").get<std::vector<float>>().at(1), j.at("specular").get<std::vector<float>>().at(2), 1.0);
             lightType.radius = j.at("radius").get<float>();
+            light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
             light->type(lightType);
         }
     }

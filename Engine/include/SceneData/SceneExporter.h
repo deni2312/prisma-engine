@@ -12,6 +12,8 @@ namespace Prisma{
 
 		void exportScene();
 
+		std::shared_ptr<Prisma::Node> importScene(const std::string& sceneName);
+
 		static Exporter& getInstance();
 		Exporter(const Exporter&) = delete;
 		Exporter& operator=(const Exporter&) = delete;

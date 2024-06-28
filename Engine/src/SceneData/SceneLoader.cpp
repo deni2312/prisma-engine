@@ -6,7 +6,6 @@
 #include "../../include/Components/Component.h"
 #include "../../include/Components/MaterialComponent.h"
 #include "../../include/Helpers/PrismaMath.h"
-#include "../../../vcpkg_installed/x64-windows/include/assimp/Exporter.hpp"
 #include "../../include/SceneData/SceneExporter.h"
 
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters)
@@ -31,26 +30,64 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
             m_folder = "";
         }
     }
-	Assimp::Importer importer;
-	m_aScene = importer.ReadFile(scene, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    if (m_aScene) {
+
+    auto endsWith = [](std::string const& value, std::string const& ending)
+    {
+        if (ending.size() > value.size()) return false;
+        return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+    };
+
+    auto prismaScene = endsWith(scene, ".prisma");
+    if (prismaScene) {
+        Prisma::Exporter exporter;
+        auto newRootNode = exporter.importScene(scene);
         m_scene = std::make_shared<Scene>();
-        std::shared_ptr<Node> root = std::make_shared<Node>();
-        root->name(m_aScene->mRootNode->mName.C_Str());
-        glm::mat4 transform = getTransform(m_aScene->mRootNode->mTransformation);
-        root->matrix(transform,false);
-        root->finalMatrix(transform,false);
-        root->parent(nullptr);
-        m_scene->root = root;
-        nodeIteration(root, m_aScene->mRootNode, m_aScene);
-        loadLights(m_aScene, root);
+        newRootNode->parent(nullptr);
+        m_scene->root = newRootNode;
+
+        Prisma::NodeHelper nodeHelper;
+
+        nodeHelper.nodeIterator(m_scene->root, [&](auto node, auto parent) {
+            auto isAnimateMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(node);
+            auto isMesh = std::dynamic_pointer_cast<Prisma::Mesh>(node);
+            auto isLightDir = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(node);
+            auto isLightOmni = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(node);
+            if (isAnimateMesh) {
+                m_scene->animateMeshes.push_back(isAnimateMesh);
+            }
+            else if (isMesh) {
+                m_scene->meshes.push_back(isMesh);
+            }
+            else if (isLightDir) {
+                m_scene->dirLights.push_back(isLightDir);
+            }
+            else if (isLightOmni) {
+                m_scene->omniLights.push_back(isLightOmni);
+            }
+            });
 
         return m_scene;
     }
     else {
-        std::cerr << "Could not find the directory" << std::endl;
-        return nullptr;
+        Assimp::Importer importer;
+        m_aScene = importer.ReadFile(scene, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        if (m_aScene) {
+            m_scene = std::make_shared<Scene>();
+            std::shared_ptr<Node> root = std::make_shared<Node>();
+            root->name(m_aScene->mRootNode->mName.C_Str());
+            glm::mat4 transform = getTransform(m_aScene->mRootNode->mTransformation);
+            root->matrix(transform, false);
+            root->finalMatrix(transform, false);
+            root->parent(nullptr);
+            m_scene->root = root;
+            nodeIteration(root, m_aScene->mRootNode, m_aScene);
+            loadLights(m_aScene, root);
+
+            return m_scene;
+        }
     }
+    std::cerr << "Could not find the directory" << std::endl;
+    return nullptr;
 }
 
 const aiScene* Prisma::SceneLoader::assimpScene() {

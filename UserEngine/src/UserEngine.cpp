@@ -17,7 +17,7 @@ std::shared_ptr<Prisma::Animator> animator1;
 
 UserEngine::UserEngine() : Prisma::Engine{}
 {
-	m_sceneNode = getScene("../../../Resources/Landscape/landscape.gltf", {true});
+	m_sceneNode = getScene("../../../Resources/Landscape/output.prisma", {true});
 	Prisma::Texture texture;
 	texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
 	texture.data({ 4096,4096,3 });
