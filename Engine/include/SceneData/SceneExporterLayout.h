@@ -62,7 +62,7 @@ namespace Prisma {
                 // Add the diffuse texture property
                 if (mesh->material()->diffuse().size() > 0) {
                     std::string textureName = mesh->material()->diffuse()[0].name();
-                    if (textureName == DIR_DEFAULT_BLACK) {
+                    if (textureName == "") {
                         textures.push_back({ "DIFFUSE", "NO_TEXTURE"});
                     }
                     else {
@@ -73,8 +73,8 @@ namespace Prisma {
                 // Add the normal texture property
                 if (mesh->material()->normal().size() > 0) {
                     std::string textureName = mesh->material()->normal()[0].name();
-                    if (textureName == DIR_DEFAULT_NORMAL) {
-                        textures.push_back({ "DIFFUSE", "NO_TEXTURE" });
+                    if (textureName == "") {
+                        textures.push_back({ "NORMAL", "NO_TEXTURE" });
                     }
                     else {
                         textures.push_back({ "NORMAL", textureName });
@@ -84,8 +84,8 @@ namespace Prisma {
                 // Add the roughness/metalness texture property
                 if (mesh->material()->roughness_metalness().size() > 0) {
                     std::string textureName = mesh->material()->roughness_metalness()[0].name();
-                    if (textureName == DIR_DEFAULT_BLACK) {
-                        textures.push_back({ "DIFFUSE", "NO_TEXTURE" });
+                    if (textureName == "") {
+                        textures.push_back({ "ROUGHNESS", "NO_TEXTURE" });
                     }
                     else {
                         textures.push_back({ "ROUGHNESS", textureName });

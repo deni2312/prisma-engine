@@ -68,6 +68,7 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
     }
     else
     {
+        std::cout << "Not found: " + texture << std::endl;
         stbi_image_free(data);
         return false;
     }
