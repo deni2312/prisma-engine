@@ -20,7 +20,8 @@ namespace Prisma {
 	extern bool updateData;
 	extern bool skipUpdate;
 	extern bool updateTextures;
-
+	extern Prisma::Texture defaultBlack;
+	extern Prisma::Texture defaultNormal;
 	extern void resetCaches();
 
 }

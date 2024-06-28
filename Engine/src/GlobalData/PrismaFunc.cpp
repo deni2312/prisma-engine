@@ -1,4 +1,5 @@
 #include "../../include/GlobalData/PrismaFunc.h"
+#include "../../include/GlobalData/GlobalData.h"
 #include "../../include/GlobalData/Defines.h"
 #include "../../include/Helpers/Settings.h"
 #include "../../include/Helpers/SettingsLoader.h"
@@ -57,6 +58,8 @@ Prisma::PrismaFunc::PrismaFunc()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     privatePrisma = std::make_shared<PrivatePrisma>();
+    defaultBlack.loadTexture(DIR_DEFAULT_BLACK);
+    defaultNormal.loadTexture(DIR_DEFAULT_NORMAL);
 }
 
 void Prisma::PrismaFunc::swapBuffers()

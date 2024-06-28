@@ -42,8 +42,6 @@ namespace Prisma {
 		std::vector<Prisma::Texture> textures_loaded;
 		std::shared_ptr<Scene> m_scene;
 		std::string m_folder;
-		Prisma::Texture m_black;
-		Prisma::Texture m_normal;
 		NodeHelper m_nodeFinder;
 
 

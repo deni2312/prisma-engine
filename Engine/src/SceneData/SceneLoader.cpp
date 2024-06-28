@@ -11,8 +11,6 @@
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters)
 {
 
-    m_black.loadTexture(DIR_DEFAULT_BLACK);
-    m_normal.loadTexture(DIR_DEFAULT_NORMAL);
     m_sceneParameters = sceneParameters;
     // Extracting the directory to the last folder
     size_t lastSlash = scene.find_last_of("/");
@@ -296,17 +294,17 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 
     std::vector<Prisma::Texture> emptyVector;
     if (currentMaterial->diffuse().empty()) {
-        emptyVector.push_back(m_black);
+        emptyVector.push_back(defaultBlack);
         currentMaterial->diffuse(emptyVector);
         std::cout << "No diffuse texture " + currentMesh->name()+" MaterialComponent name: "+ material->GetName().C_Str() << std::endl;
     }
     if (currentMaterial->normal().empty()) {
-        emptyVector.push_back(m_normal);
+        emptyVector.push_back(defaultBlack);
         currentMaterial->normal(emptyVector);
         std::cout << "No normal texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }
     if (currentMaterial->roughness_metalness().empty()) {
-        emptyVector.push_back(m_black);
+        emptyVector.push_back(defaultNormal);
         currentMaterial->roughness_metalness(emptyVector);
         std::cout << "No roughness or metalness texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }

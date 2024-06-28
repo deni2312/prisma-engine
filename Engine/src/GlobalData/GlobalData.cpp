@@ -9,6 +9,8 @@ namespace Prisma {
     bool updateData = false;
     bool skipUpdate = false;
     bool updateTextures = false;
+    Prisma::Texture defaultBlack;
+    Prisma::Texture defaultNormal;
 
     void resetCaches() {
         if (!skipUpdate) {

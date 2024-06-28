@@ -12,6 +12,8 @@
 
 namespace Prisma {
 
+
+
     using json = nlohmann::json;
 
     // Define a Transform structure
@@ -60,19 +62,34 @@ namespace Prisma {
                 // Add the diffuse texture property
                 if (mesh->material()->diffuse().size() > 0) {
                     std::string textureName = mesh->material()->diffuse()[0].name();
-                    textures.push_back({ "DIFFUSE", textureName });
+                    if (textureName == DIR_DEFAULT_BLACK) {
+                        textures.push_back({ "DIFFUSE", "NO_TEXTURE"});
+                    }
+                    else {
+                        textures.push_back({ "DIFFUSE", textureName });
+                    }
                 }
 
                 // Add the normal texture property
                 if (mesh->material()->normal().size() > 0) {
                     std::string textureName = mesh->material()->normal()[0].name();
-                    textures.push_back({ "NORMAL", textureName });
+                    if (textureName == DIR_DEFAULT_NORMAL) {
+                        textures.push_back({ "DIFFUSE", "NO_TEXTURE" });
+                    }
+                    else {
+                        textures.push_back({ "NORMAL", textureName });
+                    }
                 }
 
                 // Add the roughness/metalness texture property
                 if (mesh->material()->roughness_metalness().size() > 0) {
                     std::string textureName = mesh->material()->roughness_metalness()[0].name();
-                    textures.push_back({ "ROUGHNESS", textureName });
+                    if (textureName == DIR_DEFAULT_BLACK) {
+                        textures.push_back({ "DIFFUSE", "NO_TEXTURE" });
+                    }
+                    else {
+                        textures.push_back({ "ROUGHNESS", textureName });
+                    }
                 }
 
                 j["textures"] = textures;
@@ -147,22 +164,37 @@ namespace Prisma {
                     if (t.first == "DIFFUSE") {
                         std::vector<Prisma::Texture> textures;
                         Prisma::Texture texture;
-                        textures.push_back(texture);
-                        texture.loadTexture(t.second);
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultBlack);
+                        }
+                        else {
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
                         material->diffuse(textures);
                     }
                     else if (t.first == "NORMAL") {
                         std::vector<Prisma::Texture> textures;
                         Prisma::Texture texture;
-                        textures.push_back(texture);
-                        texture.loadTexture(t.second);
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultNormal);
+                        }
+                        else {
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
                         material->normal(textures);
                     }
                     else if (t.first == "ROUGHNESS") {
                         std::vector<Prisma::Texture> textures;
                         Prisma::Texture texture;
-                        textures.push_back(texture);
-                        texture.loadTexture(t.second);
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultBlack);
+                        }
+                        else {
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
                         material->roughness_metalness(textures);
                     }
                 }
