@@ -122,6 +122,7 @@ namespace Prisma {
                 j["diffuse"] = { light->type().diffuse.x,light->type().diffuse.y,light->type().diffuse.z };
                 j["specular"] = { light->type().specular.x,light->type().specular.y,light->type().specular.z };
                 j["radius"] = light->type().radius;
+                j["attenuation"] = { light->type().attenuation.x,light->type().attenuation.y,light->type().attenuation.z, light->type().attenuation.w };
             }
     }
     // Deserialize NodeExport from JSON
@@ -247,6 +248,7 @@ namespace Prisma {
             lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0), j.at("diffuse").get<std::vector<float>>().at(1), j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
             lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0), j.at("specular").get<std::vector<float>>().at(1), j.at("specular").get<std::vector<float>>().at(2), 1.0);
             lightType.radius = j.at("radius").get<float>();
+            lightType.attenuation = glm::vec4(j.at("attenuation").get<std::vector<float>>().at(0), j.at("attenuation").get<std::vector<float>>().at(1), j.at("attenuation").get<std::vector<float>>().at(2), j.at("attenuation").get<std::vector<float>>().at(3));
             light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
             light->type(lightType);
         }
