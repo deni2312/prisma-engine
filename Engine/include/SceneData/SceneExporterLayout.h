@@ -37,6 +37,14 @@ namespace Prisma {
         }
     };
 
+    std::string getFileName(const std::string& filePath) {
+        size_t pos = filePath.find_last_of("/\\");
+        if (pos != std::string::npos) {
+            return filePath.substr(pos + 1);
+        }
+        return filePath;
+    }
+
     void to_json(json& j, std::shared_ptr<Prisma::Node> n) {
             Transform t;
             t.transform = n->matrix();
@@ -52,6 +60,24 @@ namespace Prisma {
             }
             else if (std::dynamic_pointer_cast<Mesh>(n)) {
                 auto mesh = std::dynamic_pointer_cast<Mesh>(n);
+
+                // Add the diffuse texture property
+                if (mesh->material()->diffuse().size() > 0) {
+                    std::string textureName = mesh->material()->diffuse()[0].name();
+                    textures.push_back({ "DIFFUSE", textureName });
+                }
+
+                // Add the normal texture property
+                if (mesh->material()->normal().size() > 0) {
+                    std::string textureName = mesh->material()->normal()[0].name();
+                    textures.push_back({ "NORMAL", textureName });
+                }
+
+                // Add the roughness/metalness texture property
+                if (mesh->material()->roughness_metalness().size() > 0) {
+                    std::string textureName = mesh->material()->roughness_metalness()[0].name();
+                    textures.push_back({ "ROUGHNESS", textureName });
+                }
 
                 j["textures"] = textures;
                 // Convert Vertex properties to arrays of floats
@@ -95,6 +121,31 @@ namespace Prisma {
             // Deserialize textures
             if (j.contains("textures")) {
                 auto texturesJson = j.at("textures").get<std::vector<std::pair<std::string, std::string>>>();
+                std::shared_ptr<Prisma::MaterialComponent> material = std::make_shared<Prisma::MaterialComponent>();
+                for (const auto& t : texturesJson) {
+                    if (t.first == "DIFFUSE") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        textures.push_back(texture);
+                        texture.loadTexture(t.second);
+                        material->diffuse(textures);
+                    }
+                    else if (t.first == "NORMAL") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        textures.push_back(texture);
+                        texture.loadTexture(t.second);
+                        material->normal(textures);
+                    }
+                    else if (t.first == "ROUGHNESS") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        textures.push_back(texture);
+                        texture.loadTexture(t.second);
+                        material->roughness_metalness(textures);
+                    }
+                }
+                mesh->material(material);
             }
 
             // Convert arrays of floats back to Vertex properties
@@ -122,7 +173,6 @@ namespace Prisma {
             auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
             verticesData->vertices = vertices;
             verticesData->indices = j.at("faces").get<std::vector<unsigned int>>();
-
             mesh->loadModel(verticesData);
         }
         else {
