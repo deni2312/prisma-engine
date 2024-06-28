@@ -91,9 +91,17 @@ namespace Prisma {
             else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(n)) {
                 j["type"] = "LIGHT_DIRECTIONAL";
                 auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(n);
-                j["direction"] = { {light->type().direction.x,light->type().direction.y,light->type().direction.z} };
-                j["diffuse"] = { {light->type().diffuse.x,light->type().diffuse.y,light->type().diffuse.z} };
-                j["specular"] = { {light->type().specular.x,light->type().specular.y,light->type().specular.z} };
+                j["direction"] = { light->type().direction.x,light->type().direction.y,light->type().direction.z };
+                j["diffuse"] = { light->type().diffuse.x,light->type().diffuse.y,light->type().diffuse.z };
+                j["specular"] = { light->type().specular.x,light->type().specular.y,light->type().specular.z };
+            }
+            else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(n)) {
+                j["type"] = "LIGHT_OMNI";
+                auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(n);
+                j["position"] = { light->type().position.x,light->type().position.y,light->type().position.z };
+                j["diffuse"] = { light->type().diffuse.x,light->type().diffuse.y,light->type().diffuse.z };
+                j["specular"] = { light->type().specular.x,light->type().specular.y,light->type().specular.z };
+                j["radius"] = light->type().radius;
             }
     }
     // Deserialize NodeExport from JSON
@@ -112,6 +120,12 @@ namespace Prisma {
             auto child = std::make_shared<Prisma::Node>();
             if (childJson["type"] == "MESH") {
                 child = std::make_shared<Prisma::Mesh>();
+            }
+            else if (childJson["type"] == "LIGHT_DIRECTIONAL") {
+                child = std::make_shared<Prisma::Light<Prisma::LightType::LightDir>>();
+            }
+            else if (childJson["type"] == "LIGHT_OMNI") {
+                child = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
             }
             from_json(childJson, child);
             n->addChild(child,false);
@@ -175,8 +189,22 @@ namespace Prisma {
             verticesData->indices = j.at("faces").get<std::vector<unsigned int>>();
             mesh->loadModel(verticesData);
         }
-        else {
-
+        else if(type == "LIGHT_DIRECTIONAL"){
+            auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(n);
+            Prisma::LightType::LightDir lightType;
+            lightType.direction = glm::vec4(j.at("direction").get<std::vector<float>>().at(0), j.at("direction").get<std::vector<float>>().at(1), j.at("direction").get<std::vector<float>>().at(2),1.0);
+            lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0), j.at("diffuse").get<std::vector<float>>().at(1), j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
+            lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0), j.at("specular").get<std::vector<float>>().at(1), j.at("specular").get<std::vector<float>>().at(2), 1.0);
+            light->type(lightType);
+        }
+        else if (type == "LIGHT_OMNI") {
+            auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(n);
+            Prisma::LightType::LightOmni lightType;
+            lightType.position = glm::vec4(j.at("position").get<std::vector<float>>().at(0), j.at("position").get<std::vector<float>>().at(1), j.at("position").get<std::vector<float>>().at(2), 1.0);
+            lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0), j.at("diffuse").get<std::vector<float>>().at(1), j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
+            lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0), j.at("specular").get<std::vector<float>>().at(1), j.at("specular").get<std::vector<float>>().at(2), 1.0);
+            lightType.radius = j.at("radius").get<float>();
+            light->type(lightType);
         }
     }
 
