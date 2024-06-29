@@ -114,6 +114,7 @@ namespace Prisma {
                 j["direction"] = { light->type().direction.x,light->type().direction.y,light->type().direction.z };
                 j["diffuse"] = { light->type().diffuse.x,light->type().diffuse.y,light->type().diffuse.z };
                 j["specular"] = { light->type().specular.x,light->type().specular.y,light->type().specular.z };
+                j["padding"] = { light->type().padding.x,light->type().padding.y };
             }
             else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(n)) {
                 j["type"] = "LIGHT_OMNI";
@@ -123,6 +124,7 @@ namespace Prisma {
                 j["specular"] = { light->type().specular.x,light->type().specular.y,light->type().specular.z };
                 j["radius"] = light->type().radius;
                 j["attenuation"] = { light->type().attenuation.x,light->type().attenuation.y,light->type().attenuation.z, light->type().attenuation.w };
+                j["farPlane"] = light->type().farPlane.x;
             }
     }
     // Deserialize NodeExport from JSON
@@ -238,6 +240,7 @@ namespace Prisma {
             lightType.direction = glm::vec4(j.at("direction").get<std::vector<float>>().at(0), j.at("direction").get<std::vector<float>>().at(1), j.at("direction").get<std::vector<float>>().at(2),1.0);
             lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0), j.at("diffuse").get<std::vector<float>>().at(1), j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
             lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0), j.at("specular").get<std::vector<float>>().at(1), j.at("specular").get<std::vector<float>>().at(2), 1.0);
+            lightType.padding = glm::vec2(j.at("padding").get<std::vector<float>>().at(0), j.at("padding").get<std::vector<float>>().at(1));
             light->type(lightType);
             light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
         }
@@ -249,8 +252,9 @@ namespace Prisma {
             lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0), j.at("specular").get<std::vector<float>>().at(1), j.at("specular").get<std::vector<float>>().at(2), 1.0);
             lightType.radius = j.at("radius").get<float>();
             lightType.attenuation = glm::vec4(j.at("attenuation").get<std::vector<float>>().at(0), j.at("attenuation").get<std::vector<float>>().at(1), j.at("attenuation").get<std::vector<float>>().at(2), j.at("attenuation").get<std::vector<float>>().at(3));
-            light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
+            lightType.farPlane.x = j.at("farPlane").get<float>();
             light->type(lightType);
+            light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
         }
     }
 
