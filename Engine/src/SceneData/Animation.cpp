@@ -63,7 +63,7 @@ void Prisma::Animation::ReadHierarchyData(AssimpNodeData& dest, const aiNode* sr
 	assert(src);
 
 	dest.name = src->mName.data;
-	dest.transformation = m_inverseTransform*getTransform(src->mTransformation);
+	dest.transformation = getTransform(src->mTransformation) * m_inverseTransform;
 	dest.childrenCount = src->mNumChildren;
 
 	for (int i = 0; i < src->mNumChildren; i++)
