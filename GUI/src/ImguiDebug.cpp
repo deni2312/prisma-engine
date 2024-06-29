@@ -23,6 +23,7 @@
 #include "../include/PixelCapture.h"
 #include "ImGuizmo.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
+#include "../../Engine/include/Helpers/SettingsLoader.h"
 
 struct PrivateIO {
     ImGuiIO io;
@@ -40,7 +41,7 @@ Prisma::ImguiDebug::ImguiDebug(GLFWwindow* window, const unsigned int& width, co
     m_imguiCamera.mouseButtonCallback();
     data->engine->setCallback(m_imguiCamera.callback());
     PrismaFunc::getInstance().setCallback(m_imguiCamera.callback());
-    auto settings=data->engine->settings();
+    auto settings = Prisma::SettingsLoader::instance().getSettings();
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     data->io = ImGui::GetIO();

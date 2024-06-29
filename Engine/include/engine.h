@@ -28,7 +28,6 @@ namespace Prisma {
 
 		void setCallback(std::shared_ptr<CallbackHandler> callbackHandler);
 		float fps();
-		Settings settings();
 		void mainCamera(std::shared_ptr<Camera> camera);
 		void pipeline(Pipeline pipeline);
 		Pipeline pipeline();

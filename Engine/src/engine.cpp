@@ -177,11 +177,6 @@ float Prisma::Engine::fps()
     return data->imguiDebug->fps();
 }
 
-Prisma::Settings Prisma::Engine::settings()
-{
-    return data->settings;
-}
-
 void Prisma::Engine::mainCamera(std::shared_ptr<Camera> camera)
 {
     data->camera = camera;
