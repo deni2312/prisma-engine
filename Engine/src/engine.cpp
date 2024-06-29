@@ -137,7 +137,7 @@ void Prisma::Engine::initScene()
     data->userData->start();
     data->imguiDebug = std::make_shared<ImguiDebug>(PrismaFunc::getInstance().window(), data->settings.width, data->settings.height, this);
     MeshHandler::getInstance().updateCluster();
-    if (data->pipelineHandler.initScene(data->camera, currentGlobalScene,data->settings,data->sceneParameters,data->imguiDebug)) {
+    if (data->pipelineHandler.initScene(data->sceneParameters,data->imguiDebug)) {
         Postprocess::getInstance().fbo(data->imguiDebug->fbo());
         loadNewScene();
     }

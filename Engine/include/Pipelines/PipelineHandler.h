@@ -11,7 +11,7 @@
 namespace Prisma {
 	class PipelineHandler {
 	public:
-		bool initScene(std::shared_ptr<Prisma::Camera> camera, std::shared_ptr<Prisma::Scene> scene, Prisma::Settings settings, Prisma::SceneLoader::SceneParameters sceneParameters, std::shared_ptr<Prisma::ImguiDebug> imguiDebug);
+		bool initScene(Prisma::SceneLoader::SceneParameters sceneParameters,std::shared_ptr<ImguiDebug> imguiDebug);
 		std::shared_ptr<Prisma::PipelineForward> forward();
 		std::shared_ptr<Prisma::PipelineDeferred> deferred();
 	private:
