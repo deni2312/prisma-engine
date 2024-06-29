@@ -6,5 +6,11 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = vec4(0.0, 1.0 / 256.0 + float(drawId) / 256.0, 1.0 / 256.0, 1.0);
+    // Extract the RGB components from the UUID
+    float r = float((drawId >> 16) & 0xFF) / 255.0;
+    float g = float((drawId >> 8) & 0xFF) / 255.0;
+    float b = float(drawId & 0xFF) / 255.0;
+
+    // Assign the RGB components to the fragment color, alpha is set to 1.0
+    FragColor = vec4(r, g, b, 1.0);
 }

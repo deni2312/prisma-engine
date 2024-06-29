@@ -52,19 +52,16 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 
     m_fbo->unbind();
 
+    uint32_t encodedUUID = (data[0] << 16) | (data[1] << 8) | data[2];
 
-    if (data[2] == 0) {
-        int meshId = data[0] - 1;
-
-        if (meshId < currentGlobalScene->meshes.size() && meshId >= 0) {
-            return currentGlobalScene->meshes[meshId];
+    if (data[3] == 0) {
+        if (encodedUUID < currentGlobalScene->meshes.size() && encodedUUID >= 0) {
+            return currentGlobalScene->meshes[encodedUUID];
         }
     }
     else {
-        int meshId = data[1] - 1;
-
-        if (meshId < currentGlobalScene->animateMeshes.size() && meshId >= 0) {
-            return currentGlobalScene->animateMeshes[meshId];
+        if (encodedUUID < currentGlobalScene->animateMeshes.size() && encodedUUID >= 0) {
+            return currentGlobalScene->animateMeshes[encodedUUID];
         }
     }
     return nullptr;
