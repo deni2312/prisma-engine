@@ -54,6 +54,8 @@ namespace Prisma {
 		void drawScene();
 		void initStatus();
 		std::string openFolder();
+		std::string saveFile();
+
 
 		float m_initOffset = 0.0f;
 
@@ -76,6 +78,8 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Effects> m_effectsBloom;
 
 		bool m_bloom = false;
+
+		std::string m_saveLocation;
 
     };
 }

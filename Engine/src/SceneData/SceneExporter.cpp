@@ -42,7 +42,7 @@ void printScene(std::shared_ptr<Prisma::Node> nodeNext, int depth = 0) {
     }
 }
 
-void Prisma::Exporter::exportScene()
+void Prisma::Exporter::exportScene(const std::string& sceneName)
 {
     if (!currentGlobalScene || !currentGlobalScene->root) {
         std::cerr << "Error: No scene data available to export." << std::endl;
@@ -52,7 +52,7 @@ void Prisma::Exporter::exportScene()
     json j = currentGlobalScene->root;
 
     // Write JSON to file
-    std::ofstream outFile("../../../Resources/Landscape/output.prisma");
+    std::ofstream outFile(sceneName);
     outFile << j.dump();
     outFile.close();
 

@@ -36,10 +36,11 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
     };
 
     auto prismaScene = endsWith(scene, ".prisma");
+    m_scene = std::make_shared<Scene>();
+    m_scene->name = scene;
     if (prismaScene) {
         Prisma::Exporter exporter;
         auto newRootNode = exporter.importScene(scene);
-        m_scene = std::make_shared<Scene>();
         newRootNode->parent(nullptr);
         m_scene->root = newRootNode;
 

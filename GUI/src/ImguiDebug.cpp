@@ -97,7 +97,22 @@ void Prisma::ImguiDebug::drawGui()
             }
 
             if (ImGui::MenuItem("Save")) {
-                Prisma::Exporter::getInstance().exportScene();
+
+                auto endsWith = [](std::string const& value, std::string const& ending)
+                {
+                    if (ending.size() > value.size()) return false;
+                    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+                };
+
+                auto prismaScene = endsWith(currentGlobalScene->name, ".prisma");
+                if (prismaScene) {
+                    Prisma::Exporter::getInstance().exportScene(currentGlobalScene->name);
+                }
+                else {
+                    std::string scene = saveFile();
+                    Prisma::Exporter::getInstance().exportScene(scene);
+                }
+                
             }
 
             if (ImGui::MenuItem("Add model")) {
@@ -282,7 +297,7 @@ std::string Prisma::ImguiDebug::openFolder()
     ofn.lpstrFile = szFile;
     ofn.lpstrFile[0] = '\0';
     ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = "All Files\0*.gltf\0";
+    ofn.lpstrFilter = "All Files";
     ofn.nFilterIndex = 1;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
@@ -291,6 +306,34 @@ std::string Prisma::ImguiDebug::openFolder()
 
     // Open the File Explorer dialog
     if (GetOpenFileName(&ofn) == TRUE) {
+        return szFile;
+    }
+    else {
+        return "";
+    }
+}
+
+std::string Prisma::ImguiDebug::saveFile()
+{
+    OPENFILENAME ofn;
+    char szFile[260];
+
+    // Initialize OPENFILENAME
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = "All Files\0*.prisma\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+    // Open the Save File dialog
+    if (GetSaveFileName(&ofn) == TRUE) {
         return szFile;
     }
     else {

@@ -29,5 +29,6 @@ namespace Prisma {
 		ModelData modelData;
 		std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightDir>>> dirLights;
 		std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightOmni>>> omniLights;
+		std::string name;
 	};
 }
