@@ -165,14 +165,9 @@ void Prisma::ImguiDebug::drawGui()
 
     nextLeft(m_initOffset);
 
-
     ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
-
     ImGui::Text(("FPS: " + std::to_string(m_fps)).c_str());
-    for (auto p : m_data->performances) {
-        ImGui::Text((p->first+": " + std::to_string(p->second)).c_str());
-    }
+
     ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
     ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(), m_status.postprocess.size());
     ImGui::Checkbox("BLOOM", &m_bloom);

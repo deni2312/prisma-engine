@@ -37,13 +37,12 @@ struct PrivateData {
     Prisma::SceneLoader::SceneParameters sceneParameters;
     Prisma::Engine::Pipeline pipeline;
     Prisma::ComponentsHandler componentsHandler;
-    std::shared_ptr<Prisma::ImguiDebug::ImGuiData> imguiData;
-    Prisma::Timer timer;
+    Prisma::SceneHandler sceneHandler;
 };
 
 std::shared_ptr<PrivateData> data;
 
-Prisma::Engine::Engine()
+Prisma::Engine::Engine(SceneHandler sceneHandler)
 {
     data = std::make_shared<PrivateData>();
 
@@ -75,19 +74,7 @@ Prisma::Engine::Engine()
 
     data->settings = SettingsLoader::instance().getSettings();
 
-    data->imguiData = std::make_shared<Prisma::ImguiDebug::ImGuiData>();
-
-    data->imguiData->performances.push_back(std::make_shared<std::pair<std::string, float>>("Components",0.0f));
-
-    data->imguiData->performances.push_back(std::make_shared <std::pair<std::string, float>>("Physics", 0.0f));
-
-    data->imguiData->performances.push_back(std::make_shared <std::pair<std::string, float>>("Handlers", 0.0f));
-
-    data->imguiData->performances.push_back(std::make_shared <std::pair<std::string, float>>("Pipelines", 0.0f));
-
-    data->imguiData->performances.push_back(std::make_shared <std::pair<std::string, float>>("Postprocess", 0.0f));
-
-    data->imguiData->performances.push_back(std::make_shared <std::pair<std::string, float>>("ImGui", 0.0f));
+    data->sceneHandler = sceneHandler;
 
 }
 
@@ -102,35 +89,20 @@ bool Prisma::Engine::run()
     while (!PrismaFunc::getInstance().shouldClose()) {
         if (data->camera && currentGlobalScene) {
 
-            data->timer.start();
             PrismaFunc::getInstance().clear();
             data->imguiDebug->start();
             data->componentsHandler.updateStart();
             update();
             data->componentsHandler.updateComponents();
-            data->timer.stop();
-            data->imguiData->performances.at(0)->second = data->timer.duration_seconds();
-            data->timer.start();
+
 
             Physics::getInstance().update(1 / fps());
-
-            data->timer.stop();
-
-            data->imguiData->performances.at(1)->second = data->timer.duration_seconds();
-
-            data->timer.start();
 
             MeshHandler::getInstance().updateCamera();
             MeshHandler::getInstance().updateFragment();
             AnimationHandler::getInstance().updateAnimations();
             MeshIndirect::getInstance().update();
             LightHandler::getInstance().update();
-            data->timer.stop();
-
-
-            data->imguiData->performances.at(2)->second = data->timer.duration_seconds();
-
-            data->timer.start();
 
             switch (data->pipeline) {
                 case Prisma::Engine::Pipeline::FORWARD:
@@ -143,30 +115,11 @@ bool Prisma::Engine::run()
 
             }
 
-            data->timer.stop();
-
-            data->imguiData->performances.at(3)->second = data->timer.duration_seconds();
-
-            data->timer.start();
-
             Postprocess::getInstance().render();
-
-            data->timer.stop();
-
-            data->imguiData->performances.at(4)->second = data->timer.duration_seconds();
-            
-            data->timer.start();
-
-            data->imguiDebug->imguiData(data->imguiData);
-            data->timer.start();
 
             data->imguiDebug->drawGui();
 
             data->imguiDebug->close();
-
-            data->timer.stop();
-
-            data->imguiData->performances.at(5)->second = data->timer.duration_seconds();
 
             PrismaFunc::getInstance().swapBuffers();
         } else {

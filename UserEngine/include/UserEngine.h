@@ -9,7 +9,7 @@
 
 class UserEngine : public Prisma::Engine {
 public:
-	UserEngine();
+    UserEngine(Prisma::SceneHandler handler = {});
 private:
 	void mouseCallback();
     bool showMouse = false;

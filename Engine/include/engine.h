@@ -18,7 +18,7 @@ namespace Prisma {
 			FORWARD,
 			DEFERRED
 		};
-		Engine();
+		Engine(SceneHandler sceneHandler = {});
 		bool run();
 		friend class ImguiDebug;
 	private:

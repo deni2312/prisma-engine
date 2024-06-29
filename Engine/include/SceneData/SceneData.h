@@ -6,6 +6,7 @@
 #include "../SceneObjects/Camera.h"
 #include <vector>
 #include <string>
+#include "../Containers/FBO.h"
 
 namespace Prisma {
 	template <typename T>
@@ -14,6 +15,12 @@ namespace Prisma {
 		struct LightDir;
 		struct LightOmni;
 	}
+
+	struct SceneHandler {
+		std::shared_ptr<Prisma::FBO> fboTarget = nullptr;
+		std::function<void()> onBeginRender;
+		std::function<void()> onEndRender;
+	};
 
 	struct Scene {
 

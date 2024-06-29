@@ -15,7 +15,7 @@
 std::shared_ptr<Prisma::Animator> animator;
 std::shared_ptr<Prisma::Animator> animator1;
 
-UserEngine::UserEngine() : Prisma::Engine{}
+UserEngine::UserEngine(Prisma::SceneHandler handler) : Prisma::Engine{ handler }
 {
 	m_sceneNode = getScene("../../../Resources/Landscape/landscape.gltf", {true});
 	Prisma::Texture texture;
