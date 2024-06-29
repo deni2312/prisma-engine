@@ -55,6 +55,72 @@ namespace Prisma {
             std::vector<std::pair<std::string, std::string>> textures;
 
             if (std::dynamic_pointer_cast<AnimatedMesh>(n)) {
+                auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
+
+                // Add the diffuse texture property
+                if (mesh->material()->diffuse().size() > 0) {
+                    std::string textureName = mesh->material()->diffuse()[0].name();
+                    if (textureName == "") {
+                        textures.push_back({ "DIFFUSE", "NO_TEXTURE" });
+                    }
+                    else {
+                        textures.push_back({ "DIFFUSE", textureName });
+                    }
+                }
+
+                // Add the normal texture property
+                if (mesh->material()->normal().size() > 0) {
+                    std::string textureName = mesh->material()->normal()[0].name();
+                    if (textureName == "") {
+                        textures.push_back({ "NORMAL", "NO_TEXTURE" });
+                    }
+                    else {
+                        textures.push_back({ "NORMAL", textureName });
+                    }
+                }
+
+                // Add the roughness/metalness texture property
+                if (mesh->material()->roughness_metalness().size() > 0) {
+                    std::string textureName = mesh->material()->roughness_metalness()[0].name();
+                    if (textureName == "") {
+                        textures.push_back({ "ROUGHNESS", "NO_TEXTURE" });
+                    }
+                    else {
+                        textures.push_back({ "ROUGHNESS", textureName });
+                    }
+                }
+
+                j["textures"] = textures;
+                // Convert Vertex properties to arrays of floats
+                std::vector<json> verticesJson;
+                for (const auto& vertex : mesh->animateVerticesData()->vertices) {
+                    verticesJson.push_back({
+                        {"p", {vertex.position.x, vertex.position.y, vertex.position.z}},
+                        {"boneId", {vertex.m_BoneIDs[0], vertex.m_BoneIDs[1], vertex.m_BoneIDs[2],vertex.m_BoneIDs[3]}},
+                        {"weight", {vertex.m_Weights[0], vertex.m_Weights[1], vertex.m_Weights[2],vertex.m_Weights[3]}},
+                        {"n", {vertex.normal.x, vertex.normal.y, vertex.normal.z}},
+                        {"texCoords", {vertex.texCoords.x, vertex.texCoords.y}},
+                        {"ta", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
+                        {"bi", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
+                        });
+                }
+                j["type"] = "MESH_ANIMATE";
+                j["vertices"] = verticesJson;
+                j["boneCount"] = mesh->boneInfoCounter();
+
+                int i = 0;
+
+                for (const auto& boneData : mesh->boneInfoMap()) {
+                    j["boneData"][i]["name"] = boneData.first;
+                    auto data = boneData.second;
+                    j["boneData"][i]["data"]["id"] = data.id;
+                    Transform transform;
+                    transform.transform = data.offset;
+                    j["boneData"][i]["data"]["offset"] = transform;
+                    i++;
+                }
+
+                j["faces"] = mesh->animateVerticesData()->indices;
             }
             else if (std::dynamic_pointer_cast<Mesh>(n)) {
                 auto mesh = std::dynamic_pointer_cast<Mesh>(n);
@@ -152,6 +218,9 @@ namespace Prisma {
             }
             else if (childJson["type"] == "LIGHT_OMNI") {
                 child = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
+            }
+            else if (childJson["type"] == "MESH_ANIMATE") {
+                child = std::make_shared<Prisma::AnimatedMesh>();
             }
             child->parent(n);
             from_json(childJson, child);
@@ -255,6 +324,110 @@ namespace Prisma {
             lightType.farPlane.x = j.at("farPlane").get<float>();
             light->type(lightType);
             light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
+        }
+        else if (type == "MESH_ANIMATE") {
+            auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
+            // Deserialize textures
+            if (j.contains("textures")) {
+                auto texturesJson = j.at("textures").get<std::vector<std::pair<std::string, std::string>>>();
+                std::shared_ptr<Prisma::MaterialComponent> material = std::make_shared<Prisma::MaterialComponent>();
+                for (const auto& t : texturesJson) {
+                    if (t.first == "DIFFUSE") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultBlack);
+                        }
+                        else {
+                            texture.name(t.second);
+                            texture.loadTexture(t.second, true);
+                            textures.push_back(texture);
+                        }
+                        material->diffuse(textures);
+                    }
+                    else if (t.first == "NORMAL") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultNormal);
+                        }
+                        else {
+                            texture.name(t.second);
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
+                        material->normal(textures);
+                    }
+                    else if (t.first == "ROUGHNESS") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultBlack);
+                        }
+                        else {
+                            texture.name(t.second);
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
+                        material->roughness_metalness(textures);
+                    }
+                }
+                mesh->material(material);
+            }
+            // Convert arrays of floats back to Vertex properties
+            auto verticesJson = j.at("vertices").get<std::vector<json>>();
+            std::vector<Prisma::AnimatedMesh::AnimateVertex> vertices;
+            vertices.resize(verticesJson.size());
+            for (size_t i = 0; i < verticesJson.size(); ++i) {
+                auto& vertexJson = verticesJson[i];
+                vertices[i].position = glm::vec3(vertexJson.at("p").get<std::vector<float>>().at(0),
+                    vertexJson.at("p").get<std::vector<float>>().at(1),
+                    vertexJson.at("p").get<std::vector<float>>().at(2));
+                vertices[i].normal = glm::vec3(vertexJson.at("n").get<std::vector<float>>().at(0),
+                    vertexJson.at("n").get<std::vector<float>>().at(1),
+                    vertexJson.at("n").get<std::vector<float>>().at(2));
+                vertices[i].texCoords = glm::vec2(vertexJson.at("texCoords").get<std::vector<float>>().at(0),
+                    vertexJson.at("texCoords").get<std::vector<float>>().at(1));
+                vertices[i].tangent = glm::vec3(vertexJson.at("ta").get<std::vector<float>>().at(0),
+                    vertexJson.at("ta").get<std::vector<float>>().at(1),
+                    vertexJson.at("ta").get<std::vector<float>>().at(2));
+                vertices[i].bitangent = glm::vec3(vertexJson.at("bi").get<std::vector<float>>().at(0),
+                    vertexJson.at("bi").get<std::vector<float>>().at(1),
+                    vertexJson.at("bi").get<std::vector<float>>().at(2));
+                vertices[i].m_BoneIDs[0] = vertexJson.at("boneId").get<std::vector<float>>().at(0);
+                vertices[i].m_BoneIDs[1] = vertexJson.at("boneId").get<std::vector<float>>().at(1);
+                vertices[i].m_BoneIDs[2] = vertexJson.at("boneId").get<std::vector<float>>().at(2);
+                vertices[i].m_BoneIDs[3] = vertexJson.at("boneId").get<std::vector<float>>().at(3);
+                vertices[i].m_Weights[0] = vertexJson.at("weight").get<std::vector<float>>().at(0);
+                vertices[i].m_Weights[1] = vertexJson.at("weight").get<std::vector<float>>().at(1);
+                vertices[i].m_Weights[2] = vertexJson.at("weight").get<std::vector<float>>().at(2);
+                vertices[i].m_Weights[3] = vertexJson.at("weight").get<std::vector<float>>().at(3);
+
+            }
+
+            auto verticesData = std::make_shared<Prisma::AnimatedMesh::AnimateVerticesData>();
+            verticesData->vertices = vertices;
+            verticesData->indices = j.at("faces").get<std::vector<unsigned int>>();
+            auto& counter = mesh->boneInfoCounter();
+            counter = j.at("boneCount").get<int>();
+
+            auto boneDataJson = j.at("boneData");
+            for (json::iterator it = boneDataJson.begin(); it != boneDataJson.end(); ++it) {
+                std::string boneName = it.value().at("name");
+                Prisma::BoneInfo data;
+                data.id = it.value().at("data").at("id");
+                Transform transform;
+                from_json(it.value().at("data").at("offset"), transform);
+                data.offset = transform.transform;
+
+                auto& boneMap = mesh->boneInfoMap();
+
+                boneMap[boneName] = data;
+            }
+
+
+            mesh->loadAnimateModel(verticesData);
+            mesh->computeAABB();
         }
     }
 

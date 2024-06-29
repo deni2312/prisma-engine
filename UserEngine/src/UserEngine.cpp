@@ -34,7 +34,13 @@ UserEngine::UserEngine() : Prisma::Engine{}
         }
         });
 
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
 
+    if (animatedMesh) {
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Landscape/animation.gltf", animatedMesh);
+        animator = std::make_shared<Prisma::Animator>(animation);
+        animatedMesh->animator(animator);
+    }
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
     
 }
