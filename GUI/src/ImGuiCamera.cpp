@@ -4,6 +4,7 @@
 #include <iostream>
 #include "../include/PixelCapture.h"
 #include "../../Engine/include/Helpers/SettingsLoader.h"
+#include "../../Engine/include/SceneData/SceneExporter.h"
 
 Prisma::ImGuiCamera::ImGuiCamera()
 {
@@ -32,22 +33,30 @@ void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
     if (glfwGetKey(window, Prisma::KEY_A) == GLFW_PRESS) {
         m_position -= glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
     }
-    if (glfwGetKey(window, Prisma::KEY_S) == GLFW_PRESS) {
+    if (glfwGetKey(window, Prisma::KEY_S) == GLFW_PRESS && (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) && !m_save) {
+        Prisma::Exporter::getInstance().exportScene();
+        m_save = true;
+    }else if (glfwGetKey(window, Prisma::KEY_S) == GLFW_PRESS && !(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS)) {
         m_position -= m_front * m_velocity;
     }
+    if(glfwGetKey(window, Prisma::KEY_S) == GLFW_RELEASE || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL == GLFW_RELEASE) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL == GLFW_RELEASE)) {
+        m_save = false;
+    }
+
     if (glfwGetKey(window, Prisma::KEY_D) == GLFW_PRESS) {
         m_position += glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
     }
-    if (glfwGetKey(window, Prisma::KEY_G) == GLFW_PRESS && !pressed) {
-        showMouse = !showMouse;
+    if (glfwGetKey(window, Prisma::KEY_G) == GLFW_PRESS && !m_pressed) {
+        m_showMouse = !m_showMouse;
         m_lock = !m_lock;
         //PrismaData()->hiddenMouse(showMouse);
-        pressed = true;
+        m_pressed = true;
     }
 
     if (glfwGetKey(window, Prisma::KEY_G) == GLFW_RELEASE) {
-        pressed = false;
+        m_pressed = false;
     }
+
 }
 
 void Prisma::ImGuiCamera::mouseCallback()

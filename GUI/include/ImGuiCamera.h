@@ -43,8 +43,9 @@ namespace Prisma {
 		float m_lastY;
 		bool m_lock = false;
 
-		bool showMouse = false;
-		bool pressed = false;
+		bool m_showMouse = false;
+		bool m_pressed = false;
+		bool m_save = false;
 
 		std::shared_ptr<Prisma::CallbackHandler> m_callback;
 
