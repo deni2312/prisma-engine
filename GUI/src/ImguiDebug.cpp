@@ -27,19 +27,18 @@
 
 struct PrivateIO {
     ImGuiIO io;
-    Prisma::Engine* engine;
 };
 
 std::shared_ptr<PrivateIO> data;
 
-Prisma::ImguiDebug::ImguiDebug(GLFWwindow* window, const unsigned int& width, const unsigned int& height,void* engine) : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() }, m_height{height},m_width{width}
+Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() }
 {
     data = std::make_shared<PrivateIO>();
     m_camera = std::make_shared<Prisma::Camera>();
-    data->engine->mainCamera(m_camera);
+    Prisma::Engine::getInstance().mainCamera(m_camera);
     m_imguiCamera.mouseCallback();
     m_imguiCamera.mouseButtonCallback();
-    data->engine->setCallback(m_imguiCamera.callback());
+    Prisma::Engine::getInstance().setCallback(m_imguiCamera.callback());
     PrismaFunc::getInstance().setCallback(m_imguiCamera.callback());
     auto settings = Prisma::SettingsLoader::instance().getSettings();
     IMGUI_CHECKVERSION();
@@ -47,15 +46,16 @@ Prisma::ImguiDebug::ImguiDebug(GLFWwindow* window, const unsigned int& width, co
     data->io = ImGui::GetIO();
     data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    data->engine = (Prisma::Engine*)engine;
     //ImGui::StyleColorsDark();
     Prisma::ImGuiStyles::darkMode();
     
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(Prisma::PrismaFunc::getInstance().window(), true);
     ImGui_ImplOpenGL3_Init("#version 150");
     Prisma::FBO::FBOData fboData;
-    fboData.width = width;
-    fboData.height = height;
+    m_height = settings.height;
+    m_width = settings.width;
+    fboData.width = settings.width;
+    fboData.height = settings.height;
     fboData.enableSrgb = true;
     fboData.enableDepth = true;
     m_fbo = std::make_shared<Prisma::FBO>(fboData);
@@ -92,8 +92,8 @@ void Prisma::ImguiDebug::drawGui()
             if (ImGui::MenuItem("New")) {
                 std::string scene = openFolder();
                 if (scene != "") {
-                    data->engine->getScene(scene, { true });
-                    data->engine->loadNewScene();
+                    Prisma::Engine::getInstance().getScene(scene, { true });
+                    Prisma::Engine::getInstance().loadNewScene();
                 }
             }
 
@@ -339,7 +339,7 @@ std::string Prisma::ImguiDebug::saveFile()
 
 void Prisma::ImguiDebug::updateStatus()
 {
-    data->engine->pipeline(static_cast<Prisma::Engine::Pipeline>(m_status.currentitem));
+    Prisma::Engine::getInstance().pipeline(static_cast<Prisma::Engine::Pipeline>(m_status.currentitem));
 
     m_effects->effect(static_cast<Prisma::Effects::EFFECTS>(m_status.currentPostprocess));
 

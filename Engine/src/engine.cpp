@@ -37,7 +37,7 @@ struct PrivateData {
     Prisma::SceneLoader::SceneParameters sceneParameters;
     Prisma::Engine::Pipeline pipeline;
     Prisma::ComponentsHandler componentsHandler;
-    Prisma::SceneHandler sceneHandler;
+    std::shared_ptr<Prisma::SceneHandler> sceneHandler;
     std::shared_ptr<Prisma::UserData> userData;
 };
 
@@ -75,6 +75,7 @@ Prisma::Engine::Engine()
 
     data->settings = SettingsLoader::instance().getSettings();
 
+    data->sceneHandler = std::make_shared<Prisma::SceneHandler>();
 }
 
 
@@ -87,6 +88,7 @@ bool Prisma::Engine::run()
 
             PrismaFunc::getInstance().clear();
             data->userData->update();
+            data->sceneHandler->onBeginRender();
             data->imguiDebug->start();
             data->componentsHandler.updateStart();
             data->componentsHandler.updateComponents();
@@ -112,6 +114,8 @@ bool Prisma::Engine::run()
 
             Postprocess::getInstance().render();
 
+            data->sceneHandler->onEndRender();
+
             data->imguiDebug->drawGui();
 
             data->imguiDebug->close();
@@ -135,7 +139,7 @@ void Prisma::Engine::setUserEngine(std::shared_ptr<Prisma::UserData> userData) {
 void Prisma::Engine::initScene()
 {
     data->userData->start();
-    data->imguiDebug = std::make_shared<ImguiDebug>(PrismaFunc::getInstance().window(), data->settings.width, data->settings.height, this);
+    data->imguiDebug = std::make_shared<ImguiDebug>();
     MeshHandler::getInstance().updateCluster();
     if (data->pipelineHandler.initScene(data->sceneParameters,data->imguiDebug)) {
         Postprocess::getInstance().fbo(data->imguiDebug->fbo());
@@ -145,6 +149,11 @@ void Prisma::Engine::initScene()
         std::cerr << "Null camera or scene" << std::endl;
         PrismaFunc::getInstance().closeWindow();
     }
+}
+
+void Prisma::Engine::setGuiData(std::shared_ptr<Prisma::SceneHandler> guiData)
+{
+    data->sceneHandler = guiData;
 }
 
 void Prisma::Engine::loadNewScene()

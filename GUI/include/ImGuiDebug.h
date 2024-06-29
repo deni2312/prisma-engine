@@ -28,7 +28,7 @@ namespace Prisma {
 			std::vector<const char*> postprocess;
 			int currentPostprocess = 0;
         };
-		ImguiDebug(GLFWwindow* window, const unsigned int& width, const unsigned int& height, void* engine);
+		ImguiDebug();
 		void drawGui();
 		float fps();
 		void start();
