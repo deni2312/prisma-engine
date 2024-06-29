@@ -26,7 +26,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../include/SceneData/SceneExporter.h"
 
-
+std::shared_ptr<Prisma::Engine> Prisma::Engine::instance = nullptr;
 
 struct PrivateData {
     Prisma::PipelineHandler pipelineHandler;
@@ -38,11 +38,12 @@ struct PrivateData {
     Prisma::Engine::Pipeline pipeline;
     Prisma::ComponentsHandler componentsHandler;
     Prisma::SceneHandler sceneHandler;
+    std::shared_ptr<Prisma::UserData> userData;
 };
 
 std::shared_ptr<PrivateData> data;
 
-Prisma::Engine::Engine(SceneHandler sceneHandler)
+Prisma::Engine::Engine()
 {
     data = std::make_shared<PrivateData>();
 
@@ -74,14 +75,9 @@ Prisma::Engine::Engine(SceneHandler sceneHandler)
 
     data->settings = SettingsLoader::instance().getSettings();
 
-    data->sceneHandler = sceneHandler;
-
 }
 
-bool Prisma::Engine::update()
-{
-	return false;
-}
+
 
 bool Prisma::Engine::run()
 {
@@ -90,11 +86,10 @@ bool Prisma::Engine::run()
         if (data->camera && currentGlobalScene) {
 
             PrismaFunc::getInstance().clear();
+            data->userData->update();
             data->imguiDebug->start();
             data->componentsHandler.updateStart();
-            update();
             data->componentsHandler.updateComponents();
-
 
             Physics::getInstance().update(1 / fps());
 
@@ -133,8 +128,13 @@ bool Prisma::Engine::run()
 	return true;
 }
 
+void Prisma::Engine::setUserEngine(std::shared_ptr<Prisma::UserData> userData) {
+    data->userData = userData;
+}
+
 void Prisma::Engine::initScene()
 {
+    data->userData->start();
     data->imguiDebug = std::make_shared<ImguiDebug>(PrismaFunc::getInstance().window(), data->settings.width, data->settings.height, this);
     MeshHandler::getInstance().updateCluster();
     if (data->pipelineHandler.initScene(data->camera, currentGlobalScene,data->settings,data->sceneParameters,data->imguiDebug)) {
@@ -186,6 +186,14 @@ void Prisma::Engine::mainCamera(std::shared_ptr<Camera> camera)
 {
     data->camera = camera;
     currentGlobalScene->camera = data->camera;
+}
+
+Prisma::Engine& Prisma::Engine::getInstance()
+{
+    if (!instance) {
+        instance = std::make_shared<Engine>();
+    }
+    return *instance;
 }
 
 std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters)

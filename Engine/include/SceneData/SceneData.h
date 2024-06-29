@@ -22,6 +22,12 @@ namespace Prisma {
 		std::function<void()> onEndRender;
 	};
 
+	struct UserData {
+		virtual void start() = 0;
+		virtual void update() = 0;
+		virtual void finish() = 0;
+	};
+
 	struct Scene {
 
 		struct ModelData {

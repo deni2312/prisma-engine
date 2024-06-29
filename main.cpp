@@ -1,6 +1,7 @@
 #include <iostream>
 #include "UserEngine/include/UserEngine.h"
 int main() {
-	UserEngine engine{};
-	engine.run();
+	auto userEngine = std::make_shared<UserEngine>();
+	Prisma::Engine::getInstance().setUserEngine(userEngine);
+	Prisma::Engine::getInstance().run();
 }

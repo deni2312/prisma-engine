@@ -18,20 +18,26 @@ namespace Prisma {
 			FORWARD,
 			DEFERRED
 		};
-		Engine(SceneHandler sceneHandler = {});
 		bool run();
 		friend class ImguiDebug;
-	private:
-		void initScene();
-		void loadNewScene();
-	protected:
+		static Engine& getInstance();
+		Engine(const Engine&) = delete;
+		Engine& operator=(const Engine&) = delete;
+
+		Engine();
+
 		void setCallback(std::shared_ptr<CallbackHandler> callbackHandler);
-		virtual bool update();
 		float fps();
 		Settings settings();
 		void mainCamera(std::shared_ptr<Camera> camera);
 		void pipeline(Pipeline pipeline);
 		Pipeline pipeline();
-		std::shared_ptr<Prisma::Scene> getScene(std::string scene,Prisma::SceneLoader::SceneParameters sceneParameters);
+		std::shared_ptr<Prisma::Scene> getScene(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters);
+		void setUserEngine(std::shared_ptr<Prisma::UserData> userData);
+
+	private:
+		static std::shared_ptr<Engine> instance;
+		void initScene();
+		void loadNewScene();
 	};
 }

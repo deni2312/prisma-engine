@@ -15,17 +15,17 @@
 std::shared_ptr<Prisma::Animator> animator;
 std::shared_ptr<Prisma::Animator> animator1;
 
-UserEngine::UserEngine(Prisma::SceneHandler handler) : Prisma::Engine{ handler }
+void UserEngine::start()
 {
-	m_sceneNode = getScene("../../../Resources/Landscape/landscape.gltf", {true});
-	Prisma::Texture texture;
-	texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
-	texture.data({ 4096,4096,3 });
-	Prisma::PipelineSkybox::getInstance().texture(texture,true);
+    auto root = Prisma::Engine::getInstance().getScene("../../../Resources/Landscape/landscape.gltf", { true });
+    Prisma::Texture texture;
+    texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
+    texture.data({ 4096,4096,3 });
+    Prisma::PipelineSkybox::getInstance().texture(texture, true);
 
     Prisma::NodeHelper nodeHelper;
 
-    nodeHelper.nodeIterator(m_sceneNode->root, [](auto mesh, auto parent) {
+    nodeHelper.nodeIterator(root->root, [](auto mesh, auto parent) {
         auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(mesh);
         if (currentMesh) {
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
@@ -34,27 +34,21 @@ UserEngine::UserEngine(Prisma::SceneHandler handler) : Prisma::Engine{ handler }
         }
         });
 
-    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_sceneNode->root, "vanguard_Mesh")->children()[0]);
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(root->root, "vanguard_Mesh")->children()[0]);
 
     if (animatedMesh) {
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Landscape/animation.gltf", animatedMesh);
         animator = std::make_shared<Prisma::Animator>(animation);
         animatedMesh->animator(animator);
     }
-    Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0,-10.0,0.0));
-    
+    Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0, -10.0, 0.0));
+
 }
 
-bool addings = true;
-
-bool UserEngine::update()
+void UserEngine::update()
 {
-
-
-	return false;
 }
 
-void UserEngine::mouseCallback()
+void UserEngine::finish()
 {
-
 }
