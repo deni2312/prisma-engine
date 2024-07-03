@@ -1,8 +1,4 @@
 #pragma once
-#include "../../Engine/include/Containers/FBO.h"
-#include "../../Engine/include/Helpers/Shader.h"
-#include "../../Engine/include/engine.h"
-#include "../../Engine/include/Helpers/Settings.h"
 #include "Postprocess/Effects.h"
 #include "ImGuiCamera.h"
 #include "LightInfo.h"
@@ -36,7 +32,13 @@ namespace Prisma {
 		void imguiData(std::shared_ptr<ImGuiData> data);
 		void updateStatus();
 		std::shared_ptr<Prisma::FBO> fbo();
+
+		static ImguiDebug& getInstance();
+		ImguiDebug(const ImguiDebug&) = delete;
+		ImguiDebug& operator=(const ImguiDebug&) = delete;
+
 	private:
+		static std::shared_ptr<ImguiDebug> instance;
 		double m_lastFrameTime = 0.0;
 		float m_fps;
 		std::shared_ptr<ImGuiData> m_data;

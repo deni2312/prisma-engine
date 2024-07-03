@@ -30,8 +30,20 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 {
     Prisma::MeshHandler::getInstance().updateCamera();
     m_fbo->bind();
+    GLfloat bkColor[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
+    
+    float color = bkColor[3];
+
+    bkColor[3] = 0.2;
+
+    glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    bkColor[3] = color;
+
+    glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
 
     m_shader->use();
 
@@ -54,10 +66,13 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 
     uint32_t encodedUUID = (data[0] << 16) | (data[1] << 8) | data[2];
 
-    if (data[3] == 0) {
+    if (data[3] < 0.1) {
         if (encodedUUID < currentGlobalScene->meshes.size() && encodedUUID >= 0) {
             return currentGlobalScene->meshes[encodedUUID];
         }
+    }
+    else if (data[3] < 255 && data[3] > 0) {
+        return nullptr;
     }
     else {
         if (encodedUUID < currentGlobalScene->animateMeshes.size() && encodedUUID >= 0) {

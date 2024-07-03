@@ -31,7 +31,6 @@ std::shared_ptr<Prisma::Engine> Prisma::Engine::instance = nullptr;
 struct PrivateData {
     Prisma::PipelineHandler pipelineHandler;
     Prisma::Settings settings;
-    std::shared_ptr<Prisma::ImguiDebug> imguiDebug;
     std::shared_ptr<Prisma::CallbackHandler> callbackHandler;
     std::shared_ptr<Prisma::Camera> camera;
     Prisma::SceneLoader::SceneParameters sceneParameters;
@@ -89,7 +88,7 @@ bool Prisma::Engine::run()
             PrismaFunc::getInstance().clear();
             data->userData->update();
             data->sceneHandler->onBeginRender();
-            data->imguiDebug->start();
+            Prisma::ImguiDebug::getInstance().start();
             data->componentsHandler.updateStart();
             data->componentsHandler.updateComponents();
 
@@ -116,9 +115,9 @@ bool Prisma::Engine::run()
 
             data->sceneHandler->onEndRender();
 
-            data->imguiDebug->drawGui();
+            Prisma::ImguiDebug::getInstance().drawGui();
 
-            data->imguiDebug->close();
+            Prisma::ImguiDebug::getInstance().close();
 
             PrismaFunc::getInstance().swapBuffers();
         } else {
@@ -139,10 +138,10 @@ void Prisma::Engine::setUserEngine(std::shared_ptr<Prisma::UserData> userData) {
 void Prisma::Engine::initScene()
 {
     data->userData->start();
-    data->imguiDebug = std::make_shared<ImguiDebug>();
     MeshHandler::getInstance().updateCluster();
-    if (data->pipelineHandler.initScene(data->sceneParameters,data->imguiDebug)) {
-        Postprocess::getInstance().fbo(data->imguiDebug->fbo());
+    ImguiDebug::getInstance();
+    if (data->pipelineHandler.initScene(data->sceneParameters)) {
+        Postprocess::getInstance().fbo(Prisma::ImguiDebug::getInstance().fbo());
         loadNewScene();
     }
     else {
@@ -183,7 +182,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 }
 float Prisma::Engine::fps()
 {
-    return data->imguiDebug->fps();
+    return Prisma::ImguiDebug::getInstance().fps();
 }
 
 void Prisma::Engine::mainCamera(std::shared_ptr<Camera> camera)

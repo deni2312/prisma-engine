@@ -24,10 +24,13 @@
 #include "ImGuizmo.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
 #include "../../Engine/include/Helpers/SettingsLoader.h"
+#include "../../Engine/include/engine.h"
 
 struct PrivateIO {
     ImGuiIO io;
 };
+
+std::shared_ptr<Prisma::ImguiDebug> Prisma::ImguiDebug::instance = nullptr;
 
 std::shared_ptr<PrivateIO> data;
 
@@ -247,6 +250,14 @@ void Prisma::ImguiDebug::close()
 void Prisma::ImguiDebug::imguiData(std::shared_ptr<ImGuiData> data)
 {
     m_data = data;
+}
+
+Prisma::ImguiDebug& Prisma::ImguiDebug::getInstance()
+{
+    if (!instance) {
+        instance = std::make_shared<ImguiDebug>();
+    }
+    return *instance;
 }
 
 std::shared_ptr<Prisma::FBO> Prisma::ImguiDebug::fbo()
