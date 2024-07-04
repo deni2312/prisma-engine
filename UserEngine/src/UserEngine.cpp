@@ -47,6 +47,7 @@ void UserEngine::start()
 
 void UserEngine::update()
 {
+    std::cout << Prisma::Engine::getInstance().fps() << std::endl;
 }
 
 void UserEngine::finish()

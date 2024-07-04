@@ -2,6 +2,7 @@
 #include "../include/GlobalData/PrismaFunc.h"
 
 #include <iostream>
+#include <chrono>
 
 
 #include "../include/SceneData/SceneLoader.h"
@@ -38,6 +39,8 @@ struct PrivateData {
     Prisma::ComponentsHandler componentsHandler;
     std::shared_ptr<Prisma::SceneHandler> sceneHandler;
     std::shared_ptr<Prisma::UserData> userData;
+    std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
+    float fps;
 };
 
 std::shared_ptr<PrivateData> data;
@@ -77,6 +80,9 @@ Prisma::Engine::Engine()
     data->sceneHandler = std::make_shared<Prisma::SceneHandler>();
     
     currentGlobalScene = std::make_shared<Scene>();
+
+    data->lastTime = std::chrono::high_resolution_clock::now();
+    data->fps = 0.0f;
 }
 
 
@@ -86,7 +92,10 @@ bool Prisma::Engine::run()
     initScene();
     while (!PrismaFunc::getInstance().shouldClose()) {
         if (data->camera && currentGlobalScene) {
-
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
+            data->lastTime = currentTime;
+            data->fps = 1.0f / deltaTime.count();
             PrismaFunc::getInstance().clear();
             data->userData->update();
             data->sceneHandler->onBeginRender();
@@ -177,7 +186,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 }
 float Prisma::Engine::fps()
 {
-    return Prisma::ImguiDebug::getInstance().fps();
+    return data->fps;
 }
 
 void Prisma::Engine::mainCamera(std::shared_ptr<Camera> camera)
