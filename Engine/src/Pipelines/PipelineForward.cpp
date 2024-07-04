@@ -72,7 +72,6 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 
 	Prisma::MeshIndirect::getInstance().renderMeshes();
 
-
 	m_shaderAnimate->use();
 
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
@@ -87,16 +86,18 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	m_fbo->unbind();
 	Prisma::Postprocess::getInstance().fboRaw(m_fbo);
-	m_output->bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_fullscreenPipeline->render(m_fbo->texture());
+	Postprocess::getInstance().fbo(fboTarget);
+	if (fboTarget) {
+		fboTarget->bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		m_fullscreenPipeline->render(m_fbo->texture());
 
-	m_output->unbind();
-}
-
-void Prisma::PipelineForward::outputFbo(std::shared_ptr<Prisma::FBO> output)
-{
-	m_output = output;
+		fboTarget->unbind();
+	}
+	else {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		m_fullscreenPipeline->render(m_fbo->texture());
+	}
 }
 
 Prisma::PipelineForward::~PipelineForward()

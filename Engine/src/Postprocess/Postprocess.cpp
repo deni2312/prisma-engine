@@ -17,11 +17,19 @@ Prisma::Postprocess::Postprocess()
 
 void Prisma::Postprocess::render()
 {
-    m_fbo->bind();
-    for (auto effect : m_effects) {
+    if (m_fbo) {
+        m_fbo->bind();
+        for (auto effect : m_effects) {
             effect->render(m_fbo, m_fboRaw);
+        }
+        m_fbo->unbind();
     }
-    m_fbo->unbind();
+    else {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        for (auto effect : m_effects) {
+            effect->render(m_fbo, m_fboRaw);
+        }
+    }
 }
 
 void Prisma::Postprocess::addPostProcess(std::shared_ptr<Prisma::PostprocessEffect> postprocessEffect)

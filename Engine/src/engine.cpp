@@ -136,9 +136,7 @@ void Prisma::Engine::initScene()
 {
     data->userData->start();
     MeshHandler::getInstance().updateCluster();
-    ImguiDebug::getInstance();
     if (data->pipelineHandler.initScene(data->sceneParameters)) {
-        Postprocess::getInstance().fbo(Prisma::ImguiDebug::getInstance().fbo());
         loadNewScene();
     }
     else {

@@ -135,23 +135,25 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
     m_fbo->unbind();
 
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);
+    Postprocess::getInstance().fbo(fboTarget);
 
     /*m_fboSSR->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     m_ssr->update(m_albedo, m_position, m_normal);
     m_fboSSR->unbind();*/
 
-    m_output->bind();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    m_fullscreenPipeline->render(m_fbo->texture());
+    if (fboTarget) {
+        fboTarget->bind();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        m_fullscreenPipeline->render(m_fbo->texture());
 
-    m_output->unbind();
+        fboTarget->unbind();
+    }
+    else {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        m_fullscreenPipeline->render(m_fbo->texture());
+    }
 
-}
-
-void Prisma::PipelineDeferred::outputFbo(std::shared_ptr<Prisma::FBO> output)
-{
-    m_output = output;
 }
 
 Prisma::PipelineDeferred::~PipelineDeferred()

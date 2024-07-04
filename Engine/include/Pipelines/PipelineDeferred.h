@@ -17,7 +17,6 @@ namespace Prisma {
 		PipelineDeferred(const unsigned int& width,const unsigned int& height,bool srgb);
 		void projection(glm::mat4 projection);
 		void render(std::shared_ptr<Camera> camera);
-		void outputFbo(std::shared_ptr<Prisma::FBO> output);
 		~PipelineDeferred();
 	private:
 		unsigned int m_width;
@@ -33,7 +32,6 @@ namespace Prisma {
 		unsigned int m_positionLocation;
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;
-		std::shared_ptr<Prisma::FBO> m_output;
 		std::shared_ptr<Prisma::FBO> m_fbo;
         std::shared_ptr<Prisma::FBO> m_fboSSR;
         std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;

@@ -61,6 +61,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     fboData.enableSrgb = true;
     fboData.enableDepth = true;
     m_fbo = std::make_shared<Prisma::FBO>(fboData);
+    fboTarget = m_fbo;
     m_shader = std::make_shared<Shader>("../../../GUI/Shaders/Output/vertex.glsl", "../../../GUI/Shaders/Output/fragment.glsl");
     m_shader->use();
     m_bindlessPos = m_shader->getUniformPosition("screenTexture");
