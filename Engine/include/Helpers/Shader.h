@@ -61,6 +61,7 @@ namespace Prisma {
             }
             catch (std::ifstream::failure& e)
             {
+                std::cout << vertexPath << std::endl;
                 std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
             }
 
@@ -125,6 +126,7 @@ namespace Prisma {
             }
             catch (std::ifstream::failure& e)
             {
+                std::cout << computePath << std::endl;
                 std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
             }
 

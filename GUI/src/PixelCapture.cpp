@@ -7,23 +7,25 @@
 
 std::shared_ptr<Prisma::PixelCapture> Prisma::PixelCapture::instance = nullptr;
 
+static std::shared_ptr<Prisma::Shader> shader = nullptr;
+static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
+
 Prisma::PixelCapture::PixelCapture()
 {
+    if (!shader) {
+        auto settings = Prisma::SettingsLoader::instance().getSettings();
 
-    auto settings = Prisma::SettingsLoader::instance().getSettings();
+        Prisma::FBO::FBOData fboData;
+        fboData.enableDepth = true;
+        fboData.height = settings.height;
+        fboData.width = settings.width;
 
-    Prisma::FBO::FBOData fboData;
-    fboData.enableDepth = true;
-    fboData.height = settings.height;
-    fboData.width = settings.width;
+        m_fbo = std::make_shared<Prisma::FBO>(fboData);
 
-    m_fbo = std::make_shared<Prisma::FBO>(fboData);
+        shader = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex.glsl", "../../../GUI/Shaders/PixelCapture/fragment.glsl");
 
-    m_shader = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex.glsl", "../../../GUI/Shaders/PixelCapture/fragment.glsl");
-
-    m_shaderAnimation = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex_animation.glsl", "../../../GUI/Shaders/PixelCapture/fragment_animation.glsl");
-
-    m_shader->use();
+        shaderAnimation = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex_animation.glsl", "../../../GUI/Shaders/PixelCapture/fragment_animation.glsl");
+    }
 }
 
 std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
@@ -45,11 +47,11 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 
     glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
 
-    m_shader->use();
+    shader->use();
 
     Prisma::MeshIndirect::getInstance().renderMeshes();
 
-    m_shaderAnimation->use();
+    shaderAnimation->use();
 
     Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 

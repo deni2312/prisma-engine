@@ -74,6 +74,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     m_effectsBloom = std::make_shared<Prisma::Effects>();
     Prisma::Postprocess::getInstance().addPostProcess(m_effectsBloom);
     Prisma::Postprocess::getInstance().addPostProcess(m_effects);
+    Prisma::PixelCapture::getInstance();
     initStatus();
 }
 
