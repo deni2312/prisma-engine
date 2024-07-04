@@ -19,6 +19,11 @@ void Prisma::MeshIndirect::load()
 
 void Prisma::MeshIndirect::init()
 {
+    m_cacheAdd.clear();
+    m_cacheAddAnimate.clear();
+    m_cacheRemove.clear();
+    m_cacheRemoveAnimate.clear();
+
     for (int i = 0; i < currentGlobalScene->meshes.size(); i++) {
         MeshIndirect::getInstance().add(i);
     }

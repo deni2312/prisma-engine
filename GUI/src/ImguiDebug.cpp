@@ -96,7 +96,6 @@ void Prisma::ImguiDebug::drawGui()
                 std::string scene = openFolder();
                 if (scene != "") {
                     Prisma::Engine::getInstance().getScene(scene, { true });
-                    Prisma::Engine::getInstance().loadNewScene();
                 }
             }
 
@@ -134,6 +133,8 @@ void Prisma::ImguiDebug::drawGui()
                     }
                     currentGlobalScene->omniLights.insert(currentGlobalScene->omniLights.end(),scene->omniLights.begin(),scene->omniLights.end());
                     currentGlobalScene->dirLights.insert(currentGlobalScene->dirLights.end(),scene->dirLights.begin(),scene->dirLights.end());
+
+                    Prisma::MeshIndirect::getInstance().init();
 
                     updateSizes=true;
                     skipUpdate=true;

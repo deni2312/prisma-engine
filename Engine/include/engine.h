@@ -38,6 +38,5 @@ namespace Prisma {
 	private:
 		static std::shared_ptr<Engine> instance;
 		void initScene();
-		void loadNewScene();
 	};
 }

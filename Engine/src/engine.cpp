@@ -146,7 +146,7 @@ void Prisma::Engine::initScene()
     data->userData->start();
     MeshHandler::getInstance().updateCluster();
     if (data->pipelineHandler.initScene(data->sceneParameters)) {
-        loadNewScene();
+        
     }
     else {
         std::cerr << "Null camera or scene" << std::endl;
@@ -157,12 +157,6 @@ void Prisma::Engine::initScene()
 void Prisma::Engine::setGuiData(std::shared_ptr<Prisma::SceneHandler> guiData)
 {
     data->sceneHandler = guiData;
-}
-
-void Prisma::Engine::loadNewScene()
-{
-    MeshIndirect::getInstance().load();
-    LightHandler::getInstance().update();
 }
 
 void Prisma::Engine::pipeline(Pipeline pipeline)
