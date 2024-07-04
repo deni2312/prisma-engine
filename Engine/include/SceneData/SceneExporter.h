@@ -10,7 +10,7 @@ namespace Prisma{
 
 		Exporter();
 
-		void exportScene(const std::string& sceneName="output.txt");
+		void exportScene(const std::string& sceneName="output.prisma");
 
 		std::shared_ptr<Prisma::Node> importScene(const std::string& sceneName);
 

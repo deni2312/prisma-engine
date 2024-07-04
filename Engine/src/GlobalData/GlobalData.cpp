@@ -11,6 +11,7 @@ namespace Prisma {
     bool updateTextures = false;
     Prisma::Texture defaultBlack;
     Prisma::Texture defaultNormal;
+    std::shared_ptr<Prisma::FBO> fboTarget = nullptr;
 
     void resetCaches() {
         if (!skipUpdate) {

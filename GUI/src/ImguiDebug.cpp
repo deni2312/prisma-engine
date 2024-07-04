@@ -51,7 +51,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     //ImGui::StyleColorsDark();
     Prisma::ImGuiStyles::darkMode();
-    
     ImGui_ImplGlfw_InitForOpenGL(Prisma::PrismaFunc::getInstance().window(), true);
     ImGui_ImplOpenGL3_Init("#version 150");
     Prisma::FBO::FBOData fboData;
@@ -258,6 +257,20 @@ Prisma::ImguiDebug& Prisma::ImguiDebug::getInstance()
         instance = std::make_shared<ImguiDebug>();
     }
     return *instance;
+}
+
+std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
+{
+    auto handlers = std::make_shared<SceneHandler>();
+    handlers->onBeginRender = []() {
+        Prisma::ImguiDebug::getInstance().start();
+    };
+    handlers->onEndRender = []() {
+        Prisma::ImguiDebug::getInstance().drawGui();
+
+        Prisma::ImguiDebug::getInstance().close();
+    };
+    return handlers;
 }
 
 std::shared_ptr<Prisma::FBO> Prisma::ImguiDebug::fbo()

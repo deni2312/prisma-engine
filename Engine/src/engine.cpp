@@ -75,6 +75,8 @@ Prisma::Engine::Engine()
     data->settings = SettingsLoader::instance().getSettings();
 
     data->sceneHandler = std::make_shared<Prisma::SceneHandler>();
+    
+    currentGlobalScene = std::make_shared<Scene>();
 }
 
 
@@ -88,7 +90,6 @@ bool Prisma::Engine::run()
             PrismaFunc::getInstance().clear();
             data->userData->update();
             data->sceneHandler->onBeginRender();
-            Prisma::ImguiDebug::getInstance().start();
             data->componentsHandler.updateStart();
             data->componentsHandler.updateComponents();
 
@@ -114,10 +115,6 @@ bool Prisma::Engine::run()
             Postprocess::getInstance().render();
 
             data->sceneHandler->onEndRender();
-
-            Prisma::ImguiDebug::getInstance().drawGui();
-
-            Prisma::ImguiDebug::getInstance().close();
 
             PrismaFunc::getInstance().swapBuffers();
         } else {

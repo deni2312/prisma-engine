@@ -14,6 +14,7 @@ namespace Prisma {
 namespace Prisma {
 
 	extern std::shared_ptr<Prisma::Scene> currentGlobalScene;
+	extern std::shared_ptr<Prisma::FBO> fboTarget;
 	extern glm::mat4 currentProjection;
 	extern bool updateLights;
 	extern bool updateSizes;

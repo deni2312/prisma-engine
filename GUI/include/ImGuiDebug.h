@@ -37,6 +37,8 @@ namespace Prisma {
 		ImguiDebug(const ImguiDebug&) = delete;
 		ImguiDebug& operator=(const ImguiDebug&) = delete;
 
+		std::shared_ptr<SceneHandler> handlers();
+
 	private:
 		static std::shared_ptr<ImguiDebug> instance;
 		double m_lastFrameTime = 0.0;

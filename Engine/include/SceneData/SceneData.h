@@ -17,7 +17,6 @@ namespace Prisma {
 	}
 
 	struct SceneHandler {
-		std::shared_ptr<Prisma::FBO> fboTarget = nullptr;
 		std::function<void()> onBeginRender = []() {};
 		std::function<void()> onEndRender = []() {};
 	};
