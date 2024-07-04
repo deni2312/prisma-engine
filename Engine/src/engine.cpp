@@ -183,6 +183,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
     };
     currentProjection = glm::perspective(glm::radians(data->settings.angle), (float)data->settings.width / (float)data->settings.height, data->settings.nearPlane, data->settings.farPlane);
     data->callbackHandler = callbackHandler;
+    Prisma::PrismaFunc::getInstance().setCallback(callbackHandler);
 }
 float Prisma::Engine::fps()
 {
