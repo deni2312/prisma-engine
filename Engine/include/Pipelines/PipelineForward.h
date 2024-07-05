@@ -16,8 +16,7 @@ namespace Prisma {
 	class PipelineForward {
 	public:
 		PipelineForward(const unsigned int& width=1920, const unsigned int& height=1080,bool srgb=true);
-		void projection(glm::mat4 projection);
-		void render(std::shared_ptr<Camera> camera);
+		void render();
 		~PipelineForward();
 	private:
 		unsigned int m_width;
@@ -27,7 +26,6 @@ namespace Prisma {
 
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderAnimate;
-		glm::mat4 m_projection;
 		std::shared_ptr<Prisma::FBO> m_fbo;
 		std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
 #ifndef NPHYSICS_DEBUG

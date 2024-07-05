@@ -25,6 +25,7 @@
 #include "../../Engine/include/SceneData/SceneExporter.h"
 #include "../../Engine/include/Helpers/SettingsLoader.h"
 #include "../../Engine/include/engine.h"
+#include "../../Engine/include/Pipelines/PipelineSkybox.h"
 
 struct PrivateIO {
     ImGuiIO io;
@@ -139,6 +140,14 @@ void Prisma::ImguiDebug::drawGui()
                     Prisma::CacheScene::getInstance().updateSizes(true);
                     Prisma::CacheScene::getInstance().skipUpdate(true);
                 }
+            }
+
+            if (ImGui::MenuItem("Add skybox")) {
+                std::string scene = openFolder();
+                Prisma::Texture texture;
+                texture.loadEquirectangular(scene);
+                texture.data({ 4096,4096,3 });
+                Prisma::PipelineSkybox::getInstance().texture(texture, true);
             }
 
             if (ImGui::MenuItem("Textures")) {

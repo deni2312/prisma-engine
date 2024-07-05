@@ -12,8 +12,7 @@
 namespace Prisma {
 	class PipelineSkybox {
 	public:
-		void projection(glm::mat4 projection);
-		void render(std::shared_ptr<Camera> camera);
+		void render();
 
 		static PipelineSkybox& getInstance();
 
@@ -34,7 +33,6 @@ namespace Prisma {
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderEquirectangular;
 
-		glm::mat4 m_projection;
 		unsigned int m_bindlessPos;
 		unsigned int m_bindlessPosEquirectangular;
 

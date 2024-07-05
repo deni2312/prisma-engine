@@ -57,14 +57,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 #endif
 }
 
-void Prisma::PipelineForward::projection(glm::mat4 projection)
-{
-	m_projection = projection;
-	MeshHandler::getInstance().data()->projection = m_projection;
-	MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET,sizeof(glm::mat4),glm::value_ptr(m_projection));
-}
-
-void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
+void Prisma::PipelineForward::render()
 {
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -76,7 +69,7 @@ void Prisma::PipelineForward::render(std::shared_ptr<Camera> camera)
 
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
-	Prisma::PipelineSkybox::getInstance().render(camera);
+	Prisma::PipelineSkybox::getInstance().render();
 
 #ifndef NPHYSICS_DEBUG
     drawDebugger->line.setMVP(m_projection*camera->matrix());

@@ -98,12 +98,7 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 
 }
 
-void Prisma::PipelineDeferred::projection(glm::mat4 projection)
-{
-    m_projection = projection;
-}
-
-void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
+void Prisma::PipelineDeferred::render()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -131,7 +126,7 @@ void Prisma::PipelineDeferred::render(std::shared_ptr<Camera> camera)
     glBlitFramebuffer(
         0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
     );
-    Prisma::PipelineSkybox::getInstance().render(camera);
+    Prisma::PipelineSkybox::getInstance().render();
     m_fbo->unbind();
 
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);

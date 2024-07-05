@@ -74,16 +74,11 @@ uint64_t Prisma::PipelineSkybox::calculateSkybox()
     return m_id;
 }
 
-void Prisma::PipelineSkybox::projection(glm::mat4 projection)
-{
-	m_projection = projection;
-}
-
-void Prisma::PipelineSkybox::render(std::shared_ptr<Camera> camera)
+void Prisma::PipelineSkybox::render()
 {
     glDepthFunc(GL_LEQUAL);
     m_shader->use();
-    auto cameraFinal = glm::mat4(glm::mat3(camera->matrix()));
+    auto cameraFinal = glm::mat4(glm::mat3(currentGlobalScene->camera->matrix()));
     MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::VIEW_OFFSET, sizeof(glm::mat4), glm::value_ptr(cameraFinal));
     m_shader->setInt64(m_bindlessPos, m_skyboxId);
     Prisma::IBLBuilder::getInstance().renderCube();

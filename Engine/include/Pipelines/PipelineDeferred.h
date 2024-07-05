@@ -15,8 +15,7 @@ namespace Prisma {
 	class PipelineDeferred {
 	public:
 		PipelineDeferred(const unsigned int& width,const unsigned int& height,bool srgb);
-		void projection(glm::mat4 projection);
-		void render(std::shared_ptr<Camera> camera);
+		void render();
 		~PipelineDeferred();
 	private:
 		unsigned int m_width;
@@ -24,7 +23,6 @@ namespace Prisma {
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderD;
 		std::shared_ptr<Shader> m_shaderAnimate;
-		glm::mat4 m_projection;
 		unsigned int m_gBuffer;
 		uint64_t m_position;
 		uint64_t m_normal;

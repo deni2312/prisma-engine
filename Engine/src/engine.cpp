@@ -115,11 +115,11 @@ bool Prisma::Engine::run()
 
             switch (data->pipeline) {
                 case Prisma::Engine::Pipeline::FORWARD:
-                    data->pipelineHandler.forward()->render(data->camera);
+                    data->pipelineHandler.forward()->render();
                     break;
 
                 case Prisma::Engine::Pipeline::DEFERRED:
-                    data->pipelineHandler.deferred()->render(data->camera);
+                    data->pipelineHandler.deferred()->render();
                     break;
 
             }
@@ -175,10 +175,11 @@ Prisma::Engine::Pipeline Prisma::Engine::pipeline()
 void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandler)
 {
     callbackHandler->resize = [&](int width, int height) {
-        data->pipelineHandler.forward()->projection(glm::perspective(glm::radians(data->settings.angle), (float)data->settings.width / (float)data->settings.height, data->settings.nearPlane, data->settings.farPlane));
-        data->pipelineHandler.deferred()->projection(glm::perspective(glm::radians(data->settings.angle), (float)data->settings.width / (float)data->settings.height, data->settings.nearPlane, data->settings.farPlane));
+        currentProjection = glm::perspective(glm::radians(data->settings.angle), (float)data->settings.width / (float)data->settings.height, data->settings.nearPlane, data->settings.farPlane);
+        MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4), glm::value_ptr(currentProjection));
     };
     currentProjection = glm::perspective(glm::radians(data->settings.angle), (float)data->settings.width / (float)data->settings.height, data->settings.nearPlane, data->settings.farPlane);
+    MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4), glm::value_ptr(currentProjection));
     data->callbackHandler = callbackHandler;
     Prisma::PrismaFunc::getInstance().setCallback(callbackHandler);
 }
