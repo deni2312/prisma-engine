@@ -32,6 +32,8 @@ void Prisma::MeshIndirect::init()
     for (int i = 0; i < currentGlobalScene->animateMeshes.size(); i++) {
         MeshIndirect::getInstance().addAnimate(i);
     }
+    Prisma::CacheScene::getInstance().updateSizes(true);
+    Prisma::CacheScene::getInstance().skipUpdate(true);
 }
 
 void Prisma::MeshIndirect::add(unsigned int add) {
