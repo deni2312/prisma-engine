@@ -20,7 +20,7 @@ void Prisma::PhysicsMeshComponent::start() {
             colliderDispatcher(m_collisionData.collider);
         }
         updateCollisionData();
-        skipUpdate = true;
+        Prisma::CacheScene::getInstance().skipUpdate(true);
     };
     componentButton=std::make_tuple(Prisma::Component::TYPES::BUTTON,"Apply Collider",&m_apply);
 

@@ -7,6 +7,7 @@
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include <string>
+#include "../../include/GlobalData/CacheScene.h"
 
 void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices)
 {
@@ -52,7 +53,7 @@ void Prisma::Mesh::material(std::shared_ptr<Prisma::MaterialComponent> material)
 {
     m_material = material;
     addComponent(m_material);
-    updateTextures=true;
+    Prisma::CacheScene::getInstance().updateTextures(true);
 }
 
 std::shared_ptr<Prisma::MaterialComponent> Prisma::Mesh::material()

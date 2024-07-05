@@ -2,6 +2,7 @@
 #include "Node.h"
 
 #include "../GlobalData/GlobalData.h"
+#include "../GlobalData/CacheScene.h"
 
 #include "../Pipelines/GenericShadow.h"
 #include "../Pipelines/PipelineCSM.h"
@@ -41,7 +42,7 @@ namespace Prisma {
 		void type(T p_type) 
 		{
 			m_type = p_type;
-			updateLights = true;
+			Prisma::CacheScene::getInstance().updateLights(true);
 		}
 		~Light() {
 
@@ -61,12 +62,12 @@ namespace Prisma {
 				m_shadow = std::make_shared<PipelineCSM>(width, height);
 				m_type.shadowMap = m_shadow->id();
 			}
-			updateLights = true;
+			Prisma::CacheScene::getInstance().updateLights(true);
         }
 
 		void hasShadow(bool hasShadow) {
 			m_hasShadow = hasShadow;
-			updateLights = true;
+			Prisma::CacheScene::getInstance().updateLights(true);
 		}
 
 		bool hasShadow() {

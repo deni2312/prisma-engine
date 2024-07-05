@@ -40,7 +40,7 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
     //meshData.mesh->finalMatrix(model);
 
     if (ImGuizmo::IsUsing()) {
-        skipUpdate = true;
+        Prisma::CacheScene::getInstance().skipUpdate(true);
     }
 
 }
@@ -101,7 +101,7 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
                 //ImGui::ProgressBar(current);
                 if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->GetDuration())) {
                     animator->frame(current);
-                    skipUpdate = true;
+                    Prisma::CacheScene::getInstance().skipUpdate(true);
                 }
             }
         }

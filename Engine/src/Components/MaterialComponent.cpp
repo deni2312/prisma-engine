@@ -1,16 +1,17 @@
 #include "../../include/Components/MaterialComponent.h"
 #include "../../include/GlobalData/GlobalData.h"
+#include "../../include/GlobalData/CacheScene.h"
 
 static unsigned int materialId = 0;
 
 void Prisma::MaterialComponent::diffuse(std::vector <Prisma::Texture> diffuse) {
     m_diffuse=diffuse;
-    updateTextures=true;
+    Prisma::CacheScene::getInstance().updateTextures(true);
 }
 
 void Prisma::MaterialComponent::normal(std::vector <Prisma::Texture> normal) {
     m_normal=normal;
-    updateTextures=true;
+    Prisma::CacheScene::getInstance().updateTextures(true);
 }
 
 std::vector <Prisma::Texture> Prisma::MaterialComponent::diffuse() {
@@ -46,7 +47,7 @@ std::vector <Prisma::Texture> Prisma::MaterialComponent::normal() {
 
 void Prisma::MaterialComponent::roughness_metalness(std::vector <Prisma::Texture> roughness_metalness) {
     m_roughness_metalness=roughness_metalness;
-    updateTextures=true;
+    Prisma::CacheScene::getInstance().updateTextures(true);
 }
 
 std::vector <Prisma::Texture> Prisma::MaterialComponent::roughness_metalness() {

@@ -4,6 +4,7 @@
 #include "glm/ext.hpp"
 #include "../../include/Helpers/PrismaMath.h"
 #include "../../include/SceneData/MeshIndirect.h"
+#include "../../include/GlobalData/CacheScene.h"
 
 static uint64_t uuidNode = 0;
 
@@ -53,7 +54,7 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 			std::cerr << "MAX ANIMATION MESHES REACHED" << std::endl;
 		}
 	}
-	updateSizes = true;
+	Prisma::CacheScene::getInstance().updateSizes(true);
 }
 
 void Prisma::Node::removeChild(uint64_t uuid)
@@ -105,14 +106,14 @@ void Prisma::Node::removeChild(uint64_t uuid)
 			currentGlobalScene->omniLights.erase(find);
 		}
 		m_children.erase(m_children.begin()+index);
-		updateSizes = true;
+		Prisma::CacheScene::getInstance().updateSizes(true);
 	}
 }
 
 void Prisma::Node::matrix(const glm::mat4& matrix, bool updateChildren)
 {
     m_matrix = matrix;
-    updateData = true;
+	Prisma::CacheScene::getInstance().updateData(true);
     if (updateChildren) {
         auto p = parent();
         glm::mat4 transform(1.0f);
@@ -132,7 +133,7 @@ glm::mat4 Prisma::Node::matrix() const
 void Prisma::Node::finalMatrix(const glm::mat4& matrix, bool update)
 {
     m_finalMatrix = matrix;
-    updateData = true;
+	Prisma::CacheScene::getInstance().updateData(true);
 }
 
 glm::mat4 Prisma::Node::finalMatrix() const

@@ -7,6 +7,7 @@
 #include "imgui.h"
 #include "../../Engine/include/SceneData/SceneLoader.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
+#include "../../Engine/include/GlobalData/CacheScene.h"
 
 namespace Prisma
 {
@@ -95,10 +96,8 @@ namespace Prisma
                             currentGlobalScene->animateMeshes.insert(currentGlobalScene->animateMeshes.end(), scene->animateMeshes.begin(), scene->animateMeshes.end());
                             currentGlobalScene->omniLights.insert(currentGlobalScene->omniLights.end(), scene->omniLights.begin(), scene->omniLights.end());
                             currentGlobalScene->dirLights.insert(currentGlobalScene->dirLights.end(), scene->dirLights.begin(), scene->dirLights.end());
-
-                            updateSizes = true;
-                            skipUpdate = true;
-                        
+                            Prisma::CacheScene::getInstance().updateSizes(true);
+                            Prisma::CacheScene::getInstance().skipUpdate(true);
                     }
                 }
                 ImGui::PopStyleVar();  // Restore the previous padding

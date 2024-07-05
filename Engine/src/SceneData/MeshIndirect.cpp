@@ -9,6 +9,7 @@
 
 #include "../../include/GlobalData/GlobalData.h"
 #include <glm/gtx/string_cast.hpp>
+#include "../../include/GlobalData/CacheScene.h"
 
 std::shared_ptr<Prisma::MeshIndirect> Prisma::MeshIndirect::instance = nullptr;
 
@@ -73,13 +74,13 @@ void Prisma::MeshIndirect::renderAnimateMeshes()
 
 void Prisma::MeshIndirect::update()
 {
-    if (updateSizes) {
+    if (Prisma::CacheScene::getInstance().updateSizes()) {
         updateSize();
     }
-    if (updateData) {
+    if (Prisma::CacheScene::getInstance().updateData()) {
         updateModels();
     }
-    if (updateTextures) {
+    if (Prisma::CacheScene::getInstance().updateTextures()) {
         updateTextureSize();
     }
 }

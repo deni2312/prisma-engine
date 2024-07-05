@@ -130,7 +130,7 @@ bool Prisma::Engine::run()
             std::cerr << "Null camera or scene" << std::endl;
             PrismaFunc::getInstance().closeWindow();
         }
-        resetCaches();
+        Prisma::CacheScene::getInstance().resetCaches();
     }
     Prisma::GarbageCollector::getInstance().clear();
     PrismaFunc::getInstance().destroy();

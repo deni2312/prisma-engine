@@ -2,6 +2,7 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
+#include "../../include/GlobalData/CacheScene.h"
 
 std::shared_ptr<Prisma::LightHandler> Prisma::LightHandler::instance = nullptr;
 
@@ -124,7 +125,7 @@ void Prisma::LightHandler::update()
 
     updateCSM();
 
-    if(m_init || updateData || updateSizes || updateLights) {
+    if(m_init || Prisma::CacheScene::getInstance().updateData() || Prisma::CacheScene::getInstance().updateSizes() || Prisma::CacheScene::getInstance().updateLights()) {
         if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS) {
             updateDirectional();
             updateOmni();

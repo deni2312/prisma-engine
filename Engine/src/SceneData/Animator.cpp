@@ -1,5 +1,6 @@
 #include "../../include/SceneData/Animator.h"
 #include "../../include/GlobalData/GlobalData.h"
+#include "../../include/GlobalData/CacheScene.h"
 
 
 Prisma::Animator::Animator(std::shared_ptr<Animation> animation)
@@ -12,7 +13,7 @@ void Prisma::Animator::updateAnimation(float dt)
 {
 	if (m_CurrentAnimation)
 	{
-		updateLights = true;
+		Prisma::CacheScene::getInstance().updateLights(true);
 		m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
 		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
 		calculateBoneTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f),Prisma::AnimationHandler::getInstance().animations()[findUUID()]);
@@ -57,7 +58,7 @@ void Prisma::Animator::frame(float frame)
 {
 	if (m_CurrentAnimation)
 	{
-		updateLights = true;
+		Prisma::CacheScene::getInstance().updateLights(true);
 		m_CurrentTime = frame;
 		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
 		calculateBoneTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f), Prisma::AnimationHandler::getInstance().animations()[findUUID()]);
