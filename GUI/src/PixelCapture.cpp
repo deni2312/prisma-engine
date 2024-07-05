@@ -30,7 +30,6 @@ Prisma::PixelCapture::PixelCapture()
 
 std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 {
-    Prisma::MeshHandler::getInstance().updateCamera();
     m_fbo->bind();
     GLfloat bkColor[4];
     glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
