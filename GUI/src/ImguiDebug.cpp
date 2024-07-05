@@ -324,7 +324,7 @@ std::string Prisma::ImguiDebug::openFolder()
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
     // Open the File Explorer dialog
     if (GetOpenFileName(&ofn) == TRUE) {
@@ -352,7 +352,7 @@ std::string Prisma::ImguiDebug::saveFile()
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 
     // Open the Save File dialog
     if (GetSaveFileName(&ofn) == TRUE) {
