@@ -82,6 +82,9 @@ Prisma::Engine::Engine()
     currentGlobalScene = std::make_shared<Scene>();
 
     data->lastTime = std::chrono::high_resolution_clock::now();
+
+    data->sceneParameters.srgb = true;
+
     data->fps = 0.0f;
 }
 

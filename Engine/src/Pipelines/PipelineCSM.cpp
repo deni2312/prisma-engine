@@ -14,8 +14,6 @@
 static std::shared_ptr<Prisma::Shader> shader = nullptr;
 static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
 
-
-
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_width{ width }, m_height{ height } {
 
     if (!shader) {
@@ -54,10 +52,6 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     m_id = glGetTextureHandleARB(lightDepthMaps);
     glMakeTextureHandleResidentARB(m_id);
-
-    shader->use();
-
-    shaderAnimation->use();
 
 }
 
