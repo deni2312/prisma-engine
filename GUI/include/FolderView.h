@@ -8,6 +8,7 @@
 #include "../../Engine/include/SceneData/SceneLoader.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../../Engine/include/GlobalData/CacheScene.h"
+#include "../../Engine/include/SceneData/MeshIndirect.h"
 
 namespace Prisma
 {
@@ -70,25 +71,27 @@ namespace Prisma
                 });
 
             for (const auto& entry : entries) {
-                std::string entryName = entry.path().filename().string();
+                try {
+                    std::string entryName = entry.path().filename().string();
 
-                ImGui::Columns(numColumn, nullptr, false);
-                ImGui::BeginGroup();
+                    ImGui::Columns(numColumn, nullptr, false);
+                    ImGui::BeginGroup();
 
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(-5, 0)); // Set padding to zero
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(-5, 0)); // Set padding to zero
 
-                if (entry.is_directory()) {
-                    // Load your folder icon texture here
-                    ImGui::ImageButton((void*)m_folder->id(), itemSize);
-                    if (ImGui::IsItemClicked()) {
-                        currentPath = entry.path();
+                    if (entry.is_directory()) {
+                        // Load your folder icon texture here
+                        ImGui::ImageButton((void*)m_folder->id(), itemSize);
+                        if (ImGui::IsItemClicked()) {
+                            currentPath = entry.path();
+                        }
                     }
-                } else {
-                    // Load your file icon texture here
-                    ImGui::ImageButton((void*)m_file->id(), itemSize);
-                    if (ImGui::IsItemHovered() &&  ImGui::IsMouseDoubleClicked(0)) {
-                        auto path = windowsToString(entry.path().c_str());
+                    else {
+                        // Load your file icon texture here
+                        ImGui::ImageButton((void*)m_file->id(), itemSize);
+                        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+                            auto path = windowsToString(entry.path().c_str());
                             Prisma::SceneLoader sceneLoader;
                             auto scene = sceneLoader.loadScene(path, { true });
                             currentGlobalScene->root->addChild(scene->root, false);
@@ -96,23 +99,29 @@ namespace Prisma
                             currentGlobalScene->animateMeshes.insert(currentGlobalScene->animateMeshes.end(), scene->animateMeshes.begin(), scene->animateMeshes.end());
                             currentGlobalScene->omniLights.insert(currentGlobalScene->omniLights.end(), scene->omniLights.begin(), scene->omniLights.end());
                             currentGlobalScene->dirLights.insert(currentGlobalScene->dirLights.end(), scene->dirLights.begin(), scene->dirLights.end());
+                            Prisma::MeshIndirect::getInstance().init();
+
                             Prisma::CacheScene::getInstance().updateSizes(true);
                             Prisma::CacheScene::getInstance().skipUpdate(true);
+                        }
                     }
+                    ImGui::PopStyleVar();  // Restore the previous padding
+                    ImGui::PopStyleColor();
+
+                    bool selected = false;
+
+                    auto textSize = ImGui::CalcTextSize(entryName.c_str());
+
+                    m_fontSize.x = textSize.x;
+
+                    ImGui::Text(entryName.c_str(), selected, 0, m_fontSize);
+                    ImGui::EndGroup();
+
+                    ImGui::NextColumn();
                 }
-                ImGui::PopStyleVar();  // Restore the previous padding
-                ImGui::PopStyleColor();
+                catch (std::exception& e) {
 
-                bool selected = false;
-
-                auto textSize = ImGui::CalcTextSize(entryName.c_str());
-
-                m_fontSize.x = textSize.x;
-
-                ImGui::Text(entryName.c_str(), selected, 0, m_fontSize);
-                ImGui::EndGroup();
-
-                ImGui::NextColumn();
+                }
             }
         }
     public:
