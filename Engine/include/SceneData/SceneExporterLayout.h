@@ -104,8 +104,27 @@ namespace Prisma {
                         {"bi", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
                         });
                 }
+                std::vector<std::vector<float>> data;
+
+                for (const auto& vertex : mesh->animateVerticesData()->vertices) {
+
+                    data.push_back({ vertex.position.x, vertex.position.y, vertex.position.z });
+
+                    data.push_back({ vertex.normal.x, vertex.normal.y, vertex.normal.z });
+
+                    data.push_back({ vertex.texCoords.x, vertex.texCoords.y });
+
+                    data.push_back({ vertex.tangent.x, vertex.tangent.y, vertex.tangent.z });
+
+                    data.push_back({ vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z });
+
+                    data.push_back({ (float)vertex.m_BoneIDs[0], (float)vertex.m_BoneIDs[1], (float)vertex.m_BoneIDs[2],(float)vertex.m_BoneIDs[3] });
+
+                    data.push_back({ vertex.m_Weights[0], vertex.m_Weights[1], vertex.m_Weights[2],vertex.m_Weights[3] });
+                }
+
                 j["type"] = "MESH_ANIMATE";
-                j["vertices"] = verticesJson;
+                j["vertices"] = data;
                 j["boneCount"] = mesh->boneInfoCounter();
 
                 int i = 0;
@@ -160,18 +179,22 @@ namespace Prisma {
 
                 j["textures"] = textures;
                 // Convert Vertex properties to arrays of floats
-                std::vector<json> verticesJson;
+                std::vector<std::vector<float>> data;
+
                 for (const auto& vertex : mesh->verticesData().vertices) {
-                    verticesJson.push_back({
-                        {"p", {vertex.position.x, vertex.position.y, vertex.position.z}},
-                        {"n", {vertex.normal.x, vertex.normal.y, vertex.normal.z}},
-                        {"texCoords", {vertex.texCoords.x, vertex.texCoords.y}},
-                        {"ta", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
-                        {"bi", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
-                        });
+
+                    data.push_back({ vertex.position.x, vertex.position.y, vertex.position.z });
+
+                    data.push_back({ vertex.normal.x, vertex.normal.y, vertex.normal.z });
+
+                    data.push_back({ vertex.texCoords.x, vertex.texCoords.y });
+
+                    data.push_back({ vertex.tangent.x, vertex.tangent.y, vertex.tangent.z });
+
+                    data.push_back({ vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z });
                 }
                 j["type"] = "MESH";
-                j["vertices"] = verticesJson;
+                j["vertices"] = data;
                 j["faces"] = mesh->verticesData().indices;
             }
             else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(n)) {
@@ -276,25 +299,19 @@ namespace Prisma {
                 mesh->material(material);
             }
             // Convert arrays of floats back to Vertex properties
-            auto verticesJson = j.at("vertices").get<std::vector<json>>();
+            auto verticesJson = j.at("vertices").get<std::vector<std::vector<float>>>();
             std::vector<Prisma::Mesh::Vertex> vertices;
-            vertices.resize(verticesJson.size());
-            for (size_t i = 0; i < verticesJson.size(); ++i) {
-                auto& vertexJson = verticesJson[i];
-                vertices[i].position = glm::vec3(vertexJson.at("p").get<std::vector<float>>().at(0),
-                    vertexJson.at("p").get<std::vector<float>>().at(1),
-                    vertexJson.at("p").get<std::vector<float>>().at(2));
-                vertices[i].normal = glm::vec3(vertexJson.at("n").get<std::vector<float>>().at(0),
-                    vertexJson.at("n").get<std::vector<float>>().at(1),
-                    vertexJson.at("n").get<std::vector<float>>().at(2));
-                vertices[i].texCoords = glm::vec2(vertexJson.at("texCoords").get<std::vector<float>>().at(0),
-                    vertexJson.at("texCoords").get<std::vector<float>>().at(1));
-                vertices[i].tangent = glm::vec3(vertexJson.at("ta").get<std::vector<float>>().at(0),
-                    vertexJson.at("ta").get<std::vector<float>>().at(1),
-                    vertexJson.at("ta").get<std::vector<float>>().at(2));
-                vertices[i].bitangent = glm::vec3(vertexJson.at("bi").get<std::vector<float>>().at(0),
-                    vertexJson.at("bi").get<std::vector<float>>().at(1),
-                    vertexJson.at("bi").get<std::vector<float>>().at(2));
+            vertices.resize(verticesJson.size() / 5);
+            for (size_t i = 0; i < verticesJson.size(); i = i + 5) {
+
+                int vertexIndex = i / 5;
+
+                vertices[vertexIndex].position = glm::vec3(verticesJson[i][0], verticesJson[i][1], verticesJson[i][2]);
+                vertices[vertexIndex].normal = glm::vec3(verticesJson[i + 1][0], verticesJson[i + 1][1], verticesJson[i + 1][2]);
+                vertices[vertexIndex].texCoords = glm::vec2(verticesJson[i + 2][0], verticesJson[i + 2][1]);
+                vertices[vertexIndex].tangent = glm::vec3(verticesJson[i + 3][0], verticesJson[i + 3][1], verticesJson[i + 3][2]);
+                vertices[vertexIndex].bitangent = glm::vec3(verticesJson[i + 4][0], verticesJson[i + 4][1], verticesJson[i + 4][2]);
+
             }
 
             auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
@@ -376,32 +393,29 @@ namespace Prisma {
             }
             // Convert arrays of floats back to Vertex properties
             auto verticesJson = j.at("vertices").get<std::vector<json>>();
+            
+
             std::vector<Prisma::AnimatedMesh::AnimateVertex> vertices;
-            vertices.resize(verticesJson.size());
-            for (size_t i = 0; i < verticesJson.size(); ++i) {
-                auto& vertexJson = verticesJson[i];
-                vertices[i].position = glm::vec3(vertexJson.at("p").get<std::vector<float>>().at(0),
-                    vertexJson.at("p").get<std::vector<float>>().at(1),
-                    vertexJson.at("p").get<std::vector<float>>().at(2));
-                vertices[i].normal = glm::vec3(vertexJson.at("n").get<std::vector<float>>().at(0),
-                    vertexJson.at("n").get<std::vector<float>>().at(1),
-                    vertexJson.at("n").get<std::vector<float>>().at(2));
-                vertices[i].texCoords = glm::vec2(vertexJson.at("texCoords").get<std::vector<float>>().at(0),
-                    vertexJson.at("texCoords").get<std::vector<float>>().at(1));
-                vertices[i].tangent = glm::vec3(vertexJson.at("ta").get<std::vector<float>>().at(0),
-                    vertexJson.at("ta").get<std::vector<float>>().at(1),
-                    vertexJson.at("ta").get<std::vector<float>>().at(2));
-                vertices[i].bitangent = glm::vec3(vertexJson.at("bi").get<std::vector<float>>().at(0),
-                    vertexJson.at("bi").get<std::vector<float>>().at(1),
-                    vertexJson.at("bi").get<std::vector<float>>().at(2));
-                vertices[i].m_BoneIDs[0] = vertexJson.at("boneId").get<std::vector<float>>().at(0);
-                vertices[i].m_BoneIDs[1] = vertexJson.at("boneId").get<std::vector<float>>().at(1);
-                vertices[i].m_BoneIDs[2] = vertexJson.at("boneId").get<std::vector<float>>().at(2);
-                vertices[i].m_BoneIDs[3] = vertexJson.at("boneId").get<std::vector<float>>().at(3);
-                vertices[i].m_Weights[0] = vertexJson.at("weight").get<std::vector<float>>().at(0);
-                vertices[i].m_Weights[1] = vertexJson.at("weight").get<std::vector<float>>().at(1);
-                vertices[i].m_Weights[2] = vertexJson.at("weight").get<std::vector<float>>().at(2);
-                vertices[i].m_Weights[3] = vertexJson.at("weight").get<std::vector<float>>().at(3);
+            vertices.resize(verticesJson.size() / 7);
+            for (size_t i = 0; i < verticesJson.size(); i = i + 7) {
+
+                int vertexIndex = i / 7;
+
+                vertices[vertexIndex].position = glm::vec3(verticesJson[i][0], verticesJson[i][1], verticesJson[i][2]);
+                vertices[vertexIndex].normal = glm::vec3(verticesJson[i + 1][0], verticesJson[i + 1][1], verticesJson[i + 1][2]);
+                vertices[vertexIndex].texCoords = glm::vec2(verticesJson[i + 2][0], verticesJson[i + 2][1]);
+                vertices[vertexIndex].tangent = glm::vec3(verticesJson[i + 3][0], verticesJson[i + 3][1], verticesJson[i + 3][2]);
+                vertices[vertexIndex].bitangent = glm::vec3(verticesJson[i + 4][0], verticesJson[i + 4][1], verticesJson[i + 4][2]);
+                vertices[vertexIndex].m_BoneIDs[0] = verticesJson[i + 5][0];
+                vertices[vertexIndex].m_BoneIDs[1] = verticesJson[i + 5][1];
+                vertices[vertexIndex].m_BoneIDs[2] = verticesJson[i + 5][2];
+                vertices[vertexIndex].m_BoneIDs[3] = verticesJson[i + 5][3];
+
+                vertices[vertexIndex].m_Weights[0] = verticesJson[i + 6][0];
+                vertices[vertexIndex].m_Weights[1] = verticesJson[i + 6][1];
+                vertices[vertexIndex].m_Weights[2] = verticesJson[i + 6][2];
+                vertices[vertexIndex].m_Weights[3] = verticesJson[i + 6][3];
+
 
             }
 

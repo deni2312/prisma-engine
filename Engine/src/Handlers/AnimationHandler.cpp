@@ -18,6 +18,15 @@ void Prisma::AnimationHandler::updateAnimations()
 	m_ssboAnimation->modifyData(0, currentGlobalScene->animateMeshes.size() * sizeof(SSBOAnimation), m_animations.data());
 }
 
+void Prisma::AnimationHandler::clear()
+{
+	for (int i = 0; i < m_animations.size(); i++) {
+		for (int j = 0; j < MAX_BONES; j++) {
+			m_animations[i].animations[j] = glm::mat4(1.0f);
+		}
+	}
+}
+
 std::vector<Prisma::AnimationHandler::SSBOAnimation>& Prisma::AnimationHandler::animations()
 {
 	return m_animations;

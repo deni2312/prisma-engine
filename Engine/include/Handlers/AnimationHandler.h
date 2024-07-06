@@ -18,6 +18,8 @@ namespace Prisma {
 
 		void updateAnimations();
 
+		void clear();
+
 		std::vector<SSBOAnimation>& animations();
 
 		AnimationHandler();
