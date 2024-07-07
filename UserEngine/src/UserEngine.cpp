@@ -14,7 +14,7 @@
 
 void UserEngine::start()
 {
-    auto root = Prisma::Engine::getInstance().getScene("../../../Resources/Landscape/landscape.prisma", { true });
+    auto root = Prisma::Engine::getInstance().getScene("../../../Resources/Landscape/landscape.gltf", { true });
     Prisma::Texture texture;
     texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
     texture.data({ 4096,4096,3 });

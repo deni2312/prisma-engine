@@ -140,9 +140,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     glm::vec3 right = glm::normalize(glm::cross(worldUp, direction)); // Compute the right vector
     glm::vec3 up = glm::cross(direction, right); // Compute the corrected up vector
 
-    // Construct the view matrix using the corrected up vector
     lightView = glm::lookAt(direction, center, up);
-
 
     float minX = std::numeric_limits<float>::max();
     float maxX = std::numeric_limits<float>::lowest();
@@ -150,9 +148,9 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     float maxY = std::numeric_limits<float>::lowest();
     float minZ = std::numeric_limits<float>::max();
     float maxZ = std::numeric_limits<float>::lowest();
-    for (const auto& v : corners)
-    {
-        const auto trf = lightView * v;
+
+    for (const auto& v : corners) {
+        glm::vec4 trf = lightView * v;
         minX = std::min(minX, trf.x);
         maxX = std::max(maxX, trf.x);
         minY = std::min(minY, trf.y);
@@ -162,25 +160,20 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     }
 
     // Tune this parameter according to the scene
-    constexpr float zMult = 10.0f;
-    if (minZ < 0)
-    {
-        minZ *= zMult;
+    if (minZ < 0) {
+        minZ *= m_zMult;
     }
-    else
-    {
-        minZ /= zMult;
+    else {
+        minZ /= m_zMult;
     }
-    if (maxZ < 0)
-    {
-        maxZ /= zMult;
+    if (maxZ < 0) {
+        maxZ /= m_zMult;
     }
-    else
-    {
-        maxZ *= zMult;
+    else {
+        maxZ *= m_zMult;
     }
 
-    const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+    glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
     return lightProjection * lightView;
 }
 
@@ -207,6 +200,14 @@ std::vector<glm::mat4> Prisma::PipelineCSM::getLightSpaceMatrices()
 
 std::vector<float>& Prisma::PipelineCSM::cascadeLevels() {
     return m_shadowCascadeLevels;
+}
+
+void Prisma::PipelineCSM::zMult(float zMult) {
+    m_zMult = zMult;
+}
+
+float Prisma::PipelineCSM::zMult() {
+    return m_zMult;
 }
 
 uint64_t Prisma::PipelineCSM::id() {

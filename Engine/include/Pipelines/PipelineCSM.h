@@ -36,6 +36,10 @@ namespace Prisma {
 
         std::vector<float>& cascadeLevels();
 
+        void zMult(float zMult);
+
+        float zMult();
+
     private:
         unsigned int m_width;
         unsigned int m_height;
@@ -47,6 +51,7 @@ namespace Prisma {
         uint64_t m_id;
         float m_farPlane = 200;
         float m_nearPlane = 0.1f;
+        float m_zMult = 10;
 
         std::vector<float> m_shadowCascadeLevels;
 
