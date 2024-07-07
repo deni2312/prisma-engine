@@ -22,20 +22,12 @@ namespace Prisma {
 
         // Serialize Transform to JSON
         friend void to_json(json& j, const Transform& t) {
-            std::vector<float> transformData(16);
-            const float* matrix = glm::value_ptr(t.transform);
-            for (int i = 0; i < 16; ++i) {
-                transformData[i] = matrix[i];
-            }
-            j = json{
-                {"t", transformData}
-            };
+            j = json{ {"t", std::vector<float>(glm::value_ptr(t.transform), glm::value_ptr(t.transform) + 16)} };
         }
 
         // Deserialize Transform from JSON
         friend void from_json(const json& j, Transform& t) {
-            std::vector<float> transformData;
-            j.at("t").get_to(transformData);
+            std::vector<float> transformData = j.at("t").get<std::vector<float>>();
             t.transform = glm::make_mat4(transformData.data());
         }
     };
