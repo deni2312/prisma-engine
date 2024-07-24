@@ -181,6 +181,12 @@ void Prisma::ImguiDebug::drawGui()
 
     ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
     ImGui::Text(("FPS: " + std::to_string(m_fps)).c_str());
+    ImGui::Text("CACHE STATUS:");
+    auto stringBool = [](bool data) {return data ? std::string("TRUE") : std::string("FALSE"); };
+    ImGui::Text(("    MODEL: " + stringBool(Prisma::CacheScene::getInstance().updateData())).c_str());
+    ImGui::Text(("    LIGHT: " + stringBool(Prisma::CacheScene::getInstance().updateLights())).c_str());
+    ImGui::Text(("    SIZE: " + stringBool(Prisma::CacheScene::getInstance().updateSizes())).c_str());
+    ImGui::Text(("    TEXTURE: " + stringBool(Prisma::CacheScene::getInstance().updateTextures())).c_str());
 
     ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
     ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(), m_status.postprocess.size());
