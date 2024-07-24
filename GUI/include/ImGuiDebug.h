@@ -16,6 +16,8 @@ namespace Prisma {
 			std::vector<std::shared_ptr<std::pair<std::string, float>>> performances;
 		};
 
+
+
         struct ImGuiStatus {
             //PIPELINE DATA
             std::vector<const char*> items;

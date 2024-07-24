@@ -6,7 +6,6 @@
 #include "../SceneObjects/Mesh.h"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "../GlobalData/GlobalData.h"
-#include "../../../GUI/include/ImGuiDebug.h"
 
 namespace Prisma {
 
@@ -26,7 +25,7 @@ namespace Prisma {
         Prisma::Physics::CollisionData collisionData();
 
     private:
-        Prisma::ImguiDebug::ImGuiStatus m_status;
+        ComponentList m_status;
         std::function<void()> m_apply;
         Prisma::Physics::CollisionData m_collisionData{};
         btCollisionShape *m_shape = nullptr;

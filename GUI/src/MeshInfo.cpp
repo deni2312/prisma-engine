@@ -157,7 +157,7 @@ void Prisma::MeshInfo::varsDispatcher(Prisma::Component::ComponentType types) {
             ImGui::Checkbox(name.c_str(),static_cast<bool*>(variable));
             break;
         case Component::TYPES::STRINGLIST:
-            auto comboData=static_cast<Prisma::ImguiDebug::ImGuiStatus*>(variable);
+            auto comboData=static_cast<Prisma::Component::ComponentList*>(variable);
             ImGui::Combo(name.c_str(), &comboData->currentitem, comboData->items.data(), comboData->items.size());
             break;
     }

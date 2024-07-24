@@ -9,6 +9,11 @@ namespace Prisma {
     class Component {
     public:
 
+        struct ComponentList {
+            std::vector<const char*> items;
+            int currentitem = 0;
+        };
+
         enum class TYPES{
             INT,
             FLOAT,
