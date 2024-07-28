@@ -72,7 +72,7 @@ void Prisma::PipelineForward::render()
 	Prisma::PipelineSkybox::getInstance().render();
 
 #ifndef NPHYSICS_DEBUG
-    drawDebugger->line.setMVP(m_projection*camera->matrix());
+    drawDebugger->line.setMVP(currentProjection * currentGlobalScene->camera->matrix());
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->debugDrawWorld();
 #endif
 
