@@ -19,9 +19,17 @@ void UserEngine::start()
     texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
     texture.data({ 4096,4096,3 });
     Prisma::PipelineSkybox::getInstance().texture(texture, true);
-    std::shared_ptr<Prisma::Animator> animator;
 
     Prisma::NodeHelper nodeHelper;
+
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(root->root, "MutantMesh")->children()[0]);
+
+    if (animatedMesh) {
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", animatedMesh);
+
+        auto animator = std::make_shared<Prisma::Animator>(animation);
+        animatedMesh->animator(animator);
+    }
 
     nodeHelper.nodeIterator(root->root, [](auto mesh, auto parent) {
         auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(mesh);

@@ -71,21 +71,10 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
 
     auto isAnimate = dynamic_cast<AnimatedMesh*>(mesh);
 
-    if (isAnimate) {
-        glm::decompose(mesh->parent()->parent()->matrix(), scale, rotation, translation, skew, perspective);
-    }
-    else {
-        glm::decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
-    }
+    glm::decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
     origin = glm::vec4(translation + origin, 1.0);
 
-
-    if (isAnimate) {
-        transform.setFromOpenGLMatrix(glm::value_ptr(mesh->parent()->parent()->matrix() * glm::inverse(glm::scale(glm::mat4(1.0f), scale))));
-    }
-    else {
-        transform.setFromOpenGLMatrix(glm::value_ptr(mesh->parent()->matrix() * glm::inverse(glm::scale(glm::mat4(1.0f), scale))));
-    }
+    transform.setFromOpenGLMatrix(glm::value_ptr(mesh->parent()->matrix() * glm::inverse(glm::scale(glm::mat4(1.0f), scale))));
 
     m_shape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
 

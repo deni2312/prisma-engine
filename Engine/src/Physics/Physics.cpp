@@ -46,7 +46,6 @@ void Prisma::Physics::update(float delta) {
             trans = obj->getWorldTransform();
         }
         auto mesh = (Mesh*)obj->getUserPointer();
-        auto isAnimate = dynamic_cast<AnimatedMesh*>(mesh);
 
         auto prismaMatrix = glm::mat4(1.0f);
         trans.getOpenGLMatrix(glm::value_ptr(prismaMatrix));
@@ -55,15 +54,10 @@ void Prisma::Physics::update(float delta) {
 
         prismaMatrix = prismaMatrix * glm::scale(glm::mat4(1.0f), scaling);
         
-        const auto& matrix = isAnimate ? mesh->parent()->parent()->matrix() : mesh->parent()->matrix();
+        const auto& matrix = mesh->parent()->matrix();
 
         if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
-            if (isAnimate) {
-                mesh->parent()->parent()->matrix(prismaMatrix);
-            }
-            else {
-                mesh->parent()->matrix(prismaMatrix);
-            }
+            mesh->parent()->matrix(prismaMatrix);
         }
     }
 }
