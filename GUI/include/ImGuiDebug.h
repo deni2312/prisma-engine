@@ -85,6 +85,8 @@ namespace Prisma {
 
 		bool m_bloom = false;
 
+		bool m_run = false;
+
 		std::string m_saveLocation;
 
     };
