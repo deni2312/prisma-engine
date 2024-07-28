@@ -14,7 +14,7 @@
 
 void UserEngine::start()
 {
-    auto root = Prisma::Engine::getInstance().getScene("../../../Resources/Landscape/landscape.gltf", { true });
+    auto root = Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.gltf", { true });
     Prisma::Texture texture;
     texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
     texture.data({ 4096,4096,3 });
@@ -30,16 +30,7 @@ void UserEngine::start()
             physicsComponent->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
             currentMesh->addComponent(physicsComponent);
         }
-        });
-
-    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(root->root, "vanguard_Mesh")->children()[0]);
-
-    if (animatedMesh) {
-        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/Landscape/animation.gltf", animatedMesh);
-
-        animator = std::make_shared<Prisma::Animator>(animation);
-        animatedMesh->animator(animator);
-    }
+    });
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0, -10.0, 0.0));
     
