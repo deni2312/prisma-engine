@@ -3,6 +3,12 @@
         "generator" : "Khronos glTF Blender I/O v3.3.32",
         "version" : "2.0"
     },
+    "extensionsUsed" : [
+        "KHR_texture_transform"
+    ],
+    "extensionsRequired" : [
+        "KHR_texture_transform"
+    ],
     "scene" : 0,
     "scenes" : [
         {
@@ -44,12 +50,12 @@
                 0,
                 -0.7071068286895752,
                 0,
-                0.7071068286895752
+                0.7071067094802856
             ],
             "scale" : [
-                -0.06565531343221664,
+                -0.06565532088279724,
                 -0.2242557406425476,
-                -5.196482181549072
+                -5.1964826583862305
             ],
             "translation" : [
                 0.012903690338134766,
@@ -104,12 +110,12 @@
                 0,
                 -0.7071068286895752,
                 0,
-                0.7071068286895752
+                0.7071067094802856
             ],
             "scale" : [
-                -0.06565531343221664,
+                -0.06565532088279724,
                 -0.2242557406425476,
-                -5.196482181549072
+                -5.1964826583862305
             ],
             "translation" : [
                 0.012903690338134766,
@@ -188,9 +194,130 @@
             ]
         }
     ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "name" : "Material.002",
+            "normalTexture" : {
+                "extensions" : {
+                    "KHR_texture_transform" : {
+                        "offset" : [
+                            0,
+                            -9
+                        ],
+                        "scale" : [
+                            10,
+                            10
+                        ]
+                    }
+                },
+                "index" : 0
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "extensions" : {
+                        "KHR_texture_transform" : {
+                            "offset" : [
+                                0,
+                                -9
+                            ],
+                            "scale" : [
+                                10,
+                                10
+                            ]
+                        }
+                    },
+                    "index" : 1
+                },
+                "metallicFactor" : 0,
+                "metallicRoughnessTexture" : {
+                    "extensions" : {
+                        "KHR_texture_transform" : {
+                            "offset" : [
+                                0,
+                                -9
+                            ],
+                            "scale" : [
+                                10,
+                                10
+                            ]
+                        }
+                    },
+                    "index" : 2
+                }
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Material.003",
+            "normalTexture" : {
+                "extensions" : {
+                    "KHR_texture_transform" : {
+                        "offset" : [
+                            0,
+                            -30.999996185302734
+                        ],
+                        "scale" : [
+                            1,
+                            31.999996185302734
+                        ]
+                    }
+                },
+                "index" : 3
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "extensions" : {
+                        "KHR_texture_transform" : {
+                            "offset" : [
+                                0,
+                                -30.999996185302734
+                            ],
+                            "scale" : [
+                                1,
+                                31.999996185302734
+                            ]
+                        }
+                    },
+                    "index" : 4
+                },
+                "metallicFactor" : 0,
+                "metallicRoughnessTexture" : {
+                    "extensions" : {
+                        "KHR_texture_transform" : {
+                            "offset" : [
+                                0,
+                                -30.999996185302734
+                            ],
+                            "scale" : [
+                                1,
+                                31.999996185302734
+                            ]
+                        }
+                    },
+                    "index" : 5
+                }
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Material.004",
+            "normalTexture" : {
+                "index" : 6
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 7
+                },
+                "metallicRoughnessTexture" : {
+                    "index" : 8
+                }
+            }
+        }
+    ],
     "meshes" : [
         {
-            "name" : "Cube.001",
+            "name" : "Cube.011",
             "primitives" : [
                 {
                     "attributes" : {
@@ -199,12 +326,13 @@
                         "TANGENT" : 2,
                         "TEXCOORD_0" : 3
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 0
                 }
             ]
         },
         {
-            "name" : "Cube.002",
+            "name" : "Cube.012",
             "primitives" : [
                 {
                     "attributes" : {
@@ -213,12 +341,13 @@
                         "TANGENT" : 7,
                         "TEXCOORD_0" : 8
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 1
                 }
             ]
         },
         {
-            "name" : "Cube.003",
+            "name" : "Cube.013",
             "primitives" : [
                 {
                     "attributes" : {
@@ -227,12 +356,13 @@
                         "TANGENT" : 11,
                         "TEXCOORD_0" : 12
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 1
                 }
             ]
         },
         {
-            "name" : "Cube.004",
+            "name" : "Cube.014",
             "primitives" : [
                 {
                     "attributes" : {
@@ -241,12 +371,13 @@
                         "TANGENT" : 15,
                         "TEXCOORD_0" : 16
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 1
                 }
             ]
         },
         {
-            "name" : "Cube.005",
+            "name" : "Cube.015",
             "primitives" : [
                 {
                     "attributes" : {
@@ -255,12 +386,13 @@
                         "TANGENT" : 19,
                         "TEXCOORD_0" : 20
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 1
                 }
             ]
         },
         {
-            "name" : "Cube.006",
+            "name" : "Cube.016",
             "primitives" : [
                 {
                     "attributes" : {
@@ -269,12 +401,13 @@
                         "TANGENT" : 23,
                         "TEXCOORD_0" : 24
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 2
                 }
             ]
         },
         {
-            "name" : "Cube.007",
+            "name" : "Cube.017",
             "primitives" : [
                 {
                     "attributes" : {
@@ -283,12 +416,13 @@
                         "TANGENT" : 27,
                         "TEXCOORD_0" : 28
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 2
                 }
             ]
         },
         {
-            "name" : "Cube.008",
+            "name" : "Cube.018",
             "primitives" : [
                 {
                     "attributes" : {
@@ -297,12 +431,13 @@
                         "TANGENT" : 31,
                         "TEXCOORD_0" : 32
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 2
                 }
             ]
         },
         {
-            "name" : "Cube.009",
+            "name" : "Cube.019",
             "primitives" : [
                 {
                     "attributes" : {
@@ -311,12 +446,13 @@
                         "TANGENT" : 35,
                         "TEXCOORD_0" : 36
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 2
                 }
             ]
         },
         {
-            "name" : "Cube.010",
+            "name" : "Cube.020",
             "primitives" : [
                 {
                     "attributes" : {
@@ -325,9 +461,95 @@
                         "TANGENT" : 39,
                         "TEXCOORD_0" : 40
                     },
-                    "indices" : 4
+                    "indices" : 4,
+                    "material" : 2
                 }
             ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        },
+        {
+            "sampler" : 0,
+            "source" : 2
+        },
+        {
+            "sampler" : 0,
+            "source" : 3
+        },
+        {
+            "sampler" : 0,
+            "source" : 4
+        },
+        {
+            "sampler" : 0,
+            "source" : 5
+        },
+        {
+            "sampler" : 0,
+            "source" : 6
+        },
+        {
+            "sampler" : 0,
+            "source" : 7
+        },
+        {
+            "sampler" : 0,
+            "source" : 8
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Tiles136B_2K-JPG_NormalDX",
+            "uri" : "Tiles136B_2K-JPG_NormalDX.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Tiles136B_2K-JPG_Color",
+            "uri" : "Tiles136B_2K-JPG_Color.jpg"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "Tiles136B_2K-JPG_Roughness",
+            "uri" : "Tiles136B_2K-JPG_Roughness.png"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Tiles135D_2K-JPG_NormalDX",
+            "uri" : "Tiles135D_2K-JPG_NormalDX.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Tiles135D_2K-JPG_Color",
+            "uri" : "Tiles135D_2K-JPG_Color.jpg"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "Tiles135D_2K-JPG_Roughness",
+            "uri" : "Tiles135D_2K-JPG_Roughness.png"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Metal007_2K-JPG_NormalDX",
+            "uri" : "Metal007_2K-JPG_NormalDX.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Metal007_2K-JPG_Color",
+            "uri" : "Metal007_2K-JPG_Color.jpg"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "Metal007-Metal007_2K-JPG_Roughness",
+            "uri" : "Metal007-Metal007_2K-JPG_Roughness.png"
         }
     ],
     "accessors" : [
@@ -924,6 +1146,12 @@
             "byteLength" : 192,
             "byteOffset" : 11400,
             "target" : 34962
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
         }
     ],
     "buffers" : [

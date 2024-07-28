@@ -69,7 +69,7 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
     }
     else {
         Assimp::Importer importer;
-        m_aScene = importer.ReadFile(scene, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        m_aScene = importer.ReadFile(scene, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_TransformUVCoords);
         if (m_aScene) {
             m_scene = std::make_shared<Scene>();
             std::shared_ptr<Node> root = std::make_shared<Node>();
@@ -207,8 +207,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 
                 vec.x = mesh->mTextureCoords[0][i].x;
                 vec.y = mesh->mTextureCoords[0][i].y;
+                
                 vertex.texCoords = vec;
-
                 vector.x = mesh->mTangents[i].x;
                 vector.y = mesh->mTangents[i].y;
                 vector.z = mesh->mTangents[i].z;
