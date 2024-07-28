@@ -16,24 +16,12 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
     glm::mat4 model = meshData.mesh->parent()->finalMatrix();
     glm::mat4 inverseParent = glm::inverse(meshData.mesh->parent()->parent()->finalMatrix());
 
-    auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.mesh);
-
-    if (isAnimate) {
-        model = meshData.mesh->parent()->parent()->matrix();
-        inverseParent = glm::inverse(meshData.mesh->parent()->parent()->parent()->finalMatrix());
-    }
-
 
     ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
 
     ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale));
 
-    if (isAnimate) {
-        meshData.mesh->parent()->parent()->matrix(inverseParent*model);
-    }
-    else {
-        meshData.mesh->parent()->matrix(inverseParent*model);
-    }
+    meshData.mesh->parent()->matrix(inverseParent*model);
     if (meshInfoData.physicsComponent) {
         meshInfoData.physicsComponent->updateCollisionData();
     }
