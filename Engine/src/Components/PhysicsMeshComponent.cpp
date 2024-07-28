@@ -1,6 +1,6 @@
 #include "../../include/Components/PhysicsMeshComponent.h"
 
-void Prisma::PhysicsMeshComponent::start() {
+void Prisma::PhysicsMeshComponent::ui() {
     ComponentType componentType;
     m_status.currentitem=static_cast<int>(m_collisionData.collider);
     m_status.items.push_back("BOX COLLIDER");

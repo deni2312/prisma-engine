@@ -15,7 +15,7 @@ namespace Prisma {
 	class MaterialComponent : public Prisma::Component{
 
     public:
-        void start() override;
+        void ui() override;
 
         void update() override;
 

@@ -122,7 +122,7 @@ void Prisma::MeshInfo::showComponents(const MeshData& meshData) {
     auto components=meshData.mesh->components();
     for(const auto& component: components){
         ImGui::Separator();
-        if(component->isStart()){
+        if(component->isUi()){
             auto fields=component->globalVars();
             ImGui::Text(component->name().c_str());
             for(auto field:fields){

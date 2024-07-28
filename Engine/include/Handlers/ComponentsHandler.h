@@ -8,6 +8,8 @@ namespace Prisma {
     public:
         void updateStart();
 
+        void updateUi();
+
         void updateComponents();
 
     };

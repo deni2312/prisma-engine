@@ -1,5 +1,17 @@
 #include "../../include/Components/Component.h"
 
+void Prisma::Component::ui()
+{
+}
+
+void Prisma::Component::start()
+{
+}
+
+void Prisma::Component::update()
+{
+}
+
 void Prisma::Component::parent(Prisma::Node *parent) {
     m_parent = parent;
 }
@@ -14,6 +26,16 @@ void Prisma::Component::isStart(bool start) {
 
 bool Prisma::Component::isStart() const {
     return m_start;
+}
+
+void Prisma::Component::isUi(bool ui)
+{
+    m_ui = ui;
+}
+
+bool Prisma::Component::isUi() const
+{
+    return m_ui;
 }
 
 Prisma::Component::ComponentTypeVector Prisma::Component::globalVars() {

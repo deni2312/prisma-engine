@@ -18,7 +18,7 @@ std::vector <Prisma::Texture> Prisma::MaterialComponent::diffuse() {
     return m_diffuse;
 }
 
-void Prisma::MaterialComponent::start() {
+void Prisma::MaterialComponent::ui() {
     auto getLast=[](std::string s){
         size_t found = s.find_last_of('/');
         return found != std::string::npos ? s.substr(found + 1) : s;

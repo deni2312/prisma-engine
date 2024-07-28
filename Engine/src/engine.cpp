@@ -105,12 +105,12 @@ bool Prisma::Engine::run()
             PrismaFunc::getInstance().clear();
             if (!data->debug) {
                 data->userData->update();
+                data->componentsHandler.updateStart();
                 data->componentsHandler.updateComponents();
                 Physics::getInstance().update(1 / fps());
             }
             data->sceneHandler->onBeginRender();
-            data->componentsHandler.updateStart();
-
+            data->componentsHandler.updateUi();
             MeshHandler::getInstance().updateCamera();
             MeshHandler::getInstance().updateFragment();
             AnimationHandler::getInstance().updateAnimations();

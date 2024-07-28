@@ -14,7 +14,7 @@ namespace Prisma {
 
         PhysicsMeshComponent();
 
-        void start() override;
+        void ui() override;
 
         void update() override;
 

@@ -27,9 +27,11 @@ namespace Prisma {
 
         using ComponentTypeVector = std::vector<ComponentType>;
 
-        virtual void start() = 0;
+        virtual void ui();
 
-        virtual void update()= 0;
+        virtual void start();
+
+        virtual void update();
 
         void parent(Prisma::Node* parent);
 
@@ -38,6 +40,10 @@ namespace Prisma {
         void isStart(bool start);
 
         bool isStart() const;
+
+        void isUi(bool ui);
+
+        bool isUi() const;
 
         void addGlobal(ComponentType globalVar);
 
@@ -53,6 +59,7 @@ namespace Prisma {
 
         Prisma::Node* m_parent = nullptr;
         bool m_start=false;
+        bool m_ui = false;
         ComponentTypeVector m_globalVars;
         std::string m_name;
 
