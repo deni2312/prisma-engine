@@ -192,6 +192,7 @@ void Prisma::ImguiDebug::drawGui()
         if (ImGui::Button("RUN"))
         {
             m_run = !m_run;
+            Prisma::Engine::getInstance().debug(!m_run);
         }
 
         ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
