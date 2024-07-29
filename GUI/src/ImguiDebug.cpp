@@ -235,27 +235,29 @@ void Prisma::ImguiDebug::drawGui()
         ImGui::End();
 
         m_fileBrowser->show(m_width, m_height, m_initOffset, m_scale, m_translate);
-        auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());
-        auto currentSelectLightDir = dynamic_cast<Light<LightType::LightDir>*>(m_imguiCamera.currentSelect());
-        auto currentSelectLightOmni = dynamic_cast<Light<LightType::LightOmni>*>(m_imguiCamera.currentSelect());
-        MeshInfo::MeshData meshData;
-        meshData.camera = m_camera;
-        meshData.projection = m_model * m_projection;
-        meshData.translate = m_translate;
-        meshData.width = m_width;
-        meshData.height = m_height;
-        meshData.scale = m_scale;
-        meshData.initOffset = m_initOffset;
+        if (m_imguiCamera.currentSelect()) {
+            auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());
+            auto currentSelectLightDir = dynamic_cast<Light<LightType::LightDir>*>(m_imguiCamera.currentSelect());
+            auto currentSelectLightOmni = dynamic_cast<Light<LightType::LightOmni>*>(m_imguiCamera.currentSelect());
+            MeshInfo::MeshData meshData;
+            meshData.camera = m_camera;
+            meshData.projection = m_model * m_projection;
+            meshData.translate = m_translate;
+            meshData.width = m_width;
+            meshData.height = m_height;
+            meshData.scale = m_scale;
+            meshData.initOffset = m_initOffset;
 
-        if (currentSelectMesh) {
-            meshData.mesh = currentSelectMesh;
-            meshInfo.showSelected(meshData);
-        }
-        else if (currentSelectLightDir) {
-            lightInfo.showSelectedDir(currentSelectLightDir, meshData);
-        }
-        else if (currentSelectLightOmni) {
-            lightInfo.showSelectedOmni(currentSelectLightOmni, meshData);
+            if (currentSelectMesh) {
+                meshData.mesh = currentSelectMesh;
+                meshInfo.showSelected(meshData);
+            }
+            else if (currentSelectLightDir) {
+                lightInfo.showSelectedDir(currentSelectLightDir, meshData);
+            }
+            else if (currentSelectLightOmni) {
+                lightInfo.showSelectedOmni(currentSelectLightOmni, meshData);
+            }
         }
 
         updateStatus();

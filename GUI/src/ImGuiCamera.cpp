@@ -27,6 +27,12 @@ void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
     if (glfwGetKey(window, Prisma::KEY_C) == GLFW_PRESS) {
         //Prisma::PrismaFunc()->closeWindow();
     }
+    if (glfwGetKey(window, Prisma::KEY_U) == GLFW_PRESS) {
+        if (m_currentSelect) {
+            m_currentSelect->parent()->removeChild(m_currentSelect->uuid());
+            m_currentSelect = nullptr;
+        }
+    }
     if (glfwGetKey(window, Prisma::KEY_W) == GLFW_PRESS) {
         m_position += m_front * m_velocity;
     }
@@ -56,7 +62,6 @@ void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
     if (glfwGetKey(window, Prisma::KEY_G) == GLFW_RELEASE) {
         m_pressed = false;
     }
-
 }
 
 void Prisma::ImGuiCamera::mouseCallback()

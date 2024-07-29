@@ -41,7 +41,6 @@ void UserEngine::start()
     });
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0, -10.0, 0.0));
-    
 }
 
 void UserEngine::update()
