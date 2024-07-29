@@ -107,6 +107,7 @@ void Prisma::Node::removeChild(uint64_t uuid)
 		}
 		m_children.erase(m_children.begin()+index);
 		Prisma::CacheScene::getInstance().updateSizes(true);
+		Prisma::CacheScene::getInstance().skipUpdate(true);
 	}
 }
 

@@ -119,7 +119,6 @@ void Prisma::MeshIndirect::updateSize()
         //GENERATE DATA TO SEND INDIRECT
         m_vao->bind();
 
-
         if (m_cacheRemove.size() > 0) {
             m_verticesData.vertices.clear();
             m_verticesData.indices.clear();
@@ -172,7 +171,7 @@ void Prisma::MeshIndirect::updateSize()
         if (m_cacheAdd.size() > 0) {
             //GENERATE CACHE DATA 
 
-            if (currentVboCache > m_currentVertexMax || m_currentVertexMax == 0) {
+            if (currentVboCache > m_currentVertexMax || currentEboCache > m_currentIndexMax || m_currentVertexMax == 0) {
                 m_currentVertexMax = m_verticesData.vertices.size() + m_cacheSize;
                 m_currentIndexMax = m_verticesData.indices.size() +m_cacheSize;
                 m_verticesData.vertices.resize(m_currentVertexMax);
@@ -290,6 +289,16 @@ void Prisma::MeshIndirect::updateAnimation()
         //GENERATE DATA TO SEND INDIRECT
         m_vaoAnimation->bind();
 
+        if (m_cacheRemoveAnimate.size() > 0) {
+            m_verticesDataAnimation.vertices.clear();
+            m_verticesDataAnimation.indices.clear();
+            m_cacheAddAnimate.clear();
+            for (int i = 0; i < currentGlobalScene->animateMeshes.size(); i++) {
+                MeshIndirect::getInstance().addAnimate(i);
+            }
+            m_currentVertexAnimation = 0;
+        }
+
         //GENERATE CACHE DATA
 
         uint64_t sizeVbo = 0;
@@ -335,7 +344,7 @@ void Prisma::MeshIndirect::updateAnimation()
         if (m_cacheAddAnimate.size() > 0) {
             //GENERATE CACHE DATA 
 
-            if (currentVboCache > m_currentVertexMaxAnimation || m_cacheRemoveAnimate.size()>0 || m_currentVertexMaxAnimation == 0) {
+            if (currentVboCache > m_currentVertexMaxAnimation || m_cacheRemoveAnimate.size()>0 || currentEboCache > m_currentIndexMaxAnimation || m_currentVertexMaxAnimation == 0) {
                 m_currentVertexMaxAnimation = m_verticesDataAnimation.vertices.size() + m_cacheSize;
                 m_currentIndexMaxAnimation = m_verticesDataAnimation.indices.size() + m_cacheSize;
                 m_verticesDataAnimation.vertices.resize(m_currentVertexMaxAnimation);
