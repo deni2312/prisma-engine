@@ -89,5 +89,9 @@ namespace Prisma {
 
 		std::string m_saveLocation;
 
+		std::shared_ptr<Prisma::Texture> m_runButton;
+
+		std::shared_ptr<Prisma::Texture> m_pauseButton;
+
     };
 }
