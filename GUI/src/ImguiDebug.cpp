@@ -94,7 +94,7 @@ void Prisma::ImguiDebug::drawGui()
     ImVec2 size;
     auto nextLeft = [&](float pos) {
         ImGui::SetNextWindowPos(ImVec2(0, pos));
-        ImGui::SetNextWindowSize(ImVec2(windowWidth, m_height * m_scale - size.y+50));
+        ImGui::SetNextWindowSize(ImVec2(windowWidth, m_height * m_scale - size.y));
     };
 
     if (ImGui::BeginMainMenuBar()) {
@@ -167,7 +167,7 @@ void Prisma::ImguiDebug::drawGui()
         ImGui::EndMainMenuBar();
     }
     m_initOffset = size.y;
-    m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate - (m_initOffset+50.0f)/(float)m_height, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
+    m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate - (m_initOffset)/(float)m_height, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
 
     bool isOpen = true;
     if (!m_run) {
@@ -197,14 +197,14 @@ void Prisma::ImguiDebug::drawGui()
         ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
 
         ImGui::Begin("Dummy Left", &isOpen, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMouseInputs);
-        ImGui::Dummy(ImVec2(0.0f, m_height * m_scale+20));
+        ImGui::Dummy(ImVec2(0.0f, m_height * m_scale));
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(m_width * m_scale + windowWidth, m_initOffset));
         ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
 
         ImGui::Begin("Dummy Right", &isOpen, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMouseInputs);
-        ImGui::Dummy(ImVec2(0, m_height * m_scale + 20));
+        ImGui::Dummy(ImVec2(0, m_height * m_scale));
         ImGui::End();
 
         nextLeft(m_initOffset);
@@ -283,20 +283,20 @@ void Prisma::ImguiDebug::start()
 
 void Prisma::ImguiDebug::close()
 {
-        m_imguiCamera.constraints({ m_translate * m_width / 2,m_initOffset+50,m_translate * m_width / 2 + m_scale * m_width,m_initOffset + m_height * m_scale+50,meshInfo.updateMesh(),ImGuizmo::IsOver(),m_scale });
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        if (!m_run) {
-            double currentFrameTime = glfwGetTime();
-            if (currentFrameTime != m_lastFrameTime) {  // Avoid division by zero in the first frame
-                m_fps = 1.0f / static_cast<float>(currentFrameTime - m_lastFrameTime);
-            }
-            m_lastFrameTime = currentFrameTime;
-            m_imguiCamera.velocity(1.0f / fps());
-
-            m_imguiCamera.updateCamera(m_camera);
-            m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
+    m_imguiCamera.constraints({ m_translate * m_width / 2,m_initOffset,m_translate * m_width / 2 + m_scale * m_width,m_initOffset + m_height * m_scale,meshInfo.updateMesh(),ImGuizmo::IsOver(),m_scale });
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    if (!m_run) {
+        double currentFrameTime = glfwGetTime();
+        if (currentFrameTime != m_lastFrameTime) {  // Avoid division by zero in the first frame
+            m_fps = 1.0f / static_cast<float>(currentFrameTime - m_lastFrameTime);
         }
+        m_lastFrameTime = currentFrameTime;
+        m_imguiCamera.velocity(1.0f / fps());
+
+        m_imguiCamera.updateCamera(m_camera);
+        m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
+    }
 }
 
 void Prisma::ImguiDebug::imguiData(std::shared_ptr<ImGuiData> data)
@@ -338,7 +338,7 @@ void Prisma::ImguiDebug::drawScene()
 
     glm::mat4 model = glm::mat4(1.0f);
     if (!m_run) {
-        model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -(m_initOffset + 10)/ (float)m_height, 0.0f)) * m_model;
+        model = m_model;
     }
 
 #ifndef NDEBUG

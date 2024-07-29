@@ -121,8 +121,8 @@ Prisma::FileBrowser::FileBrowser() : currentPath(fs::current_path().parent_path(
 }
 
 void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float offset, float scale, float translation) {
-    ImGui::SetNextWindowPos(ImVec2(0, scale * height+offset+30));
-    ImGui::SetNextWindowSize(ImVec2(width, height - (scale * height + offset + 30)));
+    ImGui::SetNextWindowPos(ImVec2(0, scale * height+offset));
+    ImGui::SetNextWindowSize(ImVec2(width, height - (scale * height + offset)));
 
     ImGui::Begin("File Browser", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
