@@ -167,7 +167,7 @@ void Prisma::ImguiDebug::drawGui()
         ImGui::EndMainMenuBar();
     }
     m_initOffset = size.y;
-    m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate - (m_initOffset)/(float)m_height, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
+    m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
 
     bool isOpen = true;
     if (!m_run) {
@@ -283,7 +283,8 @@ void Prisma::ImguiDebug::start()
 
 void Prisma::ImguiDebug::close()
 {
-    m_imguiCamera.constraints({ m_translate * m_width / 2,m_initOffset,m_translate * m_width / 2 + m_scale * m_width,m_initOffset + m_height * m_scale,meshInfo.updateMesh(),ImGuizmo::IsOver(),m_scale });
+
+    m_imguiCamera.constraints({ m_translate * m_width / 2,0,m_translate * m_width / 2 + m_scale * m_width,m_height * m_scale,meshInfo.updateMesh(),ImGuizmo::IsOver(),m_scale });
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     if (!m_run) {
