@@ -190,6 +190,12 @@ void Prisma::ImguiDebug::drawGui()
     {
         m_run = !m_run;
         Prisma::Engine::getInstance().debug(!m_run);
+        if (m_run) {
+            Prisma::Engine::getInstance().setCallback(Prisma::Engine::getInstance().getUserEngine()->callbacks());
+        }
+        else {
+            Prisma::Engine::getInstance().setCallback(m_imguiCamera.callback());
+        }
     }
     ImGui::End();
     if (!m_run) {

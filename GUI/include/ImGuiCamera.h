@@ -38,7 +38,7 @@ namespace Prisma {
 		float m_yaw = -90.0f;
 		float m_pitch = 0.0f;
 		float m_velocity = 1.0;
-		bool firstMouse = true;
+		bool m_firstMouse = true;
 		float m_lastX;
 		float m_lastY;
 		bool m_lock = false;

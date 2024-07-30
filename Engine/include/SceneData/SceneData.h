@@ -25,6 +25,7 @@ namespace Prisma {
 		virtual void start() = 0;
 		virtual void update() = 0;
 		virtual void finish() = 0;
+		virtual std::shared_ptr<CallbackHandler> callbacks() = 0;
 	};
 
 	struct Scene {

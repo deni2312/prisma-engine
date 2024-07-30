@@ -10,6 +10,7 @@
 
 struct PrivatePrisma {
     std::shared_ptr<Prisma::CallbackHandler> callback;
+    bool initCallback = false;;
 };
 
 std::shared_ptr<Prisma::PrismaFunc> Prisma::PrismaFunc::instance = nullptr;
@@ -31,7 +32,7 @@ namespace Prisma {
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        privatePrisma->callback->mouseClick(button,action,xpos,ypos);
+        privatePrisma->callback->mouseClick(button, action, xpos, ypos);
     }
 }
 
@@ -76,9 +77,12 @@ void Prisma::PrismaFunc::clear()
 void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHandler)
 {
     privatePrisma->callback = callbackHandler;
-    glfwSetFramebufferSizeCallback(m_window, Prisma::framebufferSizeCallback);
-    glfwSetCursorPosCallback(m_window, Prisma::mouseCallback);
-    glfwSetMouseButtonCallback(m_window, Prisma::mouseButtonCallback);
+    if (!privatePrisma->initCallback) {
+        glfwSetFramebufferSizeCallback(m_window, Prisma::framebufferSizeCallback);
+        glfwSetCursorPosCallback(m_window, Prisma::mouseCallback);
+        glfwSetMouseButtonCallback(m_window, Prisma::mouseButtonCallback);
+        privatePrisma->initCallback = true;
+    }
 }
 
 void Prisma::PrismaFunc::closeWindow()

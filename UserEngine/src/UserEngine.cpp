@@ -14,7 +14,7 @@
 
 void UserEngine::start()
 {
-    auto root = Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.gltf", { true });
+    m_root = Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.gltf", { true });
     Prisma::Texture texture;
     texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
     texture.data({ 4096,4096,3 });
@@ -22,7 +22,7 @@ void UserEngine::start()
 
     Prisma::NodeHelper nodeHelper;
 
-    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(root->root, "MutantMesh")->children()[0]);
+    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_root->root, "MutantMesh")->children()[0]);
 
     if (animatedMesh) {
         auto animation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", animatedMesh);
@@ -31,7 +31,7 @@ void UserEngine::start()
         animatedMesh->animator(animator);
     }
 
-    nodeHelper.nodeIterator(root->root, [](auto mesh, auto parent) {
+    nodeHelper.nodeIterator(m_root->root, [](auto mesh, auto parent) {
         auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(mesh);
         if (currentMesh) {
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
@@ -41,13 +41,71 @@ void UserEngine::start()
     });
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0, -10.0, 0.0));
+    m_handler = std::make_shared<Prisma::CallbackHandler>();
+    createCamera();
 }
 
 void UserEngine::update()
 {
-
+    updateCamera();
 }
 
 void UserEngine::finish()
 {
+}
+
+std::shared_ptr<Prisma::CallbackHandler> UserEngine::callbacks()
+{
+    return m_handler;
+}
+
+void UserEngine::updateCamera()
+{
+    m_root->camera->position(m_position);
+    m_root->camera->center(m_position + m_front);
+    m_root->camera->up(m_up);
+}
+
+void UserEngine::updateKeyboard()
+{
+}
+
+void UserEngine::createCamera()
+{
+    m_handler->mouse = [this](float x, float y) {
+        float xpos = static_cast<float>(x);
+        float ypos = static_cast<float>(y);
+
+        if (m_firstMouse)
+        {
+            m_lastX = xpos;
+            m_lastY = ypos;
+            m_firstMouse = false;
+        }
+
+        float xoffset = xpos - m_lastX;
+        float yoffset = m_lastY - ypos; // reversed since y-coordinates go from bottom to top
+        m_lastX = xpos;
+        m_lastY = ypos;
+
+        float sensitivity = 0.1f; // change this value to your liking
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        m_yaw += xoffset;
+        m_pitch += yoffset;
+
+        // make sure that when pitch is out of bounds, screen doesn't get flipped
+        if (m_pitch > 89.0f)
+            m_pitch = 89.0f;
+        if (m_pitch < -89.0f)
+            m_pitch = -89.0f;
+
+        glm::vec3 front;
+        front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+        front.y = sin(glm::radians(m_pitch));
+        front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+        m_front = glm::normalize(front);
+    };
+    m_handler->mouseClick = [](int button, int action, double x, double y) {};
 }

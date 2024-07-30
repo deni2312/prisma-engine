@@ -71,11 +71,11 @@ void Prisma::ImGuiCamera::mouseCallback()
             float xpos = static_cast<float>(x);
             float ypos = static_cast<float>(y);
 
-            if (firstMouse)
+            if (m_firstMouse)
             {
                 m_lastX = xpos;
                 m_lastY = ypos;
-                firstMouse = false;
+                m_firstMouse = false;
             }
 
             float xoffset = xpos - m_lastX;

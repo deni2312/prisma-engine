@@ -33,6 +33,7 @@ namespace Prisma {
 		Pipeline pipeline();
 		std::shared_ptr<Prisma::Scene> getScene(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters);
 		void setUserEngine(std::shared_ptr<Prisma::UserData> userData);
+		std::shared_ptr<Prisma::UserData> getUserEngine();
 		void setGuiData(std::shared_ptr<Prisma::SceneHandler> guiData);
 		void debug(bool debug);
 

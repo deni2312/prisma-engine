@@ -211,6 +211,11 @@ void Prisma::Engine::debug(bool debug)
     data->debug = debug;
 }
 
+std::shared_ptr<Prisma::UserData> Prisma::Engine::getUserEngine()
+{
+    return data->userData;
+}
+
 std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters)
 {
     SceneLoader sceneLoader;
