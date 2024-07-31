@@ -53,7 +53,7 @@ void PlayerController::updateKeyboard()
     }
 
     m_animatedMesh->parent()->parent()->matrix(playerData);
-    Prisma::CacheScene::getInstance().updateData(true);
+
     if (glfwGetKey(m_window, Prisma::KEY_G) == GLFW_PRESS && !m_press) {
         m_hide = !m_hide;
         if (m_hide) {
