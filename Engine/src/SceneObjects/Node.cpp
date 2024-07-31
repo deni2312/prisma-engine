@@ -36,17 +36,21 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 		if (std::dynamic_pointer_cast<Prisma::Mesh>(child) && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
 			MeshIndirect::getInstance().add(currentGlobalScene->meshes.size());
 			currentGlobalScene->meshes.push_back(std::dynamic_pointer_cast<Mesh>(child));
+			Prisma::CacheScene::getInstance().updateSizes(true);
 		}
 		if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(child)) {
 			currentGlobalScene->dirLights.push_back(std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(child));
+			Prisma::CacheScene::getInstance().updateLights(true);
 		}
 		if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(child)) {
 			currentGlobalScene->omniLights.push_back(std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(child));
+			Prisma::CacheScene::getInstance().updateLights(true);
 		}
 		if (currentGlobalScene->animateMeshes.size() < MAX_ANIMATION_MESHES) {
 			if (std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
 				MeshIndirect::getInstance().addAnimate(currentGlobalScene->animateMeshes.size());
 				currentGlobalScene->animateMeshes.push_back(std::dynamic_pointer_cast<AnimatedMesh>(child));
+				Prisma::CacheScene::getInstance().updateSizes(true);
 			}
 		}
 		else 
@@ -54,7 +58,6 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 			std::cerr << "MAX ANIMATION MESHES REACHED" << std::endl;
 		}
 	}
-	Prisma::CacheScene::getInstance().updateSizes(true);
 }
 
 void Prisma::Node::removeChild(uint64_t uuid)
@@ -114,7 +117,6 @@ void Prisma::Node::removeChild(uint64_t uuid)
 void Prisma::Node::matrix(const glm::mat4& matrix, bool updateChildren)
 {
     m_matrix = matrix;
-	Prisma::CacheScene::getInstance().updateData(true);
     if (updateChildren) {
         auto p = parent();
         glm::mat4 transform(1.0f);
@@ -134,7 +136,6 @@ glm::mat4 Prisma::Node::matrix() const
 void Prisma::Node::finalMatrix(const glm::mat4& matrix, bool update)
 {
     m_finalMatrix = matrix;
-	Prisma::CacheScene::getInstance().updateData(true);
 }
 
 glm::mat4 Prisma::Node::finalMatrix() const
