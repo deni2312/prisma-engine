@@ -89,6 +89,8 @@ Prisma::Engine::Engine()
     data->fps = 0.0f;
 
     data->debug = true;
+
+    data->camera = std::make_shared<Camera>();
 }
 
 

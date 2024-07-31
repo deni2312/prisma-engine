@@ -26,6 +26,11 @@ namespace Prisma {
 
         void updateTextures(bool value);
 
+        bool updateStatus();
+
+        void updateStatus(bool value);
+
+
         // Delete copy constructor and assignment operator
         CacheScene(const CacheScene&) = delete;
 
@@ -46,5 +51,6 @@ namespace Prisma {
         bool m_updateData = false;
         bool m_skipUpdate = false;
         bool m_updateTextures = false;
+        bool m_updateStatus = false;
     };
 }

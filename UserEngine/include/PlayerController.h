@@ -56,7 +56,7 @@ private:
 
 	std::shared_ptr<Prisma::AnimatedMesh> m_animatedMesh;
 
-	bool m_hide = false;
+	bool m_hide = true;
 
 	bool m_press = false;
 

@@ -42,6 +42,16 @@ void Prisma::CacheScene::updateTextures(bool value) {
     m_updateTextures = value;
 }
 
+bool Prisma::CacheScene::updateStatus()
+{
+    return m_updateStatus;
+}
+
+void Prisma::CacheScene::updateStatus(bool value)
+{
+    m_updateStatus = value;
+}
+
 Prisma::CacheScene& Prisma::CacheScene::getInstance()
 {
     if (!instance) {
@@ -56,6 +66,7 @@ void Prisma::CacheScene::resetCaches() {
         m_updateSizes = false;
         m_updateData = false;
         m_updateTextures = false;
+        m_updateStatus = false;
     }
     else {
         m_skipUpdate = false;

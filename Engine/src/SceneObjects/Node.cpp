@@ -162,6 +162,15 @@ uint64_t Prisma::Node::uuid()
 	return m_uuid;
 }
 
+void Prisma::Node::visible(bool visible) {
+	m_visible = visible;
+	Prisma::CacheScene::getInstance().updateStatus(true);
+}
+
+bool Prisma::Node::visible() {
+	return m_visible;
+}
+
 Prisma::Node::~Node()
 {
 }

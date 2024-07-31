@@ -254,9 +254,11 @@ Prisma::MeshIndirect::MeshIndirect()
 
     m_ssboModel = std::make_shared<Prisma::SSBO>(1);
     m_ssboMaterial = std::make_shared<Prisma::SSBO>(0);
+    m_ssboStatus = std::make_shared<Prisma::SSBO>(10);
 
     m_ssboModelAnimation = std::make_shared<Prisma::SSBO>(6);
     m_ssboMaterialAnimation = std::make_shared<Prisma::SSBO>(7);
+    m_ssboStatusAnimation = std::make_shared<Prisma::SSBO>(11);
 }
 
 void Prisma::MeshIndirect::updateAnimation()
@@ -419,4 +421,8 @@ void Prisma::MeshIndirect::updateTextureSize() {
     }
     m_ssboMaterialAnimation->resize(sizeof(Prisma::MaterialData) * (m_materialDataAnimation.size()));
     m_ssboMaterialAnimation->modifyData(0, sizeof(Prisma::MaterialData) * m_materialDataAnimation.size(), m_materialDataAnimation.data());
+}
+
+void Prisma::MeshIndirect::updateStatus()
+{
 }
