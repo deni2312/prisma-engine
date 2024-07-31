@@ -46,4 +46,6 @@ private:
 
 	std::shared_ptr<Prisma::Scene> m_root;
 
+	GLFWwindow* m_window;
+
 };

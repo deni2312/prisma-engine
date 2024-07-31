@@ -43,6 +43,7 @@ void UserEngine::start()
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0, -10.0, 0.0));
     m_handler = std::make_shared<Prisma::CallbackHandler>();
     createCamera();
+    m_window = Prisma::PrismaFunc::getInstance().window();
 }
 
 void UserEngine::update()
@@ -61,6 +62,8 @@ std::shared_ptr<Prisma::CallbackHandler> UserEngine::callbacks()
 
 void UserEngine::updateCamera()
 {
+    m_velocity = 1 * 1.0f/(float)Prisma::Engine::getInstance().fps();
+    updateKeyboard();
     m_root->camera->position(m_position);
     m_root->camera->center(m_position + m_front);
     m_root->camera->up(m_up);
@@ -68,6 +71,20 @@ void UserEngine::updateCamera()
 
 void UserEngine::updateKeyboard()
 {
+
+    if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
+        m_position += m_front * m_velocity;
+    }
+    if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
+        m_position -= glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
+    }
+    if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
+        m_position -= m_front * m_velocity;
+    }
+
+    if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
+        m_position += glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
+    }
 }
 
 void UserEngine::createCamera()
