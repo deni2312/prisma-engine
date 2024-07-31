@@ -1,32 +1,73 @@
 #include "../include/PlayerController.h"
 
-PlayerController::PlayerController() {
+PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
+    Prisma::NodeHelper nodeHelper;
+
+    m_animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_scene->root, "MutantMesh")->children()[0]);
+
+    if (m_animatedMesh) {
+        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", m_animatedMesh);
+
+        auto animator = std::make_shared<Prisma::Animator>(animation);
+        m_animatedMesh->animator(animator);
+    }
     createCamera();
 }
 
-void PlayerController::updateCamera()
-{
-    m_velocity = 1 * 1.0f / (float)Prisma::Engine::getInstance().fps();
-    updateKeyboard();
+void PlayerController::updateCamera() {
+    m_velocity = m_baseVelocity * 1.0f / (float)Prisma::Engine::getInstance().fps();
+    // Calculate the new position based on yaw, pitch, and distance from target
+    glm::vec3 offset;
+    offset.x = m_distance * cos(glm::radians(m_pitch)) * cos(glm::radians(m_yaw));
+    offset.y = m_distance * sin(glm::radians(m_pitch));
+    offset.z = m_distance * cos(glm::radians(m_pitch)) * sin(glm::radians(m_yaw));
+
+    m_position = m_target + offset;
+
+    // Update the camera view matrix
     m_scene->camera->position(m_position);
-    m_scene->camera->center(m_position + m_front);
+    m_scene->camera->center(m_target);
     m_scene->camera->up(m_up);
 }
 
+
 void PlayerController::updateKeyboard()
 {
+
+    auto playerData = m_animatedMesh->parent()->parent()->matrix();
+
     if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
-        m_position += m_front * m_velocity;
+        playerData[3] -= glm::vec4(m_front * m_velocity, 0);
     }
+
     if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
-        m_position -= glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
+        playerData[3] += glm::vec4(glm::normalize(glm::cross(m_front, m_up)) * m_velocity, 0);
     }
+
     if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
-        m_position -= m_front * m_velocity;
+        playerData[3] += glm::vec4(m_front * m_velocity, 0);
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
-        m_position += glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
+        playerData[3] -= glm::vec4(glm::normalize(glm::cross(m_front, m_up)) * m_velocity, 0);
+    }
+
+    m_animatedMesh->parent()->parent()->matrix(playerData);
+    Prisma::CacheScene::getInstance().updateData(true);
+    if (glfwGetKey(m_window, Prisma::KEY_G) == GLFW_PRESS && !m_press) {
+        m_hide = !m_hide;
+        if (m_hide) {
+            Prisma::PrismaFunc::getInstance().hiddenMouse(m_hide);
+        }
+        else {
+            Prisma::PrismaFunc::getInstance().hiddenMouse(m_hide);
+        }
+
+        m_press = true;
+    }
+
+    if (glfwGetKey(m_window, Prisma::KEY_G) == GLFW_RELEASE) {
+        m_press = false;
     }
 }
 
@@ -35,17 +76,23 @@ void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
 }
 
 void PlayerController::update() {
+    target(m_animatedMesh->parent()->finalMatrix()[3]);
     updateCamera();
+    updateKeyboard();
 }
 
 std::shared_ptr<Prisma::CallbackHandler> PlayerController::callback() {
     return m_handler;
 }
 
+void PlayerController::target(glm::vec3 target) {
+    m_target = target;
+}
+
 void PlayerController::createCamera() {
     m_window = Prisma::PrismaFunc::getInstance().window();
     m_handler = std::make_shared<Prisma::CallbackHandler>();
-
+    m_distance = 10;
     m_handler->mouse = [this](float x, float y) {
         float xpos = static_cast<float>(x);
         float ypos = static_cast<float>(y);

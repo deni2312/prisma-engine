@@ -24,27 +24,29 @@ void Prisma::ImGuiCamera::updateCamera(std::shared_ptr<Prisma::Camera> camera)
 void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
 {
     auto window = (GLFWwindow*)windowData;
-    if (glfwGetKey(window, Prisma::KEY_C) == GLFW_PRESS) {
-        //Prisma::PrismaFunc()->closeWindow();
-    }
+
     if (glfwGetKey(window, Prisma::KEY_DELETE) == GLFW_PRESS) {
         if (m_currentSelect) {
             m_currentSelect->parent()->removeChild(m_currentSelect->uuid());
             m_currentSelect = nullptr;
         }
     }
+
     if (glfwGetKey(window, Prisma::KEY_W) == GLFW_PRESS) {
         m_position += m_front * m_velocity;
     }
+
     if (glfwGetKey(window, Prisma::KEY_A) == GLFW_PRESS) {
         m_position -= glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
     }
+
     if (glfwGetKey(window, Prisma::KEY_S) == GLFW_PRESS && (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) && !m_save) {
         Prisma::Exporter::getInstance().exportScene();
         m_save = true;
     }else if (glfwGetKey(window, Prisma::KEY_S) == GLFW_PRESS && !(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS)) {
         m_position -= m_front * m_velocity;
     }
+
     if(glfwGetKey(window, Prisma::KEY_S) == GLFW_RELEASE || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL == GLFW_RELEASE) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL == GLFW_RELEASE)) {
         m_save = false;
     }
@@ -52,6 +54,7 @@ void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
     if (glfwGetKey(window, Prisma::KEY_D) == GLFW_PRESS) {
         m_position += glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
     }
+
     if (glfwGetKey(window, Prisma::KEY_G) == GLFW_PRESS && !m_pressed) {
         m_showMouse = !m_showMouse;
         m_lock = !m_lock;
@@ -129,7 +132,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
             x = x - m_constraints.minX;
             x = x / m_constraints.scale;
 
-            y = y - m_constraints.minY;
+            //y = y - m_constraints.minY;
             y = y / m_constraints.scale;
             y = settings.height - y;
 

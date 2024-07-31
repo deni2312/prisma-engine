@@ -22,15 +22,6 @@ void UserEngine::start()
 
     Prisma::NodeHelper nodeHelper;
 
-    auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_root->root, "MutantMesh")->children()[0]);
-
-    if (animatedMesh) {
-        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", animatedMesh);
-
-        auto animator = std::make_shared<Prisma::Animator>(animation);
-        animatedMesh->animator(animator);
-    }
-
     nodeHelper.nodeIterator(m_root->root, [](auto mesh, auto parent) {
         auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(mesh);
         if (currentMesh) {
@@ -42,7 +33,7 @@ void UserEngine::start()
 
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0, -10.0, 0.0));
 
-    m_player = std::make_shared<PlayerController>();
+    m_player = std::make_shared<PlayerController>(m_root);
 
     m_player->scene(m_root);
 }

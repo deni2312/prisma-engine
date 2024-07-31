@@ -8,7 +8,7 @@
 
 class PlayerController {
 public:
-    PlayerController();
+    PlayerController(std::shared_ptr<Prisma::Scene> scene);
 
     void updateCamera();
 
@@ -19,6 +19,8 @@ public:
     void update();
 
     std::shared_ptr<Prisma::CallbackHandler> callback();
+
+	void target(glm::vec3 target);
 
 private:
 
@@ -44,8 +46,19 @@ private:
 
 	float m_lastY;
 
+	float m_distance;
+
 	GLFWwindow* m_window;
+
+	glm::vec3 m_target = glm::vec3(0.0f);
 
     std::shared_ptr<Prisma::Scene> m_scene;
 
+	std::shared_ptr<Prisma::AnimatedMesh> m_animatedMesh;
+
+	bool m_hide = false;
+
+	bool m_press = false;
+
+	float m_baseVelocity = 10.0f;
 };
