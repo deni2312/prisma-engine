@@ -4,6 +4,7 @@
 
 void Prisma::Camera::position(const glm::vec3& position) {
     m_position=position;
+    Node::matrix(Prisma::Camera::matrix(), true);
 }
 
 glm::vec3 Prisma::Camera::position() const {
@@ -20,6 +21,7 @@ glm::mat4 Prisma::Camera::matrix() const {
 
 void Prisma::Camera::center(const glm::vec3& center) {
     m_center=center;
+    Node::matrix(Prisma::Camera::matrix(), true);
 }
 
 glm::vec3 Prisma::Camera::center() const {
@@ -28,6 +30,7 @@ glm::vec3 Prisma::Camera::center() const {
 
 void Prisma::Camera::up(const glm::vec3& up) {
     m_up=up;
+    Node::matrix(Prisma::Camera::matrix(), true);
 }
 
 glm::vec3 Prisma::Camera::up() const {
