@@ -60,7 +60,7 @@ namespace Prisma{
         return glm::vec3(vec.x, vec.y, vec.z);
     }
 
-    static btVector3 getVecBT(const glm::vec3& vec)
+    static btVector3 getVec3BT(const glm::vec3& vec)
     {
         return btVector3(vec.x, vec.y, vec.z);
     }

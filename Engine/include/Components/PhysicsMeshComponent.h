@@ -26,6 +26,8 @@ namespace Prisma {
 
         btRigidBody* rigidBody();
 
+        btCollisionShape* shape();
+
     private:
         ComponentList m_status;
         std::function<void()> m_apply;

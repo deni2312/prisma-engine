@@ -4,11 +4,29 @@
         "version" : "2.0"
     },
     "extensionsUsed" : [
-        "KHR_texture_transform"
+        "KHR_texture_transform",
+        "KHR_lights_punctual"
     ],
     "extensionsRequired" : [
-        "KHR_texture_transform"
+        "KHR_texture_transform",
+        "KHR_lights_punctual"
     ],
+    "extensions" : {
+        "KHR_lights_punctual" : {
+            "lights" : [
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 1,
+                    "type" : "directional",
+                    "name" : "Sun"
+                }
+            ]
+        }
+    },
     "scene" : 0,
     "scenes" : [
         {
@@ -24,7 +42,8 @@
                 7,
                 8,
                 9,
-                49
+                49,
+                50
             ]
         }
     ],
@@ -998,6 +1017,20 @@
                 0,
                 0.429401695728302,
                 0
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 0
+                }
+            },
+            "name" : "Sun",
+            "rotation" : [
+                0.22466975450515747,
+                0.6374652981758118,
+                -0.5449830889701843,
+                0.49614015221595764
             ]
         }
     ],

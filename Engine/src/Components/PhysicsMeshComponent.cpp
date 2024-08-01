@@ -119,7 +119,7 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
 
 
             for (int i = 0; i < vertices.indices.size(); i=i+3) {
-                terrainMesh->addTriangle(getVecBT(vertices.vertices[vertices.indices[i]].position), getVecBT(vertices.vertices[vertices.indices[i+1]].position), getVecBT(vertices.vertices[vertices.indices[i+2]].position));
+                terrainMesh->addTriangle(getVec3BT(vertices.vertices[vertices.indices[i]].position), getVec3BT(vertices.vertices[vertices.indices[i+1]].position), getVec3BT(vertices.vertices[vertices.indices[i+2]].position));
             }
             m_shape = new btBvhTriangleMeshShape(terrainMesh,true);
             break;
@@ -133,9 +133,9 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
             m_shape = new btConvexHullShape();
 
             for (int i = 0; i < vertices.indices.size(); i = i + 3) {
-                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVecBT(vertices.vertices[vertices.indices[i]].position));
-                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVecBT(vertices.vertices[vertices.indices[i+1]].position));
-                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVecBT(vertices.vertices[vertices.indices[i + 2]].position));
+                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVec3BT(vertices.vertices[vertices.indices[i]].position));
+                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVec3BT(vertices.vertices[vertices.indices[i+1]].position));
+                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVec3BT(vertices.vertices[vertices.indices[i + 2]].position));
             }
             break;
         }
@@ -149,6 +149,10 @@ Prisma::Physics::CollisionData Prisma::PhysicsMeshComponent::collisionData() {
 
 btRigidBody* Prisma::PhysicsMeshComponent::rigidBody() {
     return m_body;
+}
+
+btCollisionShape* Prisma::PhysicsMeshComponent::shape() {
+    return m_shape;
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {

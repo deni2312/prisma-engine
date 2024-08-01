@@ -11,8 +11,6 @@
 #include "../Physics/DrawDebugger.h"
 #include <memory>
 
-#define NPHYSICS_DEBUG
-
 namespace Prisma {
 	class PipelineForward {
 	public:

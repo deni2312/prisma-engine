@@ -5,6 +5,7 @@
 #include "../../Engine/include/Helpers/ScenePrinter.h"
 #include "../../Engine/include/GlobalData/Keys.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
+#include "../../Engine/include/Components/PhysicsMeshComponent.h"
 
 class PlayerController {
 public:
@@ -25,6 +26,8 @@ public:
 private:
 
 	void createCamera();
+
+	void checkRelease();
 
 	std::shared_ptr<Prisma::CallbackHandler> m_handler;
 
@@ -58,9 +61,13 @@ private:
 
 	std::shared_ptr<Prisma::Mesh> m_bboxMesh;
 
+	std::shared_ptr<Prisma::PhysicsMeshComponent> m_physics;
+
 	bool m_hide = true;
 
 	bool m_press = false;
 
-	float m_baseVelocity = 10.0f;
+	float m_baseVelocity = 1.0f;
+
+	unsigned int m_previousClick = 0;
 };
