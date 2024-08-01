@@ -70,6 +70,7 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
 
         if (ImGui::ImageButton((void*)textureId, ImVec2(24, 24))) {
             meshData.mesh->visible(!meshData.mesh->visible());
+            Prisma::CacheScene::getInstance().skipUpdate(true);
         }
 
         ImGui::InputFloat3("Translation", glm::value_ptr(m_translation), "%.3f", ImGuiInputTextFlags_ReadOnly);

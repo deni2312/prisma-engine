@@ -433,6 +433,7 @@ void Prisma::MeshIndirect::updateStatus()
 
         m_currentIndex = 0;
         m_currentVertex = 0;
+        m_drawCommands.clear();
         for (const auto& mesh : meshes)
         {
             const auto& indices = mesh->verticesData().indices;
@@ -459,6 +460,7 @@ void Prisma::MeshIndirect::updateStatus()
 
     m_currentIndexAnimation = 0;
     m_currentVertexAnimation = 0;
+    m_drawCommandsAnimation.clear();
     for (const auto& mesh : animateMeshes)
     {
         const auto& indices = mesh->animateVerticesData()->indices;
