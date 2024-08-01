@@ -70,4 +70,10 @@ private:
 	float m_baseVelocity = 1.0f;
 
 	unsigned int m_previousClick = 0;
+
+	glm::vec3 m_translation;
+
+	glm::vec3 m_scale;
+
+	glm::mat3 m_rotation;
 };

@@ -70,6 +70,32 @@ namespace Prisma{
         return glm::quat(pOrientation.w, pOrientation.x, pOrientation.y, pOrientation.z);
     }
 
+    static glm::vec3 extractScaling(const glm::mat4& matrix) {
+        // Extract the scaling factors by calculating the length of each basis vector
+        glm::vec3 scale;
+        scale.x = glm::length(glm::vec3(matrix[0])); // Length of the X axis
+        scale.y = glm::length(glm::vec3(matrix[1])); // Length of the Y axis
+        scale.z = glm::length(glm::vec3(matrix[2])); // Length of the Z axis
+        return scale;
+    }
+
+    static glm::mat3 extractRotation(const glm::mat4& matrix) {
+        // Extract the basis vectors (columns 0, 1, 2) from the matrix
+        glm::vec3 col1 = glm::vec3(matrix[0]);
+        glm::vec3 col2 = glm::vec3(matrix[1]);
+        glm::vec3 col3 = glm::vec3(matrix[2]);
+
+        // Normalize the columns to remove scaling and get pure rotation
+        glm::vec3 normCol1 = glm::normalize(col1);
+        glm::vec3 normCol2 = glm::normalize(col2);
+        glm::vec3 normCol3 = glm::normalize(col3);
+
+        // Construct the rotation matrix (3x3)
+        glm::mat3 rotation(normCol1, normCol2, normCol3);
+
+        return rotation;
+    }
+
 
     static HitInfo rayAABBIntersect(const glm::vec3& rayStart, const glm::vec3& rayEnd, const glm::vec3& bbMin, const glm::vec3& bbMax) {
         glm::vec3 rayDir = glm::normalize(rayEnd - rayStart);

@@ -17,6 +17,14 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_bboxMesh->visible(false);
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
     m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
+    auto playerData = m_animatedMesh->parent()->parent()->matrix();
+
+    m_scale = Prisma::extractScaling(playerData);
+
+    m_translation = glm::vec3(playerData[3]);
+
+    m_rotation = Prisma::extractRotation(playerData);
+
     createCamera();
 }
 
@@ -48,6 +56,15 @@ void PlayerController::updateKeyboard()
 
     if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
         rb->setLinearVelocity(Prisma::getVec3BT(-glm::vec3(m_front * m_velocity)));
+        auto front = glm::normalize(m_target - m_position);
+        front.y = 0;
+        glm::mat4 forwardMatrix = Prisma::extractRotation(glm::lookAt(glm::vec3(0.0f), -front, m_up) * glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(1, 0, 0)));
+
+        playerData = forwardMatrix; // Combine the forward matrix with the current matrix
+
+        playerData =  glm::scale(glm::mat4(1.0f), m_scale) * playerData * glm::translate(glm::mat4(1.0f), m_translation);
+
+        m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_W;
         m_press = true;
     }
@@ -69,7 +86,6 @@ void PlayerController::updateKeyboard()
         m_previousClick = Prisma::KEY_D;
         m_press = true;
     }
-    m_animatedMesh->parent()->parent()->matrix(playerData);
 
     if (glfwGetKey(m_window, Prisma::KEY_G) == GLFW_PRESS && !m_press) {
         m_hide = !m_hide;
