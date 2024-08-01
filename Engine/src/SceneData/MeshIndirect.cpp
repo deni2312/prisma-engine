@@ -86,6 +86,9 @@ void Prisma::MeshIndirect::update()
     if (Prisma::CacheScene::getInstance().updateTextures()) {
         updateTextureSize();
     }
+    if (Prisma::CacheScene::getInstance().updateStatus()) {
+        updateStatus();
+    }
 }
 
 void Prisma::MeshIndirect::updateSize()
@@ -208,7 +211,7 @@ void Prisma::MeshIndirect::updateSize()
             const auto& vertices = mesh->verticesData().vertices;
             DrawElementsIndirectCommand command{};
             command.count = static_cast<GLuint>(indices.size());
-            command.instanceCount = 1;
+            command.instanceCount = mesh->visible();
             command.firstIndex = m_currentIndex;
             command.baseVertex = m_currentVertex;
             command.baseInstance = 0;
@@ -254,11 +257,9 @@ Prisma::MeshIndirect::MeshIndirect()
 
     m_ssboModel = std::make_shared<Prisma::SSBO>(1);
     m_ssboMaterial = std::make_shared<Prisma::SSBO>(0);
-    m_ssboStatus = std::make_shared<Prisma::SSBO>(10);
 
     m_ssboModelAnimation = std::make_shared<Prisma::SSBO>(6);
     m_ssboMaterialAnimation = std::make_shared<Prisma::SSBO>(7);
-    m_ssboStatusAnimation = std::make_shared<Prisma::SSBO>(11);
 }
 
 void Prisma::MeshIndirect::updateAnimation()
@@ -383,7 +384,7 @@ void Prisma::MeshIndirect::updateAnimation()
             const auto& vertices = mesh->animateVerticesData()->vertices;
             DrawElementsIndirectCommand command{};
             command.count = static_cast<GLuint>(indices.size());
-            command.instanceCount = 1;
+            command.instanceCount = mesh->visible();
             command.firstIndex = m_currentIndexAnimation;
             command.baseVertex = m_currentVertexAnimation;
             command.baseInstance = 0;
@@ -425,4 +426,55 @@ void Prisma::MeshIndirect::updateTextureSize() {
 
 void Prisma::MeshIndirect::updateStatus()
 {
+    auto meshes = currentGlobalScene->meshes;
+    if (meshes.size() > 0) {
+        //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+
+        m_currentIndex = 0;
+        m_currentVertex = 0;
+        for (const auto& mesh : meshes)
+        {
+            const auto& indices = mesh->verticesData().indices;
+            const auto& vertices = mesh->verticesData().vertices;
+            DrawElementsIndirectCommand command{};
+            command.count = static_cast<GLuint>(indices.size());
+            command.instanceCount = mesh->visible();
+            command.firstIndex = m_currentIndex;
+            command.baseVertex = m_currentVertex;
+            command.baseInstance = 0;
+
+            m_drawCommands.push_back(command);
+            m_currentIndex = m_currentIndex + indices.size();
+            m_currentVertex = m_currentVertex + vertices.size();
+        }
+        // Upload the draw commands to the buffer
+        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
+    }
+
+    auto animateMeshes = currentGlobalScene->animateMeshes;
+
+    //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
+
+    m_currentIndexAnimation = 0;
+    m_currentVertexAnimation = 0;
+    for (const auto& mesh : animateMeshes)
+    {
+        const auto& indices = mesh->animateVerticesData()->indices;
+        const auto& vertices = mesh->animateVerticesData()->vertices;
+        DrawElementsIndirectCommand command{};
+        command.count = static_cast<GLuint>(indices.size());
+        command.instanceCount = mesh->visible();
+        command.firstIndex = m_currentIndexAnimation;
+        command.baseVertex = m_currentVertexAnimation;
+        command.baseInstance = 0;
+
+        m_drawCommandsAnimation.push_back(command);
+        m_currentIndexAnimation = m_currentIndexAnimation + indices.size();
+        m_currentVertexAnimation = m_currentVertexAnimation + vertices.size();
+    }
+    // Upload the draw commands to the buffer
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommandsAnimation.size() * sizeof(DrawElementsIndirectCommand), m_drawCommandsAnimation.data(), GL_DYNAMIC_DRAW);
+
 }

@@ -60,14 +60,12 @@ namespace Prisma {
 		std::vector<DrawElementsIndirectCommand> m_drawCommands;
 		std::shared_ptr<Prisma::SSBO> m_ssboModel;
 		std::shared_ptr<Prisma::SSBO> m_ssboMaterial;
-		std::shared_ptr<Prisma::SSBO> m_ssboStatus;
 
 
 		Prisma::AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
 		std::vector<DrawElementsIndirectCommand> m_drawCommandsAnimation;
 		std::shared_ptr<Prisma::SSBO> m_ssboModelAnimation;
 		std::shared_ptr<Prisma::SSBO> m_ssboMaterialAnimation;
-		std::shared_ptr<Prisma::SSBO> m_ssboStatusAnimation;
 
 		std::vector<Prisma::MaterialData> m_materialData;
 		std::vector<Prisma::MaterialData> m_materialDataAnimation;

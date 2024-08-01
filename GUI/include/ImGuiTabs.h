@@ -3,6 +3,7 @@
 #include <memory>
 #include "../../Engine/include/SceneObjects/Node.h"
 #include "ImGuiCamera.h"
+#include "../../Engine/include/Containers/Texture.h"
 
 namespace Prisma {
     class ImGuiTabs {
@@ -21,7 +22,7 @@ namespace Prisma {
 
         void showCurrentNodes(std::shared_ptr<Node> root, int depth, Prisma::ImGuiCamera& camera);
 
-        unsigned long int index = 0;
+        unsigned long int m_index = 0;
     };
 
 }

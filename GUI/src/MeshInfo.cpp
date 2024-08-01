@@ -57,8 +57,20 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
         if (ImGui::ImageButton((void*)m_scaleTexture->id(), ImVec2(24, 24))) {
             mCurrentGizmoOperation = ImGuizmo::SCALE;
         }
+        ImGui::SameLine();
 
+        auto textureId = 0;
 
+        if (meshData.mesh->visible()) {
+            textureId = m_eyeOpen->id();
+        }
+        else {
+            textureId = m_eyeClose->id();
+        }
+
+        if (ImGui::ImageButton((void*)textureId, ImVec2(24, 24))) {
+            meshData.mesh->visible(!meshData.mesh->visible());
+        }
 
         ImGui::InputFloat3("Translation", glm::value_ptr(m_translation), "%.3f", ImGuiInputTextFlags_ReadOnly);
 
@@ -162,4 +174,10 @@ Prisma::MeshInfo::MeshInfo()
 
     m_scaleTexture = std::make_shared<Prisma::Texture>();
     m_scaleTexture->loadTexture("../../../GUI/icons/scale.png", false, false, false);
+
+    m_eyeOpen = std::make_shared<Prisma::Texture>();
+    m_eyeOpen->loadTexture("../../../GUI/icons/eyeopen.png", false, false, false);
+
+    m_eyeClose = std::make_shared<Prisma::Texture>();
+    m_eyeClose->loadTexture("../../../GUI/icons/eyeclose.png", false, false, false);
 }

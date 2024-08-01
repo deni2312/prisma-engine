@@ -42,6 +42,8 @@ namespace Prisma {
         std::shared_ptr<Prisma::Texture> m_rotateTexture;
         std::shared_ptr<Prisma::Texture> m_translateTexture;
         std::shared_ptr<Prisma::Texture> m_scaleTexture;
+        std::shared_ptr<Prisma::Texture> m_eyeOpen;
+        std::shared_ptr<Prisma::Texture> m_eyeClose;
 
         ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
         ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
