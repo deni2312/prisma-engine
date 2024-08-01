@@ -35,6 +35,8 @@ namespace Prisma {
 
         void material_name(std::string name);
 
+        MaterialComponent();
+
         std::string material_name();
 
     private:

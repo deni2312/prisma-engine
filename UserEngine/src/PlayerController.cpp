@@ -1,4 +1,5 @@
 #include "../include/PlayerController.h"
+#include "../../Engine/include/Components/PhysicsMeshComponent.h"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
@@ -11,6 +12,9 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
         auto animator = std::make_shared<Prisma::Animator>(animation);
         m_animatedMesh->animator(animator);
     }
+
+    m_bboxMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "BBoxMesh"));
+    m_bboxMesh->visible(false);
     createCamera();
 }
 
@@ -35,6 +39,7 @@ void PlayerController::updateKeyboard()
 {
 
     auto playerData = m_animatedMesh->parent()->parent()->matrix();
+    auto rigidBody = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_animatedMesh->components()["Physics"])->rigidBody();
 
     if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
         playerData[3] -= glm::vec4(m_front * m_velocity, 0);

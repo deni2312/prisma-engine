@@ -31,7 +31,6 @@ void Prisma::PhysicsMeshComponent::ui() {
     addGlobal(componentButton);
     colliderDispatcher(m_collisionData.collider);
     updateCollisionData();
-    name("Physics Mesh Component");
 }
 
 void Prisma::PhysicsMeshComponent::update() {
@@ -148,6 +147,10 @@ Prisma::Physics::CollisionData Prisma::PhysicsMeshComponent::collisionData() {
     return m_collisionData;
 }
 
-Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {
+btRigidBody* Prisma::PhysicsMeshComponent::rigidBody() {
+    return m_body;
+}
 
+Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {
+    name("Physics");
 }

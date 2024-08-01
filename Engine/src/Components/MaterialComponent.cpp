@@ -32,7 +32,6 @@ void Prisma::MaterialComponent::ui() {
     addGlobal(m_componentTypeDiffuse);
     addGlobal(m_componentTypeNormal);
     addGlobal(m_componentTypeMetalnessRoughness);
-    name("Material Component");
     m_id = materialId;
     materialId++;
 }
@@ -61,6 +60,10 @@ unsigned int Prisma::MaterialComponent::material_id()
 
 void Prisma::MaterialComponent::material_name(std::string name) {
     m_materialName = name;
+}
+
+Prisma::MaterialComponent::MaterialComponent() {
+    name("Material Component");
 }
 
 std::string Prisma::MaterialComponent::material_name() {
