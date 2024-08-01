@@ -29,6 +29,8 @@ private:
 
 	void checkRelease();
 
+	void clearVelocity();
+
 	std::shared_ptr<Prisma::CallbackHandler> m_handler;
 
 	glm::vec3 m_position = glm::vec3(0.0f);
@@ -72,5 +74,7 @@ private:
 	unsigned int m_previousClick = 0;
 
 	glm::mat4 m_baseData;
+
+	bool m_clearPhysics = false;
 
 };

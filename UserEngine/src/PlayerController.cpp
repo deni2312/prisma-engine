@@ -46,7 +46,7 @@ void PlayerController::updateKeyboard()
     auto playerData = m_animatedMesh->parent()->parent()->matrix();
     auto rb = m_physics->rigidBody();
     auto shape = m_physics->shape();
-
+    rb->setAngularFactor(btVector3(0, 0, 0));
     glm::vec3 frontClamp = m_front;
     frontClamp.y = 0;
 
@@ -59,6 +59,7 @@ void PlayerController::updateKeyboard()
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_W;
         m_press = true;
+        m_clearPhysics = false;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
@@ -67,6 +68,7 @@ void PlayerController::updateKeyboard()
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_A;
         m_press = true;
+        m_clearPhysics = false;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
@@ -76,6 +78,7 @@ void PlayerController::updateKeyboard()
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_S;
         m_press = true;
+        m_clearPhysics = false;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
@@ -85,6 +88,7 @@ void PlayerController::updateKeyboard()
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_D;
         m_press = true;
+        m_clearPhysics = false;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_G) == GLFW_PRESS && !m_press) {
@@ -98,10 +102,7 @@ void PlayerController::updateKeyboard()
         m_previousClick = Prisma::KEY_G;
         m_press = true;
     }
-
-    if (!m_press) {
-        rb->setLinearVelocity(btVector3(0.0f,0.0f,0.0f));
-    }
+    clearVelocity();
 
     rb->activate(true);
     checkRelease();
@@ -172,5 +173,14 @@ void PlayerController::checkRelease()
 {
     if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE) {
         m_press = false;
+    }
+}
+
+void PlayerController::clearVelocity()
+{
+    auto rb = m_physics->rigidBody();
+    if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE && !m_clearPhysics) {
+        rb->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+        m_clearPhysics = true;
     }
 }
