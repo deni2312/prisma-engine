@@ -5,9 +5,9 @@ void Prisma::ComponentsHandler::updateStart() {
     for(const auto& mesh: meshes){
         auto components=mesh->components();
         for(const auto& component: components){
-            if(!component->isStart()){
-                component->start();
-                component->isStart(true);
+            if(!component.second->isStart()){
+                component.second->start();
+                component.second->isStart(true);
             }
         }
     }
@@ -16,9 +16,9 @@ void Prisma::ComponentsHandler::updateStart() {
     for (const auto& mesh : animateMeshes) {
         auto components = mesh->components();
         for (const auto& component : components) {
-            if (!component->isStart()) {
-                component->start();
-                component->isStart(true);
+            if (!component.second->isStart()) {
+                component.second->start();
+                component.second->isStart(true);
             }
         }
     }
@@ -30,9 +30,9 @@ void Prisma::ComponentsHandler::updateUi()
     for (const auto& mesh : meshes) {
         auto components = mesh->components();
         for (const auto& component : components) {
-            if (!component->isUi()) {
-                component->ui();
-                component->isUi(true);
+            if (!component.second->isUi()) {
+                component.second->ui();
+                component.second->isUi(true);
             }
         }
     }
@@ -41,9 +41,9 @@ void Prisma::ComponentsHandler::updateUi()
     for (const auto& mesh : animateMeshes) {
         auto components = mesh->components();
         for (const auto& component : components) {
-            if (!component->isUi()) {
-                component->ui();
-                component->isUi(true);
+            if (!component.second->isUi()) {
+                component.second->ui();
+                component.second->isUi(true);
             }
         }
     }
@@ -54,8 +54,8 @@ void Prisma::ComponentsHandler::updateComponents() {
     for(const auto& mesh: meshes){
         auto components=mesh->components();
         for(const auto& component: components){
-            if(component->isStart()) {
-                component->update();
+            if(component.second->isStart()) {
+                component.second->update();
             }
         }
     }
@@ -64,8 +64,8 @@ void Prisma::ComponentsHandler::updateComponents() {
     for (const auto& mesh : animateMeshes) {
         auto components = mesh->components();
         for (const auto& component : components) {
-            if (component->isStart()) {
-                component->update();
+            if (component.second->isStart()) {
+                component.second->update();
             }
         }
     }

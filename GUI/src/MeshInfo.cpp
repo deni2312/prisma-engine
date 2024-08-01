@@ -81,7 +81,7 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
 
         meshInfoData.physicsComponent = nullptr;
         for (auto component : meshData.mesh->components()) {
-            auto physicsMesh = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(component);
+            auto physicsMesh = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(component.second);
             if (physicsMesh) {
                 meshInfoData.physicsComponent = physicsMesh;
             }
@@ -123,9 +123,9 @@ void Prisma::MeshInfo::showComponents(const MeshData& meshData) {
     auto components=meshData.mesh->components();
     for(const auto& component: components){
         ImGui::Separator();
-        if(component->isUi()){
-            auto fields=component->globalVars();
-            ImGui::Text(component->name().c_str());
+        if(component.second->isUi()){
+            auto fields=component.second->globalVars();
+            ImGui::Text(component.second->name().c_str());
             for(auto field:fields){
                 varsDispatcher(field);
             }

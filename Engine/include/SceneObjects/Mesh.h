@@ -49,16 +49,16 @@ namespace Prisma {
         AABBData aabbData();
 
         void addComponent(std::shared_ptr<Prisma::Component> component);
-        void removeComponent(int index);
+        void removeComponent(const std::string& name);
 
-        std::vector<std::shared_ptr<Prisma::Component>> components();
+        std::map<std::string,std::shared_ptr<Prisma::Component>> components();
 
         unsigned int vectorId();
     protected:
         std::shared_ptr<VerticesData> m_vertices;
         std::shared_ptr<Prisma::MaterialComponent> m_material;
 
-        std::vector<std::shared_ptr<Prisma::Component>> m_components;
+        std::map<std::string,std::shared_ptr<Prisma::Component>> m_components;
 
         unsigned int m_vectorId;
         AABBData m_aabbData;

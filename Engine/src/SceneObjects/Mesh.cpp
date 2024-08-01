@@ -119,13 +119,13 @@ Prisma::Mesh::AABBData Prisma::Mesh::aabbData() {
 
 void Prisma::Mesh::addComponent(std::shared_ptr<Prisma::Component> component) {
     component->parent(this);
-    m_components.push_back(component);
+    m_components[component->name()]=component;
 }
 
-std::vector<std::shared_ptr<Prisma::Component>> Prisma::Mesh::components() {
+std::map<std::string,std::shared_ptr<Prisma::Component>> Prisma::Mesh::components() {
     return m_components;
 }
 
-void Prisma::Mesh::removeComponent(int index) {
-    m_components.erase(m_components.begin()+index);
+void Prisma::Mesh::removeComponent(const std::string& name) {
+    m_components.erase(name);
 }
