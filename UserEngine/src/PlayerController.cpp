@@ -17,14 +17,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_bboxMesh->visible(false);
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
     m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
-    auto playerData = m_animatedMesh->parent()->parent()->matrix();
-
-    m_scale = Prisma::extractScaling(playerData);
-
-    m_translation = glm::vec3(playerData[3]);
-
-    m_rotation = Prisma::extractRotation(playerData);
-
+    m_baseData = m_animatedMesh->parent()->parent()->matrix();
     createCamera();
 }
 
@@ -54,35 +47,42 @@ void PlayerController::updateKeyboard()
     auto rb = m_physics->rigidBody();
     auto shape = m_physics->shape();
 
+    glm::vec3 frontClamp = m_front;
+    frontClamp.y = 0;
+
+    glm::mat4 offsetRotation;
+
     if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(-glm::vec3(m_front * m_velocity)));
-        auto front = glm::normalize(m_target - m_position);
-        front.y = 0;
-        glm::mat4 forwardMatrix = Prisma::extractRotation(glm::lookAt(glm::vec3(0.0f), -front, m_up) * glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(1, 0, 0)));
-
-        playerData = forwardMatrix; // Combine the forward matrix with the current matrix
-
-        playerData =  glm::scale(glm::mat4(1.0f), m_scale) * playerData * glm::translate(glm::mat4(1.0f), m_translation);
-
+        rb->setLinearVelocity(Prisma::getVec3BT(-glm::vec3(frontClamp * m_velocity)));
+        offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
+        playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw),glm::vec3(0,0,1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_W;
         m_press = true;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(glm::normalize(glm::cross(m_front, m_up)) * m_velocity));
+        rb->setLinearVelocity(Prisma::getVec3BT(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity));
+        playerData = m_baseData * glm::rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0, 0, 1));
+        m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_A;
         m_press = true;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(glm::vec3(m_front * m_velocity)));
+        rb->setLinearVelocity(Prisma::getVec3BT(glm::vec3(frontClamp * m_velocity)));
+        offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0, 0, 1));
+        playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
+        m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_S;
         m_press = true;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(glm::normalize(glm::cross(m_front, m_up)) * m_velocity));
+        rb->setLinearVelocity(Prisma::getVec3BT(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity));
+        offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0, 0, 1));
+        playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
+        m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_D;
         m_press = true;
     }

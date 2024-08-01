@@ -71,9 +71,6 @@ private:
 
 	unsigned int m_previousClick = 0;
 
-	glm::vec3 m_translation;
+	glm::mat4 m_baseData;
 
-	glm::vec3 m_scale;
-
-	glm::mat3 m_rotation;
 };
