@@ -47,28 +47,24 @@ void PlayerController::updateKeyboard()
     auto shape = m_physics->shape();
 
     if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
-        rb->activate(true);
         rb->setLinearVelocity(Prisma::getVec3BT(-glm::vec3(m_front * m_velocity)));
         m_previousClick = Prisma::KEY_W;
         m_press = true;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
-        rb->activate(true);
         rb->setLinearVelocity(Prisma::getVec3BT(glm::normalize(glm::cross(m_front, m_up)) * m_velocity));
         m_previousClick = Prisma::KEY_A;
         m_press = true;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
-        rb->activate(true);
         rb->setLinearVelocity(Prisma::getVec3BT(glm::vec3(m_front * m_velocity)));
         m_previousClick = Prisma::KEY_S;
         m_press = true;
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
-        rb->activate(true);
         rb->setLinearVelocity(Prisma::getVec3BT(glm::normalize(glm::cross(m_front, m_up)) * m_velocity));
         m_previousClick = Prisma::KEY_D;
         m_press = true;
@@ -90,7 +86,7 @@ void PlayerController::updateKeyboard()
     if (!m_press) {
         rb->setLinearVelocity(btVector3(0.0f,0.0f,0.0f));
     }
-
+    rb->activate(true);
     checkRelease();
 }
 
@@ -100,6 +96,7 @@ void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
 
 void PlayerController::update() {
     target(m_animatedMesh->parent()->finalMatrix()[3]);
+    m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
     updateCamera();
     updateKeyboard();
 }
@@ -115,7 +112,7 @@ void PlayerController::target(glm::vec3 target) {
 void PlayerController::createCamera() {
     m_window = Prisma::PrismaFunc::getInstance().window();
     m_handler = std::make_shared<Prisma::CallbackHandler>();
-    m_distance = 10;
+    m_distance = 5;
     m_handler->mouse = [this](float x, float y) {
         float xpos = static_cast<float>(x);
         float ypos = static_cast<float>(y);
