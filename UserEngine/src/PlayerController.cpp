@@ -102,6 +102,7 @@ void PlayerController::updateKeyboard()
     if (!m_press) {
         rb->setLinearVelocity(btVector3(0.0f,0.0f,0.0f));
     }
+
     rb->activate(true);
     checkRelease();
 }
