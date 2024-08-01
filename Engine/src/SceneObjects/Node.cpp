@@ -78,6 +78,10 @@ void Prisma::Node::removeChild(uint64_t uuid)
 				}
 				return false;
 				});
+			auto components = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(m_children[index])->components();
+			for (const auto& component : components) {
+				component.second->destroy();
+			}
 			currentGlobalScene->animateMeshes.erase(find);
 		}
 		else if(std::dynamic_pointer_cast<Prisma::Mesh>(m_children[index])){
@@ -88,6 +92,10 @@ void Prisma::Node::removeChild(uint64_t uuid)
 				}
 				return false;
 				});
+			auto components = std::dynamic_pointer_cast<Prisma::Mesh>(m_children[index])->components();
+			for (const auto& component : components) {
+				component.second->destroy();
+			}
 			currentGlobalScene->meshes.erase(find);
 		}
 		else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(m_children[index])) {

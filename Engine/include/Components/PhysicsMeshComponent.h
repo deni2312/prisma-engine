@@ -18,6 +18,8 @@ namespace Prisma {
 
         void update() override;
 
+        virtual void destroy() override;
+
         void collisionData(Prisma::Physics::CollisionData collisionData);
 
         void updateCollisionData();

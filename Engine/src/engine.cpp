@@ -109,7 +109,7 @@ bool Prisma::Engine::run()
                 data->userData->update();
                 data->componentsHandler.updateStart();
                 data->componentsHandler.updateComponents();
-                Physics::getInstance().update(1 / fps());
+                Physics::getInstance().update(1.0f / fps());
             }
             data->sceneHandler->onBeginRender();
             data->componentsHandler.updateUi();

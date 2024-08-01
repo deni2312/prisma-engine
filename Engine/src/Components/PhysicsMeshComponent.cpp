@@ -37,6 +37,15 @@ void Prisma::PhysicsMeshComponent::update() {
 
 }
 
+void Prisma::PhysicsMeshComponent::destroy()
+{
+    auto physicsWorld = Prisma::Physics::getInstance().physicsWorld();
+    if (m_shape && m_body) {
+        physicsWorld->collisionShapes.remove(m_shape);
+        physicsWorld->dynamicsWorld->removeRigidBody(m_body);
+    }
+}
+
 void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData collisionData) {
     m_collisionData = collisionData;
 }

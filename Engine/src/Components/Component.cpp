@@ -1,4 +1,5 @@
 #include "../../include/Components/Component.h"
+#include <iostream>
 
 void Prisma::Component::ui()
 {
@@ -6,10 +7,16 @@ void Prisma::Component::ui()
 
 void Prisma::Component::start()
 {
+    m_start = true;
 }
 
 void Prisma::Component::update()
 {
+}
+
+void Prisma::Component::destroy()
+{
+
 }
 
 void Prisma::Component::parent(Prisma::Node *parent) {
