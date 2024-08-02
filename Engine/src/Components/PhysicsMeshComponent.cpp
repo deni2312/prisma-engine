@@ -59,7 +59,7 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
         physicsWorld->collisionShapes.remove(m_shape);
         physicsWorld->dynamicsWorld->removeRigidBody(m_body);
     }
-
+    colliderDispatcher(m_collisionData.collider);
     glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
 
     bool isDynamic = (m_collisionData.mass != 0.f);
