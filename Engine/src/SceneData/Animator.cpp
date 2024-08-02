@@ -45,7 +45,7 @@ void Prisma::Animator::updateAnimation(float dt)
 	}
 }
 
-void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation)
+void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation,float blendDuration)
 {
 	m_CurrentTime = 0.0f;
 	m_PreviousAnimation = m_CurrentAnimation;
@@ -57,6 +57,7 @@ void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation)
 	for (int i = 0; i < MAX_BONES; i++) {
 		m_currentTransform[i] = transform.animations[i];
 	}
+	m_BlendDuration = blendDuration;
 	m_IsBlending = true;
 }
 

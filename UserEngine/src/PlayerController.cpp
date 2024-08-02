@@ -8,7 +8,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     if (m_animatedMesh) {
         m_animation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", m_animatedMesh);
-        m_animation1 = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", m_animatedMesh);
+        m_animation1 = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/jump.gltf", m_animatedMesh);
         auto animator = std::make_shared<Prisma::Animator>(m_animation);
         m_animatedMesh->animator(animator);
     }
@@ -107,10 +107,10 @@ void PlayerController::updateKeyboard()
     if (glfwGetKey(m_window, Prisma::KEY_SPACE) == GLFW_PRESS && !m_press) {
 
         if (!animationActivation) {
-            m_animatedMesh->animator()->playAnimation(m_animation1);
+            m_animatedMesh->animator()->playAnimation(m_animation1,0.1);
         }
         else {
-            m_animatedMesh->animator()->playAnimation(m_animation);
+            m_animatedMesh->animator()->playAnimation(m_animation,0.1);
         }
         animationActivation = !animationActivation;
         m_previousClick = Prisma::KEY_SPACE;
