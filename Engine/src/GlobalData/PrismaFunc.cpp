@@ -21,18 +21,31 @@ namespace Prisma {
 
     void framebufferSizeCallback(GLFWwindow* window, int width, int height)
     {
-        privatePrisma->callback->resize(width, height);
+        if (privatePrisma->callback->resize) {
+            privatePrisma->callback->resize(width, height);
+        }
         glViewport(0, 0, width, height);
     }
 
     void mouseCallback(GLFWwindow* window, double x, double y)
     {
-        privatePrisma->callback->mouse(x, y);
+        if (privatePrisma->callback->mouse) {
+            privatePrisma->callback->mouse(x, y);
+        }
     }
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        privatePrisma->callback->mouseClick(button, action, xpos, ypos);
+        if (privatePrisma->callback->mouseClick) {
+            privatePrisma->callback->mouseClick(button, action, xpos, ypos);
+        }
+    }
+
+    void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+        if (privatePrisma->callback->keyboard) {
+            privatePrisma->callback->keyboard(key, scancode,action,mods);
+        }
     }
 }
 
@@ -81,6 +94,8 @@ void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHa
         glfwSetFramebufferSizeCallback(m_window, Prisma::framebufferSizeCallback);
         glfwSetCursorPosCallback(m_window, Prisma::mouseCallback);
         glfwSetMouseButtonCallback(m_window, Prisma::mouseButtonCallback);
+        glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GLFW_TRUE);
+        glfwSetKeyCallback(m_window, Prisma::keyboardCallback);
         privatePrisma->initCallback = true;
     }
 }

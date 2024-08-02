@@ -21,5 +21,6 @@ namespace Prisma {
 		std::function<void(int width,int height)> resize;
 		std::function<void(int x, int y)> mouse;
         std::function<void(int button,int action,double x, double y)> mouseClick;
+		std::function<void(int key, int scancode, int action, int mods)> keyboard;
     };
 }

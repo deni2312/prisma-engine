@@ -19,6 +19,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
     createCamera();
+    createKeyboard();
 }
 
 void PlayerController::updateCamera() {
@@ -43,7 +44,6 @@ bool animationActivation = false;
 
 void PlayerController::updateKeyboard()
 {
-
     auto playerData = m_animatedMesh->parent()->parent()->matrix();
     auto rb = m_physics->rigidBody();
     auto shape = m_physics->shape();
@@ -56,10 +56,9 @@ void PlayerController::updateKeyboard()
     if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
         rb->setLinearVelocity(Prisma::getVec3BT(-glm::vec3(frontClamp * m_velocity)));
         offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
-        playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw),glm::vec3(0,0,1));
+        playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_W;
-        m_press = true;
         m_clearPhysics = false;
     }
 
@@ -68,7 +67,6 @@ void PlayerController::updateKeyboard()
         playerData = m_baseData * glm::rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_A;
-        m_press = true;
         m_clearPhysics = false;
     }
 
@@ -78,7 +76,6 @@ void PlayerController::updateKeyboard()
         playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_S;
-        m_press = true;
         m_clearPhysics = false;
     }
 
@@ -88,39 +85,11 @@ void PlayerController::updateKeyboard()
         playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_D;
-        m_press = true;
         m_clearPhysics = false;
     }
-
-    if (glfwGetKey(m_window, Prisma::KEY_G) == GLFW_PRESS && !m_press) {
-        m_hide = !m_hide;
-        if (m_hide) {
-            Prisma::PrismaFunc::getInstance().hiddenMouse(m_hide);
-        }
-        else {
-            Prisma::PrismaFunc::getInstance().hiddenMouse(m_hide);
-        }
-        m_previousClick = Prisma::KEY_G;
-        m_press = true;
-    }
-
-    if (glfwGetKey(m_window, Prisma::KEY_SPACE) == GLFW_PRESS && !m_press) {
-
-        if (!animationActivation) {
-            m_animatedMesh->animator()->playAnimation(m_animation1,0.1);
-        }
-        else {
-            m_animatedMesh->animator()->playAnimation(m_animation,0.1);
-        }
-        animationActivation = !animationActivation;
-        m_previousClick = Prisma::KEY_SPACE;
-        m_press = true;
-    }
-
     clearVelocity();
 
     rb->activate(true);
-    checkRelease();
 }
 
 void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
@@ -184,11 +153,33 @@ void PlayerController::createCamera() {
     m_handler->mouseClick = [](int button, int action, double x, double y) {};
 }
 
-void PlayerController::checkRelease()
+void PlayerController::createKeyboard()
 {
-    if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE) {
-        m_press = false;
-    }
+    m_handler->keyboard = [this](int key, int scancode, int action, int mods) {
+
+        if (key == Prisma::KEY_G && action == GLFW_PRESS) {
+            m_hide = !m_hide;
+            if (m_hide) {
+                Prisma::PrismaFunc::getInstance().hiddenMouse(m_hide);
+            }
+            else {
+                Prisma::PrismaFunc::getInstance().hiddenMouse(m_hide);
+            }
+            m_previousClick = Prisma::KEY_G;
+        }
+
+        if (key == Prisma::KEY_SPACE && action == GLFW_PRESS) {
+
+            if (!animationActivation) {
+                m_animatedMesh->animator()->playAnimation(m_animation1, 0.1);
+            }
+            else {
+                m_animatedMesh->animator()->playAnimation(m_animation, 0.1);
+            }
+            animationActivation = !animationActivation;
+            m_previousClick = Prisma::KEY_SPACE;
+        }
+    };
 }
 
 void PlayerController::clearVelocity()

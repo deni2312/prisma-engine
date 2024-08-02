@@ -27,7 +27,7 @@ private:
 
 	void createCamera();
 
-	void checkRelease();
+	void createKeyboard();
 
 	void clearVelocity();
 
@@ -66,8 +66,6 @@ private:
 	std::shared_ptr<Prisma::PhysicsMeshComponent> m_physics;
 
 	bool m_hide = true;
-
-	bool m_press = false;
 
 	float m_baseVelocity = 1.0f;
 
