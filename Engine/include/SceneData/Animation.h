@@ -26,7 +26,7 @@ namespace Prisma {
 
 	class Animation {
 	public:
-		Animation() = default;
+		Animation();
 
 		Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model);
 
@@ -40,6 +40,8 @@ namespace Prisma {
 		std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> GetBoneIDMap();
 		std::string name() const;
 
+		unsigned int id();
+
 	private:
 		std::string m_animationPath;
 		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model);
@@ -50,6 +52,7 @@ namespace Prisma {
 		std::map<const std::string, std::shared_ptr<Bone>> m_Bones;
 		AssimpNodeData m_RootNode;
 		std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> m_BoneInfoMap;
+		unsigned int m_id;
 	};
 
 }

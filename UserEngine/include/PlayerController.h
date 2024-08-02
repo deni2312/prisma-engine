@@ -77,4 +77,8 @@ private:
 
 	bool m_clearPhysics = false;
 
+	std::shared_ptr<Prisma::Animation> m_animation;
+
+	std::shared_ptr<Prisma::Animation> m_animation1;
+
 };

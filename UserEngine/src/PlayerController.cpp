@@ -7,9 +7,9 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_scene->root, "MutantMesh")->children()[0]);
 
     if (m_animatedMesh) {
-        auto animation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", m_animatedMesh);
-
-        auto animator = std::make_shared<Prisma::Animator>(animation);
+        m_animation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", m_animatedMesh);
+        m_animation1 = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", m_animatedMesh);
+        auto animator = std::make_shared<Prisma::Animator>(m_animation);
         m_animatedMesh->animator(animator);
     }
 
@@ -39,6 +39,7 @@ void PlayerController::updateCamera() {
     m_scene->camera->up(m_up);
 }
 
+bool animationActivation = false;
 
 void PlayerController::updateKeyboard()
 {
@@ -102,6 +103,20 @@ void PlayerController::updateKeyboard()
         m_previousClick = Prisma::KEY_G;
         m_press = true;
     }
+
+    if (glfwGetKey(m_window, Prisma::KEY_SPACE) == GLFW_PRESS && !m_press) {
+
+        if (!animationActivation) {
+            m_animatedMesh->animator()->playAnimation(m_animation1);
+        }
+        else {
+            m_animatedMesh->animator()->playAnimation(m_animation);
+        }
+        animationActivation = !animationActivation;
+        m_previousClick = Prisma::KEY_SPACE;
+        m_press = true;
+    }
+
     clearVelocity();
 
     rb->activate(true);
@@ -181,6 +196,7 @@ void PlayerController::clearVelocity()
     auto rb = m_physics->rigidBody();
     if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE && !m_clearPhysics) {
         rb->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+
         m_clearPhysics = true;
     }
 }
