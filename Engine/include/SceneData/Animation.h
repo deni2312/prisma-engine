@@ -34,10 +34,10 @@ namespace Prisma {
 
 		std::shared_ptr<Bone> FindBone(const std::string& name);
 
-		int GetTicksPerSecond() { return m_TicksPerSecond; }
-		float GetDuration() { return m_Duration; }
-		const AssimpNodeData& GetRootNode() { return m_RootNode; }
-		std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> GetBoneIDMap();
+		int ticksPerSecond();
+		float duration();
+		const AssimpNodeData& rootNode();
+		std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> boneIdMap();
 		std::string name() const;
 
 		unsigned int id();

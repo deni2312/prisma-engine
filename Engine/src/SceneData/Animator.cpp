@@ -15,8 +15,8 @@ void Prisma::Animator::updateAnimation(float dt)
 	if (m_CurrentAnimation)
 	{
 		Prisma::CacheScene::getInstance().updateLights(true);
-		m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
-		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
+		m_CurrentTime += m_CurrentAnimation->ticksPerSecond() * dt;
+		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->duration());
 
 		// Perform the blend if in blending mode
 		if (m_IsBlending && m_PreviousAnimation)
@@ -39,7 +39,7 @@ void Prisma::Animator::updateAnimation(float dt)
 		else
 		{
 			// No blending, use current animation directly
-			calculateBoneTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f),
+			calculateBoneTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f),
 				Prisma::AnimationHandler::getInstance().animations()[findUUID()]);
 		}
 	}
@@ -52,7 +52,7 @@ void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation,float
 	m_CurrentAnimation = pAnimation;
 	m_CurrentTime = 0.0f;
 	m_BlendFactor = 0.0f;
-	calculateCurrentTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f));
+	calculateCurrentTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f));
 	auto transform = Prisma::AnimationHandler::getInstance().animations()[findUUID()];
 	for (int i = 0; i < MAX_BONES; i++) {
 		m_currentTransform[i] = transform.animations[i];
@@ -78,7 +78,7 @@ void Prisma::Animator::calculateBoneTransform(const AssimpNodeData* node, const 
 	}
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
-	const auto& boneInfoMap = m_CurrentAnimation->GetBoneIDMap();
+	const auto& boneInfoMap = m_CurrentAnimation->boneIdMap();
 	auto it = boneInfoMap->find(nodeName);
 	if (it != boneInfoMap->end()) {
 		const auto& boneInfo = (*it).second;
@@ -95,8 +95,8 @@ void Prisma::Animator::frame(float frame)
 	{
 		Prisma::CacheScene::getInstance().updateLights(true);
 		m_CurrentTime = frame;
-		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
-		calculateBoneTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f), Prisma::AnimationHandler::getInstance().animations()[findUUID()]);
+		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->duration());
+		calculateBoneTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f), Prisma::AnimationHandler::getInstance().animations()[findUUID()]);
 	}
 }
 
@@ -151,7 +151,7 @@ void Prisma::Animator::calculateCurrentTransform(const AssimpNodeData* node, con
 	}
 	glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
-	const auto& boneInfoMap = m_CurrentAnimation->GetBoneIDMap();
+	const auto& boneInfoMap = m_CurrentAnimation->boneIdMap();
 	auto it = boneInfoMap->find(nodeName);
 	if (it != boneInfoMap->end()) {
 		const auto& boneInfo = (*it).second;

@@ -33,7 +33,19 @@ std::shared_ptr<Prisma::Bone> Prisma::Animation::FindBone(const std::string& nam
 	return m_Bones[name];
 }
 
-std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> Prisma::Animation::GetBoneIDMap()
+int Prisma::Animation::ticksPerSecond() {
+	return m_TicksPerSecond; 
+}
+
+float Prisma::Animation::duration() {
+	return m_Duration; 
+}
+
+const Prisma::AssimpNodeData& Prisma::Animation::rootNode() {
+	return m_RootNode; 
+}
+
+std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> Prisma::Animation::boneIdMap()
 {
 	return m_BoneInfoMap;
 }

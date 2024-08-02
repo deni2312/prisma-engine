@@ -100,7 +100,7 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
                 ImGui::Text("%s", name.c_str());
                 float current = animator->currentTime();
                 //ImGui::ProgressBar(current);
-                if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->GetDuration())) {
+                if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->duration())) {
                     animator->frame(current);
                     Prisma::CacheScene::getInstance().skipUpdate(true);
                 }
