@@ -54,7 +54,7 @@ void PlayerController::updateKeyboard()
     glm::mat4 offsetRotation;
 
     if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(-glm::vec3(frontClamp * m_velocity)));
+        rb->setLinearVelocity(Prisma::getVec3BT(-glm::normalize(glm::vec3(frontClamp * m_velocity))));
         offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
         playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
@@ -71,7 +71,7 @@ void PlayerController::updateKeyboard()
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(glm::vec3(frontClamp * m_velocity)));
+        rb->setLinearVelocity(Prisma::getVec3BT(glm::normalize(glm::vec3(frontClamp * m_velocity))));
         offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0, 0, 1));
         playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
