@@ -52,9 +52,12 @@ void PlayerController::updateKeyboard()
     frontClamp.y = 0;
 
     glm::mat4 offsetRotation;
+    btVector3 velocity = rb->getLinearVelocity();
 
     if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(-glm::normalize(glm::vec3(frontClamp * m_velocity))));
+        auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
+        currentDirection.setY(velocity.getY());
+        rb->setLinearVelocity(currentDirection);
         offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
         playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
@@ -63,7 +66,9 @@ void PlayerController::updateKeyboard()
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity));
+        auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
+        currentDirection.setY(velocity.getY());
+        rb->setLinearVelocity(currentDirection);
         playerData = m_baseData * glm::rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
         m_previousClick = Prisma::KEY_A;
@@ -71,7 +76,9 @@ void PlayerController::updateKeyboard()
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(glm::normalize(glm::vec3(frontClamp * m_velocity))));
+        auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::vec3(frontClamp * m_velocity)));
+        currentDirection.setY(velocity.getY());
+        rb->setLinearVelocity(currentDirection);
         offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0, 0, 1));
         playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
@@ -80,7 +87,9 @@ void PlayerController::updateKeyboard()
     }
 
     if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
-        rb->setLinearVelocity(Prisma::getVec3BT(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity));
+        auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
+        currentDirection.setY(velocity.getY());
+        rb->setLinearVelocity(currentDirection);
         offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0, 0, 1));
         playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
         m_animatedMesh->parent()->parent()->matrix(playerData);
@@ -170,6 +179,11 @@ void PlayerController::createKeyboard()
 
         if (key == Prisma::KEY_SPACE && action == GLFW_PRESS) {
 
+            auto rb = m_physics->rigidBody();
+
+            btVector3 velocity = rb->getLinearVelocity();
+            rb->applyCentralImpulse(btVector3(0, 10.0f, 0));
+
             if (!animationActivation) {
                 m_animatedMesh->animator()->playAnimation(m_animation1, 0.1);
             }
@@ -185,8 +199,9 @@ void PlayerController::createKeyboard()
 void PlayerController::clearVelocity()
 {
     auto rb = m_physics->rigidBody();
+    btVector3 velocity = rb->getLinearVelocity();
     if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE && !m_clearPhysics) {
-        rb->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+        rb->setLinearVelocity(btVector3(0.0f, velocity.getY(), 0.0f));
 
         m_clearPhysics = true;
     }
