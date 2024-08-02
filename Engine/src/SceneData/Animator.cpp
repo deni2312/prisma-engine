@@ -129,7 +129,7 @@ void Prisma::Animator::blendAnimations(float blendFactor)
 
 	for (int i = 0; i < MAX_BONES; i++)
 	{
-		currentBones.animations[i]= decomposeAndInterpolateMat4(m_currentTransform[i], m_previousTransform[i],m_BlendFactor);
+		currentBones.animations[i]= decomposeAndInterpolateMat4(m_currentTransform[i], m_previousTransform[i], blendFactor);
 	}
 }
 
