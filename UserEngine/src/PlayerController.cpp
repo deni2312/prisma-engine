@@ -7,9 +7,9 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(nodeHelper.find(m_scene->root, "MutantMesh")->children()[0]);
 
     if (m_animatedMesh) {
-        m_animation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", m_animatedMesh);
-        m_animation1 = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/jump.gltf", m_animatedMesh);
-        auto animator = std::make_shared<Prisma::Animator>(m_animation);
+        m_walkAnimation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/animation.gltf", m_animatedMesh);
+        m_jumpAnimation = std::make_shared<Prisma::Animation>("../../../Resources/DefaultScene/animations/jump.gltf", m_animatedMesh);
+        auto animator = std::make_shared<Prisma::Animator>(m_walkAnimation);
         m_animatedMesh->animator(animator);
     }
 
@@ -40,7 +40,6 @@ void PlayerController::updateCamera() {
     m_scene->camera->up(m_up);
 }
 
-bool animationActivation = false;
 
 void PlayerController::updateKeyboard()
 {
@@ -50,6 +49,16 @@ void PlayerController::updateKeyboard()
     rb->setAngularFactor(btVector3(0, 0, 0));
     glm::vec3 frontClamp = m_front;
     frontClamp.y = 0;
+
+
+    auto isJumping = m_animatedMesh->animator()->animation()->id() == m_jumpAnimation->id() && m_animatedMesh->animator()->currentTime() + m_jumpAnimation->ticksPerSecond()*1.0f / (float)Prisma::Engine::getInstance().fps() >= m_jumpAnimation->duration();
+
+    if (isColliding() && !m_isColliding) {
+        if (isJumping) {
+            m_animatedMesh->animator()->playAnimation(m_walkAnimation, m_blending);
+            m_isColliding = true;
+        }
+    }
 
     glm::mat4 offsetRotation;
     btVector3 velocity = rb->getLinearVelocity();
@@ -96,6 +105,14 @@ void PlayerController::updateKeyboard()
         m_previousClick = Prisma::KEY_D;
         m_clearPhysics = false;
     }
+
+    if (isJumping) {
+
+    }
+    else {
+        m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
+    }
+
     clearVelocity();
 
     rb->activate(true);
@@ -107,7 +124,6 @@ void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
 
 void PlayerController::update() {
     target(m_animatedMesh->parent()->finalMatrix()[3]);
-    m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
     updateCamera();
     updateKeyboard();
 }
@@ -180,17 +196,12 @@ void PlayerController::createKeyboard()
         if (key == Prisma::KEY_SPACE && action == GLFW_PRESS) {
 
             auto rb = m_physics->rigidBody();
-
-            btVector3 velocity = rb->getLinearVelocity();
-            rb->applyCentralImpulse(btVector3(0, 10.0f, 0));
-
-            if (!animationActivation) {
-                m_animatedMesh->animator()->playAnimation(m_animation1, 0.1);
+            if (m_animatedMesh->animator()->animation()->id() != m_jumpAnimation->id()) {
+                btVector3 velocity = rb->getLinearVelocity();
+                rb->applyCentralImpulse(btVector3(0, 2.0f, 0));
+                m_animatedMesh->animator()->playAnimation(m_jumpAnimation,m_blending);
             }
-            else {
-                m_animatedMesh->animator()->playAnimation(m_animation, 0.1);
-            }
-            animationActivation = !animationActivation;
+            m_isColliding = false;
             m_previousClick = Prisma::KEY_SPACE;
         }
     };
@@ -205,4 +216,20 @@ void PlayerController::clearVelocity()
 
         m_clearPhysics = true;
     }
+}
+
+bool PlayerController::isColliding()
+{
+    auto world=Prisma::Physics::getInstance().physicsWorld()->dispatcher;
+    int numManifolds = world->getNumManifolds();
+    for (int i = 0; i < numManifolds; i++)
+    {
+        btPersistentManifold* contactManifold = world->getManifoldByIndexInternal(i);
+        auto obA = (Prisma::Mesh*)contactManifold->getBody0()->getUserPointer();
+        auto obB = (Prisma::Mesh*)contactManifold->getBody1()->getUserPointer();
+        if (obA->uuid() == m_bboxMesh->uuid() || obB->uuid() == m_bboxMesh->uuid()) {
+            return true;
+        }
+    }
+    return false;
 }

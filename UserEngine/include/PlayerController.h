@@ -31,6 +31,8 @@ private:
 
 	void clearVelocity();
 
+	bool isColliding();
+
 	std::shared_ptr<Prisma::CallbackHandler> m_handler;
 
 	glm::vec3 m_position = glm::vec3(0.0f);
@@ -75,8 +77,12 @@ private:
 
 	bool m_clearPhysics = false;
 
-	std::shared_ptr<Prisma::Animation> m_animation;
+	std::shared_ptr<Prisma::Animation> m_walkAnimation;
 
-	std::shared_ptr<Prisma::Animation> m_animation1;
+	std::shared_ptr<Prisma::Animation> m_jumpAnimation;
+
+	bool m_isColliding = false;
+
+	float m_blending = 0.1f;
 
 };
