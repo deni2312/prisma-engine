@@ -162,7 +162,7 @@ void Prisma::ImguiDebug::drawGui()
             }
 
             if (ImGui::MenuItem("Settings")) {
-                m_settingsTabShow = !m_settingsTabShow;
+                ImGui::OpenPopup("SettingsTab");
             }
 
             ImGui::EndMenu();
@@ -172,7 +172,7 @@ void Prisma::ImguiDebug::drawGui()
     }
     m_initOffset = size.y;
     m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
-    m_settingsTab.drawSettings(m_settingsTabShow);
+    m_settingsTab.drawSettings();
     bool isOpen = true;
     if (!m_run) {
         ImGui::SetNextWindowPos(ImVec2(windowWidth, m_initOffset));

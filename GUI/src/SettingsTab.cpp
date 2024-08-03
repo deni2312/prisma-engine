@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../include/SettingsTab.h"
 #include "imgui.h"
 #include "../../Engine/include/GlobalData/PrismaFunc.h"
@@ -9,12 +10,21 @@ void Prisma::SettingsTab::init()
 	}
 }
 
-void Prisma::SettingsTab::drawSettings(bool& show)
+void Prisma::SettingsTab::drawSettings()
 {
-	ImGui::Begin("Dummy Top", &show);
-	if (ImGui::Checkbox("MSAA",&m_settings.msaa))
-	{
-		Prisma::PrismaFunc::getInstance().msaa(m_settings.msaa, m_settings.numSamples);
-	}
-	ImGui::End();
+    bool closed = true;
+    if (ImGui::BeginPopupModal("SettingsTab",&closed)) {
+        if (!m_position) {
+            ImGui::SetWindowPos(ImVec2(0, 0));
+            m_position = true;
+        }
+        if (ImGui::Checkbox("MSAA",&m_settings.msaa))
+        {
+            Prisma::PrismaFunc::getInstance().msaa(m_settings.msaa, m_settings.numSamples);
+        }
+        std::cout<<"a"<<std::endl;
+        if (!closed)
+            ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+    }
 }

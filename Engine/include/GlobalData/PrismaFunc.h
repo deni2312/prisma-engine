@@ -24,6 +24,7 @@ namespace Prisma {
 		void closeWindow();
 		bool shouldClose();
 		void hiddenMouse(bool hidden);
+		void msaa(bool isMsaa,int samples);
 		GLFWwindow* window();
 		void destroy();
 

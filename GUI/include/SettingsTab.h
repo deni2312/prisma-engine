@@ -9,9 +9,10 @@ namespace Prisma {
 			int numSamples = 4;
 		};
 		void init();
-		void drawSettings(bool& show);
+		void drawSettings();
 	private:
 		SettingsData m_settings;
-	};
+        bool m_position = false;
+    };
 
 }

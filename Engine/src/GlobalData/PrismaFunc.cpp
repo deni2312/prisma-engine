@@ -115,6 +115,17 @@ void Prisma::PrismaFunc::hiddenMouse(bool hidden)
     glfwSetInputMode(m_window, GLFW_CURSOR, hidden?GLFW_CURSOR_NORMAL:GLFW_CURSOR_DISABLED);
 }
 
+void Prisma::PrismaFunc::msaa(bool isMsaa,int samples)
+{
+    if (isMsaa) {
+        glfwWindowHint(GLFW_SAMPLES, samples);
+        glEnable(GL_MULTISAMPLE);
+    }
+    else {
+        glDisable(GL_MULTISAMPLE);
+    }
+}
+
 GLFWwindow* Prisma::PrismaFunc::window()
 {
 	return m_window;
