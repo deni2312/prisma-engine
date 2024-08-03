@@ -5,6 +5,7 @@
 #include "ImGuiTabs.h"
 #include "MeshInfo.h"
 #include "FolderView.h"
+#include "SettingsTab.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -92,6 +93,10 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Texture> m_runButton;
 
 		std::shared_ptr<Prisma::Texture> m_pauseButton;
+
+		SettingsTab m_settingsTab;
+
+		bool m_settingsTabShow = false;
 
     };
 }

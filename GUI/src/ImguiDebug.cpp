@@ -161,6 +161,10 @@ void Prisma::ImguiDebug::drawGui()
                 Prisma::TextureInfo::getInstance().showTextures();
             }
 
+            if (ImGui::MenuItem("Settings")) {
+                m_settingsTabShow = !m_settingsTabShow;
+            }
+
             ImGui::EndMenu();
         }
         size = ImGui::GetWindowSize();
@@ -168,7 +172,7 @@ void Prisma::ImguiDebug::drawGui()
     }
     m_initOffset = size.y;
     m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
-
+    m_settingsTab.drawSettings(m_settingsTabShow);
     bool isOpen = true;
     if (!m_run) {
         ImGui::SetNextWindowPos(ImVec2(windowWidth, m_initOffset));
@@ -369,6 +373,7 @@ void Prisma::ImguiDebug::initStatus()
     m_status.postprocess.push_back("SEPPIA");
     m_status.postprocess.push_back("CARTOON");
     m_status.postprocess.push_back("VIGNETTE");
+    m_settingsTab.init();
 }
 
 std::string Prisma::ImguiDebug::openFolder()
