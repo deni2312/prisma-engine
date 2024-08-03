@@ -46,6 +46,8 @@ void PlayerController::updateCamera() {
 
 void PlayerController::updateKeyboard()
 {
+    updateAnimations();
+
     auto playerData = m_animatedMesh->parent()->parent()->matrix();
     auto rb = m_physics->rigidBody();
     auto shape = m_physics->shape();
@@ -60,53 +62,52 @@ void PlayerController::updateKeyboard()
         if (isJumping) {
             m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
             m_isColliding = true;
+            m_previousAnimations = ANIMATIONS::IDLE;
         }
     }
 
     glm::mat4 offsetRotation;
     btVector3 velocity = rb->getLinearVelocity();
-
-    if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
-        auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
-        currentDirection.setY(velocity.getY());
-        rb->setLinearVelocity(currentDirection);
-        offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
-        playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
-        m_animatedMesh->parent()->parent()->matrix(playerData);
-        m_previousClick = Prisma::KEY_W;
-        m_previousAnimations = ANIMATIONS::WALK;
-        m_clearPhysics = false;
-    }else
-
-    if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
-        auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
-        currentDirection.setY(velocity.getY());
-        rb->setLinearVelocity(currentDirection);
-        playerData = m_baseData * glm::rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0, 0, 1));
-        m_animatedMesh->parent()->parent()->matrix(playerData);
-        m_previousClick = Prisma::KEY_A;
-        m_clearPhysics = false;
-        m_previousAnimations = ANIMATIONS::WALK;
-    }else if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
-        auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::vec3(frontClamp * m_velocity)));
-        currentDirection.setY(velocity.getY());
-        rb->setLinearVelocity(currentDirection);
-        offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0, 0, 1));
-        playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
-        m_animatedMesh->parent()->parent()->matrix(playerData);
-        m_previousClick = Prisma::KEY_S;
-        m_previousAnimations = ANIMATIONS::WALK;
-        m_clearPhysics = false;
-    }else if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
-        auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
-        currentDirection.setY(velocity.getY());
-        rb->setLinearVelocity(currentDirection);
-        offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0, 0, 1));
-        playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
-        m_animatedMesh->parent()->parent()->matrix(playerData);
-        m_previousClick = Prisma::KEY_D;
-        m_previousAnimations = ANIMATIONS::WALK;
-        m_clearPhysics = false;
+    if (m_animations==ANIMATIONS::IDLE || m_animations == ANIMATIONS::WALK) {
+        if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
+            auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
+            currentDirection.setY(velocity.getY());
+            rb->setLinearVelocity(currentDirection);
+            offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
+            playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
+            m_animatedMesh->parent()->parent()->matrix(playerData);
+            m_previousClick = Prisma::KEY_W;
+            m_previousAnimations = ANIMATIONS::WALK;
+        }
+        if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
+            auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
+            currentDirection.setY(velocity.getY());
+            rb->setLinearVelocity(currentDirection);
+            playerData = m_baseData * glm::rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0, 0, 1));
+            m_animatedMesh->parent()->parent()->matrix(playerData);
+            m_previousClick = Prisma::KEY_A;
+            m_previousAnimations = ANIMATIONS::WALK;
+        }
+        if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
+            auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::vec3(frontClamp * m_velocity)));
+            currentDirection.setY(velocity.getY());
+            rb->setLinearVelocity(currentDirection);
+            offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0, 0, 1));
+            playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
+            m_animatedMesh->parent()->parent()->matrix(playerData);
+            m_previousClick = Prisma::KEY_S;
+            m_previousAnimations = ANIMATIONS::WALK;
+        }
+        if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
+            auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
+            currentDirection.setY(velocity.getY());
+            rb->setLinearVelocity(currentDirection);
+            offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0, 0, 1));
+            playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
+            m_animatedMesh->parent()->parent()->matrix(playerData);
+            m_previousClick = Prisma::KEY_D;
+            m_previousAnimations = ANIMATIONS::WALK;
+        }
     }
 
     if (isJumping) {
@@ -120,26 +121,6 @@ void PlayerController::updateKeyboard()
 
     rb->activate(true);
 
-    if (m_previousAnimations != m_animations) {
-        m_animations = m_previousAnimations;
-        switch (m_animations) {
-            case IDLE: {
-                m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
-                break;
-            }
-            case WALK: {
-                m_animatedMesh->animator()->playAnimation(m_walkAnimation, m_blending);
-                break;
-            }
-            case JUMP: {
-                m_animatedMesh->animator()->playAnimation(m_jumpAnimation, m_blending);
-                break;
-            }
-            case DEFAULT: {
-                break;
-            }
-        }
-    }
 }
 
 void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
@@ -222,7 +203,7 @@ void PlayerController::createKeyboard()
             auto rb = m_physics->rigidBody();
             if (m_animatedMesh->animator()->animation()->id() != m_jumpAnimation->id()) {
                 btVector3 velocity = rb->getLinearVelocity();
-                rb->applyCentralImpulse(btVector3(0, 2.0f, 0));
+                rb->applyCentralImpulse(btVector3(0, 5.0f, 0));
                 m_previousAnimations = ANIMATIONS::JUMP;
             }
             m_isColliding = false;
@@ -235,11 +216,10 @@ void PlayerController::clearVelocity()
 {
     auto rb = m_physics->rigidBody();
     btVector3 velocity = rb->getLinearVelocity();
-    if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE && !m_clearPhysics) {
+    if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE && m_animations == ANIMATIONS::WALK) {
         rb->setLinearVelocity(btVector3(0.0f, velocity.getY(), 0.0f));
         m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
         m_previousAnimations = ANIMATIONS::IDLE;
-        m_clearPhysics = true;
     }
 }
 
@@ -257,4 +237,28 @@ bool PlayerController::isColliding()
         }
     }
     return false;
+}
+
+void PlayerController::updateAnimations()
+{
+    if (m_previousAnimations != m_animations) {
+        m_animations = m_previousAnimations;
+        switch (m_animations) {
+            case IDLE: {
+                m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
+                break;
+            }
+            case WALK: {
+                m_animatedMesh->animator()->playAnimation(m_walkAnimation, m_blending);
+                break;
+            }
+            case JUMP: {
+                m_animatedMesh->animator()->playAnimation(m_jumpAnimation, m_blending);
+                break;
+            }
+            case DEFAULT: {
+                break;
+            }
+        }
+    }
 }
