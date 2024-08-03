@@ -9,6 +9,14 @@
 
 class PlayerController {
 public:
+
+	enum ANIMATIONS {
+		IDLE,
+		WALK,
+		JUMP,
+		DEFAULT
+	};
+
     PlayerController(std::shared_ptr<Prisma::Scene> scene);
 
     void updateCamera();
@@ -81,8 +89,13 @@ private:
 
 	std::shared_ptr<Prisma::Animation> m_jumpAnimation;
 
+	std::shared_ptr<Prisma::Animation> m_idleAnimation;
+
 	bool m_isColliding = false;
 
 	float m_blending = 0.1f;
 
+	ANIMATIONS m_animations;
+
+	ANIMATIONS m_previousAnimations;
 };
