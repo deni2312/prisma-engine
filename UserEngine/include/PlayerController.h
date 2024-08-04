@@ -87,6 +87,8 @@ private:
 
 	glm::mat4 m_baseData;
 
+	glm::mat4 m_basePosition ;
+
 	std::shared_ptr<Prisma::Animation> m_walkAnimation;
 
 	std::shared_ptr<Prisma::Animation> m_jumpAnimation;

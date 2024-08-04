@@ -20,6 +20,9 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_sphereMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "SphereMesh"));
     m_sphereMesh->visible(false);
 
+    m_basePosition = m_sphereMesh->parent()->matrix();
+    m_basePosition[3] = glm::vec4(0, 0, 0, 1);
+
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
     m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
@@ -181,7 +184,15 @@ void PlayerController::createCamera() {
         front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
         m_front = glm::normalize(front);
     };
-    m_handler->mouseClick = [](int button, int action, double x, double y) {};
+    m_handler->mouseClick = [&](int button, int action, double x, double y) {
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+            auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
+            m_basePosition[3] = glm::vec4(m_target,1.0f);
+            ball->parent()->matrix(m_basePosition);
+            Prisma::CacheScene::getInstance().skipUpdate(true);
+        }
+
+    };
 }
 
 void PlayerController::createKeyboard()
