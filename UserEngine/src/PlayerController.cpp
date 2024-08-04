@@ -79,6 +79,7 @@ void PlayerController::updateKeyboard()
         if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
             auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
             currentDirection.setY(velocity.getY());
+            m_currentDirection = currentDirection;
             rb->setLinearVelocity(currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
             playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
@@ -187,8 +188,22 @@ void PlayerController::createCamera() {
     m_handler->mouseClick = [&](int button, int action, double x, double y) {
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
             auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
-            m_basePosition[3] = glm::vec4(m_target,1.0f);
+            auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
+            ball->computeAABB();
+            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
+            ball->addComponent(physicsComponent);
+            auto front = glm::normalize(m_front) * 1.5f;
+
+            auto target = m_target;
+            target.y = target.y + 1.0f;
+
+            auto initPos = glm::vec4(target, 1.0f);
+            m_basePosition[3] = initPos;
+
+            auto direction = btVector3(front.x, front.y, front.z);
+            auto force = btVector3(front.x, front.y, front.z);
             ball->parent()->matrix(m_basePosition);
+
         }
 
     };

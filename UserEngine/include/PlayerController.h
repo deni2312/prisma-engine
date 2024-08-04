@@ -102,4 +102,6 @@ private:
 	ANIMATIONS m_animations;
 
 	ANIMATIONS m_previousAnimations;
+
+	btVector3 m_currentDirection;
 };
