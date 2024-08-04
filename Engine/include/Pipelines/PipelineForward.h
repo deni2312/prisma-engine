@@ -23,11 +23,10 @@ namespace Prisma {
 		unsigned int m_width;
 		unsigned int m_height;
 
-		std::vector<unsigned int> m_cascadePlaneDistances;
-
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderAnimate;
 		std::shared_ptr<Prisma::FBO> m_fbo;
+		std::shared_ptr<Prisma::FBO> m_fboCopy;
 		std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
 #ifndef NPHYSICS_DEBUG
         DrawDebugger* drawDebugger;

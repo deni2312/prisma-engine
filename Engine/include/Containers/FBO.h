@@ -14,6 +14,7 @@ namespace Prisma {
             unsigned int internalType = GL_UNSIGNED_INT;
             bool enableDepth = false;
             bool enableSrgb = false;
+            bool enableMultisample = false;
         };
         FBO(FBOData fboData);
         ~FBO();

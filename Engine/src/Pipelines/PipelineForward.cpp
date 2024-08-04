@@ -40,14 +40,21 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 	fboData.enableDepth = true;
 	fboData.internalFormat = GL_RGBA16F;
 	fboData.internalType = GL_FLOAT;
+	fboData.enableMultisample = true;
 
 	m_shader->use();
 
-	for (int i = 0; i < 16; i++) {
-		m_cascadePlaneDistances.push_back(m_shader->getUniformPosition("cascadePlaneDistances[" + std::to_string(i) + "]"));
-	}
-
     m_fbo = std::make_shared<Prisma::FBO>(fboData);
+
+	Prisma::FBO::FBOData fboDataCopy;
+	fboData.width = m_width;
+	fboData.height = m_height;
+	fboData.enableDepth = true;
+	fboData.internalFormat = GL_RGBA16F;
+	fboData.internalType = GL_FLOAT;
+
+	m_fboCopy = std::make_shared<Prisma::FBO>(fboDataCopy);
+
 	m_fullscreenPipeline = std::make_shared<Prisma::PipelineFullScreen>();
 
 #ifndef NPHYSICS_DEBUG
@@ -78,18 +85,28 @@ void Prisma::PipelineForward::render()
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	m_fbo->unbind();
-	Prisma::Postprocess::getInstance().fboRaw(m_fbo);
+
+
+	m_fboCopy->bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo->frameBufferID());
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fboCopy->frameBufferID());
+	glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	m_fboCopy->unbind();
+
+
+	Prisma::Postprocess::getInstance().fboRaw(m_fboCopy);
 	Postprocess::getInstance().fbo(fboTarget);
 	if (fboTarget) {
 		fboTarget->bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		m_fullscreenPipeline->render(m_fbo->texture());
-
+		m_fullscreenPipeline->render(m_fboCopy->texture());
 		fboTarget->unbind();
 	}
 	else {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		m_fullscreenPipeline->render(m_fbo->texture());
+		m_fullscreenPipeline->render(m_fboCopy->texture());
 	}
 }
 
