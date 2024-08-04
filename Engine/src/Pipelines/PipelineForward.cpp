@@ -42,18 +42,13 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 	fboData.internalType = GL_FLOAT;
 	fboData.enableMultisample = true;
 
-	m_shader->use();
 
     m_fbo = std::make_shared<Prisma::FBO>(fboData);
+	fboData.enableMultisample = false;
 
-	Prisma::FBO::FBOData fboDataCopy;
-	fboData.width = m_width;
-	fboData.height = m_height;
-	fboData.enableDepth = true;
-	fboData.internalFormat = GL_RGBA16F;
-	fboData.internalType = GL_FLOAT;
 
-	m_fboCopy = std::make_shared<Prisma::FBO>(fboDataCopy);
+	m_fboCopy = std::make_shared<Prisma::FBO>(fboData);
+	m_shader->use();
 
 	m_fullscreenPipeline = std::make_shared<Prisma::PipelineFullScreen>();
 
