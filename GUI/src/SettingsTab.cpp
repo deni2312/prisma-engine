@@ -6,6 +6,7 @@
 #include "../../Engine/include/engine.h"
 #include "../../Engine/include/Postprocess/Postprocess.h"
 #include "../include/ImGuiDebug.h"
+#include "../include/TextureInfo.h"
 
 Prisma::ImguiDebug::ImGuiStatus m_status;
 
@@ -30,6 +31,7 @@ void Prisma::SettingsTab::init()
 void Prisma::SettingsTab::drawSettings()
 {
     bool closed = true;
+
     if (ImGui::BeginPopupModal("SettingsTab",&closed)) {
         if (!m_position) {
             ImGui::SetWindowPos(ImVec2(0, 100));
@@ -41,10 +43,12 @@ void Prisma::SettingsTab::drawSettings()
         ImGui::Text(("    LIGHT: " + stringBool(Prisma::CacheScene::getInstance().updateLights())).c_str());
         ImGui::Text(("    SIZE: " + stringBool(Prisma::CacheScene::getInstance().updateSizes())).c_str());
         ImGui::Text(("    TEXTURE: " + stringBool(Prisma::CacheScene::getInstance().updateTextures())).c_str());
+        ImGui::Text(("    STATUS: " + stringBool(Prisma::CacheScene::getInstance().updateStatus())).c_str());
 
         ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
         ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(), m_status.postprocess.size());
         ImGui::Checkbox("BLOOM", &m_bloom);
+
         if (!closed)
             ImGui::CloseCurrentPopup();
         ImGui::EndPopup();

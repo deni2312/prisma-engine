@@ -93,6 +93,7 @@ void Prisma::ImguiDebug::drawGui()
         ImGui::SetNextWindowSize(ImVec2(windowWidth, m_height * m_scale - size.y));
     };
     bool openSettings = false;
+    bool openTextures = false;
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File"))
@@ -155,7 +156,7 @@ void Prisma::ImguiDebug::drawGui()
             }
 
             if (ImGui::MenuItem("Textures")) {
-                Prisma::TextureInfo::getInstance().showTextures();
+                openTextures = true;
             }
 
             if (ImGui::MenuItem("Settings")) {
@@ -217,9 +218,10 @@ void Prisma::ImguiDebug::drawGui()
 
         ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
         ImGui::Text(("FPS: " + std::to_string(m_fps)).c_str());
-        if (ImGui::Button("Textures"))
+        if (openTextures)
         {
             ImGui::OpenPopup("Textures");
+            openTextures = false;
         }
 
         if (openSettings) {
