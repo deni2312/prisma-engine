@@ -33,7 +33,6 @@ namespace Prisma {
 		void start();
 		void close();
 		void imguiData(std::shared_ptr<ImGuiData> data);
-		void updateStatus();
 		std::shared_ptr<Prisma::FBO> fbo();
 
 		static ImguiDebug& getInstance();
@@ -70,8 +69,6 @@ namespace Prisma {
 
 		std::shared_ptr<Prisma::Camera> m_camera;
 
-		ImGuiStatus m_status;
-
         Prisma::MeshInfo meshInfo;
 
 		Prisma::LightInfo lightInfo;
@@ -79,12 +76,6 @@ namespace Prisma {
         std::shared_ptr<Prisma::FileBrowser> m_fileBrowser;
 
 		glm::mat4 m_projection;
-
-		std::shared_ptr<Prisma::Effects> m_effects;
-
-		std::shared_ptr<Prisma::Effects> m_effectsBloom;
-
-		bool m_bloom = false;
 
 		bool m_run = false;
 

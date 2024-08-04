@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+#include "Postprocess/Effects.h"
 
 namespace Prisma {
 
@@ -10,9 +12,13 @@ namespace Prisma {
 		};
 		void init();
 		void drawSettings();
+		void updateStatus();
 	private:
 		SettingsData m_settings;
         bool m_position = false;
+		std::shared_ptr<Prisma::Effects> m_effects;
+		std::shared_ptr<Prisma::Effects> m_effectsBloom;
+		bool m_bloom = false;
     };
 
 }

@@ -71,10 +71,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     m_projection = glm::perspective(glm::radians(settings.angle), (float)settings.width / (float)settings.height, settings.nearPlane, settings.farPlane);
     m_model = glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,m_translate,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
     m_fileBrowser=std::make_shared<Prisma::FileBrowser>();
-    m_effects = std::make_shared<Prisma::Effects>();
-    m_effectsBloom = std::make_shared<Prisma::Effects>();
-    Prisma::Postprocess::getInstance().addPostProcess(m_effectsBloom);
-    Prisma::Postprocess::getInstance().addPostProcess(m_effects);
     Prisma::PixelCapture::getInstance();
 
     m_runButton = std::make_shared<Prisma::Texture>();
@@ -221,16 +217,6 @@ void Prisma::ImguiDebug::drawGui()
 
         ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
         ImGui::Text(("FPS: " + std::to_string(m_fps)).c_str());
-        ImGui::Text("CACHE STATUS:");
-        auto stringBool = [](bool data) {return data ? std::string("TRUE") : std::string("FALSE"); };
-        ImGui::Text(("    MODEL: " + stringBool(Prisma::CacheScene::getInstance().updateData())).c_str());
-        ImGui::Text(("    LIGHT: " + stringBool(Prisma::CacheScene::getInstance().updateLights())).c_str());
-        ImGui::Text(("    SIZE: " + stringBool(Prisma::CacheScene::getInstance().updateSizes())).c_str());
-        ImGui::Text(("    TEXTURE: " + stringBool(Prisma::CacheScene::getInstance().updateTextures())).c_str());
-
-        ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
-        ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(), m_status.postprocess.size());
-        ImGui::Checkbox("BLOOM", &m_bloom);
         if (ImGui::Button("Textures"))
         {
             ImGui::OpenPopup("Textures");
@@ -275,7 +261,7 @@ void Prisma::ImguiDebug::drawGui()
             }
         }
 
-        updateStatus();
+        m_settingsTab.updateStatus();
     }
 #endif
     drawScene();
@@ -367,17 +353,6 @@ void Prisma::ImguiDebug::drawScene()
 
 void Prisma::ImguiDebug::initStatus()
 {
-    
-    m_status.currentitem = 0;
-    m_status.currentPostprocess = 0;
-
-    m_status.items.push_back("FORWARD");
-    m_status.items.push_back("DEFERRED");
-
-    m_status.postprocess.push_back("NORMAL");
-    m_status.postprocess.push_back("SEPPIA");
-    m_status.postprocess.push_back("CARTOON");
-    m_status.postprocess.push_back("VIGNETTE");
     m_settingsTab.init();
 }
 
@@ -434,19 +409,5 @@ std::string Prisma::ImguiDebug::saveFile()
     }
     else {
         return "";
-    }
-}
-
-void Prisma::ImguiDebug::updateStatus()
-{
-    Prisma::Engine::getInstance().pipeline(static_cast<Prisma::Engine::Pipeline>(m_status.currentitem));
-
-    m_effects->effect(static_cast<Prisma::Effects::EFFECTS>(m_status.currentPostprocess));
-
-    if (m_bloom) {
-        m_effectsBloom->effect(Prisma::Effects::EFFECTS::BLOOM);
-    }
-    else {
-        m_effectsBloom->effect(Prisma::Effects::EFFECTS::NORMAL);
     }
 }
