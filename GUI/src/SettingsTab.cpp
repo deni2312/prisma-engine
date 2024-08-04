@@ -15,14 +15,13 @@ void Prisma::SettingsTab::drawSettings()
     bool closed = true;
     if (ImGui::BeginPopupModal("SettingsTab",&closed)) {
         if (!m_position) {
-            ImGui::SetWindowPos(ImVec2(0, 0));
+            ImGui::SetWindowPos(ImVec2(0, 100));
             m_position = true;
         }
         if (ImGui::Checkbox("MSAA",&m_settings.msaa))
         {
             Prisma::PrismaFunc::getInstance().msaa(m_settings.msaa, m_settings.numSamples);
         }
-        std::cout<<"a"<<std::endl;
         if (!closed)
             ImGui::CloseCurrentPopup();
         ImGui::EndPopup();
