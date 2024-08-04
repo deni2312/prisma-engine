@@ -14,8 +14,10 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
     glm::mat4 model = meshData.mesh->parent()->finalMatrix();
-    glm::mat4 inverseParent = glm::inverse(meshData.mesh->parent()->parent()->finalMatrix());
-
+    glm::mat4 inverseParent=glm::mat4(1.0f);
+    if (meshData.mesh->parent()->parent()) {
+        inverseParent = glm::inverse(meshData.mesh->parent()->parent()->finalMatrix());
+    }
 
     ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
 
