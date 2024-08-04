@@ -197,7 +197,6 @@ void PlayerController::createCamera() {
             ball->computeAABB();
             ball->addComponent(physicsComponent);
             auto front = glm::normalize(m_front);
-            front.y = 0;
             auto position = m_gunPosition->finalMatrix()[3]-glm::vec4(front,0);
 
             m_basePosition[3] = position;
