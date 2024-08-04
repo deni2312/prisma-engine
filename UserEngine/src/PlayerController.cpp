@@ -16,6 +16,10 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     m_bboxMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "BBoxMesh"));
     m_bboxMesh->visible(false);
+
+    m_sphereMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "SphereMesh"));
+    m_sphereMesh->visible(false);
+
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
     m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
@@ -110,10 +114,7 @@ void PlayerController::updateKeyboard()
         }
     }
 
-    if (isJumping) {
-
-    }
-    else {
+    if (!isJumping) {
         m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
     }
 

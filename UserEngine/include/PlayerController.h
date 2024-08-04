@@ -75,6 +75,8 @@ private:
 
 	std::shared_ptr<Prisma::Mesh> m_bboxMesh;
 
+	std::shared_ptr<Prisma::Mesh> m_sphereMesh;
+
 	std::shared_ptr<Prisma::PhysicsMeshComponent> m_physics;
 
 	bool m_hide = true;
