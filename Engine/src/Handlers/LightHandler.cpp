@@ -70,30 +70,34 @@ void Prisma::LightHandler::updateOmni()
     const auto& scene = currentGlobalScene;
 
     m_dataOmni = std::make_shared<Prisma::LightHandler::SSBODataOmni>();
+    int numVisible = 0;
     for (int i = 0; i < scene->omniLights.size(); i++) {
         const auto& light = scene->omniLights[i];
-        m_dataOmni->lights.push_back(light->type());
-        glm::mat4 omniMatrix;
-        if (light->parent()) {
-            omniMatrix = light->parent()->finalMatrix();
+        if (light->visible()) {
+            m_dataOmni->lights.push_back(light->type());
+            glm::mat4 omniMatrix;
+            if (light->parent()) {
+                omniMatrix = light->parent()->finalMatrix();
+            }
+            else {
+                omniMatrix = light->matrix();
+            }
+            m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
+            if (light->shadow()) {
+                light->shadow()->update(m_dataOmni->lights[i].position);
+                m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
+            }
+            m_dataOmni->lights[i].padding = scene->omniLights[i]->hasShadow() ? 2.0f : 0.0f;
+            numVisible++;
         }
-        else {
-            omniMatrix = light->matrix();
-        }
-        m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
-        if (light->shadow()) {
-            light->shadow()->update(m_dataOmni->lights[i].position);
-            m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
-        }
-        m_dataOmni->lights[i].padding = scene->omniLights[i]->hasShadow() ? 2.0f : 0.0f;
     }
 
     glm::vec4 omniLength;
-    omniLength.r = scene->omniLights.size();
+    omniLength.r = numVisible;
     m_omniLights->modifyData(0, sizeof(glm::vec4),
         glm::value_ptr(omniLength));
 
-    m_omniLights->modifyData(sizeof(glm::vec4), scene->omniLights.size() * sizeof(Prisma::LightType::LightOmni),
+    m_omniLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(Prisma::LightType::LightOmni),
         m_dataOmni->lights.data());
 }
 
