@@ -34,7 +34,6 @@ void Prisma::MeshIndirect::init()
         MeshIndirect::getInstance().addAnimate(i);
     }
     Prisma::CacheScene::getInstance().updateSizes(true);
-    Prisma::CacheScene::getInstance().skipUpdate(true);
 }
 
 void Prisma::MeshIndirect::add(unsigned int add) {

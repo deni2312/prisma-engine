@@ -136,7 +136,7 @@ void Prisma::LightHandler::update()
 
     m_clusterCalculation->updateCamera();
     m_clusterCalculation->updateLights();
-
+    Prisma::CacheScene::getInstance().resetCaches();
     m_init=false;
 }
 

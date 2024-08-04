@@ -26,14 +26,6 @@ void Prisma::CacheScene::updateData(bool value) {
     m_updateData = value;
 }
 
-bool Prisma::CacheScene::skipUpdate() const {
-    return m_skipUpdate;
-}
-
-void Prisma::CacheScene::skipUpdate(bool value) {
-    m_skipUpdate = value;
-}
-
 bool Prisma::CacheScene::updateTextures() const {
     return m_updateTextures;
 }
@@ -61,14 +53,9 @@ Prisma::CacheScene& Prisma::CacheScene::getInstance()
 }
 
 void Prisma::CacheScene::resetCaches() {
-    if (!m_skipUpdate) {
-        m_updateLights = false;
-        m_updateSizes = false;
-        m_updateData = false;
-        m_updateTextures = false;
-        m_updateStatus = false;
-    }
-    else {
-        m_skipUpdate = false;
-    }
+    m_updateLights = false;
+    m_updateSizes = false;
+    m_updateData = false;
+    m_updateTextures = false;
+    m_updateStatus = false;
 }

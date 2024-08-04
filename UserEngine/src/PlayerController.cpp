@@ -189,7 +189,6 @@ void PlayerController::createCamera() {
             auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
             m_basePosition[3] = glm::vec4(m_target,1.0f);
             ball->parent()->matrix(m_basePosition);
-            Prisma::CacheScene::getInstance().skipUpdate(true);
         }
 
     };

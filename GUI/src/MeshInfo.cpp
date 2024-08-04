@@ -28,11 +28,6 @@ void Prisma::MeshInfo::drawGizmo(const Prisma::MeshInfo::MeshData& meshData) {
         meshInfoData.physicsComponent->updateCollisionData();
     }
     //meshData.mesh->finalMatrix(model);
-
-    if (ImGuizmo::IsUsing()) {
-        Prisma::CacheScene::getInstance().skipUpdate(true);
-    }
-
 }
 
 void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) {
@@ -72,7 +67,6 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
 
         if (ImGui::ImageButton((void*)textureId, ImVec2(24, 24))) {
             meshData.mesh->visible(!meshData.mesh->visible());
-            Prisma::CacheScene::getInstance().skipUpdate(true);
         }
 
         ImGui::InputFloat3("Translation", glm::value_ptr(m_translation), "%.3f", ImGuiInputTextFlags_ReadOnly);
@@ -104,7 +98,6 @@ void Prisma::MeshInfo::showSelected(const Prisma::MeshInfo::MeshData& meshData) 
                 //ImGui::ProgressBar(current);
                 if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->duration())) {
                     animator->frame(current);
-                    Prisma::CacheScene::getInstance().skipUpdate(true);
                 }
             }
         }

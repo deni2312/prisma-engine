@@ -18,10 +18,6 @@ namespace Prisma {
 
         void updateData(bool value);
 
-        bool skipUpdate() const;
-
-        void skipUpdate(bool value);
-
         bool updateTextures() const;
 
         void updateTextures(bool value);
@@ -49,7 +45,6 @@ namespace Prisma {
         bool m_updateLights;
         bool m_updateSizes = false;
         bool m_updateData = false;
-        bool m_skipUpdate = false;
         bool m_updateTextures = false;
         bool m_updateStatus = false;
     };

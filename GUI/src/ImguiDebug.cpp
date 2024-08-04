@@ -143,7 +143,6 @@ void Prisma::ImguiDebug::drawGui()
                     Prisma::MeshIndirect::getInstance().init();
 
                     Prisma::CacheScene::getInstance().updateSizes(true);
-                    Prisma::CacheScene::getInstance().skipUpdate(true);
                 }
             }
 

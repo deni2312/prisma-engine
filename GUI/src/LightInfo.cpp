@@ -34,7 +34,6 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
 
 
     if (ImGuizmo::IsUsing()) {
-        Prisma::CacheScene::getInstance().skipUpdate(true);
     }
 
     // Convert quaternion to Euler angles (XYZ)
@@ -45,14 +44,12 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
 
     if (ImGui::InputFloat3("Diffuse ", glm::value_ptr(type.diffuse))) {
         lightData->type(type);
-        Prisma::CacheScene::getInstance().skipUpdate(true);
     }
 
     bool hasShadow = lightData->hasShadow();
 
     if (ImGui::Checkbox("Shadow ", &hasShadow)) {
         lightData->hasShadow(hasShadow);
-        Prisma::CacheScene::getInstance().skipUpdate(true);
     }
 
     auto shadow = lightData->shadow();
@@ -69,17 +66,14 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
 
         if (ImGui::InputFloat("Far Plane ", &farPlane)) {
             shadow->farPlane(farPlane);
-            Prisma::CacheScene::getInstance().skipUpdate(true);
         }
 
         if (ImGui::InputFloat("Near Plane ", &nearPlane)) {
             shadow->nearPlane(nearPlane);
-            Prisma::CacheScene::getInstance().skipUpdate(true);
         }
 
         if (ImGui::InputFloat("ZMult ", &zMult)) {
             csmShadow->zMult(zMult);
-            Prisma::CacheScene::getInstance().skipUpdate(true);
         }
     }
 
@@ -113,28 +107,20 @@ void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightO
 
     lightData->parent()->matrix(inverseParent * model);
 
-
-    if (ImGuizmo::IsUsing()) {
-        Prisma::CacheScene::getInstance().skipUpdate(true);
-    }
-
     ImGui::InputFloat3("Translation ", glm::value_ptr(type.position));
 
     if (ImGui::InputFloat3("Diffuse ", glm::value_ptr(type.diffuse))) {
         lightData->type(type);
-        Prisma::CacheScene::getInstance().skipUpdate(true);
     }
 
     if (ImGui::InputFloat("Radius ", &type.radius)) {
         lightData->type(type);
-        Prisma::CacheScene::getInstance().skipUpdate(true);
     }
 
     bool hasShadow = lightData->hasShadow();
 
     if (ImGui::Checkbox("Shadow ", &hasShadow)) {
         lightData->hasShadow(hasShadow);
-        Prisma::CacheScene::getInstance().skipUpdate(true);
     }
 
     auto shadow = lightData->shadow();
@@ -146,12 +132,10 @@ void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightO
 
         if (ImGui::InputFloat("Far Plane ", &farPlane)) {
             shadow->farPlane(farPlane);
-            Prisma::CacheScene::getInstance().skipUpdate(true);
         }
 
         if (ImGui::InputFloat("Near Plane ", &nearPlane)) {
             shadow->nearPlane(nearPlane);
-            Prisma::CacheScene::getInstance().skipUpdate(true);
         }
 
     }

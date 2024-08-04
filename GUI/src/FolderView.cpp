@@ -75,7 +75,6 @@ void Prisma::FileBrowser::listDirectoryContents() {
                     Prisma::MeshIndirect::getInstance().init();
 
                     Prisma::CacheScene::getInstance().updateSizes(true);
-                    Prisma::CacheScene::getInstance().skipUpdate(true);
                 }
             }
             ImGui::PopStyleVar();  // Restore the previous padding
