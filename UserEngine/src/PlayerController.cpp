@@ -20,6 +20,8 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_sphereMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "SphereMesh"));
     m_sphereMesh->visible(false);
 
+    m_gunPosition = nodeHelper.find(m_scene->root, "GunPosition");
+
     m_basePosition = m_sphereMesh->parent()->matrix();
     m_basePosition[3] = glm::vec4(0, 0, 0, 1);
 
@@ -90,6 +92,7 @@ void PlayerController::updateKeyboard()
         if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
             auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
             currentDirection.setY(velocity.getY());
+            m_currentDirection = currentDirection;
             rb->setLinearVelocity(currentDirection);
             playerData = m_baseData * glm::rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0, 0, 1));
             m_animatedMesh->parent()->parent()->matrix(playerData);
@@ -99,6 +102,7 @@ void PlayerController::updateKeyboard()
         if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
             auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::vec3(frontClamp * m_velocity)));
             currentDirection.setY(velocity.getY());
+            m_currentDirection = currentDirection;
             rb->setLinearVelocity(currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0, 0, 1));
             playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
@@ -109,6 +113,7 @@ void PlayerController::updateKeyboard()
         if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
             auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
             currentDirection.setY(velocity.getY());
+            m_currentDirection = currentDirection;
             rb->setLinearVelocity(currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0, 0, 1));
             playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
@@ -190,19 +195,17 @@ void PlayerController::createCamera() {
             auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
             ball->computeAABB();
-            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
             ball->addComponent(physicsComponent);
-            auto front = glm::normalize(m_front) * 1.5f;
+            auto front = glm::normalize(m_front);
+            front.y = 0;
+            auto position = m_gunPosition->finalMatrix()[3]-glm::vec4(front,0);
 
-            auto target = m_target;
-            target.y = target.y + 1.0f;
+            m_basePosition[3] = position;
 
-            auto initPos = glm::vec4(target, 1.0f);
-            m_basePosition[3] = initPos;
-
-            auto direction = btVector3(front.x, front.y, front.z);
-            auto force = btVector3(front.x, front.y, front.z);
             ball->parent()->matrix(m_basePosition);
+            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,btVector3(0.1,0.0,0.0),true });
+            physicsComponent->rigidBody()->activate(true);
+            physicsComponent->rigidBody()->applyCentralImpulse(m_currentDirection * 5);
 
         }
 

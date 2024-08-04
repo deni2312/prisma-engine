@@ -52,7 +52,7 @@ void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData 
 
 void Prisma::PhysicsMeshComponent::updateCollisionData() {
     auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
-    if (mesh) {
+    if (mesh && !m_fixed) {
         auto aabbData = mesh->aabbData();
         auto physicsWorld = Prisma::Physics::getInstance().physicsWorld();
 
@@ -106,7 +106,7 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
 
 void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
     auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
-    if (mesh) {
+    if (mesh && !m_fixed) {
         mesh->computeAABB();
         auto aabbData = mesh->aabbData();
         switch (collider) {
@@ -167,6 +167,10 @@ btRigidBody* Prisma::PhysicsMeshComponent::rigidBody() {
 
 btCollisionShape* Prisma::PhysicsMeshComponent::shape() {
     return m_shape;
+}
+
+void Prisma::PhysicsMeshComponent::fixedRigidBody(bool fixed) {
+    m_fixed = fixed;
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {

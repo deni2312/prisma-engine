@@ -30,6 +30,8 @@ namespace Prisma {
 
         btCollisionShape* shape();
 
+        void fixedRigidBody(bool fixed);
+
     private:
         ComponentList m_status;
         std::function<void()> m_apply;
@@ -37,6 +39,7 @@ namespace Prisma {
         btCollisionShape *m_shape = nullptr;
         btRigidBody *m_body = nullptr;
         void colliderDispatcher(Prisma::Physics::Collider collider);
+        bool m_fixed = false;
 
     };
 
