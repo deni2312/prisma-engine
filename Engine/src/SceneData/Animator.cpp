@@ -29,7 +29,6 @@ void Prisma::Animator::updateAnimation(float dt)
 				// Stop blending when blend factor reaches 1.0
 				m_BlendFactor = 1.0f;
 				m_IsBlending = false;
-				m_PreviousAnimation.reset(); // No longer needed
 				m_PreviousAnimation = nullptr;
 			}
 
