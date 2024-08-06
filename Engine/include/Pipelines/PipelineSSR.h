@@ -8,7 +8,7 @@ namespace Prisma {
     public:
         PipelineSSR();
 
-        void update(uint64_t albedo,uint64_t position,uint64_t normal,uint64_t finalImage);
+        void update(uint64_t albedo,uint64_t position,uint64_t normal,uint64_t finalImage,uint64_t depth);
     private:
         std::shared_ptr<Shader> m_shader;
         unsigned int m_albedoPos;
@@ -16,5 +16,6 @@ namespace Prisma {
         unsigned int m_positionPos;
         unsigned int m_samplingPos;
         unsigned int m_finalImagePos;
+        unsigned int m_depthPos;
     };
 }

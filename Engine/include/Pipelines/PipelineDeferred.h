@@ -27,6 +27,7 @@ namespace Prisma {
 		uint64_t m_position;
 		uint64_t m_normal;
 		uint64_t m_albedo;
+		uint64_t m_depth;
 		unsigned int m_positionLocation;
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;

@@ -1,148 +1,147 @@
 #version 460 core
 #extension GL_ARB_bindless_texture : enable
 
-in vec2 TexCoords;
+in vec2 UV;
 out vec4 outColor;
 
 layout(bindless_sampler) uniform sampler2D textureAlbedo;
 layout(bindless_sampler) uniform sampler2D textureNorm;
 layout(bindless_sampler) uniform sampler2D texturePosition;
 layout(bindless_sampler) uniform sampler2D finalImage;
+layout(bindless_sampler) uniform sampler2D textureDepth;
 
 layout(std140, binding = 1) uniform MeshData {
     mat4 view;
     mat4 projection;
 };
 
-const float step = 0.1;
-const float minRayStep = 0.1;
-const float maxSteps = 30;
-const int numBinarySearchSteps = 5;
-const float reflectionSpecularFalloffExponent = 3.0;
+uniform float rayStep = 0.2f;
+uniform int iterationCount = 100;
+uniform float distanceBias = 0.05f;
+uniform bool enableSSR = true;
+uniform int sampleCount = 4;
+uniform bool isSamplingEnabled = true;
+uniform bool isExponentialStepEnabled = true;
+uniform bool isAdaptiveStepEnabled = true;
+uniform bool isBinarySearchEnabled = true;
+uniform bool debugDraw = false;
+uniform float samplingCoefficient = 0.001;
 
-#define Scale vec3(.8, .8, .8)
-#define K 19.19
+float random(vec2 uv) {
+	return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123); //simple random function
+}
 
-vec3 PositionFromDepth(float depth);
+vec3 generatePositionFromDepth(vec2 texturePos, float depth) {
+	vec4 ndc = vec4((texturePos - 0.5) * 2, depth, 1.f);
+	vec4 inversed = inverse(projection) * ndc;// going back from projected
+	inversed /= inversed.w;
+	return inversed.xyz;
+}
 
-vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth);
+vec2 generateProjectedPosition(vec3 pos) {
+	vec4 samplePosition = projection * vec4(pos, 1.f);
+	samplePosition.xy = (samplePosition.xy / samplePosition.w) * 0.5 + 0.5;
+	return samplePosition.xy;
+}
 
-vec4 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth);
+vec3 SSR(vec3 position, vec3 reflection) {
+	vec3 step = rayStep * reflection;
+	vec3 marchingPosition = position + step;
+	float delta;
+	float depthFromScreen;
+	vec2 screenPosition;
 
-vec3 fresnelSchlick(float cosTheta, vec3 F0);
+	int i = 0;
+	for (; i < iterationCount; i++) {
+		screenPosition = generateProjectedPosition(marchingPosition);
+		depthFromScreen = abs(generatePositionFromDepth(screenPosition, texture(textureDepth, screenPosition).x).z);
+		delta = abs(marchingPosition.z) - depthFromScreen;
+		if (abs(delta) < distanceBias) {
+			vec3 color = vec3(1);
+			if (debugDraw)
+				color = vec3(0.5 + sign(delta) / 2, 0.3, 0.5 - sign(delta) / 2);
+			return texture(finalImage, screenPosition).xyz * color;
+		}
+		if (isBinarySearchEnabled && delta > 0) {
+			break;
+		}
+		if (isAdaptiveStepEnabled) {
+			float directionSign = sign(abs(marchingPosition.z) - depthFromScreen);
+			//this is sort of adapting step, should prevent lining reflection by doing sort of iterative converging
+			//some implementation doing it by binary search, but I found this idea more cheaty and way easier to implement
+			step = step * (1.0 - rayStep * max(directionSign, 0.0));
+			marchingPosition += step * (-directionSign);
+		}
+		else {
+			marchingPosition += step;
+		}
+		if (isExponentialStepEnabled) {
+			step *= 1.05;
+		}
+	}
+	if (isBinarySearchEnabled) {
+		for (; i < iterationCount; i++) {
 
-vec3 hash(vec3 a);
+			step *= 0.5;
+			marchingPosition = marchingPosition - step * sign(delta);
+
+			screenPosition = generateProjectedPosition(marchingPosition);
+			depthFromScreen = abs(generatePositionFromDepth(screenPosition, texture(textureDepth, screenPosition).x).z);
+			delta = abs(marchingPosition.z) - depthFromScreen;
+
+			if (abs(delta) < distanceBias) {
+				vec3 color = vec3(1);
+				if (debugDraw)
+					color = vec3(0.5 + sign(delta) / 2, 0.3, 0.5 - sign(delta) / 2);
+				return texture(finalImage, screenPosition).xyz * color;
+			}
+		}
+	}
+
+	return vec3(0.0);
+}
+
 
 void main(void)
 {
-    vec3 FragPos = texture(texturePosition, TexCoords).rgb;
-    vec3 N = texture(textureNorm, TexCoords).rgb;
-    vec3 albedo = texture(textureAlbedo, TexCoords).rgb;
-    float roughness = texture(textureNorm, TexCoords).a;
-    float metallic = texture(textureAlbedo, TexCoords).a;
-
-
-
-    outColor = vec4(1,1,1,1);
-}
-
-
-vec3 PositionFromDepth(float depth) {
-    float z = depth * 2.0 - 1.0;
-
-    vec4 clipSpacePosition = vec4(TexCoords * 2.0 - 1.0, z, 1.0);
-    vec4 viewSpacePosition = invprojection * clipSpacePosition;
-
-    // Perspective division
-    viewSpacePosition /= viewSpacePosition.w;
-
-    return viewSpacePosition.xyz;
-}
-
-vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth)
-{
-    float depth;
-
-    vec4 projectedCoord;
-
-    for (int i = 0; i < numBinarySearchSteps; i++)
-    {
-
-        projectedCoord = projection * vec4(hitCoord, 1.0);
-        projectedCoord.xy /= projectedCoord.w;
-        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
-
-        depth = textureLod(gPosition, projectedCoord.xy, 2).z;
-
-
-        dDepth = hitCoord.z - depth;
-
-        dir *= 0.5;
-        if (dDepth > 0.0)
-            hitCoord += dir;
-        else
-            hitCoord -= dir;
-    }
-
-    projectedCoord = projection * vec4(hitCoord, 1.0);
-    projectedCoord.xy /= projectedCoord.w;
-    projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
-
-    return vec3(projectedCoord.xy, depth);
-}
-
-vec4 RayMarch(vec3 dir, inout vec3 hitCoord, out float dDepth)
-{
-
-    dir *= step;
-
-
-    float depth;
-    int steps;
-    vec4 projectedCoord;
-
-
-    for (int i = 0; i < maxSteps; i++)
-    {
-        hitCoord += dir;
-
-        projectedCoord = projection * vec4(hitCoord, 1.0);
-        projectedCoord.xy /= projectedCoord.w;
-        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
-
-        depth = textureLod(gPosition, projectedCoord.xy, 2).z;
-        if (depth > 1000.0)
-            continue;
-
-        dDepth = hitCoord.z - depth;
-
-        if ((dir.z - dDepth) < 1.2)
-        {
-            if (dDepth <= 0.0)
-            {
-                vec4 Result;
-                Result = vec4(BinarySearch(dir, hitCoord, dDepth), 1.0);
-
-                return Result;
-            }
-        }
-
-        steps++;
-    }
-
-
-    return vec4(projectedCoord.xy, depth, 0.0);
-}
-
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
-{
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
-
-
-vec3 hash(vec3 a)
-{
-    a = fract(a * Scale);
-    a += dot(a, a.yxz + K);
-    return fract((a.xxy + a.yxx) * a.zyx);
+    mat4 invView = inverse(view);
+    vec3 viewPos = vec3(texture(texturePosition, UV));
+    vec3 viewNormal = vec3(texture(textureNorm, UV));
+    vec3 albedo = texture(finalImage, UV).rgb;
+    float roughness = texture(textureNorm, UV).a;
+    float metallic = texture(textureAlbedo, UV).a;
+	vec3 position = generatePositionFromDepth(UV, texture(textureDepth, UV).x);
+	vec4 normal = view * vec4(texture(textureNorm, UV).xyz, 0.0);
+	if (!enableSSR || metallic < 0.01) {
+		outColor = texture(finalImage, UV);
+	}
+	else {
+		vec3 reflectionDirection = normalize(reflect(position, normalize(normal.xyz)));
+		if (isSamplingEnabled) {
+			vec3 firstBasis = normalize(cross(vec3(0.f, 0.f, 1.f), reflectionDirection));
+			vec3 secondBasis = normalize(cross(reflectionDirection, firstBasis));
+			vec4 resultingColor = vec4(0.f);
+			for (int i = 0; i < sampleCount; i++) {
+				vec2 coeffs = vec2(random(UV + vec2(0, i)) + random(UV + vec2(i, 0))) * samplingCoefficient;
+				vec3 reflectionDirectionRandomized = reflectionDirection + firstBasis * coeffs.x + secondBasis * coeffs.y;
+				vec3 tempColor = SSR(position, normalize(reflectionDirectionRandomized));
+				if (tempColor != vec3(0.f)) {
+					resultingColor += vec4(tempColor, 1.f);
+				}
+			}
+			if (resultingColor.w == 0) {
+				outColor = texture(finalImage, UV);
+			}
+			else {
+				resultingColor /= resultingColor.w;
+				outColor = vec4(resultingColor.xyz, 1.f);
+			}
+		}
+		else {
+			outColor = vec4(SSR(position, normalize(reflectionDirection)), 1.f);
+			if (outColor.xyz == vec3(0.f)) {
+				outColor = texture(finalImage, UV);
+			}
+		}
+	}
 }
