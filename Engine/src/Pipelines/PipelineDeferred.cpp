@@ -100,8 +100,6 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 	fboData.internalType = GL_FLOAT;
 	m_fbo = std::make_shared<Prisma::FBO>(fboData);
 
-    m_fboSSR = std::make_shared<Prisma::FBO>(fboData);
-
     m_fullscreenPipeline = std::make_shared<Prisma::PipelineFullScreen>();
 
 }
@@ -140,15 +138,12 @@ void Prisma::PipelineDeferred::render()
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);
     Postprocess::getInstance().fbo(fboTarget);
 
-    m_fboSSR->bind();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     m_ssr->update(m_albedo, m_position, m_normal, m_fbo->texture(),m_depth);
-    m_fboSSR->unbind();
 
     if (fboTarget) {
         fboTarget->bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        m_fullscreenPipeline->render(m_fboSSR->texture());
+        m_fullscreenPipeline->render(m_ssr->texture());
 
         fboTarget->unbind();
     }

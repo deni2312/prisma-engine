@@ -32,7 +32,6 @@ namespace Prisma {
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;
 		std::shared_ptr<Prisma::FBO> m_fbo;
-        std::shared_ptr<Prisma::FBO> m_fboSSR;
         std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
 
         std::shared_ptr<Prisma::PipelineSSR> m_ssr;

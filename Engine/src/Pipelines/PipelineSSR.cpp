@@ -1,5 +1,6 @@
 #include "../../include/Pipelines/PipelineSSR.h"
 #include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/SettingsLoader.h"
 
 
 Prisma::PipelineSSR::PipelineSSR() {
@@ -10,14 +11,24 @@ Prisma::PipelineSSR::PipelineSSR() {
     m_albedoPos=m_shader->getUniformPosition("textureAlbedo");
     m_normalPos=m_shader->getUniformPosition("textureNorm");
     m_positionPos=m_shader->getUniformPosition("texturePosition");
-    m_samplingPos=m_shader->getUniformPosition("screenSize");
     m_finalImagePos = m_shader->getUniformPosition("finalImage");
     m_depthPos = m_shader->getUniformPosition("textureDepth");
+    auto settings = Prisma::SettingsLoader::instance().getSettings();
+
+    Prisma::FBO::FBOData fboData;
+    fboData.width = settings.width;
+    fboData.height = settings.height;
+    fboData.enableDepth = true;
+    fboData.internalFormat = GL_RGBA16F;
+    fboData.internalType = GL_FLOAT;
+
+    m_fboSSR = std::make_shared<Prisma::FBO>(fboData);
 
 }
 
 void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t normal,uint64_t finalImage,uint64_t depth) {
-    MeshHandler::getInstance().updateCamera();
+    m_fboSSR->bind();
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     m_shader->use();
     m_shader->setInt64(m_albedoPos,albedo);
@@ -25,7 +36,13 @@ void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t no
     m_shader->setInt64(m_positionPos,position);
     m_shader->setInt64(m_finalImagePos, finalImage);
     m_shader->setInt64(m_depthPos, depth);
-    m_shader->setVec2(m_samplingPos,glm::vec2(1440,2560));
 
     Prisma::IBLBuilder::getInstance().renderQuad();
+    m_fboSSR->unbind();
+
+}
+
+uint64_t Prisma::PipelineSSR::texture()
+{
+    return m_fboSSR->texture();
 }
