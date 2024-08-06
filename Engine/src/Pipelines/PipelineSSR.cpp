@@ -11,16 +11,18 @@ Prisma::PipelineSSR::PipelineSSR() {
     m_normalPos=m_shader->getUniformPosition("textureNorm");
     m_positionPos=m_shader->getUniformPosition("texturePosition");
     m_samplingPos=m_shader->getUniformPosition("screenSize");
+    m_finalImagePos = m_shader->getUniformPosition("finalImage");
 
 }
 
-void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t normal) {
+void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t normal,uint64_t finalImage) {
     MeshHandler::getInstance().updateCamera();
 
     m_shader->use();
     m_shader->setInt64(m_albedoPos,albedo);
     m_shader->setInt64(m_normalPos,normal);
     m_shader->setInt64(m_positionPos,position);
+    m_shader->setInt64(m_finalImagePos, finalImage);
     m_shader->setVec2(m_samplingPos,glm::vec2(1440,2560));
 
     Prisma::IBLBuilder::getInstance().renderQuad();

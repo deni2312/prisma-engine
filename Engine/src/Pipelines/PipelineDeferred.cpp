@@ -132,10 +132,10 @@ void Prisma::PipelineDeferred::render()
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);
     Postprocess::getInstance().fbo(fboTarget);
 
-    /*m_fboSSR->bind();
+    m_fboSSR->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    m_ssr->update(m_albedo, m_position, m_normal);
-    m_fboSSR->unbind();*/
+    m_ssr->update(m_albedo, m_position, m_normal, m_fbo->texture());
+    m_fboSSR->unbind();
 
     if (fboTarget) {
         fboTarget->bind();
