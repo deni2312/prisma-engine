@@ -52,6 +52,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
 	m_fullscreenPipeline = std::make_shared<Prisma::PipelineFullScreen>();
 
+	m_prepass = std::make_shared<Prisma::PipelinePrePass>();
+
 #ifndef NPHYSICS_DEBUG
     drawDebugger=new DrawDebugger();
     Physics::getInstance().physicsWorld()->dynamicsWorld->setDebugDrawer(drawDebugger);

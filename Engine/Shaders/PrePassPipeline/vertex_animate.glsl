@@ -6,8 +6,6 @@ layout(location = 6) in vec4 weights;
 const int MAX_BONES = 128;
 const int MAX_BONE_INFLUENCE = 4;
 
-out vec3 FragPos;
-
 layout(std140, binding = 1) uniform MeshData
 {
     mat4 view;
@@ -31,7 +29,6 @@ layout(std430, binding = 8) readonly buffer BoneMatrices
 void main()
 {
     vec4 totalPosition = vec4(0.0f);
-    vec3 localNormal = vec3(0.0f);
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
     {
         if (boneIds[i] == -1)
@@ -43,9 +40,7 @@ void main()
         }
         vec4 localPosition = boneMatrices[gl_DrawID].animations[boneIds[i]] * vec4(aPos, 1.0f);
         totalPosition += localPosition * weights[i];
-        localNormal = mat3(boneMatrices[gl_DrawID].animations[boneIds[i]]) * aNormal;
     }
 
-    FragPos = vec3(modelAnimationMatrices[gl_DrawID] * vec4(aPos, 1.0));
     gl_Position = projection * view * modelAnimationMatrices[gl_DrawID] * totalPosition;
 }
