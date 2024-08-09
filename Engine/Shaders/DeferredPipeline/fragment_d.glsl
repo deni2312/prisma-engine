@@ -286,7 +286,7 @@ void main()
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
         else {
-            Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, vec3(directionalData[i].direction), N, i));
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, L, N, i));
         }
     }
 
