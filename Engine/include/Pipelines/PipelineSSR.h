@@ -20,5 +20,6 @@ namespace Prisma {
         unsigned int m_positionPos;
         unsigned int m_finalImagePos;
         unsigned int m_depthPos;
+        unsigned int m_invProjPos;
     };
 }

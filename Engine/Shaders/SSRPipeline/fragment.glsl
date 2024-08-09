@@ -6,7 +6,6 @@ out vec4 outColor;
 
 layout(bindless_sampler) uniform sampler2D textureAlbedo;
 layout(bindless_sampler) uniform sampler2D textureNorm;
-layout(bindless_sampler) uniform sampler2D texturePosition;
 layout(bindless_sampler) uniform sampler2D finalImage;
 layout(bindless_sampler) uniform sampler2D textureDepth;
 
@@ -21,6 +20,7 @@ uniform float distanceBias = 0.05f;
 uniform bool isExponentialStepEnabled = false;
 uniform bool isAdaptiveStepEnabled = true;
 uniform bool isBinarySearchEnabled = true;
+uniform mat4 invProjection;
 
 float random(vec2 uv) {
 	return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -28,7 +28,7 @@ float random(vec2 uv) {
 
 vec3 generatePositionFromDepth(vec2 texturePos, float depth) {
 	vec4 ndc = vec4((texturePos - 0.5) * 2, depth, 1.f);
-	vec4 inversed = inverse(projection) * ndc;
+	vec4 inversed = invProjection * ndc;
 	inversed /= inversed.w;
 	return inversed.xyz;
 }

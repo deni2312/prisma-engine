@@ -3,7 +3,6 @@
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/engine.h"
 
-
 Prisma::PipelineSSR::PipelineSSR() {
     m_shader = std::make_shared<Shader>("../../../Engine/Shaders/SSRPipeline/vertex.glsl",
                                         "../../../Engine/Shaders/SSRPipeline/fragment.glsl");
@@ -14,6 +13,7 @@ Prisma::PipelineSSR::PipelineSSR() {
     m_positionPos=m_shader->getUniformPosition("texturePosition");
     m_finalImagePos = m_shader->getUniformPosition("finalImage");
     m_depthPos = m_shader->getUniformPosition("textureDepth");
+    m_invProjPos = m_shader->getUniformPosition("invProjection");
     auto settings = Prisma::SettingsLoader::instance().getSettings();
 
     Prisma::FBO::FBOData fboData;
@@ -24,7 +24,6 @@ Prisma::PipelineSSR::PipelineSSR() {
     fboData.internalType = GL_FLOAT;
 
     m_fboSSR = std::make_shared<Prisma::FBO>(fboData);
-
 }
 
 void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t normal,uint64_t finalImage,uint64_t depth) {
@@ -38,6 +37,8 @@ void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t no
     m_shader->setInt64(m_positionPos, position);
     m_shader->setInt64(m_finalImagePos, finalImage);
     m_shader->setInt64(m_depthPos, depth);
+    m_shader->setMat4(m_invProjPos, glm::inverse(currentProjection));
+
 
     Prisma::IBLBuilder::getInstance().renderQuad();
     m_fboSSR->unbind();
