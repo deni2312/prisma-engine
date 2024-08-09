@@ -15,6 +15,7 @@
 #include "../../include/Helpers/ClusterCalculation.h"
 #include "../../../GUI/include/TextureInfo.h"
 #include "../../include/Postprocess/Postprocess.h"
+#include "../../include/engine.h"
 
 
 Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb):m_width{ width },m_height{ height }
@@ -136,14 +137,16 @@ void Prisma::PipelineDeferred::render()
     m_fbo->unbind();
 
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);
+    uint64_t finalTexture = m_fbo->texture();
     Postprocess::getInstance().fbo(fboTarget);
-
-    m_ssr->update(m_albedo, m_position, m_normal, m_fbo->texture(),m_depth);
-
+    if (Prisma::Engine::getInstance().engineSettings().ssr) {
+        m_ssr->update(m_albedo, m_position, m_normal, m_fbo->texture(), m_depth);
+        finalTexture = m_ssr->texture();
+    }
     if (fboTarget) {
         fboTarget->bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        m_fullscreenPipeline->render(m_ssr->texture());
+        m_fullscreenPipeline->render(finalTexture);
 
         fboTarget->unbind();
     }

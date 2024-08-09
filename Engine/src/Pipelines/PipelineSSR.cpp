@@ -1,6 +1,7 @@
 #include "../../include/Pipelines/PipelineSSR.h"
 #include "../../include/Helpers/IBLBuilder.h"
 #include "../../include/Helpers/SettingsLoader.h"
+#include "../../include/engine.h"
 
 
 Prisma::PipelineSSR::PipelineSSR() {
@@ -27,19 +28,19 @@ Prisma::PipelineSSR::PipelineSSR() {
 }
 
 void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t normal,uint64_t finalImage,uint64_t depth) {
+
     m_fboSSR->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     m_shader->use();
-    m_shader->setInt64(m_albedoPos,albedo);
-    m_shader->setInt64(m_normalPos,normal);
-    m_shader->setInt64(m_positionPos,position);
+    m_shader->setInt64(m_albedoPos, albedo);
+    m_shader->setInt64(m_normalPos, normal);
+    m_shader->setInt64(m_positionPos, position);
     m_shader->setInt64(m_finalImagePos, finalImage);
     m_shader->setInt64(m_depthPos, depth);
 
     Prisma::IBLBuilder::getInstance().renderQuad();
     m_fboSSR->unbind();
-
 }
 
 uint64_t Prisma::PipelineSSR::texture()

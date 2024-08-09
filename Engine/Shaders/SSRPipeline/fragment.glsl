@@ -18,7 +18,6 @@ layout(std140, binding = 1) uniform MeshData {
 uniform float rayStep = 0.2f;
 uniform int iterationCount = 100;
 uniform float distanceBias = 0.05f;
-uniform bool enableSSR = true;
 uniform bool isExponentialStepEnabled = false;
 uniform bool isAdaptiveStepEnabled = true;
 uniform bool isBinarySearchEnabled = true;
@@ -102,7 +101,7 @@ void main(void)
     float metallic = texture(textureAlbedo, UV).a;
 	vec3 position = generatePositionFromDepth(UV, texture(textureDepth, UV).x);
 	vec4 normal = view * vec4(texture(textureNorm, UV).xyz, 0.0);
-	if (!enableSSR || metallic < 0.01) {
+	if (metallic < 0.01) {
 		outColor = texture(finalImage, UV);
 	}
 	else {
