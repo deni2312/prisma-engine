@@ -16,7 +16,7 @@ void Prisma::SettingsTab::init()
     m_effectsBloom = std::make_shared<Prisma::Effects>();
     Prisma::Postprocess::getInstance().addPostProcess(m_effectsBloom);
     Prisma::Postprocess::getInstance().addPostProcess(m_effects);
-    m_status.currentitem = 0;
+    m_status.currentitem = (unsigned int)Prisma::Engine::getInstance().engineSettings().pipeline;
     m_status.currentPostprocess = 0;
 
     m_status.items.push_back("FORWARD");
@@ -48,6 +48,12 @@ void Prisma::SettingsTab::drawSettings()
         ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
         ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(), m_status.postprocess.size());
         ImGui::Checkbox("BLOOM", &m_bloom);
+
+        auto settings = Prisma::Engine::getInstance().engineSettings();
+
+        ImGui::Checkbox("SCREEN SPACE REFLECTIONS", &settings.ssr);
+
+        Prisma::Engine::getInstance().engineSettings(settings);
 
         if (!closed)
             ImGui::CloseCurrentPopup();

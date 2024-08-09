@@ -43,7 +43,7 @@ void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t no
     m_fboSSR->unbind();
 }
 
-uint64_t Prisma::PipelineSSR::texture()
+std::shared_ptr<Prisma::FBO> Prisma::PipelineSSR::texture()
 {
-    return m_fboSSR->texture();
+    return m_fboSSR;
 }

@@ -67,13 +67,14 @@ void Prisma::PipelineForward::render()
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	//DEPTH PREPASS
 	m_prepass->render();
 
 	// After depth pre-pass
 	glDepthMask(GL_FALSE);          // Disable depth writing
 	glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
 
-	// Proceed with your main rendering passes
+	//COLOR PASS
 	m_shader->use();
 	Prisma::MeshIndirect::getInstance().renderMeshes();
 
@@ -101,7 +102,7 @@ void Prisma::PipelineForward::render()
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo->frameBufferID());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fboCopy->frameBufferID());
-	glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	m_fboCopy->unbind();
 
 	Prisma::Postprocess::getInstance().fboRaw(m_fboCopy);

@@ -74,9 +74,9 @@ Prisma::Engine::Engine()
 
     AnimationHandler::getInstance();
     
-    data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::FORWARD;
+    data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::DEFERRED;
 
-    data->engineSettings.ssr = true;
+    data->engineSettings.ssr = false;
 
     data->settings = SettingsLoader::instance().getSettings();
 

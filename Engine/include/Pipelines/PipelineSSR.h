@@ -11,7 +11,7 @@ namespace Prisma {
 
         void update(uint64_t albedo,uint64_t position,uint64_t normal,uint64_t finalImage,uint64_t depth);
 
-        uint64_t texture();
+        std::shared_ptr<Prisma::FBO> texture();
     private:
         std::shared_ptr<Shader> m_shader;
         std::shared_ptr<Prisma::FBO> m_fboSSR;

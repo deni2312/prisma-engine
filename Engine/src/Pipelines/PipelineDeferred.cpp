@@ -128,6 +128,7 @@ void Prisma::PipelineDeferred::render()
     m_shaderD->setInt64(m_positionLocation, m_position);
     Prisma::IBLBuilder::getInstance().renderQuad();
 
+    //COPY DEPTH FOR SKYBOX
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_gBuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo->frameBufferID());
     glBlitFramebuffer(
@@ -141,7 +142,11 @@ void Prisma::PipelineDeferred::render()
     Postprocess::getInstance().fbo(fboTarget);
     if (Prisma::Engine::getInstance().engineSettings().ssr) {
         m_ssr->update(m_albedo, m_position, m_normal, m_fbo->texture(), m_depth);
-        finalTexture = m_ssr->texture();
+
+        const auto& ssrTexture = m_ssr->texture();
+
+        finalTexture = ssrTexture->texture();
+        Prisma::Postprocess::getInstance().fboRaw(ssrTexture);
     }
     if (fboTarget) {
         fboTarget->bind();
