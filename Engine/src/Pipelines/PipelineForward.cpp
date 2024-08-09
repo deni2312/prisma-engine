@@ -72,7 +72,6 @@ void Prisma::PipelineForward::render()
 	// After depth pre-pass
 	glDepthMask(GL_FALSE);          // Disable depth writing
 	glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
-	glStencilMask(0x00);            // Optionally disable stencil buffer writes
 
 	// Proceed with your main rendering passes
 	m_shader->use();
