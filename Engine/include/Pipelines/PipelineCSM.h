@@ -51,7 +51,7 @@ namespace Prisma {
         uint64_t m_id;
         float m_farPlane = 200;
         float m_nearPlane = 0.1f;
-        float m_zMult = 10;
+        float m_zMult = 16;
 
         std::vector<float> m_shadowCascadeLevels;
 

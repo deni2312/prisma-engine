@@ -132,13 +132,13 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
         float distance = glm::length(glm::vec3(v) - center);
         radius = glm::max(radius, distance);
     }
-    radius = std::ceil(radius * 16.0f) / 16.0f;
+    radius = std::ceil(radius * m_zMult) / m_zMult;
 
     glm::vec3 maxExtents = glm::vec3(radius);
     glm::vec3 minExtents = -maxExtents;
 
     auto lightViewMatrix =
-        glm::lookAt(center - m_lightDir * -minExtents.z,
+        glm::lookAt(center + m_lightDir * -minExtents.z,
             center, glm::vec3(0.0f, 1.0f, 0.0f));
     auto lightProjectionMatrix =
         glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f,
