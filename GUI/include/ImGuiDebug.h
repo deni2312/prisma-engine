@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include "PlotFPS.h"
 
 namespace Prisma {
 	class ImguiDebug {
@@ -88,6 +89,8 @@ namespace Prisma {
 		SettingsTab m_settingsTab;
 
 		bool m_settingsTabShow = false;
+
+		PlotFPS m_plot;
 
     };
 }

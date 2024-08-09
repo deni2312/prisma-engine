@@ -7,6 +7,7 @@
     "nlohmann-json",
     "bullet3",
     "tinygltf",
+    "implot",
     {"name": "imgui", "features": ["glfw-binding","opengl3-binding"]},
     "imguizmo"
   ],

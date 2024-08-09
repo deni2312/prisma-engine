@@ -26,6 +26,7 @@
 #include "../../Engine/include/Helpers/SettingsLoader.h"
 #include "../../Engine/include/engine.h"
 #include "../../Engine/include/Pipelines/PipelineSkybox.h"
+#include "implot.h"
 
 struct PrivateIO {
     ImGuiIO io;
@@ -46,6 +47,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     auto settings = Prisma::SettingsLoader::instance().getSettings();
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
     data->io = ImGui::GetIO();
     data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -215,7 +217,7 @@ void Prisma::ImguiDebug::drawGui()
         nextLeft(m_initOffset);
 
         ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-        ImGui::Text(("FPS: " + std::to_string(m_fps)).c_str());
+        m_plot.showFPS(m_fps);
         if (openTextures)
         {
             ImGui::OpenPopup("Textures");
