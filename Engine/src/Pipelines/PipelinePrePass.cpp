@@ -1,4 +1,5 @@
 #include "../../include/Pipelines/PipelinePrePass.h"
+#include "../../include/SceneData/MeshIndirect.h"
 
 Prisma::PipelinePrePass::PipelinePrePass()
 {
@@ -9,5 +10,10 @@ Prisma::PipelinePrePass::PipelinePrePass()
 
 void Prisma::PipelinePrePass::render()
 {
+	m_shader->use();
+	Prisma::MeshIndirect::getInstance().renderMeshes();
+
+	m_shaderAnimate->use();
+	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
 }

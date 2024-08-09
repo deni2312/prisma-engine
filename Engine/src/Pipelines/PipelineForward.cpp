@@ -65,15 +65,28 @@ void Prisma::PipelineForward::render()
 {
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    m_shader->use();
 
+	m_prepass->render();
+
+
+	// After depth pre-pass
+	glDepthMask(GL_FALSE);          // Disable depth writing
+	glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
+	glStencilMask(0x00);            // Optionally disable stencil buffer writes
+
+	// Proceed with your main rendering passes
+	m_shader->use();
 	Prisma::MeshIndirect::getInstance().renderMeshes();
 
 	m_shaderAnimate->use();
-
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
 	Prisma::PipelineSkybox::getInstance().render();
+
+	// After rendering
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+
 
 #ifndef NPHYSICS_DEBUG
     drawDebugger->line.setMVP(currentProjection * currentGlobalScene->camera->matrix());
