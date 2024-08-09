@@ -84,7 +84,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
 
 void Prisma::ImguiDebug::drawGui()
 {
-#ifndef NDEBUG
     glDisable(GL_DEPTH_TEST);
     float windowWidth = m_translate * m_width / 2;
     ImVec2 size;
@@ -264,7 +263,6 @@ void Prisma::ImguiDebug::drawGui()
 
         m_settingsTab.updateStatus();
     }
-#endif
     drawScene();
     glEnable(GL_DEPTH_TEST);
 }
@@ -344,11 +342,7 @@ void Prisma::ImguiDebug::drawScene()
         model = m_model;
     }
 
-#ifndef NDEBUG
     m_shader->setMat4(m_modelPos,model);
-#else
-    m_shader->setMat4(m_modelPos, glm::mat4(1.0f));
-#endif
     Prisma::IBLBuilder::getInstance().renderQuad();
 }
 
