@@ -48,6 +48,28 @@ namespace Prisma {
 
 		}
 
+		void matrix(const glm::mat4& matrix, bool update)
+		{
+			Prisma::Node::matrix(matrix);
+			Prisma::CacheScene::getInstance().updateLights(true);
+		}
+
+		void finalMatrix(const glm::mat4& matrix, bool update)
+		{
+			Prisma::Node::finalMatrix(matrix);
+			Prisma::CacheScene::getInstance().updateLights(true);
+		}
+
+		glm::mat4 matrix() const
+		{
+			return Prisma::Node::matrix();
+		}
+
+		glm::mat4 finalMatrix() const
+		{
+			return Prisma::Node::finalMatrix();
+		}
+
         std::shared_ptr<GenericShadow> shadow(){
             return m_shadow;
         }

@@ -128,7 +128,6 @@ void Prisma::LightHandler::update()
     const auto& scene = currentGlobalScene;
 
     updateCSM();
-
     if(m_init || Prisma::CacheScene::getInstance().updateData() || Prisma::CacheScene::getInstance().updateSizes() || Prisma::CacheScene::getInstance().updateLights()) {
         if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS) {
             updateDirectional();
