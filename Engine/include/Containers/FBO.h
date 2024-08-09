@@ -15,6 +15,8 @@ namespace Prisma {
             bool enableDepth = false;
             bool enableSrgb = false;
             bool enableMultisample = false;
+            bool enableColor = true;
+            bool rbo = true;
         };
         FBO(FBOData fboData);
         ~FBO();
@@ -24,11 +26,14 @@ namespace Prisma {
 
         uint64_t texture() const;
 
+        uint64_t depth() const;
+
         unsigned int frameBufferID();
 
     private:
         unsigned int m_framebufferID;
-        uint64_t m_id;
+        uint64_t m_id = -1;
+        uint64_t m_depthId = -1;
         std::shared_ptr<Shader> m_shader;
         unsigned int m_vao;
         FBOData m_fboData;

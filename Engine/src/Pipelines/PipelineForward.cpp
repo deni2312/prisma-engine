@@ -66,8 +66,7 @@ void Prisma::PipelineForward::render()
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_prepass->render();
-
+	m_prepass->render(m_fbo);
 
 	// After depth pre-pass
 	glDepthMask(GL_FALSE);          // Disable depth writing

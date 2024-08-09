@@ -29,24 +29,42 @@ Prisma::FBO::FBO(FBOData fboData)
     }
     else {
 
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        if (m_fboData.enableColor) {
+            glBindTexture(GL_TEXTURE_2D, textureID);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, m_fboData.internalFormat, fboData.width, fboData.height, 0, GL_RGBA, m_fboData.internalType, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, m_fboData.internalFormat, fboData.width, fboData.height, 0, GL_RGBA, m_fboData.internalType, NULL);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, 0);
+        }
 
         if (m_fboData.enableDepth) {
-            unsigned int rbo;
-            glGenRenderbuffers(1, &rbo);
-            glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_fboData.width, m_fboData.height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
-            Prisma::GarbageCollector::getInstance().add({ Prisma::GarbageCollector::GarbageType::RBO,rbo });
+            if (m_fboData.rbo) {
+                unsigned int rbo;
+                glGenRenderbuffers(1, &rbo);
+                glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_fboData.width, m_fboData.height);
+                glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+                Prisma::GarbageCollector::getInstance().add({ Prisma::GarbageCollector::GarbageType::RBO,rbo });
+            }
+            else {
+                unsigned int depthTexture;
+
+                // Generate and configure the depth texture
+                glGenTextures(1, &depthTexture);
+                glBindTexture(GL_TEXTURE_2D, depthTexture);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_fboData.width, m_fboData.height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+
+                m_depthId = glGetTextureHandleARB(depthTexture);
+                glMakeTextureHandleResidentARB(m_depthId);
+            }
         }
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -76,6 +94,11 @@ void Prisma::FBO::unbind() {
 
 uint64_t Prisma::FBO::texture() const {
     return m_id;
+}
+
+uint64_t Prisma::FBO::depth() const
+{
+    return m_depthId;
 }
 
 unsigned int Prisma::FBO::frameBufferID()

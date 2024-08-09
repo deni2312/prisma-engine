@@ -86,18 +86,13 @@ vec3 SSR(vec3 position, vec3 reflection) {
 			}
 		}
 	}
-
 	return vec3(0.0);
 }
 
 
 void main(void)
 {
-    mat4 invView = inverse(view);
-    vec3 viewPos = vec3(texture(texturePosition, UV));
-    vec3 viewNormal = vec3(texture(textureNorm, UV));
     vec3 albedo = texture(finalImage, UV).rgb;
-    float roughness = texture(textureNorm, UV).a;
     float metallic = texture(textureAlbedo, UV).a;
 	vec3 position = generatePositionFromDepth(UV, texture(textureDepth, UV).x);
 	vec4 normal = view * vec4(texture(textureNorm, UV).xyz, 0.0);

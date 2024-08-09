@@ -76,7 +76,7 @@ Prisma::Engine::Engine()
     
     data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::FORWARD;
 
-    data->engineSettings.ssr = false;
+    data->engineSettings.ssr = true;
 
     data->settings = SettingsLoader::instance().getSettings();
 
