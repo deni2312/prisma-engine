@@ -122,59 +122,28 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     {
         center += glm::vec3(v);
     }
+
     center /= corners.size();
 
+    float radius = 0.0f;
 
-    auto direction = center + m_lightDir;
-
-    glm::mat4 lightView;
-
-    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f); // Define the world's up direction
-
-    // Check if direction and worldUp are parallel
-    if (glm::dot(direction, worldUp) > 0.99f) {
-        // If they are nearly parallel, adjust the worldUp vector
-        worldUp = glm::vec3(0.0f, 0.0f, 1.0f); // Set a different perpendicular direction
+    for (const auto& v : corners)
+    {
+        float distance = glm::length(glm::vec3(v) - center);
+        radius = glm::max(radius, distance);
     }
+    radius = std::ceil(radius * 16.0f) / 16.0f;
 
-    glm::vec3 right = glm::normalize(glm::cross(worldUp, direction)); // Compute the right vector
-    glm::vec3 up = glm::cross(direction, right); // Compute the corrected up vector
+    glm::vec3 maxExtents = glm::vec3(radius);
+    glm::vec3 minExtents = -maxExtents;
 
-    lightView = glm::lookAt(direction, center, up);
-
-    float minX = std::numeric_limits<float>::max();
-    float maxX = std::numeric_limits<float>::lowest();
-    float minY = std::numeric_limits<float>::max();
-    float maxY = std::numeric_limits<float>::lowest();
-    float minZ = std::numeric_limits<float>::max();
-    float maxZ = std::numeric_limits<float>::lowest();
-
-    for (const auto& v : corners) {
-        glm::vec4 trf = lightView * v;
-        minX = std::min(minX, trf.x);
-        maxX = std::max(maxX, trf.x);
-        minY = std::min(minY, trf.y);
-        maxY = std::max(maxY, trf.y);
-        minZ = std::min(minZ, trf.z);
-        maxZ = std::max(maxZ, trf.z);
-    }
-
-    // Tune this parameter according to the scene
-    if (minZ < 0) {
-        minZ *= m_zMult;
-    }
-    else {
-        minZ /= m_zMult;
-    }
-    if (maxZ < 0) {
-        maxZ /= m_zMult;
-    }
-    else {
-        maxZ *= m_zMult;
-    }
-
-    glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
-    return lightProjection * lightView;
+    auto lightViewMatrix =
+        glm::lookAt(center - m_lightDir * -minExtents.z,
+            center, glm::vec3(0.0f, 1.0f, 0.0f));
+    auto lightProjectionMatrix =
+        glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f,
+            maxExtents.z - minExtents.z);
+    return lightProjectionMatrix * lightViewMatrix;
 }
 
 std::vector<glm::mat4> Prisma::PipelineCSM::getLightSpaceMatrices()
