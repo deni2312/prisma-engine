@@ -98,7 +98,7 @@ namespace Prisma {
 
 	private:
 		T m_type;
-        std::shared_ptr<GenericShadow> m_shadow;
+        std::shared_ptr<GenericShadow> m_shadow = nullptr;
 		bool m_hasShadow = false;
 	};
 }

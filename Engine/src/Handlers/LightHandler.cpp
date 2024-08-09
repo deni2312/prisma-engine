@@ -106,15 +106,15 @@ void Prisma::LightHandler::updateOmni()
 
 void Prisma::LightHandler::updateCSM()
 {
-    const auto& scene = currentGlobalScene;
+    const auto& dirLights = currentGlobalScene->dirLights;
 
-    if (scene->dirLights.size() > 0) {
+    if (dirLights.size() > 0 && dirLights[0]->shadow()) {
 
-        auto shadow = currentGlobalScene->dirLights[0]->shadow();
+        auto shadow = dirLights[0]->shadow();
 
-        const auto& dirMatrix = scene->dirLights[0]->finalMatrix();
+        const auto& dirMatrix = dirLights[0]->finalMatrix();
 
-        shadow->update(dirMatrix * currentGlobalScene->dirLights[0]->type().direction);
+        shadow->update(dirMatrix * dirLights[0]->type().direction);
     }
 }
 
@@ -131,6 +131,7 @@ void Prisma::LightHandler::update()
     const auto& scene = currentGlobalScene;
 
     updateCSM();
+
     if(m_init || Prisma::CacheScene::getInstance().updateData() || Prisma::CacheScene::getInstance().updateSizes() || Prisma::CacheScene::getInstance().updateLights()) {
         if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS) {
             updateDirectional();
