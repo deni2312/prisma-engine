@@ -13,7 +13,7 @@ Prisma::Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel)
 		aiVector3D aiPosition = channel->mPositionKeys[positionIndex].mValue;
 		float timeStamp = channel->mPositionKeys[positionIndex].mTime;
 		KeyPosition data;
-		data.position = getVec(aiPosition);
+		data.position = getVec3(aiPosition);
 		data.timeStamp = timeStamp;
 		m_Positions.push_back(data);
 	}
@@ -35,7 +35,7 @@ Prisma::Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel)
 		aiVector3D scale = channel->mScalingKeys[keyIndex].mValue;
 		float timeStamp = channel->mScalingKeys[keyIndex].mTime;
 		KeyScale data;
-		data.scale = getVec(scale);
+		data.scale = getVec3(scale);
 		data.timeStamp = timeStamp;
 		m_Scales.push_back(data);
 	}

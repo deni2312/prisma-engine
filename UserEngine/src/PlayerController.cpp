@@ -1,5 +1,6 @@
 #include "../include/PlayerController.h"
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
+#include <glm/gtx/string_cast.hpp>
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
@@ -197,7 +198,7 @@ void PlayerController::createCamera() {
             ball->computeAABB();
             ball->addComponent(physicsComponent);
             auto front = glm::normalize(m_front);
-            auto position = m_gunPosition->finalMatrix()[3]-glm::vec4(front,0);
+            auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::getVec3GLM(m_currentDirection), 0.0f);
 
             m_basePosition[3] = position;
 

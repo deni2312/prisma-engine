@@ -55,9 +55,14 @@ namespace Prisma{
         return transform;
     }
 
-    static glm::vec3 getVec(const aiVector3D& vec)
+    static glm::vec3 getVec3(const aiVector3D& vec)
     {
         return glm::vec3(vec.x, vec.y, vec.z);
+    }
+
+    static glm::vec3 getVec3GLM(const btVector3& vec)
+    {
+        return glm::vec3(vec.getX(), vec.getY(), vec.getZ());
     }
 
     static btVector3 getVec3BT(const glm::vec3& vec)
