@@ -57,7 +57,9 @@ void Prisma::SettingsTab::drawSettings()
 
 void Prisma::SettingsTab::updateStatus()
 {
-    Prisma::Engine::getInstance().pipeline(static_cast<Prisma::Engine::Pipeline>(m_status.currentitem));
+    auto engineSettings = Prisma::Engine::getInstance().engineSettings();
+    engineSettings.pipeline = static_cast<Prisma::EngineSettings::Pipeline>(m_status.currentitem);
+    Prisma::Engine::getInstance().engineSettings(engineSettings);
 
     m_effects->effect(static_cast<Prisma::Effects::EFFECTS>(m_status.currentPostprocess));
 

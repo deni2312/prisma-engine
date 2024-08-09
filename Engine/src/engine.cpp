@@ -35,7 +35,7 @@ struct PrivateData {
     std::shared_ptr<Prisma::CallbackHandler> callbackHandler;
     std::shared_ptr<Prisma::Camera> camera;
     Prisma::SceneLoader::SceneParameters sceneParameters;
-    Prisma::Engine::Pipeline pipeline;
+    Prisma::EngineSettings::Settings engineSettings;
     Prisma::ComponentsHandler componentsHandler;
     std::shared_ptr<Prisma::SceneHandler> sceneHandler;
     std::shared_ptr<Prisma::UserData> userData;
@@ -74,7 +74,9 @@ Prisma::Engine::Engine()
 
     AnimationHandler::getInstance();
     
-    data->pipeline = Prisma::Engine::Pipeline::FORWARD;
+    data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::FORWARD;
+
+    data->engineSettings.ssr = false;
 
     data->settings = SettingsLoader::instance().getSettings();
 
@@ -121,12 +123,12 @@ bool Prisma::Engine::run()
             MeshIndirect::getInstance().update();
             LightHandler::getInstance().update();
 
-            switch (data->pipeline) {
-                case Prisma::Engine::Pipeline::FORWARD:
+            switch (data->engineSettings.pipeline) {
+                case Prisma::EngineSettings::Pipeline::FORWARD:
                     data->pipelineHandler.forward()->render();
                     break;
 
-                case Prisma::Engine::Pipeline::DEFERRED:
+                case Prisma::EngineSettings::Pipeline::DEFERRED:
                     data->pipelineHandler.deferred()->render();
                     break;
 
@@ -169,14 +171,14 @@ void Prisma::Engine::setGuiData(std::shared_ptr<Prisma::SceneHandler> guiData)
     data->sceneHandler = guiData;
 }
 
-void Prisma::Engine::pipeline(Pipeline pipeline)
+void Prisma::Engine::engineSettings(const EngineSettings::Settings& engineSettings)
 {
-    data->pipeline = pipeline;
+    data->engineSettings = engineSettings;
 }
 
-Prisma::Engine::Pipeline Prisma::Engine::pipeline()
+Prisma::EngineSettings::Settings Prisma::Engine::engineSettings() const
 {
-    return data->pipeline;
+    return data->engineSettings;
 }
 
 void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandler)
