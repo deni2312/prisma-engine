@@ -45,6 +45,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     m_fbo = std::make_shared<Prisma::FBO>(fboData);
 	fboData.enableMultisample = false;
+	fboData.rbo = false;
 
 
 	m_fboCopy = std::make_shared<Prisma::FBO>(fboData);
@@ -66,7 +67,7 @@ void Prisma::PipelineForward::render()
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_prepass->render(m_fbo);
+	m_prepass->render();
 
 	// After depth pre-pass
 	glDepthMask(GL_FALSE);          // Disable depth writing
@@ -100,9 +101,8 @@ void Prisma::PipelineForward::render()
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo->frameBufferID());
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fboCopy->frameBufferID());
-	glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	m_fboCopy->unbind();
-
 
 	Prisma::Postprocess::getInstance().fboRaw(m_fboCopy);
 	Postprocess::getInstance().fbo(fboTarget);
