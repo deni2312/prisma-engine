@@ -169,7 +169,7 @@ void Prisma::ImguiDebug::drawGui()
         ImGui::EndMainMenuBar();
     }
     m_initOffset = size.y;
-    m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
+    m_model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate-30.0f/(float)m_height, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
     bool isOpen = true;
     if (!m_run) {
         ImGui::SetNextWindowPos(ImVec2(windowWidth, m_initOffset));

@@ -133,8 +133,9 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
             x = x / m_constraints.scale;
 
             //y = y - m_constraints.minY;
-            y = y / m_constraints.scale;
-            y = settings.height - y;
+
+            y =  y / m_constraints.scale;
+            y = settings.height - y + 30.0f * m_constraints.scale;
 
             auto result=Prisma::PixelCapture::getInstance().capture(glm::vec2(x , y ));
 
