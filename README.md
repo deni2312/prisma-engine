@@ -15,19 +15,25 @@ Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 
 - **Clustered rendering pipelines**
 - **Directional and Omni Lights**
 - **Omni shadows and Cascaded shadow maps**
-- **Animations**
+- **Animations/Animations blending**
 - **Bullet Physics Integration**
 - **Indirect Drawing**
 - **Omni and Directional lights Shadows**
 - **glTF Loader**
 - **Physically Based Rendering (PBR)** 
 - **Image Based Lighting (IBL)**
+- **Screen space reflections**
 - **Scene Graph**
+- **Bloom**
+- **Postprocessing effects**
 - **Editor:**
+    - **Run/Debug modes**
     - **Transform Modifier**
     - **Physics Modifier**
     - **Show Scene Graph**
+    - **Animation Viewer**
     - **Change Render Pipeline (Forward clustered/Deferred clustered)**
+    - **Texture debugger**
 
 
 ## Getting Started
@@ -99,12 +105,10 @@ If you encounter a bug, please submit an issue with detailed information about h
 
 ## Next updates
 
-- **Code refactoring**
+- **Code refactoring/Eventual bug fixes**
 - **Cache physic states**
 - **Transparency**
 - **Frustum culling(compute shader)**
-- **Run/Debug buttons**
-
 
 ## LICENSE
 
