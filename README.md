@@ -18,6 +18,7 @@ Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 
 - **Animations/Animations blending**
 - **Bullet Physics Integration**
 - **Indirect Drawing**
+- **HDR**
 - **Omni and Directional lights Shadows**
 - **glTF Loader**
 - **Physically Based Rendering (PBR)** 
