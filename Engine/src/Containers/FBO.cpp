@@ -34,10 +34,10 @@ Prisma::FBO::FBO(FBOData fboData)
 
             glTexImage2D(GL_TEXTURE_2D, 0, m_fboData.internalFormat, fboData.width, fboData.height, 0, GL_RGBA, m_fboData.internalType, NULL);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_fboData.filtering);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_fboData.filtering);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_fboData.border);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_fboData.border);
 
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, 0);
         }

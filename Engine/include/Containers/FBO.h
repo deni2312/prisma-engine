@@ -17,6 +17,8 @@ namespace Prisma {
             bool enableMultisample = false;
             bool enableColor = true;
             bool rbo = true;
+            unsigned int filtering = GL_LINEAR;
+            unsigned int border = GL_CLAMP_TO_BORDER;
         };
         FBO(FBOData fboData);
         ~FBO();
