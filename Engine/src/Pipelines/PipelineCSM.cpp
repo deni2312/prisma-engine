@@ -116,6 +116,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
         glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, nearPlane,
         farPlane);
     const auto corners = getFrustumCornersWorldSpace(proj, currentGlobalScene->camera->matrix());
+    std::cout << glm::to_string(proj) << std::endl;
 
     glm::vec3 center = glm::vec3(0, 0, 0);
     for (const auto& v : corners)
@@ -134,8 +135,26 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     }
     radius = std::ceil(radius * m_zMult) / m_zMult;
 
+    float actualSize;
+    float farFaceDiagonal = glm::length(glm::vec3(corners[7]) - glm::vec3(corners[1]));
+    float forwardDiagonal = glm::length(glm::vec3(corners[7]) - glm::vec3(corners[0]));
+    actualSize = std::max(farFaceDiagonal, forwardDiagonal);
+
+    float pixelSize = actualSize / (float)m_width;
+
+
+
     glm::vec3 maxExtents = glm::vec3(radius);
     glm::vec3 minExtents = -maxExtents;
+
+
+    maxExtents.r = std::round(maxExtents.r / pixelSize) * pixelSize;
+    maxExtents.g = std::round(maxExtents.g / pixelSize) * pixelSize;
+    maxExtents.b = std::round(maxExtents.b / pixelSize) * pixelSize;
+
+    minExtents.r = std::round(minExtents.r / pixelSize) * pixelSize;
+    minExtents.g = std::round(minExtents.g / pixelSize) * pixelSize;
+    minExtents.b = std::round(minExtents.b / pixelSize) * pixelSize;
 
     auto lightViewMatrix =
         glm::lookAt(center + m_lightDir * -minExtents.z,

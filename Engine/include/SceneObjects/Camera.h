@@ -15,8 +15,8 @@ namespace Prisma {
         void matrix(const glm::mat4& matrix, bool update = true) override;
         glm::mat4 matrix() const override;
     private:
-        glm::vec3 m_position;
-        glm::vec3 m_center;
-        glm::vec3 m_up;
+        glm::vec3 m_position = glm::vec3(0,0,0);
+        glm::vec3 m_center = glm::vec3(0, 0, 0);
+        glm::vec3 m_up = glm::vec3(0, 1, 0);
     };
 }
