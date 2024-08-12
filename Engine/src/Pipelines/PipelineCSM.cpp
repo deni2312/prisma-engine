@@ -170,7 +170,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     shadowProj[3] += roundOffset;
     lightOrthoMatrix = shadowProj;
 
-    return lightOrthoMatrix*  lightViewMatrix;
+    return lightOrthoMatrix * lightViewMatrix;
 }
 
 std::vector<glm::mat4> Prisma::PipelineCSM::getLightSpaceMatrices()
