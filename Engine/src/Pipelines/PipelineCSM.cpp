@@ -167,45 +167,31 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 
 std::vector<glm::mat4> Prisma::PipelineCSM::getLightSpaceMatrices()
 {
+
+    const auto proj = glm::perspective(
+        glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, m_shadowCascadeLevels[m_shadowCascadeLevels.size() - 1],
+        m_farPlane);
+
+    auto corners = getFrustumCornersWorldSpace(proj, currentGlobalScene->camera->matrix());
+
     if (!m_init) {
-        const auto proj = glm::perspective(
-            glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, m_shadowCascadeLevels[m_shadowCascadeLevels.size()-1],
-            m_farPlane);
-        const auto corners = getFrustumCornersWorldSpace(proj, currentGlobalScene->camera->matrix());
-
-        m_boundingBoxMin = corners[0];
-        m_boundingBoxMax = corners[0];
-
-        for (const auto& v : corners)
-        {
-            m_boundingBoxMin = glm::min(m_boundingBoxMin, glm::vec3(v));
-            m_boundingBoxMax = glm::max(m_boundingBoxMax, glm::vec3(v));
-        }
+        recalculateBbox(corners);
     }
 
     bool isOut = false;
 
-    const auto proj = glm::perspective(
-        glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, m_shadowCascadeLevels[m_shadowCascadeLevels.size()-1],
-        m_farPlane);
-    const auto corners = getFrustumCornersWorldSpace(proj, currentGlobalScene->camera->matrix());
-
     for (const auto& v : corners)
     {
-        // Example bounds, replace with actual limits
         if (v.x < m_boundingBoxMin.x || v.x > m_boundingBoxMax.x ||
             v.y < m_boundingBoxMin.y || v.y > m_boundingBoxMax.y ||
             v.z < m_boundingBoxMin.z || v.z > m_boundingBoxMax.z)
         {
-            m_boundingBoxMin = glm::min(m_boundingBoxMin, glm::vec3(v));
-            m_boundingBoxMax = glm::max(m_boundingBoxMax, glm::vec3(v));
+            recalculateBbox(corners);
             isOut = true;
             break;
         }
     }
-    if (isOut) {
-        std::cout << isOut << std::endl;
-    }
+
     if (!m_init || isOut) {
         std::vector<glm::mat4> ret;
         for (size_t i = 0; i < m_shadowCascadeLevels.size() + 1; ++i)
@@ -242,6 +228,17 @@ void Prisma::PipelineCSM::zMult(float zMult) {
 
 float Prisma::PipelineCSM::zMult() {
     return m_zMult;
+}
+
+void Prisma::PipelineCSM::recalculateBbox(std::vector<glm::vec4>& corners)
+{
+    m_boundingBoxMin = corners[0];
+    m_boundingBoxMax = corners[0];
+    for (const auto& v : corners)
+    {
+        m_boundingBoxMin = glm::min(m_boundingBoxMin, glm::vec3(v));
+        m_boundingBoxMax = glm::max(m_boundingBoxMax, glm::vec3(v));
+    }
 }
 
 uint64_t Prisma::PipelineCSM::id() {

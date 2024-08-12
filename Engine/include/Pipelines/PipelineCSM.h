@@ -41,7 +41,9 @@ namespace Prisma {
         float zMult();
 
     private:
+
         unsigned int m_width;
+
         unsigned int m_height;
 
         unsigned int m_fbo;
@@ -49,9 +51,14 @@ namespace Prisma {
         glm::vec3 m_lightDir=glm::vec3(0.0f);
 
         uint64_t m_id;
+
         float m_farPlane = 200;
+
         float m_nearPlane = 0.1f;
+
         float m_zMult = 16;
+
+        float bboxOffset = 1.5;
 
         std::vector<float> m_shadowCascadeLevels;
 
@@ -66,6 +73,8 @@ namespace Prisma {
         glm::vec3 m_boundingBoxMax;
 
         std::vector<glm::mat4> m_lightMatrices;
+
+        void recalculateBbox(std::vector<glm::vec4>& corners);
 
     };
 }
