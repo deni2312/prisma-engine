@@ -116,7 +116,6 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
         glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, nearPlane,
         farPlane);
     const auto corners = getFrustumCornersWorldSpace(proj, currentGlobalScene->camera->matrix());
-    std::cout << glm::to_string(proj) << std::endl;
 
     glm::vec3 center = glm::vec3(0, 0, 0);
     for (const auto& v : corners)
