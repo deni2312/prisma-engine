@@ -37,8 +37,8 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_wid
         GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, width, height, int(m_shadowCascadeLevels.size()) + 1,
         0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
@@ -59,6 +59,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     m_lightDir = lightPos;
     if (m_ssbo) {
         auto lightMatrices = getLightSpaceMatrices();
+        m_init = true;
 
         m_ssbo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
 
@@ -112,6 +113,7 @@ std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const gl
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
+
     const auto proj = glm::perspective(
         glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, nearPlane,
         farPlane);
@@ -142,7 +144,6 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     float pixelSize = actualSize / (float)m_width;
 
 
-
     glm::vec3 maxExtents = glm::vec3(radius);
     glm::vec3 minExtents = -maxExtents;
 
@@ -166,23 +167,69 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 
 std::vector<glm::mat4> Prisma::PipelineCSM::getLightSpaceMatrices()
 {
-    std::vector<glm::mat4> ret;
-    for (size_t i = 0; i < m_shadowCascadeLevels.size() + 1; ++i)
-    {
-        if (i == 0)
+    if (!m_init) {
+        const auto proj = glm::perspective(
+            glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, m_shadowCascadeLevels[m_shadowCascadeLevels.size()-1],
+            m_farPlane);
+        const auto corners = getFrustumCornersWorldSpace(proj, currentGlobalScene->camera->matrix());
+
+        m_boundingBoxMin = corners[0];
+        m_boundingBoxMax = corners[0];
+
+        for (const auto& v : corners)
         {
-            ret.push_back(getLightSpaceMatrix(m_nearPlane, m_shadowCascadeLevels[i]));
-        }
-        else if (i < m_shadowCascadeLevels.size())
-        {
-            ret.push_back(getLightSpaceMatrix(m_shadowCascadeLevels[i - 1], m_shadowCascadeLevels[i]));
-        }
-        else
-        {
-            ret.push_back(getLightSpaceMatrix(m_shadowCascadeLevels[i - 1], m_farPlane));
+            m_boundingBoxMin = glm::min(m_boundingBoxMin, glm::vec3(v));
+            m_boundingBoxMax = glm::max(m_boundingBoxMax, glm::vec3(v));
         }
     }
-    return ret;
+
+    bool isOut = false;
+
+    const auto proj = glm::perspective(
+        glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, m_shadowCascadeLevels[m_shadowCascadeLevels.size()-1],
+        m_farPlane);
+    const auto corners = getFrustumCornersWorldSpace(proj, currentGlobalScene->camera->matrix());
+
+    for (const auto& v : corners)
+    {
+        // Example bounds, replace with actual limits
+        if (v.x < m_boundingBoxMin.x || v.x > m_boundingBoxMax.x ||
+            v.y < m_boundingBoxMin.y || v.y > m_boundingBoxMax.y ||
+            v.z < m_boundingBoxMin.z || v.z > m_boundingBoxMax.z)
+        {
+            m_boundingBoxMin = glm::min(m_boundingBoxMin, glm::vec3(v));
+            m_boundingBoxMax = glm::max(m_boundingBoxMax, glm::vec3(v));
+            isOut = true;
+            break;
+        }
+    }
+    if (isOut) {
+        std::cout << isOut << std::endl;
+    }
+    if (!m_init || isOut) {
+        std::vector<glm::mat4> ret;
+        for (size_t i = 0; i < m_shadowCascadeLevels.size() + 1; ++i)
+        {
+            if (i == 0)
+            {
+                ret.push_back(getLightSpaceMatrix(m_nearPlane, m_shadowCascadeLevels[i]));
+            }
+            else if (i < m_shadowCascadeLevels.size())
+            {
+                ret.push_back(getLightSpaceMatrix(m_shadowCascadeLevels[i - 1], m_shadowCascadeLevels[i]));
+            }
+            else
+            {
+                ret.push_back(getLightSpaceMatrix(m_shadowCascadeLevels[i - 1], m_farPlane));
+            }
+        }
+        m_lightMatrices = ret;
+        m_init = true;
+        return ret;
+    }
+    else {
+        return m_lightMatrices;
+    }
 }
 
 std::vector<float>& Prisma::PipelineCSM::cascadeLevels() {

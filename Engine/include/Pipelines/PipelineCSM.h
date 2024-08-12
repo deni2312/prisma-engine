@@ -59,5 +59,13 @@ namespace Prisma {
 
         std::shared_ptr<Prisma::SSBO> m_ssbo = nullptr;
 
+        bool m_init = false;
+
+        glm::vec3 m_boundingBoxMin;
+
+        glm::vec3 m_boundingBoxMax;
+
+        std::vector<glm::mat4> m_lightMatrices;
+
     };
 }
