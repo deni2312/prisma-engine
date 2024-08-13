@@ -140,10 +140,12 @@ void Prisma::ImguiDebug::drawGui()
 
             if (ImGui::MenuItem("Add skybox")) {
                 std::string scene = openFolder();
-                Prisma::Texture texture;
-                texture.loadEquirectangular(scene);
-                texture.data({ 4096,4096,3 });
-                Prisma::PipelineSkybox::getInstance().texture(texture, true);
+                if (scene != "") {
+                    Prisma::Texture texture;
+                    texture.loadEquirectangular(scene);
+                    texture.data({ 4096,4096,3 });
+                    Prisma::PipelineSkybox::getInstance().texture(texture, true);
+                }
             }
 
             if (ImGui::MenuItem("Textures")) {
