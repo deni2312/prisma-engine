@@ -25,6 +25,9 @@ namespace Prisma {
 		bool visible();
 		~Node();
 	private:
+
+		void updateCaches(std::shared_ptr<Node> child);
+
 		uint64_t m_uuid;
 		std::string m_name;
 		std::vector<std::shared_ptr<Node>> m_children;

@@ -57,14 +57,11 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 		{
 			std::cerr << "MAX ANIMATION MESHES REACHED" << std::endl;
 		}
-	}
 
-	if (recursiveAdd) {
-		for (const auto& grandchild : child->m_children) {
-			if (grandchild) {
-				addChild(grandchild, updateScene, true);
-			}
+		if (recursiveAdd) {
+			updateCaches(child);
 		}
+
 	}
 }
 
@@ -194,6 +191,36 @@ bool Prisma::Node::visible() {
 
 Prisma::Node::~Node()
 {
+}
+
+void Prisma::Node::updateCaches(std::shared_ptr<Node> child) {
+	if (std::dynamic_pointer_cast<Prisma::Mesh>(child) && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
+		MeshIndirect::getInstance().add(currentGlobalScene->meshes.size());
+		currentGlobalScene->meshes.push_back(std::dynamic_pointer_cast<Mesh>(child));
+		Prisma::CacheScene::getInstance().updateSizes(true);
+	}
+	if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(child)) {
+		currentGlobalScene->dirLights.push_back(std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(child));
+		Prisma::CacheScene::getInstance().updateLights(true);
+	}
+	if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(child)) {
+		currentGlobalScene->omniLights.push_back(std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(child));
+		Prisma::CacheScene::getInstance().updateLights(true);
+	}
+	if (currentGlobalScene->animateMeshes.size() < MAX_ANIMATION_MESHES) {
+		if (std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
+			MeshIndirect::getInstance().addAnimate(currentGlobalScene->animateMeshes.size());
+			currentGlobalScene->animateMeshes.push_back(std::dynamic_pointer_cast<AnimatedMesh>(child));
+			Prisma::CacheScene::getInstance().updateSizes(true);
+		}
+	}
+	else
+	{
+		std::cerr << "MAX ANIMATION MESHES REACHED" << std::endl;
+	}
+	for (auto c : child->children()) {
+		child->updateCaches(c);
+	}
 }
 
 void Prisma::Node::updateChild(Node* node)
