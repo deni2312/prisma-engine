@@ -27,6 +27,7 @@ namespace Prisma {
 	private:
 
 		void updateCaches(std::shared_ptr<Node> child);
+		void dispatch(std::shared_ptr<Node> child);
 
 		uint64_t m_uuid;
 		std::string m_name;
