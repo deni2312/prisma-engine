@@ -59,6 +59,7 @@ void Prisma::LightHandler::updateDirectional()
         }
         m_dataDirectional->lights[i].direction = dirMult;
         m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
+        m_dataDirectional->lights[i].padding.y = shadow->bias();
     }
     glm::vec4 dirLength;
     dirLength.r = scene->dirLights.size();

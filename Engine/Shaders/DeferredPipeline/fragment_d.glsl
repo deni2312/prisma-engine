@@ -6,6 +6,7 @@ out vec4 FragColor;
 layout(bindless_sampler) uniform sampler2D gPosition;
 layout(bindless_sampler) uniform sampler2D gNormal;
 layout(bindless_sampler) uniform sampler2D gAlbedo;
+uniform float biasCSM;
 
 layout(std140, binding = 2) uniform ClusterData
 {
@@ -209,14 +210,13 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
     // calculate bias (based on depth map resolution and slope)
     vec3 normal = normalize(N);
     float bias = max(0.05 * (1.0 - dot(normal, lightPos)), 0.005);
-    const float biasModifier = 0.5f;
     if (layer == int(sizeCSM))
     {
-        bias *= 1 / (farPlaneCSM * biasModifier);
+        bias *= 1 / (farPlaneCSM * directionalData[i].padding.y);
     }
     else
     {
-        bias *= 1 / (cascadePlanes[layer] * biasModifier);
+        bias *= 1 / (cascadePlanes[layer] * directionalData[i].padding.y);
     }
 
 

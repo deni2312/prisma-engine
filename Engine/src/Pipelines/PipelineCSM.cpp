@@ -198,12 +198,12 @@ std::vector<float>& Prisma::PipelineCSM::cascadeLevels() {
     return m_shadowCascadeLevels;
 }
 
-void Prisma::PipelineCSM::zMult(float zMult) {
-    m_zMult = zMult;
+void Prisma::PipelineCSM::bias(float bias) {
+    m_bias = bias;
 }
 
-float Prisma::PipelineCSM::zMult() {
-    return m_zMult;
+float Prisma::PipelineCSM::bias() {
+    return m_bias;
 }
 
 uint64_t Prisma::PipelineCSM::id() {

@@ -50,7 +50,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
 	m_fboCopy = std::make_shared<Prisma::FBO>(fboData);
 	m_shader->use();
-
 	m_fullscreenPipeline = std::make_shared<Prisma::PipelineFullScreen>();
 
 	m_prepass = std::make_shared<Prisma::PipelinePrePass>();

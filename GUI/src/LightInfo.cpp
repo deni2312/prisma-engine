@@ -62,7 +62,7 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
 
         auto csmShadow = std::dynamic_pointer_cast<Prisma::PipelineCSM>(shadow);
 
-        float zMult = csmShadow->zMult();
+        float bias = csmShadow->bias();
 
         if (ImGui::InputFloat("Far Plane ", &farPlane)) {
             shadow->farPlane(farPlane);
@@ -72,8 +72,8 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
             shadow->nearPlane(nearPlane);
         }
 
-        if (ImGui::InputFloat("ZMult ", &zMult)) {
-            csmShadow->zMult(zMult);
+        if (ImGui::InputFloat("Bias ", &bias)) {
+            csmShadow->bias(bias);
         }
     }
 

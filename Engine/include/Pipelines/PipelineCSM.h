@@ -36,9 +36,9 @@ namespace Prisma {
 
         std::vector<float>& cascadeLevels();
 
-        void zMult(float zMult);
+        void bias(float bias);
 
-        float zMult();
+        float bias();
 
     private:
 
@@ -52,13 +52,11 @@ namespace Prisma {
 
         uint64_t m_id;
 
-        float m_farPlane = 200;
+        float m_farPlane = 200.0f;
 
         float m_nearPlane = 0.1f;
 
-        float m_zMult = 16;
-
-        float bboxOffset = 1.5;
+        float m_bias = 0.5f;
 
         std::vector<float> m_shadowCascadeLevels;
 
