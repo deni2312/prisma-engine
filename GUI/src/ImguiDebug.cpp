@@ -130,16 +130,7 @@ void Prisma::ImguiDebug::drawGui()
                 if (model != "") {
                     Prisma::SceneLoader sceneLoader;
                     auto scene = sceneLoader.loadScene(model, { true });
-                    currentGlobalScene->root->addChild(scene->root, false);
-                    currentGlobalScene->meshes.insert(currentGlobalScene->meshes.end(), scene->meshes.begin(), scene->meshes.end());
-                    if (currentGlobalScene->animateMeshes.size() < MAX_ANIMATION_MESHES) {
-                        currentGlobalScene->animateMeshes.insert(currentGlobalScene->animateMeshes.end(), scene->animateMeshes.begin(), scene->animateMeshes.end());
-                    }
-                    else {
-                        std::cerr << "MAX ANIMATION MESHES REACHED" << std::endl;
-                    }
-                    currentGlobalScene->omniLights.insert(currentGlobalScene->omniLights.end(), scene->omniLights.begin(), scene->omniLights.end());
-                    currentGlobalScene->dirLights.insert(currentGlobalScene->dirLights.end(), scene->dirLights.begin(), scene->dirLights.end());
+                    currentGlobalScene->root->addChild(scene->root, true,true);
 
                     Prisma::MeshIndirect::getInstance().init();
 

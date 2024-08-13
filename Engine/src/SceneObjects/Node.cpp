@@ -29,7 +29,7 @@ const std::vector<std::shared_ptr<Prisma::Node>>& Prisma::Node::children() const
 	return m_children;
 }
 
-void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScene)
+void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScene, bool recursiveAdd)
 {
 	m_children.push_back(child);
 	if (updateScene) {
@@ -56,6 +56,14 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 		else 
 		{
 			std::cerr << "MAX ANIMATION MESHES REACHED" << std::endl;
+		}
+	}
+
+	if (recursiveAdd) {
+		for (const auto& grandchild : child->m_children) {
+			if (grandchild) {
+				addChild(grandchild, updateScene, true);
+			}
 		}
 	}
 }
