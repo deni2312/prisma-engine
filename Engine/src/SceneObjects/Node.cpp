@@ -69,7 +69,11 @@ void Prisma::Node::removeChild(uint64_t uuid)
 			break;
 		}
 	}
+
 	if (index != -1) {
+		while(m_children[index]->children().size()>0) {
+			m_children[index]->removeChild(m_children[index]->children()[0]->uuid());
+		}
 		if (std::dynamic_pointer_cast<Prisma::AnimatedMesh>(m_children[index])) {
 			MeshIndirect::getInstance().removeAnimate(index);
 			auto find = std::find_if(currentGlobalScene->animateMeshes.begin(), currentGlobalScene->animateMeshes.end(), [uuid](auto mesh) {
@@ -82,6 +86,7 @@ void Prisma::Node::removeChild(uint64_t uuid)
 			for (const auto& component : components) {
 				component.second->destroy();
 			}
+			std::cout << "a";
 			currentGlobalScene->animateMeshes.erase(find);
 		}
 		else if(std::dynamic_pointer_cast<Prisma::Mesh>(m_children[index])){
@@ -116,6 +121,8 @@ void Prisma::Node::removeChild(uint64_t uuid)
 				});
 			currentGlobalScene->omniLights.erase(find);
 		}
+
+
 		m_children.erase(m_children.begin()+index);
 		Prisma::CacheScene::getInstance().updateSizes(true);
 	}
