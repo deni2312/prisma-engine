@@ -120,6 +120,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     const auto proj = glm::perspective(
         glm::radians(m_settings.angle), (float)m_settings.width / (float)m_settings.height, nearPlane,
         farPlane);
+
     const auto corners = getFrustumCornersWorldSpace(proj, currentGlobalScene->camera->matrix());
 
     glm::vec3 center = glm::vec3(0, 0, 0);
@@ -130,7 +131,17 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 
     center /= corners.size();
 
-    auto lightViewMatrix = glm::lookAt((center + m_lightDir), center, glm::vec3(0.0f, 1.0f, 0.0f));
+    auto direction = center + m_lightDir;
+
+    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f); // Define the world's up direction
+
+    // Check if direction and worldUp are parallel
+    if (glm::abs(glm::dot(direction, worldUp)) > 0.99f) {
+        // If they are nearly parallel, adjust the worldUp vector
+        worldUp = glm::vec3(0.0f, 0.0f, 1.0f); // Set a different perpendicular direction
+    }
+
+    auto lightViewMatrix = glm::lookAt(direction, center, worldUp);
 
     //Get the longest radius in world space
     float radius = glm::length(center - glm::vec3(corners[6]));

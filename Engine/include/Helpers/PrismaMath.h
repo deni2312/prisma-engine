@@ -60,6 +60,17 @@ namespace Prisma{
         return glm::vec3(vec.x, vec.y, vec.z);
     }
 
+    static bool containsNaN(const glm::mat4& mat) {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (std::isnan(mat[i][j])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     static glm::vec3 getVec3GLM(const btVector3& vec)
     {
         return glm::vec3(vec.getX(), vec.getY(), vec.getZ());
