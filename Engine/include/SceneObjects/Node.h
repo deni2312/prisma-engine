@@ -11,7 +11,7 @@ namespace Prisma {
 		void name(const std::string& name);
 		std::string name() const;
 		const std::vector<std::shared_ptr<Node>>& children() const;
-		void addChild(std::shared_ptr<Node> child,bool updateScene=true,bool recursiveAdd=false);
+		void addChild(std::shared_ptr<Node> child,bool updateScene=true);
 		void removeChild(uint64_t uuid);
 		virtual void matrix(const glm::mat4& matrix,bool updateChildren=true);
 		virtual glm::mat4 matrix() const;

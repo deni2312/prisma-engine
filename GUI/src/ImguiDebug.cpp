@@ -130,7 +130,7 @@ void Prisma::ImguiDebug::drawGui()
                 if (model != "") {
                     Prisma::SceneLoader sceneLoader;
                     auto scene = sceneLoader.loadScene(model, { true });
-                    currentGlobalScene->root->addChild(scene->root, true,true);
+                    currentGlobalScene->root->addChild(scene->root);
 
                     Prisma::MeshIndirect::getInstance().init();
 

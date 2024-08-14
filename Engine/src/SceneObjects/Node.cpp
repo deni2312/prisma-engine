@@ -29,16 +29,12 @@ const std::vector<std::shared_ptr<Prisma::Node>>& Prisma::Node::children() const
 	return m_children;
 }
 
-void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScene, bool recursiveAdd)
+void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScene)
 {
 	m_children.push_back(child);
 	if (updateScene) {
 		dispatch(child);
-
-		if (recursiveAdd) {
-			updateCaches(child);
-		}
-
+		updateCaches(child);
 	}
 }
 
