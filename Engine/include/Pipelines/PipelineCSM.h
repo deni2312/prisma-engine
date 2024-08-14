@@ -72,7 +72,7 @@ namespace Prisma {
 
         std::vector<glm::mat4> m_lightMatrices;
 
-        void recalculateBbox(std::vector<glm::vec4>& corners);
+        uint64_t m_numCSM;
 
     };
 }

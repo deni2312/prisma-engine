@@ -96,6 +96,23 @@ namespace Prisma {
 			return m_hasShadow;
 		}
 
+		static std::shared_ptr<Prisma::Light<T>> instantiate(std::shared_ptr<Prisma::Light<T>> light) {
+			std::shared_ptr<Prisma::Light<T>> newInstance = nullptr;
+			if (light) {
+				newInstance = std::make_shared<Prisma::Light<T>>();
+				newInstance->hasShadow(light->hasShadow())
+				newInstance->matrix(light->matrix());
+				newInstance->name(light->name() + std::to_string(newInstance->uuid()));
+				std::shared_ptr<Node> parent = std::make_shared<Node>();
+				parent->name(light->parent()->name() + std::to_string(parent->uuid()));
+				parent->matrix(light->parent()->matrix());
+				parent->addChild(newInstance);
+				parent->parent(light->parent()->parent());
+				newInstance->parent(parent);
+				currentGlobalScene->root->addChild(parent);
+			}
+		}
+
 	private:
 		T m_type;
         std::shared_ptr<GenericShadow> m_shadow = nullptr;
