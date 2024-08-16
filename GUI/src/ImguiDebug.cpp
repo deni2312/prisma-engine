@@ -94,7 +94,6 @@ void Prisma::ImguiDebug::drawGui()
         ImGui::SetNextWindowSize(ImVec2(windowWidth, m_height * m_scale - size.y));
     };
     bool openSettings = false;
-    bool openTextures = false;
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File"))
@@ -146,10 +145,6 @@ void Prisma::ImguiDebug::drawGui()
                     texture.data({ 4096,4096,3 });
                     Prisma::PipelineSkybox::getInstance().texture(texture, true);
                 }
-            }
-
-            if (ImGui::MenuItem("Textures")) {
-                openTextures = true;
             }
 
             if (ImGui::MenuItem("Settings")) {
@@ -211,18 +206,12 @@ void Prisma::ImguiDebug::drawGui()
 
         ImGui::Begin("Scene", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
         m_plot.showFPS(m_fps);
-        if (openTextures)
-        {
-            ImGui::OpenPopup("Textures");
-            openTextures = false;
-        }
 
         if (openSettings) {
             ImGui::OpenPopup("SettingsTab");
             openSettings = false;
         }
         m_settingsTab.drawSettings();
-        Prisma::TextureInfo::getInstance().showTextures();
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
         ImGui::Separator();
 

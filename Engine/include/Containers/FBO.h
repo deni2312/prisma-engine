@@ -19,6 +19,7 @@ namespace Prisma {
             bool rbo = true;
             unsigned int filtering = GL_LINEAR;
             unsigned int border = GL_CLAMP_TO_BORDER;
+            std::string name = "FBO";
         };
         FBO(FBOData fboData);
         ~FBO();
