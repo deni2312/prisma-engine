@@ -52,11 +52,6 @@ void Prisma::LightHandler::updateDirectional()
         auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
 
         const auto& dirMult = glm::normalize(dirMatrix * m_dataDirectional->lights[i].direction);
-
-        if (shadow) {
-            shadow->lightDir(glm::normalize(m_dataDirectional->lights[i].direction));
-            shadow->update(dirMult);
-        }
         m_dataDirectional->lights[i].direction = dirMult;
         m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
         m_dataDirectional->lights[i].padding.y = shadow->bias();
@@ -115,7 +110,9 @@ void Prisma::LightHandler::updateCSM()
 
         const auto& dirMatrix = dirLights[0]->finalMatrix();
 
-        shadow->update(dirMatrix * dirLights[0]->type().direction);
+        const auto& dirMult = glm::normalize(dirMatrix * dirLights[0]->type().direction);
+
+        shadow->update(dirMult);
     }
 }
 
