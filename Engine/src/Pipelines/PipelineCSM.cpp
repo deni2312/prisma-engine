@@ -11,32 +11,15 @@
 #include "../../../GUI/include/TextureInfo.h"
 #include "../../include/Helpers/IBLBuilder.h"
 
-
-static std::shared_ptr<Prisma::Shader> shader = nullptr;
-static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
-static std::shared_ptr<Prisma::Shader> shaderDebug = nullptr;
-static std::shared_ptr<Prisma::FBO> fboDebug = nullptr;
-static unsigned int debugPos = 0;
 static uint64_t numCSM = 0;
 
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_width{ width }, m_height{ height } {
     m_numCSM = numCSM;
     numCSM++;
     if (!m_numCSM) {
-        if (!shader) {
-            shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
-            shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
-            shaderDebug = std::make_shared<Shader>("../../../Engine/Shaders/CSMDebug/vertex.glsl", "../../../Engine/Shaders/CSMDebug/fragment.glsl");
-            shaderDebug->use();
-            debugPos = shaderDebug->getUniformPosition("depthMap");
-            Prisma::FBO::FBOData fboData;
-            fboData.width = m_width;
-            fboData.height = m_height;
-            fboData.enableDepth = true;
-            fboData.internalFormat = GL_RGBA16F;
-            fboData.internalType = GL_FLOAT;
-            fboData.name = "CSMDebug";
-            fboDebug = std::make_shared<Prisma::FBO>(fboData);
+        if (!m_shader) {
+            m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
+            m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
             m_ssbo = std::make_shared<Prisma::SSBO>(10);
             m_ssbo->resize(sizeof(glm::mat4) * 16);
         }
@@ -81,7 +64,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
 
             m_ssbo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
 
-            shader->use();
+            m_shader->use();
 
             GLint viewport[4];
 
@@ -93,18 +76,11 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
             glCullFace(GL_FRONT);  // peter panning
             Prisma::MeshIndirect::getInstance().renderMeshes();
 
-            shaderAnimation->use();
+            m_shaderAnimation->use();
 
             Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
             glCullFace(GL_BACK);
-
-            fboDebug->bind();
-            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-            shaderDebug->use();
-            shaderDebug->setInt64(debugPos, m_id);
-            Prisma::IBLBuilder::getInstance().renderQuad();
-            fboDebug->unbind();
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.

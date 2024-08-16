@@ -74,5 +74,9 @@ namespace Prisma {
 
         uint64_t m_numCSM;
 
+        std::shared_ptr<Prisma::Shader> m_shader = nullptr;
+
+        std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
+
     };
 }
