@@ -22,7 +22,6 @@ namespace Prisma {
     private:
         std::vector<std::pair<unsigned int,std::string>> m_textures;
         static std::shared_ptr<TextureInfo> instance;
-        bool m_position = false;
     };
 }
 

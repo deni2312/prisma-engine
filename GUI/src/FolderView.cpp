@@ -1,4 +1,6 @@
 #include "../include/FolderView.h"
+#include "imgui_internal.h"
+#include "../include/TextureInfo.h"
 
 std::string Prisma::FileBrowser::windowsToString(std::wstring wStr) {
     // Create a codecvt facet for UTF-8 conversion
@@ -120,23 +122,31 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
     ImGui::SetNextWindowSize(ImVec2(width, height - (scale * height + offset)));
 
     ImGui::Begin("File Browser", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+    ImGui::BeginTabBar("FOLDER VIEW");
+    if (ImGui::BeginTabItem("Folders")) {
 
-    if (ImGui::ImageButton((void*)m_back->id(), m_iconSize) && currentPath.has_parent_path()) {
-        currentPath = currentPath.parent_path();
+        if (ImGui::ImageButton((void*)m_back->id(), m_iconSize) && currentPath.has_parent_path()) {
+            currentPath = currentPath.parent_path();
 
-        m_entries.clear();
+            m_entries.clear();
 
-        for (const auto& entry : fs::directory_iterator(currentPath)) {
-            m_entries.push_back(entry);
+            for (const auto& entry : fs::directory_iterator(currentPath)) {
+                m_entries.push_back(entry);
+            }
+
+            // Custom sort function to ensure folders come first
+            std::sort(m_entries.begin(), m_entries.end(), [](const fs::directory_entry& a, const fs::directory_entry& b) {
+                return a.is_directory() > b.is_directory();
+                });
         }
-
-        // Custom sort function to ensure folders come first
-        std::sort(m_entries.begin(), m_entries.end(), [](const fs::directory_entry& a, const fs::directory_entry& b) {
-            return a.is_directory() > b.is_directory();
-            });
+        listDirectoryContents();
+        ImGui::EndTabItem();
     }
 
-    listDirectoryContents();
-
+    if (ImGui::BeginTabItem("Textures")) {
+        Prisma::TextureInfo::getInstance().showTextures();
+        ImGui::EndTabItem();
+    }
+    ImGui::EndTabBar();
     ImGui::End();
 }
