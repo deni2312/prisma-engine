@@ -180,8 +180,8 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     glm::vec3 minOrtho = center - glm::vec3(radius);
 
     //Get the AABB in light view space
-    maxOrtho = glm::vec3(lightViewMatrix * glm::vec4(maxOrtho, 1.0f));
-    minOrtho = glm::vec3(lightViewMatrix * glm::vec4(minOrtho, 1.0f));
+    maxOrtho = glm::vec3(glm::vec4(maxOrtho, 1.0f));
+    minOrtho = glm::vec3(glm::vec4(minOrtho, 1.0f));
 
     //Just checking when debugging to make sure the AABB is the same size
     GLfloat lengthofTemp = glm::length(maxOrtho - minOrtho);
