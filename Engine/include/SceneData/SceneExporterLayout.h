@@ -237,7 +237,7 @@ namespace Prisma {
             else if (childJson["type"] == "MESH_ANIMATE") {
                 child = std::make_shared<Prisma::AnimatedMesh>();
             }
-            child->parent(n);
+            child->parent(n.get());
             from_json(childJson, child);
             n->addChild(child,false);
         }

@@ -33,6 +33,7 @@ const std::vector<std::shared_ptr<Prisma::Node>>& Prisma::Node::children() const
 void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScene)
 {
 	m_children.push_back(child);
+	child->parent(this);
 	if (updateScene) {
 		updateCaches(child);
 	}
@@ -129,12 +130,12 @@ glm::mat4 Prisma::Node::finalMatrix() const
 	return m_finalMatrix;
 }
 
-void Prisma::Node::parent(std::shared_ptr<Node> parent)
+void Prisma::Node::parent(Node* parent)
 {
 	m_parent = parent;
 }
 
-std::shared_ptr<Prisma::Node> Prisma::Node::parent() const
+Prisma::Node* Prisma::Node::parent() const
 {
 	return m_parent;
 }

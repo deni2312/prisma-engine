@@ -17,8 +17,8 @@ namespace Prisma {
 		virtual glm::mat4 matrix() const;
 		virtual void finalMatrix(const glm::mat4& matrix,bool update=true);
 		virtual glm::mat4 finalMatrix() const;
-		void parent(std::shared_ptr<Node> parent);
-		std::shared_ptr<Node> parent() const;
+		void parent(Node* parent);
+		Node* parent() const;
 		virtual void istantiate(std::shared_ptr<Node> node);
 		uint64_t uuid();
 		void visible(bool visible);
@@ -34,7 +34,7 @@ namespace Prisma {
 		std::vector<std::shared_ptr<Node>> m_children;
 		glm::mat4 m_matrix=glm::mat4(1.0f);
 		glm::mat4 m_finalMatrix = glm::mat4(1.0f);
-		std::shared_ptr<Node> m_parent;
+		Node* m_parent = nullptr;
 		void updateChild(Node* node);
 		bool m_visible = true;
 	};

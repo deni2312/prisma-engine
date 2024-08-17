@@ -127,7 +127,6 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
         currentNode->matrix(transform, false);
         currentNode->finalMatrix(nodeRoot->finalMatrix() * transform, false);
         currentNode->name(node->mChildren[i]->mName.C_Str());
-        currentNode->parent(nodeRoot);
         nodeRoot->addChild(currentNode, false);
         nodeIteration(nodeRoot->children()[i], node->mChildren[i], scene);
     }
@@ -138,7 +137,6 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
         auto isAnimate = std::dynamic_pointer_cast<AnimatedMesh>(currentMesh);
         currentMesh->matrix(glm::mat4(1.0f), false);
         currentMesh->finalMatrix(glm::mat4(1.0f), false);
-        currentMesh->parent(nodeRoot);
 
         currentMesh->computeAABB();
 
@@ -393,7 +391,6 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
             auto lightNode = m_nodeFinder.find(root, light->name());
             lightNode->addChild(light, false);
             light->finalMatrix(lightNode->finalMatrix(), false);
-            light->parent(lightNode);
             light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
 
             m_scene->dirLights.push_back(light);
@@ -429,10 +426,8 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
             light->type(lightOmni);
             light->name(assimpLight->mName.C_Str());
             auto lightNode = m_nodeFinder.find(root, light->name());
-            light->parent(lightNode);
             lightNode->addChild(light, false);
             light->finalMatrix(lightNode->finalMatrix(), false);
-            light->parent(lightNode);
             light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
 
             m_scene->omniLights.push_back(light);

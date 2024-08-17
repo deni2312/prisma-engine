@@ -53,10 +53,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::Mesh::instantiate(std::shared_ptr<Mesh> me
         std::shared_ptr<Node> parent = std::make_shared<Node>();
         parent->name(mesh->parent()->name() + std::to_string(parent->uuid()));
         parent->matrix(mesh->parent()->matrix());
-        parent->addChild(newInstance);
-        parent->parent(mesh->parent()->parent());
-        newInstance->parent(parent);
         currentGlobalScene->root->addChild(parent);
+        parent->addChild(newInstance);
     }
     return newInstance;
 }
