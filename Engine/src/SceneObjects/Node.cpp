@@ -94,6 +94,15 @@ void Prisma::Node::removeChild(uint64_t uuid)
 				});
 			currentGlobalScene->omniLights.erase(find);
 		}
+		else if (std::dynamic_pointer_cast<Prisma::Sprite>(m_children[index])) {
+			auto find = std::find_if(currentGlobalScene->sprites.begin(), currentGlobalScene->sprites.end(), [uuid](auto sprite) {
+				if (sprite->uuid() == uuid) {
+					return true;
+				}
+				return false;
+				});
+			currentGlobalScene->sprites.erase(find);
+		}
 
 
 		m_children.erase(m_children.begin()+index);
@@ -179,18 +188,27 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 			Prisma::CacheScene::getInstance().updateSizes(true);
 		}
 	}
+
 	if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(child)) {
 		if (nodeHelper.findUUID<Prisma::Light<Prisma::LightType::LightDir>>(currentGlobalScene->dirLights, child->uuid()) < 0) {
 			currentGlobalScene->dirLights.push_back(std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(child));
 			Prisma::CacheScene::getInstance().updateLights(true);
 		}
 	}
+
 	if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(child)) {
 		if (nodeHelper.findUUID<Prisma::Light<Prisma::LightType::LightOmni>>(currentGlobalScene->omniLights, child->uuid()) < 0) {
 			currentGlobalScene->omniLights.push_back(std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(child));
 			Prisma::CacheScene::getInstance().updateLights(true);
 		}
 	}
+
+	if (std::dynamic_pointer_cast<Prisma::Sprite>(child)) {
+		if (nodeHelper.findUUID<Prisma::Sprite>(currentGlobalScene->sprites, child->uuid()) < 0) {
+			currentGlobalScene->sprites.push_back(std::dynamic_pointer_cast<Prisma::Sprite>(child));
+		}
+	}
+
 	if (currentGlobalScene->animateMeshes.size() < MAX_ANIMATION_MESHES) {
 		if (std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
 			if (nodeHelper.findUUID<Prisma::AnimatedMesh>(currentGlobalScene->animateMeshes, child->uuid()) < 0) {

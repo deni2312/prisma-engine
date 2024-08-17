@@ -82,6 +82,11 @@ void Prisma::PipelineForward::render()
 
 	Prisma::PipelineSkybox::getInstance().render();
 
+
+	for (auto& sprite : currentGlobalScene->sprites) {
+		sprite->render();
+	}
+
 	// After rendering
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LESS);

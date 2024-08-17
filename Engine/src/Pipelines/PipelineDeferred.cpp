@@ -128,13 +128,18 @@ void Prisma::PipelineDeferred::render()
     m_shaderD->setInt64(m_positionLocation, m_position);
     Prisma::IBLBuilder::getInstance().renderQuad();
 
-    //COPY DEPTH FOR SKYBOX
+    //COPY DEPTH FOR SKYBOX AND SPRITES
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_gBuffer);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo->frameBufferID());
     glBlitFramebuffer(
         0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
     );
     Prisma::PipelineSkybox::getInstance().render();
+
+    for (auto& sprite : currentGlobalScene->sprites) {
+        sprite->render();
+    }
+
     m_fbo->unbind();
 
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);

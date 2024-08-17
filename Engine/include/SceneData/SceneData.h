@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include "../Containers/FBO.h"
+#include "../SceneObjects/Sprite.h"
 
 namespace Prisma {
 	template <typename T>
@@ -29,19 +30,13 @@ namespace Prisma {
 	};
 
 	struct Scene {
-
-		struct ModelData {
-			std::vector<unsigned int> offsets;
-			std::vector<glm::mat4> models;
-		};
-
 		std::shared_ptr<Prisma::Node> root;
 		std::shared_ptr<Prisma::Camera> camera;
 		std::vector<std::shared_ptr<Prisma::Mesh>> meshes;
 		std::vector<std::shared_ptr<Prisma::AnimatedMesh>> animateMeshes;
-		ModelData modelData;
 		std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightDir>>> dirLights;
 		std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightOmni>>> omniLights;
+		std::vector<std::shared_ptr<Prisma::Sprite>> sprites;
 		std::string name;
 	};
 }
