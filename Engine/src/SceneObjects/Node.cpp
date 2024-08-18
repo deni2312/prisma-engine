@@ -229,7 +229,6 @@ void Prisma::Node::updateChild(Node* node)
 {
 	for (unsigned int i = 0; i < node->children().size(); i++)
 	{
-
 		node->children()[i]->finalMatrix(node->finalMatrix() * node->children()[i]->matrix());
 		updateChild(node->children()[i].get());
 	}
