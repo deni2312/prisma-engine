@@ -33,6 +33,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     sprite->loadSprite(spriteTexture);
     sprite->numSprites(1000);
+    sprite->size(glm::vec2(0.1f,0.1f));
     m_scene->root->addChild(sprite);
 
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
