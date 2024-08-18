@@ -35,6 +35,7 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 	m_children.push_back(child);
 	child->parent(this);
 	if (updateScene) {
+		updateChild(this);
 		updateCaches(child);
 	}
 }
@@ -228,6 +229,7 @@ void Prisma::Node::updateChild(Node* node)
 {
 	for (unsigned int i = 0; i < node->children().size(); i++)
 	{
+
 		node->children()[i]->finalMatrix(node->finalMatrix() * node->children()[i]->matrix());
 		updateChild(node->children()[i].get());
 	}
