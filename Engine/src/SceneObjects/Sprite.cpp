@@ -1,9 +1,10 @@
 #include "../../include/SceneObjects/Sprite.h"
 #include "../../include/Helpers/IBLBuilder.h"
+#include <glm/gtx/string_cast.hpp>
 
 Prisma::Sprite::Sprite(unsigned int ssbo) {
 
-    std::string headerVS = "#version 460 core\nlayout(std430, binding = " + std::to_string(ssbo) + ") readonly buffer SpritesData\n{\nmat4 modelSprite[];\n}; ";
+    std::string headerVS = "#version 460 core\nlayout(std430, binding = " + std::to_string(ssbo) + ") buffer SpritesData" + std::to_string(ssbo) + "\n{\nmat4 modelSprite[];\n}; ";
 
     Prisma::Shader::ShaderHeaders headerData;
     headerData.vertex = headerVS;

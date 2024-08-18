@@ -6,6 +6,7 @@
 #include "../../Engine/include/GlobalData/Keys.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
+#include "ParticleController.h"
 
 class PlayerController {
 public:
@@ -106,4 +107,6 @@ private:
 	ANIMATIONS m_previousAnimations;
 
 	btVector3 m_currentDirection = btVector3(0,0,1);
+
+	ParticleController m_particleController;
 };

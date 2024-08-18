@@ -26,21 +26,14 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_basePosition = m_sphereMesh->parent()->matrix();
     m_basePosition[3] = glm::vec4(0, 0, 0, 1);
 
-    auto spriteTexture = std::make_shared<Prisma::Texture>();
-    spriteTexture->loadTexture("../../../Resources/DefaultScene/sprites/white.png");
-
-    auto sprite = std::make_shared<Prisma::Sprite>(11);
-
-    sprite->loadSprite(spriteTexture);
-    sprite->numSprites(1000);
-    sprite->size(glm::vec2(0.1f,0.1f));
-    m_scene->root->addChild(sprite);
+    m_particleController.init(m_gunPosition);
 
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
     m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
     m_animations = ANIMATIONS::IDLE;
     m_previousAnimations = ANIMATIONS::IDLE;
+    
     createCamera();
     createKeyboard();
 }
@@ -149,6 +142,7 @@ void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
 }
 
 void PlayerController::update() {
+    m_particleController.update();
     target(m_animatedMesh->parent()->finalMatrix()[3]);
     updateCamera();
     updateKeyboard();
