@@ -29,12 +29,10 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     auto spriteTexture = std::make_shared<Prisma::Texture>();
     spriteTexture->loadTexture("../../../Resources/DefaultScene/sprites/white.png");
 
-    auto spriteModels = std::make_shared<Prisma::SSBO>(11);
+    auto sprite = std::make_shared<Prisma::Sprite>(11);
 
-    auto sprite = std::make_shared<Prisma::Sprite>();
-
-    sprite->loadSprite(spriteTexture, spriteModels);
-
+    sprite->loadSprite(spriteTexture);
+    sprite->numSprites(1000);
     m_scene->root->addChild(sprite);
 
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);

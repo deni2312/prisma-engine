@@ -135,7 +135,6 @@ void Prisma::PipelineDeferred::render()
         0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
     );
     Prisma::PipelineSkybox::getInstance().render();
-
     for (auto& sprite : currentGlobalScene->sprites) {
         sprite->render();
     }

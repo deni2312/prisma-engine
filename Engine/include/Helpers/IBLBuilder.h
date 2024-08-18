@@ -33,6 +33,7 @@ namespace Prisma {
 		IBLData data();
 		void renderCube();
 		void renderQuad();
+		void renderQuad(unsigned int instances);
 		IBLBuilder(const IBLBuilder&) = delete;
 		IBLBuilder& operator=(const IBLBuilder&) = delete;
 

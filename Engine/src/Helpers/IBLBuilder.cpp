@@ -109,6 +109,34 @@ void Prisma::IBLBuilder::renderQuad()
     Prisma::VAO::resetVao();
 }
 
+void Prisma::IBLBuilder::renderQuad(unsigned int instances)
+{
+    if (m_vaoQuad == nullptr)
+    {
+        float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+            // positions   // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            1.0f, -1.0f,  1.0f, 0.0f,
+            1.0f,  1.0f,  1.0f, 1.0f
+        };
+        // setup plane VAO
+        m_vaoQuad = std::make_shared<Prisma::VAO>();
+        m_vaoQuad->bind();
+        m_vboQuad = std::make_shared<Prisma::VBO>();
+        m_vboQuad->writeData(sizeof(quadVertices), quadVertices);
+        m_vaoQuad->addAttribPointer(0, 2, 4 * sizeof(float), (void*)0);
+        m_vaoQuad->addAttribPointer(1, 2, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(0);
+    }
+    m_vaoQuad->bind();
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instances);
+    Prisma::VAO::resetVao();
+}
+
 Prisma::IBLBuilder& Prisma::IBLBuilder::getInstance()
 {
     if (!instance) {
