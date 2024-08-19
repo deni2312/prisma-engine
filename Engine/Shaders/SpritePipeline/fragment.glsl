@@ -9,5 +9,6 @@ layout(bindless_sampler) uniform sampler2D sprite;
 
 void main()
 {
-    FragColor = texture(sprite, TexCoords);
+    vec4 spriteTexture = texture(sprite, TexCoords);
+    FragColor = spriteTexture;
 }

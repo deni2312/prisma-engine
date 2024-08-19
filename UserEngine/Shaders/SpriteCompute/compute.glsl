@@ -7,16 +7,9 @@ layout(std430, binding = 11) buffer SpritesData11
     mat4 modelSprite[];
 };
 
-// Uniform to control the gravity strength and delta time
-uniform float deltaTime;  // Time elapsed between frames
-uniform vec3 gravity = vec3(0.0, -9.8, 0.0);  // Gravity vector
-uniform float spreadFactor = 5.0;  // Controls the amount of spread
-
-// Random function to generate random numbers based on sprite index
-float random(uint seed)
-{
-    return fract(sin(float(seed) * 43758.5453123) * 43758.5453123);
-}
+// Uniforms to control the tornado effect and delta time
+uniform float deltaTime;       // Time elapsed between frames
+uniform float time;            // Total time elapsed
 
 void main()
 {
@@ -25,30 +18,37 @@ void main()
 
     // Ensure we don't exceed the bounds of the buffer
     if (idx < modelSprite.length()) {
-        // Extract the current translation (position) from the model matrix
-        vec3 position = modelSprite[idx][3].xyz;
+        // Get the original model matrix for this sprite
+        mat4 model = modelSprite[idx];
 
-        // Generate a random direction for spreading
-        vec3 randomDirection = vec3(
-            random(idx + 1) - 0.5,  // X-axis random component
-            random(idx + 2) - 0.5,  // Y-axis random component (can be small)
-            random(idx + 3) - 0.5   // Z-axis random component
-        );
+        // Calculate the position of the sprite in a circular pattern
+        float rotationSpeed = 1.0;        // Speed of rotation around the Y-axis
+        float angle = mod(time * rotationSpeed + idx * 0.1, 6.28318530718); // Angle, wrapped at 360 degrees (2 * PI)
+        float radius = 0.5;   // Radius from the center, increases with sprite index
+        float height = mod(time * 0.5 + idx * 0.05, 10.0); // Height over time, loops every 10 units
 
-        // Normalize the direction and scale it by spreadFactor and deltaTime
-        randomDirection = normalize(randomDirection) * spreadFactor * deltaTime;
+        // Calculate the new position in the XZ plane
+        float x = radius * cos(angle);
+        float z = radius * sin(angle);
 
-        // Update the position with gravity and random spread
-        position += gravity * deltaTime + randomDirection;
+        // Set the new translation
+        vec3 position = vec3(x, height, z);
 
-        // Write the updated position back into the model matrix
-        modelSprite[idx][3].xyz = position;
+        // Create rotation matrix around the Y-axis (up-axis)
+        mat4 rotationMatrix = mat4(1.0);
+        rotationMatrix[0][0] = cos(angle);
+        rotationMatrix[0][2] = -sin(angle);
+        rotationMatrix[2][0] = sin(angle);
+        rotationMatrix[2][2] = cos(angle);
 
-        if (modelSprite[idx][3].y < -10.0) {
-            modelSprite[idx][3].x = 0.0;
-            modelSprite[idx][3].y = 0.0;
-            modelSprite[idx][3].z = 0.0;
-        }
+        // Create the translation matrix
+        mat4 translationMatrix = mat4(1.0);
+        translationMatrix[3] = vec4(position, 1.0);
 
+        // Combine the translation and rotation
+        model = translationMatrix * rotationMatrix;
+
+        // Update the model matrix for this sprite
+        modelSprite[idx] = model;
     }
 }

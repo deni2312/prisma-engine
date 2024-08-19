@@ -71,6 +71,7 @@ Prisma::PrismaFunc::PrismaFunc()
     glClearColor(CLEAR_COLOR.x, CLEAR_COLOR.y, CLEAR_COLOR.z, CLEAR_COLOR.w);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+
     privatePrisma = std::make_shared<PrivatePrisma>();
     defaultBlack.loadTexture(DIR_DEFAULT_BLACK);
     defaultNormal.loadTexture(DIR_DEFAULT_NORMAL);
