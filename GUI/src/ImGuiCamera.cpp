@@ -5,6 +5,7 @@
 #include "../include/PixelCapture.h"
 #include "../../Engine/include/Helpers/SettingsLoader.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
+#include "../../Engine/include/engine.h"
 
 Prisma::ImGuiCamera::ImGuiCamera()
 {
@@ -19,6 +20,7 @@ void Prisma::ImGuiCamera::updateCamera(std::shared_ptr<Prisma::Camera> camera)
         camera->center(m_position + m_front);
         camera->up(m_up);
     }
+    m_totalVelocity = m_velocity * 1.0f / (float)Prisma::Engine::getInstance().fps();
 }
 
 void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
@@ -33,18 +35,18 @@ void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
     }
 
     if (glfwGetKey(window, Prisma::KEY_W) == GLFW_PRESS) {
-        m_position += m_front * m_velocity;
+        m_position += m_front * m_totalVelocity;
     }
 
     if (glfwGetKey(window, Prisma::KEY_A) == GLFW_PRESS) {
-        m_position -= glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
+        m_position -= glm::normalize(glm::cross(m_front, m_up)) * m_totalVelocity;
     }
 
     if (glfwGetKey(window, Prisma::KEY_S) == GLFW_PRESS && (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) && !m_save) {
         Prisma::Exporter::getInstance().exportScene();
         m_save = true;
     }else if (glfwGetKey(window, Prisma::KEY_S) == GLFW_PRESS && !(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS)) {
-        m_position -= m_front * m_velocity;
+        m_position -= m_front * m_totalVelocity;
     }
 
     if(glfwGetKey(window, Prisma::KEY_S) == GLFW_RELEASE || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL == GLFW_RELEASE) || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL == GLFW_RELEASE)) {
@@ -52,7 +54,7 @@ void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
     }
 
     if (glfwGetKey(window, Prisma::KEY_D) == GLFW_PRESS) {
-        m_position += glm::normalize(glm::cross(m_front, m_up)) * m_velocity;
+        m_position += glm::normalize(glm::cross(m_front, m_up)) * m_totalVelocity;
     }
 
     if (glfwGetKey(window, Prisma::KEY_G) == GLFW_PRESS && !m_pressed) {
@@ -153,12 +155,13 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
 
     m_callback->rollMouse = [this](double xOffset,double yOffset) {
         if (yOffset > 0) {
-            m_velocity += 0.1f;  // Increase velocity when scrolling up
+            m_velocity += 1.0f;  // Increase velocity when scrolling up
+
         }
         else if (yOffset < 0) {
-            m_velocity -= 0.1f;  // Decrease velocity when scrolling down
+            m_velocity -= 1.0f;  // Decrease velocity when scrolling down
             if (m_velocity < 0.1f) {
-                m_velocity = 0.1f; // Prevent velocity from becoming too small or negative
+                m_velocity = 1.0f; // Prevent velocity from becoming too small or negative
             }
         }
     };

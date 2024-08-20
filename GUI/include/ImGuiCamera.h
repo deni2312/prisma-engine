@@ -47,6 +47,8 @@ namespace Prisma {
 		bool m_pressed = false;
 		bool m_save = false;
 
+		float m_totalVelocity = 0;
+
 		std::shared_ptr<Prisma::CallbackHandler> m_callback;
 
         Node* m_currentSelect;

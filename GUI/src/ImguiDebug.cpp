@@ -277,7 +277,6 @@ void Prisma::ImguiDebug::close()
             m_fps = 1.0f / static_cast<float>(currentFrameTime - m_lastFrameTime);
         }
         m_lastFrameTime = currentFrameTime;
-        m_imguiCamera.velocity(1.0f / fps());
 
         m_imguiCamera.updateCamera(m_camera);
         m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
