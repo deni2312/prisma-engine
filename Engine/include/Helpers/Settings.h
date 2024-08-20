@@ -12,9 +12,6 @@ namespace Prisma {
 		unsigned int width=1920;
 		unsigned int height=1080;
 		bool fullscreen = false;
-		float angle = 90.0f;
-		float nearPlane = 0.1f;
-		float farPlane = 0.1f;
 	};
 
 	struct CallbackHandler {

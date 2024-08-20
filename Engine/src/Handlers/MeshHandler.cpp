@@ -16,8 +16,8 @@ void Prisma::MeshHandler::updateCamera() {
 
 void Prisma::MeshHandler::updateCluster()
 {
-	m_uboClusterData.zNear = m_settings.nearPlane;
-	m_uboClusterData.zFar = m_settings.farPlane;
+	m_uboClusterData.zNear = currentGlobalScene->camera->nearPlane();
+	m_uboClusterData.zFar = currentGlobalScene->camera->farPlane();
 	m_uboClusterData.gridSize = glm::vec4(Prisma::ClusterCalculation::grids(),1.0f);
 	m_uboClusterData.screenDimensions = { m_settings.width,m_settings.height,1.0f,1.0f };
 	m_uboCluster->modifyData(0, sizeof(Prisma::MeshHandler::UBOCluster), &m_uboClusterData);

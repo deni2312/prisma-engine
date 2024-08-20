@@ -70,7 +70,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     m_modelPos = m_shader->getUniformPosition("model");
     m_scale = 0.72f;
     m_translate = 1.0f - m_scale;
-    m_projection = glm::perspective(glm::radians(settings.angle), (float)settings.width / (float)settings.height, settings.nearPlane, settings.farPlane);
+    m_projection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()), (float)settings.width / (float)settings.height, currentGlobalScene->camera->nearPlane(), currentGlobalScene->camera->farPlane());
     m_model = glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,m_translate,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
     m_fileBrowser=std::make_shared<Prisma::FileBrowser>();
     Prisma::PixelCapture::getInstance();

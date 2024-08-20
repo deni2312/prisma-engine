@@ -1,9 +1,6 @@
 {
-    "angle": 45.0,
-    "farPlane": 100.0,
     "fullscreen": false,
     "name": "Default",
-    "nearPlane": 0.1,
     "height": 1440,
     "width": 2560
 }

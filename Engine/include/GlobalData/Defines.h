@@ -13,5 +13,5 @@ const int MAX_SHADOW_DIR = 4096;
 const std::string DIR_DEFAULT_BLACK = "../../../Resources/res/black.png";
 const std::string DIR_DEFAULT_SCENE = "../../../Resources/BasicScene/BasicScene.gltf";
 const std::string DIR_DEFAULT_NORMAL = "../../../Resources/res/normal.jpg";
-const std::string DIR_DEFAULT_SETTINGS = "../../../configuration/settings.json";
+const std::string DIR_DEFAULT_SETTINGS = "../../../Resources/configuration/settings.json";
 const glm::vec4 CLEAR_COLOR = glm::vec4(0.0f);

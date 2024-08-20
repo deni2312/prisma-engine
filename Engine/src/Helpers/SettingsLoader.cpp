@@ -8,9 +8,6 @@ void to_json(nlohmann::json& j, const Prisma::Settings& settings) {
         {"width", settings.width},
         {"height", settings.height},
         {"fullscreen", settings.fullscreen},
-        {"angle", settings.angle},
-        {"nearPlane", settings.nearPlane},
-        {"farPlane", settings.farPlane}
     };
 }
 
@@ -20,9 +17,6 @@ void from_json(const nlohmann::json& j, Prisma::Settings& settings) {
     j.at("width").get_to(settings.width);
     j.at("height").get_to(settings.height);
     j.at("fullscreen").get_to(settings.fullscreen);
-    j.at("angle").get_to(settings.angle);
-    j.at("nearPlane").get_to(settings.nearPlane);
-    j.at("farPlane").get_to(settings.farPlane);
 }
 
 // Static method to access the singleton instance
@@ -66,9 +60,6 @@ void Prisma::SettingsLoader::setDefaultSettings(const std::string& filename) {
     settings.width = 1920;
     settings.height = 1080;
     settings.fullscreen = false;
-    settings.nearPlane = 0.1f;
-    settings.farPlane = 1000.0;
-    settings.angle = 45.0f;
 
     // Save default settings to file
     std::ofstream defaultFile(filename);
