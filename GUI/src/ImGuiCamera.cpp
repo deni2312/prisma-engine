@@ -150,6 +150,18 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
             }
         }
     };
+
+    m_callback->rollMouse = [this](double xOffset,double yOffset) {
+        if (yOffset > 0) {
+            m_velocity += 0.1f;  // Increase velocity when scrolling up
+        }
+        else if (yOffset < 0) {
+            m_velocity -= 0.1f;  // Decrease velocity when scrolling down
+            if (m_velocity < 0.1f) {
+                m_velocity = 0.1f; // Prevent velocity from becoming too small or negative
+            }
+        }
+    };
 }
 
 Prisma::Node *Prisma::ImGuiCamera::currentSelect() {

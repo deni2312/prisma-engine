@@ -47,6 +47,13 @@ namespace Prisma {
             privatePrisma->callback->keyboard(key, scancode,action,mods);
         }
     }
+
+    void rollCallback(GLFWwindow* window, double x, double y)
+    {
+        if (privatePrisma->callback->rollMouse) {
+            privatePrisma->callback->rollMouse(x, y);
+        }
+    }
 }
 
 Prisma::PrismaFunc::PrismaFunc()
@@ -97,6 +104,7 @@ void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHa
         glfwSetMouseButtonCallback(m_window, Prisma::mouseButtonCallback);
         glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GLFW_TRUE);
         glfwSetKeyCallback(m_window, Prisma::keyboardCallback);
+        glfwSetScrollCallback(m_window, Prisma::rollCallback);
         privatePrisma->initCallback = true;
     }
 }
