@@ -122,7 +122,17 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
     ImGui::SetNextWindowSize(ImVec2(width, height - (scale * height + offset)));
 
     ImGui::Begin("File Browser", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
+
     ImGui::BeginTabBar("FOLDER VIEW");
+    
+    
+
+    if (ImGui::BeginTabItem("Textures")) {
+        Prisma::TextureInfo::getInstance().showTextures();
+        ImGui::EndTabItem();
+    }
+
     if (ImGui::BeginTabItem("Folders")) {
 
         if (ImGui::ImageButton((void*)m_back->id(), m_iconSize) && currentPath.has_parent_path()) {
@@ -140,11 +150,6 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
                 });
         }
         listDirectoryContents();
-        ImGui::EndTabItem();
-    }
-
-    if (ImGui::BeginTabItem("Textures")) {
-        Prisma::TextureInfo::getInstance().showTextures();
         ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
