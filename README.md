@@ -27,6 +27,7 @@ Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 
 - **Scene Graph**
 - **Bloom**
 - **Postprocessing effects**
+- **Particle effects**
 - **Editor:**
     - **Run/Debug modes**
     - **Transform Modifier**
@@ -62,6 +63,16 @@ cd ..
 6. (Optionally) In  `configuration\settings.json` file you can change some settings like width, height and camera options.
 
 ## Demos
+
+### Demo
+
+
+An example of a demo scene with animation blending, particle effects and screen space reflections. (Click on the image for the youtube video)
+
+https://youtu.be/4LInQ8es3wM
+
+[![Sponza](https://img.youtube.com/vi/4LInQ8es3wM/0.jpg)](https://youtu.be/4LInQ8es3wM)
+
 
 ### Sponza
 
