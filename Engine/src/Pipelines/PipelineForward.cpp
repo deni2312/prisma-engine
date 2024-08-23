@@ -80,6 +80,7 @@ void Prisma::PipelineForward::render()
 		sprite->render();
 	}
 
+
 	// After rendering
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LESS);
