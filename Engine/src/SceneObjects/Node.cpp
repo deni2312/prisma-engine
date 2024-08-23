@@ -34,8 +34,8 @@ void Prisma::Node::addChild(std::shared_ptr<Prisma::Node> child, bool updateScen
 {
 	m_children.push_back(child);
 	child->parent(this);
+	updateChild(this);
 	if (updateScene) {
-		updateChild(this);
 		updateCaches(child);
 	}
 }

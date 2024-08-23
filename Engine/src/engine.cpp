@@ -14,6 +14,7 @@
 #include "../include/Containers/FBO.h"
 #include "../include/GlobalData/GlobalData.h"
 #include "../include/Pipelines/PipelineHandler.h"
+#include "../include/Pipelines/PipelineCloud.h"
 #include "../include/Helpers/SettingsLoader.h"
 #include "../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../include/Pipelines/PipelinePrefilter.h"
@@ -67,12 +68,14 @@ Prisma::Engine::Engine()
     PipelineSkybox::getInstance();
 
     PipelinePrefilter::getInstance();
-
+    
     Physics::getInstance();
 
     Postprocess::getInstance();
 
     AnimationHandler::getInstance();
+
+    PipelineCloud::getInstance();
     
     data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::DEFERRED;
 
