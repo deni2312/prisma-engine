@@ -1,6 +1,4 @@
-
 #include "../../include/GlobalData/GlobalData.h"
-
 #include "../../include/Pipelines/PipelineForward.h"
 #include "../../include/Helpers/IBLBuilder.h"
 #include "../../include/SceneData/MeshIndirect.h"
@@ -18,11 +16,6 @@
 #include <random>
 #include "../../include/Postprocess/Postprocess.h"
 
-struct PrivateDataForward {
-
-};
-
-std::shared_ptr<PrivateDataForward> dataForward;
 
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{ width }, m_height{ height }
 {
