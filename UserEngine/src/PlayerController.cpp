@@ -198,6 +198,17 @@ void PlayerController::createCamera() {
     m_handler->mouseClick = [&](int button, int action, double x, double y) {
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
             auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
+
+            auto lightParent = std::make_shared<Prisma::Node>();
+
+            auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
+            Prisma::LightType::LightOmni lightType;
+            light->type(lightType);
+
+            lightParent->addChild(light);
+
+            ball->addChild(lightParent);
+
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
             ball->addComponent(physicsComponent);
             auto front = glm::normalize(m_front);

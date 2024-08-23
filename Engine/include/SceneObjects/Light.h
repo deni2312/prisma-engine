@@ -19,11 +19,11 @@ namespace Prisma {
 		};
 
 		struct LightOmni {
-			glm::vec4 position;
-			glm::vec4 diffuse;
-			glm::vec4 specular;
-            glm::vec4 farPlane;
-			glm::vec4 attenuation;
+			glm::vec4 position = glm::vec4(0.0f,0.0f,0.0f,1.0f);
+			glm::vec4 diffuse = glm::vec4(1.0f);
+			glm::vec4 specular = glm::vec4(1.0f);
+            glm::vec4 farPlane=glm::vec4(100.0f,0.0f,0.0f,0.0f);
+			glm::vec4 attenuation =glm::vec4(1.0f,0.0f,0.0f,0.0f);
             uint64_t shadowMap = 0;
             float padding = 0;
 			float radius = 1;
