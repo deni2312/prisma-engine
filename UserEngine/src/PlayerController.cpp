@@ -199,7 +199,6 @@ void PlayerController::createCamera() {
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
             auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
-            ball->computeAABB();
             ball->addComponent(physicsComponent);
             auto front = glm::normalize(m_front);
             auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::getVec3GLM(m_currentDirection), 0.0f);

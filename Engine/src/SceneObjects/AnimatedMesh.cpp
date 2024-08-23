@@ -33,6 +33,7 @@ void Prisma::AnimatedMesh::computeAABB()
 
 void Prisma::AnimatedMesh::loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices) {
 	m_animateVertices = vertices;
+    computeAABB();
 }
 
 std::shared_ptr<Prisma::AnimatedMesh::AnimateVerticesData> Prisma::AnimatedMesh::animateVerticesData()

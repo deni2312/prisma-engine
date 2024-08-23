@@ -107,7 +107,6 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
 void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
     auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
     if (mesh && !m_fixed) {
-        mesh->computeAABB();
         auto aabbData = mesh->aabbData();
         switch (collider) {
         case Prisma::Physics::Collider::BOX_COLLIDER: {

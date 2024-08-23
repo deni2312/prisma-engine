@@ -310,7 +310,6 @@ namespace Prisma {
             verticesData->vertices = vertices;
             verticesData->indices = j.at("faces").get<std::vector<unsigned int>>();
             mesh->loadModel(verticesData);
-            mesh->computeAABB();
         }
         else if(type == "LIGHT_DIRECTIONAL"){
             auto light = std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(n);
@@ -433,7 +432,6 @@ namespace Prisma {
 
 
             mesh->loadAnimateModel(verticesData);
-            mesh->computeAABB();
         }
     }
 

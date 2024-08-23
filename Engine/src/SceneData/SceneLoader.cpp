@@ -138,8 +138,6 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
         currentMesh->matrix(glm::mat4(1.0f), false);
         currentMesh->finalMatrix(glm::mat4(1.0f), false);
 
-        currentMesh->computeAABB();
-
         nodeRoot->addChild(currentMesh,false);
         if (isAnimate) {
             if (m_scene->animateMeshes.size() < MAX_ANIMATION_MESHES) {

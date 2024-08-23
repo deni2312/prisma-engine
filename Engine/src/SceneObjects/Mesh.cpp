@@ -12,6 +12,7 @@
 void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices)
 {
 	m_vertices = vertices;
+    computeAABB();
 }
 
 const Prisma::Mesh::VerticesData& Prisma::Mesh::verticesData() const
