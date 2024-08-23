@@ -7,6 +7,9 @@ in vec3 WorldPos;
 uniform vec3 cameraPos;  // Position of the camera in world space
 uniform vec3 lightDir;   // Direction of the light source (normalized)
 uniform float time;      // Time to animate the cloud
+uniform vec3 bboxMin;
+uniform vec3 bboxMax;
+uniform mat4 inverseModelMatrix;
 
 // Noise function (can be replaced with any noise implementation)
 float hash(vec3 p) {
@@ -47,12 +50,9 @@ void main()
     vec3 rayDir = normalize(WorldPos - cameraPos);  // Calculate the ray direction
     vec3 rayOrigin = cameraPos;
 
-    vec3 boxMin = vec3(-1.0);  // Minimum bounds of the cube
-    vec3 boxMax = vec3(1.0);   // Maximum bounds of the cube
-
     // Ray-box intersection (AABB)
-    vec3 tMin = (boxMin - rayOrigin) / rayDir;
-    vec3 tMax = (boxMax - rayOrigin) / rayDir;
+    vec3 tMin = (bboxMin - rayOrigin) / rayDir;
+    vec3 tMax = (bboxMax - rayOrigin) / rayDir;
     vec3 t1 = min(tMin, tMax);
     vec3 t2 = max(tMin, tMax);
     float tNear = max(max(t1.x, t1.y), t1.z);

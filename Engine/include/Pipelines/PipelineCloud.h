@@ -22,7 +22,7 @@ namespace Prisma {
 	private:
 		static std::shared_ptr<PipelineCloud> instance;
 		std::shared_ptr<Prisma::Shader> m_shader;
-		std::shared_ptr<Prisma::Node> m_root;
+		std::shared_ptr<Prisma::Mesh> m_mesh;
 
 		std::shared_ptr<Prisma::VAO> m_vao;
 
@@ -35,6 +35,12 @@ namespace Prisma {
 		unsigned int m_lightPos;
 
 		unsigned int m_timePos;
+
+		unsigned int m_bboxMinPos;
+
+		unsigned int m_bboxMaxPos;
+
+		unsigned int m_inverseModelPos;
 
 	};
 }

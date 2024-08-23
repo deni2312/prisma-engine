@@ -2,6 +2,7 @@
 #include "../../include/Containers/VBO.h"
 #include "../../include/Containers/EBO.h"
 #include <chrono>
+#include <glm/gtx/string_cast.hpp>
 
 std::shared_ptr<Prisma::PipelineCloud> Prisma::PipelineCloud::instance = nullptr;
 
@@ -19,9 +20,18 @@ Prisma::PipelineCloud::PipelineCloud()
 
 	m_timePos = m_shader->getUniformPosition("time");
 
+	m_bboxMinPos = m_shader->getUniformPosition("bboxMin");
+
+	m_bboxMaxPos = m_shader->getUniformPosition("bboxMax");
+
+	m_inverseModelPos = m_shader->getUniformPosition("inverseModelMatrix");
+
     Prisma::SceneLoader loader;
     auto scene = loader.loadScene("../../../Resources/Cube/cube.gltf", {true});
-    m_root = scene->root;
+
+
+
+	m_mesh = std::dynamic_pointer_cast<Prisma::Mesh>(scene->root->children()[0]);
 	m_vao = std::make_shared<Prisma::VAO>();
 	m_vao->bind();
 
@@ -29,7 +39,7 @@ Prisma::PipelineCloud::PipelineCloud()
 
 	auto ebo = std::make_shared<Prisma::EBO>();
 
-	m_verticesData = std::dynamic_pointer_cast<Prisma::Mesh>(m_root->children()[0])->verticesData();
+	m_verticesData = m_mesh->verticesData();
 
 	vbo->writeData(m_verticesData.vertices.size()*sizeof(Prisma::Mesh::Vertex), m_verticesData.vertices.data(), GL_DYNAMIC_DRAW);
 	ebo->writeData(m_verticesData.indices.size() * sizeof(unsigned int), m_verticesData.indices.data(), GL_DYNAMIC_DRAW);
@@ -53,7 +63,7 @@ void Prisma::PipelineCloud::render()
 
 	m_shader->use();
 
-	m_shader->setMat4(m_modelPos, m_root->children()[0]->finalMatrix());
+	m_shader->setMat4(m_modelPos, m_mesh->finalMatrix());
 
 	m_shader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
 	if (currentGlobalScene->dirLights.size() > 0) {
@@ -62,7 +72,15 @@ void Prisma::PipelineCloud::render()
 	auto now = std::chrono::system_clock::now();
 	auto nowInSeconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
+
+
+	auto camera = currentGlobalScene->camera->matrix();
 	m_shader->setFloat(m_timePos, 0);
+	m_shader->setVec3(m_bboxMinPos, m_mesh->finalMatrix()*glm::vec4(m_mesh->aabbData().min,1.0f));
+
+	m_shader->setVec3(m_bboxMaxPos, m_mesh->finalMatrix()*glm::vec4(m_mesh->aabbData().max,1.0f));
+
+	m_shader->setMat4(m_inverseModelPos, glm::inverse(m_mesh->finalMatrix()));
 
 	glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(m_verticesData.indices.size()), GL_UNSIGNED_INT, 0);
 }
