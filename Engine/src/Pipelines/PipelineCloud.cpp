@@ -1,6 +1,7 @@
 #include "../../include/Pipelines/PipelineCloud.h"
 #include "../../include/Containers/VBO.h"
 #include "../../include/Containers/EBO.h"
+#include <chrono>
 
 std::shared_ptr<Prisma::PipelineCloud> Prisma::PipelineCloud::instance = nullptr;
 
@@ -11,6 +12,12 @@ Prisma::PipelineCloud::PipelineCloud()
 	m_shader->use();
 
 	m_modelPos = m_shader->getUniformPosition("model");
+
+	m_cameraPos = m_shader->getUniformPosition("cameraPos");
+
+	m_lightPos = m_shader->getUniformPosition("lightDir");
+
+	m_timePos = m_shader->getUniformPosition("time");
 
     Prisma::SceneLoader loader;
     auto scene = loader.loadScene("../../../Resources/Cube/cube.gltf", {true});
@@ -47,6 +54,15 @@ void Prisma::PipelineCloud::render()
 	m_shader->use();
 
 	m_shader->setMat4(m_modelPos, m_root->children()[0]->finalMatrix());
+
+	m_shader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
+	if (currentGlobalScene->dirLights.size() > 0) {
+		m_shader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
+	}
+	auto now = std::chrono::system_clock::now();
+	auto nowInSeconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+	m_shader->setFloat(m_timePos, 0);
 
 	glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(m_verticesData.indices.size()), GL_UNSIGNED_INT, 0);
 }

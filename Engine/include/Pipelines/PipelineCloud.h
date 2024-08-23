@@ -30,5 +30,11 @@ namespace Prisma {
 
 		unsigned int m_modelPos;
 
+		unsigned int m_cameraPos;
+
+		unsigned int m_lightPos;
+
+		unsigned int m_timePos;
+
 	};
 }
