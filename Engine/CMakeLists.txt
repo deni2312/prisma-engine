@@ -21,5 +21,4 @@ find_package(imgui CONFIG REQUIRED)
 find_package(Bullet CONFIG REQUIRED)
 find_package(implot CONFIG REQUIRED)
 
-find_path(TINYGLTF_INCLUDE_DIRS "tiny_gltf.h")
-target_link_libraries(PrismaEngineDll PRIVATE GLEW::GLEW ${TINYGLTF_INCLUDE_DIRS} glfw glm::glm assimp::assimp imgui::imgui nlohmann_json::nlohmann_json LinearMath Bullet3Common BulletDynamics BulletSoftBody BulletCollision BulletInverseDynamics imguizmo::imguizmo implot::implot)
+target_link_libraries(PrismaEngineDll PRIVATE GLEW::GLEW glfw glm::glm assimp::assimp imgui::imgui nlohmann_json::nlohmann_json LinearMath Bullet3Common BulletDynamics BulletSoftBody BulletCollision BulletInverseDynamics imguizmo::imguizmo implot::implot)
