@@ -22,11 +22,7 @@ Prisma::PipelineCloud::PipelineCloud()
 
 	m_timePos = m_shader->getUniformPosition("iTime");
 
-	m_bboxMinPos = m_shader->getUniformPosition("bboxMin");
-
-	m_bboxMaxPos = m_shader->getUniformPosition("bboxMax");
-
-	m_inverseModelPos = m_shader->getUniformPosition("inverseModelMatrix");
+	m_resolutionPos = m_shader->getUniformPosition("resolution");
 
 	Prisma::SceneLoader loader;
 	auto scene = loader.loadScene("../../../Resources/Cube/cube.gltf", { true });
@@ -57,6 +53,8 @@ Prisma::PipelineCloud::PipelineCloud()
 	fboData.internalFormat = GL_RGBA16F;
 	fboData.internalType = GL_FLOAT;
 	fboData.name = "CLOUDS";
+
+	m_resolution = glm::vec2(settings.width, settings.height);
 
 	m_fbo = std::make_shared<Prisma::FBO>(fboData);
 
@@ -94,10 +92,7 @@ void Prisma::PipelineCloud::render()
 
 	m_shader->setFloat(m_timePos, static_cast<float>(elapsedTime)/1000.0f);
 
-	m_shader->setVec3(m_bboxMinPos, m_mesh->finalMatrix() * glm::vec4(m_mesh->aabbData().min, 1.0f));
-	m_shader->setVec3(m_bboxMaxPos, m_mesh->finalMatrix() * glm::vec4(m_mesh->aabbData().max, 1.0f));
-
-	m_shader->setMat4(m_inverseModelPos, glm::inverse(m_mesh->finalMatrix()));
+	m_shader->setVec2(m_resolutionPos, m_resolution);
 
 	Prisma::IBLBuilder::getInstance().renderQuad();
 	m_fbo->unbind();

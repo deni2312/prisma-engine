@@ -37,11 +37,9 @@ namespace Prisma {
 
 		unsigned int m_timePos;
 
-		unsigned int m_bboxMinPos;
+		unsigned int m_resolutionPos;
 
-		unsigned int m_bboxMaxPos;
-
-		unsigned int m_inverseModelPos;
+		glm::vec2 m_resolution;
 
 		std::chrono::system_clock::time_point m_start;
 

@@ -6,116 +6,167 @@ in vec2 TexCoords;
 
 uniform vec3 cameraPos;
 uniform float iTime;
+uniform vec2 resolution;
 
-const float cloudscale = 1.1;
-const float speed = 0.03;
-const float clouddark = 0.5;
-const float cloudlight = 0.3;
-const float cloudcover = 0.2;
-const float cloudalpha = 8.0;
-const float skytint = 0.5;
-const vec3 skycolour1 = vec3(0.2, 0.4, 0.6);
-const vec3 skycolour2 = vec3(0.4, 0.7, 1.0);
+layout(std140, binding = 1) uniform MeshData
+{
+    mat4 view;
+    mat4 projection;
+};
 
-const mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+mat3 m = mat3(0.00, 0.80, 0.60,
+    -0.80, 0.36, -0.48,
+    -0.60, -0.48, 0.64);
 
-uniform vec2 resolution = vec2(1440, 2560);
-
-vec2 hash(vec2 p) {
-	p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
-	return -1.0 + 2.0 * fract(sin(p) * 43758.5453123);
+float hash(float n)
+{
+    return fract(sin(n) * 43758.5453);
 }
 
-float noise(in vec2 p) {
-	const float K1 = 0.366025404; // (sqrt(3)-1)/2;
-	const float K2 = 0.211324865; // (3-sqrt(3))/6;
-	vec2 i = floor(p + (p.x + p.y) * K1);
-	vec2 a = p - i + (i.x + i.y) * K2;
-	vec2 o = (a.x > a.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0); //vec2 of = 0.5 + 0.5*vec2(sign(a.x-a.y), sign(a.y-a.x));
-	vec2 b = a - o + K2;
-	vec2 c = a - 1.0 + 2.0 * K2;
-	vec3 h = max(0.5 - vec3(dot(a, a), dot(b, b), dot(c, c)), 0.0);
-	vec3 n = h * h * h * h * vec3(dot(a, hash(i + 0.0)), dot(b, hash(i + o)), dot(c, hash(i + 1.0)));
-	return dot(n, vec3(70.0));
+float noise(in vec3 x)
+{
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+
+    f = f * f * (3.0 - 2.0 * f);
+
+    float n = p.x + p.y * 57.0 + 113.0 * p.z;
+
+    float res = mix(mix(mix(hash(n + 0.0), hash(n + 1.0), f.x),
+        mix(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
+        mix(mix(hash(n + 113.0), hash(n + 114.0), f.x),
+            mix(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
+    return res;
 }
 
-float fbm(vec2 n) {
-	float total = 0.0, amplitude = 0.1;
-	for (int i = 0; i < 7; i++) {
-		total += noise(n) * amplitude;
-		n = m * n;
-		amplitude *= 0.4;
-	}
-	return total;
+float fbm(vec3 p)
+{
+    float f;
+    f = 0.5000 * noise(p); p = m * p * 2.02;
+    f += 0.2500 * noise(p); p = m * p * 2.03;
+    f += 0.12500 * noise(p); p = m * p * 2.01;
+    f += 0.06250 * noise(p);
+    return f;
+}
+/////////////////////////////////////
+
+float stepUp(float t, float len, float smo)
+{
+    float tt = mod(t += smo, len);
+    float stp = floor(t / len) - 1.0;
+    return smoothstep(0.0, smo, tt) + stp;
 }
 
+// iq's smin
+float smin(float d1, float d2, float k) {
+    float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
+    return mix(d2, d1, h) - k * h * (1.0 - h);
+}
+
+float sdTorus(vec3 p, vec2 t)
+{
+    vec2 q = vec2(length(p.xz) - t.x, p.y);
+    return length(q) - t.y;
+}
+
+
+float map(in vec3 p)
+{
+    vec3 q = p - vec3(0.0, 0.5, 1.0) * iTime;
+    float f = fbm(q);
+    float s1 = 1.0 - length(p * vec3(0.5, 1.0, 0.5)) + f * 2.2;
+    float s2 = 1.0 - length(p * vec3(0.1, 1.0, 0.2)) + f * 2.5;
+    float torus = 1. - sdTorus(p * 2.0, vec2(6.0, 0.005)) + f * 3.5;
+    float s3 = 1.0 - smin(smin(
+        length(p * 1.0 - vec3(cos(iTime * 3.0) * 6.0, sin(iTime * 2.0) * 5.0, 0.0)),
+        length(p * 2.0 - vec3(0.0, sin(iTime) * 4.0, cos(iTime * 2.0) * 3.0)), 4.0),
+        length(p * 3.0 - vec3(cos(iTime * 2.0) * 3.0, 0.0, sin(iTime * 3.3) * 7.0)), 4.0) + f * 2.5;
+
+    float t = mod(stepUp(iTime, 4.0, 1.0), 4.0);
+
+    float d = mix(s1, s2, clamp(t, 0.0, 1.0));
+    d = mix(d, torus, clamp(t - 1.0, 0.0, 1.0));
+    d = mix(d, s3, clamp(t - 2.0, 0.0, 1.0));
+    d = mix(d, s1, clamp(t - 3.0, 0.0, 1.0));
+
+    return min(max(0.0, d), 1.0);
+}
+
+float jitter;
+
+#define MAX_STEPS 48
+#define SHADOW_STEPS 8
+#define VOLUME_LENGTH 15.
+#define SHADOW_LENGTH 2.
+
+vec4 cloudMarch(vec3 p, vec3 ray)
+{
+    float density = 0.;
+
+    float stepLength = VOLUME_LENGTH / float(MAX_STEPS);
+    float shadowStepLength = SHADOW_LENGTH / float(SHADOW_STEPS);
+    vec3 light = normalize(vec3(1.0, 2.0, 1.0));
+
+    vec4 sum = vec4(0., 0., 0., 1.);
+
+    vec3 pos = p + ray * jitter * stepLength;
+
+    for (int i = 0; i < MAX_STEPS; i++)
+    {
+        if (sum.a < 0.1) {
+            break;
+        }
+        float d = map(pos);
+
+        if (d > 0.001)
+        {
+            vec3 lpos = pos + light * jitter * shadowStepLength;
+            float shadow = 0.;
+
+            for (int s = 0; s < SHADOW_STEPS; s++)
+            {
+                lpos += light * shadowStepLength;
+                float lsample = map(lpos);
+                shadow += lsample;
+            }
+
+            density = clamp((d / float(MAX_STEPS)) * 20.0, 0.0, 1.0);
+            float s = exp((-shadow / float(SHADOW_STEPS)) * 3.);
+            sum.rgb += vec3(s * density) * vec3(1.1, 0.9, .5) * sum.a;
+            sum.a *= 1. - density;
+
+            sum.rgb += exp(-map(pos + vec3(0, 0.25, 0.0)) * .2) * density * vec3(0.15, 0.45, 1.1) * sum.a;
+        }
+        pos += ray * stepLength;
+    }
+
+    return sum;
+}
+
+mat3 camera(vec3 ro, vec3 ta, float cr)
+{
+    vec3 cw = normalize(ta - ro);
+    vec3 cp = vec3(sin(cr), cos(cr), 0.);
+    vec3 cu = normalize(cross(cw, cp));
+    vec3 cv = normalize(cross(cu, cw));
+    return mat3(cu, cv, cw);
+}
 
 void main()
 {
-    vec2 p = gl_FragCoord.xy / resolution.xy;
-    vec2 uv = p * vec2(resolution.x / resolution.y, 1.0);
-    float time = iTime * speed;
-    float q = fbm(uv * cloudscale * 0.5);
+    vec2 p = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+    jitter = hash(p.x + p.y * 57.0 + iTime);
+    vec3 ro = vec3(cos(iTime * .333) * 8.0, -5.5, sin(iTime * .333) * 8.0);
+    vec3 ta = vec3(0.0, 1., 0.0);
+    mat3 c = camera(ro, ta, 0.0);
+    vec3 ray = c * normalize(vec3(p, 1.75));
+    vec4 col = cloudMarch(ro, ray);
+    vec3 result = col.rgb + mix(vec3(0.3, 0.6, 1.0), vec3(0.05, 0.35, 1.0), p.y + 0.75) * (col.a);
 
-    //ridged noise shape
-    float r = 0.0;
-    uv *= cloudscale;
-    uv -= q - time;
-    float weight = 0.8;
-    for (int i = 0; i < 8; i++) {
-        r += abs(weight * noise(uv));
-        uv = m * uv + time;
-        weight *= 0.7;
-    }
+    float sundot = clamp(dot(ray, normalize(vec3(1.0, 2.0, 1.0))), 0.0, 1.0);
+    result += 0.4 * vec3(1.0, 0.7, 0.3) * pow(sundot, 4.0);
 
-    //noise shape
-    float f = 0.0;
-    uv = p * vec2(resolution.x / resolution.y, 1.0);
-    uv *= cloudscale;
-    uv -= q - time;
-    weight = 0.7;
-    for (int i = 0; i < 8; i++) {
-        f += weight * noise(uv);
-        uv = m * uv + time;
-        weight *= 0.6;
-    }
-
-    f *= r + f;
-
-    //noise colour
-    float c = 0.0;
-    time = iTime * speed * 2.0;
-    uv = p * vec2(resolution.x / resolution.y, 1.0);
-    uv *= cloudscale * 2.0;
-    uv -= q - time;
-    weight = 0.4;
-    for (int i = 0; i < 7; i++) {
-        c += weight * noise(uv);
-        uv = m * uv + time;
-        weight *= 0.6;
-    }
-
-    //noise ridge colour
-    float c1 = 0.0;
-    time = iTime * speed * 3.0;
-    uv = p * vec2(resolution.x / resolution.y, 1.0);
-    uv *= cloudscale * 3.0;
-    uv -= q - time;
-    weight = 0.4;
-    for (int i = 0; i < 7; i++) {
-        c1 += abs(weight * noise(uv));
-        uv = m * uv + time;
-        weight *= 0.6;
-    }
-
-    c += c1;
-
-    vec3 skycolour = mix(skycolour2, skycolour1, p.y);
-    vec3 cloudcolour = vec3(1.1, 1.1, 0.9) * clamp((clouddark + cloudlight * c), 0.0, 1.0);
-
-    f = cloudcover + cloudalpha * f * r;
-
-    vec3 result = mix(skycolour, clamp(skytint * skycolour + cloudcolour, 0.0, 1.0), clamp(f + c, 0.0, 1.0));
+    result = pow(result, vec3(1.0 / 2.2));
 
     FragColor = vec4(result, 1.0);
 }
