@@ -3,8 +3,7 @@
 #include "../../include/Containers/EBO.h"
 #include <chrono>
 #include <glm/gtx/string_cast.hpp>
-
-std::shared_ptr<Prisma::PipelineCloud> Prisma::PipelineCloud::instance = nullptr;
+#include "../../include/Helpers/IBLBuilder.h"
 
 Prisma::PipelineCloud::PipelineCloud()
 {
@@ -12,19 +11,13 @@ Prisma::PipelineCloud::PipelineCloud()
 
 	m_shader->use();
 
-	m_modelPos = m_shader->getUniformPosition("model");
-
 	m_cameraPos = m_shader->getUniformPosition("cameraPos");
 
 	m_lightPos = m_shader->getUniformPosition("lightDir");
 
 	m_timePos = m_shader->getUniformPosition("time");
 
-	m_bboxMinPos = m_shader->getUniformPosition("bboxMin");
-
-	m_bboxMaxPos = m_shader->getUniformPosition("bboxMax");
-
-	m_inverseModelPos = m_shader->getUniformPosition("inverseModelMatrix");
+	m_texturePos = m_shader->getUniformPosition("screenTexture");
 
 	Prisma::SceneLoader loader;
 	auto scene = loader.loadScene("../../../Resources/Cube/cube.gltf", { true });
@@ -50,21 +43,11 @@ Prisma::PipelineCloud::PipelineCloud()
 	m_start = std::chrono::system_clock::now();
 }
 
-Prisma::PipelineCloud& Prisma::PipelineCloud::getInstance()
+void Prisma::PipelineCloud::render(std::shared_ptr<Prisma::FBO> texture, std::shared_ptr<Prisma::FBO> raw)
 {
-	if (!instance) {
-		instance = std::make_shared<PipelineCloud>();
-	}
-	return *instance;
-}
-
-void Prisma::PipelineCloud::render()
-{
-	m_vao->bind();
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	m_shader->use();
-
-	m_shader->setMat4(m_modelPos, m_mesh->finalMatrix());
 
 	m_shader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
 	if (currentGlobalScene->dirLights.size() > 0) {
@@ -75,12 +58,10 @@ void Prisma::PipelineCloud::render()
 	auto now = std::chrono::system_clock::now();
 	auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(now - m_start).count();
 
+	m_shader->setInt64(m_texturePos, texture->texture());
+
 	m_shader->setFloat(m_timePos, static_cast<float>(elapsedTime));
 
-	m_shader->setVec3(m_bboxMinPos, m_mesh->finalMatrix() * glm::vec4(m_mesh->aabbData().min, 1.0f));
-	m_shader->setVec3(m_bboxMaxPos, m_mesh->finalMatrix() * glm::vec4(m_mesh->aabbData().max, 1.0f));
+	Prisma::IBLBuilder::getInstance().renderQuad();
 
-	m_shader->setMat4(m_inverseModelPos, glm::inverse(m_mesh->finalMatrix()));
-
-	glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(m_verticesData.indices.size()), GL_UNSIGNED_INT, 0);
 }

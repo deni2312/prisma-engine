@@ -8,20 +8,18 @@
 #include "../Helpers/Settings.h"
 #include <memory>
 #include "../Containers/VAO.h"
+#include "../../include/Postprocess/PostprocessEffect.h"
+
 #include <chrono>
 
 namespace Prisma {
-	class PipelineCloud {
+	class PipelineCloud : public Prisma::PostprocessEffect{
 	public:
 		PipelineCloud();
-		void render();
-		PipelineCloud(const PipelineCloud&) = delete;
-		PipelineCloud& operator=(const PipelineCloud&) = delete;
 
-		static PipelineCloud& getInstance();
+		virtual void render(std::shared_ptr<Prisma::FBO> texture, std::shared_ptr<Prisma::FBO> raw) override;
 
 	private:
-		static std::shared_ptr<PipelineCloud> instance;
 		std::shared_ptr<Prisma::Shader> m_shader;
 		std::shared_ptr<Prisma::Mesh> m_mesh;
 
@@ -29,19 +27,13 @@ namespace Prisma {
 
 		Prisma::Mesh::VerticesData m_verticesData;
 
-		unsigned int m_modelPos;
-
 		unsigned int m_cameraPos;
 
 		unsigned int m_lightPos;
 
 		unsigned int m_timePos;
 
-		unsigned int m_bboxMinPos;
-
-		unsigned int m_bboxMaxPos;
-
-		unsigned int m_inverseModelPos;
+		unsigned int m_texturePos;
 
 		std::chrono::system_clock::time_point m_start;
 

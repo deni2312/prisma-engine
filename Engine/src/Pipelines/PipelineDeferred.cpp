@@ -140,8 +140,6 @@ void Prisma::PipelineDeferred::render()
         sprite->render();
     }
 
-    Prisma::PipelineCloud::getInstance().render();
-
     m_fbo->unbind();
 
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);
