@@ -20,7 +20,7 @@ Prisma::PipelineCloud::PipelineCloud()
 
 	m_lightPos = m_shader->getUniformPosition("lightDir");
 
-	m_timePos = m_shader->getUniformPosition("time");
+	m_timePos = m_shader->getUniformPosition("iTime");
 
 	m_bboxMinPos = m_shader->getUniformPosition("bboxMin");
 
@@ -90,9 +90,9 @@ void Prisma::PipelineCloud::render()
 
 	// Calculate elapsed time since the first render call
 	auto now = std::chrono::system_clock::now();
-	auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(now - m_start).count();
+	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
 
-	m_shader->setFloat(m_timePos, static_cast<float>(elapsedTime));
+	m_shader->setFloat(m_timePos, static_cast<float>(elapsedTime)/1000.0f);
 
 	m_shader->setVec3(m_bboxMinPos, m_mesh->finalMatrix() * glm::vec4(m_mesh->aabbData().min, 1.0f));
 	m_shader->setVec3(m_bboxMaxPos, m_mesh->finalMatrix() * glm::vec4(m_mesh->aabbData().max, 1.0f));
