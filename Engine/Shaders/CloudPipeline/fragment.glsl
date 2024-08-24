@@ -158,9 +158,8 @@ void main()
     jitter = hash(p.x + p.y * 57.0 + iTime);
     vec3 ro = vec3(cos(iTime * .333) * 8.0, -5.5, sin(iTime * .333) * 8.0);
     vec3 ta = vec3(0.0, 1., 0.0);
-    mat3 c = camera(ro, ta, 0.0);
-    vec3 ray = c * normalize(vec3(p, 1.75));
-    vec4 col = cloudMarch(ro, ray);
+    vec3 ray = normalize(vec3(view*vec4(p, 1.75,1.0)));
+    vec4 col = cloudMarch(cameraPos, ray);
     vec3 result = col.rgb + mix(vec3(0.3, 0.6, 1.0), vec3(0.05, 0.35, 1.0), p.y + 0.75) * (col.a);
 
     float sundot = clamp(dot(ray, normalize(vec3(1.0, 2.0, 1.0))), 0.0, 1.0);
