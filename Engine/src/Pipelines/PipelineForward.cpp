@@ -15,6 +15,7 @@
 #include "../../include/Helpers/ClusterCalculation.h"
 #include <random>
 #include "../../include/Postprocess/Postprocess.h"
+#include "../../include/Pipelines/PipelineCloud.h"
 
 
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{ width }, m_height{ height }
@@ -80,6 +81,7 @@ void Prisma::PipelineForward::render()
 		sprite->render();
 	}
 
+	Prisma::PipelineCloud::getInstance().render();
 
 	// After rendering
 	glDepthMask(GL_TRUE);

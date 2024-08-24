@@ -75,9 +75,7 @@ Prisma::Engine::Engine()
 
     AnimationHandler::getInstance();
 
-    auto clouds = std::make_shared<Prisma::PipelineCloud>();
-
-    Prisma::Postprocess::getInstance().addPostProcess(clouds);
+    Prisma::PipelineCloud::getInstance();
     
     data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::DEFERRED;
 

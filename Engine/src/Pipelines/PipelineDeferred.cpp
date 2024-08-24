@@ -139,6 +139,7 @@ void Prisma::PipelineDeferred::render()
     for (auto& sprite : currentGlobalScene->sprites) {
         sprite->render();
     }
+    Prisma::PipelineCloud::getInstance().render();
 
     m_fbo->unbind();
 
