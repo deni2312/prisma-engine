@@ -8,7 +8,7 @@ std::shared_ptr<Prisma::PipelineCloud> Prisma::PipelineCloud::instance = nullptr
 
 Prisma::PipelineCloud::PipelineCloud()
 {
-    m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
+	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
 
 	m_shader->use();
 
@@ -26,10 +26,8 @@ Prisma::PipelineCloud::PipelineCloud()
 
 	m_inverseModelPos = m_shader->getUniformPosition("inverseModelMatrix");
 
-    Prisma::SceneLoader loader;
-    auto scene = loader.loadScene("../../../Resources/Cube/cube.gltf", {true});
-
-
+	Prisma::SceneLoader loader;
+	auto scene = loader.loadScene("../../../Resources/Cube/cube.gltf", { true });
 
 	m_mesh = std::dynamic_pointer_cast<Prisma::Mesh>(scene->root->children()[0]);
 	m_vao = std::make_shared<Prisma::VAO>();
@@ -41,12 +39,15 @@ Prisma::PipelineCloud::PipelineCloud()
 
 	m_verticesData = m_mesh->verticesData();
 
-	vbo->writeData(m_verticesData.vertices.size()*sizeof(Prisma::Mesh::Vertex), m_verticesData.vertices.data(), GL_DYNAMIC_DRAW);
+	vbo->writeData(m_verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex), m_verticesData.vertices.data(), GL_DYNAMIC_DRAW);
 	ebo->writeData(m_verticesData.indices.size() * sizeof(unsigned int), m_verticesData.indices.data(), GL_DYNAMIC_DRAW);
 
 	m_vao->addAttribPointer(0, 3, sizeof(Prisma::Mesh::Vertex), (void*)0);
 
 	m_vao->resetVao();
+
+	// Initialize the start time
+	m_start = std::chrono::system_clock::now();
 }
 
 Prisma::PipelineCloud& Prisma::PipelineCloud::getInstance()
@@ -69,16 +70,15 @@ void Prisma::PipelineCloud::render()
 	if (currentGlobalScene->dirLights.size() > 0) {
 		m_shader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
 	}
+
+	// Calculate elapsed time since the first render call
 	auto now = std::chrono::system_clock::now();
-	auto nowInSeconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+	auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(now - m_start).count();
 
+	m_shader->setFloat(m_timePos, static_cast<float>(elapsedTime));
 
-
-	auto camera = currentGlobalScene->camera->matrix();
-	m_shader->setFloat(m_timePos, 0);
-	m_shader->setVec3(m_bboxMinPos, m_mesh->finalMatrix()*glm::vec4(m_mesh->aabbData().min,1.0f));
-
-	m_shader->setVec3(m_bboxMaxPos, m_mesh->finalMatrix()*glm::vec4(m_mesh->aabbData().max,1.0f));
+	m_shader->setVec3(m_bboxMinPos, m_mesh->finalMatrix() * glm::vec4(m_mesh->aabbData().min, 1.0f));
+	m_shader->setVec3(m_bboxMaxPos, m_mesh->finalMatrix() * glm::vec4(m_mesh->aabbData().max, 1.0f));
 
 	m_shader->setMat4(m_inverseModelPos, glm::inverse(m_mesh->finalMatrix()));
 

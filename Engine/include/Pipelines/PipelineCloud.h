@@ -8,6 +8,7 @@
 #include "../Helpers/Settings.h"
 #include <memory>
 #include "../Containers/VAO.h"
+#include <chrono>
 
 namespace Prisma {
 	class PipelineCloud {
@@ -41,6 +42,8 @@ namespace Prisma {
 		unsigned int m_bboxMaxPos;
 
 		unsigned int m_inverseModelPos;
+
+		std::chrono::system_clock::time_point m_start;
 
 	};
 }
