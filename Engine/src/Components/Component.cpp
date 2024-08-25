@@ -14,6 +14,10 @@ void Prisma::Component::update()
 {
 }
 
+void Prisma::Component::updateRender()
+{
+}
+
 void Prisma::Component::destroy()
 {
 

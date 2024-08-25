@@ -35,6 +35,8 @@ namespace Prisma {
 
         virtual void update();
 
+        virtual void updateRender();
+
         virtual void destroy();
 
         void parent(Prisma::Node* parent);

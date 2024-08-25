@@ -1,4 +1,4 @@
-#include "../../include/Pipelines/PipelineCloud.h"
+#include "../../include/Components/CloudComponent.h"
 #include "../../include/Containers/VBO.h"
 #include "../../include/Containers/EBO.h"
 #include <chrono>
@@ -6,10 +6,38 @@
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/IBLBuilder.h"
 
-std::shared_ptr<Prisma::PipelineCloud> Prisma::PipelineCloud::instance = nullptr;
-
-Prisma::PipelineCloud::PipelineCloud()
+Prisma::CloudComponent::CloudComponent()
 {
+
+}
+
+void Prisma::CloudComponent::updateRender()
+{
+	m_vao->bind();
+
+	m_shader->use();
+
+	m_shader->setMat4(m_modelPos, m_mesh->finalMatrix());
+
+	m_shader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
+	if (currentGlobalScene->dirLights.size() > 0) {
+		m_shader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
+	}
+
+	// Calculate elapsed time since the first render call
+	auto now = std::chrono::system_clock::now();
+	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
+
+	m_shader->setFloat(m_timePos, static_cast<float>(elapsedTime) / 1000.0f);
+
+	m_shader->setVec2(m_resolutionPos, m_resolution);
+
+	Prisma::IBLBuilder::getInstance().renderQuad();
+}
+
+void Prisma::CloudComponent::start()
+{
+	Prisma::Component::start();
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
 
 	m_shader->use();
@@ -60,37 +88,4 @@ Prisma::PipelineCloud::PipelineCloud()
 
 	// Initialize the start time
 	m_start = std::chrono::system_clock::now();
-}
-
-Prisma::PipelineCloud& Prisma::PipelineCloud::getInstance()
-{
-	if (!instance) {
-		instance = std::make_shared<PipelineCloud>();
-	}
-	return *instance;
-}
-
-void Prisma::PipelineCloud::render()
-{
-
-	m_vao->bind();
-
-	m_shader->use();
-
-	m_shader->setMat4(m_modelPos, m_mesh->finalMatrix());
-
-	m_shader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
-	if (currentGlobalScene->dirLights.size() > 0) {
-		m_shader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
-	}
-
-	// Calculate elapsed time since the first render call
-	auto now = std::chrono::system_clock::now();
-	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
-
-	m_shader->setFloat(m_timePos, static_cast<float>(elapsedTime)/1000.0f);
-
-	m_shader->setVec2(m_resolutionPos, m_resolution);
-
-	Prisma::IBLBuilder::getInstance().renderQuad();
 }

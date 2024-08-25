@@ -4,24 +4,22 @@
 #include "../SceneObjects/Camera.h"
 #include "../SceneData/SceneLoader.h"
 #include "../Containers/FBO.h"
-#include "PipelineFullScreen.h"
+#include "../Pipelines/PipelineFullScreen.h"
 #include "../Helpers/Settings.h"
 #include <memory>
 #include "../Containers/VAO.h"
 #include <chrono>
 
 namespace Prisma {
-	class PipelineCloud {
+	class CloudComponent : public Component{
 	public:
-		PipelineCloud();
-		void render();
-		PipelineCloud(const PipelineCloud&) = delete;
-		PipelineCloud& operator=(const PipelineCloud&) = delete;
+		CloudComponent();
 
-		static PipelineCloud& getInstance();
+		void updateRender() override;
+
+		void start() override;
 
 	private:
-		static std::shared_ptr<PipelineCloud> instance;
 		std::shared_ptr<Prisma::Shader> m_shader;
 		std::shared_ptr<Prisma::Mesh> m_mesh;
 

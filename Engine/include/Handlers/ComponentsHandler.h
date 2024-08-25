@@ -14,6 +14,8 @@ namespace Prisma {
 
         void updateComponents();
 
+        void updateRender();
+
         void addComponent(std::shared_ptr<Component> component) {
             m_components.push_back(component);
         }

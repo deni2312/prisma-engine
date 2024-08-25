@@ -16,7 +16,7 @@
 #include "../../../GUI/include/TextureInfo.h"
 #include "../../include/Postprocess/Postprocess.h"
 #include "../../include/engine.h"
-#include "../../include/Pipelines/PipelineCloud.h"
+#include "../../include/Handlers/ComponentsHandler.h"
 
 
 Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb):m_width{ width },m_height{ height }
@@ -139,7 +139,7 @@ void Prisma::PipelineDeferred::render()
     for (auto& sprite : currentGlobalScene->sprites) {
         sprite->render();
     }
-    Prisma::PipelineCloud::getInstance().render();
+    Prisma::ComponentsHandler::getInstance().updateRender();
 
     m_fbo->unbind();
 
