@@ -110,9 +110,9 @@ float scene(vec3 p, bool lowRes) {
     // here ill do it later, cause 
     // i need to multiply the p value of fbm
     // by a vec3 which controls it
-    p.xz = fract(p.xz) - 0.5;
-
-    float distance = sdfBox(p,vec3(1.0),vec3(0,5,0),vec3(1.0));
+    //p.xz = fract(p.xz) - 0.5;
+    float scale = 2.0;
+    float distance = sdfBox(p,vec3(1.0),vec3(0,0,0),vec3(scale))/scale;
 
     float f = fbm(p, lowRes);
 
