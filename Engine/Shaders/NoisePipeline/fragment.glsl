@@ -5,33 +5,59 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-// Hash function
-float hash(float n) {
-    return fract(sin(n) * 43758.5453);
+// Function to create a random value based on a vec2 coordinate
+float rand(vec2 co) {
+    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-// Noise function
-float noise(in vec3 x) {
-    vec3 p = floor(x);
-    vec3 f = fract(x);
+// Interpolation function
+float lerp(float a, float b, float t) {
+    return a + t * (b - a);
+}
 
-    f = f * f * (3.0 - 2.0 * f);
+// Gradient function
+float gradient(vec2 p, vec2 gradientVector) {
+    return dot(gradientVector, p);
+}
 
-    float n = p.x + p.y * 57.0 + 113.0 * p.z;
+// Smoothstep function to smooth the noise
+float smooth1(float t) {
+    return t * t * (3.0 - 2.0 * t);
+}
 
-    float res = mix(mix(mix(hash(n + 0.0), hash(n + 1.0), f.x),
-        mix(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
-        mix(mix(hash(n + 113.0), hash(n + 114.0), f.x),
-            mix(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
-    return res;
+// Generate Perlin noise
+float perlin(vec2 uv) {
+    vec2 i = floor(uv);
+    vec2 f = fract(uv);
+
+    vec2 topRight = vec2(1.0, 1.0);
+    vec2 topLeft = vec2(0.0, 1.0);
+    vec2 bottomRight = vec2(1.0, 0.0);
+    vec2 bottomLeft = vec2(0.0, 0.0);
+
+    float bottomLeftGrad = gradient(f - bottomLeft, vec2(rand(i), rand(i + vec2(1.0, 0.0))));
+    float bottomRightGrad = gradient(f - bottomRight, vec2(rand(i + vec2(1.0, 0.0)), rand(i + vec2(0.0, 1.0))));
+    float topLeftGrad = gradient(f - topLeft, vec2(rand(i + vec2(0.0, 1.0)), rand(i + vec2(1.0, 1.0))));
+    float topRightGrad = gradient(f - topRight, vec2(rand(i + vec2(1.0, 1.0)), rand(i + vec2(0.0, 0.0))));
+
+    float u = smooth1(f.x);
+    float v = smooth1(f.y);
+
+    float bottomInterpolation = lerp(bottomLeftGrad, bottomRightGrad, u);
+    float topInterpolation = lerp(topLeftGrad, topRightGrad, u);
+
+    return lerp(bottomInterpolation, topInterpolation, v);
 }
 
 void main() {
-    // Create a 3D noise based on the 2D texture coordinates and a fixed z value
-    float z = 0.0; // You can animate or vary this for more dynamic noise
-    vec3 noiseInput = vec3(TexCoords, z);
-    float col = noise(noiseInput);
+    // Scale coordinates for the noise function
+    vec2 uv = TexCoords * 10.0;
 
-    // Output the noise value as a grayscale color
-    FragColor = vec4(vec3(col), 1.0);
+    // Generate noise for each color channel
+    float r = perlin(uv + vec2(0.0, 0.0));
+    float g = perlin(uv + vec2(5.0, 5.0));
+    float b = perlin(uv + vec2(10.0, 10.0));
+
+    // Output the noise value as a color
+    FragColor = vec4(r, g, b, 1.0);
 }

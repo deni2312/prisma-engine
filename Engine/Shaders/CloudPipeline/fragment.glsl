@@ -28,7 +28,7 @@ float noise(vec3 x) {
     f = f * f * (3.0 - 2.0 * f);
 
     vec2 uv = (p.xy + vec2(37.0, 239.0) * p.z) + f.xy;
-    vec2 tex = textureLod(uNoise, (uv + 0.5) / 256.0, 0.0).yx;
+    vec2 tex = texture(uNoise, (uv + 0.5) / 256.0).yx;
 
     return mix(tex.x, tex.y, f.z) * 2.0 - 1.0;
 }
@@ -100,15 +100,11 @@ void main()
     viewSpacePos.z = -1.0; // Ensure the direction points forward in camera space
     viewSpacePos.w = 0.0;  // A direction vector, not a position
 
-    vec2 uv = gl_FragCoord.xy / resolution.xy;
-    uv -= 0.5;
-    uv.x *= resolution.x / resolution.y;
+    // Now transform from view space to world space
+    vec3 rd = normalize((inverse(view) * viewSpacePos).xyz);
 
-
-    // Ray Origin - camera
-    vec3 ro = vec3(0.0, 0.0, 5.0);
-    // Ray Direction
-    vec3 rd = normalize(vec3(uv, -1.0));
+    // Ray origin in world space (camera position)
+    vec3 ro = cameraPos;
 
     vec3 color = vec3(0.0);
     vec4 res = raymarch(ro, rd);

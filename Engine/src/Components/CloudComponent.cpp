@@ -17,8 +17,6 @@ Prisma::CloudComponent::CloudComponent()
 void Prisma::CloudComponent::updateRender()
 {
 	if (cloudShader) {
-		m_fbo->bind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		cloudShader->use();
 
 		cloudShader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
@@ -37,7 +35,6 @@ void Prisma::CloudComponent::updateRender()
 		cloudShader->setInt64(m_noisePos,m_textureNoise->id());
 
 		Prisma::IBLBuilder::getInstance().renderQuad();
-		m_fbo->unbind();
 	}
 }
 
