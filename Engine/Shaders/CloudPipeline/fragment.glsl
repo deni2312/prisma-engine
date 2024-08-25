@@ -106,12 +106,10 @@ float scene(vec3 p, bool lowRes) {
     // by a vec3 which controls it
 
     float distance = sdSphere(p, 0.25, vec3(1.5, 1., 1.), vec3(-1.5, 0.85, 0.));
-    float d2 = sdSphere(p, 0.25, vec3(8.3, 0.3, 2.), vec3(0.7, -1.9, -2.));
 
-    float res = min(distance, d2);
     float f = fbm(p, lowRes);
 
-    return -res + f;
+    return -distance + f;
 }
 
 
@@ -129,13 +127,15 @@ float jitter(vec3 ro, vec3 rd, float time) {
 
 vec4 rayMarch(vec3 ro, vec3 rd, float start, float end, float jitterValue) {
     vec4 res = vec4(0.0);
-    res.a = 4.; //start a bit forward since theres nothing in between
+    res.a = 4.0; // Start a bit forward since there's nothing in between
 
     float totalTransmittance = 1.0;
     vec3 lightDirection = normalize(lightDir);
     float totalDensity = 0.0;
 
     float phase = HenyeyGreenstein(ABSORPTION_COEFFICIENT, dot(rd, lightDirection));
+
+    bool hit = false; // Flag to track if we hit an object
 
     for (int i = 0; i < MAX_MARCHING_STEPS; i++) {
         vec3 p = ro + res.a * rd;
@@ -144,6 +144,8 @@ vec4 rayMarch(vec3 ro, vec3 rd, float start, float end, float jitterValue) {
         float density = scene(p, false);
 
         if (density > PRECISION) {
+            hit = true; // Set hit to true if we detect density
+
             for (int step = 0; step < MAX_STEPS_LIGHTS; step++) {
                 p += lightDirection * marchSize;
 
@@ -162,22 +164,38 @@ vec4 rayMarch(vec3 ro, vec3 rd, float start, float end, float jitterValue) {
         if (res.a > MAX_DIST) break;
     }
 
+    // Set alpha to 0.0 if no hit
+    if (!hit) {
+        discard;
+    }
+
     return res;
 }
 
 
 void main()
 {
-    vec2 uv = (gl_FragCoord.xy -  0.5*resolution.xy) / resolution.y;
+    vec2 ndc = (gl_FragCoord.xy / resolution.xy) * 2.0 - 1.0;
+
     vec3 color = vec3(0.0);
 
 
     // Camera ray origin
-    vec3 ro = cameraPos;
+    // Calculate the aspect ratio
+    float aspectRatio = resolution.x / resolution.y;
 
-    // Ray direction calculation
-    vec4 rayDirH = inverse(view) * vec4(uv, -1.0, 0.0); // Transform the screen direction
-    vec3 rd = normalize(rayDirH.xyz); // Normalize the direction
+    // Adjust NDC coordinates based on FOV and aspect ratio
+    float fovY = radians(45.0); // Assuming a 45-degree vertical FOV
+    float fovX = fovY * aspectRatio;
+
+    // Convert NDC to camera space coordinates
+    vec3 cameraSpaceDir = normalize(vec3(ndc.x * tan(fovX * 0.5), ndc.y * tan(fovY * 0.5), -1.0));
+
+    // Transform camera space direction to world space
+    vec3 rd = normalize((inverse(view) * vec4(cameraSpaceDir, 0.0)).xyz);
+
+    // Set ray origin to the camera position
+    vec3 ro = cameraPos;
 
     vec3 sunColor = vec3(1.0, 0.5, 0.3);
     vec3 sunDirection = normalize(lightDir);
