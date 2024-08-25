@@ -181,20 +181,21 @@ void main()
 
 
     // Camera ray origin
-    // Calculate the aspect ratio
+    // Calculate the aspect     // Calculate the aspect ratio
     float aspectRatio = resolution.x / resolution.y;
 
-    // Adjust NDC coordinates based on FOV and aspect ratio
-    float fovY = radians(45.0); // Assuming a 45-degree vertical FOV
-    float fovX = fovY * aspectRatio;
+    // Generate the ray direction in normalized device coordinates
+    vec4 clipSpacePos = vec4(ndc.x, ndc.y, -1.0, 1.0);  // -1 for z to look into the screen
 
-    // Convert NDC to camera space coordinates
-    vec3 cameraSpaceDir = normalize(vec3(ndc.x * tan(fovX * 0.5), ndc.y * tan(fovY * 0.5), -1.0));
+    // Transform from clip space to camera/view space
+    vec4 viewSpacePos = inverse(projection) * clipSpacePos;
+    viewSpacePos.z = -1.0; // Ensure the direction points forward in camera space
+    viewSpacePos.w = 0.0;  // A direction vector, not a position
 
-    // Transform camera space direction to world space
-    vec3 rd = normalize((inverse(view) * vec4(cameraSpaceDir, 0.0)).xyz);
+    // Now transform from view space to world space
+    vec3 rd = normalize((inverse(view) * viewSpacePos).xyz);
 
-    // Set ray origin to the camera position
+    // Ray origin in world space (camera position)
     vec3 ro = cameraPos;
 
     vec3 sunColor = vec3(1.0, 0.5, 0.3);
