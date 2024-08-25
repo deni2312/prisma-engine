@@ -6,6 +6,8 @@
 
 namespace Prisma {
 
+    class Node;
+
     class Component {
     public:
 

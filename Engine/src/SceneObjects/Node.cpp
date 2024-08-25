@@ -6,6 +6,7 @@
 #include "../../include/SceneData/MeshIndirect.h"
 #include "../../include/GlobalData/CacheScene.h"
 #include "../../include/Helpers/NodeHelper.h"
+#include "../../include/Handlers/ComponentsHandler.h"
 
 static uint64_t uuidNode = 0;
 
@@ -232,4 +233,20 @@ void Prisma::Node::updateChild(Node* node)
 		node->children()[i]->finalMatrix(node->finalMatrix() * node->children()[i]->matrix());
 		updateChild(node->children()[i].get());
 	}
+}
+
+
+void Prisma::Node::addComponent(std::shared_ptr<Prisma::Component> component) {
+	Prisma::ComponentsHandler::getInstance().addComponent(component);
+	component->parent(this);
+	m_components[component->name()] = component;
+}
+
+std::map<std::string, std::shared_ptr<Prisma::Component>> Prisma::Node::components() {
+	return m_components;
+}
+
+void Prisma::Node::removeComponent(const std::string& name) {
+	Prisma::ComponentsHandler::getInstance().removeComponent(m_components[name]);
+	m_components.erase(name);
 }

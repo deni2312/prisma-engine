@@ -115,16 +115,3 @@ void Prisma::Mesh::computeAABB() {
 Prisma::Mesh::AABBData Prisma::Mesh::aabbData() {
     return m_aabbData;
 }
-
-void Prisma::Mesh::addComponent(std::shared_ptr<Prisma::Component> component) {
-    component->parent(this);
-    m_components[component->name()]=component;
-}
-
-std::map<std::string,std::shared_ptr<Prisma::Component>> Prisma::Mesh::components() {
-    return m_components;
-}
-
-void Prisma::Mesh::removeComponent(const std::string& name) {
-    m_components.erase(name);
-}

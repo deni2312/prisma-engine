@@ -37,7 +37,6 @@ struct PrivateData {
     std::shared_ptr<Prisma::Camera> camera;
     Prisma::SceneLoader::SceneParameters sceneParameters;
     Prisma::EngineSettings::Settings engineSettings;
-    Prisma::ComponentsHandler componentsHandler;
     std::shared_ptr<Prisma::SceneHandler> sceneHandler;
     std::shared_ptr<Prisma::UserData> userData;
     std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
@@ -112,13 +111,13 @@ bool Prisma::Engine::run()
             PrismaFunc::getInstance().clear();
             if (!data->debug) {
                 data->userData->update();
-                data->componentsHandler.updateStart();
-                data->componentsHandler.updateComponents();
+                Prisma::ComponentsHandler::getInstance().updateStart();
+                Prisma::ComponentsHandler::getInstance().updateComponents();
                 Physics::getInstance().update(1.0f / (float)fps());
             }
             data->sceneHandler->onBeginRender();
             if (data->debug) {
-                data->componentsHandler.updateUi();
+                Prisma::ComponentsHandler::getInstance().updateUi();
             }
             MeshHandler::getInstance().updateCamera();
             MeshHandler::getInstance().updateFragment();

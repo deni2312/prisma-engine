@@ -3,8 +3,11 @@
 #include <vector>
 #include <memory>
 #include "glm/glm.hpp"
+#include <map>
+#include "../Components/Component.h"
 
 namespace Prisma {
+	class Component;
 	class Node {
 	public:
 		Node();
@@ -23,11 +26,19 @@ namespace Prisma {
 		uint64_t uuid();
 		void visible(bool visible);
 		bool visible();
+
+
+		void addComponent(std::shared_ptr<Prisma::Component> component);
+		void removeComponent(const std::string& name);
+
+		std::map<std::string, std::shared_ptr<Prisma::Component>> components();
+
 		~Node();
 	private:
 
 		void updateCaches(std::shared_ptr<Node> child);
 		void dispatch(std::shared_ptr<Node> child);
+		std::map<std::string, std::shared_ptr<Prisma::Component>> m_components;
 
 		uint64_t m_uuid;
 		std::string m_name;
