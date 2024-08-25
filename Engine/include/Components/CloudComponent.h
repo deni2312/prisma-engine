@@ -21,11 +21,6 @@ namespace Prisma {
 
 	private:
 		std::shared_ptr<Prisma::Shader> m_shader;
-		std::shared_ptr<Prisma::Mesh> m_mesh;
-
-		std::shared_ptr<Prisma::VAO> m_vao;
-
-		Prisma::Mesh::VerticesData m_verticesData;
 
 		unsigned int m_modelPos;
 

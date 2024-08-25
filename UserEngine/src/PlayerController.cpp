@@ -1,6 +1,7 @@
 #include "../include/PlayerController.h"
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 #include <glm/gtx/string_cast.hpp>
+#include "../../Engine/include/Components/CloudComponent.h"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
@@ -33,7 +34,10 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
     m_animations = ANIMATIONS::IDLE;
     m_previousAnimations = ANIMATIONS::IDLE;
-    
+    auto cloud = std::make_shared<Prisma::Node>();
+
+    cloud->addComponent(std::make_shared<Prisma::CloudComponent>());
+    m_scene->root->addChild(cloud);
     createCamera();
     createKeyboard();
 }

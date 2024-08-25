@@ -32,7 +32,7 @@ void Prisma::ComponentsHandler::updateComponents() {
 void Prisma::ComponentsHandler::updateRender()
 {
     for (const auto& component : m_components) {
-        if (!component->isStart()) {
+        if (component->isStart()) {
             component->updateRender();
         }
     }

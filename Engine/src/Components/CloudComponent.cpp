@@ -13,11 +13,8 @@ Prisma::CloudComponent::CloudComponent()
 
 void Prisma::CloudComponent::updateRender()
 {
-	m_vao->bind();
 
 	m_shader->use();
-
-	m_shader->setMat4(m_modelPos, m_mesh->finalMatrix());
 
 	m_shader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
 	if (currentGlobalScene->dirLights.size() > 0) {
@@ -51,26 +48,6 @@ void Prisma::CloudComponent::start()
 	m_timePos = m_shader->getUniformPosition("iTime");
 
 	m_resolutionPos = m_shader->getUniformPosition("resolution");
-
-	Prisma::SceneLoader loader;
-	auto scene = loader.loadScene("../../../Resources/Cube/cube.gltf", { true });
-
-	m_mesh = std::dynamic_pointer_cast<Prisma::Mesh>(scene->root->children()[0]);
-	m_vao = std::make_shared<Prisma::VAO>();
-	m_vao->bind();
-
-	auto vbo = std::make_shared<Prisma::VBO>();
-
-	auto ebo = std::make_shared<Prisma::EBO>();
-
-	m_verticesData = m_mesh->verticesData();
-
-	vbo->writeData(m_verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex), m_verticesData.vertices.data(), GL_DYNAMIC_DRAW);
-	ebo->writeData(m_verticesData.indices.size() * sizeof(unsigned int), m_verticesData.indices.data(), GL_DYNAMIC_DRAW);
-
-	m_vao->addAttribPointer(0, 3, sizeof(Prisma::Mesh::Vertex), (void*)0);
-
-	m_vao->resetVao();
 
 	auto settings = Prisma::SettingsLoader::instance().getSettings();
 
