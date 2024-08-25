@@ -6,6 +6,9 @@
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/IBLBuilder.h"
 
+static std::shared_ptr<Prisma::Shader> cloudShader = nullptr;
+static std::shared_ptr<Prisma::Shader> noiseShader = nullptr;
+
 Prisma::CloudComponent::CloudComponent()
 {
 
@@ -13,41 +16,51 @@ Prisma::CloudComponent::CloudComponent()
 
 void Prisma::CloudComponent::updateRender()
 {
+	if (cloudShader) {
+		m_fbo->bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		cloudShader->use();
 
-	m_shader->use();
+		cloudShader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
+		if (currentGlobalScene->dirLights.size() > 0) {
+			cloudShader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
+		}
 
-	m_shader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
-	if (currentGlobalScene->dirLights.size() > 0) {
-		m_shader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
+		// Calculate elapsed time since the first render call
+		auto now = std::chrono::system_clock::now();
+		auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
+
+		cloudShader->setFloat(m_timePos, static_cast<float>(elapsedTime) / 1000.0f);
+
+		cloudShader->setVec2(m_resolutionPos, m_resolution);
+
+		cloudShader->setInt64(m_noisePos,m_textureNoise->id());
+
+		Prisma::IBLBuilder::getInstance().renderQuad();
+		m_fbo->unbind();
 	}
-
-	// Calculate elapsed time since the first render call
-	auto now = std::chrono::system_clock::now();
-	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
-
-	m_shader->setFloat(m_timePos, static_cast<float>(elapsedTime) / 1000.0f);
-
-	m_shader->setVec2(m_resolutionPos, m_resolution);
-
-	Prisma::IBLBuilder::getInstance().renderQuad();
 }
 
 void Prisma::CloudComponent::start()
 {
 	Prisma::Component::start();
-	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
+	if (cloudShader == nullptr) {
+		cloudShader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
+		noiseShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/vertex.glsl", "../../../Engine/Shaders/NoisePipeline/fragment.glsl");
+	}
+	cloudShader->use();
 
-	m_shader->use();
+	m_modelPos = cloudShader->getUniformPosition("model");
 
-	m_modelPos = m_shader->getUniformPosition("model");
+	m_cameraPos = cloudShader->getUniformPosition("cameraPos");
 
-	m_cameraPos = m_shader->getUniformPosition("cameraPos");
+	m_lightPos = cloudShader->getUniformPosition("lightDir");
 
-	m_lightPos = m_shader->getUniformPosition("lightDir");
+	m_timePos = cloudShader->getUniformPosition("iTime");
 
-	m_timePos = m_shader->getUniformPosition("iTime");
+	m_resolutionPos = cloudShader->getUniformPosition("resolution");
 
-	m_resolutionPos = m_shader->getUniformPosition("resolution");
+	m_noisePos = cloudShader->getUniformPosition("uNoise");
 
 	auto settings = Prisma::SettingsLoader::instance().getSettings();
 
@@ -65,4 +78,14 @@ void Prisma::CloudComponent::start()
 
 	// Initialize the start time
 	m_start = std::chrono::system_clock::now();
+
+	m_textureNoise = std::make_shared<Prisma::Texture>();
+	m_textureNoise->loadTexture("../../../Resources/res/noise.png");
+
+	m_fbo->bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	noiseShader->use();
+	Prisma::IBLBuilder::getInstance().renderQuad();
+	m_fbo->unbind();
+
 }

@@ -20,8 +20,6 @@ namespace Prisma {
 		void start() override;
 
 	private:
-		std::shared_ptr<Prisma::Shader> m_shader;
-
 		unsigned int m_modelPos;
 
 		unsigned int m_cameraPos;
@@ -32,11 +30,15 @@ namespace Prisma {
 
 		unsigned int m_resolutionPos;
 
+		unsigned int m_noisePos;
+
 		glm::vec2 m_resolution;
 
 		std::chrono::system_clock::time_point m_start;
 
 		std::shared_ptr<Prisma::FBO> m_fbo;
+
+		std::shared_ptr<Prisma::Texture> m_textureNoise;
 
 	};
 }
