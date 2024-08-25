@@ -157,10 +157,11 @@ void main()
 {
     vec2 p = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
     jitter = hash(p.x + p.y * 57.0 + iTime);
-    vec3 ro = vec3(cos(iTime * .333) * 8.0, -5.5, sin(iTime * .333) * 8.0);
+    mat3 viewRotation = mat3(view);
+
+    vec3 ro = cameraPos;
     vec3 ta = vec3(0.0, 1., 0.0);
-    mat3 c = camera(ro, ta, 0.0);
-    vec3 ray = c * normalize(vec3(p, 1.75));
+    vec3 ray = viewRotation * normalize(vec3(p, 1.0));
     vec4 col = cloudMarch(ro, ray);
     vec3 result = col.rgb + mix(vec3(0.3, 0.6, 1.0), vec3(0.05, 0.35, 1.0), p.y + 0.75) * (col.a);
     float sundot = clamp(dot(ray, normalize(vec3(1.0, 2.0, 1.0))), 0.0, 1.0);
