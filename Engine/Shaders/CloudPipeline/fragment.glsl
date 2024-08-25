@@ -211,6 +211,18 @@ void main()
     vec4 res = rayMarch(ro, rd, MIN_DIST, MAX_DIST, jitterValue);
 
     color = color + sunColor * res.rgb;
+    // Compute the depth in view space
+    vec3 hitPoint = ro + res.a * rd;  // The point where the ray hits an object
+    vec4 viewSpaceHitPoint = view * vec4(hitPoint, 1.0);
+
+    // Convert view-space hit point to clip space to calculate depth
+    vec4 clipSpaceHitPoint = projection * viewSpaceHitPoint;
+
+    // Normalize the depth (NDC space)
+    float depth = clipSpaceHitPoint.z / clipSpaceHitPoint.w;
+
+    // Write depth to gl_FragDepth
+    gl_FragDepth = depth * 0.5 + 0.5;  // Map from [-1,1] to [0,1]
 
     FragColor = vec4(color, 1.0);
 }
