@@ -116,7 +116,6 @@ float scene(vec3 p, bool lowRes) {
 
 // Beer * Powder -> (exp(-dist * absorption  * 2.0f) but powder is just making it lighter
 // and its supposed to be 1. - (exp(-dist * absorption  * 2.0f)... 
-// but its just not appearing with the 1.- so... a tomar x culo el 1.-
 float BeersLaw(float dist, float absorption) {
     return exp((-dist * SCATTERING_ANISO)) * (exp(-dist * SCATTERING_ANISO * 2.0f));;
 }
