@@ -104,8 +104,9 @@ float scene(vec3 p, bool lowRes) {
     // here ill do it later, cause 
     // i need to multiply the p value of fbm
     // by a vec3 which controls it
+    p.xz = fract(p.xz) * 2.0 - 1.0;
 
-    float distance = sdSphere(p, 0.25, vec3(1.5, 1., 1.), vec3(-1.5, 0.85, 0.));
+    float distance = sdSphere(p, 0.1, vec3(1, 1., 1.), vec3(0.5, 5.0, 0.5));
 
     float f = fbm(p, lowRes);
 
@@ -127,7 +128,6 @@ float jitter(vec3 ro, vec3 rd, float time) {
 
 vec4 rayMarch(vec3 ro, vec3 rd, float start, float end, float jitterValue) {
     vec4 res = vec4(0.0);
-    res.a = 4.0; // Start a bit forward since there's nothing in between
 
     float totalTransmittance = 1.0;
     vec3 lightDirection = normalize(lightDir);
@@ -211,18 +211,6 @@ void main()
     vec4 res = rayMarch(ro, rd, MIN_DIST, MAX_DIST, jitterValue);
 
     color = color + sunColor * res.rgb;
-    // Compute the depth in view space
-    vec3 hitPoint = ro + res.a * rd;  // The point where the ray hits an object
-    vec4 viewSpaceHitPoint = view * vec4(hitPoint, 1.0);
-
-    // Convert view-space hit point to clip space to calculate depth
-    vec4 clipSpaceHitPoint = projection * viewSpaceHitPoint;
-
-    // Normalize the depth (NDC space)
-    float depth = clipSpaceHitPoint.z / clipSpaceHitPoint.w;
-
-    // Write depth to gl_FragDepth
-    gl_FragDepth = depth * 0.5 + 0.5;  // Map from [-1,1] to [0,1]
 
     FragColor = vec4(color, 1.0);
 }
