@@ -21,7 +21,7 @@ layout(std140, binding = 1) uniform MeshData
 
 const int MAX_MARCHING_STEPS = 60;
 const float MIN_DIST = 0.0;
-const float MAX_DIST = 7.5;
+const float MAX_DIST = 20.5;
 const float PRECISION = 0.05;
 const float MARCH_SIZE = 0.1;
 
@@ -90,13 +90,19 @@ float fbm(vec3 p, bool lowRes) {
 }
 
 ////////////////////////////////////////////////////
-float sdSphere(vec3 p, float scale, vec3 elongation, vec3 offset)
-{
-    p = p - offset;
-    vec3 scaledP = p / elongation;
-    return length(scaledP) - scale;
-}
+float sdfBox(vec3 p, vec3 boxSize, vec3 translation, vec3 scale) {
+    // Apply scaling to the input point
+    p *= scale;
 
+    // Apply translation to the input point
+    p -= translation;
+
+    // Compute the distance
+    vec3 d = abs(p) - boxSize;
+
+    // Calculate the signed distance
+    return length(max(d, 0.0)) + min(max(d.x, max(d.y, d.z)), 0.0);
+}
 float scene(vec3 p, bool lowRes) {
 
     // its p, radius, scale, pos
@@ -104,9 +110,9 @@ float scene(vec3 p, bool lowRes) {
     // here ill do it later, cause 
     // i need to multiply the p value of fbm
     // by a vec3 which controls it
-    p.xz = fract(p.xz) * 2.0 - 1.0;
+    p.xz = fract(p.xz) - 0.5;
 
-    float distance = sdSphere(p, 0.1, vec3(1, 1., 1.), vec3(0.5, 5.0, 0.5));
+    float distance = sdfBox(p,vec3(1.0),vec3(0,5,0),vec3(1.0));
 
     float f = fbm(p, lowRes);
 
