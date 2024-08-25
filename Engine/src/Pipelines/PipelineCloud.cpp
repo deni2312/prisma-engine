@@ -72,8 +72,6 @@ Prisma::PipelineCloud& Prisma::PipelineCloud::getInstance()
 
 void Prisma::PipelineCloud::render()
 {
-	m_fbo->bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	m_vao->bind();
 
@@ -95,5 +93,4 @@ void Prisma::PipelineCloud::render()
 	m_shader->setVec2(m_resolutionPos, m_resolution);
 
 	Prisma::IBLBuilder::getInstance().renderQuad();
-	m_fbo->unbind();
 }

@@ -7,6 +7,7 @@ in vec2 TexCoords;
 uniform vec3 cameraPos;
 uniform float iTime;
 uniform vec2 resolution;
+uniform vec3 lightDir;
 
 layout(std140, binding = 1) uniform MeshData
 {
@@ -14,21 +15,47 @@ layout(std140, binding = 1) uniform MeshData
     mat4 projection;
 };
 
-mat3 m = mat3(0.00, 0.80, 0.60,
-    -0.80, 0.36, -0.48,
-    -0.60, -0.48, 0.64);
+// I have no idea how to fix this dithering issue ill come back to it at some point.
+// there also a few tricks, plus i know the dithering issue is being produced by the jitter
+// and hash function
+
+const int MAX_MARCHING_STEPS = 60;
+const float MIN_DIST = 0.0;
+const float MAX_DIST = 7.5;
+const float PRECISION = 0.05;
+const float MARCH_SIZE = 0.1;
+
+//light
+float marchSize = 0.075;
+
+#define MAX_STEPS_LIGHTS 5
+#define ABSORPTION_COEFFICIENT 1.
+#define SCATTERING_ANISO 0.1
+#define PI 3.14159265359
+
+
+////////////////////////////////////////////////////
+
 
 float hash(float n)
 {
     return fract(sin(n) * 43758.5453);
 }
 
+
+
+float HenyeyGreenstein(float g, float mu) {
+    float gg = g * g;
+    return (1.0 / (4.0 * PI)) * ((1.0 - gg) / pow(1.0 + gg - 2.0 * g * mu, 1.5));
+}
+
+
 float noise(in vec3 x)
 {
     vec3 p = floor(x);
     vec3 f = fract(x);
 
-    f = f * f * (3.0 - 2.0 * f);
+    f = smoothstep(0., 1., f);
 
     float n = p.x + p.y * 57.0 + 113.0 * p.z;
 
@@ -39,135 +66,132 @@ float noise(in vec3 x)
     return res;
 }
 
-float fbm(vec3 p)
-{
-    float f;
-    f = 0.5000 * noise(p); p = m * p * 2.02;
-    f += 0.2500 * noise(p); p = m * p * 2.03;
-    f += 0.12500 * noise(p); p = m * p * 2.01;
-    f += 0.06250 * noise(p);
-    return f;
-}
-/////////////////////////////////////
-
-float stepUp(float t, float len, float smo)
-{
-    float tt = mod(t += smo, len);
-    float stp = floor(t / len) - 1.0;
-    return smoothstep(0.0, smo, tt) + stp;
-}
-
-// iq's smin
-float smin(float d1, float d2, float k) {
-    float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
-    return mix(d2, d1, h) - k * h * (1.0 - h);
-}
-
-float sdTorus(vec3 p, vec2 t)
-{
-    vec2 q = vec2(length(p.xz) - t.x, p.y);
-    return length(q) - t.y;
-}
+float fbm(vec3 p, bool lowRes) {
+    vec3 q = p + iTime * 0.3 * vec3(0.6, -0.2, 0.3);
 
 
-float map(in vec3 p)
-{
-    vec3 q = p - vec3(0.0, 0.5, 1.0) * iTime;
-    float f = fbm(q);
-    float s1 = 1.0 - length(p * vec3(0.5, 1.0, 0.5)) + f * 2.2;
-    float s2 = 1.0 - length(p * vec3(0.1, 1.0, 0.2)) + f * 2.5;
-    float torus = 1. - sdTorus(p * 2.0, vec2(6.0, 0.005)) + f * 3.5;
-    float s3 = 1.0 - smin(smin(
-        length(p * 1.0 - vec3(cos(iTime * 3.0) * 6.0, sin(iTime * 2.0) * 5.0, 0.0)),
-        length(p * 2.0 - vec3(0.0, sin(iTime) * 4.0, cos(iTime * 2.0) * 3.0)), 4.0),
-        length(p * 3.0 - vec3(cos(iTime * 2.0) * 3.0, 0.0, sin(iTime * 3.3) * 7.0)), 4.0) + f * 2.5;
+    float f = 0.8;
+    float scale = 0.6;
+    float factor = 2.05;
+    int maxOctave = 5;
 
-    float t = mod(stepUp(iTime, 4.0, 1.0), 4.0);
-
-    float d = mix(s1, s2, clamp(t, 0.0, 1.0));
-    d = mix(d, torus, clamp(t - 1.0, 0.0, 1.0));
-    d = mix(d, s3, clamp(t - 2.0, 0.0, 1.0));
-    d = mix(d, s1, clamp(t - 3.0, 0.0, 1.0));
-
-    return min(max(0.0, d), 1.0);
-}
-
-float jitter;
-
-#define MAX_STEPS 48
-#define SHADOW_STEPS 8
-#define VOLUME_LENGTH 15.
-#define SHADOW_LENGTH 2.
-
-vec4 cloudMarch(vec3 p, vec3 ray)
-{
-    float density = 0.;
-
-    float stepLength = VOLUME_LENGTH / float(MAX_STEPS);
-    float shadowStepLength = SHADOW_LENGTH / float(SHADOW_STEPS);
-    vec3 light = normalize(vec3(1.0, 2.0, 1.0));
-
-    vec4 sum = vec4(0., 0., 0., 1.);
-
-    vec3 pos = p + ray * jitter * stepLength;
-
-    for (int i = 0; i < MAX_STEPS; i++)
-    {
-        if (sum.a < 0.1) {
-            break;
-        }
-        float d = map(pos);
-
-        if (d > 0.001)
-        {
-            vec3 lpos = pos + light * jitter * shadowStepLength;
-            float shadow = 0.;
-
-            for (int s = 0; s < SHADOW_STEPS; s++)
-            {
-                lpos += light * shadowStepLength;
-                float lsample = map(lpos);
-                shadow += lsample;
-            }
-
-            density = clamp((d / float(MAX_STEPS)) * 20.0, 0.0, 1.0);
-            float s = exp((-shadow / float(SHADOW_STEPS)) * 3.);
-            sum.rgb += vec3(s * density) * vec3(1.1, 0.9, .5) * sum.a;
-            sum.a *= 1. - density;
-
-            sum.rgb += exp(-map(pos + vec3(0, 0.25, 0.0)) * .2) * density * vec3(0.15, 0.45, 1.1) * sum.a;
-        }
-        pos += ray * stepLength;
+    if (lowRes) {
+        maxOctave = 3;
     }
 
-    return sum;
+    for (int i = 0; i < maxOctave; i++) {
+        f += scale * noise(q);
+        q *= factor;
+        factor += 0.1;
+        scale *= 0.55;
+    }
+
+    return f;
 }
 
-
-mat3 camera(vec3 ro, vec3 ta, float cr)
+////////////////////////////////////////////////////
+float sdSphere(vec3 p, float scale, vec3 elongation, vec3 offset)
 {
-    vec3 cw = normalize(ta - ro);
-    vec3 cp = vec3(sin(cr), cos(cr), 0.);
-    vec3 cu = normalize(cross(cw, cp));
-    vec3 cv = normalize(cross(cu, cw));
-    return mat3(cu, cv, cw);
+    p = p - offset;
+    vec3 scaledP = p / elongation;
+    return length(scaledP) - scale;
 }
+
+float scene(vec3 p, bool lowRes) {
+
+    // its p, radius, scale, pos
+    // would be ideal i can control the times of scrolling
+    // here ill do it later, cause 
+    // i need to multiply the p value of fbm
+    // by a vec3 which controls it
+
+    float distance = sdSphere(p, 0.25, vec3(1.5, 1., 1.), vec3(-1.5, 0.85, 0.));
+    float d2 = sdSphere(p, 0.25, vec3(8.3, 0.3, 2.), vec3(0.7, -1.9, -2.));
+
+    float res = min(distance, d2);
+    float f = fbm(p, lowRes);
+
+    return -res + f;
+}
+
+
+// Beer * Powder -> (exp(-dist * absorption  * 2.0f) but powder is just making it lighter
+// and its supposed to be 1. - (exp(-dist * absorption  * 2.0f)... 
+// but its just not appearing with the 1.- so... a tomar x culo el 1.-
+float BeersLaw(float dist, float absorption) {
+    return exp((-dist * SCATTERING_ANISO)) * (exp(-dist * SCATTERING_ANISO * 2.0f));;
+}
+
+// Jitter function
+float jitter(vec3 ro, vec3 rd, float time) {
+    return hash(dot(ro + rd + vec3(time), vec3(12.9898, 78.233, 45.164)));
+}
+
+vec4 rayMarch(vec3 ro, vec3 rd, float start, float end, float jitterValue) {
+    vec4 res = vec4(0.0);
+    res.a = 4.; //start a bit forward since theres nothing in between
+
+    float totalTransmittance = 1.0;
+    vec3 lightDirection = normalize(lightDir);
+    float totalDensity = 0.0;
+
+    float phase = HenyeyGreenstein(ABSORPTION_COEFFICIENT, dot(rd, lightDirection));
+
+    for (int i = 0; i < MAX_MARCHING_STEPS; i++) {
+        vec3 p = ro + res.a * rd;
+        p += jitterValue * MARCH_SIZE * rd;
+
+        float density = scene(p, false);
+
+        if (density > PRECISION) {
+            for (int step = 0; step < MAX_STEPS_LIGHTS; step++) {
+                p += lightDirection * marchSize;
+
+                float lightSample = scene(p, true);
+                totalDensity += lightSample;
+            }
+            float lightTransmittance = BeersLaw(totalDensity, SCATTERING_ANISO);
+
+            float luminance = 0.12 + density * 1.0 / (4.0 * 3.14);
+            totalTransmittance *= lightTransmittance;
+            res.rgb += totalTransmittance * luminance;
+        }
+
+        res.a += MARCH_SIZE;
+
+        if (res.a > MAX_DIST) break;
+    }
+
+    return res;
+}
+
 
 void main()
 {
-    vec2 p = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-    jitter = hash(p.x + p.y * 57.0 + iTime);
-    mat3 viewRotation = mat3(view);
+    vec2 uv = (gl_FragCoord.xy -  0.5*resolution.xy) / resolution.y;
+    vec3 color = vec3(0.0);
 
+
+    // Camera ray origin
     vec3 ro = cameraPos;
-    vec3 ta = vec3(0.0, 1., 0.0);
-    vec3 ray = viewRotation * normalize(vec3(p, 1.0));
-    vec4 col = cloudMarch(ro, ray);
-    vec3 result = col.rgb + mix(vec3(0.3, 0.6, 1.0), vec3(0.05, 0.35, 1.0), p.y + 0.75) * (col.a);
-    float sundot = clamp(dot(ray, normalize(vec3(1.0, 2.0, 1.0))), 0.0, 1.0);
-    result += 0.4 * vec3(1.0, 0.7, 0.3) * pow(sundot, 4.0);
 
-    result = pow(result, vec3(1.0 / 2.2));
+    // Ray direction calculation
+    vec4 rayDirH = inverse(view) * vec4(uv, -1.0, 0.0); // Transform the screen direction
+    vec3 rd = normalize(rayDirH.xyz); // Normalize the direction
 
-    FragColor = vec4(result, 1.0);
+    vec3 sunColor = vec3(1.0, 0.5, 0.3);
+    vec3 sunDirection = normalize(lightDir);
+    float sun = clamp(dot(sunDirection, rd), 0.0, 1.0);
+
+    float jitterValue = jitter(ro, rd, iTime * 0.01);
+
+    color = vec3(0.7, 0.7, 0.90) * 0.8;
+    color -= 0.9 * vec3(0.90, 0.75, 0.90) * rd.y;
+    color += sunColor * pow(sun, 1000.0);
+
+    vec4 res = rayMarch(ro, rd, MIN_DIST, MAX_DIST, jitterValue);
+
+    color = color + sunColor * res.rgb;
+
+    FragColor = vec4(color, 1.0);
 }
