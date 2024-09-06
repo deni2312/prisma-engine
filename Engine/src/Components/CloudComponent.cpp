@@ -5,6 +5,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/IBLBuilder.h"
+#include "../../../GUI/include/TextureInfo.h"
 
 static std::shared_ptr<Prisma::Shader> cloudShader = nullptr;
 static std::shared_ptr<Prisma::Shader> noiseShader = nullptr;
@@ -18,6 +19,8 @@ Prisma::CloudComponent::CloudComponent()
 void Prisma::CloudComponent::updateRender()
 {
 	if (cloudShader) {
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
 		cloudShader->use();
 
 		cloudShader->setVec3(m_cameraPos, currentGlobalScene->camera->position());
@@ -47,7 +50,7 @@ void Prisma::CloudComponent::start()
 		noiseShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/vertex.glsl", "../../../Engine/Shaders/NoisePipeline/fragment.glsl");
 		worleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/compute.glsl");
 	}
-	generateNoise();
+	//generateNoise();
 	cloudShader->use();
 
 	m_modelPos = cloudShader->getUniformPosition("model");
@@ -94,18 +97,31 @@ void Prisma::CloudComponent::generateNoise()
 {
 	worleyShader->use();
 	glm::ivec3 size(1024, 1024, 1024);
-	GLuint tex;
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_3D, tex);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, size.x, size.y, size.z, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glBindImageTexture(0, tex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+	// Generate a texture ID
+	GLuint textureID;
+	glGenTextures(1, &textureID);
 
-	auto id = glGetTextureHandleARB(tex);
-	glMakeTextureHandleResidentARB(id);
-	int groupSizeX = (size.x + 7) / 8;  // Add 7 to ensure rounding up
-	int groupSizeY = (size.y + 7) / 8;
-	int groupSizeZ = (size.z + 7) / 8;
-	worleyShader->setVec3(worleyShader->getUniformPosition("texSize"), size);
-	worleyShader->dispatchCompute({ groupSizeX ,groupSizeY ,groupSizeZ });
+	// Bind the texture to a texture unit
+	glActiveTexture(GL_TEXTURE0); // Activate texture unit 0
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	// Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// Allocate storage for the texture (initially empty)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	m_worley = glGetTextureHandleARB(textureID);
+	glMakeTextureHandleResidentARB(m_worley);
+
+	worleyShader->setVec2(worleyShader->getUniformPosition("texSize"), size);
+	worleyShader->setInt64(worleyShader->getUniformPosition("worleyTexture"), m_worley);
+
+	worleyShader->dispatchCompute(size);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	Prisma::TextureInfo::getInstance().add({ textureID ,"WORLEY" });
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 }

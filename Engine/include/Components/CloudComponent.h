@@ -40,6 +40,8 @@ namespace Prisma {
 
 		std::shared_ptr<Prisma::Texture> m_textureNoise;
 
+		uint64_t m_worley;
+
 		void generateNoise();
 
 	};

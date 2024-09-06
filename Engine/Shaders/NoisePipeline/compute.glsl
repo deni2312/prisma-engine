@@ -1,51 +1,61 @@
 #version 460 core
-layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+#extension GL_ARB_bindless_texture : enable
 
-// Texture size (for storing the noise)
-uniform vec3 texSize;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+uniform vec2 texSize;
 
-// 3D texture for storing the Worley noise
-layout(rgba8, binding = 0) uniform image3D worleyTexture;
+layout(rgba8,bindless_image) uniform image2D worleyTexture;
 
-// Function to compute Worley noise (basic implementation)
-float worleyNoise(vec3 pos) {
-    // Generate noise with grid cells for Worley Noise
-    const int numCells = 8; // Number of grid cells along each axis (can be modified)
-    vec3 cellCoord = floor(pos * numCells);
-    vec3 cellFrac = fract(pos * numCells);
+// Function to generate random points in a grid cell
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
 
+// Main function for computing Worley noise
+void main()
+{
+    // Calculate the coordinates of the current pixel
+    ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+
+    // Normalize coordinates in the range [0,1]
+    vec2 uv = vec2(pixelCoords) / texSize;
+
+    // Control the cell size of the grid
+    int numCells = 10;
+    vec2 gridPos = uv * numCells;
+    ivec2 baseCell = ivec2(floor(gridPos)); // Base cell
+
+    // Variables to track the minimum distance
     float minDist = 1.0;
-    for (int x = -1; x <= 1; ++x) {
-        for (int y = -1; y <= 1; ++y) {
-            for (int z = -1; z <= 1; ++z) {
-                vec3 neighborCell = cellCoord + vec3(x, y, z);
-                vec3 randomOffset = vec3(
-                    fract(sin(dot(neighborCell, vec3(12.9898, 78.233, 45.164))) * 43758.5453),
-                    fract(sin(dot(neighborCell, vec3(26.651, 45.716, 98.921))) * 23421.631),
-                    fract(sin(dot(neighborCell, vec3(78.223, 56.234, 12.564))) * 78456.231)
-                );
+    vec2 nearestFeaturePoint;
 
-                vec3 neighborPos = (neighborCell + randomOffset) / numCells;
-                float dist = length(neighborPos - pos);
-                minDist = min(minDist, dist);
+    // Search in the surrounding grid cells (3x3 neighborhood)
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            // Offset grid position
+            ivec2 neighborCell = baseCell + ivec2(x, y);
+
+            // Generate a random feature point within the neighboring cell
+            vec2 featurePoint = vec2(neighborCell) + vec2(random(vec2(neighborCell.x, neighborCell.y)),
+                random(vec2(neighborCell.y, neighborCell.x)));
+
+            // Calculate the distance to the feature point
+            float dist = distance(gridPos, featurePoint);
+
+            // Keep track of the minimum distance
+            if (dist < minDist) {
+                minDist = dist;
+                nearestFeaturePoint = featurePoint;
             }
         }
     }
 
-    return minDist;
-}
+    // Normalize the distance for better visualization (adjust based on cell count)
+    minDist = clamp(minDist / float(numCells), 0.0, 1.0);
 
-void main()
-{
-    ivec3 storePos = ivec3(gl_GlobalInvocationID.xyz);
+    // Output the Worley noise value as a grayscale color
+    vec4 worleyColor = vec4(vec3(minDist), 1.0);
 
-    // Normalize the texture coordinates
-    vec3 uv = vec3(storePos) / vec3(texSize);
-
-    // Compute the Worley noise for the current position
-    float noiseValue = worleyNoise(uv);
-
-    // Store the Worley noise in the 3D texture
-    vec4 outputColor = vec4(vec3(noiseValue), 1.0); // Alpha is set to 1.0
-    imageStore(worleyTexture, storePos, outputColor);
+    // Write the result to the output texture
+    imageStore(worleyTexture, pixelCoords, worleyColor);
 }
