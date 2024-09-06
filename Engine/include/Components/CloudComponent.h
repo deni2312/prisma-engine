@@ -40,5 +40,7 @@ namespace Prisma {
 
 		std::shared_ptr<Prisma::Texture> m_textureNoise;
 
+		void generateNoise();
+
 	};
 }

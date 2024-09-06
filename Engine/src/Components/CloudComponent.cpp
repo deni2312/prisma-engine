@@ -8,6 +8,7 @@
 
 static std::shared_ptr<Prisma::Shader> cloudShader = nullptr;
 static std::shared_ptr<Prisma::Shader> noiseShader = nullptr;
+static std::shared_ptr<Prisma::Shader> worleyShader = nullptr;
 
 Prisma::CloudComponent::CloudComponent()
 {
@@ -44,7 +45,9 @@ void Prisma::CloudComponent::start()
 	if (cloudShader == nullptr) {
 		cloudShader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
 		noiseShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/vertex.glsl", "../../../Engine/Shaders/NoisePipeline/fragment.glsl");
+		worleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/compute.glsl");
 	}
+	generateNoise();
 	cloudShader->use();
 
 	m_modelPos = cloudShader->getUniformPosition("model");
@@ -85,4 +88,24 @@ void Prisma::CloudComponent::start()
 	Prisma::IBLBuilder::getInstance().renderQuad();
 	m_fbo->unbind();
 
+}
+
+void Prisma::CloudComponent::generateNoise()
+{
+	worleyShader->use();
+	glm::ivec3 size(1024, 1024, 1024);
+	GLuint tex;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_3D, tex);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, size.x, size.y, size.z, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindImageTexture(0, tex, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+	auto id = glGetTextureHandleARB(tex);
+	glMakeTextureHandleResidentARB(id);
+	int groupSizeX = (size.x + 7) / 8;  // Add 7 to ensure rounding up
+	int groupSizeY = (size.y + 7) / 8;
+	int groupSizeZ = (size.z + 7) / 8;
+	worleyShader->setVec3(worleyShader->getUniformPosition("texSize"), size);
+	worleyShader->dispatchCompute({ groupSizeX ,groupSizeY ,groupSizeZ });
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
