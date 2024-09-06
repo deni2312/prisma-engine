@@ -8,21 +8,17 @@
 #include "../../Engine/include/Containers/FBO.h"
 #include "../../Engine/include/Containers/SSBO.h"
 #include "../../Engine/include/SceneObjects/Mesh.h"
+#include "../../Engine/include/GlobalData/InstanceData.h"
 
 namespace Prisma {
 
-    class PixelCapture {
+    class PixelCapture : public InstanceData<PixelCapture>{
     public:
         PixelCapture();
         std::shared_ptr<Prisma::Mesh> capture(glm::vec2 position);
-        PixelCapture(const PixelCapture&) = delete;
-        PixelCapture& operator=(const PixelCapture&) = delete;
-        static PixelCapture& getInstance();
 
     private:
         std::shared_ptr<Prisma::FBO> m_fbo;
-
-        static std::shared_ptr<PixelCapture> instance;
     };
 }
 

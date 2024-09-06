@@ -5,8 +5,6 @@
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../../Engine/include/Handlers/MeshHandler.h"
 
-std::shared_ptr<Prisma::PixelCapture> Prisma::PixelCapture::instance = nullptr;
-
 static std::shared_ptr<Prisma::Shader> shader = nullptr;
 static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
 
@@ -81,12 +79,4 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
         }
     }
     return nullptr;
-}
-
-Prisma::PixelCapture& Prisma::PixelCapture::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<PixelCapture>();
-    }
-    return *instance;
 }

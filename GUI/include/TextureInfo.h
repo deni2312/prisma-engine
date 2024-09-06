@@ -5,9 +5,10 @@
 #include <memory>
 #include "glm/glm.hpp"
 #include <string>
+#include "../../Engine/include/GlobalData/InstanceData.h"
 
 namespace Prisma {
-    class TextureInfo {
+    class TextureInfo : public InstanceData<TextureInfo>{
     public:
         TextureInfo();
 
@@ -15,13 +16,8 @@ namespace Prisma {
 
         void add(std::pair<unsigned int, std::string> id);
 
-        TextureInfo(const TextureInfo&) = delete;
-        TextureInfo& operator=(const TextureInfo&) = delete;
-        static TextureInfo& getInstance();
-
     private:
         std::vector<std::pair<unsigned int,std::string>> m_textures;
-        static std::shared_ptr<TextureInfo> instance;
     };
 }
 

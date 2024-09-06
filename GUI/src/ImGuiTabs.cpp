@@ -2,15 +2,6 @@
 #include "imgui.h"
 #include <iostream> // For std::cout
 
-std::shared_ptr<Prisma::ImGuiTabs> Prisma::ImGuiTabs::instance = nullptr;
-
-Prisma::ImGuiTabs& Prisma::ImGuiTabs::getInstance() {
-    if (!instance) {
-        instance = std::make_shared<Prisma::ImGuiTabs>();
-    }
-    return *instance;
-}
-
 Prisma::ImGuiTabs::ImGuiTabs() {
 
 }

@@ -10,9 +10,11 @@
 #include <vector>
 #include <string>
 #include "PlotFPS.h"
+#include "../../Engine/include/GlobalData/InstanceData.h"
+
 
 namespace Prisma {
-	class ImguiDebug {
+	class ImguiDebug : public InstanceData<ImguiDebug>{
 	public:
 		struct ImGuiData {
 			std::vector<std::shared_ptr<std::pair<std::string, float>>> performances;
@@ -36,14 +38,9 @@ namespace Prisma {
 		void imguiData(std::shared_ptr<ImGuiData> data);
 		std::shared_ptr<Prisma::FBO> fbo();
 
-		static ImguiDebug& getInstance();
-		ImguiDebug(const ImguiDebug&) = delete;
-		ImguiDebug& operator=(const ImguiDebug&) = delete;
-
 		std::shared_ptr<SceneHandler> handlers();
 
 	private:
-		static std::shared_ptr<ImguiDebug> instance;
 		double m_lastFrameTime = 0.0;
 		float m_fps;
 		std::shared_ptr<ImGuiData> m_data;

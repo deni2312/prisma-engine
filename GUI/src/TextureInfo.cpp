@@ -1,7 +1,5 @@
 #include "../include/TextureInfo.h"
 
-std::shared_ptr<Prisma::TextureInfo> Prisma::TextureInfo::instance = nullptr;
-
 Prisma::TextureInfo::TextureInfo() {
 
 }
@@ -28,12 +26,4 @@ void Prisma::TextureInfo::showTextures() {
 
 void Prisma::TextureInfo::add(std::pair<unsigned int, std::string> id) {
     m_textures.push_back(id);
-}
-
-Prisma::TextureInfo& Prisma::TextureInfo::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<TextureInfo>();
-    }
-    return *instance;
 }

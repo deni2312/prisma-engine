@@ -32,8 +32,6 @@ struct PrivateIO {
     ImGuiIO io;
 };
 
-std::shared_ptr<Prisma::ImguiDebug> Prisma::ImguiDebug::instance = nullptr;
-
 std::shared_ptr<PrivateIO> data;
 
 Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() }
@@ -286,14 +284,6 @@ void Prisma::ImguiDebug::close()
 void Prisma::ImguiDebug::imguiData(std::shared_ptr<ImGuiData> data)
 {
     m_data = data;
-}
-
-Prisma::ImguiDebug& Prisma::ImguiDebug::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<ImguiDebug>();
-    }
-    return *instance;
 }
 
 std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
