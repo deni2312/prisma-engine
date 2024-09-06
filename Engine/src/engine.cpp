@@ -27,8 +27,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../include/SceneData/SceneExporter.h"
 
-std::shared_ptr<Prisma::Engine> Prisma::Engine::instance = nullptr;
-
 struct PrivateData {
     Prisma::PipelineHandler pipelineHandler;
     Prisma::Settings settings;
@@ -49,7 +47,7 @@ Prisma::Engine::Engine()
 {
     data = std::make_shared<PrivateData>();
 
-    SettingsLoader::instance().load(DIR_DEFAULT_SETTINGS);
+    SettingsLoader::getInstance().load(DIR_DEFAULT_SETTINGS);
 
     PrismaFunc::getInstance();
 
@@ -77,7 +75,7 @@ Prisma::Engine::Engine()
 
     data->engineSettings.ssr = false;
 
-    data->settings = SettingsLoader::instance().getSettings();
+    data->settings = SettingsLoader::getInstance().getSettings();
 
     data->sceneHandler = std::make_shared<Prisma::SceneHandler>();
     
@@ -200,14 +198,6 @@ void Prisma::Engine::mainCamera(std::shared_ptr<Camera> camera)
 {
     data->camera = camera;
     currentGlobalScene->camera = data->camera;
-}
-
-Prisma::Engine& Prisma::Engine::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<Engine>();
-    }
-    return *instance;
 }
 
 void Prisma::Engine::debug(bool debug)

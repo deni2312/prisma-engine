@@ -8,25 +8,20 @@
 #include "../Containers/FBO.h"
 #include "PipelineFullScreen.h"
 #include <memory>
+#include "../GlobalData/InstanceData.h"
 
 namespace Prisma {
-	class PipelineSkybox {
+	class PipelineSkybox : public InstanceData<PipelineSkybox>{
 	public:
 		void render();
 
-		static PipelineSkybox& getInstance();
 
 		void texture(Prisma::Texture texture, bool equirectangular = false);
-
-		PipelineSkybox(const PipelineSkybox&) = delete;
-		PipelineSkybox& operator=(const PipelineSkybox&) = delete;
-
         PipelineSkybox();
 
     private:
         uint64_t calculateSkybox();
 
-		static std::shared_ptr<PipelineSkybox> instance;
 
 		Prisma::Texture m_texture;
 

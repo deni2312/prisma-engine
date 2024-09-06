@@ -8,25 +8,18 @@
 #include "../Containers/FBO.h"
 #include "PipelineFullScreen.h"
 #include <memory>
+#include "../GlobalData/InstanceData.h"
 
 namespace Prisma {
-	class PipelineLUT {
+	class PipelineLUT : public InstanceData<PipelineLUT>{
 	public:
-
-		static PipelineLUT& getInstance();
 
 		void texture();
 
 		uint64_t id() const;
-
-		PipelineLUT(const PipelineLUT&) = delete;
-		PipelineLUT& operator=(const PipelineLUT&) = delete;
-
         PipelineLUT();
 
     private:
-
-        static std::shared_ptr<PipelineLUT> instance;
 
 		uint64_t m_id;
 

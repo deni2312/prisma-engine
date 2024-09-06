@@ -4,14 +4,6 @@
 #include "../../include/Physics/DrawDebugger.h"
 #include "glm/gtx/matrix_decompose.hpp"
 
-std::shared_ptr<Prisma::Physics> Prisma::Physics::instance = nullptr;
-
-Prisma::Physics &Prisma::Physics::getInstance() {
-    if (!instance) {
-        instance = std::make_shared<Physics>();
-    }
-    return *instance;
-}
 
 Prisma::Physics::Physics() {
     m_physicsWorld=std::make_shared<PhysicsWorld>();

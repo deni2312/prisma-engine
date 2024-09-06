@@ -13,8 +13,6 @@ struct PrivatePrisma {
     bool initCallback = false;;
 };
 
-std::shared_ptr<Prisma::PrismaFunc> Prisma::PrismaFunc::instance = nullptr;
-
 std::shared_ptr<PrivatePrisma> privatePrisma;
 
 namespace Prisma {
@@ -59,7 +57,7 @@ namespace Prisma {
 Prisma::PrismaFunc::PrismaFunc()
 {
     std::ifstream f(DIR_DEFAULT_SETTINGS);
-    Settings settings = Prisma::SettingsLoader::instance().getSettings();
+    Settings settings = Prisma::SettingsLoader::getInstance().getSettings();
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
@@ -144,12 +142,4 @@ void Prisma::PrismaFunc::destroy()
 {
     glfwDestroyWindow(m_window);
     glfwTerminate();
-}
-
-// Implementation of the getInstance function
-Prisma::PrismaFunc& Prisma::PrismaFunc::getInstance() {
-    if (!instance) {
-        instance = std::make_shared<PrismaFunc>();
-    }
-    return *instance;
 }

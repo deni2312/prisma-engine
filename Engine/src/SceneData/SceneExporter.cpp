@@ -5,7 +5,6 @@
 
 
 
-std::shared_ptr<Prisma::Exporter> Prisma::Exporter::instance = nullptr;
 Assimp::Importer importer;
 Assimp::Exporter exporter;
 std::map<unsigned int, std::shared_ptr<Prisma::MaterialComponent>> materials;
@@ -68,12 +67,4 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& s
     auto newRootNode = std::make_shared<Prisma::Node>();
     from_json(jIn, newRootNode);
     return newRootNode;
-}
-
-Prisma::Exporter& Prisma::Exporter::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<Prisma::Exporter>();
-    }
-    return *instance;
 }

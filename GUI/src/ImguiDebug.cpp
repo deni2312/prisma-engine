@@ -44,7 +44,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     m_imguiCamera.mouseCallback();
     m_imguiCamera.mouseButtonCallback();
     Prisma::Engine::getInstance().setCallback(m_imguiCamera.callback());
-    auto settings = Prisma::SettingsLoader::instance().getSettings();
+    auto settings = Prisma::SettingsLoader::getInstance().getSettings();
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImPlot::CreateContext();

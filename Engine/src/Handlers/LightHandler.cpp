@@ -4,7 +4,6 @@
 #include <iostream>
 #include "../../include/GlobalData/CacheScene.h"
 
-std::shared_ptr<Prisma::LightHandler> Prisma::LightHandler::instance = nullptr;
 
 Prisma::LightHandler::LightHandler()
 {
@@ -116,13 +115,6 @@ void Prisma::LightHandler::updateCSM()
     }
 }
 
-Prisma::LightHandler& Prisma::LightHandler::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<LightHandler>();
-    }
-    return *instance;
-}
 
 void Prisma::LightHandler::update()
 {

@@ -2,9 +2,10 @@
 #include "bullet/btBulletDynamicsCommon.h"
 #include "glm/glm.hpp"
 #include <memory>
+#include "../GlobalData/InstanceData.h"
 
 namespace Prisma {
-    class Physics {
+    class Physics : public InstanceData<Physics>{
     public:
 
         enum Collider{
@@ -31,13 +32,9 @@ namespace Prisma {
         };
 
         Physics();
-        static Physics& getInstance();
         void update(float delta);
         std::shared_ptr<PhysicsWorld> physicsWorld();
-        Physics(const Physics&) = delete;
-        Physics& operator=(const Physics&) = delete;
     private:
-        static std::shared_ptr<Physics> instance;
         std::shared_ptr<PhysicsWorld> m_physicsWorld;
     };
 }

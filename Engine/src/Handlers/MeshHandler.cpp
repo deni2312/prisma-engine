@@ -7,8 +7,6 @@
 #include "../../include/Pipelines/PipelineLUT.h"
 #include <glm/gtx/string_cast.hpp>
 
-std::shared_ptr<Prisma::MeshHandler> Prisma::MeshHandler::instance = nullptr;
-
 void Prisma::MeshHandler::updateCamera() {
 	auto cameraMatrix = currentGlobalScene->camera->matrix();
 	MeshHandler::getInstance().ubo()->modifyData(0, sizeof(glm::mat4), glm::value_ptr(cameraMatrix));
@@ -32,21 +30,13 @@ void Prisma::MeshHandler::updateFragment()
 	m_uboFragment->modifyData(0, sizeof(Prisma::MeshHandler::UBOFragment), &m_fragment);
 }
 
-Prisma::MeshHandler& Prisma::MeshHandler::getInstance()
-{
-	if (!instance) {
-		instance = std::make_shared<MeshHandler>();
-	}
-	return *instance;
-}
-
 Prisma::MeshHandler::MeshHandler()
 {
 	m_ubo = std::make_shared<Ubo>(sizeof(Prisma::MeshHandler::UBOData), 1);
 	m_uboCluster = std::make_shared<Ubo>(sizeof(Prisma::MeshHandler::UBOCluster), 2);
 	m_uboFragment = std::make_shared<Ubo>(sizeof(Prisma::MeshHandler::UBOFragment), 3);
 	m_uboData = std::make_shared<Prisma::MeshHandler::UBOData>();
-	m_settings = Prisma::SettingsLoader::instance().getSettings();
+	m_settings = Prisma::SettingsLoader::getInstance().getSettings();
 }
 
 std::shared_ptr<Prisma::MeshHandler::UBOData> Prisma::MeshHandler::data() const

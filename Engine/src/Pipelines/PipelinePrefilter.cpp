@@ -7,19 +7,9 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-std::shared_ptr<Prisma::PipelinePrefilter> Prisma::PipelinePrefilter::instance = nullptr;
-
 Prisma::PipelinePrefilter::PipelinePrefilter()
 {
     m_shader = std::make_shared<Shader>("../../../Engine/Shaders/PrefilterPipeline/vertex.glsl", "../../../Engine/Shaders/PrefilterPipeline/fragment.glsl");
-}
-
-Prisma::PipelinePrefilter& Prisma::PipelinePrefilter::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<PipelinePrefilter>();
-    }
-    return *instance;
 }
 
 void Prisma::PipelinePrefilter::texture(Prisma::Texture texture)

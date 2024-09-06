@@ -13,7 +13,7 @@ static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
 Prisma::PixelCapture::PixelCapture()
 {
     if (!shader) {
-        auto settings = Prisma::SettingsLoader::instance().getSettings();
+        auto settings = Prisma::SettingsLoader::getInstance().getSettings();
 
         Prisma::FBO::FBOData fboData;
         fboData.enableDepth = true;

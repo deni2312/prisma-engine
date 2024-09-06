@@ -13,14 +13,10 @@
 #include "../../GUI/include/ImGuiDebug.h"
 
 namespace Prisma {
-	class Engine {
+	class Engine : public InstanceData<Engine>{
 	public:
 
 		bool run();
-		friend class ImguiDebug;
-		static Engine& getInstance();
-		Engine(const Engine&) = delete;
-		Engine& operator=(const Engine&) = delete;
 
 		Engine();
 
@@ -36,7 +32,6 @@ namespace Prisma {
 		void debug(bool debug);
 
 	private:
-		static std::shared_ptr<Engine> instance;
 		void initScene();
 	};
 }

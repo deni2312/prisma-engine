@@ -9,8 +9,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-std::shared_ptr<Prisma::PipelineSkybox> Prisma::PipelineSkybox::instance = nullptr;
-
 Prisma::PipelineSkybox::PipelineSkybox()
 {
     m_shader = std::make_shared<Shader>("../../../Engine/Shaders/SkyboxPipeline/vertex.glsl", "../../../Engine/Shaders/SkyboxPipeline/fragment.glsl");
@@ -82,14 +80,6 @@ void Prisma::PipelineSkybox::render()
     Prisma::IBLBuilder::getInstance().renderCube();
     glBindVertexArray(0);
     glDepthFunc(GL_LESS);
-}
-
-Prisma::PipelineSkybox& Prisma::PipelineSkybox::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<PipelineSkybox>();
-    }
-    return *instance;
 }
 
 void Prisma::PipelineSkybox::texture(Prisma::Texture texture,bool equirectangular)

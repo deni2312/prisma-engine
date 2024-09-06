@@ -1,19 +1,9 @@
 #include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../../include/Helpers/IBLBuilder.h"
 
-std::shared_ptr<Prisma::PipelineDiffuseIrradiance> Prisma::PipelineDiffuseIrradiance::instance = nullptr;
-
 Prisma::PipelineDiffuseIrradiance::PipelineDiffuseIrradiance()
 {
     m_shader = std::make_shared<Shader>("../../../Engine/Shaders/IrradiancePipeline/vertex.glsl", "../../../Engine/Shaders/IrradiancePipeline/fragment.glsl");
-}
-
-Prisma::PipelineDiffuseIrradiance& Prisma::PipelineDiffuseIrradiance::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<PipelineDiffuseIrradiance>();
-    }
-    return *instance;
 }
 
 void Prisma::PipelineDiffuseIrradiance::texture(Prisma::Texture texture)

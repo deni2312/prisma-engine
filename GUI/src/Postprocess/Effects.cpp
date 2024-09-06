@@ -38,7 +38,7 @@ Prisma::Effects::Effects() {
 	glGenFramebuffers(2, m_pingpongFBO);
 	glGenTextures(2, pingpongColorbuffers);
 
-	auto settings = Prisma::SettingsLoader::instance().getSettings();
+	auto settings = Prisma::SettingsLoader::getInstance().getSettings();
 
 	for (unsigned int i = 0; i < 2; i++)
 	{

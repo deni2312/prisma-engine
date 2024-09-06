@@ -9,8 +9,6 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "../../include/Helpers/GarbageCollector.h"
 
-std::shared_ptr<Prisma::IBLBuilder> Prisma::IBLBuilder::instance = nullptr;
-
 Prisma::IBLBuilder::IBLBuilder()
 {
 
@@ -136,14 +134,6 @@ void Prisma::IBLBuilder::renderQuad(unsigned int instances)
     m_vaoQuad->bind();
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instances);
     Prisma::VAO::resetVao();
-}
-
-Prisma::IBLBuilder& Prisma::IBLBuilder::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<IBLBuilder>();
-    }
-    return *instance;
 }
 
 void Prisma::IBLBuilder::createFbo(unsigned int width, unsigned int height)

@@ -6,17 +6,14 @@
 #include <memory>
 
 #include "../Helpers/Settings.h"
+#include "../GlobalData/InstanceData.h"
 
 namespace Prisma {
 
 	struct CallbackHandler;
 
-	class PrismaFunc {
+	class PrismaFunc : public InstanceData<PrismaFunc>{
 	public:
-		static PrismaFunc& getInstance();
-
-		PrismaFunc(const PrismaFunc&) = delete;
-		PrismaFunc& operator=(const PrismaFunc&) = delete;
 
 		void swapBuffers();
 		void clear();
@@ -33,6 +30,5 @@ namespace Prisma {
     private:
 
         GLFWwindow* m_window;
-		static std::shared_ptr<PrismaFunc> instance;
 	};
 }

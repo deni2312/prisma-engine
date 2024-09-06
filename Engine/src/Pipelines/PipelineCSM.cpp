@@ -16,7 +16,7 @@ static uint64_t numCSM = 0;
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height) :m_width{ width }, m_height{ height } {
     m_numCSM = numCSM;
     numCSM++;
-    m_settings = Prisma::SettingsLoader::instance().getSettings();
+    m_settings = Prisma::SettingsLoader::getInstance().getSettings();
     if (!m_numCSM) {
         if (!m_shader) {
             m_shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl", "../../../Engine/Shaders/CSMPipeline/fragment.glsl", "../../../Engine/Shaders/CSMPipeline/geometry.glsl");

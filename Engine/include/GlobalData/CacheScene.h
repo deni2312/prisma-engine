@@ -1,10 +1,12 @@
 #pragma once
 
 #include <memory>
+#include "../GlobalData/InstanceData.h"
+
 
 namespace Prisma {
 
-    class CacheScene {
+    class CacheScene : public InstanceData<CacheScene>{
     public:
         bool updateLights();
 
@@ -26,20 +28,12 @@ namespace Prisma {
 
         void updateStatus(bool value);
 
-
-        // Delete copy constructor and assignment operator
-        CacheScene(const CacheScene&) = delete;
-
-        static CacheScene& getInstance();
-
         void resetCaches();
 
         CacheScene() = default;
 
 
     private:
-
-        static std::shared_ptr<CacheScene> instance;
 
         // Variables
         bool m_updateLights;

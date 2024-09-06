@@ -7,10 +7,11 @@
 #include "../SceneData/MeshIndirect.h"
 #include "../Containers/FBO.h"
 #include "../Pipelines/PipelineFullScreen.h"
+#include "../GlobalData/InstanceData.h"
 #include <memory>
 
 namespace Prisma {
-	class IBLBuilder {
+	class IBLBuilder : public Prisma::InstanceData<IBLBuilder>{
 	public:
 		struct IBLData {
 			unsigned int fbo;
@@ -28,19 +29,15 @@ namespace Prisma {
 				glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 			};
 		};
-		static IBLBuilder& getInstance();
 		void createFbo(unsigned int width, unsigned int height);
 		IBLData data();
 		void renderCube();
 		void renderQuad();
 		void renderQuad(unsigned int instances);
-		IBLBuilder(const IBLBuilder&) = delete;
-		IBLBuilder& operator=(const IBLBuilder&) = delete;
 
         IBLBuilder();
 
     private:
-        static std::shared_ptr<IBLBuilder> instance;
 		std::shared_ptr<Prisma::VAO> m_vaoCube = nullptr;
         std::shared_ptr<Prisma::VBO> m_vboCube = nullptr;
         std::shared_ptr<Prisma::VAO> m_vaoQuad = nullptr;

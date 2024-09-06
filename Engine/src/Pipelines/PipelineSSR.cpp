@@ -14,7 +14,7 @@ Prisma::PipelineSSR::PipelineSSR() {
     m_finalImagePos = m_shader->getUniformPosition("finalImage");
     m_depthPos = m_shader->getUniformPosition("textureDepth");
     m_invProjPos = m_shader->getUniformPosition("invProjection");
-    auto settings = Prisma::SettingsLoader::instance().getSettings();
+    auto settings = Prisma::SettingsLoader::getInstance().getSettings();
 
     Prisma::FBO::FBOData fboData;
     fboData.width = settings.width;

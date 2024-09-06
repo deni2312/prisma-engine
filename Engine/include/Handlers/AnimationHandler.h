@@ -3,18 +3,15 @@
 #include "glm/glm.hpp"
 #include "../Containers/SSBO.h"
 #include "../GlobalData/Defines.h"
+#include "../GlobalData/InstanceData.h"
 #include <vector>
 
 namespace Prisma {
-	class AnimationHandler {
+	class AnimationHandler : public InstanceData<AnimationHandler>{
 	public:
 		struct SSBOAnimation {
 			glm::mat4 animations[MAX_BONES];
 		};
-		AnimationHandler(const AnimationHandler&) = delete;
-		AnimationHandler& operator=(const AnimationHandler&) = delete;
-
-		static AnimationHandler& getInstance();
 
 		void updateAnimations();
 
@@ -27,7 +24,5 @@ namespace Prisma {
 	private:
 		std::shared_ptr<SSBO> m_ssboAnimation;
 		std::vector<SSBOAnimation> m_animations;
-
-		static std::shared_ptr<AnimationHandler> instance;
 	};
 }

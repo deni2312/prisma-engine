@@ -8,25 +8,19 @@
 #include "../Containers/FBO.h"
 #include "PipelineFullScreen.h"
 #include <memory>
+#include "../GlobalData/InstanceData.h"
 
 namespace Prisma {
-	class PipelineDiffuseIrradiance {
+	class PipelineDiffuseIrradiance : public InstanceData<PipelineDiffuseIrradiance>{
 	public:
 
-		static PipelineDiffuseIrradiance& getInstance();
 
 		void texture(Prisma::Texture texture);
 
 		uint64_t id();
-
-		PipelineDiffuseIrradiance(const PipelineDiffuseIrradiance&) = delete;
-		PipelineDiffuseIrradiance& operator=(const PipelineDiffuseIrradiance&) = delete;
-
         PipelineDiffuseIrradiance();
 
     private:
-
-        static std::shared_ptr<PipelineDiffuseIrradiance> instance;
 
 		Prisma::Texture m_texture;
 		uint64_t m_id;

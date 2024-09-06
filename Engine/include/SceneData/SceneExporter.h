@@ -2,10 +2,11 @@
 
 #include "../SceneObjects/Mesh.h"
 #include "../SceneObjects/Light.h"
+#include "../GlobalData/InstanceData.h"
 
 namespace Prisma{
 
-	class Exporter {
+	class Exporter : public InstanceData<Exporter>{
 	public:
 
 		Exporter();
@@ -13,12 +14,7 @@ namespace Prisma{
 		void exportScene(const std::string& sceneName="output.prisma");
 
 		std::shared_ptr<Prisma::Node> importScene(const std::string& sceneName);
-
-		static Exporter& getInstance();
-		Exporter(const Exporter&) = delete;
-		Exporter& operator=(const Exporter&) = delete;
 	private:
-		static std::shared_ptr<Exporter> instance;
 		std::string getFileName(const std::string& filePath);
 	};
 }

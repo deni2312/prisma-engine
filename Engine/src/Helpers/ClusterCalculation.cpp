@@ -19,7 +19,7 @@ Prisma::ClusterCalculation::ClusterCalculation(unsigned int numClusters)
 
 void Prisma::ClusterCalculation::updateCamera()
 {
-	auto currentSettings=Prisma::SettingsLoader::instance().getSettings();
+	auto currentSettings=Prisma::SettingsLoader::getInstance().getSettings();
 	m_shader->use();
 	m_shader->setFloat(m_nearPos, currentGlobalScene->camera->nearPlane());
 	m_shader->setFloat(m_farPos, currentGlobalScene->camera->farPlane());

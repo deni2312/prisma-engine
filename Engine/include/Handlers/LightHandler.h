@@ -3,10 +3,11 @@
 #include "../Containers/SSBO.h"
 #include "../GlobalData/Defines.h"
 #include "../Helpers/ClusterCalculation.h"
+#include "../GlobalData/InstanceData.h"
 #include <vector>
 
 namespace Prisma {
-	class LightHandler {
+	class LightHandler : public InstanceData<LightHandler>{
 	private:
 		struct SSBODataDirectional {
 			glm::vec4 size;
@@ -25,9 +26,6 @@ namespace Prisma {
 		std::shared_ptr<Prisma::SSBO> m_dirLights;
 		std::shared_ptr<Prisma::SSBO> m_dirCSM;
 
-
-        static std::shared_ptr<LightHandler> instance;
-
 		void updateDirectional();
 
 		void updateOmni();
@@ -36,12 +34,6 @@ namespace Prisma {
 
         bool m_init;
 	public:
-		static LightHandler& getInstance();
-
-		
-
-		LightHandler(const LightHandler&) = delete;
-		LightHandler& operator=(const LightHandler&) = delete;
 		void update();
 		void bind();
 		std::shared_ptr<Prisma::LightHandler::SSBODataDirectional> dataDirectional() const;

@@ -10,6 +10,7 @@
 #include "../Containers/VAO.h"
 #include "../Containers/VBO.h"
 #include "../Containers/EBO.h"
+#include "../GlobalData/InstanceData.h"
 
 namespace Prisma {
 
@@ -22,7 +23,7 @@ namespace Prisma {
 		unsigned int  baseInstance;
 	};
 
-	class MeshIndirect {
+	class MeshIndirect : public InstanceData<MeshIndirect>{
 	private:
 		//BINDING DATA
 
@@ -70,8 +71,6 @@ namespace Prisma {
 		std::vector<Prisma::MaterialData> m_materialData;
 		std::vector<Prisma::MaterialData> m_materialDataAnimation;
 
-        static std::shared_ptr<MeshIndirect> instance;
-
 		void updateAnimation();
 
 		std::vector<unsigned int> m_cacheAddAnimate;
@@ -82,10 +81,6 @@ namespace Prisma {
 		std::vector<unsigned int> m_cacheRemove;
 
 	public:
-		static MeshIndirect& getInstance();
-
-		MeshIndirect(const MeshIndirect&) = delete;
-		MeshIndirect& operator=(const MeshIndirect&) = delete;
 		void load();
 
 		void init();

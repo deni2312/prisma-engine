@@ -1,7 +1,5 @@
 #include "../../include/GlobalData/CacheScene.h"
 
-std::shared_ptr<Prisma::CacheScene> Prisma::CacheScene::instance = nullptr;
-
 bool Prisma::CacheScene::updateLights() {
     return m_updateLights;
 }
@@ -42,14 +40,6 @@ bool Prisma::CacheScene::updateStatus()
 void Prisma::CacheScene::updateStatus(bool value)
 {
     m_updateStatus = value;
-}
-
-Prisma::CacheScene& Prisma::CacheScene::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<CacheScene>();
-    }
-    return *instance;
 }
 
 void Prisma::CacheScene::resetCaches() {

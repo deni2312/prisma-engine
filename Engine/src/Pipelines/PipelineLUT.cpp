@@ -8,19 +8,10 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "../../include/Helpers/IBLBuilder.h"
 
-std::shared_ptr<Prisma::PipelineLUT> Prisma::PipelineLUT::instance = nullptr;
 
 Prisma::PipelineLUT::PipelineLUT()
 {
     m_shader = std::make_shared<Shader>("../../../Engine/Shaders/LUTPipeline/vertex.glsl", "../../../Engine/Shaders/LUTPipeline/fragment.glsl");
-}
-
-Prisma::PipelineLUT& Prisma::PipelineLUT::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<PipelineLUT>();
-    }
-    return *instance;
 }
 
 void Prisma::PipelineLUT::texture()

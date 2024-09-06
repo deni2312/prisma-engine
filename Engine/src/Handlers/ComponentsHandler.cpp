@@ -1,7 +1,5 @@
 #include "../../include/Handlers/ComponentsHandler.h"
 
-std::shared_ptr<Prisma::ComponentsHandler> Prisma::ComponentsHandler::instance = nullptr;
-
 void Prisma::ComponentsHandler::updateStart() {
         for(const auto& component: m_components){
             if(!component->isStart()){
@@ -36,14 +34,6 @@ void Prisma::ComponentsHandler::updateRender()
             component->updateRender();
         }
     }
-}
-
-Prisma::ComponentsHandler& Prisma::ComponentsHandler::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<ComponentsHandler>();
-    }
-    return *instance;
 }
 
 Prisma::ComponentsHandler::ComponentsHandler()

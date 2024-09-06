@@ -2,16 +2,12 @@
 #include "PostprocessEffect.h"
 #include "../Containers/FBO.h"
 #include <vector>
+#include "../GlobalData/InstanceData.h"
 
 namespace Prisma {
 
-	class Postprocess {
+	class Postprocess : public InstanceData<Postprocess>{
 	public:
-		static Postprocess& getInstance();
-
-		Postprocess(const Postprocess&) = delete;
-		Postprocess& operator=(const Postprocess&) = delete;
-
 		Postprocess();
 
 		void render();
@@ -24,7 +20,6 @@ namespace Prisma {
 		std::vector<std::shared_ptr<Prisma::PostprocessEffect>> m_effects;
 		std::shared_ptr<Prisma::FBO> m_fbo;
 		std::shared_ptr<Prisma::FBO> m_fboRaw;
-		static std::shared_ptr<Postprocess> instance;
 	};
 
 }

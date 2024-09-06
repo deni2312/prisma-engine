@@ -11,7 +11,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../../include/GlobalData/CacheScene.h"
 
-std::shared_ptr<Prisma::MeshIndirect> Prisma::MeshIndirect::instance = nullptr;
 
 void Prisma::MeshIndirect::load()
 {
@@ -395,14 +394,6 @@ void Prisma::MeshIndirect::updateAnimation()
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommandsAnimation.size() * sizeof(DrawElementsIndirectCommand), m_drawCommandsAnimation.data(), GL_DYNAMIC_DRAW);
     }
-}
-
-Prisma::MeshIndirect& Prisma::MeshIndirect::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<MeshIndirect>();
-    }
-    return *instance;
 }
 
 void Prisma::MeshIndirect::updateTextureSize() {

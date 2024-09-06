@@ -1,15 +1,5 @@
 #include "../../include/Postprocess/Postprocess.h"
 
-std::shared_ptr<Prisma::Postprocess> Prisma::Postprocess::instance = nullptr;
-
-Prisma::Postprocess& Prisma::Postprocess::getInstance()
-{
-    if (!instance) {
-        instance = std::make_shared<Prisma::Postprocess>();
-    }
-    return *instance;
-}
-
 Prisma::Postprocess::Postprocess()
 {
 

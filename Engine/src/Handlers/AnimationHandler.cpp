@@ -3,16 +3,6 @@
 #include "../../include/GlobalData/Defines.h"
 #include "../../include/SceneData/MeshIndirect.h"
 
-std::shared_ptr<Prisma::AnimationHandler> Prisma::AnimationHandler::instance = nullptr;
-
-Prisma::AnimationHandler& Prisma::AnimationHandler::getInstance()
-{
-	if (!instance) {
-		instance = std::make_shared<AnimationHandler>();
-	}
-	return *instance;
-}
-
 void Prisma::AnimationHandler::updateAnimations()
 {
 	m_ssboAnimation->modifyData(0, currentGlobalScene->animateMeshes.size() * sizeof(SSBOAnimation), m_animations.data());

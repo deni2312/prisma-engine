@@ -2,11 +2,12 @@
 
 #include "../GlobalData/GlobalData.h"
 #include "../Components/Component.h"
+#include "../GlobalData/InstanceData.h"
 
 
 namespace Prisma {
 
-    class ComponentsHandler {
+    class ComponentsHandler : public InstanceData<ComponentsHandler>{
     public:
         void updateStart();
 
@@ -29,19 +30,10 @@ namespace Prisma {
                 m_components.erase(it, m_components.end());
             }
         }
-
-        static ComponentsHandler& getInstance();
-
-
-
-        ComponentsHandler(const ComponentsHandler&) = delete;
-        ComponentsHandler& operator=(const ComponentsHandler&) = delete;
-
         ComponentsHandler();
 
     private:
         std::vector<std::shared_ptr<Component>> m_components;
-        static std::shared_ptr<ComponentsHandler> instance;
     };
 
 }

@@ -129,7 +129,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
         // Here you would handle mouse button clicks
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x<m_constraints.maxX && y<m_constraints.maxY && x>m_constraints.minX && y>m_constraints.minY && !m_constraints.isOver) {
 
-            auto settings = Prisma::SettingsLoader::instance().getSettings();
+            auto settings = Prisma::SettingsLoader::getInstance().getSettings();
             
             x = x - m_constraints.minX;
             x = x / m_constraints.scale;

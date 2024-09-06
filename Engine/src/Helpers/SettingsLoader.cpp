@@ -19,12 +19,6 @@ void from_json(const nlohmann::json& j, Prisma::Settings& settings) {
     j.at("fullscreen").get_to(settings.fullscreen);
 }
 
-// Static method to access the singleton instance
-Prisma::SettingsLoader& Prisma::SettingsLoader::instance() {
-    static SettingsLoader instance;  // Guaranteed to be destroyed and instantiated on first use.
-    return instance;
-}
-
 // Load method to read settings from a file
 void Prisma::SettingsLoader::load(const std::string& filename) {
     std::ifstream file(filename);
@@ -52,6 +46,10 @@ void Prisma::SettingsLoader::load(const std::string& filename) {
 // Accessor method to get the loaded settings
 const Prisma::Settings& Prisma::SettingsLoader::getSettings() const {
     return settings;
+}
+
+Prisma::SettingsLoader::SettingsLoader()
+{
 }
 
 // Default settings and create the config file

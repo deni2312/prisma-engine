@@ -1,15 +1,6 @@
 #include "../../include/Helpers/GarbageCollector.h"
 #include "gl/glew.h"
 
-std::shared_ptr<Prisma::GarbageCollector> Prisma::GarbageCollector::instance = nullptr;
-
-Prisma::GarbageCollector &Prisma::GarbageCollector::getInstance() {
-    if (!instance) {
-        instance = std::make_shared<GarbageCollector>();
-    }
-    return *instance;
-}
-
 Prisma::GarbageCollector::GarbageCollector() {
 
 }

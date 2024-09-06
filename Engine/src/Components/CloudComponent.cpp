@@ -59,7 +59,7 @@ void Prisma::CloudComponent::start()
 
 	m_noisePos = cloudShader->getUniformPosition("uNoise");
 
-	auto settings = Prisma::SettingsLoader::instance().getSettings();
+	auto settings = Prisma::SettingsLoader::getInstance().getSettings();
 
 	Prisma::FBO::FBOData fboData;
 	fboData.width = settings.width;

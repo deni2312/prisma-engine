@@ -4,8 +4,10 @@
 #include "../Containers/Ubo.h"
 #include "../Helpers/Settings.h"
 
+#include "../GlobalData/InstanceData.h"
+
 namespace Prisma {
-	class MeshHandler {
+	class MeshHandler : public InstanceData<MeshHandler>{
 	public:
 		struct UBOData {
 			glm::mat4 view;
@@ -33,14 +35,9 @@ namespace Prisma {
 
 		std::shared_ptr<UBOData> data() const;
 		std::shared_ptr<Ubo> ubo() const;
-		MeshHandler(const MeshHandler&) = delete;
-		MeshHandler& operator=(const MeshHandler&) = delete;
 		void updateCamera();
 		void updateCluster();
 		void updateFragment();
-
-		static MeshHandler& getInstance();
-
         MeshHandler();
 
     private:
@@ -51,6 +48,5 @@ namespace Prisma {
 		UBOCluster m_uboClusterData;
 		UBOFragment m_fragment;
 		Prisma::Settings m_settings;
-		static std::shared_ptr<MeshHandler> instance;
 	};
 }
