@@ -7,6 +7,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "../../include/Helpers/GarbageCollector.h"
 
 std::shared_ptr<Prisma::IBLBuilder> Prisma::IBLBuilder::instance = nullptr;
 
@@ -155,6 +156,8 @@ void Prisma::IBLBuilder::createFbo(unsigned int width, unsigned int height)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_data.rbo);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    Prisma::GarbageCollector::getInstance().add({ Prisma::GarbageCollector::GarbageType::FBO,m_data.fbo });
+    Prisma::GarbageCollector::getInstance().add({ Prisma::GarbageCollector::GarbageType::RBO,m_data.fbo });
     m_data.width = width;
     m_data.height = height;
 }
