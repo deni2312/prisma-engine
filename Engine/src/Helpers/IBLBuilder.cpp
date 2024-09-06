@@ -157,7 +157,7 @@ void Prisma::IBLBuilder::createFbo(unsigned int width, unsigned int height)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_data.rbo);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     Prisma::GarbageCollector::getInstance().add({ Prisma::GarbageCollector::GarbageType::FBO,m_data.fbo });
-    Prisma::GarbageCollector::getInstance().add({ Prisma::GarbageCollector::GarbageType::RBO,m_data.fbo });
+    Prisma::GarbageCollector::getInstance().add({ Prisma::GarbageCollector::GarbageType::RBO,m_data.rbo });
     m_data.width = width;
     m_data.height = height;
 }
