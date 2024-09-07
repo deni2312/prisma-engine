@@ -204,14 +204,15 @@ void PlayerController::createCamera() {
             auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
 
             auto lightParent = std::make_shared<Prisma::Node>();
-
+            ball->name("Ball");
             auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
             Prisma::LightType::LightOmni lightType;
             light->type(lightType);
-
+            light->name("LightBall");
+            lightParent->name("LightParent");
             lightParent->addChild(light);
 
-            ball->addChild(lightParent);
+            ball->parent()->addChild(lightParent);
 
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
             ball->addComponent(physicsComponent);
