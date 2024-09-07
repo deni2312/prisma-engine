@@ -149,5 +149,7 @@ namespace Prisma {
 
 		int m_downscale = 4;
 
+		std::function<void()> m_startButton;
+
 	};
 }

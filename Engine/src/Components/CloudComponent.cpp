@@ -72,10 +72,12 @@ void Prisma::CloudComponent::ui()
 	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "SunPitch", &m_sunPitch));
 
 	ComponentType componentButton;
-	auto startButton = [&]() {
-		start();
+	m_startButton = [&]() {
+		if (!isStart()) {
+			start();
+		}
 	};
-	componentButton = std::make_tuple(Prisma::Component::TYPES::BUTTON, "UI clouds", &startButton);
+	componentButton = std::make_tuple(Prisma::Component::TYPES::BUTTON, "UI clouds", &m_startButton);
 	for (const auto& component : components) {
 		addGlobal(component);
 	}
