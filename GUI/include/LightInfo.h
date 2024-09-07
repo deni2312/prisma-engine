@@ -17,15 +17,6 @@ namespace Prisma {
         void showSelectedOmni(Prisma::Light<Prisma::LightType::LightOmni>* lightData,const Prisma::NodeViewer::NodeData& meshData);
 
     private:
-        glm::vec3 m_translation;
-
-        glm::mat4 m_currentModelDir;
-
-        glm::mat4 m_currentModelOmni;
-
-        ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::ROTATE;
-        ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
-
         glm::vec3 directionToEulerAngles(const glm::vec3& direction);
     };
 }

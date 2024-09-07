@@ -56,7 +56,7 @@ namespace Prisma {
             }
         }
 
-        void showSelected(const NodeData& nodeData) {
+        void showSelected(const NodeData& nodeData,bool end=true) {
             if (nodeData.node) {
 
                 float windowWidth = nodeData.translate * nodeData.width / 2.0f;
@@ -105,7 +105,9 @@ namespace Prisma {
 
                 ImGui::Dummy(ImVec2(0.0f, 10.0f));
                 showComponents(nodeData.node);
-                ImGui::End();
+                if (end) {
+                    ImGui::End();
+                }
             }
         }
         // Getters for textures

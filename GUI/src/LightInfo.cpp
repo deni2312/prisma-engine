@@ -16,31 +16,6 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
     nextRight(meshData.initOffset);
     ImGui::Begin(lightData->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    // Decompose the matrix
-    glm::vec3 scale;
-    glm::quat rotation;
-    glm::vec3 translation;
-
-    glm::mat4 model = lightData->parent()->matrix();
-    glm::mat4 inverseParent = glm::inverse(lightData->parent()->parent()->finalMatrix());
-    ImGuiIO& io = ImGui::GetIO();
-    mCurrentGizmoOperation = ImGuizmo::ROTATE;
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-    ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
-
-    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(translation), glm::value_ptr(rotation), glm::value_ptr(scale));
-    
-    lightData->parent()->matrix(inverseParent * model);
-
-
-    if (ImGuizmo::IsUsing()) {
-    }
-
-    // Convert quaternion to Euler angles (XYZ)
-    glm::vec3 euler = glm::degrees(glm::eulerAngles(rotation));
-
-
-    ImGui::InputFloat3("Rotation ", glm::value_ptr(euler));
 
     if (ImGui::InputFloat3("Diffuse ", glm::value_ptr(type.diffuse))) {
         lightData->type(type);
@@ -92,23 +67,6 @@ void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightO
     nextRight(meshData.initOffset);
     ImGui::Begin(lightData->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    glm::vec3 scale;
-    glm::quat rotation;
-    glm::vec3 translation;
-
-    glm::mat4 model = lightData->parent()->matrix();
-    glm::mat4 inverseParent = glm::inverse(lightData->parent()->parent()->finalMatrix());
-    ImGuiIO& io = ImGui::GetIO();
-    mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-    ImGuizmo::Manipulate(glm::value_ptr(meshData.camera->matrix()), glm::value_ptr(meshData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
-
-    ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(translation), glm::value_ptr(rotation), glm::value_ptr(scale));
-
-    lightData->parent()->matrix(inverseParent * model);
-
-    ImGui::InputFloat3("Translation ", glm::value_ptr(type.position));
-
     if (ImGui::InputFloat3("Diffuse ", glm::value_ptr(type.diffuse))) {
         lightData->type(type);
     }
@@ -139,8 +97,8 @@ void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightO
         }
 
     }
-
     ImGui::End();
+
 }
 
 glm::vec3 Prisma::LightInfo::directionToEulerAngles(const glm::vec3& direction) {
