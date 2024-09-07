@@ -265,8 +265,8 @@ vec4 stackable3DNoise(ivec3 pixel)
 	vec3 coord = vec3(float(pixel.x) / 128.0, float(pixel.y) / 128.0, float(pixel.z) / 128.0);
 
 	// Perlin FBM noise
-	int octaveCount = 3;
-	float frequency = 8.0;
+	int octaveCount = 3;	// 3
+	float frequency = 8.0;	// 8
 	float perlinNoise = perlinNoise3D(coord, frequency, octaveCount);
 
 	float PerlinWorleyNoise = 0.0f;
@@ -300,16 +300,26 @@ vec4 stackable3DNoise(ivec3 pixel)
 	//float worleyFBM2 = worleyNoise3*0.625f + worleyNoise4*0.25f + worleyNoise5*0.125f;
 	float worleyFBM2 = worleyNoise3 * 0.75f + worleyNoise4 * 0.25f;
 	// cellCount=4 -> worleyNoise5 is just noise due to sampling frequency=texel frequency. So only take into account 2 frequencies for FBM
-#ifdef CLAMPRESULT
+
 	return clamp(vec4(PerlinWorleyNoise * PerlinWorleyNoise, worleyFBM0, worleyFBM1, worleyFBM2), 0.0, 1.0);
-#else
-	return vec4(PerlinWorleyNoise * PerlinWorleyNoise, worleyFBM0, worleyFBM1, worleyFBM2);
-#endif
+	/*
+	#ifdef CLAMPRESULT
+		return clamp(vec4(PerlinWorleyNoise * PerlinWorleyNoise, worleyFBM0, worleyFBM1, worleyFBM2), 0.0, 1.0);
+	#else
+		return vec4(PerlinWorleyNoise * PerlinWorleyNoise, worleyFBM0, worleyFBM1, worleyFBM2);
+	#endif
+	*/
+
 }
 
 void main()
 {
 	ivec3 pixel = ivec3(gl_GlobalInvocationID.xyz);
 
+	// r = Perlin-Worley FBM X octave
+	// g = Worley X + 1 octave
+	// b = Worley X + 2 octave
+	// c = Worley X + 3 octave
+	// res 128 * 128 * 128
 	imageStore(outVolTex, pixel, stackable3DNoise(pixel));
 }
