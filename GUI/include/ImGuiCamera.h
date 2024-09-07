@@ -12,7 +12,6 @@ namespace Prisma {
             float minY;
             float maxX;
             float maxY;
-            std::function<void(glm::mat4&)> model;
 			bool isOver;
 			float scale;
         };

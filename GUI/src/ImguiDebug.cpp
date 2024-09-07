@@ -271,7 +271,7 @@ void Prisma::ImguiDebug::start()
 void Prisma::ImguiDebug::close()
 {
 
-    m_imguiCamera.constraints({ m_translate * m_width / 2,m_initOffset+50,m_translate * m_width / 2 + m_scale * m_width,m_height * m_scale,meshInfo.updateMesh(),ImGuizmo::IsOver(),m_scale });
+    m_imguiCamera.constraints({ m_translate * m_width / 2,m_initOffset+50,m_translate * m_width / 2 + m_scale * m_width,m_height * m_scale,ImGuizmo::IsOver(),m_scale });
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     if (!m_run) {

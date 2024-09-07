@@ -131,23 +131,6 @@ namespace Prisma {
             return m_eyeClose;
         }
 
-    private:
-        glm::vec3 m_scale;
-        glm::vec3 m_rotation;
-        glm::vec3 m_translation;
-
-        glm::mat4 m_currentModel;
-
-        std::shared_ptr<Prisma::Texture> m_rotateTexture;
-        std::shared_ptr<Prisma::Texture> m_translateTexture;
-        std::shared_ptr<Prisma::Texture> m_scaleTexture;
-        std::shared_ptr<Prisma::Texture> m_eyeOpen;
-        std::shared_ptr<Prisma::Texture> m_eyeClose;
-
-        ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-        ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
-
-
         void drawGizmo(const NodeData& nodeData) {
             ImGuiIO& io = ImGui::GetIO();
             ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
@@ -163,5 +146,21 @@ namespace Prisma {
 
             nodeData.node->matrix(inverseParent * model);
         }
+
+    private:
+        glm::vec3 m_scale;
+        glm::vec3 m_rotation;
+        glm::vec3 m_translation;
+
+        glm::mat4 m_currentModel;
+
+        std::shared_ptr<Prisma::Texture> m_rotateTexture;
+        std::shared_ptr<Prisma::Texture> m_translateTexture;
+        std::shared_ptr<Prisma::Texture> m_scaleTexture;
+        std::shared_ptr<Prisma::Texture> m_eyeOpen;
+        std::shared_ptr<Prisma::Texture> m_eyeClose;
+
+        ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+        ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
     };
 }

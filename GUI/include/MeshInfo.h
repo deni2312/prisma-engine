@@ -17,20 +17,6 @@ namespace Prisma {
 
         MeshInfo();
 
-        std::function<void(glm::mat4&)> updateMesh();
-
-    private:
-
-        glm::vec3 m_scale;
-        glm::vec3 m_rotation;
-        glm::vec3 m_translation;
-
-        glm::mat4 m_currentModel;
-
-        ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-        ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
-
-        void drawGizmo(const Prisma::NodeViewer::NodeData& meshData);
     };
 }
 

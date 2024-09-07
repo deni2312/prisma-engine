@@ -144,10 +144,8 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
             if(result) {
                 m_currentSelect = result.get();
                 auto model=result->matrix();
-                m_constraints.model(model);
             }else{
                 auto model=glm::mat4(1.0f);
-                m_constraints.model(model);
                 m_currentSelect=nullptr;
             }
         }
