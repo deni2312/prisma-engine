@@ -149,17 +149,17 @@ namespace Prisma {
         void drawGizmo(const NodeData& nodeData) {
             ImGuiIO& io = ImGui::GetIO();
             ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-            glm::mat4 model = nodeData.node->parent()->finalMatrix();
+            glm::mat4 model = nodeData.node->finalMatrix();
             glm::mat4 inverseParent = glm::mat4(1.0f);
-            if (nodeData.node->parent()->parent()) {
-                inverseParent = glm::inverse(nodeData.node->parent()->parent()->finalMatrix());
+            if (nodeData.node->parent()) {
+                inverseParent = glm::inverse(nodeData.node->parent()->finalMatrix());
             }
 
             ImGuizmo::Manipulate(glm::value_ptr(nodeData.camera->matrix()), glm::value_ptr(nodeData.projection), mCurrentGizmoOperation, mCurrentGizmoMode, glm::value_ptr(model));
 
             ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(model), glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale));
 
-            nodeData.node->parent()->matrix(inverseParent * model);
+            nodeData.node->matrix(inverseParent * model);
         }
     };
 }
