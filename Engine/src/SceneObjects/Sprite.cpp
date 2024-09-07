@@ -48,10 +48,10 @@ void Prisma::Sprite::render()
     // Enable additive blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
-    //glDepthMask(GL_FALSE);
+    glDepthMask(GL_FALSE);
     // Render the sprites
     Prisma::IBLBuilder::getInstance().renderQuad(m_numSprites);
-    //glDepthMask(GL_TRUE);
+    glDepthMask(GL_TRUE);
 
     // Deactivate blending and restore OpenGL state
     glDisable(GL_BLEND);
