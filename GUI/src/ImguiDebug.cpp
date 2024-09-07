@@ -80,6 +80,8 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     m_pauseButton = std::make_shared<Prisma::Texture>();
     m_pauseButton->loadTexture("../../../GUI/icons/pause.png", false, false, false);
 
+    Prisma::NodeViewer::getInstance();
+
     initStatus();
 }
 
@@ -230,7 +232,7 @@ void Prisma::ImguiDebug::drawGui()
             nodeData.height = m_height;
             nodeData.scale = m_scale;
             nodeData.initOffset = m_initOffset;
-            nodeData.node = currentSelectMesh;
+            nodeData.node = m_imguiCamera.currentSelect();
 
             if (currentSelectMesh) {
                 meshInfo.showSelected(nodeData);

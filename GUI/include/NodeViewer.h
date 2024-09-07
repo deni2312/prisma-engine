@@ -7,6 +7,7 @@
 #include "../../Engine/include/SceneObjects/Camera.h"
 #include "../../Engine/include/Containers/Texture.h"
 #include <ImGuizmo.h>
+#include <iostream>
 
 namespace Prisma {
 	class NodeViewer : public Prisma::InstanceData<NodeViewer>{

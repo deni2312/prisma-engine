@@ -13,9 +13,9 @@ static std::shared_ptr<Prisma::Shader> worleyShader = nullptr;
 static std::shared_ptr<Prisma::Shader> perlinWorleyShader = nullptr;
 static std::shared_ptr<Prisma::Shader> weatherShader = nullptr;
 
-Prisma::CloudComponent::CloudComponent()
+Prisma::CloudComponent::CloudComponent() : Prisma::Component{}
 {
-
+	name("Cloud");
 }
 
 void Prisma::CloudComponent::ui()
