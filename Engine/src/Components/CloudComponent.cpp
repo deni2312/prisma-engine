@@ -138,7 +138,7 @@ void Prisma::CloudComponent::generateWorley()
 {
 	//GENERATE WORLEY
 	worleyShader->use();
-	glm::ivec3 size(128, 128, 128);
+	glm::ivec3 size(32, 32, 32);
 	// Generate a texture ID
 	unsigned int textureId;
 
@@ -171,7 +171,7 @@ void Prisma::CloudComponent::generatePerlinWorley()
 {
 	//GENERATE PERLIN WORLEY
 	perlinWorleyShader->use();
-	glm::ivec3 size(32, 32, 32);
+	glm::ivec3 size(128, 128, 128);
 	// Generate a texture ID
 	unsigned int textureId;
 
