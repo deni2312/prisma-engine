@@ -599,7 +599,7 @@ void main()
 	else
 	{
 		// when not raymarch can be done, just take the color from the atmosphere along the view direction
-		resultColor = getColorFromPreethamAtmosphere(viewDirectionToFragmentPosition);
+		discard;
 	}
 
 
@@ -607,4 +607,5 @@ void main()
 	resultColor = vec3(1.0) - exp(-resultColor.xyz * toneMapperEyeExposure);	// Reinhard Tone Mapping with eye exposure variable
 
     FragColor = vec4(resultColor, 1.0);
+
 }

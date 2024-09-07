@@ -87,7 +87,6 @@ void Prisma::CloudComponent::ui()
 void Prisma::CloudComponent::updateRender()
 {
 	if (cloudShader) {
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		cloudShader->use();
 
@@ -136,7 +135,7 @@ void Prisma::CloudComponent::start()
 
 	m_resolutionPos = cloudShader->getUniformPosition("resolution");
 
-	m_noisePos = cloudShader->getUniformPosition("uNoise");
+	m_modelPos = cloudShader->getUniformPosition("model");
 
 	m_invViewPos = cloudShader->getUniformPosition("invView");
 	m_invProjPos = cloudShader->getUniformPosition("invProj");
