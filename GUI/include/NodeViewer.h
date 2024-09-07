@@ -62,7 +62,7 @@ namespace Prisma {
                 float windowWidth = nodeData.translate * nodeData.width / 2.0f;
                 auto nextRight = [&](float pos) {
                     ImGui::SetNextWindowPos(ImVec2(windowWidth + nodeData.scale * nodeData.width, pos));
-                    ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
+                    ImGui::SetNextWindowSize(ImVec2(windowWidth, nodeData.height * nodeData.scale-pos));
                 };
                 nextRight(nodeData.initOffset);
                 ImGui::Begin(nodeData.node->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);

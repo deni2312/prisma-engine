@@ -37,7 +37,7 @@ void Prisma::MeshInfo::showSelected(const Prisma::NodeViewer::NodeData& meshData
         float windowWidth = meshData.translate * meshData.width / 2.0f;
         auto nextRight = [&](float pos) {
             ImGui::SetNextWindowPos(ImVec2(windowWidth + meshData.scale * meshData.width, pos));
-            ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
+            ImGui::SetNextWindowSize(ImVec2(windowWidth, meshData.height * meshData.scale - pos));
         };
         nextRight(meshData.initOffset);
         ImGui::Begin(meshData.node->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
