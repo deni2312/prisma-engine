@@ -238,7 +238,6 @@ void Prisma::CloudComponent::setVariables()
 	if (currentGlobalScene->dirLights.size() > 0) {
 		cloudShader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
 	}
-
 	// Calculate elapsed time since the first render call
 	auto now = std::chrono::system_clock::now();
 	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
@@ -250,7 +249,7 @@ void Prisma::CloudComponent::setVariables()
 	cloudShader->setInt64(m_worlPos, m_worley);
 
 	// Setting the uniforms
-	cloudShader->setMat4(m_invViewPos, currentGlobalScene->camera->matrix());                  // Inverse View matrix
+	cloudShader->setMat4(m_invViewPos, glm::inverse(currentGlobalScene->camera->matrix()));                  // Inverse View matrix
 	cloudShader->setMat4(m_invProjPos, glm::inverse(currentProjection));                  // Inverse Projection matrix
 	cloudShader->setVec2(m_resolutionPos, m_resolution);            // Resolution
 
