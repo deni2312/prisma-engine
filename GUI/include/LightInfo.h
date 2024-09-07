@@ -13,8 +13,8 @@ namespace Prisma {
     class LightInfo {
     public:
 
-        void showSelectedDir(Prisma::Light<Prisma::LightType::LightDir>* lightData,const Prisma::MeshInfo::MeshData& meshData);
-        void showSelectedOmni(Prisma::Light<Prisma::LightType::LightOmni>* lightData,const Prisma::MeshInfo::MeshData& meshData);
+        void showSelectedDir(Prisma::Light<Prisma::LightType::LightDir>* lightData,const Prisma::NodeViewer::NodeData& meshData);
+        void showSelectedOmni(Prisma::Light<Prisma::LightType::LightOmni>* lightData,const Prisma::NodeViewer::NodeData& meshData);
 
     private:
         glm::vec3 m_translation;

@@ -11,7 +11,7 @@ void Prisma::PhysicsMeshComponent::ui() {
 
     ComponentType componentMass;
     componentMass=std::make_tuple(Prisma::Component::TYPES::FLOAT,"Mass",&m_collisionData.mass);
-
+    
 
     ComponentType componentButton;
     m_apply=[&](){

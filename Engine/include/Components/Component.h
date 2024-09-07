@@ -22,7 +22,9 @@ namespace Prisma {
             STRING,
             BOOL,
             STRINGLIST,
-            BUTTON
+            BUTTON,
+            VEC2,
+            VEC3
         };
 
         using ComponentType = std::tuple<TYPES,std::string,void*>;

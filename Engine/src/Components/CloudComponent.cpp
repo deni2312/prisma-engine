@@ -18,6 +18,70 @@ Prisma::CloudComponent::CloudComponent()
 
 }
 
+void Prisma::CloudComponent::ui()
+{
+	std::vector<ComponentType> components;
+
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "CoverageScale", &m_coverageScale));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "AmbientColorScale", &m_ambientColorScale));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "CloudType", &m_cloudType));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "LowFrequencyNoiseScale", &m_lowFrequencyNoiseScale));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "HighFrequencyNoiseScale", &m_highFrequencyNoiseScale));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "HighFrequencyNoiseErodeMuliplier", &m_highFrequencyNoiseErodeMuliplier));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "HighFrequencyHeightTransitionMultiplier", &m_highFrequencyHeightTransitionMultiplier));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "AnvilBias", &m_anvilBias));
+
+	// Add vec3 components
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::VEC3, "CloudColor", &m_cloudColor));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::VEC3, "WindDirection", &m_windDirection));
+
+	// Add more float components
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "RainCloudAbsorptionGain", &m_rainCloudAbsorptionGain));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "CloudAttenuationScale", &m_cloudAttenuationScale));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "PhaseEccentricity", &m_phaseEccentricity));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "PhaseSilverLiningIntensity", &m_phaseSilverLiningIntensity));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "PhaseSilverLiningSpread", &m_phaseSilverLiningSpread));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "ConeSpreadMultiplier", &m_coneSpreadMultplier));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "ShadowSampleConeSpreadMultiplier", &m_shadowSampleConeSpreadMultiplier));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "PowderedSugarEffectMultiplier", &m_powderedSugarEffectMultiplier));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "ToneMapperEyeExposure", &m_toneMapperEyeExposure));
+
+	// Add bool components
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "IgnoreDetailNoise", &m_ignoreDetailNoise));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "UseEarlyExitAtFullOpacity", &m_useEarlyExitAtFullOpacity));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "UseBayerFilter", &m_useBayerFilter));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "RenderDirectlyToFullscreen", &m_renderDirectlyToFullscreen));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "RenderActualQuarterResolutionBuffer", &m_renderActualQuarterResolutionBuffer));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "MoveSunManually", &m_moveSunManually));
+
+	// Add raymarch settings
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "MaxRenderDistance", &m_maxRenderDistance));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "MaxHorizontalSampleCount", &m_maxHorizontalSampleCount));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "MaxVerticalSampleCount", &m_maxVerticalSampleCount));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "EarthRadius", &m_earthRadius));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "VolumetricCloudsStartRadius", &m_volumetricCloudsStartRadius));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "VolumetricCloudsEndRadius", &m_volumetricCloudsEndRadius));
+
+	// Add wind settings
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "WindUpwardBias", &m_windUpwardBias));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "CloudSpeed", &m_cloudSpeed));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "CloudTopOffset", &m_cloudTopOffset));
+
+	// Add sun settings
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "SunIntensity", &m_sunIntensity));
+	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "SunPitch", &m_sunPitch));
+
+	ComponentType componentButton;
+	auto startButton = [&]() {
+		start();
+	};
+	componentButton = std::make_tuple(Prisma::Component::TYPES::BUTTON, "UI clouds", &startButton);
+	for (const auto& component : components) {
+		addGlobal(component);
+	}
+	addGlobal(componentButton);
+}
+
 void Prisma::CloudComponent::updateRender()
 {
 	if (cloudShader) {

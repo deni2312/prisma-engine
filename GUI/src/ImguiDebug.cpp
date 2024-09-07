@@ -27,6 +27,7 @@
 #include "../../Engine/include/engine.h"
 #include "../../Engine/include/Pipelines/PipelineSkybox.h"
 #include "implot.h"
+#include "../include/NodeViewer.h"
 
 struct PrivateIO {
     ImGuiIO io;
@@ -216,30 +217,32 @@ void Prisma::ImguiDebug::drawGui()
         Prisma::ImGuiTabs::getInstance().showNodes(currentGlobalScene->root, 1, m_imguiCamera);
         // Check if the node is clicked
         ImGui::End();
-
         m_fileBrowser->show(m_width, m_height, m_initOffset, m_scale, m_translate);
         if (m_imguiCamera.currentSelect()) {
             auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());
             auto currentSelectLightDir = dynamic_cast<Light<LightType::LightDir>*>(m_imguiCamera.currentSelect());
             auto currentSelectLightOmni = dynamic_cast<Light<LightType::LightOmni>*>(m_imguiCamera.currentSelect());
-            MeshInfo::MeshData meshData;
-            meshData.camera = m_camera;
-            meshData.projection = m_model * m_projection;
-            meshData.translate = m_translate;
-            meshData.width = m_width;
-            meshData.height = m_height;
-            meshData.scale = m_scale;
-            meshData.initOffset = m_initOffset;
+            Prisma::NodeViewer::NodeData nodeData;
+            nodeData.camera = m_camera;
+            nodeData.projection = m_model * m_projection;
+            nodeData.translate = m_translate;
+            nodeData.width = m_width;
+            nodeData.height = m_height;
+            nodeData.scale = m_scale;
+            nodeData.initOffset = m_initOffset;
+            nodeData.node = currentSelectMesh;
 
             if (currentSelectMesh) {
-                meshData.mesh = currentSelectMesh;
-                meshInfo.showSelected(meshData);
+                meshInfo.showSelected(nodeData);
             }
             else if (currentSelectLightDir) {
-                lightInfo.showSelectedDir(currentSelectLightDir, meshData);
+                lightInfo.showSelectedDir(currentSelectLightDir, nodeData);
             }
             else if (currentSelectLightOmni) {
-                lightInfo.showSelectedOmni(currentSelectLightOmni, meshData);
+                lightInfo.showSelectedOmni(currentSelectLightOmni, nodeData);
+            }
+            else {
+                Prisma::NodeViewer::getInstance().showSelected(nodeData);
             }
         }
 

@@ -5,7 +5,7 @@
 #include "../../Engine/include/GlobalData/CacheScene.h"
 
 
-void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDir>* lightData,const Prisma::MeshInfo::MeshData& meshData)
+void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDir>* lightData,const Prisma::NodeViewer::NodeData& meshData)
 {
     auto type = lightData->type();
     float windowWidth = meshData.translate * meshData.width / 2.0f;
@@ -81,7 +81,7 @@ void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDi
     ImGui::End();
 }
 
-void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightOmni>* lightData,const Prisma::MeshInfo::MeshData& meshData)
+void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightOmni>* lightData,const Prisma::NodeViewer::NodeData& meshData)
 {
     auto type = lightData->type();
     float windowWidth = meshData.translate * meshData.width / 2.0f;

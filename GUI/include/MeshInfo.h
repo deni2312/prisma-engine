@@ -7,25 +7,13 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include <functional>
 #include "ImGuizmo.h"
+#include "NodeViewer.h"
 
 namespace Prisma {
     class MeshInfo {
     public:
 
-        struct MeshData{
-            Prisma::Mesh *mesh;
-            std::shared_ptr<Prisma::Camera> camera;
-            glm::mat4 projection;
-            float translate;
-            float width;
-            float height;
-            float scale;
-            float initOffset;
-        };
-
-        void showSelected(const MeshData& meshData);
-        void showComponents(const MeshData& meshData);
-        void varsDispatcher(Prisma::Component::ComponentType types);
+        void showSelected(const Prisma::NodeViewer::NodeData& meshData);
 
         MeshInfo();
 
@@ -39,16 +27,10 @@ namespace Prisma {
 
         glm::mat4 m_currentModel;
 
-        std::shared_ptr<Prisma::Texture> m_rotateTexture;
-        std::shared_ptr<Prisma::Texture> m_translateTexture;
-        std::shared_ptr<Prisma::Texture> m_scaleTexture;
-        std::shared_ptr<Prisma::Texture> m_eyeOpen;
-        std::shared_ptr<Prisma::Texture> m_eyeClose;
-
         ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
         ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
 
-        void drawGizmo(const Prisma::MeshInfo::MeshData& meshData);
+        void drawGizmo(const Prisma::NodeViewer::NodeData& meshData);
     };
 }
 

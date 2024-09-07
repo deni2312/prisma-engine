@@ -35,7 +35,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_animations = ANIMATIONS::IDLE;
     m_previousAnimations = ANIMATIONS::IDLE;
     auto cloud = std::make_shared<Prisma::Node>();
-
+    cloud->name("Cloud");
     cloud->addComponent(std::make_shared<Prisma::CloudComponent>());
     m_scene->root->addChild(cloud);
     createCamera();

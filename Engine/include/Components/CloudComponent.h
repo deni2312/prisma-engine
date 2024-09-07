@@ -15,6 +15,8 @@ namespace Prisma {
 	public:
 		CloudComponent();
 
+		void ui() override;
+
 		void updateRender() override;
 
 		void start() override;
