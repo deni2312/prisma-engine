@@ -92,12 +92,16 @@ void Prisma::CloudComponent::ui()
 void Prisma::CloudComponent::updateRender()
 {
 	if (cloudShader) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 
 		cloudShader->use();
 
 		setVariables();
 
 		Prisma::IBLBuilder::getInstance().renderQuad();
+		glDisable(GL_BLEND);
 	}
 }
 
@@ -272,7 +276,7 @@ void Prisma::CloudComponent::setVariables()
 {
 	cloudShader->setVec3(m_camPos, currentGlobalScene->camera->position());
 	if (currentGlobalScene->dirLights.size() > 0) {
-		cloudShader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
+		cloudShader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->parent()->finalMatrix()*currentGlobalScene->dirLights[0]->type().direction));
 	}
 	// Calculate elapsed time since the first render call
 	auto now = std::chrono::system_clock::now();

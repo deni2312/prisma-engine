@@ -590,6 +590,7 @@ void main()
 	//
 
 	vec3 resultColor = vec3(0.0);
+	vec4 cloudColor = vec4(0.0);
 	if (canRaymarch)
 	{
 		float raymarchLength = length(raymarchEndPosition - raymarchStartPosition);
@@ -609,7 +610,8 @@ void main()
 
 		// blend the atmosphere background color with the clouds with the cloud opacity, so that we can see the sky colors between cloud formations
 		vec3 background = getColorFromPreethamAtmosphere(viewDirectionToFragmentPosition);
-		resultColor = cloudColor.xyz * cloudColor.a + background * (1.0 - cloudColor.a);
+
+		resultColor = cloudColor.xyz * cloudColor.a;
 	}
 	else
 	{
@@ -621,7 +623,7 @@ void main()
 	// 4. task: apply tone mapping
 	resultColor = vec3(1.0) - exp(-resultColor.xyz * toneMapperEyeExposure);	// Reinhard Tone Mapping with eye exposure variable
 
-    FragColor = vec4(resultColor, 1.0);
+    FragColor = vec4(resultColor, cloudColor.a+0.8);
 	gl_FragDepth = 0.999;
 
 }
