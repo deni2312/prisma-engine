@@ -9,7 +9,6 @@ layout(bindless_sampler) uniform sampler3D worl;			// 3d texture with the high f
 
 uniform vec3 camPos;
 uniform float time;
-uniform vec2 resolution;
 uniform vec3 lightDir;
 layout(bindless_sampler) uniform sampler2D uNoise;
 
@@ -22,44 +21,60 @@ layout(std140, binding = 1) uniform MeshData
 uniform mat4 invView;	// inverse of the view matrix
 uniform mat4 invProj;	// inverse of the projection matrix
 
-// cloud density uniforms
-uniform float coverageScale;							// - the more coverage, the more clouds will appear and vice versa					
-uniform float cloudType;								// - determines which type of clouds will appear, including transitions. 0=stratus, 0.5=stratocumulus, 1=cumulus
-uniform float lowFrequencyNoiseScale;					// - scale factor for the uv-texture coordinates for the low frequency noise texture lookup. Lower values result in 
-//	 fewer but much bigger clouds (performance gain), while higher values result in more but much smaller clouds (perf. loss!)
-uniform bool ignoreDetailNoise;							// - set this to true to not use any high frequency noise for cloud modeling, resulting in a great loss of detail (more cartoony look!)
-uniform float highFrequencyNoiseScale;					// - same principle as with the lowFrequencyNoiseScale, but for high frequency noise. Lower means fewer but bigger details, Higher means more but smaller details
-uniform float highFrequencyNoiseErodeMuliplier;			// - used to erode the cloud details away. More means more cuts on the clouds
-uniform float highFrequencyHeightTransitionMultiplier;	// - used to create billowy cloud shapes over height
-uniform float anvilBias;								// - bias for the creation of anvil cloud shapes. Only takes effect with very high clouds (e.g. cumulus!) by inflating density at high heights
-// cloud lighting
-uniform vec3 cloudColor;								// - base color of the clouds (full white). Can be used to create purple/red clouds, etc.
-uniform float sunIntensity;								// - exponential factor for the sun color. The higher, the more higher is the sun influence on the clouds 
-uniform float ambientColorScale;						// - scale factor with which the ambient cloud color is being multiplied. If increased, the clouds will be lighter
-uniform float rainCloudAbsorptionGain;					// - light absorption factor for the clouds. Used to increase the light absorption of the clouds with beers law. The higher, the darker the clouds
-uniform float cloudAttenuationScale;					// - additional cloud attenuation factor, which is used as a multiplier to the result of the beers law. The higher, the more lightEnergy will be preserved
-uniform float phaseEccentricity;						// - used for the henyey greenstein phase function. Determines the directional influence of the sun lighting, resulting in a silver lining effect
-uniform float phaseSilverLiningIntensity;				// - increase this to strengthen the silver lining effect intensity
-uniform float phaseSilverLiningSpread;					// - is used to influence the spread of the silver lining effect
-uniform float coneSpreadMultplier;						// - length of the cone which is used to gather lighting samples in the cloud volume. The lower, the more influence nearby clouds will have on the lighting samples
-uniform float shadowSampleConeSpreadMultiplier;			// - same as above, but higher (3x higher for example). Used to get a lighting sample from far away clouds
-uniform float powderedSugarEffectMultiplier;			// - used to influence the powdered sugar effect, which occurs when looking at the clouds from the same direction as the light source. Decrease this to see diminish the effect
-uniform float toneMapperEyeExposure;					// - eye exposure for the reinhard tonemapping. The higher, the more brighterthe whole scene becomes
-// raymarch uniforms
-uniform float maxRenderDistance;						// - this is the max distance where clouds are raymrched (see raySphereCollision check!). IMPORTANT: Decrease this inside the cloud volume (e.g. 70000) to reduce banding artifacts!
-uniform float maxHorizontalSampleCount;					// - raymarch sample count when looking to the horizon. Needs to be higher than the vertical sample count, or far away clouds become less detailed
-uniform float maxVerticalSampleCount;					// - raymarch sample count when looking straight up. Can be lower then the above sample count, since the raymarch is shorter when looking up
-uniform bool useEarlyExitAtFullOpacity;					// - used to exit the raymarch when density is at 99%, which greatly increases performance. Disable this to see the performance loss!
-uniform bool useBayerFilter;							// - used to activate the offsetting of the raymarch start positions with the below bayer matrix. This reduces banding artifacts
-uniform float earthRadius;								// - radius of the earth. At this height, the camera is initialized. This technaiccaly models the game world ground terrain 
-uniform float volumetricCloudsStartRadius;				// - height at which the volumetric clouds start
-uniform float volumetricCloudsEndRadius;				// - height at which the volumetric clouds end
+layout(std430, binding = 11) buffer CloudSSBO {
+	// cloud density uniforms
+	float coverageScale;							// - the more coverage, the more clouds will appear and vice versa					
+	float cloudType;								// - determines which type of clouds will appear, including transitions. 0=stratus, 0.5=stratocumulus, 1=cumulus
+	float lowFrequencyNoiseScale;					// - scale factor for the uv-texture coordinates for the low frequency noise texture lookup. Lower values result in 
+	int ignoreDetailNoise;							// - set this to true to not use any high frequency noise for cloud modeling, resulting in a great loss of detail (more cartoony look!)
 
-// windsettings
-uniform vec3 windDirection;			// determines the direction in which the clouds will be moved
-uniform float windUpwardBias;		// bias value which is used to animate the clouds upward over time in order to simulate the shearing effect of rising clouds due to heat
-uniform float cloudSpeed;			// speed at which the clouds will move
-uniform float cloudTopOffset;		// cloud top offset pushes the tops of the clouds along the wind direction by this many units
+	float highFrequencyNoiseScale;					// - same principle as with the lowFrequencyNoiseScale, but for high frequency noise. Lower means fewer but bigger details, Higher means more but smaller details
+	float highFrequencyNoiseErodeMuliplier;			// - used to erode the cloud details away. More means more cuts on the clouds
+	float highFrequencyHeightTransitionMultiplier;	// - used to create billowy cloud shapes over height
+	float anvilBias;								// - bias for the creation of anvil cloud shapes. Only takes effect with very high clouds (e.g. cumulus!) by inflating density at high heights
+
+	// cloud lighting
+	vec3 cloudColor;								// - base color of the clouds (full white). Can be used to create purple/red clouds, etc.
+	float padding1;
+
+	float sunIntensity;								// - exponential factor for the sun color. The higher, the more higher is the sun influence on the clouds 
+	float ambientColorScale;						// - scale factor with which the ambient cloud color is being multiplied. If increased, the clouds will be lighter
+	float rainCloudAbsorptionGain;					// - light absorption factor for the clouds. Used to increase the light absorption of the clouds with beers law. The higher, the darker the clouds
+	float cloudAttenuationScale;					// - additional cloud attenuation factor, which is used as a multiplier to the result of the beers law. The higher, the more lightEnergy will be preserved
+
+	float phaseEccentricity;						// - used for the henyey greenstein phase function. Determines the directional influence of the sun lighting, resulting in a silver lining effect
+	float phaseSilverLiningIntensity;				// - increase this to strengthen the silver lining effect intensity
+	float phaseSilverLiningSpread;					// - is used to influence the spread of the silver lining effect
+	float coneSpreadMultplier;						// - length of the cone which is used to gather lighting samples in the cloud volume. The lower, the more influence nearby clouds will have on the lighting samples
+
+	float shadowSampleConeSpreadMultiplier;			// - same as above, but higher (3x higher for example). Used to get a lighting sample from far away clouds
+	float powderedSugarEffectMultiplier;			// - used to influence the powdered sugar effect, which occurs when looking at the clouds from the same direction as the light source. Decrease this to see diminish the effect
+	float toneMapperEyeExposure;					// - eye exposure for the reinhard tonemapping. The higher, the more brighterthe whole scene becomes
+	float maxRenderDistance;						// - this is the max distance where clouds are raymrched (see raySphereCollision check!). IMPORTANT: Decrease this inside the cloud volume (e.g. 70000) to reduce banding artifacts!
+
+	float maxHorizontalSampleCount;					// - raymarch sample count when looking to the horizon. Needs to be higher than the vertical sample count, or far away clouds become less detailed
+	float maxVerticalSampleCount;					// - raymarch sample count when looking straight up. Can be lower then the above sample count, since the raymarch is shorter when looking up
+	int useEarlyExitAtFullOpacity;					// - used to exit the raymarch when density is at 99%, which greatly increases performance. Disable this to see the performance loss!
+	int useBayerFilter;							// - used to activate the offsetting of the raymarch start positions with the below bayer matrix. This reduces banding artifacts
+
+	float earthRadius;								// - radius of the earth. At this height, the camera is initialized. This technaiccaly models the game world ground terrain 
+	float volumetricCloudsStartRadius;				// - height at which the volumetric clouds start
+	float volumetricCloudsEndRadius;				// - height at which the volumetric clouds end
+	float padding2;
+
+	// windsettings
+	vec3 windDirection;			// determines the direction in which the clouds will be moved
+	float padding3;
+
+	float windUpwardBias;		// bias value which is used to animate the clouds upward over time in order to simulate the shearing effect of rising clouds due to heat
+	float cloudSpeed;			// speed at which the clouds will move
+	float cloudTopOffset;		// cloud top offset pushes the tops of the clouds along the wind direction by this many units
+	float padding4;
+
+	vec2 resolution;
+	vec2 padding5;
+};
+
 
 // Bayer filter for adding random offsets to the raymarch start positions to reduce banding artifacts at lower sample counts 
 #define BAYER_FACTOR 1.0/16.0
@@ -322,7 +337,7 @@ float getCloudDensity(vec3 p, const bool expensiveSample, const float LOD)
 	baseCloudWithCoverage *= coverageScale;
 
 	// use high-frequency noise?
-	if (expensiveSample && !ignoreDetailNoise) {
+	if (expensiveSample && ignoreDetailNoise==0) {
 
 		// erode base cloud with curl noise. (NOT USED HERE, since no curl noise is being used in this demo!)
 		//vec2 whisp = texture(curl, p.xy*0.0003).rg;
@@ -356,7 +371,7 @@ vec4 raymarch(const vec3 startPosition, const vec3 endPosition, vec3 raymarchSte
 	vec3 positionInCloudVolume = startPosition;
 
 	// dithering on the starting ray position to reduce banding artifacts 
-	if (useBayerFilter) {
+	if (useBayerFilter==1) {
 		int a = int(gl_FragCoord.x) % 4;
 		int b = int(gl_FragCoord.y) % 4;
 		positionInCloudVolume += raymarchStepVector * bayerFilter[a * 4 + b];
@@ -462,7 +477,7 @@ vec4 raymarch(const vec3 startPosition, const vec3 endPosition, vec3 raymarchSte
 
 					// early exit the raymarch when the opacity is near 100%. This increases performance significantly and it allows for higher sample counts for more
 					// detailed clouds (sample count of 256 becomes feasible for example).
-					if (resultCloudOpacity >= 0.99 && useEarlyExitAtFullOpacity) {
+					if (resultCloudOpacity >= 0.99 && useEarlyExitAtFullOpacity==1) {
 						resultCloudOpacity = 1.0;
 						break;
 					}
