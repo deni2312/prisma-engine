@@ -129,51 +129,11 @@ void Prisma::CloudComponent::start()
 
 	m_timePos = cloudShader->getUniformPosition("time");
 
-	m_resolutionPos = cloudShader->getUniformPosition("resolution");
-
-	m_modelPos = cloudShader->getUniformPosition("model");
-
 	m_invViewPos = cloudShader->getUniformPosition("invView");
+
 	m_invProjPos = cloudShader->getUniformPosition("invProj");
-	m_timePos = cloudShader->getUniformPosition("time");  // Already exists
-	m_resolutionPos = cloudShader->getUniformPosition("resolution");  // Already exists
+
 	m_camPosPos = cloudShader->getUniformPosition("camPos");
-
-	m_coverageScalePos = cloudShader->getUniformPosition("coverageScale");
-	m_cloudTypePos = cloudShader->getUniformPosition("cloudType");
-	m_lowFrequencyNoiseScalePos = cloudShader->getUniformPosition("lowFrequencyNoiseScale");
-	m_ignoreDetailNoisePos = cloudShader->getUniformPosition("ignoreDetailNoise");
-	m_highFrequencyNoiseScalePos = cloudShader->getUniformPosition("highFrequencyNoiseScale");
-	m_highFrequencyNoiseErodeMuliplierPos = cloudShader->getUniformPosition("highFrequencyNoiseErodeMuliplier");
-	m_highFrequencyHeightTransitionMultiplierPos = cloudShader->getUniformPosition("highFrequencyHeightTransitionMultiplier");
-	m_anvilBiasPos = cloudShader->getUniformPosition("anvilBias");
-
-	m_cloudColorPos = cloudShader->getUniformPosition("cloudColor");
-	m_sunIntensityPos = cloudShader->getUniformPosition("sunIntensity");
-	m_ambientColorScalePos = cloudShader->getUniformPosition("ambientColorScale");
-	m_rainCloudAbsorptionGainPos = cloudShader->getUniformPosition("rainCloudAbsorptionGain");
-	m_cloudAttenuationScalePos = cloudShader->getUniformPosition("cloudAttenuationScale");
-	m_phaseEccentricityPos = cloudShader->getUniformPosition("phaseEccentricity");
-	m_phaseSilverLiningIntensityPos = cloudShader->getUniformPosition("phaseSilverLiningIntensity");
-	m_phaseSilverLiningSpreadPos = cloudShader->getUniformPosition("phaseSilverLiningSpread");
-	m_coneSpreadMultplierPos = cloudShader->getUniformPosition("coneSpreadMultplier");
-	m_shadowSampleConeSpreadMultiplierPos = cloudShader->getUniformPosition("shadowSampleConeSpreadMultiplier");
-	m_powderedSugarEffectMultiplierPos = cloudShader->getUniformPosition("powderedSugarEffectMultiplier");
-	m_toneMapperEyeExposurePos = cloudShader->getUniformPosition("toneMapperEyeExposure");
-
-	m_maxRenderDistancePos = cloudShader->getUniformPosition("maxRenderDistance");
-	m_maxHorizontalSampleCountPos = cloudShader->getUniformPosition("maxHorizontalSampleCount");
-	m_maxVerticalSampleCountPos = cloudShader->getUniformPosition("maxVerticalSampleCount");
-	m_useEarlyExitAtFullOpacityPos = cloudShader->getUniformPosition("useEarlyExitAtFullOpacity");
-	m_useBayerFilterPos = cloudShader->getUniformPosition("useBayerFilter");
-	m_earthRadiusPos = cloudShader->getUniformPosition("earthRadius");
-	m_volumetricCloudsStartRadiusPos = cloudShader->getUniformPosition("volumetricCloudsStartRadius");
-	m_volumetricCloudsEndRadiusPos = cloudShader->getUniformPosition("volumetricCloudsEndRadius");
-
-	m_windDirectionPos = cloudShader->getUniformPosition("windDirection");
-	m_windUpwardBiasPos = cloudShader->getUniformPosition("windUpwardBias");
-	m_cloudSpeedPos = cloudShader->getUniformPosition("cloudSpeed");
-	m_cloudTopOffsetPos = cloudShader->getUniformPosition("cloudTopOffset");
 	// Initialize the start time
 	m_start = std::chrono::system_clock::now();
 
