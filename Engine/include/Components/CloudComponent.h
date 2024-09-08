@@ -125,5 +125,11 @@ namespace Prisma {
 
 		std::function<void()> m_updateButton;
 
+		std::shared_ptr<Prisma::Shader> m_cloudShader;
+		std::shared_ptr<Prisma::Shader> m_noiseShader;
+		std::shared_ptr<Prisma::Shader> m_worleyShader;
+		std::shared_ptr<Prisma::Shader> m_perlinWorleyShader;
+		std::shared_ptr<Prisma::Shader> m_weatherShader;
+
 	};
 }

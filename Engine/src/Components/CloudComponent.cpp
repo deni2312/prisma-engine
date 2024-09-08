@@ -7,12 +7,6 @@
 #include "../../include/Helpers/IBLBuilder.h"
 #include "../../../GUI/include/TextureInfo.h"
 
-static std::shared_ptr<Prisma::Shader> cloudShader = nullptr;
-static std::shared_ptr<Prisma::Shader> noiseShader = nullptr;
-static std::shared_ptr<Prisma::Shader> worleyShader = nullptr;
-static std::shared_ptr<Prisma::Shader> perlinWorleyShader = nullptr;
-static std::shared_ptr<Prisma::Shader> weatherShader = nullptr;
-
 Prisma::CloudComponent::CloudComponent() : Prisma::Component{}
 {
 	name("Cloud");
@@ -91,12 +85,12 @@ void Prisma::CloudComponent::ui()
 
 void Prisma::CloudComponent::updateRender()
 {
-	if (cloudShader) {
+	if (m_cloudShader) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 
-		cloudShader->use();
+		m_cloudShader->use();
 
 		setVariables();
 
@@ -108,13 +102,11 @@ void Prisma::CloudComponent::updateRender()
 void Prisma::CloudComponent::start()
 {
 	Prisma::Component::start();
-	if (cloudShader == nullptr) {
-		cloudShader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
-		noiseShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/vertex.glsl", "../../../Engine/Shaders/NoisePipeline/fragment.glsl");
-		worleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computeWorley.glsl");
-		perlinWorleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computePerlinWorley.glsl");
-		weatherShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computeWeather.glsl");
-	}
+	m_cloudShader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
+	m_noiseShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/vertex.glsl", "../../../Engine/Shaders/NoisePipeline/fragment.glsl");
+	m_worleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computeWorley.glsl");
+	m_perlinWorleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computePerlinWorley.glsl");
+	m_weatherShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computeWeather.glsl");
 	auto settings = Prisma::SettingsLoader::getInstance().getSettings();
 
 	Prisma::FBO::FBOData fboData;
@@ -130,23 +122,23 @@ void Prisma::CloudComponent::start()
 	m_fbo = std::make_shared<Prisma::FBO>(fboData);
 
 	generateNoise();
-	cloudShader->use();
+	m_cloudShader->use();
 
-	m_modelPos = cloudShader->getUniformPosition("model");
+	m_modelPos = m_cloudShader->getUniformPosition("model");
 
-	m_lightPos = cloudShader->getUniformPosition("sunPosition");
+	m_lightPos = m_cloudShader->getUniformPosition("sunPosition");
 
-	m_perlworlPos = cloudShader->getUniformPosition("perlworl");
+	m_perlworlPos = m_cloudShader->getUniformPosition("perlworl");
 
-	m_worlPos = cloudShader->getUniformPosition("worl");
+	m_worlPos = m_cloudShader->getUniformPosition("worl");
 
-	m_timePos = cloudShader->getUniformPosition("time");
+	m_timePos = m_cloudShader->getUniformPosition("time");
 
-	m_invViewPos = cloudShader->getUniformPosition("invView");
+	m_invViewPos = m_cloudShader->getUniformPosition("invView");
 
-	m_invProjPos = cloudShader->getUniformPosition("invProj");
+	m_invProjPos = m_cloudShader->getUniformPosition("invProj");
 
-	m_camPos = cloudShader->getUniformPosition("camPos");
+	m_camPos = m_cloudShader->getUniformPosition("camPos");
 	// Initialize the start time
 	m_start = std::chrono::system_clock::now();
 
@@ -155,7 +147,7 @@ void Prisma::CloudComponent::start()
 
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	noiseShader->use();
+	m_noiseShader->use();
 	Prisma::IBLBuilder::getInstance().renderQuad();
 	m_fbo->unbind();
 
@@ -177,7 +169,7 @@ void Prisma::CloudComponent::generateNoise()
 void Prisma::CloudComponent::generateWorley()
 {
 	//GENERATE WORLEY
-	worleyShader->use();
+	m_worleyShader->use();
 	glm::ivec3 size(32, 32, 32);
 	// Generate a texture ID
 	unsigned int textureId;
@@ -201,16 +193,16 @@ void Prisma::CloudComponent::generateWorley()
 	m_worley = glGetTextureHandleARB(textureId);
 	glMakeTextureHandleResidentARB(m_worley);
 
-	worleyShader->setInt64(worleyShader->getUniformPosition("outVolTex"), m_worley);
+	m_worleyShader->setInt64(m_worleyShader->getUniformPosition("outVolTex"), m_worley);
 
-	worleyShader->dispatchCompute(size);
+	m_worleyShader->dispatchCompute(size);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 void Prisma::CloudComponent::generatePerlinWorley()
 {
 	//GENERATE PERLIN WORLEY
-	perlinWorleyShader->use();
+	m_perlinWorleyShader->use();
 	glm::ivec3 size(128, 128, 128);
 	// Generate a texture ID
 	unsigned int textureId;
@@ -234,16 +226,16 @@ void Prisma::CloudComponent::generatePerlinWorley()
 	m_perlinWorley = glGetTextureHandleARB(textureId);
 	glMakeTextureHandleResidentARB(m_perlinWorley);
 
-	perlinWorleyShader->setInt64(perlinWorleyShader->getUniformPosition("outVolTex"), m_perlinWorley);
+	m_perlinWorleyShader->setInt64(m_perlinWorleyShader->getUniformPosition("outVolTex"), m_perlinWorley);
 
-	perlinWorleyShader->dispatchCompute(size);
+	m_perlinWorleyShader->dispatchCompute(size);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 void Prisma::CloudComponent::generateWeather()
 {
 	//GENERATE WEATHER
-	weatherShader->use();
+	m_weatherShader->use();
 	glm::ivec3 size(256, 256, 1);
 	// Generate a texture ID
 	unsigned int textureId;
@@ -266,28 +258,28 @@ void Prisma::CloudComponent::generateWeather()
 	m_weather = glGetTextureHandleARB(textureId);
 	glMakeTextureHandleResidentARB(m_weather);
 
-	weatherShader->setInt64(weatherShader->getUniformPosition("outWeatherTex"), m_weather);
+	m_weatherShader->setInt64(m_weatherShader->getUniformPosition("outWeatherTex"), m_weather);
 
-	weatherShader->dispatchCompute(size);
+	m_weatherShader->dispatchCompute(size);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 void Prisma::CloudComponent::setVariables()
 {
-	cloudShader->setVec3(m_camPos, currentGlobalScene->camera->position());
+	m_cloudShader->setVec3(m_camPos, currentGlobalScene->camera->position());
 	if (currentGlobalScene->dirLights.size() > 0) {
-		cloudShader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->parent()->finalMatrix()*currentGlobalScene->dirLights[0]->type().direction));
+		m_cloudShader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->parent()->finalMatrix()*currentGlobalScene->dirLights[0]->type().direction));
 	}
 	// Calculate elapsed time since the first render call
 	auto now = std::chrono::system_clock::now();
 	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
 
-	cloudShader->setFloat(m_timePos, (int)static_cast<float>(elapsedTime) / 1000.0f);
+	m_cloudShader->setFloat(m_timePos, (int)static_cast<float>(elapsedTime) / 1000.0f);
 
-	cloudShader->setInt64(m_perlworlPos, m_perlinWorley);
-	cloudShader->setInt64(m_worlPos, m_worley);
+	m_cloudShader->setInt64(m_perlworlPos, m_perlinWorley);
+	m_cloudShader->setInt64(m_worlPos, m_worley);
 
 	// Setting the uniforms
-	cloudShader->setMat4(m_invViewPos, glm::inverse(currentGlobalScene->camera->matrix()));                  // Inverse View matrix
-	cloudShader->setMat4(m_invProjPos, glm::inverse(currentProjection));                  // Inverse Projection matrix
+	m_cloudShader->setMat4(m_invViewPos, glm::inverse(currentGlobalScene->camera->matrix()));                  // Inverse View matrix
+	m_cloudShader->setMat4(m_invProjPos, glm::inverse(currentProjection));                  // Inverse Projection matrix
 }
