@@ -8,6 +8,7 @@
 #include "../../Engine/include/Containers/Texture.h"
 #include <ImGuizmo.h>
 #include <iostream>
+#include "../../Engine/include/Helpers/NodeHelper.h"
 
 namespace Prisma {
 	class NodeViewer : public Prisma::InstanceData<NodeViewer>{
@@ -42,7 +43,7 @@ namespace Prisma {
             m_eyeClose->loadTexture("../../../GUI/icons/eyeclose.png", false, false, false);
         }
 
-        void showComponents(Node* nodeData) {
+        void showComponents(Prisma::Node* nodeData) {
             auto components = nodeData->components();
             for (const auto& component : components) {
                 ImGui::Separator();
@@ -93,6 +94,7 @@ namespace Prisma {
 
                 if (ImGui::ImageButton((void*)textureId, ImVec2(24, 24))) {
                     nodeData.node->visible(!nodeData.node->visible());
+                    hideChilds(nodeData.node, nodeData.node->visible());
                 }
 
                 ImGui::InputFloat3("Translation", glm::value_ptr(m_translation), "%.3f", ImGuiInputTextFlags_ReadOnly);
@@ -153,7 +155,12 @@ namespace Prisma {
         glm::vec3 m_translation;
 
         glm::mat4 m_currentModel;
-
+        void hideChilds(Prisma::Node* root,bool hide) {
+            for (auto child : root->children()) {
+                child->visible(hide);
+                hideChilds(child.get(), hide);
+            }
+        }
         std::shared_ptr<Prisma::Texture> m_rotateTexture;
         std::shared_ptr<Prisma::Texture> m_translateTexture;
         std::shared_ptr<Prisma::Texture> m_scaleTexture;
