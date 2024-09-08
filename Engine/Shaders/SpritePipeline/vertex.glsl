@@ -1,3 +1,10 @@
+#version 460 core
+
+layout(std430, binding = 12) buffer SpritesData
+{
+    mat4 modelSprite[]; 
+};
+
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec2 aTexCoords;
 
@@ -9,6 +16,7 @@ layout(std140, binding = 1) uniform MeshData
     mat4 projection;
 };
 
+flat out int drawId;
 
 uniform mat4 model;
 uniform vec2 billboardSize;
@@ -21,6 +29,8 @@ void main()
 
     // Calculate the center position of the particle or sprite in world space
     vec3 particleCenter_worldspace = vec3(model * modelSprite[gl_InstanceID][3]);
+
+    drawId = gl_InstanceID;
 
     // Calculate the world space position of the vertex
     vec3 vertexPosition_worldspace = particleCenter_worldspace

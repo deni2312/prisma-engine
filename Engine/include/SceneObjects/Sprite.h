@@ -9,14 +9,20 @@
 namespace Prisma {
     class Sprite : public Prisma::Node {
     public:
-        Sprite(unsigned int ssbo);
-        void loadSprite(const std::shared_ptr<Prisma::Texture>& texture);
+        Sprite();
+        void loadSprites(std::vector<std::shared_ptr<Prisma::Texture>> textures);
         void numSprites(unsigned int numSprites);
         void size(glm::vec2 size);
         void render();
     private:
-        std::shared_ptr<Prisma::Texture> m_texture;
+        struct SpriteData {
+            uint64_t sprite;
+            glm::vec2 padding;
+        };
+        std::vector<SpriteData> m_spritesData;
         std::shared_ptr<Prisma::SSBO> m_ssbo;
+        std::shared_ptr<Prisma::SSBO> m_ssboTextures;
+        std::shared_ptr<Prisma::SSBO> m_ssboIds;
         unsigned int m_spritePos;
         unsigned int m_modelPos;
         unsigned int m_numSprites = 0;

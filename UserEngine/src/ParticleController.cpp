@@ -3,12 +3,15 @@
 void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 {
 
-    auto spriteTexture = std::make_shared<Prisma::Texture>();
-    spriteTexture->loadTexture("../../../Resources/DefaultScene/sprites/fire.png",true);
+    auto spriteFire = std::make_shared<Prisma::Texture>();
+    spriteFire->loadTexture("../../../Resources/DefaultScene/sprites/fire.png",true);
 
-    auto sprite = std::make_shared<Prisma::Sprite>(12);
+    auto spriteBurst = std::make_shared<Prisma::Texture>();
+    spriteBurst->loadTexture("../../../Resources/DefaultScene/sprites/burst.png", true);
 
-    sprite->loadSprite(spriteTexture);
+    auto sprite = std::make_shared<Prisma::Sprite>();
+
+    sprite->loadSprites({ spriteFire,spriteBurst });
     sprite->numSprites(1000);
     sprite->size(glm::vec2(0.1f, 0.1f));
     sprite->name("Sprite");

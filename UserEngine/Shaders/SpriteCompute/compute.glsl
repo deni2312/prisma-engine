@@ -2,7 +2,7 @@
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 // Buffer containing model matrices for each sprite
-layout(std430, binding = 12) buffer SpritesData12
+layout(std430, binding = 12) buffer SpritesData
 {
     mat4 modelSprite[];
 };
@@ -10,6 +10,27 @@ layout(std430, binding = 12) buffer SpritesData12
 // Uniforms to control the tornado effect and delta time
 uniform float deltaTime;       // Time elapsed between frames
 uniform float time;            // Total time elapsed
+
+
+layout(std430, binding = 14) buffer SpriteIds
+{
+    vec4 spriteId[];
+};
+
+// A simple hash function to generate pseudo-random values
+uint hash(uint x) {
+    x += (x << 10u);
+    x ^= (x >> 6u);
+    x += (x << 3u);
+    x ^= (x >> 11u);
+    x += (x << 15u);
+    return x;
+}
+
+// Convert a hashed integer to a float in the range [0.0, 1.0]
+float random(uint seed) {
+    return float(hash(seed)) / 4294967295.0; // 2^32 - 1
+}
 
 void main()
 {
@@ -50,5 +71,10 @@ void main()
 
         // Update the model matrix for this sprite
         modelSprite[idx] = model;
+        float idSprite = 0;
+        if (idx > 500) {
+            idSprite = 1;
+        }
+        spriteId[idx].r = idSprite;
     }
 }
