@@ -41,18 +41,20 @@ void Prisma::Sprite::size(glm::vec2 size) {
 
 void Prisma::Sprite::render()
 {
-    m_spriteShader->use();
-    m_spriteShader->setInt64(m_spritePos, m_texture->id());
-    m_spriteShader->setMat4(m_modelPos, finalMatrix());
-    m_spriteShader->setVec2(m_sizePos, m_size);
-    // Enable additive blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE);
-    glDepthMask(GL_FALSE);
-    // Render the sprites
-    Prisma::IBLBuilder::getInstance().renderQuad(m_numSprites);
-    glDepthMask(GL_TRUE);
+    if (visible()) {
+        m_spriteShader->use();
+        m_spriteShader->setInt64(m_spritePos, m_texture->id());
+        m_spriteShader->setMat4(m_modelPos, finalMatrix());
+        m_spriteShader->setVec2(m_sizePos, m_size);
+        // Enable additive blending
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE);
+        glDepthMask(GL_FALSE);
+        // Render the sprites
+        Prisma::IBLBuilder::getInstance().renderQuad(m_numSprites);
+        glDepthMask(GL_TRUE);
 
-    // Deactivate blending and restore OpenGL state
-    glDisable(GL_BLEND);
+        // Deactivate blending and restore OpenGL state
+        glDisable(GL_BLEND);
+    }
 }
