@@ -2,6 +2,7 @@
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../../Engine/include/Components/CloudComponent.h"
+#include "../../Engine/include/Components/TerrainComponent.h"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
@@ -38,6 +39,11 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     cloud->name("Cloud");
     cloud->addComponent(std::make_shared<Prisma::CloudComponent>());
     m_scene->root->addChild(cloud);
+
+    auto terrain = std::make_shared<Prisma::Node>();
+    terrain->name("Terrain");
+    terrain->addComponent(std::make_shared<Prisma::TerrainComponent>());
+    m_scene->root->addChild(terrain);
     createCamera();
     createKeyboard();
 }
