@@ -123,5 +123,7 @@ namespace Prisma {
 
 		std::function<void()> m_startButton;
 
+		std::function<void()> m_updateButton;
+
 	};
 }

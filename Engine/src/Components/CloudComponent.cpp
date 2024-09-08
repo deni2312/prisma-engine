@@ -74,10 +74,19 @@ void Prisma::CloudComponent::ui()
 		}
 	};
 	componentButton = std::make_tuple(Prisma::Component::TYPES::BUTTON, "UI clouds", &m_startButton);
+
+	m_updateButton = [&]() {
+		if (isStart()) {
+			m_ssbo->modifyData(0, sizeof(CloudSSBO), &m_cloudSSBO);
+		}
+	};
+	ComponentType updateButton = std::make_tuple(Prisma::Component::TYPES::BUTTON, "Update Clouds", &m_updateButton);
 	for (const auto& component : components) {
 		addGlobal(component);
 	}
 	addGlobal(componentButton);
+
+	addGlobal(updateButton);
 }
 
 void Prisma::CloudComponent::updateRender()
