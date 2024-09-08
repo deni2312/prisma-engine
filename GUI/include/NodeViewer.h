@@ -24,7 +24,7 @@ namespace Prisma {
             float initOffset;
         };
 
-        void varsDispatcher(Prisma::Component::ComponentType types);
+        void varsDispatcher(Prisma::Component::ComponentType types,int index);
 
         NodeViewer();
 
