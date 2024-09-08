@@ -17,14 +17,14 @@ layout(std430, binding = 13) buffer SpriteTextures
 
 layout(std430, binding = 14) buffer SpriteIds
 {
-    vec4 spriteId[];
+    ivec4 spriteId[];
 };
 
 flat in int drawId;
 
 void main()
 {
-    vec4 spriteTexture = texture(spriteTextures[int(spriteId[drawId].r)].spriteTextures, TexCoords);
+    vec4 spriteTexture = texture(spriteTextures[spriteId[drawId].r].spriteTextures, TexCoords);
     if (spriteTexture.a < 0.1) {
         discard;
     }

@@ -14,7 +14,7 @@ uniform float time;            // Total time elapsed
 
 layout(std430, binding = 14) buffer SpriteIds
 {
-    vec4 spriteId[];
+    ivec4 spriteId[];
 };
 
 // A simple hash function to generate pseudo-random values
@@ -71,7 +71,7 @@ void main()
 
         // Update the model matrix for this sprite
         modelSprite[idx] = model;
-        float idSprite = 0;
+        int idSprite = 0;
         if (idx > 500) {
             idSprite = 1;
         }
