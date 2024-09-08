@@ -83,45 +83,64 @@ void Prisma::CloudComponent::ui()
 	addGlobal(updateButton);
 }
 
-void Prisma::CloudComponent::updateRender()
+void Prisma::CloudComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 {
 	if (m_cloudShader) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		glViewport(0, 0, m_settings.width / m_downscale, m_settings.height / m_downscale);
 
+		m_fbo->bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		m_cloudShader->use();
 
 		setVariables();
 
 		Prisma::IBLBuilder::getInstance().renderQuad();
+		m_fbo->unbind();
+		fbo->bind();
+		glViewport(0, 0, m_settings.width, m_settings.height);
+		m_upscaleShader->use();
+		m_upscaleShader->setInt64(m_upscalePos, m_fbo->texture());
+		m_upscaleShader->setVec2(m_resUpscalePos, glm::vec2(m_settings.width,m_settings.height));
+		m_upscaleShader->setInt(m_factorPos, m_downscale);
+		Prisma::IBLBuilder::getInstance().renderQuad();
 		glDisable(GL_BLEND);
+
 	}
 }
 
 void Prisma::CloudComponent::start()
 {
 	Prisma::Component::start();
+	m_settings = Prisma::SettingsLoader::getInstance().getSettings();
 	m_cloudShader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl", "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
 	m_noiseShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/vertex.glsl", "../../../Engine/Shaders/NoisePipeline/fragment.glsl");
 	m_worleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computeWorley.glsl");
 	m_perlinWorleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computePerlinWorley.glsl");
 	m_weatherShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computeWeather.glsl");
-	auto settings = Prisma::SettingsLoader::getInstance().getSettings();
+	m_upscaleShader = std::make_shared<Shader>("../../../Engine/Shaders/UpscalePipeline/vertex.glsl", "../../../Engine/Shaders/UpscalePipeline/fragment.glsl");
 
 	Prisma::FBO::FBOData fboData;
-	fboData.width = settings.width;
-	fboData.height = settings.height;
+	fboData.width = m_settings.width/m_downscale;
+	fboData.height = m_settings.height/m_downscale;
 	fboData.enableDepth = true;
 	fboData.internalFormat = GL_RGBA16F;
 	fboData.internalType = GL_FLOAT;
 	fboData.name = "CLOUDS";
 
-	m_cloudSSBO.m_resolution = glm::vec2(settings.width, settings.height);
+	m_cloudSSBO.m_resolution = glm::vec2(m_settings.width/m_downscale, m_settings.height/m_downscale);
 
 	m_fbo = std::make_shared<Prisma::FBO>(fboData);
 
 	generateNoise();
+
+	m_upscaleShader->use();
+	m_upscalePos = m_upscaleShader->getUniformPosition("screenTexture");
+	m_resUpscalePos = m_upscaleShader->getUniformPosition("resolution");
+	m_factorPos = m_upscaleShader->getUniformPosition("factor");
+
 	m_cloudShader->use();
 
 	m_modelPos = m_cloudShader->getUniformPosition("model");

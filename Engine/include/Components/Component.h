@@ -3,6 +3,7 @@
 #include <memory>
 #include <tuple>
 #include "../SceneObjects/Node.h"
+#include "../Containers/FBO.h"
 
 namespace Prisma {
 
@@ -37,7 +38,7 @@ namespace Prisma {
 
         virtual void update();
 
-        virtual void updateRender();
+        virtual void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0);
 
         virtual void destroy();
 

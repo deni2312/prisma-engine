@@ -27,11 +27,11 @@ void Prisma::ComponentsHandler::updateComponents() {
         }
 }
 
-void Prisma::ComponentsHandler::updateRender()
+void Prisma::ComponentsHandler::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 {
     for (const auto& component : m_components) {
         if (component->isStart()) {
-            component->updateRender();
+            component->updateRender(fbo);
         }
     }
 }

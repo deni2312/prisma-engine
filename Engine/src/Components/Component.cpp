@@ -14,7 +14,7 @@ void Prisma::Component::update()
 {
 }
 
-void Prisma::Component::updateRender()
+void Prisma::Component::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 {
 }
 

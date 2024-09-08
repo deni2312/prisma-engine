@@ -624,6 +624,5 @@ void main()
 	resultColor = vec3(1.0) - exp(-resultColor.xyz * toneMapperEyeExposure);	// Reinhard Tone Mapping with eye exposure variable
 
     FragColor = vec4(resultColor, cloudColor.a+0.8);
-	gl_FragDepth = 0.999;
 
 }

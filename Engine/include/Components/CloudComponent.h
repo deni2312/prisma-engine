@@ -17,7 +17,7 @@ namespace Prisma {
 
 		void ui() override;
 
-		void updateRender() override;
+		void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0) override;
 
 		void start() override;
 
@@ -36,6 +36,10 @@ namespace Prisma {
 
 		unsigned int m_perlworlPos;
 		unsigned int m_worlPos;
+
+		unsigned int m_upscalePos;
+		unsigned int m_resUpscalePos;
+		unsigned int m_factorPos;
 
 		GLuint m_downscalesq = 4 * 4;
 
@@ -119,17 +123,20 @@ namespace Prisma {
 
 		void setVariables();
 
-		int m_downscale = 4;
+		const int m_downscale = 4;
 
 		std::function<void()> m_startButton;
 
 		std::function<void()> m_updateButton;
+
+		Prisma::Settings m_settings;
 
 		std::shared_ptr<Prisma::Shader> m_cloudShader;
 		std::shared_ptr<Prisma::Shader> m_noiseShader;
 		std::shared_ptr<Prisma::Shader> m_worleyShader;
 		std::shared_ptr<Prisma::Shader> m_perlinWorleyShader;
 		std::shared_ptr<Prisma::Shader> m_weatherShader;
+		std::shared_ptr<Prisma::Shader> m_upscaleShader;
 
 	};
 }
