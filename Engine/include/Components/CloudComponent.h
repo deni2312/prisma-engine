@@ -79,7 +79,6 @@ namespace Prisma {
 
 		// Cloud model
 		float m_coverageScale = 0.45f;
-		float m_ambientColorScale = 0.7f;
 		float m_cloudType = 0.8f;
 		float m_lowFrequencyNoiseScale = 0.3f;
 		bool m_ignoreDetailNoise = false;
@@ -90,6 +89,8 @@ namespace Prisma {
 
 		// Cloud lighting
 		glm::vec3 m_cloudColor = glm::vec3(1.0f, 1.0f, 1.0f);
+		float m_sunIntensity = 0.4f;
+		float m_ambientColorScale = 0.7f;
 		float m_rainCloudAbsorptionGain = 2.3f;
 		float m_cloudAttenuationScale = 2.5f;
 		float m_phaseEccentricity = 0.5f;
@@ -109,19 +110,12 @@ namespace Prisma {
 		float m_earthRadius = 600000.0f;
 		float m_volumetricCloudsStartRadius = 607000.0f;
 		float m_volumetricCloudsEndRadius = 633000.0f;
-		bool m_renderDirectlyToFullscreen = false;
-		bool m_renderActualQuarterResolutionBuffer = false;
 
 		// Wind settings
 		glm::vec3 m_windDirection = glm::vec3(1.0f, 0.0f, 0.0f);
 		float m_windUpwardBias = 0.15f;
 		float m_cloudSpeed = 300.0f;
 		float m_cloudTopOffset = 500.0f;
-
-		// Sun settings
-		float m_sunIntensity = 0.4f;
-		bool m_moveSunManually = true;
-		float m_sunPitch = 90.0f;
 
 		glm::vec2 m_resolution;
 

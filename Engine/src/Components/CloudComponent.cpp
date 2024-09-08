@@ -50,9 +50,6 @@ void Prisma::CloudComponent::ui()
 	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "IgnoreDetailNoise", &m_ignoreDetailNoise));
 	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "UseEarlyExitAtFullOpacity", &m_useEarlyExitAtFullOpacity));
 	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "UseBayerFilter", &m_useBayerFilter));
-	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "RenderDirectlyToFullscreen", &m_renderDirectlyToFullscreen));
-	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "RenderActualQuarterResolutionBuffer", &m_renderActualQuarterResolutionBuffer));
-	components.push_back(std::make_tuple(Prisma::Component::TYPES::BOOL, "MoveSunManually", &m_moveSunManually));
 
 	// Add raymarch settings
 	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "MaxRenderDistance", &m_maxRenderDistance));
@@ -69,7 +66,6 @@ void Prisma::CloudComponent::ui()
 
 	// Add sun settings
 	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "SunIntensity", &m_sunIntensity));
-	components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "SunPitch", &m_sunPitch));
 
 	ComponentType componentButton;
 	m_startButton = [&]() {
