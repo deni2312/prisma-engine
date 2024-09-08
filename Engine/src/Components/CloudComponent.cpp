@@ -133,7 +133,7 @@ void Prisma::CloudComponent::start()
 
 	m_invProjPos = cloudShader->getUniformPosition("invProj");
 
-	m_camPosPos = cloudShader->getUniformPosition("camPos");
+	m_camPos = cloudShader->getUniformPosition("camPos");
 	// Initialize the start time
 	m_start = std::chrono::system_clock::now();
 
@@ -261,7 +261,7 @@ void Prisma::CloudComponent::generateWeather()
 
 void Prisma::CloudComponent::setVariables()
 {
-	cloudShader->setVec3(m_camPosPos, currentGlobalScene->camera->position());
+	cloudShader->setVec3(m_camPos, currentGlobalScene->camera->position());
 	if (currentGlobalScene->dirLights.size() > 0) {
 		cloudShader->setVec3(m_lightPos, glm::normalize(currentGlobalScene->dirLights[0]->type().direction));
 	}

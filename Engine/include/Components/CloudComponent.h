@@ -28,49 +28,11 @@ namespace Prisma {
 
 		unsigned int m_timePos;
 
-		unsigned int m_resolutionPos;
-
 		unsigned int m_noisePos;
 
 		unsigned int m_invViewPos;
 		unsigned int m_invProjPos;
-		unsigned int m_camPosPos;
-
-		unsigned int m_coverageScalePos;
-		unsigned int m_cloudTypePos;
-		unsigned int m_lowFrequencyNoiseScalePos;
-		unsigned int m_ignoreDetailNoisePos;
-		unsigned int m_highFrequencyNoiseScalePos;
-		unsigned int m_highFrequencyNoiseErodeMuliplierPos;
-		unsigned int m_highFrequencyHeightTransitionMultiplierPos;
-		unsigned int m_anvilBiasPos;
-
-		unsigned int m_cloudColorPos;
-		unsigned int m_sunIntensityPos;
-		unsigned int m_ambientColorScalePos;
-		unsigned int m_rainCloudAbsorptionGainPos;
-		unsigned int m_cloudAttenuationScalePos;
-		unsigned int m_phaseEccentricityPos;
-		unsigned int m_phaseSilverLiningIntensityPos;
-		unsigned int m_phaseSilverLiningSpreadPos;
-		unsigned int m_coneSpreadMultplierPos;
-		unsigned int m_shadowSampleConeSpreadMultiplierPos;
-		unsigned int m_powderedSugarEffectMultiplierPos;
-		unsigned int m_toneMapperEyeExposurePos;
-
-		unsigned int m_maxRenderDistancePos;
-		unsigned int m_maxHorizontalSampleCountPos;
-		unsigned int m_maxVerticalSampleCountPos;
-		unsigned int m_useEarlyExitAtFullOpacityPos;
-		unsigned int m_useBayerFilterPos;
-		unsigned int m_earthRadiusPos;
-		unsigned int m_volumetricCloudsStartRadiusPos;
-		unsigned int m_volumetricCloudsEndRadiusPos;
-
-		unsigned int m_windDirectionPos;
-		unsigned int m_windUpwardBiasPos;
-		unsigned int m_cloudSpeedPos;
-		unsigned int m_cloudTopOffsetPos;
+		unsigned int m_camPos;
 
 		unsigned int m_perlworlPos;
 		unsigned int m_worlPos;
