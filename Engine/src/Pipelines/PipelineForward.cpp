@@ -81,7 +81,7 @@ void Prisma::PipelineForward::render()
 		sprite->render();
 	}
 
-	Prisma::ComponentsHandler::getInstance().updateRender();
+	Prisma::ComponentsHandler::getInstance().updateRender(m_fbo);
 
 	// After rendering
 	glDepthMask(GL_TRUE);

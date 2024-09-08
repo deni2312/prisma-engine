@@ -12,6 +12,7 @@
 #include <memory>
 #include "PipelinePrePass.h"
 
+#define NPHYSICS_DEBUG
 
 namespace Prisma {
 	class PipelineForward {

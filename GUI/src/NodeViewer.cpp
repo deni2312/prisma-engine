@@ -37,5 +37,5 @@ void Prisma::NodeViewer::varsDispatcher(Prisma::Component::ComponentType types) 
         break;
 
     }
-    ImGui::Dummy(ImVec2(0.0f, 10.0f));
+    ImGui::Dummy(ImVec2(0.0f, 2.0f));
 }
