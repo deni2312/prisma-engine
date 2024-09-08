@@ -100,12 +100,14 @@ void Prisma::CloudComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 		Prisma::IBLBuilder::getInstance().renderQuad();
 		m_fbo->unbind();
 		fbo->bind();
+		glDepthMask(GL_FALSE);
 		glViewport(0, 0, m_settings.width, m_settings.height);
 		m_upscaleShader->use();
 		m_upscaleShader->setInt64(m_upscalePos, m_fbo->texture());
 		m_upscaleShader->setVec2(m_resUpscalePos, glm::vec2(m_settings.width,m_settings.height));
 		m_upscaleShader->setInt(m_factorPos, m_downscale);
 		Prisma::IBLBuilder::getInstance().renderQuad();
+		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 
 	}
