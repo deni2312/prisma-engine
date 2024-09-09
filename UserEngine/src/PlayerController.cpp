@@ -35,10 +35,10 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
     m_animations = ANIMATIONS::IDLE;
     m_previousAnimations = ANIMATIONS::IDLE;
-    auto cloud = std::make_shared<Prisma::Node>();
+    /*auto cloud = std::make_shared<Prisma::Node>();
     cloud->name("Cloud");
     cloud->addComponent(std::make_shared<Prisma::CloudComponent>());
-    m_scene->root->addChild(cloud);
+    m_scene->root->addChild(cloud);*/
 
     auto terrain = std::make_shared<Prisma::Node>();
     terrain->name("Terrain");
