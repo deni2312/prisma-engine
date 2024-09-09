@@ -24,5 +24,6 @@ namespace Prisma {
 	private:
 		std::shared_ptr<Prisma::Texture> m_heightMap = nullptr;
 		std::shared_ptr<Prisma::Mesh> m_mesh;
+		Prisma::VAO m_vao;
 	};
 }
