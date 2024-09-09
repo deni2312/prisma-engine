@@ -7,6 +7,7 @@
 #include <chrono>
 #include "../Containers/Texture.h"
 #include "../Containers/VAO.h"
+#include "../SceneObjects/Mesh.h"
 
 namespace Prisma {
 	class TerrainComponent : public Component {
@@ -22,6 +23,6 @@ namespace Prisma {
 		void heightMap(std::shared_ptr<Prisma::Texture> heightMap);
 	private:
 		std::shared_ptr<Prisma::Texture> m_heightMap = nullptr;
-		Prisma::VAO m_vao;
+		std::shared_ptr<Prisma::Mesh> m_mesh;
 	};
 }

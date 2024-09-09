@@ -76,12 +76,13 @@ void Prisma::PipelineForward::render()
 
 	Prisma::PipelineSkybox::getInstance().render();
 
+	Prisma::ComponentsHandler::getInstance().updateRender(m_fbo);
 
 	for (auto& sprite : currentGlobalScene->sprites) {
 		sprite->render();
 	}
 
-	Prisma::ComponentsHandler::getInstance().updateRender(m_fbo);
+
 
 	// After rendering
 	glDepthMask(GL_TRUE);
