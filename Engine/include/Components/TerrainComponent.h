@@ -25,5 +25,9 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Texture> m_heightMap = nullptr;
 		std::shared_ptr<Prisma::Mesh> m_mesh;
 		Prisma::VAO m_vao;
+		std::shared_ptr<Prisma::Shader> m_shader;
+		unsigned int m_modelPos;
+		int m_numStrips;
+		int m_numTrisPerStrip;
 	};
 }
