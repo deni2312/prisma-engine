@@ -11,7 +11,7 @@ namespace Prisma {
 			int height;
 			int nrComponents;
 		};
-		bool loadTexture(std::string texture, bool srgb = false,bool resident=true,bool noRepeat=true);
+		bool loadTexture(std::string texture, bool srgb = false,bool resident=true,bool noRepeat=true,bool mantainData=false);
 		uint64_t id() const;
 		void id(uint64_t id);
 		std::string name() const;
@@ -20,10 +20,12 @@ namespace Prisma {
 		bool loadEquirectangular(std::string texture);
 		TextureData data() const;
 		void data(TextureData data);
-
+		unsigned char* dataContent();
+		void freeData();
 	private:
 		uint64_t m_id=0;
 		std::string m_name="";
 		TextureData m_data;
+		unsigned char* m_dataContent = nullptr;
 	};
 }

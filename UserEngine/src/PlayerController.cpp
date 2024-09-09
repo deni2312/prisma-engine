@@ -42,7 +42,11 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     auto terrain = std::make_shared<Prisma::Node>();
     terrain->name("Terrain");
-    terrain->addComponent(std::make_shared<Prisma::TerrainComponent>());
+    auto terrainComponent = std::make_shared<Prisma::TerrainComponent>();
+    std::shared_ptr<Prisma::Texture> terrainTexture = std::make_shared<Prisma::Texture>();
+    terrainTexture->loadTexture("../../../Resources/DefaultScene/Heightmaps/heightmap.png",false,true,true,true);
+    terrainComponent->heightMap(terrainTexture);
+    terrain->addComponent(terrainComponent);
     m_scene->root->addChild(terrain);
     createCamera();
     createKeyboard();

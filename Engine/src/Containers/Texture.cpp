@@ -7,16 +7,16 @@
 #include <iostream>
 #include <tuple>
 
-bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bool noRepeat)
+bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bool noRepeat, bool mantainData)
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);
     int width, height, nrComponents;
-    unsigned char* data = stbi_load(texture.c_str(), &width, &height, &nrComponents, 0);
+    m_dataContent = stbi_load(texture.c_str(), &width, &height, &nrComponents, 0);
     m_data.height = height;
     m_data.width = width;
     m_data.nrComponents = nrComponents;
-    if (data)
+    if (m_dataContent)
     {
         GLenum internalFormat= GL_RGB;
         GLenum dataFormat= GL_RGB;
@@ -35,7 +35,7 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
             dataFormat = GL_RGBA;
         }
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, m_dataContent);
         glGenerateMipmap(GL_TEXTURE_2D);
         if(noRepeat) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -52,8 +52,9 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
 
         value = (value > max_anisotropy) ? max_anisotropy : value;
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, value);
-
-        stbi_image_free(data);
+        if (!mantainData) {
+            stbi_image_free(m_dataContent);
+        }
         if(resident) {
             m_id = glGetTextureHandleARB(textureID);
             glMakeTextureHandleResidentARB(m_id);
@@ -69,7 +70,7 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
     else
     {
         std::cout << "Not found: " + texture << std::endl;
-        stbi_image_free(data);
+        stbi_image_free(m_dataContent);
         return false;
     }
 }
@@ -171,4 +172,14 @@ Prisma::Texture::TextureData Prisma::Texture::data() const
 void Prisma::Texture::data(TextureData data)
 {
     m_data = data;
+}
+
+unsigned char* Prisma::Texture::dataContent() {
+    return m_dataContent;
+}
+
+void Prisma::Texture::freeData() {
+    if (m_dataContent) {
+        stbi_image_free(m_dataContent);
+    }
 }
