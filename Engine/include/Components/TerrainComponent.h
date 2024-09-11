@@ -28,7 +28,15 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Shader> m_shader;
 		unsigned int m_modelPos;
 		unsigned int m_heightPos;
+		unsigned int m_multPos;
+		unsigned int m_shiftPos;
+		unsigned int m_minPos;
+		unsigned int m_maxPos;
 		unsigned int m_numPatches = 4;
 		unsigned int m_resolution = 20;
+		float m_mult = 64;
+		float m_shift = -16;
+		float m_min = 20;
+		float m_max = 1000;
 	};
 }

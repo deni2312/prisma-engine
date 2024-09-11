@@ -18,6 +18,11 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     m_shader->use();
     m_shader->setMat4(m_modelPos, parent()->finalMatrix());
     m_shader->setInt64(m_heightPos, m_heightMap->id());
+    m_shader->setFloat(m_multPos, m_mult);
+    m_shader->setFloat(m_shiftPos, m_shift);
+    m_shader->setFloat(m_minPos, m_min);
+    m_shader->setFloat(m_maxPos, m_max);
+
     m_vao.bind();
     glDrawArrays(GL_PATCHES, 0, m_numPatches * m_resolution * m_resolution);
     glEnable(GL_CULL_FACE);
@@ -31,8 +36,11 @@ void Prisma::TerrainComponent::start()
         m_shader->use();
         m_modelPos = m_shader->getUniformPosition("model");
         m_heightPos = m_shader->getUniformPosition("heightMap");
-
-        int maxTessLevel;
+        m_multPos = m_shader->getUniformPosition("mult");
+        m_shiftPos = m_shader->getUniformPosition("shift");
+        m_minPos = m_shader->getUniformPosition("MIN_DISTANCE");
+        m_maxPos = m_shader->getUniformPosition("MAX_DISTANCE");
+        GLint maxTessLevel;
         glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
         std::vector<float> vertices;
         int width = m_heightMap->data().width;

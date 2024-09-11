@@ -4,6 +4,8 @@ layout(quads, fractional_odd_spacing, ccw) in;
 
 layout(bindless_sampler) uniform sampler2D heightMap;
 uniform mat4 model;
+uniform float mult;
+uniform float shift;
 
 layout(std140, binding = 1) uniform MeshData
 {
@@ -29,7 +31,7 @@ void main()
     vec2 t1 = (t11 - t10) * u + t10;
     vec2 texCoord = (t1 - t0) * v + t0;
 
-    Height = texture(heightMap, texCoord).y * 64.0 - 16.0;
+    Height = texture(heightMap, texCoord).y * mult + shift;
 
     vec4 p00 = gl_in[0].gl_Position;
     vec4 p01 = gl_in[1].gl_Position;

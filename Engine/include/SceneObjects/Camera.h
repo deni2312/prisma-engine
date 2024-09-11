@@ -21,7 +21,7 @@ namespace Prisma {
         glm::mat4 matrix() const override;
     private:
         float m_nearPlane = 0.1f;
-        float m_farPlane = 100.0f;
+        float m_farPlane = 1000.0f;
         float m_angle = 45.0f;
         glm::vec3 m_position = glm::vec3(1,0,0);
         glm::vec3 m_center = glm::vec3(0, 0, 0);
