@@ -17,66 +17,66 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     glDisable(GL_CULL_FACE);
     m_shader->use();
     m_shader->setMat4(m_modelPos, parent()->finalMatrix());
+    m_shader->setInt64(m_heightPos, m_heightMap->id());
     m_vao.bind();
-    for (unsigned strip = 0; strip < m_numStrips; strip++)
-    {
-        glDrawElements(GL_TRIANGLE_STRIP,   // primitive type
-            m_numTrisPerStrip + 2,   // number of indices to render
-            GL_UNSIGNED_INT,     // index data type
-            (void*)(sizeof(unsigned) * (m_numTrisPerStrip + 2) * strip)); // offset to starting index
-    }
+    glDrawArrays(GL_PATCHES, 0, m_numPatches * m_resolution * m_resolution);
     glEnable(GL_CULL_FACE);
 }
 
 void Prisma::TerrainComponent::start()
 {
 	if (m_heightMap) {
-        m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainPipeline/fragment.glsl");
+        Prisma::Shader::ShaderHeaders headers;
+        m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainPipeline/fragment.glsl",nullptr, headers, "../../../Engine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainPipeline/tesdata.glsl");
         m_shader->use();
         m_modelPos = m_shader->getUniformPosition("model");
+        m_heightPos = m_shader->getUniformPosition("heightMap");
+
+        int maxTessLevel;
+        glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
         std::vector<float> vertices;
         float yScale = 64.0f / 256.0f, yShift = 16.0f;
-        int rez = 1;
         int width = m_heightMap->data().width;
         int height = m_heightMap->data().height;
         unsigned bytePerPixel = m_heightMap->data().nrComponents;
-        for (int i = 0; i < height; i++)
-        {
-            for (int j = 0; j < width; j++)
-            {
-                unsigned char* pixelOffset = m_heightMap->dataContent() + (j + width * i) * bytePerPixel;
-                unsigned char y = pixelOffset[0];
 
-                // vertex
-                vertices.push_back(-height / 2.0f + height * i / (float)height);   // vx
-                vertices.push_back((int)y * yScale - yShift);   // vy
-                vertices.push_back(-width / 2.0f + width * j / (float)width);   // vz
+        for (unsigned i = 0; i <= m_resolution - 1; i++)
+        {
+            for (unsigned j = 0; j <= m_resolution - 1; j++)
+            {
+                vertices.push_back(-width / 2.0f + width * i / (float)m_resolution); // v.x
+                vertices.push_back(0.0f); // v.y
+                vertices.push_back(-height / 2.0f + height * j / (float)m_resolution); // v.z
+                vertices.push_back(i / (float)m_resolution); // u
+                vertices.push_back(j / (float)m_resolution); // v
+
+                vertices.push_back(-width / 2.0f + width * (i + 1) / (float)m_resolution); // v.x
+                vertices.push_back(0.0f); // v.y
+                vertices.push_back(-height / 2.0f + height * j / (float)m_resolution); // v.z
+                vertices.push_back((i + 1) / (float)m_resolution); // u
+                vertices.push_back(j / (float)m_resolution); // v
+
+                vertices.push_back(-width / 2.0f + width * i / (float)m_resolution); // v.x
+                vertices.push_back(0.0f); // v.y
+                vertices.push_back(-height / 2.0f + height * (j + 1) / (float)m_resolution); // v.z
+                vertices.push_back(i / (float)m_resolution); // u
+                vertices.push_back((j + 1) / (float)m_resolution); // v
+
+                vertices.push_back(-width / 2.0f + width * (i + 1) / (float)m_resolution); // v.x
+                vertices.push_back(0.0f); // v.y
+                vertices.push_back(-height / 2.0f + height * (j + 1) / (float)m_resolution); // v.z
+                vertices.push_back((i + 1) / (float)m_resolution); // u
+                vertices.push_back((j + 1) / (float)m_resolution); // v
             }
         }
-        m_heightMap->freeData();
-
-        std::vector<unsigned int> indices;
-        for (unsigned i = 0; i < height - 1; i += rez)
-        {
-            for (unsigned j = 0; j < width; j += rez)
-            {
-                for (unsigned k = 0; k < 2; k++)
-                {
-                    indices.push_back(j + width * (i + k * rez));
-                }
-            }
-        }
-
-        m_numStrips = (height - 1) / rez;
-        m_numTrisPerStrip = (width / rez) * 2 - 2;
 
         m_vao.bind();
         Prisma::VBO vbo;
-        Prisma::EBO ebo;
         vbo.writeData(sizeof(float)*vertices.size(), vertices.data());
-        ebo.writeData(sizeof(unsigned int)*indices.size(), indices.data());
         // link vertex attributes
-        m_vao.addAttribPointer(0, 3, 3 * sizeof(float), (void*)0);
+        m_vao.addAttribPointer(0, 3, 5 * sizeof(float), (void*)0);
+        m_vao.addAttribPointer(1, 2, 5 * sizeof(float), (void*)3);
+        glPatchParameteri(GL_PATCH_VERTICES, m_numPatches);
 	}
 }
 

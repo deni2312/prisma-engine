@@ -10,7 +10,6 @@ layout(bindless_sampler) uniform sampler3D worl;			// 3d texture with the high f
 uniform vec3 camPos;
 uniform float time;
 uniform vec3 lightDir;
-layout(bindless_sampler) uniform sampler2D uNoise;
 
 layout(std140, binding = 1) uniform MeshData
 {

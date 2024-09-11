@@ -1,12 +1,12 @@
 #version 460 core
-#extension GL_ARB_bindless_texture : enable
 out vec4 FragColor;
 
 in vec2 TexCoords;
 
-in vec3 FragPos;
+in float Height;
 
 void main()
 {
-    FragColor = vec4(1.0);
+    float h = (Height + 16) / 64.0f;
+    FragColor = vec4(h, h, h, 1.0);
 }

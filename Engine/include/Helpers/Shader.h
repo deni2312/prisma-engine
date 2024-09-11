@@ -21,7 +21,7 @@ namespace Prisma {
         unsigned int ID;
         // constructor generates the shader on the fly
         // ------------------------------------------------------------------------
-        Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr, ShaderHeaders headers = {"","",""})
+        Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr, ShaderHeaders headers = {"","",""}, const char* tessControlPath = nullptr, const char* tessEvalPath = nullptr)
         {
             // 1. retrieve the vertex/fragment source code from filePath
             std::string vertexCode;
@@ -30,10 +30,16 @@ namespace Prisma {
             std::ifstream vShaderFile;
             std::ifstream fShaderFile;
             std::ifstream gShaderFile;
+            std::string tessControlCode;
+            std::string tessEvalCode;
+            std::ifstream tcShaderFile;
+            std::ifstream teShaderFile;
             // ensure ifstream objects can throw exceptions:
             vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+            tcShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+            teShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             try
             {
                 // open files
@@ -57,6 +63,20 @@ namespace Prisma {
                     gShaderStream << gShaderFile.rdbuf();
                     gShaderFile.close();
                     geometryCode = headers.geometry + gShaderStream.str();
+                }
+                if (tessControlPath != nullptr) {
+                    tcShaderFile.open(tessControlPath);
+                    std::stringstream tcShaderStream;
+                    tcShaderStream << tcShaderFile.rdbuf();
+                    tcShaderFile.close();
+                    tessControlCode = tcShaderStream.str();
+                }
+                if (tessEvalPath != nullptr) {
+                    teShaderFile.open(tessEvalPath);
+                    std::stringstream teShaderStream;
+                    teShaderStream << teShaderFile.rdbuf();
+                    teShaderFile.close();
+                    tessEvalCode = teShaderStream.str();
                 }
             }
             catch (std::ifstream::failure& e)
@@ -91,12 +111,35 @@ namespace Prisma {
                 glCompileShader(geometry);
                 checkCompileErrors(geometry, "GEOMETRY");
             }
+            // if tessellation shader is given, compile tessellation shader
+            unsigned int tessControl;
+            if (tessControlPath != nullptr)
+            {
+                const char* tcShaderCode = tessControlCode.c_str();
+                tessControl = glCreateShader(GL_TESS_CONTROL_SHADER);
+                glShaderSource(tessControl, 1, &tcShaderCode, NULL);
+                glCompileShader(tessControl);
+                checkCompileErrors(tessControl, "TESS_CONTROL");
+            }
+            unsigned int tessEval;
+            if (tessEvalPath != nullptr)
+            {
+                const char* teShaderCode = tessEvalCode.c_str();
+                tessEval = glCreateShader(GL_TESS_EVALUATION_SHADER);
+                glShaderSource(tessEval, 1, &teShaderCode, NULL);
+                glCompileShader(tessEval);
+                checkCompileErrors(tessEval, "TESS_EVALUATION");
+            }
             // shader Program
             ID = glCreateProgram();
             glAttachShader(ID, vertex);
             glAttachShader(ID, fragment);
             if (geometryPath != nullptr)
                 glAttachShader(ID, geometry);
+            if (tessControlPath != nullptr)
+                glAttachShader(ID, tessControl);
+            if (tessEvalPath != nullptr)
+                glAttachShader(ID, tessEval);
             glLinkProgram(ID);
             checkCompileErrors(ID, "PROGRAM");
             // delete the shaders as they're linked into our program now and no longer necessary

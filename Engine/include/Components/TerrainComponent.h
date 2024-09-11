@@ -27,7 +27,8 @@ namespace Prisma {
 		Prisma::VAO m_vao;
 		std::shared_ptr<Prisma::Shader> m_shader;
 		unsigned int m_modelPos;
-		int m_numStrips;
-		int m_numTrisPerStrip;
+		unsigned int m_heightPos;
+		unsigned int m_numPatches = 4;
+		unsigned int m_resolution = 20;
 	};
 }
