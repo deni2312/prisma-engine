@@ -35,7 +35,6 @@ void Prisma::TerrainComponent::start()
         int maxTessLevel;
         glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
         std::vector<float> vertices;
-        float yScale = 64.0f / 256.0f, yShift = 16.0f;
         int width = m_heightMap->data().width;
         int height = m_heightMap->data().height;
         unsigned bytePerPixel = m_heightMap->data().nrComponents;
@@ -72,10 +71,9 @@ void Prisma::TerrainComponent::start()
 
         m_vao.bind();
         Prisma::VBO vbo;
-        vbo.writeData(sizeof(float)*vertices.size(), vertices.data());
-        // link vertex attributes
+        vbo.writeData(sizeof(float) * vertices.size(), vertices.data());
         m_vao.addAttribPointer(0, 3, 5 * sizeof(float), (void*)0);
-        m_vao.addAttribPointer(1, 2, 5 * sizeof(float), (void*)3);
+        m_vao.addAttribPointer(1, 2, 5 * sizeof(float), (void*)(sizeof(float) * 3));        
         glPatchParameteri(GL_PATCH_VERTICES, m_numPatches);
 	}
 }
