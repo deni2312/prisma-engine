@@ -17,6 +17,10 @@ in vec2 TextureCoord[];
 
 out float Height;
 
+out vec3 FragPos;
+
+out vec3 Normal;
+
 void main()
 {
     float u = gl_TessCoord.x;
@@ -41,10 +45,10 @@ void main()
     vec4 uVec = p01 - p00;
     vec4 vVec = p10 - p00;
     vec4 normal = normalize(vec4(cross(vVec.xyz, uVec.xyz), 0));
-
+    Normal = vec3(normal);
     vec4 p0 = (p01 - p00) * u + p00;
     vec4 p1 = (p11 - p10) * u + p10;
     vec4 p = (p1 - p0) * v + p0 + normal * Height;
-
+    FragPos = vec3(model * vec4(p.xyz, 1.0));
     gl_Position = projection * view * model * p;
 }

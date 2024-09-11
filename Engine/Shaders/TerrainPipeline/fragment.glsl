@@ -5,6 +5,9 @@ in vec2 TexCoords;
 
 in float Height;
 
+in vec3 FragPos;
+in vec3 Normal;
+
 void main()
 {
     float h = (Height + 16) / 64.0f;
