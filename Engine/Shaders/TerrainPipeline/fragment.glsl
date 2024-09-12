@@ -15,6 +15,10 @@ layout(bindless_sampler) uniform sampler2D grass;
 layout(bindless_sampler) uniform sampler2D stone;
 layout(bindless_sampler) uniform sampler2D snow;
 
+layout(bindless_sampler) uniform sampler2D grassNormal;
+layout(bindless_sampler) uniform sampler2D stoneNormal;
+layout(bindless_sampler) uniform sampler2D snowNormal;
+
 uniform float mult;
 uniform float shift;
 
@@ -100,6 +104,20 @@ layout(std430, binding = 9) buffer CSMShadow
     vec2 paddingCSM;
 };
 
+vec3 getNormalFromMap(vec3 tangentNormal)
+{
+    vec3 Q1 = dFdx(FragPos);
+    vec3 Q2 = dFdy(FragPos);
+    vec2 st1 = dFdx(textureCoord);
+    vec2 st2 = dFdy(textureCoord);
+
+    vec3 N = normalize(Normal);
+    vec3 T = normalize(Q1 * st2.t - Q2 * st1.t);
+    vec3 B = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+}
 
 void main()
 {
@@ -120,6 +138,11 @@ void main()
     vec4 grassColor = texture(grass, textureCoord);
     vec4 rockColor = texture(stone, textureCoord);
     vec4 snowColor = texture(snow, textureCoord);
+
+    vec3 grassNormal = getNormalFromMap(texture(grassNormal, textureCoord).xyz * 2.0 - 1.0);
+    vec3 rockNormal = getNormalFromMap(texture(stoneNormal, textureCoord).xyz * 2.0 - 1.0);
+    vec3 snowNormal = getNormalFromMap(texture(snowNormal, textureCoord).xyz * 2.0 - 1.0);
+
 
     // Blend textures based on height
     vec4 blendedColor = mix(grassColor, rockColor, rockFactor);  // Grass to Rock blend
