@@ -38,11 +38,13 @@ namespace Prisma {
 		unsigned int m_grassPos;
 		unsigned int m_stonePos;
 		unsigned int m_snowPos;
+		unsigned int m_scalePos;
 		unsigned int m_numPatches = 4;
 		unsigned int m_resolution = 20;
 		float m_mult = 64;
 		float m_shift = -16;
 		float m_min = 20;
 		float m_max = 1000;
+		float m_scale = 1000;
 	};
 }

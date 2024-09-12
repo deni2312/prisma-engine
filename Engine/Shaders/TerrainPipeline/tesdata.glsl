@@ -6,6 +6,7 @@ layout(bindless_sampler) uniform sampler2D heightMap;
 uniform mat4 model;
 uniform float mult;
 uniform float shift;
+uniform float textureScaling;
 
 layout(std140, binding = 1) uniform MeshData
 {
@@ -23,6 +24,7 @@ out vec3 Normal;
 
 out vec2 textureCoord;
 
+
 void main()
 {
     float u = gl_TessCoord.x;
@@ -38,6 +40,7 @@ void main()
     textureCoord = (t1 - t0) * v + t0;
 
     Height = texture(heightMap, textureCoord).y * mult + shift;
+    textureCoord *= textureScaling;
 
     vec4 p00 = gl_in[0].gl_Position;
     vec4 p01 = gl_in[1].gl_Position;

@@ -25,6 +25,7 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     m_shader->setInt64(m_grassPos, m_grass->id());
     m_shader->setInt64(m_stonePos, m_stone->id());
     m_shader->setInt64(m_snowPos, m_snow->id());
+    m_shader->setFloat(m_scalePos, m_scale);
 
     m_vao.bind();
     glDrawArrays(GL_PATCHES, 0, m_numPatches * m_resolution * m_resolution);
@@ -53,6 +54,7 @@ void Prisma::TerrainComponent::start()
         m_grassPos = m_shader->getUniformPosition("grass");
         m_stonePos = m_shader->getUniformPosition("stone");
         m_snowPos = m_shader->getUniformPosition("snow");
+        m_scalePos = m_shader->getUniformPosition("textureScaling");
         GLint maxTessLevel;
         glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
         std::vector<float> vertices;
