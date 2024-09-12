@@ -33,6 +33,7 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Mesh> m_mesh;
 		Prisma::VAO m_vao;
 		std::shared_ptr<Prisma::Shader> m_shader;
+		std::shared_ptr<Prisma::Shader> m_csmShader;
 		unsigned int m_modelPos;
 		unsigned int m_heightPos;
 		unsigned int m_multPos;

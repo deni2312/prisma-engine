@@ -40,6 +40,8 @@ void Prisma::TerrainComponent::start()
 	if (m_heightMap) {
         Prisma::Shader::ShaderHeaders headers;
         m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainPipeline/fragment.glsl",nullptr, headers, "../../../Engine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainPipeline/tesdata.glsl");
+        m_csmShader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainShadowPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/fragment.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/geometry.glsl", headers, "../../../Engine/Shaders/TerrainShadowPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/tesdata.glsl");
+
         m_grass = std::make_shared<Prisma::Texture>();
         m_stone = std::make_shared<Prisma::Texture>();
         m_snow = std::make_shared<Prisma::Texture>();
