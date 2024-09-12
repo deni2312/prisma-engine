@@ -162,10 +162,6 @@ void Prisma::CloudComponent::start()
 	m_camPos = m_cloudShader->getUniformPosition("camPos");
 	// Initialize the start time
 	m_start = std::chrono::system_clock::now();
-
-	m_textureNoise = std::make_shared<Prisma::Texture>();
-	m_textureNoise->loadTexture("../../../Resources/res/noise.png");
-
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_noiseShader->use();

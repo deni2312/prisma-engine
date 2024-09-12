@@ -105,8 +105,6 @@ namespace Prisma {
 
 		std::shared_ptr<Prisma::FBO> m_fbo;
 
-		std::shared_ptr<Prisma::Texture> m_textureNoise;
-
 		uint64_t m_worley;
 
 		uint64_t m_perlinWorley;
