@@ -6,40 +6,48 @@ void Prisma::NodeViewer::varsDispatcher(Prisma::Component::ComponentType types, 
     auto type = std::get<0>(types);
     auto name = std::get<1>(types);
     auto variable = std::get<2>(types);
-    std::string label = "##dispatcherlabel" + std::to_string(index);
+    std::string label = "##dispatcherlabel" + std::to_string(index)+name;
     switch (type) {
-    case Component::TYPES::BUTTON:
+    case Component::TYPES::BUTTON: {
         if (ImGui::Button(name.c_str())) {
             (*((std::function<void()>*)variable))();
         }
+        }
         break;
-    case Component::TYPES::VEC3:
+    case Component::TYPES::VEC3: {
         ImGui::Text(name.c_str());
         ImGui::InputFloat3(label.c_str(), glm::value_ptr(*static_cast<glm::vec3*>(variable)));
+    }
         break;
-    case Component::TYPES::VEC2:
+    case Component::TYPES::VEC2: {
         ImGui::Text(name.c_str());
         ImGui::InputFloat2(label.c_str(), glm::value_ptr(*static_cast<glm::vec2*>(variable)));
+    }
         break;
-    case Component::TYPES::INT:
+    case Component::TYPES::INT: {
         ImGui::Text(name.c_str());
         ImGui::InputInt(name.c_str(), static_cast<int*>(variable));
+    }
         break;
-    case Component::TYPES::FLOAT:
+    case Component::TYPES::FLOAT: {
         ImGui::Text(name.c_str());
         ImGui::InputFloat(label.c_str(), static_cast<float*>(variable));
+    }
         break;
-    case Component::TYPES::STRING:
+    case Component::TYPES::STRING: {
         ImGui::Text("%s", ((std::string*)variable)->c_str());
+    }
         break;
-    case Component::TYPES::BOOL:
+    case Component::TYPES::BOOL: {
         ImGui::Text(name.c_str());
         ImGui::Checkbox(label.c_str(), static_cast<bool*>(variable));
+    }
         break;
-    case Component::TYPES::STRINGLIST:
+    case Component::TYPES::STRINGLIST: {
         ImGui::Text(name.c_str());
         auto comboData = static_cast<Prisma::Component::ComponentList*>(variable);
         ImGui::Combo(label.c_str(), &comboData->currentitem, comboData->items.data(), comboData->items.size());
+    }
         break;
 
     }
