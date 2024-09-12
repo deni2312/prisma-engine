@@ -10,6 +10,25 @@ Prisma::TerrainComponent::TerrainComponent() : Prisma::Component{}
 
 void Prisma::TerrainComponent::ui()
 {
+    std::vector<ComponentType> components;
+
+    components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Multiplier", &m_mult));
+    components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Shift", &m_shift));
+    components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Minimum", &m_min));
+    components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Maximum", &m_max));
+    components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Scaling", &m_scale));
+    ComponentType componentButton;
+    m_startButton = [&]() {
+        if (!isStart()) {
+            start();
+        }
+    };
+    componentButton = std::make_tuple(Prisma::Component::TYPES::BUTTON, "UI terrain", &m_startButton);
+
+    for (const auto& component : components) {
+        addGlobal(component);
+    }
+    addGlobal(componentButton);
 }
 
 void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
@@ -41,6 +60,7 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 
 void Prisma::TerrainComponent::start()
 {
+    Prisma::Component::start();
 	if (m_heightMap) {
         Prisma::Shader::ShaderHeaders headers;
         m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainPipeline/fragment.glsl",nullptr, headers, "../../../Engine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainPipeline/tesdata.glsl");

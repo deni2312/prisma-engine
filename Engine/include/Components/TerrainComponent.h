@@ -8,6 +8,7 @@
 #include "../Containers/Texture.h"
 #include "../Containers/VAO.h"
 #include "../SceneObjects/Mesh.h"
+#include <functional>
 
 namespace Prisma {
 	class TerrainComponent : public Component {
@@ -61,5 +62,7 @@ namespace Prisma {
 		float m_min = 20;
 		float m_max = 1000;
 		float m_scale = 1000;
+
+		std::function<void()> m_startButton;
 	};
 }
