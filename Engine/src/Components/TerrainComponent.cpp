@@ -22,6 +22,9 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     m_shader->setFloat(m_shiftPos, m_shift);
     m_shader->setFloat(m_minPos, m_min);
     m_shader->setFloat(m_maxPos, m_max);
+    m_shader->setInt64(m_grassPos, m_grass->id());
+    m_shader->setInt64(m_stonePos, m_stone->id());
+    m_shader->setInt64(m_snowPos, m_snow->id());
 
     m_vao.bind();
     glDrawArrays(GL_PATCHES, 0, m_numPatches * m_resolution * m_resolution);
@@ -33,6 +36,13 @@ void Prisma::TerrainComponent::start()
 	if (m_heightMap) {
         Prisma::Shader::ShaderHeaders headers;
         m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainPipeline/fragment.glsl",nullptr, headers, "../../../Engine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainPipeline/tesdata.glsl");
+        m_grass = std::make_shared<Prisma::Texture>();
+        m_stone = std::make_shared<Prisma::Texture>();
+        m_snow = std::make_shared<Prisma::Texture>();
+        m_grass->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grass.jpg");
+        m_stone->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stone.jpg");
+        m_snow->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snow.jpg");
+
         m_shader->use();
         m_modelPos = m_shader->getUniformPosition("model");
         m_heightPos = m_shader->getUniformPosition("heightMap");
@@ -40,6 +50,9 @@ void Prisma::TerrainComponent::start()
         m_shiftPos = m_shader->getUniformPosition("shift");
         m_minPos = m_shader->getUniformPosition("MIN_DISTANCE");
         m_maxPos = m_shader->getUniformPosition("MAX_DISTANCE");
+        m_grassPos = m_shader->getUniformPosition("grass");
+        m_stonePos = m_shader->getUniformPosition("stone");
+        m_snowPos = m_shader->getUniformPosition("snow");
         GLint maxTessLevel;
         glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
         std::vector<float> vertices;

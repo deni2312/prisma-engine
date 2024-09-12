@@ -23,6 +23,9 @@ namespace Prisma {
 		void heightMap(std::shared_ptr<Prisma::Texture> heightMap);
 	private:
 		std::shared_ptr<Prisma::Texture> m_heightMap = nullptr;
+		std::shared_ptr<Prisma::Texture> m_grass = nullptr;
+		std::shared_ptr<Prisma::Texture> m_stone = nullptr;
+		std::shared_ptr<Prisma::Texture> m_snow = nullptr;
 		std::shared_ptr<Prisma::Mesh> m_mesh;
 		Prisma::VAO m_vao;
 		std::shared_ptr<Prisma::Shader> m_shader;
@@ -32,6 +35,9 @@ namespace Prisma {
 		unsigned int m_shiftPos;
 		unsigned int m_minPos;
 		unsigned int m_maxPos;
+		unsigned int m_grassPos;
+		unsigned int m_stonePos;
+		unsigned int m_snowPos;
 		unsigned int m_numPatches = 4;
 		unsigned int m_resolution = 20;
 		float m_mult = 64;
