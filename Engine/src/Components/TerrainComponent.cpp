@@ -29,6 +29,10 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     m_shader->setInt64(m_grassNormalPos, m_grassNormal->id());
     m_shader->setInt64(m_stoneNormalPos, m_stoneNormal->id());
     m_shader->setInt64(m_snowNormalPos, m_snowNormal->id());
+    m_shader->setInt64(m_grassRoughnessPos, m_grassRoughness->id());
+    m_shader->setInt64(m_stoneRoughnessPos, m_stoneRoughness->id());
+    m_shader->setInt64(m_snowRoughnessPos, m_snowRoughness->id());
+
 
     m_vao.bind();
     glDrawArrays(GL_PATCHES, 0, m_numPatches * m_resolution * m_resolution);
@@ -48,12 +52,18 @@ void Prisma::TerrainComponent::start()
         m_grassNormal = std::make_shared<Prisma::Texture>();
         m_stoneNormal = std::make_shared<Prisma::Texture>();
         m_snowNormal = std::make_shared<Prisma::Texture>();
+        m_grassRoughness = std::make_shared<Prisma::Texture>();
+        m_stoneRoughness = std::make_shared<Prisma::Texture>();
+        m_snowRoughness = std::make_shared<Prisma::Texture>();
         m_grass->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grass.jpg");
         m_stone->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stone.jpg");
         m_snow->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snow.jpg");
         m_grassNormal->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grassNormal.jpg");
         m_stoneNormal->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stoneNormal.jpg");
         m_snowNormal->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snowNormal.jpg");
+        m_grassRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grassRoughness.jpg");
+        m_stoneRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stoneRoughness.jpg");
+        m_snowRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snowRoughness.jpg");
 
         m_shader->use();
         m_modelPos = m_shader->getUniformPosition("model");
@@ -69,6 +79,9 @@ void Prisma::TerrainComponent::start()
         m_grassNormalPos = m_shader->getUniformPosition("grassNormal");
         m_stoneNormalPos = m_shader->getUniformPosition("stoneNormal");
         m_snowNormalPos = m_shader->getUniformPosition("snowNormal");
+        m_grassRoughnessPos = m_shader->getUniformPosition("grassRoughness");
+        m_stoneRoughnessPos = m_shader->getUniformPosition("stoneRoughness");
+        m_snowRoughnessPos = m_shader->getUniformPosition("snowRoughness");
 
         GLint maxTessLevel;
         glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);

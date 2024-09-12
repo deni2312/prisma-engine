@@ -29,6 +29,9 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Texture> m_grassNormal = nullptr;
 		std::shared_ptr<Prisma::Texture> m_stoneNormal = nullptr;
 		std::shared_ptr<Prisma::Texture> m_snowNormal = nullptr;
+		std::shared_ptr<Prisma::Texture> m_grassRoughness = nullptr;
+		std::shared_ptr<Prisma::Texture> m_stoneRoughness = nullptr;
+		std::shared_ptr<Prisma::Texture> m_snowRoughness = nullptr;
 
 		std::shared_ptr<Prisma::Mesh> m_mesh;
 		Prisma::VAO m_vao;
@@ -47,11 +50,14 @@ namespace Prisma {
 		unsigned int m_grassNormalPos;
 		unsigned int m_stoneNormalPos;
 		unsigned int m_snowNormalPos;
+		unsigned int m_grassRoughnessPos;
+		unsigned int m_stoneRoughnessPos;
+		unsigned int m_snowRoughnessPos;
 
 		unsigned int m_numPatches = 4;
 		unsigned int m_resolution = 20;
 		float m_mult = 64;
-		float m_shift = -16;
+		float m_shift = 0;
 		float m_min = 20;
 		float m_max = 1000;
 		float m_scale = 1000;

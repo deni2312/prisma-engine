@@ -19,6 +19,10 @@ layout(bindless_sampler) uniform sampler2D grassNormal;
 layout(bindless_sampler) uniform sampler2D stoneNormal;
 layout(bindless_sampler) uniform sampler2D snowNormal;
 
+layout(bindless_sampler) uniform sampler2D grassRoughness;
+layout(bindless_sampler) uniform sampler2D stoneRoughness;
+layout(bindless_sampler) uniform sampler2D snowRoughness;
+
 uniform float mult;
 uniform float shift;
 
@@ -286,19 +290,25 @@ void main()
     vec4 rockColor = texture(stone, textureCoord);
     vec4 snowColor = texture(snow, textureCoord);
 
-    vec3 grassNormal = getNormalFromMap(texture(grassNormal, textureCoord).xyz * 2.0 - 1.0);
-    vec3 rockNormal = getNormalFromMap(texture(stoneNormal, textureCoord).xyz * 2.0 - 1.0);
-    vec3 snowNormal = getNormalFromMap(texture(snowNormal, textureCoord).xyz * 2.0 - 1.0);
+    vec3 grassN = getNormalFromMap(texture(grassNormal, textureCoord).xyz * 2.0 - 1.0);
+    vec3 rockN = getNormalFromMap(texture(stoneNormal, textureCoord).xyz * 2.0 - 1.0);
+    vec3 snowN = getNormalFromMap(texture(snowNormal, textureCoord).xyz * 2.0 - 1.0);
 
-
+    float grassR = texture(grass, textureCoord).r;
+    float rockR = texture(stone, textureCoord).r;
+    float snowR = texture(snow, textureCoord).r;
 
     // Blend textures based on height
     vec4 blendedColor = mix(grassColor, rockColor, rockFactor);  // Grass to Rock blend
     blendedColor = mix(blendedColor, snowColor, snowFactor);     // Rock to Snow blend
 
     // Blend normals based on height
-    vec3 blendedNormal = mix(grassNormal, rockNormal, rockFactor); // Grass to Rock blend
-    blendedNormal = mix(blendedNormal, snowNormal, snowFactor);    // Rock to Snow blend
+    vec3 blendedNormal = mix(grassN, rockN, rockFactor); // Grass to Rock blend
+    blendedNormal = mix(blendedNormal, snowN, snowFactor);    // Rock to Snow blend
+
+    // Blend roughness based on height
+    float blendedRoughness = mix(grassR, rockR, rockFactor); // Grass to Rock blend
+    blendedRoughness = mix(blendedRoughness, snowR, snowFactor);    // Rock to Snow blend
 
     // Additional effects based on normal direction (for snow accumulation on flat surfaces)
     float slopeFactor = dot(Normal, vec3(0.0, 1.0, 0.0));  // How flat the surface is
@@ -306,13 +316,14 @@ void main()
 
     // Accumulate more snow on flat surfaces
     blendedColor = mix(blendedColor, snowColor, slopeFactor * snowFactor);
-    blendedNormal = mix(blendedNormal, snowNormal, slopeFactor * snowFactor);
+    blendedNormal = mix(blendedNormal, snowN, slopeFactor * snowFactor);
+    blendedRoughness = mix(blendedRoughness, snowR, slopeFactor * snowFactor);
 
     vec3 N = normalize(blendedNormal);  // Use the blended normal in lighting calculations
 
     vec3 albedo = vec3(blendedColor);
     float metallic = 0.0;
-    float roughness = 1.0;
+    float roughness = blendedRoughness;
 
     vec3 V = normalize(viewPos.xyz - FragPos);
 
