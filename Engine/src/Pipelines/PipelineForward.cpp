@@ -67,6 +67,7 @@ void Prisma::PipelineForward::render()
 	glDepthMask(GL_FALSE);          // Disable depth writing
 	glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
 	*/
+	Prisma::ComponentsHandler::getInstance().updatePreRender(m_fbo);
 	//COLOR PASS
 	m_shader->use();
 	Prisma::MeshIndirect::getInstance().renderMeshes();

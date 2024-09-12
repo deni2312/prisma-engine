@@ -40,6 +40,8 @@ namespace Prisma {
 
         virtual void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0);
 
+        virtual void updatePreRender(std::shared_ptr<Prisma::FBO> fbo = 0);
+
         virtual void destroy();
 
         void parent(Prisma::Node* parent);

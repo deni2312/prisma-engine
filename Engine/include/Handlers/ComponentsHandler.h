@@ -17,6 +17,8 @@ namespace Prisma {
 
         void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0);
 
+        void updatePreRender(std::shared_ptr<Prisma::FBO> fbo = 0);
+
         void addComponent(std::shared_ptr<Component> component) {
             m_components.push_back(component);
         }

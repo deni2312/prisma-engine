@@ -123,6 +123,8 @@ void Prisma::PipelineDeferred::render()
 
     m_fbo->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    Prisma::ComponentsHandler::getInstance().updatePreRender(m_fbo);
+
     m_shaderD->use();
     m_shaderD->setInt64(m_albedoLocation, m_albedo);
     m_shaderD->setInt64(m_normalLocation, m_normal);

@@ -18,6 +18,10 @@ void Prisma::Component::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 {
 }
 
+void Prisma::Component::updatePreRender(std::shared_ptr<Prisma::FBO> fbo)
+{
+}
+
 void Prisma::Component::destroy()
 {
 

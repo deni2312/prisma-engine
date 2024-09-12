@@ -36,6 +36,15 @@ void Prisma::ComponentsHandler::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     }
 }
 
+void Prisma::ComponentsHandler::updatePreRender(std::shared_ptr<Prisma::FBO> fbo)
+{
+    for (const auto& component : m_components) {
+        if (component->isStart()) {
+            component->updatePreRender(fbo);
+        }
+    }
+}
+
 Prisma::ComponentsHandler::ComponentsHandler()
 {
 }

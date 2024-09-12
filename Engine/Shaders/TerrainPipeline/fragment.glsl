@@ -395,7 +395,7 @@ void main()
 
             float NdotL = max(dot(N, L), 0.0);
 
-            float attenuation = 1 / (omniData[lightIndex].attenuation.x + omniData[lightIndex].attenuation.y * totalDistance + omniData[lightIndex].attenuation.z * totalDistance * totalDistance);
+            float attenuation = 1.0 / (omniData[lightIndex].attenuation.x + omniData[lightIndex].attenuation.y * totalDistance + omniData[lightIndex].attenuation.z * totalDistance * totalDistance);
 
             if (omniData[lightIndex].padding.x < 1.0) {
                 Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
