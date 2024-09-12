@@ -15,11 +15,13 @@ layout(bindless_sampler) uniform sampler2D grass;
 layout(bindless_sampler) uniform sampler2D stone;
 layout(bindless_sampler) uniform sampler2D snow;
 
+uniform float mult;
+uniform float shift;
 
 void main()
 {
     // Normalize height range (-16 to 48) to (0 to 1)
-    float normalizedHeight = (Height + 16) / 64.0f;
+    float normalizedHeight = (Height + shift) / mult;
 
     // Define height thresholds for different layers
     float grassHeight = 0.3;  // Below 30% height, it's mostly grass
