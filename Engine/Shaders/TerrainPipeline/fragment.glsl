@@ -21,7 +21,7 @@ uniform float shift;
 void main()
 {
     // Normalize height range (-16 to 48) to (0 to 1)
-    float normalizedHeight = (Height + shift) / mult;
+    float normalizedHeight = (Height - shift) / mult;
 
     // Define height thresholds for different layers
     float grassHeight = 0.3;  // Below 30% height, it's mostly grass
