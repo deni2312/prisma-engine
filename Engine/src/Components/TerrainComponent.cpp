@@ -3,6 +3,7 @@
 #include "../../include/Containers/EBO.h"
 #include "../../include/SceneObjects/Sprite.h"
 #include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Components/PhysicsMeshComponent.h"
 
 Prisma::TerrainComponent::TerrainComponent() : Prisma::Component{}
 {
@@ -88,9 +89,36 @@ void Prisma::TerrainComponent::generateCpu()
             m_grassVertices.push_back(vertex);
         }
     }
-    m_heightMap->freeData();
-    generateGrassPoints(0.1);
 
+    m_heightMap->freeData();
+
+    int rez = 20;
+    std::vector<unsigned int> indices;
+
+    // Iterate over the height and width with the defined resolution (rez)
+    for (unsigned i = 0; i < height - rez; i += rez) {
+        for (unsigned j = 0; j < width - rez; j += rez) {
+            // First triangle of the quad
+            indices.push_back(j + width * i);          // (i, j)
+            indices.push_back(j + width * (i + rez));  // (i + 1, j)
+            indices.push_back((j + rez) + width * i);  // (i, j + 1)
+
+            // Second triangle of the quad
+            indices.push_back((j + rez) + width * i);          // (i, j + 1)
+            indices.push_back(j + width * (i + rez));          // (i + 1, j)
+            indices.push_back((j + rez) + width * (i + rez));  // (i + 1, j + 1)
+        }
+    }
+
+    generateGrassPoints(0.1);
+    auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
+    verticesData->vertices = m_grassVertices;
+    verticesData->indices = indices;
+    mesh->loadModel(verticesData);
+    auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
+    physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
+    
+    mesh->addComponent(physicsComponent);
     parent()->addChild(mesh);
 
     m_ssbo = std::make_shared<Prisma::SSBO>(15);

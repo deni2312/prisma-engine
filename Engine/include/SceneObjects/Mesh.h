@@ -33,7 +33,7 @@ namespace Prisma {
             glm::mat4 offset;
         };
 
-        void loadModel(std::shared_ptr<VerticesData> vertices);
+        void loadModel(std::shared_ptr<VerticesData> vertices,bool compute=true);
         const VerticesData& verticesData() const;
         void matrix(const glm::mat4& matrix, bool update = true) override;
         glm::mat4 matrix() const override;

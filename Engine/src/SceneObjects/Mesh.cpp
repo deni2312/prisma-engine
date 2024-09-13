@@ -9,10 +9,12 @@
 #include <string>
 #include "../../include/GlobalData/CacheScene.h"
 
-void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices)
+void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices, bool compute)
 {
 	m_vertices = vertices;
-    computeAABB();
+    if (compute) {
+        computeAABB();
+    }
 }
 
 const Prisma::Mesh::VerticesData& Prisma::Mesh::verticesData() const
