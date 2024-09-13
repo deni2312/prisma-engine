@@ -49,11 +49,16 @@ namespace Prisma {
         AABBData aabbData();
 
         unsigned int vectorId();
+
+        void addGlobalList(bool globalList);
+        bool addGlobalList() const;
+
     protected:
         std::shared_ptr<VerticesData> m_vertices;
         std::shared_ptr<Prisma::MaterialComponent> m_material;
 
         unsigned int m_vectorId;
         AABBData m_aabbData;
+        bool m_addGlobal = true;
     };
 }

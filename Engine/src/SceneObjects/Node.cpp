@@ -183,7 +183,7 @@ void Prisma::Node::updateCaches(std::shared_ptr<Node> child) {
 void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 {
 	Prisma::NodeHelper nodeHelper;
-	if (std::dynamic_pointer_cast<Prisma::Mesh>(child) && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child)) {
+	if (std::dynamic_pointer_cast<Prisma::Mesh>(child) && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(child) && std::dynamic_pointer_cast<Prisma::Mesh>(child)->addGlobalList()) {
 		if (nodeHelper.findUUID<Prisma::Mesh>(currentGlobalScene->meshes, child->uuid()) < 0) {
 			MeshIndirect::getInstance().add(currentGlobalScene->meshes.size());
 			currentGlobalScene->meshes.push_back(std::dynamic_pointer_cast<Mesh>(child));

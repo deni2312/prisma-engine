@@ -82,6 +82,14 @@ unsigned int Prisma::Mesh::vectorId()
     return m_vectorId;
 }
 
+void Prisma::Mesh::addGlobalList(bool globalList) {
+    m_addGlobal = globalList;
+}
+
+bool Prisma::Mesh::addGlobalList() const {
+    return m_addGlobal;
+}
+
 void Prisma::Mesh::computeAABB() {
 
     auto vertices=verticesData().vertices;
