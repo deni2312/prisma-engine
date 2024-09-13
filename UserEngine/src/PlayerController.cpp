@@ -43,9 +43,8 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     auto terrain = std::make_shared<Prisma::Node>();
     terrain->name("Terrain");
     auto terrainComponent = std::make_shared<Prisma::TerrainComponent>();
-    std::shared_ptr<Prisma::Texture> terrainTexture = std::make_shared<Prisma::Texture>();
-    terrainTexture->loadTexture("../../../Resources/DefaultScene/Heightmaps/heightmap.png",false,true,true,true);
-    terrainComponent->heightMap(terrainTexture);
+    auto perlin=Prisma::IBLBuilder::getInstance().renderPerlin(64, 64);
+    terrainComponent->heightMap(perlin);
     terrain->addComponent(terrainComponent);
     m_scene->root->addChild(terrain);
     createCamera();

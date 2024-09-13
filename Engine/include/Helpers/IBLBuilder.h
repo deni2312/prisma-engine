@@ -34,7 +34,7 @@ namespace Prisma {
 		void renderCube();
 		void renderQuad();
 		void renderQuad(unsigned int instances);
-
+		std::shared_ptr<Prisma::Texture> renderPerlin(unsigned int width, unsigned int height);
         IBLBuilder();
 
     private:
@@ -42,6 +42,8 @@ namespace Prisma {
         std::shared_ptr<Prisma::VBO> m_vboCube = nullptr;
         std::shared_ptr<Prisma::VAO> m_vaoQuad = nullptr;
         std::shared_ptr<Prisma::VBO> m_vboQuad = nullptr;
+		std::shared_ptr<Prisma::Shader> m_noiseShader = nullptr;
+		std::shared_ptr<Prisma::FBO> m_noiseFbo;
 		IBLData m_data;
 	};
 }

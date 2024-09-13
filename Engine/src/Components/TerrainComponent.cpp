@@ -74,64 +74,17 @@ void Prisma::TerrainComponent::generateCpu()
     int width = m_heightMap->data().width;
     int height = m_heightMap->data().height;
     unsigned bytePerPixel = m_heightMap->data().nrComponents;
-    auto mesh = std::make_shared<Prisma::Mesh>();
-    mesh->addGlobalList(false);
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            unsigned char* pixelOffset = m_heightMap->dataContent() + (j + width * i) * bytePerPixel;
+            unsigned char* pixelOffset = m_heightMap->data().dataContent + (j + width * i) * bytePerPixel;
             unsigned char y = pixelOffset[0];
             Prisma::Mesh::Vertex vertex;
             vertex.position.x = -height / 2.0f + height * i / (float)height;
             vertex.position.y = (int)(y * m_mult - m_shift)/ bytePerPixel;
             vertex.position.z = -width / 2.0f + width * j / (float)width;
             m_grassVertices.push_back(vertex);
-        }
-    }
-
-    int downscaleFactor = 16; // Adjust this factor to reduce the resolution (e.g., 2, 4, 8)
-
-    std::vector<Prisma::Mesh::Vertex> scalingVertices;
-    // Create vertices with lower resolution
-    for (int i = 0; i < height; i += downscaleFactor) // Skip rows by downscaleFactor
-    {
-        for (int j = 0; j < width; j += downscaleFactor) // Skip columns by downscaleFactor
-        {
-            unsigned char* pixelOffset = m_heightMap->dataContent() + (j + width * i) * bytePerPixel;
-            unsigned char y = pixelOffset[0];
-            Prisma::Mesh::Vertex vertex;
-            vertex.position.x = -height / 2.0f + height * i / (float)height;
-            vertex.position.y = (int)(y * m_mult - m_shift) / bytePerPixel;
-            vertex.position.z = -width / 2.0f + width * j / (float)width;
-            scalingVertices.push_back(vertex);
-        }
-    }
-
-    // Generate indices with lower resolution
-    std::vector<unsigned int> indices;
-    int newWidth = width / downscaleFactor;  // The width of the reduced grid
-    int newHeight = height / downscaleFactor; // The height of the reduced grid
-
-    for (int i = 0; i < newHeight - 1; i++)
-    {
-        for (int j = 0; j < newWidth - 1; j++)
-        {
-            // The four vertices of the current cell in the downscaled mesh
-            int topLeft = i * newWidth + j;
-            int topRight = topLeft + 1;
-            int bottomLeft = (i + 1) * newWidth + j;
-            int bottomRight = bottomLeft + 1;
-
-            // First triangle (top-left, bottom-left, top-right)
-            indices.push_back(topLeft);
-            indices.push_back(bottomLeft);
-            indices.push_back(topRight);
-
-            // Second triangle (top-right, bottom-left, bottom-right)
-            indices.push_back(topRight);
-            indices.push_back(bottomLeft);
-            indices.push_back(bottomRight);
         }
     }
 
@@ -292,7 +245,7 @@ void Prisma::TerrainComponent::generatePhysics()
     unsigned bytePerPixel = m_heightMap->data().nrComponents;
     auto mesh = std::make_shared<Prisma::Mesh>();
     mesh->addGlobalList(false);
-    int downscaleFactor = 16; // Adjust this factor to reduce the resolution (e.g., 2, 4, 8)
+    int downscaleFactor = 1; // Adjust this factor to reduce the resolution (e.g., 2, 4, 8)
 
     std::vector<Prisma::Mesh::Vertex> scalingVertices;
     // Create vertices with lower resolution
@@ -300,7 +253,7 @@ void Prisma::TerrainComponent::generatePhysics()
     {
         for (int j = 0; j < width; j += downscaleFactor) // Skip columns by downscaleFactor
         {
-            unsigned char* pixelOffset = m_heightMap->dataContent() + (j + width * i) * bytePerPixel;
+            unsigned char* pixelOffset = m_heightMap->data().dataContent + (j + width * i) * bytePerPixel;
             unsigned char y = pixelOffset[0];
             Prisma::Mesh::Vertex vertex;
             vertex.position.x = -height / 2.0f + height * i / (float)height;

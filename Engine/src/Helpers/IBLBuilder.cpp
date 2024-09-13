@@ -8,6 +8,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "../../include/Helpers/GarbageCollector.h"
+#include "../../../GUI/include/TextureInfo.h"
 
 Prisma::IBLBuilder::IBLBuilder()
 {
@@ -134,6 +135,42 @@ void Prisma::IBLBuilder::renderQuad(unsigned int instances)
     m_vaoQuad->bind();
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instances);
     Prisma::VAO::resetVao();
+}
+
+std::shared_ptr<Prisma::Texture> Prisma::IBLBuilder::renderPerlin(unsigned int width, unsigned int height)
+{
+    if (!m_noiseShader) {
+        m_noiseShader = std::make_shared<Prisma::Shader>("../../../Engine/Shaders/PerlinPipeline/vertex.glsl", "../../../Engine/Shaders/PerlinPipeline/fragment.glsl");
+    }
+
+    Prisma::FBO::FBOData fboData;
+    fboData.width = width;
+    fboData.height = height;
+    fboData.internalFormat = GL_RGBA;
+    fboData.internalType = GL_FLOAT;
+    fboData.name = "PERLIN";
+    m_noiseFbo = std::make_shared<Prisma::FBO>(fboData);
+    m_noiseFbo->bind();
+    m_noiseShader->use();
+    m_noiseShader->setVec2(m_noiseShader->getUniformPosition("resolution"), glm::vec2(width, height));
+    renderQuad();
+
+    m_noiseFbo->unbind();
+    char* textureData = new char[width * height * 4];
+
+    m_noiseFbo->bind();
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &textureData[0]);
+    m_noiseFbo->unbind();
+    auto texture = std::make_shared<Prisma::Texture>();
+    texture->id(m_noiseFbo->texture());
+    Prisma::Texture::TextureData data;
+    data.width = width;
+    data.height = height;
+    data.dataContent = (unsigned char*)textureData;
+    data.deleteStbi = false;
+    data.nrComponents = 4;
+    texture->data(data);
+    return texture;
 }
 
 void Prisma::IBLBuilder::createFbo(unsigned int width, unsigned int height)
