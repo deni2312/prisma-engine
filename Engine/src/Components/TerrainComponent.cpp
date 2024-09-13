@@ -84,7 +84,7 @@ void Prisma::TerrainComponent::generateCpu()
             unsigned char y = pixelOffset[0];
             Prisma::Mesh::Vertex vertex;
             vertex.position.x = -height / 2.0f + height * i / (float)height;
-            vertex.position.y = (int)y * m_mult - m_shift;
+            vertex.position.y = (int)(y * m_mult - m_shift)/ bytePerPixel;
             vertex.position.z = -width / 2.0f + width * j / (float)width;
             m_grassVertices.push_back(vertex);
         }
@@ -92,27 +92,46 @@ void Prisma::TerrainComponent::generateCpu()
 
     m_heightMap->freeData();
 
-    int rez = 20;
     std::vector<unsigned int> indices;
 
-    // Iterate over the height and width with the defined resolution (rez)
-    for (unsigned i = 0; i < height - rez; i += rez) {
-        for (unsigned j = 0; j < width - rez; j += rez) {
-            // First triangle of the quad
-            indices.push_back(j + width * i);          // (i, j)
-            indices.push_back(j + width * (i + rez));  // (i + 1, j)
-            indices.push_back((j + rez) + width * i);  // (i, j + 1)
+    int res = 256; // Example resolution factor, modify as needed
 
-            // Second triangle of the quad
-            indices.push_back((j + rez) + width * i);          // (i, j + 1)
-            indices.push_back(j + width * (i + rez));          // (i + 1, j)
-            indices.push_back((j + rez) + width * (i + rez));  // (i + 1, j + 1)
+    // Loop through rows, but ensure the last row is included
+    for (int i = 0; i < height - 1; i += res)
+    {
+        // Loop through columns, but ensure the last column is included
+        for (int j = 0; j < width - 1; j += res)
+        {
+            // Calculate the 1D indices of the four vertices of the current quad
+            // Ensure that we don't go out of bounds
+            int topLeft = i * width + j;
+            int topRight = i * width + std::min(j + res, width - 1);
+            int bottomLeft = std::min(i + res, height - 1) * width + j;
+            int bottomRight = std::min(i + res, height - 1) * width + std::min(j + res, width - 1);
+
+            // First triangle (top-left, top-right, bottom-left)
+            indices.push_back(topLeft);
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+
+            // Second triangle (bottom-left, top-right, bottom-right)
+            indices.push_back(bottomLeft);
+            indices.push_back(topRight);
+            indices.push_back(bottomRight);
         }
     }
 
     generateGrassPoints(0.1);
     auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
-    verticesData->vertices = m_grassVertices;
+
+    std::vector<Prisma::Mesh::Vertex> rotatedVertices;
+    for (const auto& vertex : m_grassVertices) {
+        Prisma::Mesh::Vertex v;
+        v.position = glm::rotate(glm::mat4(1.0), glm::radians(90.0f), glm::vec3(0, 1, 0)) * glm::vec4(vertex.position, 1.0);
+        v.position.y = v.position.y / m_mult;
+        rotatedVertices.push_back(v);
+    }
+    verticesData->vertices = rotatedVertices;
     verticesData->indices = indices;
     mesh->loadModel(verticesData);
     auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
@@ -258,7 +277,7 @@ void Prisma::TerrainComponent::generateGrassPoints(float density)
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
         float y = m_grassVertices[vertexIndex].position.y;
 
-        glm::vec4 point(x, (y-m_shift)/(m_mult*m_heightMap->data().nrComponents)+1, z, 1.0);
+        glm::vec4 point(x, (y-m_shift)/m_mult+1, z, 1.0);
         glm::mat4 pointData(1.0);
         pointData[3] = point;
         m_positions.push_back(pointData);
