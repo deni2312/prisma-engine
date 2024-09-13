@@ -59,10 +59,10 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
-    m_spriteShader->setMat4(m_spriteModelPos, m_spriteModel);
+    m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix()*m_spriteModel);
 
     Prisma::IBLBuilder::getInstance().renderQuad(m_positions.size());
-    m_spriteShader->setMat4(m_spriteModelPos, m_spriteModelRotation);
+    m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix() * m_spriteModelRotation);
 
     Prisma::IBLBuilder::getInstance().renderQuad(m_positions.size());
     glEnable(GL_CULL_FACE);
