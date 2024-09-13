@@ -92,35 +92,6 @@ void Prisma::TerrainComponent::generateCpu()
 
     m_heightMap->freeData();
 
-    std::vector<unsigned int> indices;
-
-    int res = 256; // Example resolution factor, modify as needed
-
-    // Loop through rows, but ensure the last row is included
-    for (int i = 0; i < height - 1; i += res)
-    {
-        // Loop through columns, but ensure the last column is included
-        for (int j = 0; j < width - 1; j += res)
-        {
-            // Calculate the 1D indices of the four vertices of the current quad
-            // Ensure that we don't go out of bounds
-            int topLeft = i * width + j;
-            int topRight = i * width + std::min(j + res, width - 1);
-            int bottomLeft = std::min(i + res, height - 1) * width + j;
-            int bottomRight = std::min(i + res, height - 1) * width + std::min(j + res, width - 1);
-
-            // First triangle (top-left, top-right, bottom-left)
-            indices.push_back(topLeft);
-            indices.push_back(topRight);
-            indices.push_back(bottomLeft);
-
-            // Second triangle (bottom-left, top-right, bottom-right)
-            indices.push_back(bottomLeft);
-            indices.push_back(topRight);
-            indices.push_back(bottomRight);
-        }
-    }
-
     generateGrassPoints(0.1);
     auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
 
@@ -132,7 +103,6 @@ void Prisma::TerrainComponent::generateCpu()
         rotatedVertices.push_back(v);
     }
     verticesData->vertices = rotatedVertices;
-    verticesData->indices = indices;
     mesh->loadModel(verticesData);
     auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
     physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });

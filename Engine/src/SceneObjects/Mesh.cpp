@@ -102,20 +102,16 @@ void Prisma::Mesh::computeAABB() {
 
     glm::vec3 minPoint = vertices[0].position;
     glm::vec3 maxPoint = vertices[0].position;
+    glm::vec3 center(0.0f);
 
     for (const auto& vertex : vertices) {
         minPoint = glm::min(minPoint, vertex.position);
         maxPoint = glm::max(maxPoint, vertex.position);
+        center += vertex.position;
     }
 
     m_aabbData.min= minPoint;
     m_aabbData.max= maxPoint;
-
-    glm::vec3 center(0.0f);
-
-    for (const auto& index : indices) {
-        center += vertices[index].position;
-    }
 
     center /= static_cast<float>(vertices.size());
 
