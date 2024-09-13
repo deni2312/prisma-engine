@@ -73,21 +73,26 @@ void Prisma::TerrainComponent::generateCpu()
     int width = m_heightMap->data().width;
     int height = m_heightMap->data().height;
     unsigned bytePerPixel = m_heightMap->data().nrComponents;
+    auto mesh = std::make_shared<Prisma::Mesh>();
+    mesh->addGlobalList(false);
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
             unsigned char* pixelOffset = m_heightMap->dataContent() + (j + width * i) * bytePerPixel;
             unsigned char y = pixelOffset[0];
-
-            // vertex
-            m_grassVertices.push_back(-height / 2.0f + height * i / (float)height);   // vx
-            m_grassVertices.push_back((int)y * m_mult - m_shift);   // vy
-            m_grassVertices.push_back(-width / 2.0f + width * j / (float)width);   // vz
+            Prisma::Mesh::Vertex vertex;
+            vertex.position.x = -height / 2.0f + height * i / (float)height;
+            vertex.position.y = (int)y * m_mult - m_shift;
+            vertex.position.z = -width / 2.0f + width * j / (float)width;
+            m_grassVertices.push_back(vertex);
         }
     }
     m_heightMap->freeData();
     generateGrassPoints(0.1);
+
+    parent()->addChild(mesh);
+
     m_ssbo = std::make_shared<Prisma::SSBO>(15);
     m_ssbo->resize(sizeof(glm::mat4) * m_positions.size());
     m_ssbo->modifyData(0, sizeof(glm::mat4) * m_positions.size(), m_positions.data());
@@ -101,7 +106,6 @@ void Prisma::TerrainComponent::start()
         m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainPipeline/fragment.glsl",nullptr, headers, "../../../Engine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainPipeline/tesdata.glsl");
         m_csmShader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainShadowPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/fragment.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/geometry.glsl", headers, "../../../Engine/Shaders/TerrainShadowPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/tesdata.glsl");
         m_spriteShader = std::make_shared<Shader>("../../../Engine/Shaders/GrassPipeline/vertex.glsl", "../../../Engine/Shaders/GrassPipeline/fragment.glsl");
-
 
         m_grass = std::make_shared<Prisma::Texture>();
         m_stone = std::make_shared<Prisma::Texture>();
@@ -222,9 +226,9 @@ void Prisma::TerrainComponent::generateGrassPoints(float density)
         if (gridZ >= height) gridZ = height - 1;
 
         // Get the index of the corresponding vertex
-        int vertexIndex = 3 * (gridZ * width + gridX);
+        int vertexIndex = gridZ * width + gridX;
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
-        float y = m_grassVertices[vertexIndex + 1];
+        float y = m_grassVertices[vertexIndex].position.y;
 
         glm::vec4 point(x, (y-m_shift)/(m_mult*m_heightMap->data().nrComponents)+1, z, 1.0);
         glm::mat4 pointData(1.0);
