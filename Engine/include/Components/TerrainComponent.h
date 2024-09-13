@@ -74,6 +74,7 @@ namespace Prisma {
 		std::function<void()> m_startButton;
 
 		void generateGrassPoints(float density);
+		void generatePhysics();
 
 		std::shared_ptr<Prisma::SSBO> m_ssbo;
 		std::vector<glm::mat4> m_positions;
