@@ -245,73 +245,53 @@ void Prisma::TerrainComponent::generatePhysics()
     unsigned bytePerPixel = m_heightMap->data().nrComponents;
     auto mesh = std::make_shared<Prisma::Mesh>();
     mesh->addGlobalList(false);
-    int downscaleFactor = 1; // Adjust this factor to reduce the resolution (e.g., 2, 4, 8)
-    float* listHeight = new float[m_heightMap->data().width * m_heightMap->data().height];
 
-    float max = (m_heightMap->data().dataContent[0]) / bytePerPixel;
-    float min = (m_heightMap->data().dataContent[0]) / bytePerPixel;
-    std::vector<Prisma::Mesh::Vertex> scalingVertices;
-    int current = 0;
-    // Create vertices with lower resolution
-    for (int i = 0; i < height; i += downscaleFactor) // Skip rows by downscaleFactor
-    {
-        for (int j = 0; j < width; j += downscaleFactor) // Skip columns by downscaleFactor
-        {
-            unsigned char* pixelOffset = m_heightMap->data().dataContent + (j + width * i) * bytePerPixel;
-            unsigned char y = pixelOffset[0];
-            listHeight[current] = y / bytePerPixel;
-            if (listHeight[current] > max) {
-                max = listHeight[current];
-            }
-
-            if (listHeight[current] < min) {
-                min = listHeight[current];
-            }
-            Prisma::Mesh::Vertex vertex;
-            vertex.position.x = -height / 2.0f + height * i / (float)height;
-            vertex.position.y = (int)(y * m_mult - m_shift) / bytePerPixel;
-            vertex.position.z = -width / 2.0f + width * j / (float)width;
-            scalingVertices.push_back(vertex);
-            current++;
-        }
-    }
-
-    // Generate indices with lower resolution
-    std::vector<unsigned int> indices;
-    int newWidth = width / downscaleFactor;  // The width of the reduced grid
-    int newHeight = height / downscaleFactor; // The height of the reduced grid
-
-    for (int i = 0; i < newHeight - 1; i++)
-    {
-        for (int j = 0; j < newWidth - 1; j++)
-        {
-            // The four vertices of the current cell in the downscaled mesh
-            int topLeft = i * newWidth + j;
-            int topRight = topLeft + 1;
-            int bottomLeft = (i + 1) * newWidth + j;
-            int bottomRight = bottomLeft + 1;
-
-            // First triangle (top-left, bottom-left, top-right)
-            indices.push_back(topLeft);
-            indices.push_back(bottomLeft);
-            indices.push_back(topRight);
-
-            // Second triangle (top-right, bottom-left, bottom-right)
-            indices.push_back(topRight);
-            indices.push_back(bottomLeft);
-            indices.push_back(bottomRight);
-        }
-    }
     auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
 
-    std::vector<Prisma::Mesh::Vertex> rotatedVertices;
-    for (const auto& vertex : scalingVertices) {
-        Prisma::Mesh::Vertex v;
-        v.position = glm::vec4(vertex.position.x, (vertex.position.y - m_shift) / m_mult, vertex.position.z, 1.0);
-        rotatedVertices.push_back(v);
+
+
+    // Assume we're working with an 8-bit grayscale image or heightmap
+    // Adjust depending on bitsPerPixel if necessary (e.g. RGB images)
+
+    // Create the vertices based on the image's pixel brightness
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int index = (y * width + x)* bytePerPixel;
+
+            // For grayscale image, use the pixel value as the height
+            // We divide by 255.0f to normalize pixel values to 0.0f - 1.0f
+            unsigned char pixelValue = m_heightMap->data().dataContent[index];
+            float heightValue = static_cast<float>(pixelValue)/256.0*m_mult;
+            Prisma::Mesh::Vertex v;
+            // Create a vertex at (x, heightValue, y)
+            v.position = { -width / 2.0f + width * x / (float)width, heightValue,-height / 2.0f + height * y / (float)height };
+            verticesData->vertices.push_back(v);
+        }
     }
-    verticesData->vertices = rotatedVertices;
-    verticesData->indices = indices;
+    std::vector<unsigned int> indices;
+    // Create triangles (2 triangles per pixel quad)
+    for (int y = 0; y < height - 1; ++y) {
+        for (int x = 0; x < width - 1; ++x) {
+            // Index of the top-left vertex
+            unsigned int topLeft = y * width + x;
+            // Index of the top-right vertex
+            unsigned int topRight = topLeft + 1;
+            // Index of the bottom-left vertex
+            unsigned int bottomLeft = (y + 1) * width + x;
+            // Index of the bottom-right vertex
+            unsigned int bottomRight = bottomLeft + 1;
+
+            // Create two triangles for the current quad (top-left, top-right, bottom-right, bottom-left)
+            verticesData->indices.push_back(topLeft);
+            verticesData->indices.push_back(bottomLeft);
+            verticesData->indices.push_back(bottomRight);
+            verticesData->indices.push_back(topLeft);
+            verticesData->indices.push_back(bottomRight);
+            verticesData->indices.push_back(topRight);
+
+        }
+    }
+
     mesh->loadModel(verticesData);
     auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
     physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
