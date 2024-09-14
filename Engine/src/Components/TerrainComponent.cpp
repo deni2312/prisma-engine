@@ -246,10 +246,10 @@ void Prisma::TerrainComponent::generatePhysics()
     auto mesh = std::make_shared<Prisma::Mesh>();
     mesh->addGlobalList(false);
     int downscaleFactor = 1; // Adjust this factor to reduce the resolution (e.g., 2, 4, 8)
-    float* listHeight = new float[m_heightMap->data().width * m_heightMap->data().height];
+    unsigned char* listHeight = new unsigned char[m_heightMap->data().width * m_heightMap->data().height];
 
-    float max = (m_heightMap->data().dataContent[0]) / bytePerPixel;
-    float min = (m_heightMap->data().dataContent[0]) / bytePerPixel;
+    float max = (m_heightMap->data().dataContent[0]);
+    float min = (m_heightMap->data().dataContent[0]);
     std::vector<Prisma::Mesh::Vertex> scalingVertices;
     int current = 0;
     // Create vertices with lower resolution
@@ -259,7 +259,7 @@ void Prisma::TerrainComponent::generatePhysics()
         {
             unsigned char* pixelOffset = m_heightMap->data().dataContent + (j + width * i) * bytePerPixel;
             unsigned char y = pixelOffset[0];
-            listHeight[current] = y / bytePerPixel;
+            listHeight[current] = y;
             if (listHeight[current] > max) {
                 max = listHeight[current];
             }
@@ -275,44 +275,6 @@ void Prisma::TerrainComponent::generatePhysics()
             current++;
         }
     }
-
-    // Generate indices with lower resolution
-    std::vector<unsigned int> indices;
-    int newWidth = width / downscaleFactor;  // The width of the reduced grid
-    int newHeight = height / downscaleFactor; // The height of the reduced grid
-
-    for (int i = 0; i < newHeight - 1; i++)
-    {
-        for (int j = 0; j < newWidth - 1; j++)
-        {
-            // The four vertices of the current cell in the downscaled mesh
-            int topLeft = i * newWidth + j;
-            int topRight = topLeft + 1;
-            int bottomLeft = (i + 1) * newWidth + j;
-            int bottomRight = bottomLeft + 1;
-
-            // First triangle (top-left, bottom-left, top-right)
-            indices.push_back(topLeft);
-            indices.push_back(bottomLeft);
-            indices.push_back(topRight);
-
-            // Second triangle (top-right, bottom-left, bottom-right)
-            indices.push_back(topRight);
-            indices.push_back(bottomLeft);
-            indices.push_back(bottomRight);
-        }
-    }
-    auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
-
-    std::vector<Prisma::Mesh::Vertex> rotatedVertices;
-    for (const auto& vertex : scalingVertices) {
-        Prisma::Mesh::Vertex v;
-        v.position = glm::vec4(vertex.position.x, (vertex.position.y - m_shift) / m_mult, vertex.position.z, 1.0);
-        rotatedVertices.push_back(v);
-    }
-    verticesData->vertices = rotatedVertices;
-    verticesData->indices = indices;
-    mesh->loadModel(verticesData);
     auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
     physicsComponent->terrainData({ listHeight,min,max,(float)width,(float)height });
     physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });

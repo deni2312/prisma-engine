@@ -13,7 +13,7 @@ namespace Prisma {
     public:
 
         struct TerrainData {
-            float* heightList;
+            unsigned char* heightList;
             float min;
             float max;
             float width;

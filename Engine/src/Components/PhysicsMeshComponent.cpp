@@ -130,7 +130,7 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
         case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
             std::cout << m_terrain.min << " " << m_terrain.max << std::endl;
 
-            m_shape = new btHeightfieldTerrainShape(m_terrain.width, m_terrain.height, (void*)m_terrain.heightList, 1, 0, m_terrain.max, 1, PHY_FLOAT, false);
+            m_shape = new btHeightfieldTerrainShape(m_terrain.width, m_terrain.height, (void*)m_terrain.heightList, 1.0/4.0, m_terrain.min, m_terrain.max, 1, PHY_UCHAR, false);
             break;
         }
 
