@@ -275,6 +275,8 @@ void Prisma::TerrainComponent::generatePhysics()
             current++;
         }
     }
+    min = 0;
+    max = 0;
     auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
     physicsComponent->terrainData({ listHeight,min,max,(float)width,(float)height });
     physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
