@@ -128,9 +128,17 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
             break;
         }
         case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
-            std::cout << m_terrain.min << " " << m_terrain.max << std::endl;
+            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
 
-            m_shape = new btHeightfieldTerrainShape(m_terrain.width, m_terrain.height, (void*)m_terrain.heightList, 1.0/4.0, m_terrain.min, m_terrain.max, 1, PHY_UCHAR, false);
+            btTriangleMesh* terrainMesh = new btTriangleMesh();
+
+            auto vertices = mesh->verticesData();
+
+
+            for (int i = 0; i < vertices.indices.size(); i = i + 3) {
+                terrainMesh->addTriangle(getVec3BT(vertices.vertices[vertices.indices[i]].position), getVec3BT(vertices.vertices[vertices.indices[i + 1]].position), getVec3BT(vertices.vertices[vertices.indices[i + 2]].position));
+            }
+            m_shape = new btBvhTriangleMeshShape(terrainMesh, true);
             break;
         }
 
@@ -167,10 +175,6 @@ btCollisionShape* Prisma::PhysicsMeshComponent::shape() {
 
 void Prisma::PhysicsMeshComponent::fixedRigidBody(bool fixed) {
     m_fixed = fixed;
-}
-
-void Prisma::PhysicsMeshComponent::terrainData(const TerrainData& terrain) {
-    m_terrain = terrain;
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {
