@@ -1,4 +1,5 @@
 #include "../../include/Components/PhysicsMeshComponent.h"
+#include "bullet/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 
 void Prisma::PhysicsMeshComponent::ui() {
     ComponentType componentType;
@@ -108,6 +109,10 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
     auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
     if (mesh && !m_fixed) {
         auto aabbData = mesh->aabbData();
+        if (m_shape) {
+            auto physicsWorld = Prisma::Physics::getInstance().physicsWorld();
+            physicsWorld->collisionShapes.remove(m_shape);
+        }
         switch (collider) {
         case Prisma::Physics::Collider::BOX_COLLIDER: {
             glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
@@ -123,17 +128,9 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
             break;
         }
         case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
-            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
+            std::cout << m_terrain.min << " " << m_terrain.max << std::endl;
 
-            btTriangleMesh* terrainMesh = new btTriangleMesh();
-
-            auto vertices = mesh->verticesData();
-
-
-            for (int i = 0; i < vertices.indices.size(); i = i + 3) {
-                terrainMesh->addTriangle(getVec3BT(vertices.vertices[vertices.indices[i]].position), getVec3BT(vertices.vertices[vertices.indices[i + 1]].position), getVec3BT(vertices.vertices[vertices.indices[i + 2]].position));
-            }
-            m_shape = new btBvhTriangleMeshShape(terrainMesh, true);
+            m_shape = new btHeightfieldTerrainShape(m_terrain.width, m_terrain.height, (void*)m_terrain.heightList, 1, 0, m_terrain.max, 1, PHY_FLOAT, false);
             break;
         }
 
@@ -170,6 +167,10 @@ btCollisionShape* Prisma::PhysicsMeshComponent::shape() {
 
 void Prisma::PhysicsMeshComponent::fixedRigidBody(bool fixed) {
     m_fixed = fixed;
+}
+
+void Prisma::PhysicsMeshComponent::terrainData(const TerrainData& terrain) {
+    m_terrain = terrain;
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {

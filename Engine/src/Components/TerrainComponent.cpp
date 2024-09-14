@@ -246,8 +246,12 @@ void Prisma::TerrainComponent::generatePhysics()
     auto mesh = std::make_shared<Prisma::Mesh>();
     mesh->addGlobalList(false);
     int downscaleFactor = 1; // Adjust this factor to reduce the resolution (e.g., 2, 4, 8)
+    float* listHeight = new float[m_heightMap->data().width * m_heightMap->data().height];
 
+    float max = (m_heightMap->data().dataContent[0]) / bytePerPixel;
+    float min = (m_heightMap->data().dataContent[0]) / bytePerPixel;
     std::vector<Prisma::Mesh::Vertex> scalingVertices;
+    int current = 0;
     // Create vertices with lower resolution
     for (int i = 0; i < height; i += downscaleFactor) // Skip rows by downscaleFactor
     {
@@ -255,11 +259,20 @@ void Prisma::TerrainComponent::generatePhysics()
         {
             unsigned char* pixelOffset = m_heightMap->data().dataContent + (j + width * i) * bytePerPixel;
             unsigned char y = pixelOffset[0];
+            listHeight[current] = y / bytePerPixel;
+            if (listHeight[current] > max) {
+                max = listHeight[current];
+            }
+
+            if (listHeight[current] < min) {
+                min = listHeight[current];
+            }
             Prisma::Mesh::Vertex vertex;
             vertex.position.x = -height / 2.0f + height * i / (float)height;
             vertex.position.y = (int)(y * m_mult - m_shift) / bytePerPixel;
             vertex.position.z = -width / 2.0f + width * j / (float)width;
             scalingVertices.push_back(vertex);
+            current++;
         }
     }
 
@@ -301,6 +314,7 @@ void Prisma::TerrainComponent::generatePhysics()
     verticesData->indices = indices;
     mesh->loadModel(verticesData);
     auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
+    physicsComponent->terrainData({ listHeight,min,max,(float)width,(float)height });
     physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
 
     mesh->name("TerrainMesh");

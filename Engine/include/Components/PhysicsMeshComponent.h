@@ -12,6 +12,14 @@ namespace Prisma {
     class PhysicsMeshComponent : public Prisma::Component {
     public:
 
+        struct TerrainData {
+            float* heightList;
+            float min;
+            float max;
+            float width;
+            float height;
+        };
+
         PhysicsMeshComponent();
 
         void ui() override;
@@ -32,6 +40,8 @@ namespace Prisma {
 
         void fixedRigidBody(bool fixed);
 
+        void terrainData(const TerrainData& terrain);
+
     private:
         ComponentList m_status;
         std::function<void()> m_apply;
@@ -40,6 +50,7 @@ namespace Prisma {
         btRigidBody *m_body = nullptr;
         void colliderDispatcher(Prisma::Physics::Collider collider);
         bool m_fixed = false;
+        TerrainData m_terrain;
 
     };
 
