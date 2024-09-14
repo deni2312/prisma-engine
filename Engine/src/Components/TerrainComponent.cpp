@@ -248,14 +248,10 @@ void Prisma::TerrainComponent::generatePhysics()
 
     auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
 
+    unsigned int ratio = 16;
 
-
-    // Assume we're working with an 8-bit grayscale image or heightmap
-    // Adjust depending on bitsPerPixel if necessary (e.g. RGB images)
-
-    // Create the vertices based on the image's pixel brightness
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < height; y=y+ratio) {
+        for (int x = 0; x < width; x=x+ratio) {
             int index = (y * width + x)* bytePerPixel;
 
             // For grayscale image, use the pixel value as the height
@@ -269,15 +265,18 @@ void Prisma::TerrainComponent::generatePhysics()
         }
     }
     std::vector<unsigned int> indices;
+
+    int sampledWidth = width / ratio;
+    int sampledHeight = height / ratio;
     // Create triangles (2 triangles per pixel quad)
-    for (int y = 0; y < height - 1; ++y) {
-        for (int x = 0; x < width - 1; ++x) {
+    for (int y = 0; y < sampledHeight - 1; ++y) {
+        for (int x = 0; x < sampledWidth - 1; ++x) {
             // Index of the top-left vertex
-            unsigned int topLeft = y * width + x;
+            unsigned int topLeft = y * sampledWidth + x;
             // Index of the top-right vertex
             unsigned int topRight = topLeft + 1;
             // Index of the bottom-left vertex
-            unsigned int bottomLeft = (y + 1) * width + x;
+            unsigned int bottomLeft = (y + 1) * sampledWidth + x;
             // Index of the bottom-right vertex
             unsigned int bottomRight = bottomLeft + 1;
 
