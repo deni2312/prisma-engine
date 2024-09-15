@@ -235,7 +235,7 @@ void PlayerController::createCamera() {
             physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,btVector3(0.1,0.0,0.0),true });
             physicsComponent->rigidBody()->activate(true);
             physicsComponent->rigidBody()->applyCentralImpulse(m_currentDirection * 5);
-
+            physicsComponent->fixedRigidBody(true);
         }
 
     };
