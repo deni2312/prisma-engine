@@ -1,15 +1,13 @@
 #pragma once
 
-#include "../Helpers/Shader.h"
-#include "../SceneObjects/Camera.h"
-#include "../Containers/FBO.h"
 #include <memory>
 #include <chrono>
-#include "../Containers/Texture.h"
-#include "../Containers/VAO.h"
-#include "../SceneObjects/Mesh.h"
 #include <functional>
-#include "../Containers/SSBO.h"
+#include "../../../Engine/include/Containers/FBO.h"
+#include "../../../Engine/include/Containers/Texture.h"
+#include "../../../Engine/include/SceneObjects/Mesh.h"
+#include "../../../Engine/include/Containers/VAO.h"
+#include "../../../Engine/include/Containers/SSBO.h"
 
 namespace Prisma {
 	class TerrainComponent : public Component {

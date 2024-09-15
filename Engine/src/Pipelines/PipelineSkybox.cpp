@@ -3,7 +3,7 @@
 #include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../../include/Pipelines/PipelinePrefilter.h"
 #include "../../include/Pipelines/PipelineLUT.h"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -41,7 +41,7 @@ uint64_t Prisma::PipelineSkybox::calculateSkybox()
 
     m_shaderEquirectangular->use();
     m_shaderEquirectangular->setInt64(m_bindlessPosEquirectangular, m_texture.id());
-    m_shaderEquirectangular->setMat4(m_shaderEquirectangular->getUniformPosition("projection"), Prisma::IBLBuilder::getInstance().data().captureProjection);
+    m_shaderEquirectangular->setMat4(m_shaderEquirectangular->getUniformPosition("projection"), Prisma::PrismaRender::getInstance().data().captureProjection);
 
 
     auto posView = m_shaderEquirectangular->getUniformPosition("view");
@@ -50,15 +50,15 @@ uint64_t Prisma::PipelineSkybox::calculateSkybox()
     glGetIntegerv(GL_VIEWPORT, viewport);
 
     glViewport(0, 0, width, height); // don't forget to configure the viewport to the capture dimensions.
-    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::IBLBuilder::getInstance().data().fbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, Prisma::IBLBuilder::getInstance().data().rbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::PrismaRender::getInstance().data().fbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, Prisma::PrismaRender::getInstance().data().rbo);
     for (unsigned int i = 0; i < 6; ++i)
     {
-        m_shaderEquirectangular->setMat4(posView, Prisma::IBLBuilder::getInstance().data().captureViews[i]);
+        m_shaderEquirectangular->setMat4(posView, Prisma::PrismaRender::getInstance().data().captureViews[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        Prisma::IBLBuilder::getInstance().renderCube();
+        Prisma::PrismaRender::getInstance().renderCube();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
@@ -77,7 +77,7 @@ void Prisma::PipelineSkybox::render()
     glDepthFunc(GL_LEQUAL);
     m_shader->use();
     m_shader->setInt64(m_bindlessPos, m_skyboxId);
-    Prisma::IBLBuilder::getInstance().renderCube();
+    Prisma::PrismaRender::getInstance().renderCube();
     glBindVertexArray(0);
     glDepthFunc(GL_LESS);
 }
@@ -88,7 +88,7 @@ void Prisma::PipelineSkybox::texture(Prisma::Texture texture,bool equirectangula
     m_equirectangular = equirectangular;
     m_skyboxId = texture.id();
     if (m_equirectangular) {
-        Prisma::IBLBuilder::getInstance().createFbo(texture.data().width, texture.data().height);
+        Prisma::PrismaRender::getInstance().createFbo(texture.data().width, texture.data().height);
 
         m_skyboxId=calculateSkybox();
         Texture textureIrradiance;

@@ -17,7 +17,7 @@
 #include "../include/Helpers/SettingsLoader.h"
 #include "../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../include/Pipelines/PipelinePrefilter.h"
-#include "../include/Helpers/IBLBuilder.h"
+#include "../include/Helpers/PrismaRender.h"
 #include "../include/Helpers/GarbageCollector.h"
 #include "../include/Physics/Physics.h"
 #include "../include/Physics/DrawDebugger.h"
@@ -57,7 +57,7 @@ Prisma::Engine::Engine()
 
     MeshHandler::getInstance();
 
-    IBLBuilder::getInstance();
+    PrismaRender::getInstance();
 
     PipelineDiffuseIrradiance::getInstance();
 

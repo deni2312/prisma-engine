@@ -8,7 +8,7 @@
 #include "../../include/Pipelines/PipelineLUT.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 #include <memory>
 #include <iostream>
 #include "../../include/Helpers/SettingsLoader.h"
@@ -129,7 +129,7 @@ void Prisma::PipelineDeferred::render()
     m_shaderD->setInt64(m_albedoLocation, m_albedo);
     m_shaderD->setInt64(m_normalLocation, m_normal);
     m_shaderD->setInt64(m_positionLocation, m_position);
-    Prisma::IBLBuilder::getInstance().renderQuad();
+    Prisma::PrismaRender::getInstance().renderQuad();
 
     //COPY DEPTH FOR SKYBOX AND SPRITES
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_gBuffer);

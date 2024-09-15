@@ -11,7 +11,7 @@
 #include <memory>
 
 namespace Prisma {
-	class IBLBuilder : public Prisma::InstanceData<IBLBuilder>{
+	class PrismaRender : public Prisma::InstanceData<PrismaRender>{
 	public:
 		struct IBLData {
 			unsigned int fbo;
@@ -35,7 +35,7 @@ namespace Prisma {
 		void renderQuad();
 		void renderQuad(unsigned int instances);
 		std::shared_ptr<Prisma::Texture> renderPerlin(unsigned int width, unsigned int height);
-        IBLBuilder();
+        PrismaRender();
 
     private:
 		std::shared_ptr<Prisma::VAO> m_vaoCube = nullptr;

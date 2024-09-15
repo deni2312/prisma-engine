@@ -1,6 +1,6 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Pipelines/PipelineForward.h"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 #include "../../include/SceneData/MeshIndirect.h"
 #include "../../include/SceneObjects/Mesh.h"
 #include "../../include/Pipelines/PipelineSkybox.h"

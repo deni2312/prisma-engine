@@ -1,9 +1,8 @@
-#include "../../include/Components/TerrainComponent.h"
-#include "../../include/Containers/VBO.h"
-#include "../../include/Containers/EBO.h"
-#include "../../include/SceneObjects/Sprite.h"
-#include "../../include/Helpers/IBLBuilder.h"
-#include "../../include/Components/PhysicsMeshComponent.h"
+#include "../include/TerrainComponent.h"
+#include "../../../Engine/include/Components/Component.h"
+#include <glm/glm.hpp>
+#include "../../../Engine/include/Helpers/PrismaRender.h"
+#include "../../../Engine/include/Components/PhysicsMeshComponent.h"
 
 Prisma::TerrainComponent::TerrainComponent() : Prisma::Component{}
 {
@@ -61,10 +60,10 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
     m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix()*m_spriteModel);
 
-    Prisma::IBLBuilder::getInstance().renderQuad(m_positions.size());
+    Prisma::PrismaRender::getInstance().renderQuad(m_positions.size());
     m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix() * m_spriteModelRotation);
 
-    Prisma::IBLBuilder::getInstance().renderQuad(m_positions.size());
+    Prisma::PrismaRender::getInstance().renderQuad(m_positions.size());
     glEnable(GL_CULL_FACE);
 
 }
@@ -104,9 +103,9 @@ void Prisma::TerrainComponent::start()
     Prisma::Component::start();
 	if (m_heightMap) {
         Prisma::Shader::ShaderHeaders headers;
-        m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainPipeline/fragment.glsl",nullptr, headers, "../../../Engine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainPipeline/tesdata.glsl");
-        m_csmShader = std::make_shared<Shader>("../../../Engine/Shaders/TerrainShadowPipeline/vertex.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/fragment.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/geometry.glsl", headers, "../../../Engine/Shaders/TerrainShadowPipeline/tcsdata.glsl", "../../../Engine/Shaders/TerrainShadowPipeline/tesdata.glsl");
-        m_spriteShader = std::make_shared<Shader>("../../../Engine/Shaders/GrassPipeline/vertex.glsl", "../../../Engine/Shaders/GrassPipeline/fragment.glsl");
+        m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl",nullptr, headers, "../../../UserEngine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainPipeline/tesdata.glsl");
+        m_csmShader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainShadowPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/fragment.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/geometry.glsl", headers, "../../../UserEngine/Shaders/TerrainShadowPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/tesdata.glsl");
+        m_spriteShader = std::make_shared<Shader>("../../../UserEngine/Shaders/GrassPipeline/vertex.glsl", "../../../UserEngine/Shaders/GrassPipeline/fragment.glsl");
 
         m_grass = std::make_shared<Prisma::Texture>();
         m_stone = std::make_shared<Prisma::Texture>();

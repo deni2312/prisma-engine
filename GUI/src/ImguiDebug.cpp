@@ -16,7 +16,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/euler_angles.hpp"
 #include "glm/gtx/string_cast.hpp"
-#include "../../Engine/include/Helpers/IBLBuilder.h"
+#include "../../Engine/include/Helpers/PrismaRender.h"
 #include "../../GUI/include/ImGuiStyle.h"
 #include "../../Engine/include/Postprocess/Postprocess.h"
 #include "../include/TextureInfo.h"
@@ -321,7 +321,7 @@ void Prisma::ImguiDebug::drawScene()
     }
 
     m_shader->setMat4(m_modelPos,model);
-    Prisma::IBLBuilder::getInstance().renderQuad();
+    Prisma::PrismaRender::getInstance().renderQuad();
 }
 
 void Prisma::ImguiDebug::initStatus()

@@ -1,5 +1,5 @@
 #include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 
 Prisma::PipelineDiffuseIrradiance::PipelineDiffuseIrradiance()
 {
@@ -23,29 +23,29 @@ void Prisma::PipelineDiffuseIrradiance::texture(Prisma::Texture texture)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::IBLBuilder::getInstance().data().fbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, Prisma::IBLBuilder::getInstance().data().rbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::PrismaRender::getInstance().data().fbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, Prisma::PrismaRender::getInstance().data().rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
 
     // pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
     // -----------------------------------------------------------------------------
     m_shader->use();
     m_shader->setInt64(m_shader->getUniformPosition("environmentMap"), texture.id());
-    m_shader->setMat4(m_shader->getUniformPosition("projection"), Prisma::IBLBuilder::getInstance().data().captureProjection);
+    m_shader->setMat4(m_shader->getUniformPosition("projection"), Prisma::PrismaRender::getInstance().data().captureProjection);
 
     GLint viewport[4];
 
     glGetIntegerv(GL_VIEWPORT, viewport);
 
     glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
-    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::IBLBuilder::getInstance().data().fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::PrismaRender::getInstance().data().fbo);
     for (unsigned int i = 0; i < 6; ++i)
     {
-        m_shader->setMat4(m_shader->getUniformPosition("view"), Prisma::IBLBuilder::getInstance().data().captureViews[i]);
+        m_shader->setMat4(m_shader->getUniformPosition("view"), Prisma::PrismaRender::getInstance().data().captureViews[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        Prisma::IBLBuilder::getInstance().renderCube();
+        Prisma::PrismaRender::getInstance().renderCube();
     }
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]); // don't forget to configure the viewport to the capture dimensions.
 

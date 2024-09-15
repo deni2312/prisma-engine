@@ -1,5 +1,5 @@
 #include "../../include/Pipelines/PipelineFullScreen.h"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 
 Prisma::PipelineFullScreen::PipelineFullScreen()
 {
@@ -12,7 +12,7 @@ void Prisma::PipelineFullScreen::render(uint64_t texture)
     m_shader->use();
     glDisable(GL_DEPTH_TEST);
     m_shader->setInt64(m_bindlessPos, texture);
-    Prisma::IBLBuilder::getInstance().renderQuad();
+    Prisma::PrismaRender::getInstance().renderQuad();
     glEnable(GL_DEPTH_TEST);
 
 }

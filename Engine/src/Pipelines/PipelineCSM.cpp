@@ -9,7 +9,7 @@
 #include "../../include/Helpers/SettingsLoader.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../../../GUI/include/TextureInfo.h"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 
 static uint64_t numCSM = 0;
 

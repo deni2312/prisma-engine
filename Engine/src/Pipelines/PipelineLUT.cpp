@@ -6,7 +6,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 
 
 Prisma::PipelineLUT::PipelineLUT()
@@ -18,8 +18,8 @@ void Prisma::PipelineLUT::texture()
 {
     // pbr: setup framebuffer
 // ----------------------
-    unsigned int width = Prisma::IBLBuilder::getInstance().data().width;
-    unsigned int height = Prisma::IBLBuilder::getInstance().data().height;
+    unsigned int width = Prisma::PrismaRender::getInstance().data().width;
+    unsigned int height = Prisma::PrismaRender::getInstance().data().height;
 
     // pbr: generate a 2D LUT from the BRDF equations used.
 // ----------------------------------------------------
@@ -36,8 +36,8 @@ void Prisma::PipelineLUT::texture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
-    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::IBLBuilder::getInstance().data().fbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, Prisma::IBLBuilder::getInstance().data().rbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::PrismaRender::getInstance().data().fbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, Prisma::PrismaRender::getInstance().data().rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
 
@@ -45,10 +45,10 @@ void Prisma::PipelineLUT::texture()
 
     glGetIntegerv(GL_VIEWPORT, viewport);
 
-    glViewport(0, 0, Prisma::IBLBuilder::getInstance().data().width, Prisma::IBLBuilder::getInstance().data().height);
+    glViewport(0, 0, Prisma::PrismaRender::getInstance().data().width, Prisma::PrismaRender::getInstance().data().height);
     m_shader->use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    Prisma::IBLBuilder::getInstance().renderQuad();
+    Prisma::PrismaRender::getInstance().renderQuad();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     m_id = glGetTextureHandleARB(brdfLUTTexture);

@@ -82,25 +82,25 @@ void Prisma::Effects::render(std::shared_ptr<Prisma::FBO> texture, std::shared_p
 		glClear(GL_DEPTH_BUFFER_BIT);
 		m_shaderSeppia->use();
 		m_shaderSeppia->setInt64(m_bindlessPosSeppia, texture->texture());
-		Prisma::IBLBuilder::getInstance().renderQuad();
+		Prisma::PrismaRender::getInstance().renderQuad();
 		break;
 	case EFFECTS::CARTOON:
 		glClear(GL_DEPTH_BUFFER_BIT);
 		m_shaderCartoon->use();
 		m_shaderCartoon->setInt64(m_bindlessPosCartoon, texture->texture());
-		Prisma::IBLBuilder::getInstance().renderQuad();
+		Prisma::PrismaRender::getInstance().renderQuad();
 		break;
 	case EFFECTS::VIGNETTE:
 		glClear(GL_DEPTH_BUFFER_BIT);
 		m_shaderVignette->use();
 		m_shaderVignette->setInt64(m_bindlessPosVignette, texture->texture());
-		Prisma::IBLBuilder::getInstance().renderQuad();
+		Prisma::PrismaRender::getInstance().renderQuad();
 		break;
 	case EFFECTS::VOLUMETRIC:
 		glClear(GL_DEPTH_BUFFER_BIT);
 		m_shaderVolumetric->use();
 		m_shaderVolumetric->setInt64(m_bindlessPosVolumetric, texture->texture());
-		Prisma::IBLBuilder::getInstance().renderQuad();
+		Prisma::PrismaRender::getInstance().renderQuad();
 		break;
 	case EFFECTS::BLOOM:
 
@@ -112,7 +112,7 @@ void Prisma::Effects::render(std::shared_ptr<Prisma::FBO> texture, std::shared_p
 
 		m_shaderBrightness->setInt64(m_bindlessPosBrightness, raw->texture());
 
-		Prisma::IBLBuilder::getInstance().renderQuad();
+		Prisma::PrismaRender::getInstance().renderQuad();
 
 		m_brightnessFbo->unbind();
 		m_shaderBloom->use();
@@ -123,7 +123,7 @@ void Prisma::Effects::render(std::shared_ptr<Prisma::FBO> texture, std::shared_p
 			glBindFramebuffer(GL_FRAMEBUFFER, m_pingpongFBO[horizontal]);
 			m_shaderBloom->setInt(m_horizontalPosBloom, horizontal);
 			m_shaderBloom->setInt64(m_bindlessPosBloom, first_iteration ? m_brightnessFbo->texture() : m_bloomTexture[!horizontal]);
-			Prisma::IBLBuilder::getInstance().renderQuad();
+			Prisma::PrismaRender::getInstance().renderQuad();
 			horizontal = !horizontal;
 			if (first_iteration)
 				first_iteration = false;
@@ -133,7 +133,7 @@ void Prisma::Effects::render(std::shared_ptr<Prisma::FBO> texture, std::shared_p
 		m_shaderHdr->use();
 		m_shaderHdr->setInt64(m_bindlessPosHdr, raw->texture());
 		m_shaderHdr->setInt64(m_bindlessPosHBloom, m_bloomTexture[!horizontal]);
-		Prisma::IBLBuilder::getInstance().renderQuad();
+		Prisma::PrismaRender::getInstance().renderQuad();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		texture->bind();
 

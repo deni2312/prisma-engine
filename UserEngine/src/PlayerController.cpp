@@ -2,7 +2,7 @@
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../../Engine/include/Components/CloudComponent.h"
-#include "../../Engine/include/Components/TerrainComponent.h"
+#include "../Components/include/TerrainComponent.h"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
@@ -43,7 +43,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     auto terrain = std::make_shared<Prisma::Node>();
     terrain->name("Terrain");
     auto terrainComponent = std::make_shared<Prisma::TerrainComponent>();
-    auto perlin=Prisma::IBLBuilder::getInstance().renderPerlin(1024, 1024);
+    auto perlin=Prisma::PrismaRender::getInstance().renderPerlin(1024, 1024);
     terrainComponent->heightMap(perlin);
     terrain->addComponent(terrainComponent);
     m_scene->root->addChild(terrain);

@@ -1,7 +1,7 @@
 #include "../../include/Pipelines/PipelinePrefilter.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -36,13 +36,13 @@ void Prisma::PipelinePrefilter::texture(Prisma::Texture texture)
     // ----------------------------------------------------------------------------------------------------
     m_shader->use();
     m_shader->setInt64(m_shader->getUniformPosition("environmentMap"), texture.id());
-    m_shader->setMat4(m_shader->getUniformPosition("projection"), Prisma::IBLBuilder::getInstance().data().captureProjection);
+    m_shader->setMat4(m_shader->getUniformPosition("projection"), Prisma::PrismaRender::getInstance().data().captureProjection);
 
     GLint viewport[4];
 
     glGetIntegerv(GL_VIEWPORT, viewport);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::IBLBuilder::getInstance().data().fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, Prisma::PrismaRender::getInstance().data().fbo);
     glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
 
     unsigned int maxMipLevels = 5;
@@ -51,7 +51,7 @@ void Prisma::PipelinePrefilter::texture(Prisma::Texture texture)
         // reisze framebuffer according to mip-level size.
         unsigned int mipWidth = static_cast<unsigned int>(128 * std::pow(0.5, mip));
         unsigned int mipHeight = static_cast<unsigned int>(128 * std::pow(0.5, mip));
-        glBindRenderbuffer(GL_RENDERBUFFER, Prisma::IBLBuilder::getInstance().data().rbo);
+        glBindRenderbuffer(GL_RENDERBUFFER, Prisma::PrismaRender::getInstance().data().rbo);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
         glViewport(0, 0, mipWidth, mipHeight);
 
@@ -59,11 +59,11 @@ void Prisma::PipelinePrefilter::texture(Prisma::Texture texture)
         m_shader->setFloat(m_shader->getUniformPosition("roughness"), roughness);
         for (unsigned int i = 0; i < 6; ++i)
         {
-            m_shader->setMat4(m_shader->getUniformPosition("view"), Prisma::IBLBuilder::getInstance().data().captureViews[i]);
+            m_shader->setMat4(m_shader->getUniformPosition("view"), Prisma::PrismaRender::getInstance().data().captureViews[i]);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            Prisma::IBLBuilder::getInstance().renderCube();
+            Prisma::PrismaRender::getInstance().renderCube();
         }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

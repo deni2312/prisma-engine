@@ -1,5 +1,5 @@
 #include "../../include/Pipelines/PipelineSSR.h"
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/engine.h"
 
@@ -40,7 +40,7 @@ void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t no
     m_shader->setMat4(m_invProjPos, glm::inverse(currentProjection));
 
 
-    Prisma::IBLBuilder::getInstance().renderQuad();
+    Prisma::PrismaRender::getInstance().renderQuad();
     m_fboSSR->unbind();
 }
 

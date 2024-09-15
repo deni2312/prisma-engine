@@ -1,4 +1,4 @@
-#include "../../include/Helpers/IBLBuilder.h"
+#include "../../include/Helpers/PrismaRender.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../../include/Pipelines/PipelinePrefilter.h"
@@ -10,12 +10,12 @@
 #include "../../include/Helpers/GarbageCollector.h"
 #include "../../../GUI/include/TextureInfo.h"
 
-Prisma::IBLBuilder::IBLBuilder()
+Prisma::PrismaRender::PrismaRender()
 {
 
 }
 
-void Prisma::IBLBuilder::renderCube()
+void Prisma::PrismaRender::renderCube()
 {
     // initialize (if necessary)
     if (m_vaoCube == nullptr)
@@ -81,7 +81,7 @@ void Prisma::IBLBuilder::renderCube()
     Prisma::VAO::resetVao();
 }
 
-void Prisma::IBLBuilder::renderQuad()
+void Prisma::PrismaRender::renderQuad()
 {
     if (m_vaoQuad == nullptr)
     {
@@ -109,7 +109,7 @@ void Prisma::IBLBuilder::renderQuad()
     Prisma::VAO::resetVao();
 }
 
-void Prisma::IBLBuilder::renderQuad(unsigned int instances)
+void Prisma::PrismaRender::renderQuad(unsigned int instances)
 {
     if (m_vaoQuad == nullptr)
     {
@@ -137,7 +137,7 @@ void Prisma::IBLBuilder::renderQuad(unsigned int instances)
     Prisma::VAO::resetVao();
 }
 
-std::shared_ptr<Prisma::Texture> Prisma::IBLBuilder::renderPerlin(unsigned int width, unsigned int height)
+std::shared_ptr<Prisma::Texture> Prisma::PrismaRender::renderPerlin(unsigned int width, unsigned int height)
 {
     if (!m_noiseShader) {
         m_noiseShader = std::make_shared<Prisma::Shader>("../../../Engine/Shaders/PerlinPipeline/vertex.glsl", "../../../Engine/Shaders/PerlinPipeline/fragment.glsl");
@@ -173,7 +173,7 @@ std::shared_ptr<Prisma::Texture> Prisma::IBLBuilder::renderPerlin(unsigned int w
     return texture;
 }
 
-void Prisma::IBLBuilder::createFbo(unsigned int width, unsigned int height)
+void Prisma::PrismaRender::createFbo(unsigned int width, unsigned int height)
 {
     glGenFramebuffers(1, &m_data.fbo);
     glGenRenderbuffers(1, &m_data.rbo);
@@ -189,7 +189,7 @@ void Prisma::IBLBuilder::createFbo(unsigned int width, unsigned int height)
     m_data.height = height;
 }
 
-Prisma::IBLBuilder::IBLData Prisma::IBLBuilder::data()
+Prisma::PrismaRender::IBLData Prisma::PrismaRender::data()
 {
     return m_data;
 }
