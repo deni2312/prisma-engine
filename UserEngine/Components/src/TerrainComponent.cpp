@@ -6,7 +6,7 @@
 
 Prisma::TerrainComponent::TerrainComponent() : Prisma::Component{}
 {
-	name("Terrain");
+    name("Terrain");
 }
 
 void Prisma::TerrainComponent::ui()
@@ -58,7 +58,7 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
-    m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix()*m_spriteModel);
+    m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix() * m_spriteModel);
 
     Prisma::PrismaRender::getInstance().renderQuad(m_positions.size());
     m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix() * m_spriteModelRotation);
@@ -70,6 +70,22 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 
 void Prisma::TerrainComponent::generateCpu()
 {
+    int width = m_heightMap->data().width;
+    int height = m_heightMap->data().height;
+    unsigned bytePerPixel = m_heightMap->data().nrComponents;
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            unsigned char* pixelOffset = m_heightMap->data().dataContent + (j + width * i) * bytePerPixel;
+            unsigned char y = pixelOffset[0];
+            Prisma::Mesh::Vertex vertex;
+            vertex.position.x = -height / 2.0f + height * i / (float)height;
+            vertex.position.y = (int)(y * m_mult - m_shift) / bytePerPixel;
+            vertex.position.z = -width / 2.0f + width * j / (float)width;
+            m_grassVertices.push_back(vertex);
+        }
+    }
 
     generatePhysics();
 
@@ -85,9 +101,9 @@ void Prisma::TerrainComponent::generateCpu()
 void Prisma::TerrainComponent::start()
 {
     Prisma::Component::start();
-	if (m_heightMap) {
+    if (m_heightMap) {
         Prisma::Shader::ShaderHeaders headers;
-        m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl",nullptr, headers, "../../../UserEngine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainPipeline/tesdata.glsl");
+        m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl", nullptr, headers, "../../../UserEngine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainPipeline/tesdata.glsl");
         m_csmShader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainShadowPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/fragment.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/geometry.glsl", headers, "../../../UserEngine/Shaders/TerrainShadowPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/tesdata.glsl");
         m_spriteShader = std::make_shared<Shader>("../../../UserEngine/Shaders/GrassPipeline/vertex.glsl", "../../../UserEngine/Shaders/GrassPipeline/fragment.glsl");
 
@@ -110,7 +126,7 @@ void Prisma::TerrainComponent::start()
         m_grassRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grassRoughness.jpg");
         m_stoneRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stoneRoughness.jpg");
         m_snowRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snowRoughness.jpg");
-        m_grassSprite->loadTexture("../../../Resources/DefaultScene/sprites/grass.png",false,true,false);
+        m_grassSprite->loadTexture("../../../Resources/DefaultScene/sprites/grass.png", false, true, false);
 
         m_shader->use();
         m_modelPos = m_shader->getUniformPosition("model");
@@ -174,22 +190,47 @@ void Prisma::TerrainComponent::start()
         Prisma::VBO vbo;
         vbo.writeData(sizeof(float) * vertices.size(), vertices.data());
         m_vao.addAttribPointer(0, 3, 5 * sizeof(float), (void*)0);
-        m_vao.addAttribPointer(1, 2, 5 * sizeof(float), (void*)(sizeof(float) * 3));        
+        m_vao.addAttribPointer(1, 2, 5 * sizeof(float), (void*)(sizeof(float) * 3));
         glPatchParameteri(GL_PATCH_VERTICES, m_numPatches);
-	}
+    }
 }
 
 void Prisma::TerrainComponent::heightMap(std::shared_ptr<Prisma::Texture> heightMap) {
-	m_heightMap = heightMap;
+    m_heightMap = heightMap;
 }
 
 void Prisma::TerrainComponent::generateGrassPoints(float density)
 {
-    for (int i = 0; i < m_grassVertices.size(); ++i)
-    {
-        float y = m_grassVertices[i].position.y;
+    int width = m_heightMap->data().width;
+    int height = m_heightMap->data().height;
+    // Set seed for random number generation
+    srand(static_cast<unsigned int>(time(0)));
 
-        glm::vec4 point(m_grassVertices[i].position.x, y+1, m_grassVertices[i].position.z, 1.0);
+    // The density determines how many grass points to generate
+    int numPoints = static_cast<int>(density * width * height);
+    int vertexStride = 3;
+
+
+    for (int i = 0; i < numPoints; ++i)
+    {
+        // Generate random x, z positions within the terrain range
+        float x = -width / 2.0f + (rand() / (float)RAND_MAX) * width;
+        float z = -height / 2.0f + (rand() / (float)RAND_MAX) * height;
+
+        // Find the corresponding vertex position on the terrain
+        int gridX = static_cast<int>((x + width / 2.0f) / width * width);
+        int gridZ = static_cast<int>((z + height / 2.0f) / height * height);
+
+        // Ensure we are within the bounds
+        if (gridX >= width) gridX = width - 1;
+        if (gridZ >= height) gridZ = height - 1;
+
+        // Get the index of the corresponding vertex
+        int vertexIndex = gridZ * width + gridX;
+        // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
+        float y = m_grassVertices[vertexIndex].position.y;
+
+        glm::vec4 point(x, (y - m_shift) / m_mult + 1, z, 1.0);
         glm::mat4 pointData(1.0);
         pointData[3] = point;
         m_positions.push_back(pointData);
@@ -204,7 +245,7 @@ void Prisma::TerrainComponent::generatePhysics()
     auto mesh = std::make_shared<Prisma::Mesh>();
     mesh->addGlobalList(false);
 
-    m_verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
+    auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
 
     unsigned int ratio = 4;
 
@@ -216,13 +257,14 @@ void Prisma::TerrainComponent::generatePhysics()
             unsigned char pixelValue = m_heightMap->data().dataContent[index];
             float heightValue = static_cast<float>(pixelValue) / 256.0 * m_mult;
             Prisma::Mesh::Vertex v;
+
             // Create a vertex at (x, heightValue, y)
             v.position = { -width / 2.0f + width * x / (float)width, heightValue, -height / 2.0f + height * y / (float)height };
 
             // Initialize normal to zero, will be calculated later
             v.normal = { 0.0f, 0.0f, 0.0f };
 
-            m_verticesData->vertices.push_back(v);
+            verticesData->vertices.push_back(v);
         }
     }
 
@@ -244,61 +286,42 @@ void Prisma::TerrainComponent::generatePhysics()
             unsigned int bottomRight = bottomLeft + 1;
 
             // Create two triangles for the current quad (top-left, top-right, bottom-right, bottom-left)
-            m_verticesData->indices.push_back(topLeft);
-            m_verticesData->indices.push_back(bottomLeft);
-            m_verticesData->indices.push_back(bottomRight);
-            m_verticesData->indices.push_back(topLeft);
-            m_verticesData->indices.push_back(bottomRight);
-            m_verticesData->indices.push_back(topRight);
+            verticesData->indices.push_back(topLeft);
+            verticesData->indices.push_back(bottomLeft);
+            verticesData->indices.push_back(bottomRight);
+            verticesData->indices.push_back(topLeft);
+            verticesData->indices.push_back(bottomRight);
+            verticesData->indices.push_back(topRight);
 
             // Calculate normals for each triangle
             // First triangle (topLeft, bottomLeft, bottomRight)
-            glm::vec3 v0 = m_verticesData->vertices[bottomLeft].position - m_verticesData->vertices[topLeft].position;
-            glm::vec3 v1 = m_verticesData->vertices[bottomRight].position - m_verticesData->vertices[topLeft].position;
+            glm::vec3 v0 = verticesData->vertices[bottomLeft].position - verticesData->vertices[topLeft].position;
+            glm::vec3 v1 = verticesData->vertices[bottomRight].position - verticesData->vertices[topLeft].position;
             glm::vec3 normal1 = glm::normalize(glm::cross(v0, v1));
 
             // Add normal to each vertex of the first triangle
-            m_verticesData->vertices[topLeft].normal += normal1;
-            m_verticesData->vertices[bottomLeft].normal += normal1;
-            m_verticesData->vertices[bottomRight].normal += normal1;
+            verticesData->vertices[topLeft].normal += normal1;
+            verticesData->vertices[bottomLeft].normal += normal1;
+            verticesData->vertices[bottomRight].normal += normal1;
 
             // Second triangle (topLeft, bottomRight, topRight)
-            glm::vec3 v2 = m_verticesData->vertices[bottomRight].position - m_verticesData->vertices[topLeft].position;
-            glm::vec3 v3 = m_verticesData->vertices[topRight].position - m_verticesData->vertices[topLeft].position;
+            glm::vec3 v2 = verticesData->vertices[bottomRight].position - verticesData->vertices[topLeft].position;
+            glm::vec3 v3 = verticesData->vertices[topRight].position - verticesData->vertices[topLeft].position;
             glm::vec3 normal2 = glm::normalize(glm::cross(v2, v3));
 
             // Add normal to each vertex of the second triangle
-            m_verticesData->vertices[topLeft].normal += normal2;
-            m_verticesData->vertices[bottomRight].normal += normal2;
-            m_verticesData->vertices[topRight].normal += normal2;
-
-            // Sample grass blades within this quad
-            for (int i = 0; i < 10; ++i) {
-                float randomX = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-                float randomY = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-
-                // Interpolate between the quad vertices
-                glm::vec3 posTop = glm::mix(m_verticesData->vertices[topLeft].position, m_verticesData->vertices[topRight].position, randomX);
-                glm::vec3 posBottom = glm::mix(m_verticesData->vertices[bottomLeft].position, m_verticesData->vertices[bottomRight].position, randomX);
-                glm::vec3 grassPosition = glm::mix(posTop, posBottom, randomY);
-
-                // Compute the normal by interpolating vertex normals
-                glm::vec3 normalTop = glm::mix(m_verticesData->vertices[topLeft].normal, m_verticesData->vertices[topRight].normal, randomX);
-                glm::vec3 normalBottom = glm::mix(m_verticesData->vertices[bottomLeft].normal, m_verticesData->vertices[bottomRight].normal, randomX);
-                glm::vec3 grassNormal = glm::normalize(glm::mix(normalTop, normalBottom, randomY));
-
-                // Create grass vertex
-                Prisma::Mesh::Vertex grassVertex;
-                grassVertex.position = grassPosition;
-                grassVertex.normal = grassNormal;
-
-                // Add grass vertex to the grass vertices array
-                m_grassVertices.push_back(grassVertex);
-            }
+            verticesData->vertices[topLeft].normal += normal2;
+            verticesData->vertices[bottomRight].normal += normal2;
+            verticesData->vertices[topRight].normal += normal2;
         }
     }
 
-    mesh->loadModel(m_verticesData);
+    // Normalize all the normals (convert accumulated normals to unit length)
+    for (auto& vertex : verticesData->vertices) {
+        vertex.normal = glm::normalize(vertex.normal);
+    }
+
+    mesh->loadModel(verticesData);
     auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
     physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
 

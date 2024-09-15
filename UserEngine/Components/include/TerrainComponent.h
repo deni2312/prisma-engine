@@ -80,6 +80,5 @@ namespace Prisma {
 		glm::mat4 m_spriteModel = glm::mat4(1.0);
 		glm::mat4 m_spriteModelRotation = glm::mat4(1.0);
 		std::vector<Prisma::Mesh::Vertex> m_grassVertices;
-		std::shared_ptr<Prisma::Mesh::VerticesData> m_verticesData;
 	};
 }
