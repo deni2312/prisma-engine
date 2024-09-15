@@ -42,6 +42,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     auto terrain = std::make_shared<Prisma::Node>();
     terrain->name("Terrain");
+    terrain->matrix(glm::translate(glm::mat4(1.0), glm::vec3(0, -32, 0)));
     auto terrainComponent = std::make_shared<Prisma::TerrainComponent>();
     auto perlin=Prisma::PrismaRender::getInstance().renderPerlin(1024, 1024);
     terrainComponent->heightMap(perlin);
