@@ -4,7 +4,6 @@ void Prisma::ComponentsHandler::updateStart() {
         for(const auto& component: m_components){
             if(!component->isStart()){
                 component->start();
-                component->isStart(true);
             }
         }
 }

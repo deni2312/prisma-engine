@@ -177,6 +177,12 @@ void Prisma::PhysicsMeshComponent::fixedRigidBody(bool fixed) {
     m_fixed = fixed;
 }
 
+void Prisma::PhysicsMeshComponent::start() {
+    Prisma::Component::start();
+    colliderDispatcher(m_collisionData.collider);
+    updateCollisionData();
+}
+
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {
     name("Physics");
 }

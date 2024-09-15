@@ -32,6 +32,8 @@ namespace Prisma {
 
         void fixedRigidBody(bool fixed);
 
+        void start() override;
+
     private:
         ComponentList m_status;
         std::function<void()> m_apply;

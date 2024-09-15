@@ -247,7 +247,7 @@ void Prisma::TerrainComponent::generatePhysics()
 
     auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
 
-    unsigned int ratio = 16;
+    unsigned int ratio = 1;
 
     for (int y = 0; y < height; y=y+ratio) {
         for (int x = 0; x < width; x=x+ratio) {
