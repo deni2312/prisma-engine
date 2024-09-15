@@ -249,24 +249,30 @@ void Prisma::TerrainComponent::generatePhysics()
 
     unsigned int ratio = 4;
 
-    for (int y = 0; y < height; y=y+ratio) {
-        for (int x = 0; x < width; x=x+ratio) {
-            int index = (y * width + x)* bytePerPixel;
+    for (int y = 0; y < height; y = y + ratio) {
+        for (int x = 0; x < width; x = x + ratio) {
+            int index = (y * width + x) * bytePerPixel;
 
             // For grayscale image, use the pixel value as the height
-            // We divide by 255.0f to normalize pixel values to 0.0f - 1.0f
             unsigned char pixelValue = m_heightMap->data().dataContent[index];
-            float heightValue = static_cast<float>(pixelValue)/256.0*m_mult;
+            float heightValue = static_cast<float>(pixelValue) / 256.0 * m_mult;
             Prisma::Mesh::Vertex v;
+
             // Create a vertex at (x, heightValue, y)
-            v.position = { -width / 2.0f + width * x / (float)width, heightValue,-height / 2.0f + height * y / (float)height };
+            v.position = { -width / 2.0f + width * x / (float)width, heightValue, -height / 2.0f + height * y / (float)height };
+
+            // Initialize normal to zero, will be calculated later
+            v.normal = { 0.0f, 0.0f, 0.0f };
+
             verticesData->vertices.push_back(v);
         }
     }
+
     std::vector<unsigned int> indices;
 
     int sampledWidth = width / ratio;
     int sampledHeight = height / ratio;
+
     // Create triangles (2 triangles per pixel quad)
     for (int y = 0; y < sampledHeight - 1; ++y) {
         for (int x = 0; x < sampledWidth - 1; ++x) {
@@ -287,7 +293,32 @@ void Prisma::TerrainComponent::generatePhysics()
             verticesData->indices.push_back(bottomRight);
             verticesData->indices.push_back(topRight);
 
+            // Calculate normals for each triangle
+            // First triangle (topLeft, bottomLeft, bottomRight)
+            glm::vec3 v0 = verticesData->vertices[bottomLeft].position - verticesData->vertices[topLeft].position;
+            glm::vec3 v1 = verticesData->vertices[bottomRight].position - verticesData->vertices[topLeft].position;
+            glm::vec3 normal1 = glm::normalize(glm::cross(v0, v1));
+
+            // Add normal to each vertex of the first triangle
+            verticesData->vertices[topLeft].normal += normal1;
+            verticesData->vertices[bottomLeft].normal += normal1;
+            verticesData->vertices[bottomRight].normal += normal1;
+
+            // Second triangle (topLeft, bottomRight, topRight)
+            glm::vec3 v2 = verticesData->vertices[bottomRight].position - verticesData->vertices[topLeft].position;
+            glm::vec3 v3 = verticesData->vertices[topRight].position - verticesData->vertices[topLeft].position;
+            glm::vec3 normal2 = glm::normalize(glm::cross(v2, v3));
+
+            // Add normal to each vertex of the second triangle
+            verticesData->vertices[topLeft].normal += normal2;
+            verticesData->vertices[bottomRight].normal += normal2;
+            verticesData->vertices[topRight].normal += normal2;
         }
+    }
+
+    // Normalize all the normals (convert accumulated normals to unit length)
+    for (auto& vertex : verticesData->vertices) {
+        vertex.normal = glm::normalize(vertex.normal);
     }
 
     mesh->loadModel(verticesData);
