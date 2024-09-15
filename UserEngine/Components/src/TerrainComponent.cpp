@@ -126,7 +126,7 @@ void Prisma::TerrainComponent::start()
         m_grassRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grassRoughness.jpg");
         m_stoneRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stoneRoughness.jpg");
         m_snowRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snowRoughness.jpg");
-        m_grassSprite->loadTexture("../../../Resources/DefaultScene/sprites/grass.png");
+        m_grassSprite->loadTexture("../../../Resources/DefaultScene/sprites/grass.png",false,true,false);
 
         m_shader->use();
         m_modelPos = m_shader->getUniformPosition("model");
