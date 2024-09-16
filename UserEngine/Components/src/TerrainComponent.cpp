@@ -93,13 +93,11 @@ void Prisma::TerrainComponent::generateCpu()
             float heightR = getHeightAt(i + 1, j);  // Right
             float heightD = getHeightAt(i, j - 1);  // Down
             float heightU = getHeightAt(i, j + 1);  // Up
+            glm::vec3 tangent = glm::vec3(2.0, heightR - heightL, 0.0);
+            glm::vec3 bitangent = glm::vec3(0.0, heightD - heightU, 2.0);
 
-            // Compute the gradient vectors
-            glm::vec3 dx = glm::vec3(2.0f, heightR - heightL, 0.0f);
-            glm::vec3 dz = glm::vec3(0.0f, heightU - heightD, 2.0f);
-
-            // Calculate the normal as the cross product of the gradients
-            glm::vec3 normal = glm::normalize(glm::cross(dz, dx));
+            // Calculate the normal using the formula
+            glm::vec3 normal = glm::cross(tangent, bitangent);
 
             // Create the vertex
             Prisma::Mesh::Vertex vertex;
@@ -256,8 +254,8 @@ void Prisma::TerrainComponent::generateGrassPoints(float density)
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
         float y = m_grassVertices[vertexIndex].position.y;
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
-        glm::vec3 point(x, y+normal.y, z);
-        glm::mat4 pointData= glm::translate(glm::mat4(1.0), point)*glm::orientation(normal,glm::vec3(0,1,0));
+        glm::vec3 point(x, y+1, z);
+        glm::mat4 pointData= glm::translate(glm::mat4(1.0), point);
         m_positions.push_back(pointData);
     }
 }
