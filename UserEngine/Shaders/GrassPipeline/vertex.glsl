@@ -5,7 +5,7 @@ layout(location = 1) in vec2 aTexCoords;
 out vec2 TexCoords;
 
 
-layout(std430, binding = 15) buffer GrassPositions
+layout(std430, binding = 15) readonly buffer GrassPositions
 {
     mat4 grassPositions[];
 };
