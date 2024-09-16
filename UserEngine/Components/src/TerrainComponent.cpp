@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "../../../Engine/include/Helpers/PrismaRender.h"
 #include "../../../Engine/include/Components/PhysicsMeshComponent.h"
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 Prisma::TerrainComponent::TerrainComponent() : Prisma::Component{}
 {
@@ -73,16 +75,40 @@ void Prisma::TerrainComponent::generateCpu()
     int width = m_heightMap->data().width;
     int height = m_heightMap->data().height;
     unsigned bytePerPixel = m_heightMap->data().nrComponents;
+
+    auto getHeightAt = [&](int x, int z) -> float {
+        if (x < 0 || x >= width || z < 0 || z >= height)
+            return 0.0f;  // Handle out-of-bound cases
+        unsigned char* pixelOffset = m_heightMap->data().dataContent + (z + width * x) * bytePerPixel;
+        unsigned char y = pixelOffset[0];
+        return (float)(y * m_mult - m_shift) / 256.0;
+    };
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            unsigned char* pixelOffset = m_heightMap->data().dataContent + (j + width * i) * bytePerPixel;
-            unsigned char y = pixelOffset[0];
+            // Get the height of the current vertex and its neighbors
+            float heightL = getHeightAt(i - 1, j);  // Left
+            float heightR = getHeightAt(i + 1, j);  // Right
+            float heightD = getHeightAt(i, j - 1);  // Down
+            float heightU = getHeightAt(i, j + 1);  // Up
+
+            // Compute the gradient vectors
+            glm::vec3 dx = glm::vec3(2.0f, heightR - heightL, 0.0f);
+            glm::vec3 dz = glm::vec3(0.0f, heightU - heightD, 2.0f);
+
+            // Calculate the normal as the cross product of the gradients
+            glm::vec3 normal = glm::normalize(glm::cross(dz, dx));
+
+            // Create the vertex
             Prisma::Mesh::Vertex vertex;
             vertex.position.x = -height / 2.0f + height * i / (float)height;
-            vertex.position.y = (int)(y * m_mult - m_shift) / bytePerPixel;
+            vertex.position.y = getHeightAt(i, j);
             vertex.position.z = -width / 2.0f + width * j / (float)width;
+            vertex.normal = normal;  // Assign the calculated normal to the vertex
+
+            // Store the vertex
             m_grassVertices.push_back(vertex);
         }
     }
@@ -148,8 +174,8 @@ void Prisma::TerrainComponent::start()
         m_spriteShader->use();
         m_spritePos = m_spriteShader->getUniformPosition("grassSprite");
         m_spriteModelPos = m_spriteShader->getUniformPosition("model");
-        m_spriteModel = glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0, 0, 1));
-        m_spriteModelRotation = glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0, 0, 1)) * glm::rotate(glm::mat4(1.0), glm::radians(90.0f), glm::vec3(0, 1, 0));
+        m_spriteModel = glm::mat4(1.0);
+        m_spriteModelRotation = glm::mat4(1.0);
         generateCpu();
         std::vector<float> vertices;
         int width = m_heightMap->data().width;
@@ -229,10 +255,9 @@ void Prisma::TerrainComponent::generateGrassPoints(float density)
         int vertexIndex = gridZ * width + gridX;
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
         float y = m_grassVertices[vertexIndex].position.y;
-
-        glm::vec4 point(x, (y - m_shift) / m_mult + 1, z, 1.0);
-        glm::mat4 pointData(1.0);
-        pointData[3] = point;
+        auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
+        glm::vec3 point(x, y, z);
+        glm::mat4 pointData= glm::translate(glm::mat4(1.0), point)*glm::orientation(normal,glm::vec3(0,1,0));
         m_positions.push_back(pointData);
     }
 }
