@@ -256,8 +256,8 @@ void Prisma::TerrainComponent::generateGrassPoints(float density)
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
         float y = m_grassVertices[vertexIndex].position.y;
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
-        glm::vec3 point(x, y, z);
-        glm::mat4 pointData= glm::translate(glm::mat4(1.0), point)*glm::orientation(normal,glm::vec3(0,1,0));
+        glm::vec3 point(x+normal.x, y+normal.y+0.1, z+normal.z);
+        glm::mat4 pointData= glm::translate(glm::mat4(1.0), point)* glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0, 0, 1))*glm::orientation(normal,glm::vec3(0,1,0));
         m_positions.push_back(pointData);
     }
 }
