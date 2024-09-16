@@ -4,10 +4,10 @@ layout(location = 1) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 
-
-layout(std430, binding = 15) readonly buffer GrassPositions
+layout(std430, binding = 16) buffer GrassCull
 {
-    mat4 grassPositions[];
+    vec4 size;
+    mat4 grassCull[];
 };
 
 layout(std140, binding = 1) uniform MeshData
@@ -21,5 +21,5 @@ uniform mat4 model;
 void main()
 {
     TexCoords = aTexCoords;
-    gl_Position = projection * view * grassPositions[gl_InstanceID]* model * vec4(aPos.x, aPos.y, 0.0, 1.0);
+    gl_Position = projection * view * grassCull[gl_InstanceID]* model * vec4(aPos.x, aPos.y, 0.0, 1.0);
 }

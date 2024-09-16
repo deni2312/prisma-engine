@@ -41,6 +41,7 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Shader> m_shader;
 		std::shared_ptr<Prisma::Shader> m_csmShader;
 		std::shared_ptr<Prisma::Shader> m_spriteShader;
+		std::shared_ptr<Prisma::Shader> m_cullShader;
 		unsigned int m_modelPos;
 		unsigned int m_heightPos;
 		unsigned int m_multPos;
@@ -75,6 +76,7 @@ namespace Prisma {
 		void generatePhysics();
 
 		std::shared_ptr<Prisma::SSBO> m_ssbo;
+		std::shared_ptr<Prisma::SSBO> m_ssboCull;
 		std::vector<glm::mat4> m_positions;
 
 		glm::mat4 m_spriteModel = glm::mat4(1.0);

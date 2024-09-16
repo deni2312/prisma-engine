@@ -57,17 +57,24 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 
     m_vao.bind();
     glDrawArrays(GL_PATCHES, 0, m_numPatches * m_resolution * m_resolution);
-
+    m_cullShader->use();
+    m_cullShader->dispatchCompute({ 1024,1024,1 });
+    m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
     m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix() * m_spriteModel);
+    
+    glm::ivec4 currentSize(0);
+    m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);
 
-    Prisma::PrismaRender::getInstance().renderQuad(m_positions.size());
+    unsigned int sizeData = currentSize.x;
+    Prisma::PrismaRender::getInstance().renderQuad(sizeData);
     m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix() * m_spriteModelRotation);
 
-    Prisma::PrismaRender::getInstance().renderQuad(m_positions.size());
+    Prisma::PrismaRender::getInstance().renderQuad(sizeData);
     glEnable(GL_CULL_FACE);
-
+    glm::vec4 size(0);
+    m_ssboCull->modifyData(0, sizeof(glm::vec4), &size);
 }
 
 void Prisma::TerrainComponent::generateCpu()
@@ -118,8 +125,14 @@ void Prisma::TerrainComponent::generateCpu()
     generateGrassPoints(0.1);
 
     m_ssbo = std::make_shared<Prisma::SSBO>(15);
-    m_ssbo->resize(sizeof(glm::mat4) * m_positions.size());
+    m_ssboCull = std::make_shared<Prisma::SSBO>(16);
+    m_ssbo->resize(sizeof(glm::mat4) * m_positions.size(), GL_STATIC_DRAW);
     m_ssbo->modifyData(0, sizeof(glm::mat4) * m_positions.size(), m_positions.data());
+
+    m_ssboCull->resize(sizeof(glm::ivec4)+sizeof(glm::mat4) * m_positions.size());
+    glm::ivec4 size(0);
+    m_ssboCull->modifyData(0, sizeof(glm::ivec4), &size);
+    m_ssboCull->modifyData(sizeof(glm::ivec4), sizeof(glm::mat4) * m_positions.size(), m_positions.data());
 }
 
 void Prisma::TerrainComponent::start()
@@ -130,6 +143,7 @@ void Prisma::TerrainComponent::start()
         m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl", nullptr, headers, "../../../UserEngine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainPipeline/tesdata.glsl");
         m_csmShader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainShadowPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/fragment.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/geometry.glsl", headers, "../../../UserEngine/Shaders/TerrainShadowPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/tesdata.glsl");
         m_spriteShader = std::make_shared<Shader>("../../../UserEngine/Shaders/GrassPipeline/vertex.glsl", "../../../UserEngine/Shaders/GrassPipeline/fragment.glsl");
+        m_cullShader = std::make_shared<Shader>("../../../UserEngine/Shaders/GrassPipeline/compute.glsl");
 
         m_grass = std::make_shared<Prisma::Texture>();
         m_stone = std::make_shared<Prisma::Texture>();
