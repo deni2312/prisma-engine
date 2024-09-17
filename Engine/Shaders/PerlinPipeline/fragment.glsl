@@ -34,13 +34,15 @@ float noise(in vec2 p)
 
 void main() {
     // Scale the texture coordinates to control the frequency of the noise
-    vec2 pos = gl_FragCoord.xy/resolution;  // Increase the scale for larger patterns
+    vec2 pos = gl_FragCoord.xy / resolution;  // Increase the scale for larger patterns
 
-    // Get the noise value
+    // Get the noise value at the current position
     float noiseValue = 0;
 
     pos *= 8.0;
     mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+    vec2 origPos = pos;
+
     noiseValue = 0.5000 * noise(pos); pos = m * pos;
     noiseValue += 0.2500 * noise(pos); pos = m * pos;
     noiseValue += 0.1250 * noise(pos); pos = m * pos;
@@ -48,9 +50,20 @@ void main() {
 
     noiseValue = 0.5 + 0.5 * noiseValue;
 
-    // Map noise value to grayscale
-    vec3 col = vec3(noiseValue);  // Normalize noise output from [-1,1] to [0,1]
+    // Calculate the gradient of the noise (approximate partial derivatives)
+    float epsilon = 0.001; // Small offset for numerical derivative
 
-    // Output the color with full opacity
-    FragColor = vec4(col, 1.0);
+    // Sample noise at nearby points
+    float noiseX = noise(origPos + vec2(epsilon, 0.0));
+    float noiseY = noise(origPos + vec2(0.0, epsilon));
+    float noiseCenter = noise(origPos);
+
+    // Compute partial derivatives (gradient)
+    vec2 gradNoise = vec2(noiseX - noiseCenter, noiseY - noiseCenter) / epsilon;
+
+    // Use the gradient to compute the normal (in the xy plane)
+    vec3 normal = normalize(vec3(gradNoise, 1.0));
+
+    // Output the normal map and the noise value as the fourth component
+    FragColor = vec4(noiseValue,normal * 0.5 + 0.5); // Normalize the normal to [0, 1] range
 }

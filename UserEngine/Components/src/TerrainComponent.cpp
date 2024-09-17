@@ -67,7 +67,7 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     glm::ivec4 currentSize(0);
     m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);
 
-    unsigned int sizeData = currentSize.x;
+    unsigned int sizeData = m_positions.size();
     Prisma::PrismaRender::getInstance().renderQuad(sizeData);
     m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix() * m_spriteModelRotation);
 
