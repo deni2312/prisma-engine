@@ -58,7 +58,8 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     m_vao.bind();
     glDrawArrays(GL_PATCHES, 0, m_numPatches * m_resolution * m_resolution);
     m_cullShader->use();
-    m_cullShader->dispatchCompute({ 1024,1024,1 });
+    m_cullShader->setMat4(m_modelComputePos, parent()->finalMatrix());
+    m_cullShader->dispatchCompute({ 1024*1024,1,1 });
     m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
@@ -66,8 +67,7 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     
     glm::ivec4 currentSize(0);
     m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);
-
-    unsigned int sizeData = m_positions.size();
+    unsigned int sizeData = currentSize.x;
     Prisma::PrismaRender::getInstance().renderQuad(sizeData);
     m_spriteShader->setMat4(m_spriteModelPos, parent()->finalMatrix() * m_spriteModelRotation);
 
@@ -129,10 +129,9 @@ void Prisma::TerrainComponent::generateCpu()
     m_ssbo->resize(sizeof(glm::mat4) * m_positions.size(), GL_STATIC_DRAW);
     m_ssbo->modifyData(0, sizeof(glm::mat4) * m_positions.size(), m_positions.data());
 
-    m_ssboCull->resize(sizeof(glm::ivec4)+sizeof(glm::mat4) * m_positions.size());
+    m_ssboCull->resize(sizeof(glm::ivec4)+sizeof(glm::mat4) * m_positions.size(), GL_DYNAMIC_READ);
     glm::ivec4 size(0);
     m_ssboCull->modifyData(0, sizeof(glm::ivec4), &size);
-    m_ssboCull->modifyData(sizeof(glm::ivec4), sizeof(glm::mat4) * m_positions.size(), m_positions.data());
 }
 
 void Prisma::TerrainComponent::start()
@@ -188,6 +187,8 @@ void Prisma::TerrainComponent::start()
         m_spriteModelPos = m_spriteShader->getUniformPosition("model");
         m_spriteModel = glm::mat4(1.0);
         m_spriteModelRotation = glm::rotate(glm::mat4(1.0), glm::radians(90.0f), glm::vec3(0, 1, 0));
+        m_cullShader->use();
+        m_modelComputePos = m_cullShader->getUniformPosition("model");
         generateCpu();
         std::vector<float> vertices;
         int width = m_heightMap->data().width;

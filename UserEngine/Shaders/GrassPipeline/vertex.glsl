@@ -4,10 +4,11 @@ layout(location = 1) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 
-// Input: Grass positions (world space)
-layout(std430, binding = 15) readonly buffer GrassPositions
+// Output: Culled grass positions and size
+layout(std430, binding = 16) buffer GrassCull
 {
-    mat4 grassPositions[];  // Positions of grass instances in world space
+    ivec4 size;              // Size of the culled instances (size.x will store the count)
+    mat4 grassCull[];       // Positions of culled instances
 };
 
 
@@ -22,5 +23,5 @@ uniform mat4 model;
 void main()
 {
     TexCoords = aTexCoords;
-    gl_Position = projection * view * grassPositions[gl_InstanceID]* model * vec4(aPos.x, aPos.y, 0.0, 1.0);
+    gl_Position = projection * view * grassCull[gl_InstanceID]* model * vec4(aPos.x, aPos.y, 0.0, 1.0);
 }

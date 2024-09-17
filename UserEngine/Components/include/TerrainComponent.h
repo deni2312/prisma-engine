@@ -62,6 +62,8 @@ namespace Prisma {
 		unsigned int m_spritePos;
 		unsigned int m_spriteModelPos;
 
+		unsigned int m_modelComputePos;
+
 		unsigned int m_numPatches = 4;
 		unsigned int m_resolution = 20;
 		float m_mult = 64;
