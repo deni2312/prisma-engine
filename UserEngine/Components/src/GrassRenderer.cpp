@@ -9,8 +9,9 @@ void GrassRenderer::start(std::shared_ptr<Prisma::Texture> heightMap) {
     m_spriteShader->use();
     m_spritePos = m_spriteShader->getUniformPosition("grassSprite");
     m_spriteModelPos = m_spriteShader->getUniformPosition("model");
-    m_spriteModel = glm::mat4(1.0);
-    m_spriteModelRotation = glm::rotate(glm::mat4(1.0), glm::radians(90.0f), glm::vec3(0, 1, 0));
+    for (int i = 0; i < 4; i++) {
+        m_spriteModelRotation.push_back(glm::rotate(glm::mat4(1.0), glm::radians(45.0f * i), glm::vec3(0, 1, 0)));
+    }
     m_cullShader->use();
     m_modelComputePos = m_cullShader->getUniformPosition("model");
     m_ssbo = std::make_shared<Prisma::SSBO>(15);
@@ -26,14 +27,15 @@ unsigned int GrassRenderer::renderGrass(glm::mat4 translation) {
     m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
-    m_spriteShader->setMat4(m_spriteModelPos, translation * m_spriteModel);
+    m_spriteShader->setMat4(m_spriteModelPos, translation);
 
     glm::ivec4 currentSize(0);
     m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);
-    Prisma::PrismaRender::getInstance().renderQuad(currentSize.x);
-    m_spriteShader->setMat4(m_spriteModelPos, translation * m_spriteModelRotation);
+    for (int i = 0; i < 4; i++) {
+        m_spriteShader->setMat4(m_spriteModelPos, translation * m_spriteModelRotation[i]);
+        Prisma::PrismaRender::getInstance().renderQuad(currentSize.x);
+    }
 
-    Prisma::PrismaRender::getInstance().renderQuad(currentSize.x);
     glm::vec4 size(0);
     m_ssboCull->modifyData(0, sizeof(glm::vec4), &size);
     return currentSize.x;
