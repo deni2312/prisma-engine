@@ -20,7 +20,9 @@ void GrassRenderer::start(std::shared_ptr<Prisma::Texture> heightMap) {
 unsigned int GrassRenderer::renderGrass(glm::mat4 translation) {
     m_cullShader->use();
     m_cullShader->setMat4(m_modelComputePos, translation);
-    m_cullShader->dispatchCompute({ 256,256,1 });
+    unsigned int sizeCluster = 8;
+    unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size()/(sizeCluster * sizeCluster)));
+    m_cullShader->dispatchCompute({ sizePositions,sizePositions,1});
     m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
