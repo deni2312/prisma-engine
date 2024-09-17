@@ -1,6 +1,6 @@
 #include "../include/GrassRenderer.h"
 
-void GrassRenderer::start(std::shared_ptr<Prisma::Texture> heightMap) {
+void GrassRenderer::start(Prisma::Texture heightMap) {
     m_heightMap = heightMap;
     m_spriteShader = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/GrassPipeline/vertex.glsl", "../../../UserEngine/Shaders/GrassPipeline/fragment.glsl");
     m_cullShader = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/GrassPipeline/compute.glsl");
@@ -18,38 +18,38 @@ void GrassRenderer::start(std::shared_ptr<Prisma::Texture> heightMap) {
     m_ssboCull = std::make_shared<Prisma::SSBO>(16);
 }
 
-unsigned int GrassRenderer::renderGrass(glm::mat4 translation) {
-    m_cullShader->use();
+void GrassRenderer::renderGrass(glm::mat4 translation) {
+    /*m_cullShader->use();
     m_cullShader->setMat4(m_modelComputePos, translation);
     unsigned int sizeCluster = 8;
     unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size()/(sizeCluster * sizeCluster)));
     m_cullShader->dispatchCompute({ sizePositions,sizePositions,1});
-    m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+    m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);*/
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
     m_spriteShader->setMat4(m_spriteModelPos, translation);
 
-    glm::ivec4 currentSize(0);
-    m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);
+    /*glm::ivec4 currentSize(0);
+    m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);*/
+
     for (int i = 0; i < 4; i++) {
         m_spriteShader->setMat4(m_spriteModelPos, translation * m_spriteModelRotation[i]);
-        Prisma::PrismaRender::getInstance().renderQuad(currentSize.x);
+        Prisma::PrismaRender::getInstance().renderQuad(m_positions.size());
     }
 
-    glm::vec4 size(0);
-    m_ssboCull->modifyData(0, sizeof(glm::vec4), &size);
-    return currentSize.x;
+    /*glm::vec4 size(0);
+    m_ssboCull->modifyData(0, sizeof(glm::vec4), &size);*/
 }
 
 void GrassRenderer::generateGrassPoints(float density, float mult, float shift) {
-    int width = m_heightMap->data().width;
-    int height = m_heightMap->data().height;
-    unsigned bytePerPixel = m_heightMap->data().nrComponents;
+    int width = m_heightMap.data().width;
+    int height = m_heightMap.data().height;
+    unsigned bytePerPixel = m_heightMap.data().nrComponents;
 
     auto getHeightAt = [&](int x, int z) -> float {
         if (x < 0 || x >= width || z < 0 || z >= height)
             return 0.0f;  // Handle out-of-bound cases
-        unsigned char* pixelOffset = m_heightMap->data().dataContent + (z + width * x) * bytePerPixel;
+        unsigned char* pixelOffset = m_heightMap.data().dataContent + (z + width * x) * bytePerPixel;
         unsigned char y = pixelOffset[0];
         return (float)(y * mult - shift) / 256.0;
     };

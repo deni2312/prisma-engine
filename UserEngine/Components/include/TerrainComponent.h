@@ -23,9 +23,9 @@ namespace Prisma {
 
 		void start() override;
 
-		void heightMap(std::shared_ptr<Prisma::Texture> heightMap);
+		void heightMap(Prisma::Texture heightMap);
 	private:
-		std::shared_ptr<Prisma::Texture> m_heightMap = nullptr;
+		Prisma::Texture m_heightMap;
 		std::shared_ptr<Prisma::Texture> m_grass = nullptr;
 		std::shared_ptr<Prisma::Texture> m_stone = nullptr;
 		std::shared_ptr<Prisma::Texture> m_snow = nullptr;

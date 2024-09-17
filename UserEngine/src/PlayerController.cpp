@@ -3,6 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../../Engine/include/Components/CloudComponent.h"
 #include "../Components/include/TerrainComponent.h"
+#include "../../Engine/src/GlobalData/GlobalData.cpp"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
@@ -42,10 +43,12 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     auto terrain = std::make_shared<Prisma::Node>();
     terrain->name("Terrain");
-    terrain->matrix(glm::translate(glm::mat4(1.0),glm::vec3(0,-34,0)));
+    terrain->matrix(glm::translate(glm::mat4(1.0),glm::vec3(0,0,0)));
     auto terrainComponent = std::make_shared<Prisma::TerrainComponent>();
     auto perlin=Prisma::PrismaRender::getInstance().renderPerlin(1024, 1024);
-    terrainComponent->heightMap(perlin);
+    Prisma::Texture blackTexture;
+    blackTexture.loadTexture("../../../Resources/res/black.png", false, true, true,true);
+    terrainComponent->heightMap(blackTexture);
     terrain->addComponent(terrainComponent);
     m_scene->root->addChild(terrain);
     createCamera();

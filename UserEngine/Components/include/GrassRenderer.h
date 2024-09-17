@@ -11,15 +11,15 @@
 
 class GrassRenderer {
 public:
-    void start(std::shared_ptr<Prisma::Texture> heightMap);
+    void start(Prisma::Texture heightMap);
 
-    unsigned int renderGrass(glm::mat4 translation);
+    void renderGrass(glm::mat4 translation);
 
 	void generateGrassPoints(float density,float mult,float shift);
 
 private:
 	std::shared_ptr<Prisma::Texture> m_grassSprite = nullptr;
-    std::shared_ptr<Prisma::Texture> m_heightMap = nullptr;
+    Prisma::Texture m_heightMap;
 	std::shared_ptr<Prisma::Shader> m_spriteShader;
 	std::shared_ptr<Prisma::Shader> m_cullShader;
 
