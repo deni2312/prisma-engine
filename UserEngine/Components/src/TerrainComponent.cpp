@@ -126,10 +126,10 @@ void Prisma::TerrainComponent::generateCpu()
 
     m_ssbo = std::make_shared<Prisma::SSBO>(15);
     m_ssboCull = std::make_shared<Prisma::SSBO>(16);
-    m_ssbo->resize(sizeof(glm::mat4) * m_positions.size(), GL_STATIC_DRAW);
-    m_ssbo->modifyData(0, sizeof(glm::mat4) * m_positions.size(), m_positions.data());
+    m_ssbo->resize(sizeof(glm::vec4) * m_positions.size(), GL_STATIC_DRAW);
+    m_ssbo->modifyData(0, sizeof(glm::vec4) * m_positions.size(), m_positions.data());
 
-    m_ssboCull->resize(sizeof(glm::ivec4)+sizeof(glm::mat4) * m_positions.size(), GL_DYNAMIC_READ);
+    m_ssboCull->resize(sizeof(glm::ivec4)+sizeof(glm::vec4) * m_positions.size(), GL_DYNAMIC_READ);
     glm::ivec4 size(0);
     m_ssboCull->modifyData(0, sizeof(glm::ivec4), &size);
 }
@@ -269,9 +269,7 @@ void Prisma::TerrainComponent::generateGrassPoints(float density)
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
         float y = m_grassVertices[vertexIndex].position.y;
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
-        glm::vec3 point(x, y+1, z);
-        glm::mat4 pointData= glm::translate(glm::mat4(1.0), point);
-        m_positions.push_back(pointData);
+        m_positions.push_back(glm::vec4(x,y+1,z,1.0));
     }
 }
 

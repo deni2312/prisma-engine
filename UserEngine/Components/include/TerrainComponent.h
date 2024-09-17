@@ -79,7 +79,7 @@ namespace Prisma {
 
 		std::shared_ptr<Prisma::SSBO> m_ssbo;
 		std::shared_ptr<Prisma::SSBO> m_ssboCull;
-		std::vector<glm::mat4> m_positions;
+		std::vector<glm::vec4> m_positions;
 
 		glm::mat4 m_spriteModel = glm::mat4(1.0);
 		glm::mat4 m_spriteModelRotation = glm::mat4(1.0);

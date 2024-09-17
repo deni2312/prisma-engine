@@ -4,14 +4,14 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 // Input: Grass positions (world space)
 layout(std430, binding = 15) buffer GrassPositions
 {
-    mat4 grassPositions[];  // Positions of grass instances in world space
+    vec4 grassPositions[];  // Positions of grass instances in world space
 };
 
 // Output: Culled grass positions and size
 layout(std430, binding = 16) buffer GrassCull
 {
     ivec4 size;              // Size of the culled instances (size.x will store the count)
-    mat4 grassCull[];       // Positions of culled instances
+    vec4 grassCull[];       // Positions of culled instances
 };
 
 // Uniforms: View and Projection matrices
@@ -33,11 +33,10 @@ void main()
         return;
 
     // Transform the grass position from world space to clip space
-    mat4 worldPos = grassPositions[idx];
-    vec4 grassCenter = model*worldPos[3];  // Get the center of the grass instance
+    vec4 worldPos = grassPositions[idx];
 
     // Convert to clip space (projection * view * world)
-    vec4 clipSpacePos = projection * view * grassCenter;
+    vec4 clipSpacePos = projection * view * model * worldPos;
 
     // Perform frustum culling: clip-space coordinates must be inside [-w, w] range
     if (clipSpacePos.x > -clipSpacePos.w && clipSpacePos.x < clipSpacePos.w &&
