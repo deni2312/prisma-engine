@@ -1,5 +1,5 @@
 #version 460 core
-layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 // Input: Grass positions (world space)
 layout(std430, binding = 15) buffer GrassPositions
@@ -11,7 +11,7 @@ layout(std430, binding = 15) buffer GrassPositions
 layout(std430, binding = 16) buffer GrassCull
 {
     ivec4 size;              // Size of the culled instances (size.x will store the count)
-    vec4 grassCull[];       // Positions of culled instances
+    vec4 grassCull[];        // Positions of culled instances
 };
 
 // Uniforms: View and Projection matrices
@@ -25,8 +25,10 @@ uniform mat4 model;
 
 void main()
 {
-    // Calculate the 2D global invocation index based on x and y
-    uint idx = gl_GlobalInvocationID.x;
+    // Calculate the 2D global invocation index based on both x and y
+    // Assuming you process in a grid-like fashion (e.g., width x height)
+    uint workGroupWidth = gl_NumWorkGroups.x * gl_WorkGroupSize.x;
+    uint idx = gl_GlobalInvocationID.y * workGroupWidth + gl_GlobalInvocationID.x;
 
     // Ensure we don't exceed the bounds of the buffer
     if (idx >= grassPositions.length())
