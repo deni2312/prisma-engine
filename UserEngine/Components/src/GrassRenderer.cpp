@@ -52,7 +52,6 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
     m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);*/
     glDrawElementsInstanced(GL_TRIANGLES, m_verticesData.indices.size(), GL_UNSIGNED_INT, 0, m_positions.size());
 
-
     /*glm::vec4 size(0);
     m_ssboCull->modifyData(0, sizeof(glm::vec4), &size);*/
 }
