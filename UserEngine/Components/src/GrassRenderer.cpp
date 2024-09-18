@@ -16,6 +16,24 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
     m_modelComputePos = m_cullShader->getUniformPosition("model");
     m_ssbo = std::make_shared<Prisma::SSBO>(15);
     m_ssboCull = std::make_shared<Prisma::SSBO>(16);
+
+    Prisma::SceneLoader sceneLoader;
+    
+    auto grass = sceneLoader.loadScene("../../../Resources/DefaultScene/grass/grass.gltf", {true});
+    m_grassMesh = std::dynamic_pointer_cast<Prisma::Mesh>(grass->root->children()[0]);
+    m_verticesData = m_grassMesh->verticesData();
+    m_vao.bind();
+    Prisma::VBO vbo;
+
+    Prisma::EBO ebo;
+
+    vbo.writeData(m_verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex), &m_verticesData.vertices[0], GL_DYNAMIC_DRAW);
+    ebo.writeData(m_verticesData.indices.size() * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
+
+    m_vao.addAttribPointer(0, 3, sizeof(Prisma::Mesh::Vertex), (void*)0);
+    m_vao.addAttribPointer(1, 3, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
+    m_vao.addAttribPointer(2, 2, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
+    m_vao.resetVao();
 }
 
 void GrassRenderer::renderGrass(glm::mat4 translation) {
@@ -25,17 +43,15 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
     unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size()/(sizeCluster * sizeCluster)));
     m_cullShader->dispatchCompute({ sizePositions,sizePositions,1});
     m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);*/
+    m_vao.bind();
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
-    m_spriteShader->setMat4(m_spriteModelPos, translation);
+    m_spriteShader->setMat4(m_spriteModelPos, translation * m_grassMesh->finalMatrix());
 
     /*glm::ivec4 currentSize(0);
     m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);*/
+    glDrawElementsInstanced(GL_TRIANGLES, m_verticesData.indices.size(), GL_UNSIGNED_INT, 0, m_positions.size());
 
-    for (int i = 0; i < 4; i++) {
-        m_spriteShader->setMat4(m_spriteModelPos, translation * m_spriteModelRotation[i]);
-        Prisma::PrismaRender::getInstance().renderQuad(m_positions.size());
-    }
 
     /*glm::vec4 size(0);
     m_ssboCull->modifyData(0, sizeof(glm::vec4), &size);*/
@@ -107,9 +123,8 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
         float y = m_grassVertices[vertexIndex].position.y;
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
-        m_positions.push_back(glm::vec4(x, y + 1, z, 1.0));
+        m_positions.push_back(glm::vec4(x, y, z, 1.0));
     }
-
     m_ssbo->resize(sizeof(glm::vec4) * m_positions.size(), GL_STATIC_DRAW);
     m_ssbo->modifyData(0, sizeof(glm::vec4) * m_positions.size(), m_positions.data());
 

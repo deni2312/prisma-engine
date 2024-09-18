@@ -19,7 +19,8 @@ public:
 
 private:
 	std::shared_ptr<Prisma::Texture> m_grassSprite = nullptr;
-    Prisma::Texture m_heightMap;
+	Prisma::VAO m_vao;
+	Prisma::Texture m_heightMap;
 	std::shared_ptr<Prisma::Shader> m_spriteShader;
 	std::shared_ptr<Prisma::Shader> m_cullShader;
 
@@ -35,4 +36,6 @@ private:
 
 	std::vector<glm::mat4> m_spriteModelRotation;
 	std::vector<Prisma::Mesh::Vertex> m_grassVertices;
+	Prisma::Mesh::VerticesData m_verticesData;
+	std::shared_ptr<Prisma::Mesh> m_grassMesh;
 };

@@ -1,12 +1,12 @@
 #version 460 core
 
-layout(location = 0) in vec2 aPos;
+layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 
 // Input: Grass positions (world space)
-layout(std430, binding = 15) buffer GrassPositions
+layout(std430, binding = 15) readonly buffer GrassPositions
 {
     vec4 grassPositions[];  // Positions of grass instances in world space
 };
@@ -31,5 +31,5 @@ void main()
     newModel[3] = vec4(grassPositions[gl_InstanceID].x, grassPositions[gl_InstanceID].y, grassPositions[gl_InstanceID].z, 1.0);
 
     // Perform the transformation with the new model matrix
-    gl_Position = projection * view * newModel * model * vec4(aPos.x, aPos.y, 0.0, 1.0);
+    gl_Position = projection * view * newModel * model * vec4(aPos, 1.0);
 }

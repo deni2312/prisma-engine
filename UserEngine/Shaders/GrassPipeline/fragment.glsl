@@ -4,14 +4,10 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-layout(bindless_sampler) uniform sampler2D grassSprite;
+//layout(bindless_sampler) uniform sampler2D grassSprite;
 
 void main()
 {
-    vec4 col = texture(grassSprite, TexCoords).rgba;
-    if (col.a < 0.1) {
-        discard;
-    }
-
-    FragColor = vec4(col.rgb, 1.0);
+    //vec4 col = texture(grassSprite, TexCoords).rgba;
+    FragColor = vec4(0,1,0, 1.0);
 }
