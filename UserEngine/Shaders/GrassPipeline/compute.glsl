@@ -10,8 +10,19 @@ layout(std430, binding = 15) buffer GrassPositions
 // Output: Culled grass positions and size
 layout(std430, binding = 16) buffer GrassCull
 {
-    ivec4 size;              // Size of the culled instances (size.x will store the count)
     vec4 grassCull[];        // Positions of culled instances
+};
+
+layout(std430, binding = 17) buffer DrawElementsIndirect
+{
+    unsigned int  count;
+    unsigned int  instanceCount;
+    unsigned int  firstIndex;
+    unsigned int  baseVertex;
+    unsigned int  baseInstance;
+    unsigned int padding;
+    unsigned int padding1;
+    unsigned int padding2;
 };
 
 // Uniforms: View and Projection matrices
@@ -30,6 +41,11 @@ void main()
     uint workGroupWidth = gl_NumWorkGroups.x * gl_WorkGroupSize.x;
     uint idx = gl_GlobalInvocationID.y * workGroupWidth + gl_GlobalInvocationID.x;
 
+
+    if (idx == 0) {
+        instanceCount = 0;
+    }
+    barrier();// Wait till all threads reach this point
     // Ensure we don't exceed the bounds of the buffer
     if (idx >= grassPositions.length())
         return;
@@ -46,7 +62,7 @@ void main()
         clipSpacePos.z > -clipSpacePos.w && clipSpacePos.z < clipSpacePos.w)
     {
         // Atomically increment the counter for culled instances and get the index
-        uint culledIdx = atomicAdd(size.x, 1);
+        uint culledIdx = atomicAdd(instanceCount, 1);
 
         // Store the culled instance in the culled buffer
         grassCull[culledIdx] = worldPos;

@@ -5,10 +5,10 @@ layout(location = 1) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 
-// Input: Grass positions (world space)
-layout(std430, binding = 15) readonly buffer GrassPositions
+// Output: Culled grass positions and size
+layout(std430, binding = 16) buffer GrassCull
 {
-    vec4 grassPositions[];  // Positions of grass instances in world space
+    vec4 grassCull[];        // Positions of culled instances
 };
 
 
@@ -28,7 +28,7 @@ void main()
     mat4 newModel = mat4(1.0); // Identity matrix
 
     // Set translation part of the new model matrix using grassCull data
-    newModel[3] = vec4(grassPositions[gl_InstanceID].x, grassPositions[gl_InstanceID].y, grassPositions[gl_InstanceID].z, 1.0);
+    newModel[3] = vec4(grassCull[gl_InstanceID].x, grassCull[gl_InstanceID].y, grassCull[gl_InstanceID].z, 1.0);
 
     // Perform the transformation with the new model matrix
     gl_Position = projection * view * newModel * model * vec4(aPos, 1.0);

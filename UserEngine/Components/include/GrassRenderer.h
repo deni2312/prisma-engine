@@ -18,6 +18,15 @@ public:
 	void generateGrassPoints(float density,float mult,float shift);
 
 private:
+	struct DrawElementsIndirectCommandPadded
+	{
+		unsigned int  count;
+		unsigned int  instanceCount;
+		unsigned int  firstIndex;
+		unsigned int  baseVertex;
+		unsigned int  baseInstance;
+		glm::ivec3 padding;
+	};
 	std::shared_ptr<Prisma::Texture> m_grassSprite = nullptr;
 	Prisma::VAO m_vao;
 	Prisma::Texture m_heightMap;

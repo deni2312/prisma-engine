@@ -37,26 +37,21 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
 }
 
 void GrassRenderer::renderGrass(glm::mat4 translation) {
-    /*m_cullShader->use();
+    m_cullShader->use();
     m_cullShader->setMat4(m_modelComputePos, translation);
     unsigned int sizeCluster = 8;
     unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size()/(sizeCluster * sizeCluster)));
     m_cullShader->dispatchCompute({ sizePositions,sizePositions,1});
-    m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);*/
+    m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT);
     m_vao.bind();
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
     m_spriteShader->setMat4(m_spriteModelPos, translation * m_grassMesh->finalMatrix());
 
-    /*glm::ivec4 currentSize(0);
-    m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);*/
-
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(1), 0);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
-    /*glm::vec4 size(0);
-    m_ssboCull->modifyData(0, sizeof(glm::vec4), &size);*/
 }
 
 void GrassRenderer::generateGrassPoints(float density, float mult, float shift) {
@@ -134,12 +129,12 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
     m_command.firstIndex = 0;
     m_command.baseVertex = 0;
     m_command.baseInstance = 0;
+    glBindBuffer(GL_ARRAY_BUFFER, m_indirectId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, m_indirectId);
     glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(Prisma::DrawElementsIndirectCommand), &m_command, GL_DYNAMIC_DRAW);
 
     m_ssbo->resize(sizeof(glm::vec4) * m_positions.size(), GL_STATIC_DRAW);
     m_ssbo->modifyData(0, sizeof(glm::vec4) * m_positions.size(), m_positions.data());
 
-    m_ssboCull->resize(sizeof(glm::ivec4) + sizeof(glm::vec4) * m_positions.size(), GL_DYNAMIC_READ);
-    glm::ivec4 size(0);
-    m_ssboCull->modifyData(0, sizeof(glm::ivec4), &size);
+    m_ssboCull->resize(sizeof(glm::vec4) * m_positions.size(), GL_DYNAMIC_READ);
 }
