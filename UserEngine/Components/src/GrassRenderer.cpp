@@ -50,7 +50,10 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
 
     /*glm::ivec4 currentSize(0);
     m_ssboCull->getData(sizeof(glm::ivec4), &currentSize);*/
-    glDrawElementsInstanced(GL_TRIANGLES, m_verticesData.indices.size(), GL_UNSIGNED_INT, 0, m_positions.size());
+
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
+    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(1), 0);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
     /*glm::vec4 size(0);
     m_ssboCull->modifyData(0, sizeof(glm::vec4), &size);*/
@@ -124,6 +127,15 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
         m_positions.push_back(glm::vec4(x, y, z, 1.0));
     }
+    glGenBuffers(1, &m_indirectId);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
+    m_command.count = static_cast<GLuint>(m_verticesData.indices.size());
+    m_command.instanceCount = m_positions.size();
+    m_command.firstIndex = 0;
+    m_command.baseVertex = 0;
+    m_command.baseInstance = 0;
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(Prisma::DrawElementsIndirectCommand), &m_command, GL_DYNAMIC_DRAW);
+
     m_ssbo->resize(sizeof(glm::vec4) * m_positions.size(), GL_STATIC_DRAW);
     m_ssbo->modifyData(0, sizeof(glm::vec4) * m_positions.size(), m_positions.data());
 
