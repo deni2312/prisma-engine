@@ -11,13 +11,22 @@
 
 class GrassRenderer {
 public:
-    void start(Prisma::Texture heightMap);
+	void start(Prisma::Texture heightMap);
 
-    void renderGrass(glm::mat4 translation);
+	void renderGrass(glm::mat4 translation);
 
-	void generateGrassPoints(float density,float mult,float shift);
+	void generateGrassPoints(float density, float mult, float shift);
 
 private:
+	struct DrawElementsIndirectCommandPadded
+	{
+		unsigned int  count;
+		unsigned int  instanceCount;
+		unsigned int  firstIndex;
+		unsigned int  baseVertex;
+		unsigned int  baseInstance;
+		glm::ivec3 padding;
+	};
 	std::shared_ptr<Prisma::Texture> m_grassSprite = nullptr;
 	Prisma::VAO m_vao;
 	Prisma::Texture m_heightMap;
@@ -32,7 +41,6 @@ private:
 
 	std::shared_ptr<Prisma::SSBO> m_ssbo;
 	std::shared_ptr<Prisma::SSBO> m_ssboCull;
-	std::shared_ptr<Prisma::SSBO> m_ssboInput;
 	std::vector<glm::vec4> m_positions;
 
 	std::vector<glm::mat4> m_spriteModelRotation;
@@ -40,10 +48,6 @@ private:
 	Prisma::Mesh::VerticesData m_verticesData;
 	std::shared_ptr<Prisma::Mesh> m_grassMesh;
 
-	unsigned int m_sizeData;
-
-
-
-	std::vector<Prisma::DrawElementsIndirectCommand> m_command;
+	Prisma::DrawElementsIndirectCommand m_command;
 	unsigned int m_indirectId;
 };

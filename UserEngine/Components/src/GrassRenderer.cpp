@@ -16,21 +16,32 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
     m_modelComputePos = m_cullShader->getUniformPosition("model");
     m_ssbo = std::make_shared<Prisma::SSBO>(15);
     m_ssboCull = std::make_shared<Prisma::SSBO>(16);
-    m_ssboInput = std::make_shared<Prisma::SSBO>(19);
 
     Prisma::SceneLoader sceneLoader;
-    
-    auto grass = sceneLoader.loadScene("../../../Resources/DefaultScene/grass/grass.gltf", {true});
+
+    auto grass = sceneLoader.loadScene("../../../Resources/DefaultScene/grass/grass.gltf", { true });
     m_grassMesh = std::dynamic_pointer_cast<Prisma::Mesh>(grass->root->children()[0]);
     m_verticesData = m_grassMesh->verticesData();
+    m_vao.bind();
+    Prisma::VBO vbo;
+
+    Prisma::EBO ebo;
+
+    vbo.writeData(m_verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex), &m_verticesData.vertices[0], GL_DYNAMIC_DRAW);
+    ebo.writeData(m_verticesData.indices.size() * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
+
+    m_vao.addAttribPointer(0, 3, sizeof(Prisma::Mesh::Vertex), (void*)0);
+    m_vao.addAttribPointer(1, 3, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
+    m_vao.addAttribPointer(2, 2, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
+    m_vao.resetVao();
 }
 
 void GrassRenderer::renderGrass(glm::mat4 translation) {
     m_cullShader->use();
     m_cullShader->setMat4(m_modelComputePos, translation);
     unsigned int sizeCluster = 8;
-    unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size()/(sizeCluster * sizeCluster)));
-    m_cullShader->dispatchCompute({ sizePositions,sizePositions,1});
+    unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size() / (sizeCluster * sizeCluster)));
+    m_cullShader->dispatchCompute({ sizePositions,sizePositions,1 });
     m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT);
     m_vao.bind();
     m_spriteShader->use();
@@ -38,9 +49,7 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
     m_spriteShader->setMat4(m_spriteModelPos, translation * m_grassMesh->finalMatrix());
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
-    glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_sizeData);
-    glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
-    glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, NULL, 0, m_command.size(), 0);
+    glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(1), 0);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
 }
@@ -113,73 +122,19 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
         m_positions.push_back(glm::vec4(x, y, z, 1.0));
     }
-
-    m_vao.bind();
-    Prisma::VBO vbo;
-
-    Prisma::EBO ebo;
-
-    std::vector<Prisma::Mesh::Vertex> verticesVao;
-    std::vector<unsigned int> indicesVao;
-
-    for (const auto& mesh : m_positions)
-    {
-        for (auto v : m_verticesData.vertices) {
-            verticesVao.push_back(v);
-        }
-        for (auto v : m_verticesData.indices) {
-            indicesVao.push_back(v);
-        }
-    }
-
-    vbo.writeData(verticesVao.size() * sizeof(Prisma::Mesh::Vertex), &verticesVao[0], GL_DYNAMIC_DRAW);
-    ebo.writeData(indicesVao.size() * sizeof(unsigned int), &indicesVao[0], GL_DYNAMIC_DRAW);
-
-    m_vao.addAttribPointer(0, 3, sizeof(Prisma::Mesh::Vertex), (void*)0);
-    m_vao.addAttribPointer(1, 3, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
-    m_vao.addAttribPointer(2, 2, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
-    m_vao.resetVao();
-
-
-    unsigned int currentIndex = 0;
-    unsigned int currentVertex = 0;
-    const auto& indices = m_verticesData.indices;
-    const auto& vertices = m_verticesData.vertices;
-    for (const auto& mesh : m_positions)
-    {
-        Prisma::DrawElementsIndirectCommand command{};
-        command.count = static_cast<GLuint>(indices.size());
-        command.instanceCount = 1;
-        command.firstIndex = currentIndex;
-        command.baseVertex = currentVertex;
-        command.baseInstance = 0;
-
-        m_command.push_back(command);
-        currentIndex = currentIndex + indices.size();
-        currentVertex = currentVertex + vertices.size();
-    }
-
     glGenBuffers(1, &m_indirectId);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
+    m_command.count = static_cast<GLuint>(m_verticesData.indices.size());
+    m_command.instanceCount = m_positions.size();
+    m_command.firstIndex = 0;
+    m_command.baseVertex = 0;
+    m_command.baseInstance = 0;
     glBindBuffer(GL_ARRAY_BUFFER, m_indirectId);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, m_indirectId);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(Prisma::DrawElementsIndirectCommand) * m_command.size(), NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-
-    unsigned int numData = 0;
-    glGenBuffers(1, &m_sizeData);
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_sizeData);
-    glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, m_sizeData, 0, sizeof(unsigned int));
-    glBufferData(GL_ATOMIC_COUNTER_BUFFER,sizeof(unsigned int),NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(Prisma::DrawElementsIndirectCommand), &m_command, GL_DYNAMIC_DRAW);
 
     m_ssbo->resize(sizeof(glm::vec4) * m_positions.size(), GL_STATIC_DRAW);
     m_ssbo->modifyData(0, sizeof(glm::vec4) * m_positions.size(), m_positions.data());
 
     m_ssboCull->resize(sizeof(glm::vec4) * m_positions.size(), GL_DYNAMIC_READ);
-
-
-    m_ssboInput->resize(sizeof(Prisma::DrawElementsIndirectCommand) * m_command.size(), GL_STATIC_DRAW);
-    m_ssboInput->modifyData(0, sizeof(Prisma::DrawElementsIndirectCommand) * m_command.size(), m_command.data());
 }
