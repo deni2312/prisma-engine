@@ -41,7 +41,7 @@ private:
 
 	std::shared_ptr<Prisma::SSBO> m_ssbo;
 	std::shared_ptr<Prisma::SSBO> m_ssboCull;
-	std::vector<glm::vec4> m_positions;
+	std::vector<glm::mat4> m_positions;
 
 	std::vector<glm::mat4> m_spriteModelRotation;
 	std::vector<Prisma::Mesh::Vertex> m_grassVertices;

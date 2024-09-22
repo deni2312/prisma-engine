@@ -127,7 +127,8 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
         float y = m_grassVertices[vertexIndex].position.y;
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
-        m_positions.push_back(glm::vec4(x, y, z,dis(gen)));
+        glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(x, y, z));
+        m_positions.push_back(position);
     }
     glGenBuffers(1, &m_indirectId);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
@@ -140,8 +141,8 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, m_indirectId);
     glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(Prisma::DrawElementsIndirectCommand), &m_command, GL_DYNAMIC_DRAW);
 
-    m_ssbo->resize(sizeof(glm::vec4) * m_positions.size(), GL_STATIC_DRAW);
-    m_ssbo->modifyData(0, sizeof(glm::vec4) * m_positions.size(), m_positions.data());
+    m_ssbo->resize(sizeof(glm::mat4) * m_positions.size(), GL_STATIC_DRAW);
+    m_ssbo->modifyData(0, sizeof(glm::mat4) * m_positions.size(), m_positions.data());
 
-    m_ssboCull->resize(sizeof(glm::vec4) * m_positions.size(), GL_DYNAMIC_READ);
+    m_ssboCull->resize(sizeof(glm::mat4) * m_positions.size(), GL_DYNAMIC_READ);
 }
