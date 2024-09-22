@@ -15,18 +15,7 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Plane",
-            "rotation" : [
-                0.7071068286895752,
-                0,
-                0,
-                0.7071068286895752
-            ],
-            "scale" : [
-                0.00404671486467123,
-                0.00404671486467123,
-                0.00404671486467123
-            ]
+            "name" : "Plane"
         }
     ],
     "meshes" : [
@@ -37,9 +26,10 @@
                     "attributes" : {
                         "POSITION" : 0,
                         "NORMAL" : 1,
-                        "TEXCOORD_0" : 2
+                        "TANGENT" : 2,
+                        "TEXCOORD_0" : 3
                     },
-                    "indices" : 3
+                    "indices" : 4
                 }
             ]
         }
@@ -48,33 +38,39 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 16,
+            "count" : 30,
             "max" : [
-                2.5136804580688477,
-                0,
-                1
+                0.010172148235142231,
+                0.17938506603240967,
+                2.4101968421064157e-08
             ],
             "min" : [
-                -1.8770618438720703,
-                0,
-                -44.32855987548828
+                -0.007595933973789215,
+                -0.004046715330332518,
+                -5.437119643403321e-10
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 16,
+            "count" : 30,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 16,
-            "type" : "VEC2"
+            "count" : 30,
+            "type" : "VEC4"
         },
         {
             "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 30,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 4,
             "componentType" : 5123,
             "count" : 30,
             "type" : "SCALAR"
@@ -83,32 +79,38 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 192,
+            "byteLength" : 360,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 192,
-            "byteOffset" : 192,
+            "byteLength" : 360,
+            "byteOffset" : 360,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 128,
-            "byteOffset" : 384,
+            "byteLength" : 480,
+            "byteOffset" : 720,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 240,
+            "byteOffset" : 1200,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 60,
-            "byteOffset" : 512,
+            "byteOffset" : 1440,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 572,
+            "byteLength" : 1500,
             "uri" : "grass.bin"
         }
     ]
