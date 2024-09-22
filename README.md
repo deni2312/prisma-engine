@@ -28,6 +28,9 @@ Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 
 - **Bloom**
 - **Postprocessing effects**
 - **Particle effects**
+- **Volumetric Clouds**
+- **Heightmap landscapes**
+- **Grass optimized by frustum culling**
 - **Editor:**
     - **Run/Debug modes**
     - **Transform Modifier**
@@ -58,9 +61,11 @@ cd ..
   ```
 3. Open the project with visual studio
 
+4. Open Tools -> Options -> Vcpkg then change the vcpkg directory to the path of vcpkg executable
+
 5. Click on main.cpp and run the default scene
 
-6. (Optionally) In  `configuration\settings.json` file you can change some settings like width, height and camera options.
+6. (Optionally) In  `configuration\settings.json` file you can change some settings like width, height and name of the window.
 
 ## Demos
 
