@@ -128,7 +128,17 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         float y = m_grassVertices[vertexIndex].position.y;
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
         glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(x, y, z));
-        m_positions.push_back(position);
+        // Generate a random rotation angle between 0 and 360 degrees (mapped from 0 to 1)
+        float randomAngle = dis(gen) * 360.0f;
+
+        // Create a rotation matrix around the Y-axis using the random angle
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(randomAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        // Combine translation and rotation into the final transformation matrix
+        glm::mat4 finalTransform = position * rotation;
+
+        // Store the transformation matrix in the m_positions array
+        m_positions.push_back(finalTransform);
     }
     glGenBuffers(1, &m_indirectId);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
