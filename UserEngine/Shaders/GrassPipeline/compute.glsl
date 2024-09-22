@@ -51,7 +51,7 @@ void main()
         return;
 
     // Transform the grass position from world space to clip space
-    vec4 worldPos = grassPositions[idx];
+    vec4 worldPos = vec4(grassPositions[idx].xyz,1.0);
 
     // Convert to clip space (projection * view * world)
     vec4 clipSpacePos = projection * view * model * worldPos;
@@ -65,6 +65,6 @@ void main()
         uint culledIdx = atomicAdd(instanceCount, 1);
 
         // Store the culled instance in the culled buffer
-        grassCull[culledIdx] = worldPos;
+        grassCull[culledIdx] = grassPositions[idx];
     }
 }

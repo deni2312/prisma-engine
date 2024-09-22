@@ -1,4 +1,5 @@
 #include "../include/GrassRenderer.h"
+#include <random>
 
 void GrassRenderer::start(Prisma::Texture heightMap) {
     m_heightMap = heightMap;
@@ -98,8 +99,14 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
 
     // The density determines how many grass points to generate
     int numPoints = static_cast<int>(density * width * height);
-    int vertexStride = 3;
 
+    // Create a random device to seed the generator
+    std::random_device rd;
+
+    // Initialize a Mersenne Twister random number generator
+    std::mt19937 gen(rd());
+    // Create a distribution that generates floats between 0 and 1
+    std::uniform_real_distribution<> dis(0.0, 1.0);
 
     for (int i = 0; i < numPoints; ++i)
     {
@@ -120,7 +127,7 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
         float y = m_grassVertices[vertexIndex].position.y;
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
-        m_positions.push_back(glm::vec4(x, y, z, 1.0));
+        m_positions.push_back(glm::vec4(x, y, z,dis(gen)));
     }
     glGenBuffers(1, &m_indirectId);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
