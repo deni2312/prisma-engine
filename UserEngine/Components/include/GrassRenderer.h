@@ -37,7 +37,7 @@ private:
 	unsigned int m_spriteModelPos;
 
 	unsigned int m_modelComputePos;
-
+	unsigned int m_percentPos;
 
 	std::shared_ptr<Prisma::SSBO> m_ssbo;
 	std::shared_ptr<Prisma::SSBO> m_ssboCull;
@@ -50,4 +50,6 @@ private:
 
 	Prisma::DrawElementsIndirectCommand m_command;
 	unsigned int m_indirectId;
+
+	float m_percentValue;
 };

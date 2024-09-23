@@ -22,6 +22,8 @@ layout(std140, binding = 1) uniform MeshData
 
 uniform mat4 model;
 
+uniform float percent;
+
 void main()
 {
     TexCoords = aTexCoords;
@@ -30,7 +32,9 @@ void main()
 
     mat3 normalMatrix = mat3(transpose(inverse(mat3(grassModel))));
 
-    color = normalMatrix * aPos;
+    vec3 currentPercent = vec3(0, (aPos.y / percent) / 100, 0);
+
+    color = normalMatrix * currentPercent;
 
     gl_Position = projection * view * grassModel * vec4(aPos, 1.0);
 }

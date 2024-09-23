@@ -1,5 +1,6 @@
 #include "../include/GrassRenderer.h"
 #include <random>
+#include <glm/gtx/string_cast.hpp>
 
 void GrassRenderer::start(Prisma::Texture heightMap) {
     m_heightMap = heightMap;
@@ -10,6 +11,7 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
     m_spriteShader->use();
     m_spritePos = m_spriteShader->getUniformPosition("grassSprite");
     m_spriteModelPos = m_spriteShader->getUniformPosition("model");
+    m_percentPos = m_spriteShader->getUniformPosition("percent");
     for (int i = 0; i < 4; i++) {
         m_spriteModelRotation.push_back(glm::rotate(glm::mat4(1.0), glm::radians(45.0f * i), glm::vec3(0, 1, 0)));
     }
@@ -23,6 +25,17 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
     auto grass = sceneLoader.loadScene("../../../Resources/DefaultScene/grass/grass.gltf", { true });
     m_grassMesh = std::dynamic_pointer_cast<Prisma::Mesh>(grass->root->children()[0]);
     m_verticesData = m_grassMesh->verticesData();
+
+    float yMax = m_verticesData.vertices[0].position.y;
+
+    for (const auto& v : m_verticesData.vertices) {
+        std::cout << glm::to_string(v.position) << std::endl;
+        if (v.position.y > yMax) {
+            yMax = v.position.y;
+        }
+    }
+    m_percentValue = yMax / 100.0;
+
     m_vao.bind();
     Prisma::VBO vbo;
 
@@ -48,6 +61,7 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
     m_spriteShader->setMat4(m_spriteModelPos, translation * m_grassMesh->finalMatrix());
+    m_spriteShader->setFloat(m_percentPos, m_percentValue);
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(1), 0);
