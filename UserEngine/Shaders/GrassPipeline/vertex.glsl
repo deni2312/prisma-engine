@@ -5,7 +5,7 @@ layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 aTexCoords;
 
 out vec2 TexCoords;
-out vec3 Normal;
+out vec3 color;
 
 // Output: Culled grass positions and size
 layout(std430, binding = 16) buffer GrassCull
@@ -30,7 +30,7 @@ void main()
 
     mat3 normalMatrix = mat3(transpose(inverse(mat3(grassModel))));
 
-    Normal = normalMatrix * aPos;
+    color = normalMatrix * aPos;
 
     gl_Position = projection * view * grassModel * vec4(aPos, 1.0);
 }
