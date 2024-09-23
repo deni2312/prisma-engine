@@ -30,7 +30,7 @@ void main()
 
     mat3 normalMatrix = mat3(transpose(inverse(mat3(grassModel))));
 
-    Normal = normalMatrix * normal;
+    Normal = normalMatrix * aPos;
 
     gl_Position = projection * view * grassModel * vec4(aPos, 1.0);
 }

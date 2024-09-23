@@ -43,7 +43,7 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
     unsigned int sizeCluster = 8;
     unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size() / (sizeCluster * sizeCluster)));
     m_cullShader->dispatchCompute({ sizePositions,sizePositions,1 });
-    m_cullShader->wait(GL_SHADER_STORAGE_BARRIER_BIT);
+    m_cullShader->wait(GL_COMMAND_BARRIER_BIT);
     m_vao.bind();
     m_spriteShader->use();
     m_spriteShader->setInt64(m_spritePos, m_grassSprite->id());
