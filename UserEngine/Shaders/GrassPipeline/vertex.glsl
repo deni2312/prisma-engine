@@ -1,9 +1,11 @@
 #version 460 core
 
 layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec2 aTexCoords;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 aTexCoords;
 
 out vec2 TexCoords;
+out vec3 Normal;
 
 // Output: Culled grass positions and size
 layout(std430, binding = 16) buffer GrassCull
@@ -24,5 +26,11 @@ void main()
 {
     TexCoords = aTexCoords;
 
-    gl_Position = projection * view * grassCull[gl_InstanceID] * model * vec4(aPos, 1.0);
+    mat4 grassModel = grassCull[gl_InstanceID] * model;
+
+    mat3 normalMatrix = mat3(transpose(inverse(mat3(grassModel))));
+
+    Normal = normalMatrix * normal;
+
+    gl_Position = projection * view * grassModel * vec4(aPos, 1.0);
 }
