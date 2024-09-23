@@ -134,8 +134,10 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         // Create a rotation matrix around the Y-axis using the random angle
         glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(randomAngle), glm::vec3(0.0f, 1.0f, 0.0f));
 
+        glm::mat4 scale = glm::scale(glm::mat4(1.0), glm::vec3(dis(gen)));
+
         // Combine translation and rotation into the final transformation matrix
-        glm::mat4 finalTransform = position * rotation;
+        glm::mat4 finalTransform = position * rotation * scale;
 
         // Store the transformation matrix in the m_positions array
         m_positions.push_back(finalTransform);
