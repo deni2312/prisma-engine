@@ -14,9 +14,6 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
     m_percentPos = m_spriteShader->getUniformPosition("percent");
     m_timePos = m_spriteShader->getUniformPosition("time");
     m_startPoint = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 4; i++) {
-        m_spriteModelRotation.push_back(glm::rotate(glm::mat4(1.0), glm::radians(45.0f * i), glm::vec3(0, 1, 0)));
-    }
     m_cullShader->use();
     m_modelComputePos = m_cullShader->getUniformPosition("model");
     m_ssbo = std::make_shared<Prisma::SSBO>(15);
@@ -161,8 +158,10 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         // Combine translation and rotation into the final transformation matrix
         glm::mat4 finalTransform = position * rotation * scale;
 
+        glm::mat4 direction(1.0);
+        direction[0] = glm::vec4(1, 0, 0, 1);
         // Store the transformation matrix in the m_positions array
-        m_positions.push_back(finalTransform);
+        m_positions.push_back({direction,finalTransform});
     }
     glGenBuffers(1, &m_indirectId);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
@@ -175,8 +174,8 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, m_indirectId);
     glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(Prisma::DrawElementsIndirectCommand), &m_command, GL_DYNAMIC_DRAW);
 
-    m_ssbo->resize(sizeof(glm::mat4) * m_positions.size(), GL_STATIC_DRAW);
-    m_ssbo->modifyData(0, sizeof(glm::mat4) * m_positions.size(), m_positions.data());
+    m_ssbo->resize(sizeof(GrassPosition) * m_positions.size(), GL_STATIC_DRAW);
+    m_ssbo->modifyData(0, sizeof(GrassPosition) * m_positions.size(), m_positions.data());
 
-    m_ssboCull->resize(sizeof(glm::mat4) * m_positions.size(), GL_DYNAMIC_READ);
+    m_ssboCull->resize(sizeof(GrassPosition) * m_positions.size(), GL_DYNAMIC_READ);
 }

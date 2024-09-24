@@ -28,6 +28,11 @@ private:
 		unsigned int  baseInstance;
 		glm::ivec3 padding;
 	};
+
+	struct GrassPosition {
+		glm::mat4 direction;
+		glm::mat4 position;
+	};
 	std::shared_ptr<Prisma::Texture> m_grassSprite = nullptr;
 	Prisma::VAO m_vao;
 	Prisma::Texture m_heightMap;
@@ -42,9 +47,8 @@ private:
 
 	std::shared_ptr<Prisma::SSBO> m_ssbo;
 	std::shared_ptr<Prisma::SSBO> m_ssboCull;
-	std::vector<glm::mat4> m_positions;
+	std::vector<GrassPosition> m_positions;
 
-	std::vector<glm::mat4> m_spriteModelRotation;
 	std::vector<Prisma::Mesh::Vertex> m_grassVertices;
 	Prisma::Mesh::VerticesData m_verticesData;
 	std::shared_ptr<Prisma::Mesh> m_grassMesh;

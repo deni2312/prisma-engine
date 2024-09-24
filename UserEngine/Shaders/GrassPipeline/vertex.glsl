@@ -7,10 +7,15 @@ layout(location = 2) in vec2 aTexCoords;    // Texture coordinates
 out vec2 TexCoords;
 out vec3 color;
 
+struct GrassPosition {
+    mat4 direction;
+    mat4 position;
+};
+
 // Output: Culled grass positions and size
 layout(std430, binding = 16) buffer GrassCull
 {
-    mat4 grassCull[];        // Positions of culled instances
+    GrassPosition grassCull[];        // Positions of culled instances
 };
 
 layout(std140, binding = 1) uniform MeshData
@@ -28,7 +33,7 @@ void main()
     TexCoords = aTexCoords;
 
     // Fetch the current model matrix for this instance of grass
-    mat4 grassModel = grassCull[gl_InstanceID] * model;
+    mat4 grassModel = grassCull[gl_InstanceID].position * model;
 
     // Calculate the normal matrix for shading
     mat3 normalMatrix = mat3(transpose(inverse(mat3(grassModel))));

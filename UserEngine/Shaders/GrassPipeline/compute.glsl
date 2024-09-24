@@ -1,16 +1,21 @@
 ﻿#version 460 core
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
+struct GrassPosition {
+    mat4 direction;
+    mat4 position;
+};
+
 // Input: Grass positions (world space)
 layout(std430, binding = 15) buffer GrassPositions
 {
-    mat4 grassPositions[];  // Positions of grass instances in world space
+    GrassPosition grassPositions[];  // Positions of grass instances in world space
 };
 
 // Output: Culled grass positions and size
 layout(std430, binding = 16) buffer GrassCull
 {
-    mat4 grassCull[];        // Positions of culled instances
+    GrassPosition grassCull[];        // Positions of culled instances
 };
 
 layout(std430, binding = 17) buffer DrawElementsIndirect
@@ -51,7 +56,7 @@ void main()
         return;
 
     // Transform the grass position from world space to clip space
-    vec4 worldPos = vec4(grassPositions[idx][3].xyz, 1.0);
+    vec4 worldPos = vec4(grassPositions[idx].position[3].xyz, 1.0);
 
     // Convert to clip space (projection * view * world)
     vec4 clipSpacePos = projection * view * model * worldPos;
