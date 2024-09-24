@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include "../../../Engine/include/Helpers/PrismaRender.h"
+#include <chrono>
 
 
 class GrassRenderer {
@@ -52,4 +53,7 @@ private:
 	unsigned int m_indirectId;
 
 	float m_percentValue;
+	float m_timePos;
+
+	std::chrono::steady_clock::time_point m_startPoint;
 };
