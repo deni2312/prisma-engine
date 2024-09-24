@@ -39,7 +39,6 @@ void main()
     float windFrequency = 3.0;    // Frequency of the wind's sway
 
     // Height-based influence: Scale the wind influence by height (y-coordinate)
-    // The base (y = 0) should not move, while the tip (higher y values) should sway more.
     float heightFactor = clamp(aPos.y, 0.0, 1.0);  // Values between 0 and 1 (base to tip)
 
     // Sway based on position, time, and heightFactor
@@ -52,9 +51,16 @@ void main()
     // Adjust the grass position by the windOffset
     vec3 swayedPos = aPos + windOffset;
 
-    // Calculate percent-based color variation (for visual feedback)
+    // Color adjustment: Darker at base, more saturated at the top
+    vec3 baseColor = vec3(0.1, 0.4, 0.1);  // Darker, less saturated green at the base
+    vec3 topColor = vec3(0.2, 0.8, 0.2);   // Brighter, more saturated green at the top
+
+    // Interpolate the color based on heightFactor (smooth transition from base to tip)
+    vec3 grassColor = mix(baseColor, topColor, heightFactor);
+
+    // For lighting/shading effects (based on normals and currentPercent)
     vec3 currentPercent = vec3(0, (swayedPos.y / percent) / 100, 0);
-    color = normalMatrix * currentPercent;
+    color = normalMatrix * currentPercent * grassColor;
 
     // Apply view, projection, and model matrices to get the final position
     gl_Position = projection * view * grassModel * vec4(swayedPos, 1.0);
