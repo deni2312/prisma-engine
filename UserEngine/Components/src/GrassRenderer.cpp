@@ -158,8 +158,7 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         // Combine translation and rotation into the final transformation matrix
         glm::mat4 finalTransform = position * rotation * scale;
 
-        glm::mat4 direction(1.0);
-        direction[0] = glm::vec4(1, 0, 0, 1);
+        glm::mat4 direction = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         // Store the transformation matrix in the m_positions array
         m_positions.push_back({direction,finalTransform});
     }

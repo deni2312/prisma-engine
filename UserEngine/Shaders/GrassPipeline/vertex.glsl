@@ -32,11 +32,13 @@ void main()
 {
     TexCoords = aTexCoords;
 
+    mat4 currentModel = grassCull[gl_InstanceID].position * model;
+
     // Fetch the current model matrix for this instance of grass
-    mat4 grassModel = grassCull[gl_InstanceID].position * model;
+    vec4 grassModel = currentModel * vec4(aPos, 1.0);
 
     // Calculate the normal matrix for shading
-    mat3 normalMatrix = mat3(transpose(inverse(mat3(grassModel))));
+    mat3 normalMatrix = mat3(transpose(inverse(mat3(currentModel))));
 
     // Wind effect: Apply a sinusoidal oscillation based on time and position
     float windStrength = 0.2;     // Control the strength of the wind effect
@@ -44,17 +46,17 @@ void main()
     float windFrequency = 3.0;    // Frequency of the wind's sway
 
     // Height-based influence: Scale the wind influence by height (y-coordinate)
-    float heightFactor = clamp(aPos.y, 0.0, 1.0);  // Values between 0 and 1 (base to tip)
+    float heightFactor = clamp(grassModel.y, 0.0, 1.0);  // Values between 0 and 1 (base to tip)
 
     // Sway based on position, time, and heightFactor
     vec3 windOffset = vec3(
-        sin(aPos.y * windFrequency + time * windSpeed) * windStrength * heightFactor,
+        sin(grassModel.y * windFrequency + time * windSpeed) * windStrength * heightFactor,
         0.0,
-        cos(aPos.y * windFrequency + time * windSpeed) * windStrength * heightFactor
+        cos(grassModel.y * windFrequency + time * windSpeed) * windStrength * heightFactor
     );
 
     // Adjust the grass position by the windOffset
-    vec3 swayedPos = aPos + windOffset;
+    grassModel = grassModel + vec4(windOffset,0.0);
 
     // Color adjustment: Darker at base, more saturated at the top
     vec3 baseColor = vec3(0.1, 0.4, 0.1);  // Darker, less saturated green at the base
@@ -64,9 +66,9 @@ void main()
     vec3 grassColor = mix(baseColor, topColor, heightFactor);
 
     // For lighting/shading effects (based on normals and currentPercent)
-    vec3 currentPercent = vec3(0, (swayedPos.y / percent) / 100, 0);
+    vec3 currentPercent = vec3(0, (aPos.y / percent ) / 100, 0);
     color = normalMatrix * currentPercent * grassColor;
 
     // Apply view, projection, and model matrices to get the final position
-    gl_Position = projection * view * grassModel * vec4(swayedPos, 1.0);
+    gl_Position = projection * view * grassModel;
 }
