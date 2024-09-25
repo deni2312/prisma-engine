@@ -46,7 +46,7 @@ void main()
     float windFrequency = 3.0;    // Frequency of the wind's sway
 
     // Height-based influence: Scale the wind influence by height (y-coordinate)
-    float heightFactor = clamp(grassModel.y, 0.0, 1.0);  // Values between 0 and 1 (base to tip)
+    float heightFactor = clamp(aPos.y, 0.0, 1.0);  // Values between 0 and 1 (base to tip)
 
     // Sway based on position, time, and heightFactor
     vec3 windOffset = vec3(
