@@ -32,7 +32,7 @@ void main()
 {
     TexCoords = aTexCoords;
 
-    mat4 currentModel = grassCull[gl_InstanceID].position * model;
+    mat4 currentModel = model* grassCull[gl_InstanceID].position;
 
     // Fetch the current model matrix for this instance of grass
     vec4 grassModel = currentModel * vec4(aPos, 1.0);
@@ -54,7 +54,7 @@ void main()
     );
 
     // Adjust the grass position by the windOffset
-    grassModel = grassModel + vec4(windOffset,0.0);
+    //grassModel = grassModel + vec4(windOffset,0.0);
 
     // For lighting/shading effects (based on normals and currentPercent)
     color = vec3(0.01, 0.5*(aPos.y / percent ) / 100, 0.01);
