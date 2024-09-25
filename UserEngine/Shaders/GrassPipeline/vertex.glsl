@@ -37,8 +37,6 @@ void main()
     // Fetch the current model matrix for this instance of grass
     vec4 grassModel = currentModel * vec4(aPos, 1.0);
 
-    // Calculate the normal matrix for shading
-    mat3 normalMatrix = mat3(transpose(inverse(mat3(currentModel))));
 
     // Wind effect: Apply a sinusoidal oscillation based on time and position
     float windStrength = 0.2;     // Control the strength of the wind effect
@@ -58,16 +56,8 @@ void main()
     // Adjust the grass position by the windOffset
     grassModel = grassModel + vec4(windOffset,0.0);
 
-    // Color adjustment: Darker at base, more saturated at the top
-    vec3 baseColor = vec3(0.1, 0.4, 0.1);  // Darker, less saturated green at the base
-    vec3 topColor = vec3(0.2, 0.8, 0.2);   // Brighter, more saturated green at the top
-
-    // Interpolate the color based on heightFactor (smooth transition from base to tip)
-    vec3 grassColor = mix(baseColor, topColor, heightFactor);
-
     // For lighting/shading effects (based on normals and currentPercent)
-    vec3 currentPercent = vec3(0, (aPos.y / percent ) / 100, 0);
-    color = normalMatrix * currentPercent * grassColor;
+    color = vec3(0.01, 0.5*(aPos.y / percent ) / 100, 0.01);
 
     // Apply view, projection, and model matrices to get the final position
     gl_Position = projection * view * grassModel;
