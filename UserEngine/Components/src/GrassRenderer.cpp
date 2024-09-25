@@ -79,12 +79,12 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
     int height = m_heightMap.data().height;
     unsigned bytePerPixel = m_heightMap.data().nrComponents;
 
-    auto getHeightAt = [&](int x, int z) -> float {
-        if (x < 0 || x >= width || z < 0 || z >= height)
+    auto getHeightAt = [&](int i, int j) -> float {
+        if (j < 0 || j >= width || i < 0 || i >= height)
             return 0.0f;  // Handle out-of-bound cases
-        unsigned char* pixelOffset = m_heightMap.data().dataContent + (z + width * x) * bytePerPixel;
+        unsigned char* pixelOffset = m_heightMap.data().dataContent + (j + width * i) * bytePerPixel;
         unsigned char y = pixelOffset[0];
-        return (float)(y * mult - shift) / 256.0;
+        return (float)(y * mult / 256.0 - shift);
     };
 
     for (int i = 0; i < height; i++)
@@ -104,9 +104,9 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
 
             // Create the vertex
             Prisma::Mesh::Vertex vertex;
-            vertex.position.x = -height / 2.0f + height * i / (float)height;
+            vertex.position.x = -width / 2.0f + j;
             vertex.position.y = getHeightAt(i, j);
-            vertex.position.z = -width / 2.0f + width * j / (float)width;
+            vertex.position.z = -height / 2.0f + i;
             vertex.normal = normal;  // Assign the calculated normal to the vertex
 
             // Store the vertex
@@ -134,8 +134,8 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         float z = -height / 2.0f + (rand() / (float)RAND_MAX) * height;
 
         // Find the corresponding vertex position on the terrain
-        int gridX = static_cast<int>((x + width / 2.0f) / width * width);
-        int gridZ = static_cast<int>((z + height / 2.0f) / height * height);
+        int gridX = x + width / 2.0f;
+        int gridZ = z + height / 2.0f;
 
         // Ensure we are within the bounds
         if (gridX >= width) gridX = width - 1;
@@ -144,9 +144,9 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
         // Get the index of the corresponding vertex
         int vertexIndex = gridZ * width + gridX;
         // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
-        float y = m_grassVertices[vertexIndex].position.y;
+        auto currentPosition = m_grassVertices[vertexIndex].position;
         auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
-        glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(x, y, z));
+        glm::mat4 position = glm::translate(glm::mat4(1.0), currentPosition);
         // Generate a random rotation angle between 0 and 360 degrees (mapped from 0 to 1)
         float randomAngle = dis(gen) * 360.0f;
 
