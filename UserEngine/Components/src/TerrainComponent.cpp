@@ -182,7 +182,7 @@ void Prisma::TerrainComponent::generatePhysics()
             Prisma::Mesh::Vertex v;
 
             // Create a vertex at (x, heightValue, y)
-            v.position = { -width / 2.0f + width * x / (float)width, heightValue, -height / 2.0f + height * y / (float)height };
+            v.position = { -height / 2.0f + height * y / (float)height, heightValue, -width / 2.0f + width * x / (float)width };
 
             // Initialize normal to zero, will be calculated later
             v.normal = { 0.0f, 0.0f, 0.0f };
