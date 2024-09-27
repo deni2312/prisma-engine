@@ -113,7 +113,7 @@ void Prisma::TerrainComponent::start()
     m_snowRoughnessPos = m_shader->getUniformPosition("snowRoughness");
     m_grassRenderer.start(m_heightMap);
     generateCpu();
-    std::vector<float> vertices;
+    std::vector<Prisma::Mesh::Vertex> vertices;
     int rez = 1;
     int width = m_heightMap.data().width;
     int height = m_heightMap.data().height;
@@ -124,11 +124,11 @@ void Prisma::TerrainComponent::start()
         {
             unsigned char* pixelOffset = m_heightMap.data().dataContent + (j + width * i) * bytePerPixel;
             unsigned char y = pixelOffset[0];
-
-            // vertex
-            vertices.push_back(-height / 2.0f + height * i / (float)height);   // vx
-            vertices.push_back((int)y * m_mult/256.0-m_shift);   // vy
-            vertices.push_back(-width / 2.0f + width * j / (float)width);   // vz
+            Prisma::Mesh::Vertex v;
+            v.position.x = -height / 2.0f + height * i / (float)height;
+            v.position.y = (int)y * m_mult / 256.0 - m_shift;
+            v.position.z = -width / 2.0f + width * j / (float)width;
+            vertices.push_back(v);
         }
     }
 
@@ -150,10 +150,12 @@ void Prisma::TerrainComponent::start()
     m_vao.bind();
     Prisma::VBO vbo;
     Prisma::EBO ebo;
-    vbo.writeData(sizeof(float) * vertices.size(), vertices.data());
+    vbo.writeData(vertices.size() * sizeof(Prisma::Mesh::Vertex), &vertices[0]);
     ebo.writeData(sizeof(unsigned int) * indices.size(), indices.data());
     // link vertex attributes
-    m_vao.addAttribPointer(0, 3, 3 * sizeof(float), (void*)0);
+    m_vao.addAttribPointer(0, 3, sizeof(Prisma::Mesh::Vertex), (void*)0);
+    m_vao.addAttribPointer(1, 3, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
+    m_vao.addAttribPointer(2, 2, sizeof(Prisma::Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
 }
 
 void Prisma::TerrainComponent::heightMap(Prisma::Texture heightMap) {
