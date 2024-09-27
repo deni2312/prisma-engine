@@ -75,93 +75,37 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
 }
 
 void GrassRenderer::generateGrassPoints(float density, float mult, float shift) {
+    int rez = 1;
     int width = m_heightMap.data().width;
     int height = m_heightMap.data().height;
     unsigned bytePerPixel = m_heightMap.data().nrComponents;
-
-    auto getHeightAt = [&](int i, int j) -> float {
-        if (j < 0 || j >= width || i < 0 || i >= height)
-            return 0.0f;  // Handle out-of-bound cases
-        unsigned char* pixelOffset = m_heightMap.data().dataContent + (j + width * i) * bytePerPixel;
-        unsigned char y = pixelOffset[0];
-        return (float)(y * mult / 256.0 - shift);
-    };
-
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            // Get the height of the current vertex and its neighbors
-            float heightL = getHeightAt(i - 1, j);  // Left
-            float heightR = getHeightAt(i + 1, j);  // Right
-            float heightD = getHeightAt(i, j - 1);  // Down
-            float heightU = getHeightAt(i, j + 1);  // Up
-            glm::vec3 tangent = glm::vec3(2.0, heightR - heightL, 0.0);
-            glm::vec3 bitangent = glm::vec3(0.0, heightD - heightU, 2.0);
-
-            // Calculate the normal using the formula
-            glm::vec3 normal = glm::cross(tangent, bitangent);
+            unsigned char* pixelOffset = m_heightMap.data().dataContent + (j + width * i) * bytePerPixel;
+            unsigned char y = pixelOffset[0];
 
             // Create the vertex
             Prisma::Mesh::Vertex vertex;
-            vertex.position.x = -width / 2.0f + j;
-            vertex.position.y = getHeightAt(i, j);
-            vertex.position.z = -height / 2.0f + i;
-            vertex.normal = normal;  // Assign the calculated normal to the vertex
+            vertex.position.x = -height / 2.0f + height * i / (float)height;
+            vertex.position.y = (int)y * mult / 256.0 - shift;
+            vertex.position.z = -width / 2.0f + width * j / (float)width;
 
             // Store the vertex
             m_grassVertices.push_back(vertex);
+            // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
+            glm::mat4 position = glm::translate(glm::mat4(1.0), vertex.position);
+
+            // Combine translation and rotation into the final transformation matrix
+            glm::mat4 finalTransform = position;
+
+            glm::mat4 direction = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            // Store the transformation matrix in the m_positions array
+            m_positions.push_back({ direction,finalTransform });
         }
     }
-    // Set seed for random number generation
-    srand(static_cast<unsigned int>(time(0)));
 
-    // The density determines how many grass points to generate
-    int numPoints = static_cast<int>(density * width * height);
-
-    // Create a random device to seed the generator
-    std::random_device rd;
-
-    // Initialize a Mersenne Twister random number generator
-    std::mt19937 gen(rd());
-    // Create a distribution that generates floats between 0 and 1
-    std::uniform_real_distribution<> dis(0.0, 1.0);
-
-    for (int i = 0; i < numPoints; ++i)
-    {
-        // Generate random x, z positions within the terrain range
-        float x = -width / 2.0f + (rand() / (float)RAND_MAX) * width;
-        float z = -height / 2.0f + (rand() / (float)RAND_MAX) * height;
-
-        // Find the corresponding vertex position on the terrain
-        int gridX = x + width / 2.0f;
-        int gridZ = z + height / 2.0f;
-
-        // Ensure we are within the bounds
-        if (gridX >= width) gridX = width - 1;
-        if (gridZ >= height) gridZ = height - 1;
-
-        // Get the index of the corresponding vertex
-        int vertexIndex = gridZ * width + gridX;
-        // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
-        auto currentPosition = m_grassVertices[vertexIndex].position;
-        auto normal = glm::normalize(m_grassVertices[vertexIndex].normal);
-        glm::mat4 position = glm::translate(glm::mat4(1.0), currentPosition);
-        // Generate a random rotation angle between 0 and 360 degrees (mapped from 0 to 1)
-        float randomAngle = dis(gen) * 360.0f;
-
-        // Create a rotation matrix around the Y-axis using the random angle
-        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(randomAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-
-        glm::mat4 scale = glm::scale(glm::mat4(1.0), glm::vec3(dis(gen)+0.6));
-
-        // Combine translation and rotation into the final transformation matrix
-        glm::mat4 finalTransform = position * rotation * scale;
-
-        glm::mat4 direction = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        // Store the transformation matrix in the m_positions array
-        m_positions.push_back({direction,finalTransform});
-    }
     glGenBuffers(1, &m_indirectId);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
     m_command.count = static_cast<GLuint>(m_verticesData.indices.size());

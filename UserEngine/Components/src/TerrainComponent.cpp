@@ -17,8 +17,6 @@ void Prisma::TerrainComponent::ui()
 
     components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Multiplier", &m_mult));
     components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Shift", &m_shift));
-    components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Minimum", &m_min));
-    components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Maximum", &m_max));
     components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Scaling", &m_scale));
     ComponentType componentButton;
     m_startButton = [&]() {
@@ -42,8 +40,6 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     m_shader->setInt64(m_heightPos, m_heightMap.id());
     m_shader->setFloat(m_multPos, m_mult);
     m_shader->setFloat(m_shiftPos, m_shift);
-    m_shader->setFloat(m_minPos, m_min);
-    m_shader->setFloat(m_maxPos, m_max);
     m_shader->setInt64(m_grassPos, m_grass->id());
     m_shader->setInt64(m_stonePos, m_stone->id());
     m_shader->setInt64(m_snowPos, m_snow->id());
@@ -56,25 +52,29 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
     m_shader->setInt64(m_snowRoughnessPos, m_snowRoughness->id());
 
     m_vao.bind();
-    glDrawArrays(GL_PATCHES, 0, m_numPatches * m_resolution * m_resolution);
-
+    for (unsigned strip = 0; strip < m_strips; strip++)
+    {
+        glDrawElements(GL_TRIANGLE_STRIP,   // primitive type
+            m_stripTris + 2,   // number of indices to render
+            GL_UNSIGNED_INT,     // index data type
+            (void*)(sizeof(unsigned) * (m_stripTris + 2) * strip)); // offset to starting index
+    }
     m_grassRenderer.renderGrass(parent()->finalMatrix());
+
     glEnable(GL_CULL_FACE);
 }
 
 void Prisma::TerrainComponent::generateCpu()
 {
-    m_grassRenderer.generateGrassPoints(0.1,m_mult,m_shift);
+    m_grassRenderer.generateGrassPoints(1,m_mult,m_shift);
     generatePhysics();
-
-    m_heightMap.freeData();
 }
 
 void Prisma::TerrainComponent::start()
 {
     Prisma::Component::start();
     Prisma::Shader::ShaderHeaders headers;
-    m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl", nullptr, headers, "../../../UserEngine/Shaders/TerrainPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainPipeline/tesdata.glsl");
+    m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl");
     m_csmShader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainShadowPipeline/vertex.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/fragment.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/geometry.glsl", headers, "../../../UserEngine/Shaders/TerrainShadowPipeline/tcsdata.glsl", "../../../UserEngine/Shaders/TerrainShadowPipeline/tesdata.glsl");
 
     m_grass = std::make_shared<Prisma::Texture>();
@@ -101,8 +101,6 @@ void Prisma::TerrainComponent::start()
     m_heightPos = m_shader->getUniformPosition("heightMap");
     m_multPos = m_shader->getUniformPosition("mult");
     m_shiftPos = m_shader->getUniformPosition("shift");
-    m_minPos = m_shader->getUniformPosition("MIN_DISTANCE");
-    m_maxPos = m_shader->getUniformPosition("MAX_DISTANCE");
     m_grassPos = m_shader->getUniformPosition("grass");
     m_stonePos = m_shader->getUniformPosition("stone");
     m_snowPos = m_shader->getUniformPosition("snow");
@@ -116,46 +114,46 @@ void Prisma::TerrainComponent::start()
     m_grassRenderer.start(m_heightMap);
     generateCpu();
     std::vector<float> vertices;
+    int rez = 1;
     int width = m_heightMap.data().width;
     int height = m_heightMap.data().height;
     unsigned bytePerPixel = m_heightMap.data().nrComponents;
-
-    for (unsigned i = 0; i <= m_resolution - 1; i++)
+    for (int i = 0; i < height; i++)
     {
-        for (unsigned j = 0; j <= m_resolution - 1; j++)
+        for (int j = 0; j < width; j++)
         {
-            vertices.push_back(-width / 2.0f + width * i / (float)m_resolution); // v.x
-            vertices.push_back(0.0f); // v.y
-            vertices.push_back(-height / 2.0f + height * j / (float)m_resolution); // v.z
-            vertices.push_back(i / (float)m_resolution); // u
-            vertices.push_back(j / (float)m_resolution); // v
+            unsigned char* pixelOffset = m_heightMap.data().dataContent + (j + width * i) * bytePerPixel;
+            unsigned char y = pixelOffset[0];
 
-            vertices.push_back(-width / 2.0f + width * (i + 1) / (float)m_resolution); // v.x
-            vertices.push_back(0.0f); // v.y
-            vertices.push_back(-height / 2.0f + height * j / (float)m_resolution); // v.z
-            vertices.push_back((i + 1) / (float)m_resolution); // u
-            vertices.push_back(j / (float)m_resolution); // v
-
-            vertices.push_back(-width / 2.0f + width * i / (float)m_resolution); // v.x
-            vertices.push_back(0.0f); // v.y
-            vertices.push_back(-height / 2.0f + height * (j + 1) / (float)m_resolution); // v.z
-            vertices.push_back(i / (float)m_resolution); // u
-            vertices.push_back((j + 1) / (float)m_resolution); // v
-
-            vertices.push_back(-width / 2.0f + width * (i + 1) / (float)m_resolution); // v.x
-            vertices.push_back(0.0f); // v.y
-            vertices.push_back(-height / 2.0f + height * (j + 1) / (float)m_resolution); // v.z
-            vertices.push_back((i + 1) / (float)m_resolution); // u
-            vertices.push_back((j + 1) / (float)m_resolution); // v
+            // vertex
+            vertices.push_back(-height / 2.0f + height * i / (float)height);   // vx
+            vertices.push_back((int)y * m_mult/256.0-m_shift);   // vy
+            vertices.push_back(-width / 2.0f + width * j / (float)width);   // vz
         }
     }
 
+    std::vector<unsigned int> indices;
+    for (unsigned i = 0; i < height - 1; i += rez)
+    {
+        for (unsigned j = 0; j < width; j += rez)
+        {
+            for (unsigned k = 0; k < 2; k++)
+            {
+                indices.push_back(j + width * (i + k * rez));
+            }
+        }
+    }
+
+    m_strips = (height - 1) / rez;
+    m_stripTris = (width / rez) * 2 - 2;
+
     m_vao.bind();
     Prisma::VBO vbo;
+    Prisma::EBO ebo;
     vbo.writeData(sizeof(float) * vertices.size(), vertices.data());
-    m_vao.addAttribPointer(0, 3, 5 * sizeof(float), (void*)0);
-    m_vao.addAttribPointer(1, 2, 5 * sizeof(float), (void*)(sizeof(float) * 3));
-    glPatchParameteri(GL_PATCH_VERTICES, m_numPatches);
+    ebo.writeData(sizeof(unsigned int) * indices.size(), indices.data());
+    // link vertex attributes
+    m_vao.addAttribPointer(0, 3, 3 * sizeof(float), (void*)0);
 }
 
 void Prisma::TerrainComponent::heightMap(Prisma::Texture heightMap) {
