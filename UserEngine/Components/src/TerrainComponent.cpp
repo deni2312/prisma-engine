@@ -128,7 +128,45 @@ void Prisma::TerrainComponent::start()
             v.position.x = -height / 2.0f + height * i / (float)height;
             v.position.y = (int)y * m_mult / 256.0 - m_shift;
             v.position.z = -width / 2.0f + width * j / (float)width;
+            v.texCoords.x = j / (float)(width - 1); // Normalized texture coordinate (0 to 1)
+            v.texCoords.y = i / (float)(height - 1); // Normalized texture coordinate (0 to 1)
+
             vertices.push_back(v);
+        }
+    }
+
+    // Calculate normals
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            glm::vec3 left, right, up, down;
+            glm::vec3 normal(0.0f, 0.0f, 0.0f);
+
+            // Get current vertex
+            Prisma::Mesh::Vertex& v = vertices[i * width + j];
+
+            // Calculate vectors around the current vertex
+            if (j > 0) // Left
+                left = vertices[i * width + (j - 1)].position - v.position;
+            if (j < width - 1) // Right
+                right = vertices[i * width + (j + 1)].position - v.position;
+            if (i > 0) // Up
+                up = vertices[(i - 1) * width + j].position - v.position;
+            if (i < height - 1) // Down
+                down = vertices[(i + 1) * width + j].position - v.position;
+
+            // Calculate normals using cross products of adjacent vectors
+            if (j > 0 && i < height - 1) // Bottom-left
+                normal += glm::normalize(glm::cross(down, left));
+            if (j < width - 1 && i < height - 1) // Bottom-right
+                normal += glm::normalize(glm::cross(right, down));
+            if (j < width - 1 && i > 0) // Top-right
+                normal += glm::normalize(glm::cross(up, right));
+            if (j > 0 && i > 0) // Top-left
+                normal += glm::normalize(glm::cross(left, up));
+
+            v.normal = glm::normalize(normal); // Normalize the accumulated normal
         }
     }
 

@@ -270,7 +270,7 @@ void main()
 {
     float Height = FragPos.y;
     // Normalize height range (-16 to 48) to (0 to 1)
-    float normalizedHeight = (Height - shift) / mult;
+    float normalizedHeight = Height;
 
     // Define height thresholds for different layers
     float grassHeight = 0.3;  // Below 30% height, it's mostly grass
@@ -432,5 +432,5 @@ void main()
     vec3 ambient = kD * diffuse + specular;
     Lo = ambient + Lo;
 
-    FragColor = vec4(1.0);
+    FragColor = vec4(Lo,1.0);
 }
