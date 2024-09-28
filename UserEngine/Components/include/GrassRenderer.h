@@ -18,6 +18,8 @@ public:
 
 	void generateGrassPoints(float density, float mult, float shift);
 
+	void projection(glm::mat4 projection);
+
 private:
 	struct DrawElementsIndirectCommandPadded
 	{
@@ -58,6 +60,9 @@ private:
 
 	float m_percentValue;
 	float m_timePos;
+
+	glm::mat4 m_projection;
+	unsigned int m_projectionPos;
 
 	std::chrono::steady_clock::time_point m_startPoint;
 };

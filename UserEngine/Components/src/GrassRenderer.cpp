@@ -16,6 +16,7 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
     m_startPoint = std::chrono::high_resolution_clock::now();
     m_cullShader->use();
     m_modelComputePos = m_cullShader->getUniformPosition("model");
+    m_projectionPos = m_cullShader->getUniformPosition("currentProjection");
     m_ssbo = std::make_shared<Prisma::SSBO>(15);
     m_ssboCull = std::make_shared<Prisma::SSBO>(16);
 
@@ -51,6 +52,7 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
 void GrassRenderer::renderGrass(glm::mat4 translation) {
     m_cullShader->use();
     m_cullShader->setMat4(m_modelComputePos, translation);
+    m_cullShader->setMat4(m_projectionPos, m_projection);
     unsigned int sizeCluster = 8;
     unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size() / (sizeCluster * sizeCluster)));
     m_cullShader->dispatchCompute({ sizePositions,sizePositions,1 });
@@ -121,4 +123,8 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
     m_ssbo->modifyData(0, sizeof(GrassPosition) * m_positions.size(), m_positions.data());
 
     m_ssboCull->resize(sizeof(GrassPosition) * m_positions.size(), GL_DYNAMIC_READ);
+}
+
+void GrassRenderer::projection(glm::mat4 projection) {
+    m_projection = projection;
 }

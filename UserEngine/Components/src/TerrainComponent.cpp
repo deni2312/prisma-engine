@@ -5,6 +5,7 @@
 #include "../../../Engine/include/Components/PhysicsMeshComponent.h"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include "../../../Engine/include/Helpers/SettingsLoader.h"
 
 Prisma::TerrainComponent::TerrainComponent() : Prisma::Component{}
 {
@@ -112,6 +113,8 @@ void Prisma::TerrainComponent::start()
     m_stoneRoughnessPos = m_shader->getUniformPosition("stoneRoughness");
     m_snowRoughnessPos = m_shader->getUniformPosition("snowRoughness");
     m_grassRenderer.start(m_heightMap);
+    auto settings=Prisma::SettingsLoader::getInstance().getSettings();
+    m_grassRenderer.projection(glm::perspective(glm::radians(currentGlobalScene->camera->angle()), (float)settings.width / (float)settings.height, currentGlobalScene->camera->nearPlane(), currentGlobalScene->camera->farPlane()));
     generateCpu();
     std::vector<Prisma::Mesh::Vertex> vertices;
     int rez = 1;
