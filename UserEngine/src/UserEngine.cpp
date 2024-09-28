@@ -16,7 +16,7 @@ void UserEngine::start()
 {
     m_root = Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.gltf", { true });
     Prisma::Texture texture;
-    texture.loadEquirectangular("../../../Resources/Skybox/equirectangular.hdr");
+    texture.loadEquirectangular("../../../Resources/Skybox/cloudy.hdr");
     texture.data({ 4096,4096,3 });
     Prisma::PipelineSkybox::getInstance().texture(texture, true);
 
