@@ -19,6 +19,7 @@ void Prisma::TerrainComponent::ui()
     components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Multiplier", &m_mult));
     components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Shift", &m_shift));
     components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Scaling", &m_scale));
+    components.push_back(std::make_tuple(Prisma::Component::TYPES::FLOAT, "Far plane", &m_farPlane));
     ComponentType componentButton;
     m_startButton = [&]() {
         if (!isStart()) {
@@ -27,10 +28,20 @@ void Prisma::TerrainComponent::ui()
     };
     componentButton = std::make_tuple(Prisma::Component::TYPES::BUTTON, "UI terrain", &m_startButton);
 
+    ComponentType componentApply;
+    m_apply = [&]() {
+        if (isStart()) {
+            auto settings = Prisma::SettingsLoader::getInstance().getSettings();
+            m_grassRenderer.projection(glm::perspective(glm::radians(currentGlobalScene->camera->angle()), (float)settings.width / (float)settings.height, currentGlobalScene->camera->nearPlane(), m_farPlane));
+        }
+    };
+    componentApply = std::make_tuple(Prisma::Component::TYPES::BUTTON, "Apply", &m_apply);
+
     for (const auto& component : components) {
         addGlobal(component);
     }
     addGlobal(componentButton);
+    addGlobal(componentApply);
 }
 
 void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
@@ -113,8 +124,9 @@ void Prisma::TerrainComponent::start()
     m_stoneRoughnessPos = m_shader->getUniformPosition("stoneRoughness");
     m_snowRoughnessPos = m_shader->getUniformPosition("snowRoughness");
     m_grassRenderer.start(m_heightMap);
+    m_farPlane = currentGlobalScene->camera->farPlane();
     auto settings=Prisma::SettingsLoader::getInstance().getSettings();
-    m_grassRenderer.projection(glm::perspective(glm::radians(currentGlobalScene->camera->angle()), (float)settings.width / (float)settings.height, currentGlobalScene->camera->nearPlane(), currentGlobalScene->camera->farPlane()));
+    m_grassRenderer.projection(glm::perspective(glm::radians(currentGlobalScene->camera->angle()), (float)settings.width / (float)settings.height, currentGlobalScene->camera->nearPlane(), m_farPlane));
     generateCpu();
     std::vector<Prisma::Mesh::Vertex> vertices;
     int rez = 1;

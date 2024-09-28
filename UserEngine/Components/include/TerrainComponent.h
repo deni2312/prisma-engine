@@ -61,8 +61,10 @@ namespace Prisma {
 		float m_mult = 64;
 		float m_shift = 0;
 		float m_scale = 1000;
+		float m_farPlane = 0;
 
 		std::function<void()> m_startButton;
+		std::function<void()> m_apply;
 
 		void generatePhysics();
 
