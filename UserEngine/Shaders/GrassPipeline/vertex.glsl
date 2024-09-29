@@ -32,7 +32,7 @@ void main()
 {
     TexCoords = aTexCoords;
 
-    mat4 currentModel = model* grassCull[gl_InstanceID].position;
+    mat4 currentModel = grassCull[gl_InstanceID].position * model;
 
     // Fetch the current model matrix for this instance of grass
     vec4 grassModel = currentModel * vec4(aPos, 1.0);
