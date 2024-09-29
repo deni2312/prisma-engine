@@ -60,7 +60,7 @@ void main()
     vec4 worldPos = vec4(grassPositions[idx].position[3].xyz, 1.0);
 
     // Convert to clip space (projection * view * world)
-    vec4 clipSpacePos = currentProjection * view * model * worldPos;
+    vec4 clipSpacePos = (currentProjection * view * grassPositions[idx].position * model)[3];
 
     // Perform frustum culling: clip-space coordinates must be inside [-w, w] range
     if (clipSpacePos.x > -clipSpacePos.w && clipSpacePos.x < clipSpacePos.w &&
