@@ -22,7 +22,7 @@ namespace Prisma {
 
     private:
         std::shared_ptr<Prisma::Shader> m_shader;
-
+        std::shared_ptr<Prisma::SSBO> m_ssbo;
     };
 
 }

@@ -25,9 +25,6 @@ layout(std430, binding = 17) buffer DrawElementsIndirect
     unsigned int  firstIndex;
     unsigned int  baseVertex;
     unsigned int  baseInstance;
-    unsigned int padding;
-    unsigned int padding1;
-    unsigned int padding2;
 };
 
 // Uniforms: View and Projection matrices
