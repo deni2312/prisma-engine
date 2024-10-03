@@ -20,7 +20,7 @@ namespace Prisma {
     private:
         unsigned int m_width;
         unsigned int m_height;
-        float m_nearPlane=0.1;
+        float m_nearPlane=0.1f;
 
         unsigned int m_fbo;
         unsigned int m_farPlanePos;
@@ -32,7 +32,7 @@ namespace Prisma {
         std::vector<unsigned int> m_shadowPositionAnimation;
 
         uint64_t m_id;
-        float m_farPlane=100;
+        float m_farPlane=100.0f;
 
         glm::mat4 m_shadowProj;
         std::vector<glm::mat4> m_shadowTransforms;
