@@ -23,7 +23,6 @@
 #include "../include/Physics/DrawDebugger.h"
 #include "../include/Handlers/ComponentsHandler.h"
 #include "../include/Postprocess/Postprocess.h"
-#include "../include/Helpers/Timer.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../include/SceneData/SceneExporter.h"
 

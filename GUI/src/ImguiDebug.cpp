@@ -214,6 +214,10 @@ void Prisma::ImguiDebug::drawGui()
         }
         m_settingsTab.drawSettings();
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
+        ImGui::Text(("UI Time: " + std::to_string(m_timeCounterUI.duration_seconds())).c_str());
+        ImGui::Text(("Engine Time: " + std::to_string(m_timeCounterEngine.duration_seconds())).c_str());
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+
         ImGui::Separator();
 
         Prisma::ImGuiTabs::getInstance().showNodes(currentGlobalScene->root, 1, m_imguiCamera);
@@ -294,13 +298,18 @@ void Prisma::ImguiDebug::imguiData(std::shared_ptr<ImGuiData> data)
 std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 {
     auto handlers = std::make_shared<SceneHandler>();
-    handlers->onBeginRender = []() {
+    handlers->onBeginRender = [&]() {
+        m_timeCounterEngine.start();
         Prisma::ImguiDebug::getInstance().start();
     };
-    handlers->onEndRender = []() {
+    handlers->onEndRender = [&]() {
+        m_timeCounterEngine.stop();
+        m_timeCounterUI.start();
         Prisma::ImguiDebug::getInstance().drawGui();
 
         Prisma::ImguiDebug::getInstance().close();
+        m_timeCounterUI.stop();
+
     };
     return handlers;
 }

@@ -11,6 +11,7 @@
 #include <string>
 #include "PlotFPS.h"
 #include "../../Engine/include/GlobalData/InstanceData.h"
+#include "../../Engine/include/Helpers/TimeCounter.h"
 
 
 namespace Prisma {
@@ -89,5 +90,7 @@ namespace Prisma {
 
 		PlotFPS m_plot;
 
+		Prisma::TimeCounter m_timeCounterUI;
+		Prisma::TimeCounter m_timeCounterEngine;
     };
 }
