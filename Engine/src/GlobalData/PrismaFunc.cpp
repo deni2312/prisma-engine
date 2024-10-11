@@ -78,8 +78,8 @@ Prisma::PrismaFunc::PrismaFunc()
     glCullFace(GL_BACK);
 
     privatePrisma = std::make_shared<PrivatePrisma>();
-    defaultBlack.loadTexture(DIR_DEFAULT_BLACK);
-    defaultNormal.loadTexture(DIR_DEFAULT_NORMAL);
+    defaultBlack.loadTexture({ DIR_DEFAULT_BLACK });
+    defaultNormal.loadTexture({ DIR_DEFAULT_NORMAL });
 }
 
 void Prisma::PrismaFunc::swapBuffers()

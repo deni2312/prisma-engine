@@ -56,19 +56,19 @@ void Prisma::NodeViewer::varsDispatcher(Prisma::Component::ComponentType types, 
 
 Prisma::NodeViewer::NodeViewer() {
     m_rotateTexture = std::make_shared<Prisma::Texture>();
-    m_rotateTexture->loadTexture("../../../GUI/icons/rotate.png", false, false, false);
+    m_rotateTexture->loadTexture({ "../../../GUI/icons/rotate.png", false, false, false });
 
     m_translateTexture = std::make_shared<Prisma::Texture>();
-    m_translateTexture->loadTexture("../../../GUI/icons/move.png", false, false, false);
+    m_translateTexture->loadTexture({ "../../../GUI/icons/move.png", false, false, false });
 
     m_scaleTexture = std::make_shared<Prisma::Texture>();
-    m_scaleTexture->loadTexture("../../../GUI/icons/scale.png", false, false, false);
+    m_scaleTexture->loadTexture({ "../../../GUI/icons/scale.png", false, false, false });
 
     m_eyeOpen = std::make_shared<Prisma::Texture>();
-    m_eyeOpen->loadTexture("../../../GUI/icons/eyeopen.png", false, false, false);
+    m_eyeOpen->loadTexture({ "../../../GUI/icons/eyeopen.png", false, false, false });
 
     m_eyeClose = std::make_shared<Prisma::Texture>();
-    m_eyeClose->loadTexture("../../../GUI/icons/eyeclose.png", false, false, false);
+    m_eyeClose->loadTexture({ "../../../GUI/icons/eyeclose.png", false, false, false });
 }
 
 void Prisma::NodeViewer::showComponents(Prisma::Node* nodeData) {

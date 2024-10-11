@@ -75,10 +75,10 @@ Prisma::ImguiDebug::ImguiDebug() : m_fps{60.0f}, m_lastFrameTime{ glfwGetTime() 
     Prisma::PixelCapture::getInstance();
 
     m_runButton = std::make_shared<Prisma::Texture>();
-    m_runButton->loadTexture("../../../GUI/icons/run.png", false, false, false);
+    m_runButton->loadTexture({ "../../../GUI/icons/run.png", false, false, false });
 
     m_pauseButton = std::make_shared<Prisma::Texture>();
-    m_pauseButton->loadTexture("../../../GUI/icons/pause.png", false, false, false);
+    m_pauseButton->loadTexture({ "../../../GUI/icons/pause.png", false, false, false });
 
     Prisma::NodeViewer::getInstance();
 

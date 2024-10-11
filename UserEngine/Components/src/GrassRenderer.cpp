@@ -7,7 +7,7 @@ void GrassRenderer::start(Prisma::Texture heightMap) {
     m_spriteShader = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/GrassPipeline/vertex.glsl", "../../../UserEngine/Shaders/GrassPipeline/fragment.glsl");
     m_cullShader = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/GrassPipeline/compute.glsl");
     m_grassSprite = std::make_shared<Prisma::Texture>();
-    m_grassSprite->loadTexture("../../../Resources/DefaultScene/sprites/grass.png", false, true, false);
+    m_grassSprite->loadTexture({ "../../../Resources/DefaultScene/sprites/grass.png", false, true, false });
     m_spriteShader->use();
     m_spritePos = m_spriteShader->getUniformPosition("grassSprite");
     m_spriteModelPos = m_spriteShader->getUniformPosition("model");

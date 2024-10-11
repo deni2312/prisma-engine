@@ -98,15 +98,15 @@ void Prisma::TerrainComponent::start()
     m_grassRoughness = std::make_shared<Prisma::Texture>();
     m_stoneRoughness = std::make_shared<Prisma::Texture>();
     m_snowRoughness = std::make_shared<Prisma::Texture>();
-    m_grass->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grass.jpg");
-    m_stone->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stone.jpg");
-    m_snow->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snow.jpg");
-    m_grassNormal->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grassNormal.jpg");
-    m_stoneNormal->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stoneNormal.jpg");
-    m_snowNormal->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snowNormal.jpg");
-    m_grassRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/grassRoughness.jpg");
-    m_stoneRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/stoneRoughness.jpg");
-    m_snowRoughness->loadTexture("../../../Resources/DefaultScene/Heightmaps/Levels/snowRoughness.jpg");
+    m_grass->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/grass.jpg" });
+    m_stone->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/stone.jpg" });
+    m_snow->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/snow.jpg" });
+    m_grassNormal->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/grassNormal.jpg" });
+    m_stoneNormal->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/stoneNormal.jpg" });
+    m_snowNormal->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/snowNormal.jpg" });
+    m_grassRoughness->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/grassRoughness.jpg" });
+    m_stoneRoughness->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/stoneRoughness.jpg" });
+    m_snowRoughness->loadTexture({ "../../../Resources/DefaultScene/Heightmaps/Levels/snowRoughness.jpg" });
 
     m_shader->use();
     m_modelPos = m_shader->getUniformPosition("model");

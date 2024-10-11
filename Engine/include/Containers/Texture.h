@@ -13,7 +13,15 @@ namespace Prisma {
 			unsigned char* dataContent = nullptr;
 			bool deleteStbi = true;
 		};
-		bool loadTexture(std::string texture, bool srgb = false,bool resident=true,bool noRepeat=true,bool mantainData=false);
+
+		struct Parameters {
+			std::string texture;
+			bool srgb = false;
+			bool resident = true;
+			bool noRepeat = true;
+			bool mantainData = false;
+		};
+		bool loadTexture(const Parameters& parameters);
 		uint64_t id() const;
 		void id(uint64_t id);
 		std::string name() const;
@@ -25,7 +33,8 @@ namespace Prisma {
 		void freeData();
 	private:
 		uint64_t m_id=0;
-		std::string m_name="";
 		TextureData m_data;
+		Parameters m_parameters;
+		std::string m_name;
 	};
 }

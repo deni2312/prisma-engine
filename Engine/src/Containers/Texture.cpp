@@ -7,12 +7,13 @@
 #include <iostream>
 #include <tuple>
 
-bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bool noRepeat, bool mantainData)
+bool Prisma::Texture::loadTexture(const Parameters& parameters)
 {
+    m_parameters = parameters;
     unsigned int textureID;
     glGenTextures(1, &textureID);
     int width, height, nrComponents;
-    m_data.dataContent = stbi_load(texture.c_str(), &width, &height, &nrComponents, 0);
+    m_data.dataContent = stbi_load(m_parameters.texture.c_str(), &width, &height, &nrComponents, 0);
     m_data.height = height;
     m_data.width = width;
     m_data.nrComponents = nrComponents;
@@ -26,18 +27,18 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
         }
         else if (nrComponents == 3)
         {
-            internalFormat = srgb ? GL_SRGB : GL_RGB;
+            internalFormat = m_parameters.srgb ? GL_SRGB : GL_RGB;
             dataFormat = GL_RGB;
         }
         else if (nrComponents == 4)
         {
-            internalFormat = srgb ? GL_SRGB_ALPHA : GL_RGBA;
+            internalFormat = m_parameters.srgb ? GL_SRGB_ALPHA : GL_RGBA;
             dataFormat = GL_RGBA;
         }
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE, m_data.dataContent);
         glGenerateMipmap(GL_TEXTURE_2D);
-        if(noRepeat) {
+        if(m_parameters.noRepeat) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         }else{
@@ -52,24 +53,24 @@ bool Prisma::Texture::loadTexture(std::string texture,bool srgb,bool resident,bo
 
         value = (value > max_anisotropy) ? max_anisotropy : value;
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, value);
-        if (!mantainData) {
+        if (!m_parameters.mantainData) {
             stbi_image_free(m_data.dataContent);
         }
-        if(resident) {
+        if(m_parameters.resident) {
             m_id = glGetTextureHandleARB(textureID);
             glMakeTextureHandleResidentARB(m_id);
         }else{
             m_id=textureID;
         }
 
-        Prisma::TextureInfo::getInstance().add({ textureID, texture });
+        Prisma::TextureInfo::getInstance().add({ textureID, m_parameters.texture });
 
         Prisma::GarbageCollector::getInstance().addTexture({ textureID, m_id });
         return true;
     }
     else
     {
-        std::cout << "Not found: " + texture << std::endl;
+        std::cout << "Not found: " + m_parameters.texture << std::endl;
         stbi_image_free(m_data.dataContent);
         return false;
     }

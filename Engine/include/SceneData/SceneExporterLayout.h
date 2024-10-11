@@ -256,7 +256,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second,true);
+                            texture.loadTexture({ t.second,true });
                             textures.push_back(texture);
                         }
                         material->diffuse(textures);
@@ -269,7 +269,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second);
+                            texture.loadTexture({ t.second });
                             textures.push_back(texture);
                         }
                         material->normal(textures);
@@ -282,7 +282,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second);
+                            texture.loadTexture({ t.second });
                             textures.push_back(texture);
                         }
                         material->roughness_metalness(textures);
@@ -295,7 +295,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second);
+                            texture.loadTexture({ t.second });
                             textures.push_back(texture);
                         }
                         material->specular(textures);
@@ -308,7 +308,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second);
+                            texture.loadTexture({ t.second });
                             textures.push_back(texture);
                         }
                         material->ambientOcclusion(textures);
@@ -374,7 +374,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second, true);
+                            texture.loadTexture({ t.second, true });
                             textures.push_back(texture);
                         }
                         material->diffuse(textures);
@@ -387,7 +387,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second);
+                            texture.loadTexture({ t.second });
                             textures.push_back(texture);
                         }
                         material->normal(textures);
@@ -400,7 +400,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second);
+                            texture.loadTexture({ t.second });
                             textures.push_back(texture);
                         }
                         material->roughness_metalness(textures);
@@ -413,7 +413,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second);
+                            texture.loadTexture({ t.second });
                             textures.push_back(texture);
                         }
                         material->specular(textures);
@@ -426,7 +426,7 @@ namespace Prisma {
                         }
                         else {
                             texture.name(t.second);
-                            texture.loadTexture(t.second);
+                            texture.loadTexture({ t.second });
                             textures.push_back(texture);
                         }
                         material->ambientOcclusion(textures);

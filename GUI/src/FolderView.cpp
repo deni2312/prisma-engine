@@ -97,13 +97,13 @@ void Prisma::FileBrowser::listDirectoryContents() {
 
 Prisma::FileBrowser::FileBrowser() : currentPath(fs::current_path().parent_path().parent_path().parent_path()) {
     m_folder = std::make_shared<Prisma::Texture>();
-    m_folder->loadTexture("../../../GUI/icons/folder.png", false, false, false);
+    m_folder->loadTexture({ "../../../GUI/icons/folder.png", false, false, false });
 
     m_file = std::make_shared<Prisma::Texture>();
-    m_file->loadTexture("../../../GUI/icons/file.png", false, false, false);
+    m_file->loadTexture({ "../../../GUI/icons/file.png", false, false, false });
 
     m_back = std::make_shared<Prisma::Texture>();
-    m_back->loadTexture("../../../GUI/icons/arrow.png", false, false, false);
+    m_back->loadTexture({ "../../../GUI/icons/arrow.png", false, false, false });
     m_iconSize = ImVec2(24, 24);
     m_fontSize = m_iconSize;
 
