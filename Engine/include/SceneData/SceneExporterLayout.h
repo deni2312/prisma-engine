@@ -287,6 +287,32 @@ namespace Prisma {
                         }
                         material->roughness_metalness(textures);
                     }
+                    else if (t.first == "SPECULAR") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultBlack);
+                        }
+                        else {
+                            texture.name(t.second);
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
+                        material->specular(textures);
+                    }
+                    else if (t.first == "AMBIENT_OCCLUSION") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultBlack);
+                        }
+                        else {
+                            texture.name(t.second);
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
+                        material->ambientOcclusion(textures);
+                    }
                 }
                 mesh->material(material);
             }
@@ -378,6 +404,32 @@ namespace Prisma {
                             textures.push_back(texture);
                         }
                         material->roughness_metalness(textures);
+                    }
+                    else if (t.first == "SPECULAR") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultBlack);
+                        }
+                        else {
+                            texture.name(t.second);
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
+                        material->specular(textures);
+                    }
+                    else if (t.first == "AMBIENT_OCCLUSION") {
+                        std::vector<Prisma::Texture> textures;
+                        Prisma::Texture texture;
+                        if (t.second == "NO_TEXTURE") {
+                            textures.push_back(defaultBlack);
+                        }
+                        else {
+                            texture.name(t.second);
+                            texture.loadTexture(t.second);
+                            textures.push_back(texture);
+                        }
+                        material->ambientOcclusion(textures);
                     }
                 }
                 mesh->material(material);

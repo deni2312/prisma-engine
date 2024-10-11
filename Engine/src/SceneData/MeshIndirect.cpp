@@ -111,7 +111,7 @@ void Prisma::MeshIndirect::updateSize()
 
         //PUSH MATERIAL TO AN SSBO WITH ID 0
         for (const auto& material : meshes) {
-            m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
+            m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id(),material->material()->specular()[0].id(), material->material()->ambientOcclusion()[0].id() ,glm::vec2(0.0f) });
         }
         m_ssboMaterial->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
         m_ssboMaterial->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
@@ -281,7 +281,7 @@ void Prisma::MeshIndirect::updateAnimation()
 
         //PUSH MATERIAL TO AN SSBO WITH ID 0
         for (auto material : meshes) {
-            m_materialDataAnimation.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
+            m_materialDataAnimation.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id(),material->material()->specular()[0].id(), material->material()->ambientOcclusion()[0].id() ,glm::vec2(0.0f) });
         }
         m_ssboMaterialAnimation->resize(sizeof(Prisma::MaterialData) * (m_materialDataAnimation.size()));
         m_ssboMaterialAnimation->modifyData(0, sizeof(Prisma::MaterialData) * m_materialDataAnimation.size(), m_materialDataAnimation.data());
@@ -400,7 +400,7 @@ void Prisma::MeshIndirect::updateTextureSize() {
     m_materialData.clear();
     auto meshes = currentGlobalScene->meshes;
     for (auto material : meshes) {
-        m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
+        m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id(),material->material()->specular()[0].id(), material->material()->ambientOcclusion()[0].id() ,glm::vec2(0.0f) });
     }
     m_ssboMaterial->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
     m_ssboMaterial->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
@@ -408,7 +408,7 @@ void Prisma::MeshIndirect::updateTextureSize() {
     m_materialDataAnimation.clear();
     auto meshesAnimation = currentGlobalScene->animateMeshes;
     for (auto material : meshesAnimation) {
-        m_materialDataAnimation.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() ,glm::vec2(0.0f) });
+        m_materialDataAnimation.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id() , material->material()->specular()[0].id(), material->material()->ambientOcclusion()[0].id(),glm::vec2(0.0f) });
     }
     m_ssboMaterialAnimation->resize(sizeof(Prisma::MaterialData) * (m_materialDataAnimation.size()));
     m_ssboMaterialAnimation->modifyData(0, sizeof(Prisma::MaterialData) * m_materialDataAnimation.size(), m_materialDataAnimation.data());

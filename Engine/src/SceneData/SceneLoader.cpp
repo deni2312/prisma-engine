@@ -284,10 +284,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
     currentMaterial->diffuse(loadMaterialTextures(material, aiTextureType_DIFFUSE,m_sceneParameters.srgb));
     currentMaterial->normal(loadMaterialTextures(material, aiTextureType_NORMALS));
     currentMaterial->roughness_metalness(loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS));
-
-    if (currentMaterial->roughness_metalness().empty()) {
-        currentMaterial->roughness_metalness(loadMaterialTextures(material, aiTextureType_SPECULAR));
-    }
+    currentMaterial->specular(loadMaterialTextures(material, aiTextureType_SPECULAR));
+    currentMaterial->ambientOcclusion(loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION));
 
     std::vector<Prisma::Texture> emptyVector;
     if (currentMaterial->diffuse().empty()) {
@@ -306,6 +304,16 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
         emptyVector.push_back(defaultBlack);
         currentMaterial->roughness_metalness(emptyVector);
         std::cout << "No roughness or metalness texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
+    }
+    if (currentMaterial->specular().empty()) {
+        emptyVector.push_back(defaultBlack);
+        currentMaterial->specular(emptyVector);
+        std::cout << "No specular texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
+    }
+    if (currentMaterial->ambientOcclusion().empty()) {
+        emptyVector.push_back(defaultBlack);
+        currentMaterial->ambientOcclusion(emptyVector);
+        std::cout << "No ambient occlusion texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }
 
     currentMaterial->name(material->GetName().C_Str());
