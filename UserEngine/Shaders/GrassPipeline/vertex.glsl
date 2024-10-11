@@ -43,14 +43,12 @@ void main()
     float windSpeed = 2.0;        // Control the speed of the wind oscillation
     float windFrequency = 3.0;    // Frequency of the wind's sway
 
-    // Height-based influence: Scale the wind influence by height (y-coordinate)
-    float heightFactor = clamp(aPos.y, 0.0, 1.0);  // Values between 0 and 1 (base to tip)
 
     // Sway based on position, time, and heightFactor
     vec3 windOffset = vec3(
-        sin(grassModel.y * windFrequency + time * windSpeed) * windStrength * heightFactor,
+        sin(grassModel.y * windFrequency + time * windSpeed) * windStrength * aPos.y,
         0.0,
-        cos(grassModel.y * windFrequency + time * windSpeed) * windStrength * heightFactor
+        cos(grassModel.y * windFrequency + time * windSpeed) * windStrength * aPos.y
     );
 
     // Adjust the grass position by the windOffset
