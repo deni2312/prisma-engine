@@ -28,9 +28,11 @@ namespace Prisma {
 		uint64_t m_normal;
 		uint64_t m_albedo;
 		uint64_t m_depth;
+		uint64_t m_ambient;
 		unsigned int m_positionLocation;
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;
+		unsigned int m_ambientLocation;
 		std::shared_ptr<Prisma::FBO> m_fbo;
         std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
 

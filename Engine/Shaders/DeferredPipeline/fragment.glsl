@@ -9,6 +9,7 @@ flat in int drawId;
 layout(location = 0) out vec4 gPosition;
 layout(location = 1) out vec4 gNormal;
 layout(location = 2) out vec4 gAlbedoSpec;
+layout(location = 3) out vec4 gAmbient;
 
 struct MaterialData {
     sampler2D diffuse;
@@ -78,4 +79,8 @@ void main()
     gAlbedoSpec.a= roughnessMetalnessTexture.b;
     gNormal.a = roughnessMetalnessTexture.g;
     gPosition.a=gl_FragCoord.z;
+
+    gAmbient.r = texture(currentMaterial.specularMap, TexCoords).r;
+    gAmbient.g = texture(currentMaterial.ambient_occlusion, TexCoords).r;
+
 }

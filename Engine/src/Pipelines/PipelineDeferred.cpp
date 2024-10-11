@@ -33,11 +33,11 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 
     glGenFramebuffers(1, &m_gBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
-    unsigned int gPosition, gNormal, gAlbedoSpec;
+    unsigned int gPosition, gNormal, gAlbedoSpec,gAmbient;
 
     glGenTextures(1, &gPosition);
     glBindTexture(GL_TEXTURE_2D, gPosition);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
@@ -47,7 +47,7 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 
     glGenTextures(1, &gNormal);
     glBindTexture(GL_TEXTURE_2D, gNormal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
@@ -64,9 +64,19 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 
     m_albedo = glGetTextureHandleARB(gAlbedoSpec);
     glMakeTextureHandleResidentARB(m_albedo);
+
+    glGenTextures(1, &gAmbient);
+    glBindTexture(GL_TEXTURE_2D, gAmbient);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gAmbient, 0);
+
+    m_ambient = glGetTextureHandleARB(gAmbient);
+    glMakeTextureHandleResidentARB(m_ambient);
     
-    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    glDrawBuffers(3, attachments);
+    unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,GL_COLOR_ATTACHMENT3 };
+    glDrawBuffers(4, attachments);
 
     unsigned int depthTexture;
 
@@ -89,10 +99,12 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
     m_positionLocation = m_shaderD->getUniformPosition("gPosition");
     m_normalLocation = m_shaderD->getUniformPosition("gNormal");
     m_albedoLocation = m_shaderD->getUniformPosition("gAlbedo");
+    m_ambientLocation = m_shaderD->getUniformPosition("gAmbient");
 
     Prisma::TextureInfo::getInstance().add({ gPosition, "Deferred_Position"});
     Prisma::TextureInfo::getInstance().add({ gNormal, "Deferred_Normal"});
     Prisma::TextureInfo::getInstance().add({ gAlbedoSpec, "Deferred_Albedo"});
+    Prisma::TextureInfo::getInstance().add({ gAmbient, "Deferred_Ambient" });
 
     Prisma::FBO::FBOData fboData;
 	fboData.width = m_width;
@@ -129,6 +141,7 @@ void Prisma::PipelineDeferred::render()
     m_shaderD->setInt64(m_albedoLocation, m_albedo);
     m_shaderD->setInt64(m_normalLocation, m_normal);
     m_shaderD->setInt64(m_positionLocation, m_position);
+    m_shaderD->setInt64(m_ambientLocation, m_ambient);
     Prisma::PrismaRender::getInstance().renderQuad();
 
     //COPY DEPTH FOR SKYBOX AND SPRITES

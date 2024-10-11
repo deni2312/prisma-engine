@@ -6,6 +6,7 @@ out vec4 FragColor;
 layout(bindless_sampler) uniform sampler2D gPosition;
 layout(bindless_sampler) uniform sampler2D gNormal;
 layout(bindless_sampler) uniform sampler2D gAlbedo;
+layout(bindless_sampler) uniform sampler2D gAmbient;
 uniform float biasCSM;
 
 layout(std140, binding = 2) uniform ClusterData
@@ -245,6 +246,11 @@ void main()
     vec3 FragPos = texture(gPosition, TexCoords).rgb;
     vec3 N = texture(gNormal, TexCoords).rgb;
     vec3 albedo = texture(gAlbedo, TexCoords).rgb;
+    vec4 aoSpecular = texture(gAmbient, TexCoords);
+
+    float specularMap = aoSpecular.r;
+    float ao = aoSpecular.g;
+
     float roughness = texture(gNormal, TexCoords).a;
     float metallic = texture(gAlbedo, TexCoords).a;
 
