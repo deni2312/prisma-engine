@@ -289,6 +289,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 
     std::vector<Prisma::Texture> emptyVector;
     if (currentMaterial->diffuse().empty()) {
+        emptyVector.clear();
         emptyVector.push_back(defaultBlack);
         currentMaterial->diffuse(emptyVector);
         std::cout << "No diffuse texture " + currentMesh->name()+" MaterialComponent name: "+ material->GetName().C_Str() << std::endl;
@@ -306,11 +307,13 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
         std::cout << "No roughness or metalness texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }
     if (currentMaterial->specular().empty()) {
+        emptyVector.clear();
         emptyVector.push_back(defaultWhite);
         currentMaterial->specular(emptyVector);
         std::cout << "No specular texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
     }
     if (currentMaterial->ambientOcclusion().empty()) {
+        emptyVector.clear();
         emptyVector.push_back(defaultWhite);
         currentMaterial->ambientOcclusion(emptyVector);
         std::cout << "No ambient occlusion texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().C_Str() << std::endl;
