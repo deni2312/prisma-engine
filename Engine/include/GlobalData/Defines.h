@@ -11,6 +11,7 @@ const int MAX_ANIMATION_MESHES = 1024;
 const int MAX_SHADOW_OMNI = 1024;
 const int MAX_SHADOW_DIR = 4096;
 const std::string DIR_DEFAULT_BLACK = "../../../Resources/res/black.png";
+const std::string DIR_DEFAULT_WHITE = "../../../Resources/res/white.jpg";
 const std::string DIR_DEFAULT_SCENE = "../../../Resources/BasicScene/BasicScene.gltf";
 const std::string DIR_DEFAULT_NORMAL = "../../../Resources/res/normal.jpg";
 const std::string DIR_DEFAULT_SETTINGS = "../../../Resources/configuration/settings.json";

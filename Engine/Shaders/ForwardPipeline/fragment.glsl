@@ -35,6 +35,9 @@ void main()
     float metallic = roughnessMetalnessTexture.b;
     float roughness = roughnessMetalnessTexture.g;
 
+    float specularMap = texture(currentMaterial.specularMap, TexCoords).r;
+    float ao = texture(currentMaterial.ambient_occlusion, TexCoords).r;
+
     vec3 N = getNormalFromMap();
 
     vec3 V = normalize(viewPos.xyz - FragPos);
@@ -144,7 +147,7 @@ void main()
     vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-    vec3 ambient = kD * diffuse + specular;
+    vec3 ambient = (kD * diffuse + specular)*ao;
     Lo = ambient+Lo;
 
     FragColor = vec4(Lo, 1.0);

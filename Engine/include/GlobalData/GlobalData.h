@@ -17,6 +17,7 @@ namespace Prisma {
 	extern std::shared_ptr<Prisma::FBO> fboTarget;
 	extern glm::mat4 currentProjection;
 	extern Prisma::Texture defaultBlack;
+	extern Prisma::Texture defaultWhite;
 	extern Prisma::Texture defaultNormal;
 
 }
