@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "Shadinclude.h"
 
 
 namespace Prisma {
@@ -27,56 +28,24 @@ namespace Prisma {
             std::string vertexCode;
             std::string fragmentCode;
             std::string geometryCode;
-            std::ifstream vShaderFile;
-            std::ifstream fShaderFile;
-            std::ifstream gShaderFile;
             std::string tessControlCode;
             std::string tessEvalCode;
-            std::ifstream tcShaderFile;
-            std::ifstream teShaderFile;
             // ensure ifstream objects can throw exceptions:
-            vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-            fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-            gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-            tcShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-            teShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             try
             {
-                // open files
-                vShaderFile.open(vertexPath);
-                fShaderFile.open(fragmentPath);
-                std::stringstream vShaderStream, fShaderStream;
-                // read file's buffer contents into streams
-                vShaderStream << vShaderFile.rdbuf();
-                fShaderStream << fShaderFile.rdbuf();
-                // close file handlers
-                vShaderFile.close();
-                fShaderFile.close();
                 // convert stream into string
-                vertexCode = headers.vertex+vShaderStream.str();
-                fragmentCode = headers.fragment + fShaderStream.str();
+                vertexCode = headers.vertex+Shadinclude::load(vertexPath);
+                fragmentCode = headers.fragment + Shadinclude::load(fragmentPath);
                 // if geometry shader path is present, also load a geometry shader
                 if (geometryPath != nullptr)
                 {
-                    gShaderFile.open(geometryPath);
-                    std::stringstream gShaderStream;
-                    gShaderStream << gShaderFile.rdbuf();
-                    gShaderFile.close();
-                    geometryCode = headers.geometry + gShaderStream.str();
+                    geometryCode = headers.geometry + Shadinclude::load(geometryPath);
                 }
                 if (tessControlPath != nullptr) {
-                    tcShaderFile.open(tessControlPath);
-                    std::stringstream tcShaderStream;
-                    tcShaderStream << tcShaderFile.rdbuf();
-                    tcShaderFile.close();
-                    tessControlCode = tcShaderStream.str();
+                    tessControlCode = Shadinclude::load(tessControlPath);
                 }
                 if (tessEvalPath != nullptr) {
-                    teShaderFile.open(tessEvalPath);
-                    std::stringstream teShaderStream;
-                    teShaderStream << teShaderFile.rdbuf();
-                    teShaderFile.close();
-                    tessEvalCode = teShaderStream.str();
+                    tessEvalCode = Shadinclude::load(tessEvalPath);
                 }
             }
             catch (std::ifstream::failure& e)
@@ -152,20 +121,9 @@ namespace Prisma {
 
         Shader(const char* computePath,std::string header="") {
             std::string computeCode;
-            std::ifstream cShaderFile;
-            // ensure ifstream objects can throw exceptions:
-            cShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             try
             {
-                // open files
-                cShaderFile.open(computePath);
-                std::stringstream cShaderStream;
-                // read file's buffer contents into streams
-                cShaderStream << cShaderFile.rdbuf();
-                // close file handlers
-                cShaderFile.close();
-                // convert stream into string
-                computeCode = header+cShaderStream.str();
+                computeCode = header+ Shadinclude::load(computePath);
             }
             catch (std::ifstream::failure& e)
             {
