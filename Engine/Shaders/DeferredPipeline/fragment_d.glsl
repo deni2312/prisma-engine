@@ -61,7 +61,7 @@ void main()
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
         vec3 specular = numerator / denominator;
 
-        vec3 kS = F;
+        vec3 kS = F*specularMap;
 
         vec3 kD = vec3(1.0) - kS;
 
@@ -108,7 +108,7 @@ void main()
             float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
             vec3 specular = numerator / denominator;
 
-            vec3 kS = F;
+            vec3 kS = F * specularMap;
 
             vec3 kD = vec3(1.0) - kS;
 
@@ -130,7 +130,7 @@ void main()
 
     vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
-    vec3 kS = F;
+    vec3 kS = F * specularMap;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
 
