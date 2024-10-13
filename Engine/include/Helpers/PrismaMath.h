@@ -6,6 +6,8 @@
 #include <assimp/matrix4x4.h>
 #include <assimp/quaternion.h>
 #include "bullet/btBulletDynamicsCommon.h"
+#include <Jolt/Jolt.h>
+
 
 namespace Prisma{
 
@@ -23,6 +25,58 @@ namespace Prisma{
             }
         }
         return true;
+    }
+
+    // glm::vec3 to JPH::Vec3
+    static JPH::Vec3 JtoVec3(const glm::vec3& v) {
+        return JPH::Vec3(v.x, v.y, v.z);
+    }
+
+    // JPH::Vec3 to glm::vec3
+    static glm::vec3 JfromVec3(const JPH::Vec3& v) {
+        return glm::vec3(v.GetX(), v.GetY(), v.GetZ());
+    }
+
+    // glm::vec4 to JPH::Vec4
+    static JPH::Vec4 JtoVec4(const glm::vec4& v) {
+        return JPH::Vec4(v.x, v.y, v.z, v.w);
+    }
+
+    // JPH::Vec4 to glm::vec4
+    static glm::vec4 JfromVec4(const JPH::Vec4& v) {
+        return glm::vec4(v.GetX(), v.GetY(), v.GetZ(), v.GetW());
+    }
+
+    // glm::mat4 to JPH::Mat4
+    static JPH::Mat44 JtoMat4(const glm::mat4& m) {
+        JPH::Mat44 joltMat;
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                joltMat(i, j) = m[i][j];  // Access elements directly by row and column
+            }
+        }
+        return joltMat;
+    }
+
+    // glm::vec4 to JPH::Vec4
+    static JPH::Quat JtoQuat(const glm::quat& v) {
+        return JPH::Quat(v.x, v.y, v.z, v.w);
+    }
+
+    // glm::vec4 to JPH::Vec4
+    static glm::quat JtoQuat(const JPH::Quat& v) {
+        return glm::quat(v.GetX(), v.GetY(), v.GetZ(), v.GetW());
+    }
+
+    // JPH::Mat4 to glm::mat4
+    static glm::mat4 JfromMat4(const JPH::Mat44& m) {
+        glm::mat4 glmMat;
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                glmMat[i][j] = m(i, j);  // Access elements directly by row and column
+            }
+        }
+        return glmMat;
     }
 
     static glm::mat4 createModelMatrix(const glm::vec3& translation, const glm::mat4& rotation, const glm::vec3& scale) {

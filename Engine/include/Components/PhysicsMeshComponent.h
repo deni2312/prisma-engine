@@ -7,6 +7,25 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "../GlobalData/GlobalData.h"
 
+#include <Jolt/Jolt.h>
+
+// Jolt includes
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+// All Jolt symbols are in the JPH namespace
+using namespace JPH;
+
+// If you want your code to compile using single or double precision write 0.0_r to get a Real value that compiles to double or float depending if JPH_DOUBLE_PRECISION is set or not.
+using namespace JPH::literals;
+
 namespace Prisma {
 
     class PhysicsMeshComponent : public Prisma::Component {
@@ -34,7 +53,9 @@ namespace Prisma {
 
         void start() override;
 
-        uint64_t physicsId();
+        BodyID physicsId();
+
+        bool initPhysics();
 
     private:
         ComponentList m_status;
@@ -44,7 +65,8 @@ namespace Prisma {
         btRigidBody *m_body = nullptr;
         void colliderDispatcher(Prisma::Physics::Collider collider);
         bool m_fixed = false;
-        uint64_t m_physicsId;
+        BodyID m_physicsId;
+        bool m_initPhysics;
     };
 
 }

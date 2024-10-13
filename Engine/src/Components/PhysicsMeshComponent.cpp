@@ -1,5 +1,6 @@
 #include "../../include/Components/PhysicsMeshComponent.h"
 #include "bullet/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
+#include "../../include/Physics/PhysicsData.h"
 
 void Prisma::PhysicsMeshComponent::ui() {
     ComponentType componentType;
@@ -52,27 +53,13 @@ void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData 
 }
 
 void Prisma::PhysicsMeshComponent::updateCollisionData() {
+
+}
+
+void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
     auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
     if (mesh && !m_fixed) {
         auto aabbData = mesh->aabbData();
-        auto physicsWorld = Prisma::Physics::getInstance().physicsWorld();
-
-        if (m_shape && m_body) {
-            physicsWorld->collisionShapes.remove(m_shape);
-            physicsWorld->dynamicsWorld->removeRigidBody(m_body);
-        }
-        colliderDispatcher(m_collisionData.collider);
-        glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
-
-        bool isDynamic = (m_collisionData.mass != 0.f);
-        if (isDynamic) {
-            m_shape->calculateLocalInertia(m_collisionData.mass, m_collisionData.localInertia);
-        }
-        btTransform transform;
-        transform.setIdentity();
-        glm::vec3 origin(aabbData.min.x + halfExtents.x, aabbData.min.y + halfExtents.y,
-            aabbData.min.z + halfExtents.z);
-
         glm::vec3 scale;
         glm::quat rotation;
         glm::vec3 translation;
@@ -82,82 +69,10 @@ void Prisma::PhysicsMeshComponent::updateCollisionData() {
         auto isAnimate = dynamic_cast<AnimatedMesh*>(mesh);
 
         glm::decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
-        origin = glm::vec4(translation + origin, 1.0);
 
-        transform.setFromOpenGLMatrix(glm::value_ptr(mesh->parent()->matrix() * glm::inverse(glm::scale(glm::mat4(1.0f), scale))));
-
-        m_shape->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
-
-        if (m_collisionData.rigidbody) {
-            //using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-            auto* myMotionState = new btDefaultMotionState(transform);
-            btRigidBody::btRigidBodyConstructionInfo rbInfo(m_collisionData.mass, myMotionState, m_shape,
-                m_collisionData.localInertia);
-            m_body = new btRigidBody(rbInfo);
-
-            m_body->setWorldTransform(transform);
-
-            m_body->setUserPointer(mesh);
-
-            physicsWorld->dynamicsWorld->addRigidBody(m_body);
-        }
-        physicsWorld->collisionShapes.push_back(m_shape);
-    }
-}
-
-void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
-    auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
-    if (mesh && !m_fixed) {
-        auto aabbData = mesh->aabbData();
-        if (m_shape) {
-            auto physicsWorld = Prisma::Physics::getInstance().physicsWorld();
-            physicsWorld->collisionShapes.remove(m_shape);
-        }
-        switch (collider) {
-        case Prisma::Physics::Collider::BOX_COLLIDER: {
-            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
-            m_shape = new btBoxShape(btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
-            break;
-        }
-        case Prisma::Physics::Collider::SPHERE_COLLIDER: {
-            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
-            halfExtents.x = 0;
-            halfExtents.y = 0;
-            float length = glm::length(halfExtents);
-            m_shape = new btSphereShape(length);
-            break;
-        }
-        case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
-            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
-
-            btTriangleMesh* terrainMesh = new btTriangleMesh();
-
-            auto vertices = mesh->verticesData();
-
-
-            for (int i = 0; i < vertices.indices.size(); i = i + 3) {
-                terrainMesh->addTriangle(getVec3BT(vertices.vertices[vertices.indices[i]].position), getVec3BT(vertices.vertices[vertices.indices[i + 1]].position), getVec3BT(vertices.vertices[vertices.indices[i + 2]].position));
-            }
-            m_shape = new btBvhTriangleMeshShape(terrainMesh, true);
-            break;
-        }
-
-        case Prisma::Physics::Collider::CONVEX_COLLIDER: {
-            glm::vec3 halfExtents = (aabbData.max - aabbData.min) * 0.5f;
-
-            auto vertices = mesh->verticesData();
-
-            m_shape = new btConvexHullShape();
-
-            for (int i = 0; i < vertices.indices.size(); i = i + 3) {
-                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVec3BT(vertices.vertices[vertices.indices[i]].position));
-                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVec3BT(vertices.vertices[vertices.indices[i + 1]].position));
-                static_cast<btConvexHullShape*>(m_shape)->addPoint(getVec3BT(vertices.vertices[vertices.indices[i + 2]].position));
-            }
-            break;
-        }
-
-        }
+        BodyCreationSettings aabbSettings(new BoxShape(Prisma::JtoVec3(aabbData.min - aabbData.max)), Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Dynamic, Prisma::Layers::MOVING);
+        m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, EActivation::Activate);
+        m_initPhysics = true;
     }
 }
 
@@ -183,8 +98,12 @@ void Prisma::PhysicsMeshComponent::start() {
     updateCollisionData();
 }
 
-uint64_t Prisma::PhysicsMeshComponent::physicsId() {
+BodyID Prisma::PhysicsMeshComponent::physicsId() {
     return m_physicsId;
+}
+
+bool Prisma::PhysicsMeshComponent::initPhysics() {
+    return m_initPhysics;
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {

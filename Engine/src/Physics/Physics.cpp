@@ -5,25 +5,6 @@
 #include "../../include/Physics/DrawDebugger.h"
 #include "glm/gtx/matrix_decompose.hpp"
 
-#include <Jolt/Jolt.h>
-
-// Jolt includes
-#include <Jolt/RegisterTypes.h>
-#include <Jolt/Core/Factory.h>
-#include <Jolt/Core/TempAllocator.h>
-#include <Jolt/Core/JobSystemThreadPool.h>
-#include <Jolt/Physics/PhysicsSettings.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Physics/Collision/Shape/BoxShape.h>
-#include <Jolt/Physics/Collision/Shape/SphereShape.h>
-#include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <Jolt/Physics/Body/BodyActivationListener.h>
-// All Jolt symbols are in the JPH namespace
-using namespace JPH;
-
-// If you want your code to compile using single or double precision write 0.0_r to get a Real value that compiles to double or float depending if JPH_DOUBLE_PRECISION is set or not.
-using namespace JPH::literals;
-
 struct PhysicsWorldJolt {
     Prisma::BPLayerInterfaceImpl broad_phase_layer_interface;
     Prisma::ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter;
@@ -72,17 +53,22 @@ Prisma::Physics::Physics() {
 }
 
 void Prisma::Physics::update(float delta) {
+    auto& bInterface = physicsWorldJolt->physics_system.GetBodyInterface();
 
     for (const auto& mesh: currentGlobalScene->meshes) {
-        auto physicsComponent = mesh->components()["Physics"];
-        if (physicsComponent) {
+        auto physicsComponent = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(mesh->components()["Physics"]);
+        if (physicsComponent && physicsComponent->initPhysics()) {
 
+            const auto& matrix = mesh->parent()->matrix();
+            const auto& prismaMatrix = Prisma::JfromMat4(bInterface.GetWorldTransform(physicsComponent->physicsId()));
+
+            if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
+                mesh->parent()->matrix(prismaMatrix);
+            }
         }
     }
-
-    BodyInterface& body_interface = physicsWorldJolt->physics_system.GetBodyInterface();
     physicsWorldJolt->physics_system.Update(delta, 1 , &*physicsWorldJolt->temp_allocator, &*physicsWorldJolt->job_system);
-    /*m_physicsWorld->dynamicsWorld->stepSimulation(delta, 10);
+    m_physicsWorld->dynamicsWorld->stepSimulation(delta, 10);
     for (int j = m_physicsWorld->dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
     {
         btCollisionObject* obj = m_physicsWorld->dynamicsWorld->getCollisionObjectArray()[j];
@@ -110,7 +96,7 @@ void Prisma::Physics::update(float delta) {
         if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
             mesh->parent()->matrix(prismaMatrix);
         }
-    }*/
+    }
 
 
 
@@ -118,4 +104,8 @@ void Prisma::Physics::update(float delta) {
 
 std::shared_ptr<Prisma::Physics::PhysicsWorld> Prisma::Physics::physicsWorld() {
     return m_physicsWorld;
+}
+
+BodyInterface& Prisma::Physics::bodyInterface() {
+    return physicsWorldJolt->physics_system.GetBodyInterface();
 }
