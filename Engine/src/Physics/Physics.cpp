@@ -50,7 +50,6 @@ Prisma::Physics::Physics() {
     physicsWorldJolt->physics_system.SetBodyActivationListener(&physicsWorldJolt->body_activation_listener);
     physicsWorldJolt->physics_system.SetContactListener(&physicsWorldJolt->contact_listener);
     physicsWorldJolt->physics_system.OptimizeBroadPhase();
-
 }
 
 void Prisma::Physics::update(float delta) {
