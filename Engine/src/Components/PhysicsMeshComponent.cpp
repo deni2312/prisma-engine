@@ -1,6 +1,7 @@
 #include "../../include/Components/PhysicsMeshComponent.h"
 #include "bullet/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "../../include/Physics/PhysicsData.h"
+#include <glm/gtx/string_cast.hpp>
 
 void Prisma::PhysicsMeshComponent::ui() {
     ComponentType componentType;
@@ -70,8 +71,9 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
 
         glm::decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
 
-        BodyCreationSettings aabbSettings(new BoxShape(Prisma::JtoVec3(aabbData.min - aabbData.max)), Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Dynamic, Prisma::Layers::MOVING);
-        m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, EActivation::Activate);
+        auto length = (aabbData.max - aabbData.min) * 0.5f;
+        BodyCreationSettings aabbSettings(new BoxShape(Prisma::JtoVec3(length)), Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Static, Prisma::Layers::NON_MOVING);
+        m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, EActivation::DontActivate);
         m_initPhysics = true;
     }
 }

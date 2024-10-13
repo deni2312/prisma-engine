@@ -66,7 +66,7 @@ namespace Prisma {
         void colliderDispatcher(Prisma::Physics::Collider collider);
         bool m_fixed = false;
         BodyID m_physicsId;
-        bool m_initPhysics;
+        bool m_initPhysics = false;
     };
 
 }

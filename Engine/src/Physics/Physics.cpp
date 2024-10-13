@@ -62,7 +62,6 @@ void Prisma::Physics::update(float delta) {
 
             const auto& matrix = mesh->parent()->matrix();
             const auto& prismaMatrix = Prisma::JfromMat4(bInterface.GetWorldTransform(physicsComponent->physicsId()));
-
             if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
                 mesh->parent()->matrix(prismaMatrix);
             }
