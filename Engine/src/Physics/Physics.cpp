@@ -1,12 +1,19 @@
 #include "../../include/Physics/Physics.h"
+#include "../../include/Physics/PhysicsData.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "glm/gtx/string_cast.hpp"
 #include "../../include/Physics/DrawDebugger.h"
 #include "glm/gtx/matrix_decompose.hpp"
+// All Jolt symbols are in the JPH namespace
+using namespace JPH;
 
+// If you want your code to compile using single or double precision write 0.0_r to get a Real value that compiles to double or float depending if JPH_DOUBLE_PRECISION is set or not.
+using namespace JPH::literals;
 
 Prisma::Physics::Physics() {
     m_physicsWorld=std::make_shared<PhysicsWorld>();
+    m_physicsWorldJolt = std::make_shared<PhysicsWorldJolt>();
+
     m_physicsWorld->collisionConfiguration = new btDefaultCollisionConfiguration();
 
     ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
@@ -20,10 +27,23 @@ Prisma::Physics::Physics() {
 
     m_physicsWorld->dynamicsWorld = new btDiscreteDynamicsWorld(m_physicsWorld->dispatcher, m_physicsWorld->overlappingPairCache, m_physicsWorld->solver, m_physicsWorld->collisionConfiguration);
 
+
+    RegisterDefaultAllocator();
+    Factory::sInstance = new Factory();
+    RegisterTypes();
+    TempAllocatorImpl temp_allocator(10 * 1024 * 1024);
+    JobSystemThreadPool job_system(cMaxPhysicsJobs, cMaxPhysicsBarriers, thread::hardware_concurrency() - 1);
+    const uint cMaxBodies = 1024;
+    const uint cNumBodyMutexes = 0;
+    const uint cMaxBodyPairs = 1024;
+    const uint cMaxContactConstraints = 1024;
+    m_physicsWorldJolt->physics_system.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_physicsWorldJolt->broad_phase_layer_interface, m_physicsWorldJolt->object_vs_broadphase_layer_filter, m_physicsWorldJolt->object_vs_object_layer_filter);
+    m_physicsWorldJolt->physics_system.SetBodyActivationListener(&m_physicsWorldJolt->body_activation_listener);
+    m_physicsWorldJolt->physics_system.SetContactListener(&m_physicsWorldJolt->contact_listener);
 }
 
 void Prisma::Physics::update(float delta) {
-    m_physicsWorld->dynamicsWorld->stepSimulation(delta, 10);
+    /*m_physicsWorld->dynamicsWorld->stepSimulation(delta, 10);
     for (int j = m_physicsWorld->dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
     {
         btCollisionObject* obj = m_physicsWorld->dynamicsWorld->getCollisionObjectArray()[j];
@@ -51,7 +71,9 @@ void Prisma::Physics::update(float delta) {
         if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
             mesh->parent()->matrix(prismaMatrix);
         }
-    }
+    }*/
+
+
 }
 
 std::shared_ptr<Prisma::Physics::PhysicsWorld> Prisma::Physics::physicsWorld() {
