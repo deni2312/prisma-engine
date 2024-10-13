@@ -71,10 +71,11 @@ namespace Prisma{
     // JPH::Mat4 to glm::mat4
     static glm::mat4 JfromMat4(const JPH::Mat44& m) {
         glm::mat4 glmMat;
+        auto& m1 = m.Transposed();
         // Iterate over rows and columns to copy each element
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
-                glmMat[j][i] = m(i, j);  // Swap indices to account for column-major order in glm
+                glmMat[i][j] = m1(i, j);  // Swap indices to account for column-major order in glm
             }
         }
         return glmMat;

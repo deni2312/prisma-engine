@@ -73,7 +73,10 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
         
         auto length = (aabbData.max - aabbData.min) * 0.5f;
         if (mesh->name() != "Cube.002") {
-            BodyCreationSettings aabbSettings(new BoxShape(Prisma::JtoVec3(length)), Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Static, Prisma::Layers::NON_MOVING);
+            auto boxShape = new BoxShape(Prisma::JtoVec3(length));
+
+            auto scaledShape = new ScaledShape(boxShape, Prisma::JtoVec3(scale));
+            BodyCreationSettings aabbSettings(scaledShape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Static, Prisma::Layers::NON_MOVING);
             m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, EActivation::DontActivate);
         }
         else {
