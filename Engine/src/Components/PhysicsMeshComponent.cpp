@@ -88,16 +88,9 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher() {
             m_initPhysics = true;
         }
         else {
-            BodyLockWrite lock(Prisma::Physics::getInstance().physicsSystem().GetBodyLockInterface(), m_physicsId);
-            if (lock.Succeeded())
-            {
-                auto& body = lock.GetBody();
-                
-                /*Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().SetShape(body.GetID(), shape, true, EActivation::Activate);
-                Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().SetObjectLayer(body.GetID(), m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
-                Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().SetMotionType(body.GetID(), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
-                Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().SetPositionAndRotation(body.GetID(), Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);*/
-            }
+            Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
+            Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
+            m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
         }
     }
 }
