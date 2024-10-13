@@ -31,8 +31,6 @@ void UserEngine::start()
         }
     });
     
-    Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0, -10.0, 0.0));
-
     //m_player = std::make_shared<PlayerController>(m_root);
     //
     //m_player->scene(m_root);

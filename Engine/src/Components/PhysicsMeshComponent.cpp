@@ -20,7 +20,7 @@ void Prisma::PhysicsMeshComponent::ui() {
     m_apply=[&](){
         if (m_collisionData.collider!= static_cast<Prisma::Physics::Collider>(m_status.currentitem)) {
             m_collisionData.collider = static_cast<Prisma::Physics::Collider>(m_status.currentitem);
-            colliderDispatcher(m_collisionData.collider);
+            colliderDispatcher();
         }
         updateCollisionData();
     };
@@ -31,7 +31,7 @@ void Prisma::PhysicsMeshComponent::ui() {
     addGlobal(componentMass);
 
     addGlobal(componentButton);
-    colliderDispatcher(m_collisionData.collider);
+    colliderDispatcher();
     updateCollisionData();
 }
 
@@ -41,11 +41,7 @@ void Prisma::PhysicsMeshComponent::update() {
 
 void Prisma::PhysicsMeshComponent::destroy()
 {
-    auto physicsWorld = Prisma::Physics::getInstance().physicsWorld();
-    if (m_shape && m_body) {
-        physicsWorld->collisionShapes.remove(m_shape);
-        physicsWorld->dynamicsWorld->removeRigidBody(m_body);
-    }
+
 }
 
 void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData collisionData) {
@@ -54,12 +50,14 @@ void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData 
 }
 
 void Prisma::PhysicsMeshComponent::updateCollisionData() {
-
+    if (m_initPhysics) {
+        colliderDispatcher();
+    }
 }
 
-void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider collider) {
+void Prisma::PhysicsMeshComponent::colliderDispatcher() {
     auto mesh = dynamic_cast<Prisma::Mesh*>(parent());
-    if (mesh && !m_fixed) {
+    if (mesh) {
         auto aabbData = mesh->aabbData();
         glm::vec3 scale;
         glm::quat rotation;
@@ -70,12 +68,12 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
         auto isAnimate = dynamic_cast<AnimatedMesh*>(mesh);
 
         glm::decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
-        
-        auto length = (aabbData.max - aabbData.min) * 0.5f;
-        auto boxShape = new BoxShape(Prisma::JtoVec3(length));
-        Shape*  shape = nullptr;
 
-        switch (collider) {
+        if (!m_initPhysics) {
+
+            Shape* shape = nullptr;
+
+            switch (m_collisionData.collider) {
             case Prisma::Physics::Collider::BOX_COLLIDER: {
                 auto length = (aabbData.max - aabbData.min) * 0.5f;
                 auto boxShape = new BoxShape(Prisma::JtoVec3(length));
@@ -97,12 +95,20 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
             case Prisma::Physics::Collider::CONVEX_COLLIDER: {
 
             }
-        }
+            }
 
-        BodyCreationSettings aabbSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
-        m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
-        aabbSettings.mUserData = mesh->uuid();
-        m_initPhysics = true;
+            BodyCreationSettings aabbSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
+            m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
+            aabbSettings.mUserData = mesh->uuid();
+            m_initPhysics = true;
+        }
+        else {
+            
+	        BodyLockWrite lock(Prisma::Physics::getInstance().physicsSystem().GetBodyLockInterface(), m_physicsId);
+            if (lock.Succeeded())
+            {
+            }
+        }
     }
 }
 
@@ -110,21 +116,9 @@ Prisma::Physics::CollisionData Prisma::PhysicsMeshComponent::collisionData() {
     return m_collisionData;
 }
 
-btRigidBody* Prisma::PhysicsMeshComponent::rigidBody() {
-    return m_body;
-}
-
-btCollisionShape* Prisma::PhysicsMeshComponent::shape() {
-    return m_shape;
-}
-
-void Prisma::PhysicsMeshComponent::fixedRigidBody(bool fixed) {
-    m_fixed = fixed;
-}
-
 void Prisma::PhysicsMeshComponent::start() {
     Prisma::Component::start();
-    colliderDispatcher(m_collisionData.collider);
+    colliderDispatcher();
     updateCollisionData();
 }
 

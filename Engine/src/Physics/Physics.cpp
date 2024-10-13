@@ -20,23 +20,7 @@ struct PhysicsWorldJolt {
 static std::shared_ptr<PhysicsWorldJolt> physicsWorldJolt = nullptr;
 
 Prisma::Physics::Physics() {
-    m_physicsWorld=std::make_shared<PhysicsWorld>();
     physicsWorldJolt = std::make_shared<PhysicsWorldJolt>();
-
-    m_physicsWorld->collisionConfiguration = new btDefaultCollisionConfiguration();
-
-    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-    m_physicsWorld->dispatcher = new btCollisionDispatcher(m_physicsWorld->collisionConfiguration);
-
-    ///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
-    m_physicsWorld->overlappingPairCache = new btDbvtBroadphase();
-
-    ///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-    m_physicsWorld->solver = new btSequentialImpulseConstraintSolver;
-
-    m_physicsWorld->dynamicsWorld = new btDiscreteDynamicsWorld(m_physicsWorld->dispatcher, m_physicsWorld->overlappingPairCache, m_physicsWorld->solver, m_physicsWorld->collisionConfiguration);
-
-
     RegisterDefaultAllocator();
     Factory::sInstance = new Factory();
     RegisterTypes();
@@ -82,10 +66,10 @@ void Prisma::Physics::update(float delta) {
     physicsWorldJolt->physics_system.Update(delta, 1 , &*physicsWorldJolt->temp_allocator, &*physicsWorldJolt->job_system);
 }
 
-std::shared_ptr<Prisma::Physics::PhysicsWorld> Prisma::Physics::physicsWorld() {
-    return m_physicsWorld;
-}
-
 BodyInterface& Prisma::Physics::bodyInterface() {
     return physicsWorldJolt->physics_system.GetBodyInterface();
+}
+
+JPH::PhysicsSystem& Prisma::Physics::physicsSystem() {
+    return physicsWorldJolt->physics_system;
 }

@@ -46,12 +46,6 @@ namespace Prisma {
 
         Prisma::Physics::CollisionData collisionData();
 
-        btRigidBody* rigidBody();
-
-        btCollisionShape* shape();
-
-        void fixedRigidBody(bool fixed);
-
         void start() override;
 
         BodyID physicsId();
@@ -64,8 +58,7 @@ namespace Prisma {
         Prisma::Physics::CollisionData m_collisionData{};
         btCollisionShape *m_shape = nullptr;
         btRigidBody *m_body = nullptr;
-        void colliderDispatcher(Prisma::Physics::Collider collider);
-        bool m_fixed = false;
+        void colliderDispatcher();
         BodyID m_physicsId;
         bool m_initPhysics = false;
     };

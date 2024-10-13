@@ -27,21 +27,12 @@ namespace Prisma {
             bool dynamic=false;
         };
 
-        struct PhysicsWorld{
-            btDefaultCollisionConfiguration* collisionConfiguration;
-            btCollisionDispatcher* dispatcher;
-            btBroadphaseInterface* overlappingPairCache;
-            btSequentialImpulseConstraintSolver* solver;
-            btDiscreteDynamicsWorld* dynamicsWorld;
-            btAlignedObjectArray<btCollisionShape*> collisionShapes;
-        };
-
         Physics();
         void update(float delta);
-        std::shared_ptr<PhysicsWorld> physicsWorld();
 
         JPH::BodyInterface& bodyInterface();
-    private:
-        std::shared_ptr<PhysicsWorld> m_physicsWorld;
+
+        JPH::PhysicsSystem& physicsSystem();
+
     };
 }
