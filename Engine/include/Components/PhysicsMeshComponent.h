@@ -34,9 +34,7 @@ namespace Prisma {
 
         void start() override;
 
-        uint64_t physicsId() {
-            return m_physicsId;
-        }
+        uint64_t physicsId();
 
     private:
         ComponentList m_status;
