@@ -52,6 +52,8 @@ namespace Prisma {
 
         bool initPhysics();
 
+        Shape* getShape(glm::vec3 scale);
+
     private:
         ComponentList m_status;
         std::function<void()> m_apply;

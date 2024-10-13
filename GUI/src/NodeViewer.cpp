@@ -14,34 +14,33 @@ void Prisma::NodeViewer::varsDispatcher(Prisma::Component::ComponentType types, 
         }
         }
         break;
-    case Component::TYPES::VEC3: {
-        ImGui::Text(name.c_str());
-        ImGui::InputFloat3(label.c_str(), glm::value_ptr(*static_cast<glm::vec3*>(variable)));
-    }
-        break;
-    case Component::TYPES::VEC2: {
-        ImGui::Text(name.c_str());
-        ImGui::InputFloat2(label.c_str(), glm::value_ptr(*static_cast<glm::vec2*>(variable)));
-    }
-        break;
-    case Component::TYPES::INT: {
-        ImGui::Text(name.c_str());
-        ImGui::InputInt(name.c_str(), static_cast<int*>(variable));
-    }
-        break;
-    case Component::TYPES::FLOAT: {
-        ImGui::Text(name.c_str());
-        ImGui::InputFloat(label.c_str(), static_cast<float*>(variable));
-    }
-        break;
-    case Component::TYPES::STRING: {
-        ImGui::Text("%s", ((std::string*)variable)->c_str());
-    }
-        break;
-    case Component::TYPES::BOOL: {
-        ImGui::Text(name.c_str());
-        ImGui::Checkbox(label.c_str(), static_cast<bool*>(variable));
-    }
+        case Component::TYPES::VEC3: {
+            ImGui::Text(name.c_str());
+            ImGui::InputFloat3(label.c_str(), glm::value_ptr(*static_cast<glm::vec3*>(variable)));
+        }
+            break;
+        case Component::TYPES::VEC2: {
+            ImGui::Text(name.c_str());
+            ImGui::InputFloat2(label.c_str(), glm::value_ptr(*static_cast<glm::vec2*>(variable)));
+        }
+            break;
+        case Component::TYPES::INT: {
+            ImGui::Text(name.c_str());
+            ImGui::InputInt(name.c_str(), static_cast<int*>(variable));
+        }
+            break;
+        case Component::TYPES::FLOAT: {
+            ImGui::Text(name.c_str());
+            ImGui::InputFloat(label.c_str(), static_cast<float*>(variable));
+        }
+            break;
+        case Component::TYPES::STRING: {
+            ImGui::Text("%s", ((std::string*)variable)->c_str());
+        }
+            break;
+        case Component::TYPES::BOOL: {
+            ImGui::Checkbox(name.c_str(), static_cast<bool*>(variable));
+        }
         break;
     case Component::TYPES::STRINGLIST: {
         ImGui::Text(name.c_str());
