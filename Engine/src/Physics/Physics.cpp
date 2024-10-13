@@ -68,7 +68,12 @@ void Prisma::Physics::update(float delta) {
             glm::mat4 prismaMatrix(1.0);
 
             if (lock.Succeeded()) {
+                auto& body = lock.GetBody();
                 prismaMatrix = Prisma::JfromMat4(lock.GetBody().GetWorldTransform());
+                const ScaledShape* scaledShape = static_cast<const ScaledShape*>(body.GetShape());
+                if (scaledShape) {
+                    prismaMatrix = glm::scale(prismaMatrix, Prisma::JfromVec3(scaledShape->GetScale()));
+                }
             }
             if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
                 mesh->parent()->matrix(prismaMatrix);
@@ -76,38 +81,6 @@ void Prisma::Physics::update(float delta) {
         }
     }
     physicsWorldJolt->physics_system.Update(delta, 1 , &*physicsWorldJolt->temp_allocator, &*physicsWorldJolt->job_system);
-    m_physicsWorld->dynamicsWorld->stepSimulation(delta, 10);
-    for (int j = m_physicsWorld->dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
-    {
-        btCollisionObject* obj = m_physicsWorld->dynamicsWorld->getCollisionObjectArray()[j];
-        btRigidBody* body = btRigidBody::upcast(obj);
-        btTransform trans;
-        if (body && body->getMotionState())
-        {
-            body->getMotionState()->getWorldTransform(trans);
-        }
-        else
-        {
-            trans = obj->getWorldTransform();
-        }
-        auto mesh = (Mesh*)obj->getUserPointer();
-
-        auto prismaMatrix = glm::mat4(1.0f);
-        trans.getOpenGLMatrix(glm::value_ptr(prismaMatrix));
-
-        auto scaling = glm::vec3(body->getCollisionShape()->getLocalScaling().getX(), body->getCollisionShape()->getLocalScaling().getY(), body->getCollisionShape()->getLocalScaling().getZ());
-
-        prismaMatrix = prismaMatrix * glm::scale(glm::mat4(1.0f), scaling);
-        
-        const auto& matrix = mesh->parent()->matrix();
-
-        if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
-            mesh->parent()->matrix(prismaMatrix);
-        }
-    }
-
-
-
 }
 
 std::shared_ptr<Prisma::Physics::PhysicsWorld> Prisma::Physics::physicsWorld() {
