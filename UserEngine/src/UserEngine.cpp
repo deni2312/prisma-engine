@@ -14,7 +14,7 @@
 
 void UserEngine::start()
 {
-    m_root = Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.gltf", { true });
+    m_root = Prisma::Engine::getInstance().getScene("../../../Resources/Cube/cube.gltf", { true });
     Prisma::Texture texture;
     texture.loadEquirectangular("../../../Resources/Skybox/cloudy.hdr");
     texture.data({ 4096,4096,3 });
@@ -33,14 +33,14 @@ void UserEngine::start()
     
     Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->setGravity(btVector3(0.0, -10.0, 0.0));
 
-    m_player = std::make_shared<PlayerController>(m_root);
-
-    m_player->scene(m_root);
+    //m_player = std::make_shared<PlayerController>(m_root);
+    //
+    //m_player->scene(m_root);
 }
 
 void UserEngine::update()
 {
-    m_player->update();
+    //m_player->update();
 }
 
 void UserEngine::finish()
