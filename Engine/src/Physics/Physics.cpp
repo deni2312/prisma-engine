@@ -74,7 +74,10 @@ Prisma::Physics::Physics() {
 void Prisma::Physics::update(float delta) {
 
     for (const auto& mesh: currentGlobalScene->meshes) {
+        auto physicsComponent = mesh->components()["Physics"];
+        if (physicsComponent) {
 
+        }
     }
 
     BodyInterface& body_interface = physicsWorldJolt->physics_system.GetBodyInterface();
