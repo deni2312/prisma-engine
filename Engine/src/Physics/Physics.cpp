@@ -4,6 +4,7 @@
 #include "glm/gtx/string_cast.hpp"
 #include "../../include/Physics/DrawDebugger.h"
 #include "glm/gtx/matrix_decompose.hpp"
+#include "../../include/Components/PhysicsMeshComponent.h"
 
 struct PhysicsWorldJolt {
     Prisma::BPLayerInterfaceImpl broad_phase_layer_interface;
