@@ -47,7 +47,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     culling->addComponent(std::make_shared<Prisma::CullingComponent>());
     m_scene->root->addChild(culling);
 
-    auto terrain = std::make_shared<Prisma::Node>();
+    /*auto terrain = std::make_shared<Prisma::Node>();
     terrain->name("Terrain");
     terrain->matrix(glm::translate(glm::mat4(1.0),glm::vec3(0,-34,0)));
     auto terrainComponent = std::make_shared<Prisma::TerrainComponent>();
@@ -56,7 +56,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     blackTexture.loadTexture({ "../../../Resources/res/black.png", false, true, true,true });
     terrainComponent->heightMap(*perlin);
     terrain->addComponent(terrainComponent);
-    m_scene->root->addChild(terrain);
+    m_scene->root->addChild(terrain);*/
     createCamera();
     createKeyboard();
 }

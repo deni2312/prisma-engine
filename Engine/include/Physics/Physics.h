@@ -24,7 +24,7 @@ namespace Prisma {
             Collider collider;
             float mass =0.0f;
             btVector3 localInertia = btVector3(0,0,0);
-            bool rigidbody=false;
+            bool dynamic=false;
         };
 
         struct PhysicsWorld{

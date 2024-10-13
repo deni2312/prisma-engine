@@ -73,9 +73,34 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
         
         auto length = (aabbData.max - aabbData.min) * 0.5f;
         auto boxShape = new BoxShape(Prisma::JtoVec3(length));
-        auto scaledShape = new ScaledShape(boxShape, Prisma::JtoVec3(scale));
-        BodyCreationSettings aabbSettings(scaledShape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Static, Prisma::Layers::NON_MOVING);
-        m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, EActivation::DontActivate);
+        Shape*  shape = nullptr;
+
+        switch (collider) {
+            case Prisma::Physics::Collider::BOX_COLLIDER: {
+                auto length = (aabbData.max - aabbData.min) * 0.5f;
+                auto boxShape = new BoxShape(Prisma::JtoVec3(length));
+                shape = new ScaledShape(boxShape, Prisma::JtoVec3(scale));
+                break;
+            }
+            case Prisma::Physics::Collider::SPHERE_COLLIDER: {
+                auto lengthSphere = glm::length((aabbData.max - aabbData.min) * 0.5f);
+                auto sphereShape = new SphereShape(lengthSphere);
+                shape = new ScaledShape(sphereShape, Prisma::JtoVec3(scale));
+
+                break;
+            }
+            case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
+
+                break;
+            }
+
+            case Prisma::Physics::Collider::CONVEX_COLLIDER: {
+
+            }
+        }
+
+        BodyCreationSettings aabbSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
+        m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
         aabbSettings.mUserData = mesh->uuid();
         m_initPhysics = true;
     }
