@@ -70,10 +70,16 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher(Prisma::Physics::Collider 
         auto isAnimate = dynamic_cast<AnimatedMesh*>(mesh);
 
         glm::decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
-
+        
         auto length = (aabbData.max - aabbData.min) * 0.5f;
-        BodyCreationSettings aabbSettings(new BoxShape(Prisma::JtoVec3(length)), Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Static, Prisma::Layers::NON_MOVING);
-        m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, EActivation::DontActivate);
+        if (mesh->name() != "Cube.002") {
+            BodyCreationSettings aabbSettings(new BoxShape(Prisma::JtoVec3(length)), Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Static, Prisma::Layers::NON_MOVING);
+            m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, EActivation::DontActivate);
+        }
+        else {
+            BodyCreationSettings aabbSettings(new BoxShape(Prisma::JtoVec3(length)), Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Dynamic, Prisma::Layers::MOVING);
+            m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, EActivation::Activate);
+        }
         m_initPhysics = true;
     }
 }
