@@ -34,6 +34,10 @@ namespace Prisma {
 
         void start() override;
 
+        uint64_t physicsId() {
+            return m_physicsId;
+        }
+
     private:
         ComponentList m_status;
         std::function<void()> m_apply;
@@ -42,7 +46,7 @@ namespace Prisma {
         btRigidBody *m_body = nullptr;
         void colliderDispatcher(Prisma::Physics::Collider collider);
         bool m_fixed = false;
-
+        uint64_t m_physicsId;
     };
 
 }

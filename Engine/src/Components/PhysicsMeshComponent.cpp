@@ -183,6 +183,10 @@ void Prisma::PhysicsMeshComponent::start() {
     updateCollisionData();
 }
 
+uint64_t Prisma::PhysicsMeshComponent::physicsId() {
+    return m_physicsId;
+}
+
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Prisma::Component{} {
     name("Physics");
 }
