@@ -244,17 +244,8 @@ void PlayerController::createCamera() {
             m_basePosition[3] = position;
 
             ball->parent()->matrix(m_basePosition);
-            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,Vec3(0.1,0.0,0.0),true });
-
-            BodyLockWrite lock(Prisma::Physics::getInstance().physicsSystem().GetBodyLockInterface(), physicsComponent->physicsId());
-            glm::mat4 prismaMatrix(1.0);
-            if (lock.Succeeded()) {
-                auto& rb = lock.GetBody();
-                //physicsComponent->rigidBody()->activate(true);
-                std::cout << m_currentDirection.GetX() << std::endl;
-                rb.AddImpulse(m_currentDirection * 5);
-                //physicsComponent->fixedRigidBody(true);
-            }
+            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,Vec3(0.0,0.0,0.0),true });
+            Prisma::Physics::getInstance().bodyInterface().AddAngularImpulse(physicsComponent->physicsId(), m_currentDirection * 100);
         }
 
     };

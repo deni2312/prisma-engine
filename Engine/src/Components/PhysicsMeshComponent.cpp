@@ -22,7 +22,6 @@ void Prisma::PhysicsMeshComponent::ui() {
     m_apply=[&](){
         if (m_collisionData.collider!= static_cast<Prisma::Physics::Collider>(m_status.currentitem)) {
             m_collisionData.collider = static_cast<Prisma::Physics::Collider>(m_status.currentitem);
-            colliderDispatcher();
         }
         updateCollisionData();
     };
@@ -35,7 +34,6 @@ void Prisma::PhysicsMeshComponent::ui() {
     addGlobal(componentDynamic);
 
     addGlobal(componentButton);
-    colliderDispatcher();
     updateCollisionData();
 }
 
@@ -80,10 +78,10 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher() {
 
         aabbSettings.mMassPropertiesOverride = mass;
         aabbSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+        aabbSettings.mUserData = mesh->uuid();
+
         if (!m_initPhysics) {
             m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
-            aabbSettings.mUserData = mesh->uuid();
-
             m_initPhysics = true;
         }
         else {
@@ -100,7 +98,6 @@ Prisma::Physics::CollisionData Prisma::PhysicsMeshComponent::collisionData() {
 
 void Prisma::PhysicsMeshComponent::start() {
     Prisma::Component::start();
-    colliderDispatcher();
     updateCollisionData();
 }
 
@@ -128,7 +125,6 @@ Shape* Prisma::PhysicsMeshComponent::getShape(glm::vec3 scale) {
             auto lengthSphere = glm::length((aabbData.max - aabbData.min) * 0.5f);
             auto sphereShape = new SphereShape(lengthSphere);
             shape = new ScaledShape(sphereShape, Prisma::JtoVec3(scale));
-
             break;
         }
         case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
