@@ -64,7 +64,9 @@ namespace Prisma {
 
         std::string name();
 
+        uint64_t uuid();
 
+        Component();
 
     private:
 
@@ -73,7 +75,7 @@ namespace Prisma {
         bool m_ui = false;
         ComponentTypeVector m_globalVars;
         std::string m_name;
-
+        uint64_t m_uuid;
     };
 
 }

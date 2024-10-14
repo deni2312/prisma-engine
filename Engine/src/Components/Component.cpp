@@ -1,6 +1,8 @@
 #include "../../include/Components/Component.h"
 #include <iostream>
 
+static uint64_t uuidComponent = 0;
+
 void Prisma::Component::ui()
 {
 }
@@ -63,6 +65,15 @@ void Prisma::Component::name(std::string name) {
 
 std::string Prisma::Component::name() {
     return m_name;
+}
+
+uint64_t Prisma::Component::uuid() {
+    return m_uuid;
+}
+
+Prisma::Component::Component() {
+    m_uuid = uuidComponent;
+    uuidComponent = uuidComponent + 1;
 }
 
 void Prisma::Component::addGlobal(Prisma::Component::ComponentType globalVar) {
