@@ -33,7 +33,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_particleController.init(m_gunPosition);
 
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
-    m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,btVector3(0.0,0.0,0.0),true });
+    m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,Vec3(0.0,0.0,0.0),true });
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
     m_animations = ANIMATIONS::IDLE;
     m_previousAnimations = ANIMATIONS::IDLE;
@@ -84,32 +84,34 @@ void PlayerController::updateKeyboard()
 {
     updateAnimations();
 
-    /*auto playerData = m_animatedMesh->parent()->parent()->matrix();
-    auto rb = m_physics->rigidBody();
-    auto shape = m_physics->shape();
-    rb->setAngularFactor(btVector3(0, 0, 0));
+    auto playerData = m_animatedMesh->parent()->parent()->matrix();
+
+    auto id = m_physics->physicsId();
     glm::vec3 frontClamp = m_front;
+    //rb.SetAngularVelocity(Vec3(0, 0, 0));
     frontClamp.y = 0;
 
 
-    auto isJumping = m_animatedMesh->animator()->animation()->id() == m_jumpAnimation->id() && m_animatedMesh->animator()->currentTime() + m_jumpAnimation->ticksPerSecond()*1.0f / (float)Prisma::Engine::getInstance().fps() >= m_jumpAnimation->duration();
+    auto isJumping = m_animatedMesh->animator()->animation()->id() == m_jumpAnimation->id() && m_animatedMesh->animator()->currentTime() + m_jumpAnimation->ticksPerSecond() * 1.0f / (float)Prisma::Engine::getInstance().fps() >= m_jumpAnimation->duration();
 
-    if (isColliding() && !m_isColliding) {
+    /*if (isColliding() && !m_isColliding) {
         if (isJumping) {
             m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
             m_isColliding = true;
             m_previousAnimations = ANIMATIONS::IDLE;
         }
-    }
+    }*/
 
     glm::mat4 offsetRotation;
-    btVector3 velocity = rb->getLinearVelocity();
-    if (m_animations==ANIMATIONS::IDLE || m_animations == ANIMATIONS::WALK) {
+
+
+    if (m_animations == ANIMATIONS::IDLE || m_animations == ANIMATIONS::WALK) {
         if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
-            auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
-            currentDirection.setY(velocity.getY());
+            auto currentDirection = Prisma::JtoVec3(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
+            std::cout<<glm::to_string(-glm::normalize(glm::vec3(frontClamp * m_velocity)))<<std::endl;
+            //currentDirection.SetY(0);
             m_currentDirection = currentDirection;
-            rb->setLinearVelocity(currentDirection);
+            Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id, currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
             playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
             m_animatedMesh->parent()->parent()->matrix(playerData);
@@ -117,20 +119,20 @@ void PlayerController::updateKeyboard()
             m_previousAnimations = ANIMATIONS::WALK;
         }
         if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
-            auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
-            currentDirection.setY(velocity.getY());
+            auto currentDirection = Prisma::JtoVec3(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
+            currentDirection.SetY(0);
             m_currentDirection = currentDirection;
-            rb->setLinearVelocity(currentDirection);
+            Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id, currentDirection);
             playerData = m_baseData * glm::rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0, 0, 1));
             m_animatedMesh->parent()->parent()->matrix(playerData);
             m_previousClick = Prisma::KEY_A;
             m_previousAnimations = ANIMATIONS::WALK;
         }
         if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
-            auto currentDirection = Prisma::getVec3BT(glm::normalize(glm::vec3(frontClamp * m_velocity)));
-            currentDirection.setY(velocity.getY());
+            auto currentDirection = Prisma::JtoVec3(glm::normalize(glm::vec3(frontClamp * m_velocity)));
+            currentDirection.SetY(0);
             m_currentDirection = currentDirection;
-            rb->setLinearVelocity(currentDirection);
+            Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id, currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0, 0, 1));
             playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
             m_animatedMesh->parent()->parent()->matrix(playerData);
@@ -138,26 +140,26 @@ void PlayerController::updateKeyboard()
             m_previousAnimations = ANIMATIONS::WALK;
         }
         if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
-            auto currentDirection = Prisma::getVec3BT(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
-            currentDirection.setY(velocity.getY());
+            auto currentDirection = Prisma::JtoVec3(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
+            currentDirection.SetY(0);
             m_currentDirection = currentDirection;
-            rb->setLinearVelocity(currentDirection);
+            Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id, currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0, 0, 1));
             playerData = m_baseData * glm::rotate(glm::mat4(offsetRotation), glm::radians(m_yaw), glm::vec3(0, 0, 1));
             m_animatedMesh->parent()->parent()->matrix(playerData);
             m_previousClick = Prisma::KEY_D;
             m_previousAnimations = ANIMATIONS::WALK;
         }
+
+        if (!isJumping) {
+            m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
+        }
+
+        //clearVelocity();
+
+        //rb->activate(true);
     }
-
-    if (!isJumping) {
-        m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
-    }
-
-    clearVelocity();
-
-    rb->activate(true);
-    */
+    
 }
 
 void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
@@ -220,6 +222,7 @@ void PlayerController::createCamera() {
     };
     m_handler->mouseClick = [&](int button, int action, double x, double y) {
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+
             auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
 
             auto lightParent = std::make_shared<Prisma::Node>();
@@ -236,15 +239,22 @@ void PlayerController::createCamera() {
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
             ball->addComponent(physicsComponent);
             auto front = glm::normalize(m_front);
-            auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::getVec3GLM(m_currentDirection), 0.0f);
+            auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::JfromVec3(m_currentDirection), 0.0f);
 
             m_basePosition[3] = position;
 
             ball->parent()->matrix(m_basePosition);
-            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,btVector3(0.1,0.0,0.0),true });
-            //physicsComponent->rigidBody()->activate(true);
-            //physicsComponent->rigidBody()->applyCentralImpulse(m_currentDirection * 5);
-            //physicsComponent->fixedRigidBody(true);
+            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,Vec3(0.1,0.0,0.0),true });
+
+            BodyLockWrite lock(Prisma::Physics::getInstance().physicsSystem().GetBodyLockInterface(), physicsComponent->physicsId());
+            glm::mat4 prismaMatrix(1.0);
+            if (lock.Succeeded()) {
+                auto& rb = lock.GetBody();
+                //physicsComponent->rigidBody()->activate(true);
+                std::cout << m_currentDirection.GetX() << std::endl;
+                rb.AddImpulse(m_currentDirection * 5);
+                //physicsComponent->fixedRigidBody(true);
+            }
         }
 
     };

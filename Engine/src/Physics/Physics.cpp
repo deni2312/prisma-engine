@@ -47,7 +47,7 @@ void Prisma::Physics::update(float delta) {
 
             auto id = physicsComponent->physicsId();
 
-            BodyLockWrite lock(physicsWorldJolt->physics_system.GetBodyLockInterface(), id);
+            BodyLockRead lock(physicsWorldJolt->physics_system.GetBodyLockInterface(), id);
             glm::mat4 prismaMatrix(1.0);
 
             if (lock.Succeeded()) {

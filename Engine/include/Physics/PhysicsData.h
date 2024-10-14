@@ -130,7 +130,6 @@ namespace Prisma {
 		// See: ContactListener
 		virtual ValidateResult	OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset, const CollideShapeResult& inCollisionResult) override
 		{
-			std::cout << "Contact validate callback" << std::endl;
 
 			// Allows you to ignore a contact before it is created (using layers to not make objects collide is cheaper!)
 			return ValidateResult::AcceptAllContactsForThisBodyPair;
@@ -138,17 +137,15 @@ namespace Prisma {
 
 		virtual void			OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
 		{
-			std::cout << "A contact was added" << std::endl;
 		}
 
 		virtual void			OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
 		{
-			std::cout << "A contact was persisted" << std::endl;
 		}
 
 		virtual void			OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
 		{
-			std::cout << "A contact was removed" << std::endl;
+
 		}
 	};
 
@@ -158,12 +155,12 @@ namespace Prisma {
 	public:
 		virtual void		OnBodyActivated(const BodyID& inBodyID, uint64 inBodyUserData) override
 		{
-			std::cout << "A body got activated" << std::endl;
+
 		}
 
 		virtual void		OnBodyDeactivated(const BodyID& inBodyID, uint64 inBodyUserData) override
 		{
-			std::cout << "A body went to sleep" << std::endl;
+
 		}
 	};
 }

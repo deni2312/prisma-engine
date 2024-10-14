@@ -106,7 +106,7 @@ private:
 
 	ANIMATIONS m_previousAnimations;
 
-	btVector3 m_currentDirection = btVector3(0,0,1);
+	Vec3 m_currentDirection = Vec3(0,0,1);
 
 	ParticleController m_particleController;
 };

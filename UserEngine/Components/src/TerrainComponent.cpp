@@ -301,7 +301,7 @@ void Prisma::TerrainComponent::generatePhysics()
 
     mesh->loadModel(verticesData);
     auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
-    physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,btVector3(0.0,0.0,0.0),true });
+    physicsComponent->collisionData({ Prisma::Physics::Collider::LANDSCAPE_COLLIDER,0.0,Vec3(0.0,0.0,0.0),true });
 
     mesh->name("TerrainMesh");
     mesh->addComponent(physicsComponent);

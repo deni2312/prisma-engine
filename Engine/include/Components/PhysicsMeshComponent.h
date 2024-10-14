@@ -52,8 +52,6 @@ namespace Prisma {
 
         bool initPhysics();
 
-        Shape* getShape(glm::vec3 scale);
-
     private:
         ComponentList m_status;
         std::function<void()> m_apply;
@@ -61,6 +59,7 @@ namespace Prisma {
         btCollisionShape *m_shape = nullptr;
         btRigidBody *m_body = nullptr;
         void colliderDispatcher();
+        Shape* getShape(glm::vec3 scale);
         BodyID m_physicsId;
         bool m_initPhysics = false;
     };

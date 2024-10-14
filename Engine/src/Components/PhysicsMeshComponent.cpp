@@ -55,9 +55,7 @@ void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData 
 }
 
 void Prisma::PhysicsMeshComponent::updateCollisionData() {
-    if (m_initPhysics) {
-        colliderDispatcher();
-    }
+    colliderDispatcher();
 }
 
 void Prisma::PhysicsMeshComponent::colliderDispatcher() {
