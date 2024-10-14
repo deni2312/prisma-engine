@@ -83,14 +83,11 @@ void PlayerController::updateCamera() {
 void PlayerController::updateKeyboard()
 {
     updateAnimations();
-
     auto playerData = m_animatedMesh->parent()->parent()->matrix();
-
     auto id = m_physics->physicsId();
     glm::vec3 frontClamp = m_front;
-    //rb.SetAngularVelocity(Vec3(0, 0, 0));
     frontClamp.y = 0;
-
+    Prisma::Physics::getInstance().bodyInterface().SetAngularVelocity(id, Vec3(0,0,0));
 
     auto isJumping = m_animatedMesh->animator()->animation()->id() == m_jumpAnimation->id() && m_animatedMesh->animator()->currentTime() + m_jumpAnimation->ticksPerSecond() * 1.0f / (float)Prisma::Engine::getInstance().fps() >= m_jumpAnimation->duration();
 
@@ -103,13 +100,12 @@ void PlayerController::updateKeyboard()
     }*/
 
     glm::mat4 offsetRotation;
-
+    auto velocity = Prisma::Physics::getInstance().bodyInterface().GetAngularVelocity(id);
 
     if (m_animations == ANIMATIONS::IDLE || m_animations == ANIMATIONS::WALK) {
         if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
             auto currentDirection = Prisma::JtoVec3(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
-            std::cout<<glm::to_string(-glm::normalize(glm::vec3(frontClamp * m_velocity)))<<std::endl;
-            //currentDirection.SetY(0);
+            currentDirection.SetY(velocity.GetY());
             m_currentDirection = currentDirection;
             Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id, currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 0, 1));
@@ -120,7 +116,7 @@ void PlayerController::updateKeyboard()
         }
         if (glfwGetKey(m_window, Prisma::KEY_A) == GLFW_PRESS) {
             auto currentDirection = Prisma::JtoVec3(glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
-            currentDirection.SetY(0);
+            currentDirection.SetY(velocity.GetY());
             m_currentDirection = currentDirection;
             Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id, currentDirection);
             playerData = m_baseData * glm::rotate(glm::mat4(1.0f), glm::radians(m_yaw), glm::vec3(0, 0, 1));
@@ -130,7 +126,7 @@ void PlayerController::updateKeyboard()
         }
         if (glfwGetKey(m_window, Prisma::KEY_S) == GLFW_PRESS) {
             auto currentDirection = Prisma::JtoVec3(glm::normalize(glm::vec3(frontClamp * m_velocity)));
-            currentDirection.SetY(0);
+            currentDirection.SetY(velocity.GetY());
             m_currentDirection = currentDirection;
             Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id, currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(270.0f), glm::vec3(0, 0, 1));
@@ -141,7 +137,7 @@ void PlayerController::updateKeyboard()
         }
         if (glfwGetKey(m_window, Prisma::KEY_D) == GLFW_PRESS) {
             auto currentDirection = Prisma::JtoVec3(-glm::normalize(glm::cross(frontClamp, m_up)) * m_velocity);
-            currentDirection.SetY(0);
+            currentDirection.SetY(velocity.GetY());
             m_currentDirection = currentDirection;
             Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id, currentDirection);
             offsetRotation = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0, 0, 1));
@@ -155,9 +151,7 @@ void PlayerController::updateKeyboard()
             m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
         }
 
-        //clearVelocity();
-
-        //rb->activate(true);
+        clearVelocity();
     }
     
 }
@@ -282,13 +276,14 @@ void PlayerController::createKeyboard()
 
 void PlayerController::clearVelocity()
 {
-    /*auto rb = m_physics->rigidBody();
-    btVector3 velocity = rb->getLinearVelocity();
+    auto id = m_physics->physicsId();
+    auto velocity = Prisma::Physics::getInstance().bodyInterface().GetAngularVelocity(id);
+
     if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE && m_animations == ANIMATIONS::WALK) {
-        rb->setLinearVelocity(btVector3(0.0f, velocity.getY(), 0.0f));
+        Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id,Vec3(0.0f, velocity.GetY(), 0.0f));
         m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
         m_previousAnimations = ANIMATIONS::IDLE;
-    }*/
+    }
 }
 
 bool PlayerController::isColliding()
