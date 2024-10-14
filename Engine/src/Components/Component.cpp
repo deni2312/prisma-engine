@@ -1,5 +1,6 @@
 #include "../../include/Components/Component.h"
 #include <iostream>
+#include "../../include/GlobalData/GlobalData.h"
 
 static uint64_t uuidComponent = 0;
 
@@ -26,7 +27,7 @@ void Prisma::Component::updatePreRender(std::shared_ptr<Prisma::FBO> fbo)
 
 void Prisma::Component::destroy()
 {
-
+    sceneComponents.erase(m_uuid);
 }
 
 void Prisma::Component::parent(Prisma::Node *parent) {
@@ -74,6 +75,7 @@ uint64_t Prisma::Component::uuid() {
 Prisma::Component::Component() {
     m_uuid = uuidComponent;
     uuidComponent = uuidComponent + 1;
+    sceneComponents[m_uuid] = this;
 }
 
 void Prisma::Component::addGlobal(Prisma::Component::ComponentType globalVar) {

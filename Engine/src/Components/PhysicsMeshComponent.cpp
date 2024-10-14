@@ -45,6 +45,7 @@ void Prisma::PhysicsMeshComponent::destroy()
 {
     Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
     Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
+    Prisma::Component::destroy();
 }
 
 void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData collisionData) {
@@ -78,7 +79,7 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher() {
 
         aabbSettings.mMassPropertiesOverride = mass;
         aabbSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
-        aabbSettings.mUserData = mesh->uuid();
+        aabbSettings.mUserData = uuid();
 
         if (!m_initPhysics) {
             m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);

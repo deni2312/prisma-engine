@@ -47,16 +47,11 @@ void Prisma::Physics::update(float delta) {
 
             auto id = physicsComponent->physicsId();
 
-            BodyLockRead lock(physicsWorldJolt->physics_system.GetBodyLockInterface(), id);
             glm::mat4 prismaMatrix(1.0);
-
-            if (lock.Succeeded()) {
-                auto& body = lock.GetBody();
-                prismaMatrix = Prisma::JfromMat4(lock.GetBody().GetWorldTransform());
-                const ScaledShape* scaledShape = static_cast<const ScaledShape*>(body.GetShape());
-                if (scaledShape) {
-                    prismaMatrix = glm::scale(prismaMatrix, Prisma::JfromVec3(scaledShape->GetScale()));
-                }
+            prismaMatrix = Prisma::JfromMat4(bInterface.GetWorldTransform(id));
+            const ScaledShape* scaledShape = static_cast<const ScaledShape*>(bInterface.GetShape(id).GetPtr());
+            if (scaledShape) {
+                prismaMatrix = glm::scale(prismaMatrix, Prisma::JfromVec3(scaledShape->GetScale()));
             }
             if (!Prisma::mat4Equals(prismaMatrix, matrix)) {
                 mesh->parent()->matrix(prismaMatrix);

@@ -8,5 +8,6 @@ namespace Prisma {
     Prisma::Texture defaultWhite;
     Prisma::Texture defaultNormal;
     std::shared_ptr<Prisma::FBO> fboTarget = nullptr;
+    std::unordered_map<uint64_t, Component*> sceneComponents;
 
 }
