@@ -45,7 +45,8 @@ void Prisma::PhysicsMeshComponent::update() {
 
 void Prisma::PhysicsMeshComponent::destroy()
 {
-
+    Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
+    Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
 }
 
 void Prisma::PhysicsMeshComponent::collisionData(Prisma::Physics::CollisionData collisionData) {
