@@ -110,6 +110,30 @@ bool Prisma::PhysicsMeshComponent::initPhysics() {
     return m_initPhysics;
 }
 
+void Prisma::PhysicsMeshComponent::onCollisionEnter(std::function<void(const Body&)> add) {
+    m_add = add;
+}
+
+void Prisma::PhysicsMeshComponent::onCollisionStay(std::function<void(const Body&)> stay) {
+    m_stay = stay;
+}
+
+void Prisma::PhysicsMeshComponent::onCollisionExit(std::function<void(const BodyID&)> remove) {
+    m_remove = remove;
+}
+
+std::function<void(const Body&)> Prisma::PhysicsMeshComponent::onCollisionEnter() {
+    return m_add;
+}
+
+std::function<void(const Body&)> Prisma::PhysicsMeshComponent::onCollisionStay() {
+    return m_stay;
+}
+
+std::function<void(const BodyID&)> Prisma::PhysicsMeshComponent::onCollisionExit() {
+    return m_remove;
+}
+
 Shape* Prisma::PhysicsMeshComponent::getShape(glm::vec3 scale) {
     auto aabbData = dynamic_cast<Prisma::Mesh*>(parent())->aabbData();
 

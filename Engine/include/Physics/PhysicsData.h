@@ -18,6 +18,8 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <iostream>
+#include "../GlobalData/GlobalData.h"
+#include "../Components/PhysicsMeshComponent.h"
 
 // Disable common warnings triggered by Jolt, you can use JPH_SUPPRESS_WARNING_PUSH / JPH_SUPPRESS_WARNING_POP to store and restore the warning state
 JPH_SUPPRESS_WARNINGS
@@ -137,17 +139,31 @@ namespace Prisma {
 			return ValidateResult::AcceptAllContactsForThisBodyPair;
 		}
 
-		virtual void			OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
+		virtual void OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
 		{
+			auto physicsComponent = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[inBody1.GetUserData()]);
+			if (physicsComponent && physicsComponent->onCollisionEnter()) {
+				auto addComponent = physicsComponent->onCollisionEnter();
+				addComponent(inBody2);
+			}
 		}
 
-		virtual void			OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
+		virtual void OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
 		{
+			auto physicsComponent = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[inBody1.GetUserData()]);
+			if (physicsComponent && physicsComponent->onCollisionStay()) {
+				auto stayComponent = physicsComponent->onCollisionStay();
+				stayComponent(inBody2);
+			}
 		}
 
-		virtual void			OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
+		virtual void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
 		{
-
+			auto physicsComponent = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[Prisma::Physics::getInstance().bodyInterface().GetUserData(inSubShapePair.GetBody1ID())]);
+			if (physicsComponent && physicsComponent->onCollisionExit()) {
+				auto removeComponent = physicsComponent->onCollisionExit();
+				removeComponent(inSubShapePair.GetBody2ID());
+			}
 		}
 	};
 
@@ -155,12 +171,12 @@ namespace Prisma {
 	class MyBodyActivationListener : public BodyActivationListener
 	{
 	public:
-		virtual void		OnBodyActivated(const BodyID& inBodyID, uint64 inBodyUserData) override
+		virtual void OnBodyActivated(const BodyID& inBodyID, uint64 inBodyUserData) override
 		{
 
 		}
 
-		virtual void		OnBodyDeactivated(const BodyID& inBodyID, uint64 inBodyUserData) override
+		virtual void OnBodyDeactivated(const BodyID& inBodyID, uint64 inBodyUserData) override
 		{
 
 		}

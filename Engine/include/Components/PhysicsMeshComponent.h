@@ -6,6 +6,7 @@
 #include "../SceneObjects/Mesh.h"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "../GlobalData/GlobalData.h"
+#include <functional>
 
 #include <Jolt/Jolt.h>
 
@@ -52,6 +53,22 @@ namespace Prisma {
 
         bool initPhysics();
 
+        void onCollisionEnter(std::function<void(const Body&)> add);
+
+        void onCollisionStay(std::function<void(const Body&)> stay) {
+            
+        }
+
+        void onCollisionExit(std::function<void(const BodyID&)> remove);
+
+        std::function<void(const Body&)> onCollisionEnter();
+
+        std::function<void(const Body&)> onCollisionStay() {
+
+        }
+
+        std::function<void(const BodyID&)> onCollisionExit();
+
     private:
         ComponentList m_status;
         std::function<void()> m_apply;
@@ -62,6 +79,10 @@ namespace Prisma {
         Shape* getShape(glm::vec3 scale);
         BodyID m_physicsId;
         bool m_initPhysics = false;
+
+        std::function<void(const Body&)> m_add = nullptr;
+        std::function<void(const Body&)> m_stay = nullptr;
+        std::function<void(const BodyID&)> m_remove = nullptr;
     };
 
 }
