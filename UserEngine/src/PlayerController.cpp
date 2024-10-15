@@ -241,13 +241,13 @@ void PlayerController::createCamera() {
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
             ball->addComponent(physicsComponent);
             auto front = glm::normalize(m_front);
-            auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::JfromVec3(m_currentDirection), 0.0f);
+            auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::JfromVec3(m_currentDirection*5), 0.0f);
 
             m_basePosition[3] = position;
 
             ball->parent()->matrix(m_basePosition);
             physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,Vec3(0.0,0.0,0.0),true });
-            Prisma::Physics::getInstance().bodyInterface().AddAngularImpulse(physicsComponent->physicsId(), m_currentDirection * 100);
+            Prisma::Physics::getInstance().bodyInterface().AddImpulse(physicsComponent->physicsId(), m_currentDirection * 100);
         }
 
     };
