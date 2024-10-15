@@ -40,8 +40,6 @@ private:
 
 	void clearVelocity();
 
-	bool isColliding();
-
 	void updateAnimations();
 
 	std::shared_ptr<Prisma::CallbackHandler> m_handler;

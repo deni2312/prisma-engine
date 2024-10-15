@@ -63,10 +63,20 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
 
     auto contact = [&](const Body& body) {
-        std::cout << "Collision" << std::endl;
+        m_isColliding = true;
+        if (m_animations == ANIMATIONS::JUMP) {
+            m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
+            m_previousAnimations = ANIMATIONS::IDLE;
+        }
+    };
+
+    auto noContact = [&](const BodyID& body) {
+        m_isColliding = false;
+        m_previousAnimations = ANIMATIONS::JUMP;
     };
 
     m_physics->onCollisionStay(contact);
+    m_physics->onCollisionExit(noContact);
 
     createCamera();
     createKeyboard();
@@ -100,20 +110,10 @@ void PlayerController::updateKeyboard()
     frontClamp.y = 0;
     Prisma::Physics::getInstance().bodyInterface().SetAngularVelocity(id, Vec3(0,0,0));
 
-    auto isJumping = m_animatedMesh->animator()->animation()->id() == m_jumpAnimation->id() && m_animatedMesh->animator()->currentTime() + m_jumpAnimation->ticksPerSecond() * 1.0f / (float)Prisma::Engine::getInstance().fps() >= m_jumpAnimation->duration();
-
-    /*if (isColliding() && !m_isColliding) {
-        if (isJumping) {
-            m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
-            m_isColliding = true;
-            m_previousAnimations = ANIMATIONS::IDLE;
-        }
-    }*/
-
     glm::mat4 offsetRotation;
     auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);
 
-    if (m_animations == ANIMATIONS::IDLE || m_animations == ANIMATIONS::WALK) {
+    if ((m_animations == ANIMATIONS::IDLE || m_animations == ANIMATIONS::WALK) && m_isColliding) {
         if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
             auto currentDirection = Prisma::JtoVec3(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
             currentDirection.SetY(velocity.GetY());
@@ -157,13 +157,11 @@ void PlayerController::updateKeyboard()
             m_previousClick = Prisma::KEY_D;
             m_previousAnimations = ANIMATIONS::WALK;
         }
-
-        if (!isJumping) {
-            m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
-        }
-
         clearVelocity();
     }
+    std::cout << m_isColliding << std::endl;
+    Prisma::Physics::getInstance().bodyInterface().ActivateBody(id);
+    m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
     
 }
 
@@ -270,17 +268,15 @@ void PlayerController::createKeyboard()
             }
             m_previousClick = Prisma::KEY_G;
         }
-
         if (key == Prisma::KEY_SPACE && action == GLFW_PRESS) {
 
-            /*auto rb = m_physics->rigidBody();
+            auto id = m_physics->physicsId();
+
             if (m_animatedMesh->animator()->animation()->id() != m_jumpAnimation->id()) {
-                btVector3 velocity = rb->getLinearVelocity();
-                rb->applyCentralImpulse(btVector3(0, 5.0f, 0));
-                m_previousAnimations = ANIMATIONS::JUMP;
+                auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);
+                Prisma::Physics::getInstance().bodyInterface().AddImpulse(id, Vec3(0, 5.0f, 0));
             }
-            m_isColliding = false;
-            m_previousClick = Prisma::KEY_SPACE;*/
+            m_previousClick = Prisma::KEY_SPACE;
         }
     };
 }
@@ -288,29 +284,13 @@ void PlayerController::createKeyboard()
 void PlayerController::clearVelocity()
 {
     auto id = m_physics->physicsId();
-    auto velocity = Prisma::Physics::getInstance().bodyInterface().GetAngularVelocity(id);
+    auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);
 
     if (glfwGetKey(m_window, m_previousClick) == GLFW_RELEASE && m_animations == ANIMATIONS::WALK) {
         Prisma::Physics::getInstance().bodyInterface().SetLinearVelocity(id,Vec3(0.0f, velocity.GetY(), 0.0f));
         m_animatedMesh->animator()->playAnimation(m_idleAnimation, m_blending);
         m_previousAnimations = ANIMATIONS::IDLE;
     }
-}
-
-bool PlayerController::isColliding()
-{
-    /*auto world = Prisma::Physics::getInstance().physicsWorld()->dispatcher;
-    int numManifolds = world->getNumManifolds();
-    for (int i = 0; i < numManifolds; i++)
-    {
-        btPersistentManifold* contactManifold = world->getManifoldByIndexInternal(i);
-        auto obA = (Prisma::Mesh*)contactManifold->getBody0()->getUserPointer();
-        auto obB = (Prisma::Mesh*)contactManifold->getBody1()->getUserPointer();
-        if (obA->uuid() == m_bboxMesh->uuid() || obB->uuid() == m_bboxMesh->uuid()) {
-            return true;
-        }
-    }*/
-    return false;
 }
 
 void PlayerController::updateAnimations()

@@ -169,11 +169,17 @@ namespace Prisma {
 
 		virtual void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
 		{
-			/*auto physicsComponent = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[Prisma::Physics::getInstance().bodyInterface().GetUserData(inSubShapePair.GetBody1ID())]);
+			auto physicsComponent = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody1ID())]);
 			if (physicsComponent && physicsComponent->onCollisionExit()) {
 				auto removeComponent = physicsComponent->onCollisionExit();
 				removeComponent(inSubShapePair.GetBody2ID());
-			}*/
+			}
+
+			auto physicsComponent2 = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody2ID())]);
+			if (physicsComponent2 && physicsComponent2->onCollisionExit()) {
+				auto removeComponent2 = physicsComponent2->onCollisionExit();
+				removeComponent2(inSubShapePair.GetBody1ID());
+			}
 		}
 	};
 
