@@ -55,17 +55,13 @@ namespace Prisma {
 
         void onCollisionEnter(std::function<void(const Body&)> add);
 
-        void onCollisionStay(std::function<void(const Body&)> stay) {
-            
-        }
+        void onCollisionStay(std::function<void(const Body&)> stay);
 
         void onCollisionExit(std::function<void(const BodyID&)> remove);
 
         std::function<void(const Body&)> onCollisionEnter();
 
-        std::function<void(const Body&)> onCollisionStay() {
-
-        }
+        std::function<void(const Body&)> onCollisionStay();
 
         std::function<void(const BodyID&)> onCollisionExit();
 

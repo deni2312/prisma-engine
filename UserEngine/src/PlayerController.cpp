@@ -34,6 +34,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
     m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,Vec3(0.0,0.0,0.0),true });
+    
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
     m_animations = ANIMATIONS::IDLE;
     m_previousAnimations = ANIMATIONS::IDLE;
@@ -57,6 +58,16 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     terrainComponent->heightMap(*perlin);
     terrain->addComponent(terrainComponent);
     m_scene->root->addChild(terrain);*/
+
+
+
+
+    auto contact = [&](const Body& body) {
+        std::cout << "Collision" << std::endl;
+    };
+
+    m_physics->onCollisionStay(contact);
+
     createCamera();
     createKeyboard();
 }
@@ -100,7 +111,7 @@ void PlayerController::updateKeyboard()
     }*/
 
     glm::mat4 offsetRotation;
-    auto velocity = Prisma::Physics::getInstance().bodyInterface().GetAngularVelocity(id);
+    auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);
 
     if (m_animations == ANIMATIONS::IDLE || m_animations == ANIMATIONS::WALK) {
         if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
