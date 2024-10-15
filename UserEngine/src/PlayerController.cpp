@@ -159,7 +159,6 @@ void PlayerController::updateKeyboard()
         }
         clearVelocity();
     }
-    std::cout << m_isColliding << std::endl;
     Prisma::Physics::getInstance().bodyInterface().ActivateBody(id);
     m_animatedMesh->animator()->updateAnimation(1.0f / (float)Prisma::Engine::getInstance().fps());
     
