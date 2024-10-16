@@ -99,7 +99,9 @@ Prisma::Physics::CollisionData Prisma::PhysicsMeshComponent::collisionData() {
 
 void Prisma::PhysicsMeshComponent::start() {
     Prisma::Component::start();
-    updateCollisionData();
+    if (!m_initPhysics) {
+        updateCollisionData();
+    }
 }
 
 BodyID& Prisma::PhysicsMeshComponent::physicsId() {

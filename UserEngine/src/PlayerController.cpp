@@ -224,7 +224,6 @@ void PlayerController::createCamera() {
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 
             auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
-
             auto lightParent = std::make_shared<Prisma::Node>();
             ball->name("Ball");
             auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
@@ -239,13 +238,13 @@ void PlayerController::createCamera() {
             auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
             ball->addComponent(physicsComponent);
             auto front = glm::normalize(m_front);
-            auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::JfromVec3(m_currentDirection*5), 0.0f);
+            auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::JfromVec3(m_currentDirection), 0.0f);
 
             m_basePosition[3] = position;
 
             ball->parent()->matrix(m_basePosition);
             physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,Vec3(0.0,0.0,0.0),true });
-            Prisma::Physics::getInstance().bodyInterface().AddImpulse(physicsComponent->physicsId(), m_currentDirection * 100);
+            Prisma::Physics::getInstance().bodyInterface().AddImpulse(physicsComponent->physicsId(), m_currentDirection * 5);
         }
 
     };
