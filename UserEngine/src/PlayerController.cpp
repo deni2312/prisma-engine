@@ -109,10 +109,8 @@ void PlayerController::updateKeyboard()
     glm::vec3 frontClamp = m_front;
     frontClamp.y = 0;
     Prisma::Physics::getInstance().bodyInterface().SetAngularVelocity(id, Vec3(0,0,0));
-
     glm::mat4 offsetRotation;
     auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);
-
     if ((m_animations == ANIMATIONS::IDLE || m_animations == ANIMATIONS::WALK) && m_isColliding) {
         if (glfwGetKey(m_window, Prisma::KEY_W) == GLFW_PRESS) {
             auto currentDirection = Prisma::JtoVec3(-glm::normalize(glm::vec3(frontClamp * m_velocity)));
