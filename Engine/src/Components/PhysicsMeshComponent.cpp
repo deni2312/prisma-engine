@@ -102,7 +102,7 @@ void Prisma::PhysicsMeshComponent::start() {
     updateCollisionData();
 }
 
-BodyID Prisma::PhysicsMeshComponent::physicsId() {
+BodyID& Prisma::PhysicsMeshComponent::physicsId() {
     return m_physicsId;
 }
 

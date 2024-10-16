@@ -49,7 +49,7 @@ namespace Prisma {
 
         void start() override;
 
-        BodyID physicsId();
+        BodyID& physicsId();
 
         bool initPhysics();
 
