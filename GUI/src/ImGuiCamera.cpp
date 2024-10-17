@@ -15,11 +15,9 @@ Prisma::ImGuiCamera::ImGuiCamera()
 
 void Prisma::ImGuiCamera::updateCamera(std::shared_ptr<Prisma::Camera> camera)
 {
-    if (!m_lock) {
-        camera->position(m_position);
-        camera->center(m_position + m_front);
-        camera->up(m_up);
-    }
+    camera->position(m_position);
+    camera->center(m_position + m_front);
+    camera->up(m_up);
     m_totalVelocity = m_velocity * 1.0f / (float)Prisma::Engine::getInstance().fps();
 }
 
@@ -57,13 +55,6 @@ void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
         m_position += glm::normalize(glm::cross(m_front, m_up)) * m_totalVelocity;
     }
 
-    if (glfwGetKey(window, Prisma::KEY_G) == GLFW_PRESS && !m_pressed) {
-        m_showMouse = !m_showMouse;
-        m_lock = !m_lock;
-        //PrismaData()->hiddenMouse(showMouse);
-        m_pressed = true;
-    }
-
     if (glfwGetKey(window, Prisma::KEY_G) == GLFW_RELEASE) {
         m_pressed = false;
     }
@@ -72,7 +63,7 @@ void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
 void Prisma::ImGuiCamera::mouseCallback()
 {
     m_callback->mouse = [this](float x, float y) {
-        if (!m_lock && x<m_constraints.maxX && y<m_constraints.maxY && x>m_constraints.minX && y>m_constraints.minY) {
+        if (m_right && x<m_constraints.maxX && y<m_constraints.maxY && x>m_constraints.minX && y>m_constraints.minY) {
             float xpos = static_cast<float>(x);
             float ypos = static_cast<float>(y);
 
@@ -124,11 +115,13 @@ std::shared_ptr<Prisma::CallbackHandler> Prisma::ImGuiCamera::callback()
     return m_callback;
 }
 
+int id = 0;
+
 void Prisma::ImGuiCamera::mouseButtonCallback() {
     m_callback->mouseClick = [this](int button,int action,float x, float y) {
+        
         // Here you would handle mouse button clicks
-        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x<m_constraints.maxX && y<m_constraints.maxY && x>m_constraints.minX && y>m_constraints.minY && !m_constraints.isOver) {
-
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x<m_constraints.maxX && y<m_constraints.maxY && x>m_constraints.minX && y>m_constraints.minY) {
             auto settings = Prisma::SettingsLoader::getInstance().getSettings();
             
             x = x - m_constraints.minX;
@@ -138,7 +131,6 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
 
             y =  y / m_constraints.scale;
             y = settings.height - y + 30.0f * m_constraints.scale;
-
             auto result=Prisma::PixelCapture::getInstance().capture(glm::vec2(x , y ));
 
             if(result) {
@@ -148,6 +140,14 @@ void Prisma::ImGuiCamera::mouseButtonCallback() {
                 auto model=glm::mat4(1.0f);
                 m_currentSelect=nullptr;
             }
+        }
+
+        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+            m_right = true;
+        }
+
+        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+            m_right = false;
         }
     };
 

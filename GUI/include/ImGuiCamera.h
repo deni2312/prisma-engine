@@ -40,11 +40,11 @@ namespace Prisma {
 		bool m_firstMouse = true;
 		float m_lastX;
 		float m_lastY;
-		bool m_lock = false;
 
 		bool m_showMouse = false;
 		bool m_pressed = false;
 		bool m_save = false;
+		bool m_right = false;
 
 		float m_totalVelocity = 0;
 

@@ -64,7 +64,6 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
     m_fbo->unbind();
 
     uint32_t encodedUUID = (data[0] << 16) | (data[1] << 8) | data[2];
-
     if (data[3] < 0.1) {
         if (encodedUUID < currentGlobalScene->meshes.size() && encodedUUID >= 0) {
             return currentGlobalScene->meshes[encodedUUID];
