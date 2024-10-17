@@ -74,11 +74,6 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher() {
 
         BodyCreationSettings aabbSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
 
-        JPH::MassProperties mass;
-        mass.ScaleToMass(m_collisionData.mass);
-
-        aabbSettings.mMassPropertiesOverride = mass;
-        aabbSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
         aabbSettings.mUserData = uuid();
 
         if (!m_initPhysics) {
@@ -155,12 +150,17 @@ Shape* Prisma::PhysicsMeshComponent::getShape(glm::vec3 scale) {
             break;
         }
         case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
-
+            JPH::HeightFieldShapeSettings settings;
+            settings.mHeightSamples = m_landscapeData;
+            JPH::Shape::ShapeResult shapeResult;
+            shape = new HeightFieldShape(settings, shapeResult);
             break;
         }
 
         case Prisma::Physics::Collider::CONVEX_COLLIDER: {
-
+            auto length = (aabbData.max - aabbData.min) * 0.5f;
+            auto boxShape = new BoxShape(Prisma::JtoVec3(length));
+            shape = new ScaledShape(boxShape, Prisma::JtoVec3(scale));
         }
     }
     return shape;

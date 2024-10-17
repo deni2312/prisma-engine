@@ -20,6 +20,7 @@
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/HeightFieldShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 // All Jolt symbols are in the JPH namespace
@@ -75,6 +76,8 @@ namespace Prisma {
         Shape* getShape(glm::vec3 scale);
         BodyID m_physicsId;
         bool m_initPhysics = false;
+
+        JPH::Array<float> m_landscapeData;
 
         std::function<void(const Body&)> m_add = nullptr;
         std::function<void(const Body&)> m_stay = nullptr;
