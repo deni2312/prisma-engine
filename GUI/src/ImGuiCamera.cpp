@@ -120,7 +120,7 @@ int id = 0;
 void Prisma::ImGuiCamera::mouseButtonCallback() {
     m_callback->mouseClick = [this](int button,int action,float x, float y) {
         
-        // Here you would handle mouse button clicks
+        //ISOVER BUGGED IMGUIZMO RETURN TRUE RANDOMLY
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x<m_constraints.maxX && y<m_constraints.maxY && x>m_constraints.minX && y>m_constraints.minY && !ImGuizmo::IsOver()) {
             auto settings = Prisma::SettingsLoader::getInstance().getSettings();
             
