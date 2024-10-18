@@ -68,6 +68,8 @@ namespace Prisma {
 
         Component();
 
+        virtual ~Component();
+
     private:
 
         Prisma::Node* m_parent = nullptr;

@@ -78,6 +78,11 @@ Prisma::Component::Component() {
     sceneComponents[m_uuid] = this;
 }
 
+Prisma::Component::~Component()
+{
+    destroy();
+}
+
 void Prisma::Component::addGlobal(Prisma::Component::ComponentType globalVar) {
     m_globalVars.push_back(globalVar);
 }
