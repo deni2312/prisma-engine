@@ -81,6 +81,8 @@ namespace Prisma {
 
         Prisma::Physics::LandscapeData m_landscapeData;
 
+        const float minScale = 0.001;
+
         std::function<void(const Body&)> m_add = nullptr;
         std::function<void(const Body&)> m_stay = nullptr;
         std::function<void(const BodyID&)> m_remove = nullptr;

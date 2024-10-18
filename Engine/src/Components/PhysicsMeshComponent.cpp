@@ -134,6 +134,12 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings() {
 
     glm::decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
 
+    if (scale.x < minScale || scale.y < minScale || scale.z < minScale) {
+        scale = glm::vec3(minScale);
+        translation = glm::vec3(0.0);
+        rotation = glm::quat({ 0,0,0 });
+    }
+
     Shape* shape = nullptr;
     switch (m_collisionData.collider) {
         case Prisma::Physics::Collider::BOX_COLLIDER: {
