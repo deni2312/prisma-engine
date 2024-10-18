@@ -75,7 +75,7 @@ namespace Prisma {
         btCollisionShape *m_shape = nullptr;
         btRigidBody *m_body = nullptr;
         void colliderDispatcher();
-        Shape* getShape(glm::vec3 translation,glm::vec3 scale);
+        BodyCreationSettings getBodySettings();
         BodyID m_physicsId;
         bool m_initPhysics = false;
 
