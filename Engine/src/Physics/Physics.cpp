@@ -38,6 +38,8 @@ Prisma::Physics::Physics() {
 }
 
 void Prisma::Physics::update(float delta) {
+    physicsWorldJolt->physics_system.Update(delta, 1, &*physicsWorldJolt->temp_allocator, &*physicsWorldJolt->job_system);
+
     auto& bInterface = physicsWorldJolt->physics_system.GetBodyInterface();
     for (const auto& mesh: currentGlobalScene->meshes) {
         auto physicsComponent = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(mesh->components()["Physics"]);
@@ -58,7 +60,6 @@ void Prisma::Physics::update(float delta) {
             }
         }
     }
-    physicsWorldJolt->physics_system.Update(delta, 1 , &*physicsWorldJolt->temp_allocator, &*physicsWorldJolt->job_system);
 }
 
 BodyInterface& Prisma::Physics::bodyInterface() {
