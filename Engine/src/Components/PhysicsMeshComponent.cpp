@@ -70,7 +70,7 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher() {
         auto isAnimate = dynamic_cast<AnimatedMesh*>(mesh);
 
         glm::decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
-        Shape* shape = getShape(scale);
+        Shape* shape = getShape(translation,scale);
 
         BodyCreationSettings aabbSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
         if (m_collisionData.mass > 0) {
@@ -81,15 +81,16 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher() {
             aabbSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
         }
         aabbSettings.mUserData = uuid();
-
-        if (!m_initPhysics) {
-            m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
-            m_initPhysics = true;
-        }
-        else {
-            Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
-            Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
-            m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
+        if (m_collisionData.collider != Prisma::Physics::Collider::LANDSCAPE_COLLIDER) {
+            if (!m_initPhysics) {
+                m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
+                m_initPhysics = true;
+            }
+            else {
+                Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
+                Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
+                m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(aabbSettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
+            }
         }
     }
 }
@@ -137,7 +138,11 @@ std::function<void(const BodyID&)> Prisma::PhysicsMeshComponent::onCollisionExit
     return m_remove;
 }
 
-Shape* Prisma::PhysicsMeshComponent::getShape(glm::vec3 scale) {
+void Prisma::PhysicsMeshComponent::landscapeData(const Prisma::Physics::LandscapeData& landscapeData) {
+    m_landscapeData = landscapeData;
+}
+
+Shape* Prisma::PhysicsMeshComponent::getShape(glm::vec3 translation,glm::vec3 scale) {
     auto aabbData = dynamic_cast<Prisma::Mesh*>(parent())->aabbData();
 
     Shape* shape = nullptr;
@@ -155,10 +160,9 @@ Shape* Prisma::PhysicsMeshComponent::getShape(glm::vec3 scale) {
             break;
         }
         case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
-            JPH::HeightFieldShapeSettings settings;
-            settings.mHeightSamples = m_landscapeData;
-            JPH::Shape::ShapeResult shapeResult;
-            shape = new HeightFieldShape(settings, shapeResult);
+            HeightFieldShapeSettings settings(m_landscapeData.landscape.data(), m_landscapeData.offset, m_landscapeData.scale, m_landscapeData.width);
+            shape = StaticCast<HeightFieldShape>(settings.Create().Get());
+            m_physicsId = Prisma::Physics::getInstance().bodyInterface().CreateAndAddBody(BodyCreationSettings(shape, Prisma::JtoVec3(translation), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING), EActivation::DontActivate);
             break;
         }
 

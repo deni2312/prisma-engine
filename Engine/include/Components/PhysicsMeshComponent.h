@@ -66,6 +66,8 @@ namespace Prisma {
 
         std::function<void(const BodyID&)> onCollisionExit();
 
+        void landscapeData(const Prisma::Physics::LandscapeData& landscapeData);
+
     private:
         ComponentList m_status;
         std::function<void()> m_apply;
@@ -73,11 +75,11 @@ namespace Prisma {
         btCollisionShape *m_shape = nullptr;
         btRigidBody *m_body = nullptr;
         void colliderDispatcher();
-        Shape* getShape(glm::vec3 scale);
+        Shape* getShape(glm::vec3 translation,glm::vec3 scale);
         BodyID m_physicsId;
         bool m_initPhysics = false;
 
-        JPH::Array<float> m_landscapeData;
+        Prisma::Physics::LandscapeData m_landscapeData;
 
         std::function<void(const Body&)> m_add = nullptr;
         std::function<void(const Body&)> m_stay = nullptr;

@@ -26,6 +26,13 @@ namespace Prisma {
             bool dynamic=false;
         };
 
+        struct LandscapeData {
+            JPH::Array<float> landscape;
+            JPH::Vec3 offset;
+            JPH::Vec3 scale;
+            float width;
+        };
+
         Physics();
         void update(float delta);
 
