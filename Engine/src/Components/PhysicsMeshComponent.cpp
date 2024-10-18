@@ -153,7 +153,7 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings() {
         case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
             HeightFieldShapeSettings settings(m_landscapeData.landscape.data(), m_landscapeData.offset, m_landscapeData.scale, m_landscapeData.width);
             shape = StaticCast<HeightFieldShape>(settings.Create().Get());
-            aabbSettings = BodyCreationSettings(shape, Prisma::JtoVec3(translation), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
+            aabbSettings = BodyCreationSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), EMotionType::Static, Layers::NON_MOVING);
             break;
         }
         case Prisma::Physics::Collider::CONVEX_COLLIDER: {
