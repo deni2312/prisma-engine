@@ -156,6 +156,8 @@ void Prisma::PipelineDeferred::render()
     for (auto& sprite : currentGlobalScene->sprites) {
         sprite->render();
     }
+    Prisma::Physics::getInstance().drawDebug();
+
     m_fbo->unbind();
 
     Prisma::Postprocess::getInstance().fboRaw(m_fbo);

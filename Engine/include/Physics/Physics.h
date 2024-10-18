@@ -3,10 +3,12 @@
 #include "glm/glm.hpp"
 #include <memory>
 #include "../GlobalData/InstanceData.h"
+#define JPH_DEBUG_RENDERER
 
 #include <Jolt/Jolt.h>
 
 #include <Jolt/Physics/PhysicsSystem.h>
+#include "DrawDebugger.h"
 
 
 namespace Prisma {
@@ -33,6 +35,12 @@ namespace Prisma {
         JPH::BodyInterface& bodyInterface();
 
         JPH::PhysicsSystem& physicsSystem();
+
+        void drawDebug();
+
+    private:
+        DrawDebugger* m_drawDebugger;
+        JPH::BodyManager::DrawSettings m_settings;
 
     };
 }

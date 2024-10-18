@@ -12,8 +12,6 @@
 #include <memory>
 #include "PipelinePrePass.h"
 
-#define NPHYSICS_DEBUG
-
 namespace Prisma {
 	class PipelineForward {
 	public:
@@ -31,10 +29,6 @@ namespace Prisma {
 		std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
 
 		std::shared_ptr<Prisma::PipelinePrePass> m_prepass;
-
-#ifndef NPHYSICS_DEBUG
-        DrawDebugger* drawDebugger;
-#endif
 
     };
 }

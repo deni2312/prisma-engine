@@ -48,11 +48,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
 	m_prepass = std::make_shared<Prisma::PipelinePrePass>();
 
-#ifndef NPHYSICS_DEBUG
-    drawDebugger=new DrawDebugger();
-    Physics::getInstance().physicsWorld()->dynamicsWorld->setDebugDrawer(drawDebugger);
-    Physics::getInstance().physicsWorld()->dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-#endif
 }
 
 void Prisma::PipelineForward::render()
@@ -90,10 +85,7 @@ void Prisma::PipelineForward::render()
 	glDepthFunc(GL_LESS);
 */
 
-#ifndef NPHYSICS_DEBUG
-    drawDebugger->line.setMVP(currentProjection * currentGlobalScene->camera->matrix());
-    Prisma::Physics::getInstance().physicsWorld()->dynamicsWorld->debugDrawWorld();
-#endif
+	Prisma::Physics::getInstance().drawDebug();
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	m_fbo->unbind();

@@ -34,6 +34,7 @@ Prisma::Physics::Physics() {
     physicsWorldJolt->physics_system.SetBodyActivationListener(&physicsWorldJolt->body_activation_listener);
     physicsWorldJolt->physics_system.SetContactListener(&physicsWorldJolt->contact_listener);
     physicsWorldJolt->physics_system.OptimizeBroadPhase();
+    m_drawDebugger = new DrawDebugger();
 }
 
 void Prisma::Physics::update(float delta) {
@@ -67,4 +68,12 @@ BodyInterface& Prisma::Physics::bodyInterface() {
 
 JPH::PhysicsSystem& Prisma::Physics::physicsSystem() {
     return physicsWorldJolt->physics_system;
+}
+
+void Prisma::Physics::drawDebug()
+{
+    m_drawDebugger->line.setMVP(currentProjection * currentGlobalScene->camera->matrix());
+    m_settings.mDrawBoundingBox = false;
+    
+    physicsWorldJolt->physics_system.DrawBodies(m_settings, m_drawDebugger);
 }
