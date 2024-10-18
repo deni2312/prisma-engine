@@ -53,6 +53,12 @@ void Prisma::SettingsTab::drawSettings()
 
         ImGui::Checkbox("SCREEN SPACE REFLECTIONS", &settings.ssr);
 
+        bool debugPhysics = Prisma::Physics::getInstance().debug();
+
+        ImGui::Checkbox("PHYSICS DEBUG", &debugPhysics);
+
+        Prisma::Physics::getInstance().debug(debugPhysics);
+
         Prisma::Engine::getInstance().engineSettings(settings);
 
         if (!closed)

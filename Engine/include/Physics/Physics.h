@@ -1,12 +1,10 @@
 #pragma once
-#include "bullet/btBulletDynamicsCommon.h"
+#define JPH_DEBUG_RENDERER
+
 #include "glm/glm.hpp"
 #include <memory>
 #include "../GlobalData/InstanceData.h"
-#define JPH_DEBUG_RENDERER
-
 #include <Jolt/Jolt.h>
-
 #include <Jolt/Physics/PhysicsSystem.h>
 #include "DrawDebugger.h"
 
@@ -38,9 +36,14 @@ namespace Prisma {
 
         void drawDebug();
 
+        void debug(bool debug);
+
+        bool debug();
+
     private:
         DrawDebugger* m_drawDebugger;
         JPH::BodyManager::DrawSettings m_settings;
+        bool m_debug;
 
     };
 }

@@ -73,7 +73,13 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher() {
         Shape* shape = getShape(scale);
 
         BodyCreationSettings aabbSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
+        if (m_collisionData.mass > 0) {
+            JPH::MassProperties mass;
+            mass.ScaleToMass(m_collisionData.mass);
 
+            aabbSettings.mMassPropertiesOverride = mass;
+            aabbSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+        }
         aabbSettings.mUserData = uuid();
 
         if (!m_initPhysics) {

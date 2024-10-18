@@ -71,7 +71,17 @@ JPH::PhysicsSystem& Prisma::Physics::physicsSystem() {
 
 void Prisma::Physics::drawDebug()
 {
-    m_drawDebugger->line.setMVP(currentProjection * currentGlobalScene->camera->matrix());
-    m_settings.mDrawBoundingBox = true;
-    physicsWorldJolt->physics_system.DrawBodies(m_settings, m_drawDebugger);
+    if (m_debug) {
+        m_drawDebugger->line.setMVP(currentProjection * currentGlobalScene->camera->matrix());
+        m_settings.mDrawBoundingBox = true;
+        physicsWorldJolt->physics_system.DrawBodies(m_settings, m_drawDebugger);
+    }
+}
+
+void Prisma::Physics::debug(bool debug) {
+    m_debug = debug;
+}
+
+bool Prisma::Physics::debug() {
+    return m_debug;
 }
