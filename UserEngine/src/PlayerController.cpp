@@ -33,7 +33,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_particleController.init(m_gunPosition);
 
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
-    m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,Vec3(0.0,0.0,0.0),true });
+    m_physics->collisionData({ Prisma::Physics::Collider::BOX_COLLIDER,1.0,true });
     
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
     m_animations = ANIMATIONS::IDLE;
@@ -243,7 +243,7 @@ void PlayerController::createCamera() {
             m_basePosition[3] = position;
 
             ball->parent()->matrix(m_basePosition);
-            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,Vec3(0.0,0.0,0.0),true });
+            physicsComponent->collisionData({ Prisma::Physics::Collider::SPHERE_COLLIDER,1.0,true });
             Prisma::Physics::getInstance().bodyInterface().AddImpulse(physicsComponent->physicsId(), m_currentDirection * 5);
         }
 

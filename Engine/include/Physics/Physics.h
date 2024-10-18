@@ -22,8 +22,7 @@ namespace Prisma {
 
         struct CollisionData{
             Collider collider;
-            float mass =0.0f;
-            JPH::Vec3 localInertia = JPH::Vec3(0,0,0);
+            float mass = 0.0f;
             bool dynamic=false;
         };
 
