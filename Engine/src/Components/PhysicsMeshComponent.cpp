@@ -150,8 +150,7 @@ Shape* Prisma::PhysicsMeshComponent::getShape(glm::vec3 scale) {
             break;
         }
         case Prisma::Physics::Collider::SPHERE_COLLIDER: {
-            auto lengthSphere = glm::length((aabbData.max - aabbData.min) * 0.5f);
-            auto sphereShape = new SphereShape(lengthSphere);
+            auto sphereShape = new SphereShape(1.0);
             shape = new ScaledShape(sphereShape, Prisma::JtoVec3(scale));
             break;
         }
