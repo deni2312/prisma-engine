@@ -1,8 +1,6 @@
-
-
 #include "../../include/Physics/Line.h"
 
-Line::Line() {
+Prisma::Line::Line() {
 
     m_lineColor = glm::vec3(1,1,1);
     m_MVP = glm::mat4(1.0f);
@@ -13,17 +11,17 @@ Line::Line() {
     m_MVPPos=m_shader->getUniformPosition("MVP");
 }
 
-int Line::setMVP(glm::mat4 mvp) {
+int Prisma::Line::setMVP(glm::mat4 mvp) {
     m_MVP = mvp;
     return 1;
 }
 
-int Line::setColor(glm::vec3 color) {
+int Prisma::Line::setColor(glm::vec3 color) {
     m_lineColor = color;
     return 1;
 }
 
-int Line::draw(glm::vec3 start, glm::vec3 end) {
+int Prisma::Line::draw(glm::vec3 start, glm::vec3 end) {
     m_shader->use();
     m_shader->setMat4(m_MVPPos, m_MVP);
     m_shader->setVec3(m_colorPos, m_lineColor);
@@ -50,8 +48,7 @@ int Line::draw(glm::vec3 start, glm::vec3 end) {
     return 1;
 }
 
-Line::~Line() {
-
+Prisma::Line::~Line() {
     glDeleteVertexArrays(1, &m_VAO);
     glDeleteBuffers(1, &m_VBO);
 }

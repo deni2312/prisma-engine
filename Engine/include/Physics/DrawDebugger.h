@@ -3,6 +3,9 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Renderer/DebugRenderer.h>
 #include <iostream>
+#include "../Containers/VAO.h"
+#include "../Containers/VBO.h"
+#include "../Containers/EBO.h"
 
 namespace Prisma {
 
@@ -22,9 +25,16 @@ namespace Prisma {
 
         virtual void DrawGeometry(JPH::RMat44Arg inModelMatrix, const JPH::AABox& inWorldSpaceBounds, float inLODScaleSq, JPH::ColorArg inModelColor, const GeometryRef& inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode) override;
 
+        void init();
 
         DrawDebugger();
     private:
         std::shared_ptr<Prisma::Shader> m_shader;
+        unsigned int m_modelPos;
+        unsigned int m_colorPos;
+        Prisma::VAO m_vao;
+        Prisma::VBO m_vbo;
+        Prisma::EBO m_ebo;
+        bool m_init = false;
     };
 }
