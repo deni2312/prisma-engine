@@ -58,7 +58,7 @@ namespace Prisma {
 
 		unsigned int m_numPatches = 4;
 		unsigned int m_resolution = 20;
-		float m_mult = 64;
+		float m_mult = 8;
 		float m_shift = 0;
 		float m_scale = 1000;
 		float m_farPlane = 0;

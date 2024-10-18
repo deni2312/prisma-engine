@@ -141,11 +141,13 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings() {
             auto boxShape = new BoxShape(Prisma::JtoVec3(length));
             shape = new ScaledShape(boxShape, Prisma::JtoVec3(scale));
             aabbSettings = BodyCreationSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
+            
             break;
         }
         case Prisma::Physics::Collider::SPHERE_COLLIDER: {
             auto sphereShape = new SphereShape(1.0);
             shape = new ScaledShape(sphereShape, Prisma::JtoVec3(scale));
+            aabbSettings = BodyCreationSettings(shape, Prisma::JtoVec3(translation), Prisma::JtoQuat(rotation), m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static, m_collisionData.dynamic ? Prisma::Layers::MOVING : Prisma::Layers::NON_MOVING);
             break;
         }
         case Prisma::Physics::Collider::LANDSCAPE_COLLIDER: {
@@ -168,7 +170,6 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings() {
         aabbSettings.mMassPropertiesOverride = mass;
         aabbSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
     }
-
     aabbSettings.mUserData = uuid();
     return aabbSettings;
 }

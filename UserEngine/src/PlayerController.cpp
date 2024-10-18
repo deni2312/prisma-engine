@@ -50,9 +50,9 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     auto terrain = std::make_shared<Prisma::Node>();
     terrain->name("Terrain");
-    terrain->matrix(glm::translate(glm::mat4(1.0),glm::vec3(0,-24,0)));
+    terrain->matrix(glm::translate(glm::mat4(1.0),glm::vec3(0,-4,0)));
     auto terrainComponent = std::make_shared<Prisma::TerrainComponent>();
-    auto perlin=Prisma::PrismaRender::getInstance().renderPerlin(128, 128);
+    auto perlin=Prisma::PrismaRender::getInstance().renderPerlin(64, 64);
     Prisma::Texture blackTexture;
     blackTexture.loadTexture({ "../../../Resources/res/black.png", false, true, true,true });
     terrainComponent->heightMap(*perlin);
