@@ -77,34 +77,65 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
 }
 
 void GrassRenderer::generateGrassPoints(float density, float mult, float shift) {
-    int rez = 1;
     int width = m_heightMap.data().width;
     int height = m_heightMap.data().height;
     unsigned bytePerPixel = m_heightMap.data().nrComponents;
-    for (int i = 0; i < height; i++)
+
+    float densityFactor = 8.0f; // Increase this to make grass placement denser
+
+    for (int i = 0; i < height * densityFactor; i++)
     {
-        for (int j = 0; j < width; j++)
+        for (int j = 0; j < width * densityFactor; j++)
         {
-            unsigned char* pixelOffset = m_heightMap.data().dataContent + (j + width * i) * bytePerPixel;
-            unsigned char y = pixelOffset[0];
+            // Find the coordinates in the original heightmap space
+            float original_i = i / densityFactor;
+            float original_j = j / densityFactor;
+
+            // Get the indices of the four neighboring heightmap vertices for interpolation
+            int x0 = static_cast<int>(original_j);
+            int x1 = std::min(x0 + 1, width - 1); // clamp to width
+            int z0 = static_cast<int>(original_i);
+            int z1 = std::min(z0 + 1, height - 1); // clamp to height
+
+            // Compute interpolation weights
+            float tx = original_j - x0;
+            float tz = original_i - z0;
+
+            // Get the heightmap heights for the four neighbors
+            unsigned char* pixel00 = m_heightMap.data().dataContent + (x0 + width * z0) * bytePerPixel;
+            unsigned char* pixel01 = m_heightMap.data().dataContent + (x1 + width * z0) * bytePerPixel;
+            unsigned char* pixel10 = m_heightMap.data().dataContent + (x0 + width * z1) * bytePerPixel;
+            unsigned char* pixel11 = m_heightMap.data().dataContent + (x1 + width * z1) * bytePerPixel;
+
+            // Extract height values
+            float h00 = (int)pixel00[0] * mult / 256.0f - shift;
+            float h01 = (int)pixel01[0] * mult / 256.0f - shift;
+            float h10 = (int)pixel10[0] * mult / 256.0f - shift;
+            float h11 = (int)pixel11[0] * mult / 256.0f - shift;
+
+            // Bilinear interpolation of the height
+            float interpolatedHeight = (1 - tx) * (1 - tz) * h00 +
+                tx * (1 - tz) * h01 +
+                (1 - tx) * tz * h10 +
+                tx * tz * h11;
 
             // Create the vertex
             Prisma::Mesh::Vertex vertex;
-            vertex.position.x = -height / 2.0f + height * i / (float)height;
-            vertex.position.y = (int)y * mult / 256.0 - shift;
-            vertex.position.z = -width / 2.0f + width * j / (float)width;
+            vertex.position.x = -height / 2.0f + height * original_i / (float)height;
+            vertex.position.y = interpolatedHeight;
+            vertex.position.z = -width / 2.0f + width * original_j / (float)width;
 
             // Store the vertex
             m_grassVertices.push_back(vertex);
-            // Get the y-value from the vertex array (already scaled and shifted in the original terrain generation)
-            glm::mat4 position = glm::translate(glm::mat4(1.0), vertex.position);
 
-            // Combine translation and rotation into the final transformation matrix
+            // Set the transformation matrix for the grass
+            glm::mat4 position = glm::translate(glm::mat4(1.0f), vertex.position);
             glm::mat4 finalTransform = position;
 
             glm::mat4 direction = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
             // Store the transformation matrix in the m_positions array
-            m_positions.push_back({ direction,finalTransform });
+            m_positions.push_back({ direction, finalTransform });
         }
     }
 

@@ -80,7 +80,7 @@ Prisma::Component::Component() {
 
 Prisma::Component::~Component()
 {
-    destroy();
+    //destroy();
 }
 
 void Prisma::Component::addGlobal(Prisma::Component::ComponentType globalVar) {
