@@ -71,6 +71,7 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
     m_spriteShader->setFloat(m_timePos, duration.count());
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, m_indirectId);
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(1), 0);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
@@ -93,6 +94,7 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
     m_ssbo->modifyData(0, sizeof(GrassPosition) * m_grassPositions.size(), m_grassPositions.data());
 
     m_ssboCull->resize(sizeof(GrassPosition) * m_grassPositions.size(), GL_DYNAMIC_READ);
+
 }
 
 void GrassRenderer::projection(glm::mat4 projection) {
