@@ -35,7 +35,7 @@ void main()
     mat4 currentModel = grassCull[gl_InstanceID].position * model;
 
     // Fetch the current model matrix for this instance of grass
-    vec4 grassModel = currentModel * vec4(aPos, 1.0);
+    vec4 grassModel = currentModel*grassCull[gl_InstanceID].direction * vec4(aPos, 1.0);
 
 
     // Wind effect: Apply a sinusoidal oscillation based on time and position

@@ -1,4 +1,4 @@
-#include "../include/GrassRenderer.h"
+﻿#include "../include/GrassRenderer.h"
 #include <random>
 #include <glm/gtx/string_cast.hpp>
 
@@ -54,7 +54,7 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
     m_cullShader->setMat4(m_modelComputePos, translation);
     m_cullShader->setMat4(m_projectionPos, m_projection);
     unsigned int sizeCluster = 8;
-    unsigned int sizePositions = glm::ceil(glm::sqrt(m_positions.size() / (sizeCluster * sizeCluster)));
+    unsigned int sizePositions = glm::ceil(glm::sqrt(m_grassPositions.size() / (sizeCluster * sizeCluster)));
     m_cullShader->dispatchCompute({ sizePositions,sizePositions,1 });
     m_cullShader->wait(GL_COMMAND_BARRIER_BIT);
     m_vao.bind();
@@ -77,29 +77,67 @@ void GrassRenderer::renderGrass(glm::mat4 translation) {
 }
 
 void GrassRenderer::generateGrassPoints(float density, float mult, float shift) {
+    generateGrassPositions(density, mult, shift);
+    glGenBuffers(1, &m_indirectId);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
+    m_command.count = static_cast<GLuint>(m_verticesData.indices.size());
+    m_command.instanceCount = m_grassPositions.size();
+    m_command.firstIndex = 0;
+    m_command.baseVertex = 0;
+    m_command.baseInstance = 0;
+    glBindBuffer(GL_ARRAY_BUFFER, m_indirectId);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, m_indirectId);
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(Prisma::DrawElementsIndirectCommand), &m_command, GL_DYNAMIC_DRAW);
+
+    m_ssbo->resize(sizeof(GrassPosition) * m_grassPositions.size(), GL_STATIC_DRAW);
+    m_ssbo->modifyData(0, sizeof(GrassPosition) * m_grassPositions.size(), m_grassPositions.data());
+
+    m_ssboCull->resize(sizeof(GrassPosition) * m_grassPositions.size(), GL_DYNAMIC_READ);
+}
+
+void GrassRenderer::projection(glm::mat4 projection) {
+    m_projection = projection;
+}
+
+void GrassRenderer::generateGrassPositions(float density,float mult,float shift)
+{
+    // Seed the random number generator once
+    std::mt19937 rng(static_cast<unsigned>(std::time(0)));
+
+    // Create a uniform distribution for small random displacements
+    std::uniform_real_distribution<float> displacementDist(-0.05f, 0.05f);  // Random displacement in range [-0.05, 0.05]
+    std::uniform_real_distribution<float> scaleDist(0.5f, 1.0f);            // Random scale in range [0.1, 1.0]
+    std::uniform_real_distribution<float> rotationDist(0.0f, glm::two_pi<float>()); // Random rotation between [0, 2π]
+
+    // Assuming glm::two_pi<float>() provides 2*π radians, equivalent to 360 degrees.
+
     int width = m_heightMap.data().width;
     int height = m_heightMap.data().height;
     unsigned bytePerPixel = m_heightMap.data().nrComponents;
 
-    float densityFactor = 8.0f; // Increase this to make grass placement denser
-
-    for (int i = 0; i < height * densityFactor; i++)
-    {
-        for (int j = 0; j < width * densityFactor; j++)
-        {
+    for (int i = 0; i < height * density; i++) {
+        for (int j = 0; j < width * density; j++) {
             // Find the coordinates in the original heightmap space
-            float original_i = i / densityFactor;
-            float original_j = j / densityFactor;
+            float original_i = i / density;
+            float original_j = j / density;
+
+            // Add random displacement to the original coordinates
+            float displaced_i = original_i + displacementDist(rng);
+            float displaced_j = original_j + displacementDist(rng);
+
+            // Ensure the displaced coordinates remain within bounds
+            displaced_i = std::clamp(displaced_i, 0.0f, static_cast<float>(height - 1));
+            displaced_j = std::clamp(displaced_j, 0.0f, static_cast<float>(width - 1));
 
             // Get the indices of the four neighboring heightmap vertices for interpolation
-            int x0 = static_cast<int>(original_j);
-            int x1 = std::min(x0 + 1, width - 1); // clamp to width
-            int z0 = static_cast<int>(original_i);
-            int z1 = std::min(z0 + 1, height - 1); // clamp to height
+            int x0 = static_cast<int>(displaced_j);
+            int x1 = std::min(x0 + 1, width - 1); // Clamp to width
+            int z0 = static_cast<int>(displaced_i);
+            int z1 = std::min(z0 + 1, height - 1); // Clamp to height
 
             // Compute interpolation weights
-            float tx = original_j - x0;
-            float tz = original_i - z0;
+            float tx = displaced_j - x0;
+            float tz = displaced_i - z0;
 
             // Get the heightmap heights for the four neighbors
             unsigned char* pixel00 = m_heightMap.data().dataContent + (x0 + width * z0) * bytePerPixel;
@@ -119,43 +157,31 @@ void GrassRenderer::generateGrassPoints(float density, float mult, float shift) 
                 (1 - tx) * tz * h10 +
                 tx * tz * h11;
 
-            // Create the vertex
+            // Create the vertex with random displacement
             Prisma::Mesh::Vertex vertex;
-            vertex.position.x = -height / 2.0f + height * original_i / (float)height;
+            vertex.position.x = -height / 2.0f + height * displaced_i / (float)height;
             vertex.position.y = interpolatedHeight;
-            vertex.position.z = -width / 2.0f + width * original_j / (float)width;
+            vertex.position.z = -width / 2.0f + width * displaced_j / (float)width;
 
             // Store the vertex
             m_grassVertices.push_back(vertex);
 
-            // Set the transformation matrix for the grass
-            glm::mat4 position = glm::translate(glm::mat4(1.0f), vertex.position);
-            glm::mat4 finalTransform = position;
+            // Random scale for the grass blade
+            float randomScale = scaleDist(rng);
+            glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(randomScale));
 
-            glm::mat4 direction = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            // Random rotation around the Y-axis (up)
+            float randomRotation = rotationDist(rng);
+            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), randomRotation, glm::vec3(0.0f, 1.0f, 0.0f)) * scaleMatrix;
+
+            // Set the position matrix
+            glm::mat4 positionMatrix = glm::translate(glm::mat4(1.0f), vertex.position);
+
+            // Combine transformations: scale -> rotate -> translate
+            glm::mat4 finalTransform = positionMatrix;
 
             // Store the transformation matrix in the m_positions array
-            m_positions.push_back({ direction, finalTransform });
+            m_grassPositions.push_back({ rotationMatrix, finalTransform });
         }
     }
-
-    glGenBuffers(1, &m_indirectId);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectId);
-    m_command.count = static_cast<GLuint>(m_verticesData.indices.size());
-    m_command.instanceCount = m_positions.size();
-    m_command.firstIndex = 0;
-    m_command.baseVertex = 0;
-    m_command.baseInstance = 0;
-    glBindBuffer(GL_ARRAY_BUFFER, m_indirectId);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, m_indirectId);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(Prisma::DrawElementsIndirectCommand), &m_command, GL_DYNAMIC_DRAW);
-
-    m_ssbo->resize(sizeof(GrassPosition) * m_positions.size(), GL_STATIC_DRAW);
-    m_ssbo->modifyData(0, sizeof(GrassPosition) * m_positions.size(), m_positions.data());
-
-    m_ssboCull->resize(sizeof(GrassPosition) * m_positions.size(), GL_DYNAMIC_READ);
-}
-
-void GrassRenderer::projection(glm::mat4 projection) {
-    m_projection = projection;
 }

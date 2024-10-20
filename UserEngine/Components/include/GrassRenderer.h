@@ -49,7 +49,7 @@ private:
 
 	std::shared_ptr<Prisma::SSBO> m_ssbo;
 	std::shared_ptr<Prisma::SSBO> m_ssboCull;
-	std::vector<GrassPosition> m_positions;
+	std::vector<GrassPosition> m_grassPositions;
 
 	std::vector<Prisma::Mesh::Vertex> m_grassVertices;
 	Prisma::Mesh::VerticesData m_verticesData;
@@ -65,4 +65,6 @@ private:
 	unsigned int m_projectionPos;
 
 	std::chrono::steady_clock::time_point m_startPoint;
+
+	void generateGrassPositions(float density,float mult,float shift);
 };

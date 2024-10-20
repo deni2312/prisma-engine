@@ -78,7 +78,7 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<Prisma::FBO> fbo)
 
 void Prisma::TerrainComponent::generateCpu()
 {
-    m_grassRenderer.generateGrassPoints(1,m_mult,m_shift);
+    m_grassRenderer.generateGrassPoints(8,m_mult,m_shift);
     generatePhysics();
 }
 
