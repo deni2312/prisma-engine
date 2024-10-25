@@ -6,7 +6,8 @@ struct MaterialData {
     sampler2D roughness_metalness;
     sampler2D specularMap;
     sampler2D ambient_occlusion;
-    vec2 padding;
+    bool transparent;
+    float padding;
 };
 
 

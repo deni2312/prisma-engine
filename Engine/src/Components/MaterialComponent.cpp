@@ -94,3 +94,11 @@ Prisma::MaterialComponent::MaterialComponent() {
 std::string Prisma::MaterialComponent::material_name() {
     return m_materialName;
 }
+
+void Prisma::MaterialComponent::transparent(bool transparent) {
+    m_transparent = transparent;
+}
+
+bool Prisma::MaterialComponent::transparent() {
+    return m_transparent;
+}
