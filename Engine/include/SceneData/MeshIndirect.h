@@ -80,6 +80,9 @@ namespace Prisma {
 		std::vector<unsigned int> m_cacheAdd;
 		std::vector<unsigned int> m_cacheRemove;
 
+		unsigned int m_indirectSSBOId = 18;
+		unsigned int m_indirectAnimationSSBOId = 19;
+
 	public:
 		void load();
 

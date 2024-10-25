@@ -58,6 +58,7 @@ void Prisma::MeshIndirect::renderMeshes()
     if (currentGlobalScene->meshes.size() > 0) {
         m_vao->bind();
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
     }
@@ -68,6 +69,7 @@ void Prisma::MeshIndirect::renderAnimateMeshes()
     if (currentGlobalScene->animateMeshes.size() > 0) {
         m_vaoAnimation->bind();
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectAnimationSSBOId, m_indirectDrawAnimation);
         glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, static_cast<GLuint>(currentGlobalScene->animateMeshes.size()), 0);
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
     }
@@ -218,6 +220,7 @@ void Prisma::MeshIndirect::updateSize()
             m_currentIndex = m_currentIndex + indices.size();
             m_currentVertex = m_currentVertex + vertices.size();
         }
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
     }
@@ -391,6 +394,7 @@ void Prisma::MeshIndirect::updateAnimation()
             m_currentIndexAnimation = m_currentIndexAnimation + indices.size();
             m_currentVertexAnimation = m_currentVertexAnimation + vertices.size();
         }
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectAnimationSSBOId, m_indirectDrawAnimation);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommandsAnimation.size() * sizeof(DrawElementsIndirectCommand), m_drawCommandsAnimation.data(), GL_DYNAMIC_DRAW);
     }
@@ -439,6 +443,8 @@ void Prisma::MeshIndirect::updateStatus()
             m_currentIndex = m_currentIndex + indices.size();
             m_currentVertex = m_currentVertex + vertices.size();
         }
+        glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
     }
@@ -466,6 +472,8 @@ void Prisma::MeshIndirect::updateStatus()
         m_currentIndexAnimation = m_currentIndexAnimation + indices.size();
         m_currentVertexAnimation = m_currentVertexAnimation + vertices.size();
     }
+    glBindBuffer(GL_ARRAY_BUFFER, m_indirectDrawAnimation);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectAnimationSSBOId, m_indirectDrawAnimation);
     // Upload the draw commands to the buffer
     glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommandsAnimation.size() * sizeof(DrawElementsIndirectCommand), m_drawCommandsAnimation.data(), GL_DYNAMIC_DRAW);
 
