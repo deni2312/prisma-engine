@@ -70,7 +70,7 @@ Prisma::Engine::Engine()
 
     AnimationHandler::getInstance();
     
-    data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::DEFERRED;
+    data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD;
 
     data->engineSettings.ssr = false;
 
@@ -127,6 +127,9 @@ bool Prisma::Engine::run()
 
                 case Prisma::EngineSettings::Pipeline::DEFERRED:
                     data->pipelineHandler.deferred()->render();
+                    break;
+                case Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD:
+                    data->pipelineHandler.deferredForward()->render();
                     break;
 
             }

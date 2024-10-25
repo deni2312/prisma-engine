@@ -1,4 +1,4 @@
-#include "../../include/Pipelines/PipelineDeferred.h"
+#include "../../include/Pipelines/PipelineDeferredForward.h"
 #include "../../include/SceneData/MeshIndirect.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/SceneObjects/Mesh.h"
@@ -19,7 +19,7 @@
 #include "../../include/Handlers/ComponentsHandler.h"
 
 
-Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb):m_width{ width },m_height{ height }
+Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& width, const unsigned int& height, bool srgb):m_width{ width },m_height{ height }
 {
     Shader::ShaderHeaders header;
     header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n";
@@ -118,7 +118,7 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 
 }
 
-void Prisma::PipelineDeferred::render()
+void Prisma::PipelineDeferredForward::render()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -132,10 +132,10 @@ void Prisma::PipelineDeferred::render()
 
     // Unbind the buffer
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+
     m_fbo->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     Prisma::ComponentsHandler::getInstance().updatePreRender(m_fbo);
-
     m_shaderD->use();
     m_shaderD->setInt64(m_albedoLocation, m_albedo);
     m_shaderD->setInt64(m_normalLocation, m_normal);
@@ -184,6 +184,6 @@ void Prisma::PipelineDeferred::render()
 
 }
 
-Prisma::PipelineDeferred::~PipelineDeferred()
+Prisma::PipelineDeferredForward::~PipelineDeferredForward()
 {
 }

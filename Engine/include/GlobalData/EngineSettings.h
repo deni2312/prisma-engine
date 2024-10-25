@@ -4,7 +4,8 @@ namespace Prisma {
 	namespace EngineSettings {
 		enum class Pipeline {
 			FORWARD,
-			DEFERRED
+			DEFERRED,
+			DEFERRED_FORWARD
 		};
 		struct Settings {
 			Pipeline pipeline;
