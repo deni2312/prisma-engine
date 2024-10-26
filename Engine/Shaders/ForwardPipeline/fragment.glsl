@@ -44,5 +44,5 @@ void main()
 
     vec3 pbrColor = pbrCalculation(FragPos, N, albedo, aoSpecular,roughness,metallic);
 
-    FragColor = vec4(pbrColor, 1.0);
+    FragColor = vec4(pbrColor, diffuseTexture.a);
 }

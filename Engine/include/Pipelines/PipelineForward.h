@@ -24,6 +24,7 @@ namespace Prisma {
 
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderAnimate;
+		std::shared_ptr<Shader> m_shaderTransparent;
 		std::shared_ptr<Prisma::FBO> m_fbo;
 		std::shared_ptr<Prisma::FBO> m_fboCopy;
 		std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;

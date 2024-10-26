@@ -28,6 +28,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 	header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n#define ANIMATE 1\n";
 
 	m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_forward.glsl", "../../../Engine/Shaders/ForwardPipeline/fragment.glsl",nullptr,header);
+
+	m_shaderTransparent = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/compute.glsl");
 	Prisma::FBO::FBOData fboData;
 	fboData.width = m_width;
 	fboData.height = m_height;
@@ -62,8 +64,15 @@ void Prisma::PipelineForward::render()
 	glDepthMask(GL_FALSE);          // Disable depth writing
 	glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
 	*/
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Prisma::ComponentsHandler::getInstance().updatePreRender(m_fbo);
 	//COLOR PASS
+	auto sizeMeshes = currentGlobalScene->meshes.size() + currentGlobalScene->animateMeshes.size();
+	m_shaderTransparent->use();
+	m_shaderTransparent->dispatchCompute({ sizeMeshes,1,1});
+	m_shaderTransparent->wait(GL_COMMAND_BARRIER_BIT);
+
 	m_shader->use();
 	Prisma::MeshIndirect::getInstance().renderMeshes();
 
@@ -71,6 +80,7 @@ void Prisma::PipelineForward::render()
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
 	Prisma::PipelineSkybox::getInstance().render();
+	glDisable(GL_BLEND);
 
 	Prisma::ComponentsHandler::getInstance().updateRender(m_fbo);
 
