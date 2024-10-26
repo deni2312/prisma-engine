@@ -14,9 +14,19 @@ layout(std430, binding = 18) buffer DrawElementsIndirectMesh
     InstanceData instanceData[];
 };
 
+layout(std430, binding = 1) readonly buffer Matrices
+{
+    mat4 modelMatrices[];
+};
+
 layout(std430, binding = 19) buffer DrawElementsIndirectMeshAnimate
 {
     InstanceData instanceDataAnimation[];
+};
+
+layout(std430, binding = 6) readonly buffer AnimationMatrices
+{
+    mat4 modelAnimationMatrices[];
 };
 
 void main()
