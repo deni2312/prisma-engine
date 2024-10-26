@@ -70,7 +70,7 @@ void Prisma::PipelineForward::render()
 	//COLOR PASS
 	auto sizeMeshes = currentGlobalScene->meshes.size() + currentGlobalScene->animateMeshes.size();
 	m_shaderTransparent->use();
-	m_shaderTransparent->dispatchCompute({ sizeMeshes,1,1});
+	m_shaderTransparent->dispatchCompute({ 1,1,1});
 	m_shaderTransparent->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
 	m_shaderAnimate->use();
