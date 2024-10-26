@@ -71,13 +71,13 @@ void Prisma::PipelineForward::render()
 	auto sizeMeshes = currentGlobalScene->meshes.size() + currentGlobalScene->animateMeshes.size();
 	m_shaderTransparent->use();
 	m_shaderTransparent->dispatchCompute({ sizeMeshes,1,1});
-	m_shaderTransparent->wait(GL_COMMAND_BARRIER_BIT);
-
-	m_shader->use();
-	Prisma::MeshIndirect::getInstance().renderMeshes();
+	m_shaderTransparent->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
 	m_shaderAnimate->use();
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+
+	m_shader->use();
+	Prisma::MeshIndirect::getInstance().renderMeshes();
 
 	Prisma::PipelineSkybox::getInstance().render();
 	glDisable(GL_BLEND);
