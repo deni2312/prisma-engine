@@ -65,6 +65,7 @@ namespace Prisma {
 
 		std::shared_ptr<Prisma::SSBO> m_ssboModelCopy;
 		std::shared_ptr<Prisma::SSBO> m_ssboMaterialCopy;
+		std::shared_ptr<Prisma::SSBO> m_ssboIndices;
 
 
 		Prisma::AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;

@@ -64,6 +64,10 @@ layout(std430, binding = 21) buffer MaterialCopy
     MaterialData materialDataCopy[];
 };
 
+layout(std430, binding = 23) buffer IndicesData
+{
+    uint indicesData[];
+};
 
 // Function to calculate depth from the camera for sorting
 float calculateDepth(mat4 modelMatrix) {
@@ -77,39 +81,36 @@ uniform int size = 0;
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index == 0) {
-        // Simple in-place bubble sort for demonstration (serial, single invocation)
+        // Sort using indices to avoid modifying the copy buffers
 
-
+        // Initialize indices
         for (uint i = 0; i < size; i++) {
-            instanceData[i] = instanceDataCopy[i];
-            modelMatrices[i] = modelMatricesCopy[i];
-            materialData[i] = materialDataCopy[i];
+            indicesData[i] = i;
         }
 
+        // Perform bubble sort on indices based on depth from copy buffers
         for (uint i = 0; i < size - 1; i++) {
-            for (uint j = 0; j < size - 1; j++) {
-                // Calculate depths for two consecutive instances
-                float depthA = calculateDepth(modelMatrices[i]);
-                float depthB = calculateDepth(modelMatrices[i + 1]);
+            for (uint j = 0; j < size - 1 - i; j++) {
+                // Calculate depths using the copy buffers
+                float depthA = calculateDepth(modelMatricesCopy[indicesData[j]]);
+                float depthB = calculateDepth(modelMatricesCopy[indicesData[j + 1]]);
 
-                // Sort in descending order (farthest first) for correct transparency blending
+                // Sort in descending order (farthest first) for transparency blending
                 if (depthA < depthB) {
-                    // Swap instance data in-place
-                    InstanceData temp = instanceData[i];
-                    instanceData[i] = instanceData[i + 1];
-                    instanceData[i + 1] = temp;
-
-                    // Swap model matrices in-place to keep data in sync
-                    mat4 tempMatrix = modelMatrices[i];
-                    modelMatrices[i] = modelMatrices[i + 1];
-                    modelMatrices[i + 1] = tempMatrix;
-
-                    // Swap texture data in-place
-                    MaterialData tempMaterial = materialData[i];
-                    materialData[i] = materialData[i + 1];
-                    materialData[i + 1] = tempMaterial;
+                    // Swap indices instead of modifying the copy buffer data
+                    uint temp = indicesData[j];
+                    indicesData[j] = indicesData[j + 1];
+                    indicesData[j + 1] = temp;
                 }
             }
+        }
+
+        // Write sorted data from copy buffers to main buffers
+        for (uint i = 0; i < size; i++) {
+            uint sortedIndex = indicesData[i];
+            instanceData[i] = instanceDataCopy[sortedIndex];
+            modelMatrices[i] = modelMatricesCopy[sortedIndex];
+            materialData[i] = materialDataCopy[sortedIndex];
         }
     }
 }

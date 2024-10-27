@@ -129,6 +129,7 @@ void Prisma::MeshIndirect::updateSize()
         m_ssboMaterialCopy->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
         m_ssboMaterialCopy->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
 
+        m_ssboIndices->resize(sizeof(int) * meshes.size());
 
         //GENERATE DATA TO SEND INDIRECT
         m_vao->bind();
@@ -241,7 +242,7 @@ void Prisma::MeshIndirect::updateSize()
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), NULL, GL_DYNAMIC_DRAW);
-
+        
     }
     updateAnimation();
 
@@ -281,6 +282,7 @@ Prisma::MeshIndirect::MeshIndirect()
 
     m_ssboModelCopy = std::make_shared<Prisma::SSBO>(20);
     m_ssboMaterialCopy = std::make_shared<Prisma::SSBO>(21);
+    m_ssboIndices = std::make_shared<Prisma::SSBO>(23);
 
     m_ssboModelAnimation = std::make_shared<Prisma::SSBO>(6);
     m_ssboMaterialAnimation = std::make_shared<Prisma::SSBO>(7);
