@@ -9,15 +9,55 @@ struct InstanceData {
     unsigned int  baseInstance;
 };
 
+layout(std430, binding = 18) buffer DrawElementsIndirectMesh
+{
+    InstanceData instanceData[];
+};
+
 layout(std430, binding = 22) buffer DrawElementsIndirectMeshCopy
 {
     InstanceData instanceDataCopy[];
 };
 
-uniform unsigned int show = 1;
+struct MaterialData {
+    vec2 diffuse;
+    vec2 normal;
+    vec2 roughness_metalness;
+    vec2 specularMap;
+    vec2 ambient_occlusion;
+    bool transparent;
+    float padding;
+};
+
+layout(std430, binding = 0) buffer Material
+{
+    MaterialData materialData[];
+};
+
+uniform bool transparent;
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
-    // Sort using indices to avoid modifying the copy buffers
-    instanceDataCopy[index].instanceCount = show;
+    if (index == 0) {
+        for (int i = 0; i < materialData.length(); i++) {
+            if (instanceDataCopy[i].instanceCount > 0) {
+                if (transparent) {
+                    if (materialData[i].transparent) {
+                        instanceData[i].instanceCount = 1;
+                    }
+                    else {
+                        instanceData[i].instanceCount = 0;
+                    }
+                }
+                else {
+                    if (!materialData[i].transparent) {
+                        instanceData[i].instanceCount = 1;
+                    }
+                    else {
+                        instanceData[i].instanceCount = 0;
+                    }
+                }
+            }
+        }
+    }
 }

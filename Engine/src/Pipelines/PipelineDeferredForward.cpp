@@ -28,6 +28,9 @@ Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& wid
     header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n#define ANIMATE 1\n";
     m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_deferred.glsl", "../../../Engine/Shaders/DeferredPipeline/fragment.glsl",nullptr,header);
 
+    m_shaderCompute = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/computeHideShow.glsl");
+
+
     m_ssr=std::make_shared<Prisma::PipelineSSR>();
     m_shaderD->use();
 
@@ -106,6 +109,9 @@ Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& wid
     Prisma::TextureInfo::getInstance().add({ gAlbedoSpec, "Deferred_Albedo"});
     Prisma::TextureInfo::getInstance().add({ gAmbient, "Deferred_Ambient" });
 
+    m_shaderCompute->use();
+    m_transparentLocation = m_shaderCompute->getUniformPosition("transparent");
+
     Prisma::FBO::FBOData fboData;
 	fboData.width = m_width;
 	fboData.height = m_height;
@@ -120,6 +126,10 @@ Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& wid
 
 void Prisma::PipelineDeferredForward::render()
 {
+    m_shaderCompute->use();
+    m_shaderCompute->setBool(m_transparentLocation, true);
+    m_shaderCompute->dispatchCompute({ 1,1,1 });
+    m_shaderCompute->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_shader->use();
