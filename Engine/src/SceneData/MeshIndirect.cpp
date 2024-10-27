@@ -129,7 +129,7 @@ void Prisma::MeshIndirect::updateSize()
         m_ssboMaterialCopy->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
         m_ssboMaterialCopy->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
 
-        m_ssboIndices->resize(sizeof(int) * meshes.size());
+        m_ssboIndices->resize(sizeof(unsigned int) * meshes.size());
 
         //GENERATE DATA TO SEND INDIRECT
         m_vao->bind();
