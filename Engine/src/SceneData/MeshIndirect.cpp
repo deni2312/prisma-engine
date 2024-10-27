@@ -117,16 +117,16 @@ void Prisma::MeshIndirect::updateSize()
         }
 
         //PUSH MODEL MATRICES TO AN SSBO WITH ID 1
-        m_ssboModelCopy->resize(sizeof(glm::mat4) * (models.size()));
         m_ssboModel->resize(sizeof(glm::mat4) * (models.size()));
+        m_ssboModelCopy->resize(sizeof(glm::mat4) * (models.size()));
         m_ssboModelCopy->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
 
         //PUSH MATERIAL TO AN SSBO WITH ID 0
         for (const auto& material : meshes) {
             m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id(),material->material()->specular()[0].id(), material->material()->ambientOcclusion()[0].id() ,material->material()->transparent(),0.0});
         }
-        m_ssboMaterialCopy->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
         m_ssboMaterial->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
+        m_ssboMaterialCopy->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
         m_ssboMaterialCopy->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
 
 
@@ -231,11 +231,13 @@ void Prisma::MeshIndirect::updateSize()
             m_currentIndex = m_currentIndex + indices.size();
             m_currentVertex = m_currentVertex + vertices.size();
         }
+        glBindBuffer(GL_ARRAY_BUFFER, m_indirectDrawCopy);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectCopySSBOId, m_indirectDrawCopy);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
 
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+        glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
@@ -475,6 +477,7 @@ void Prisma::MeshIndirect::updateStatus()
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
 
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+        glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
