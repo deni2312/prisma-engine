@@ -68,14 +68,14 @@ void Prisma::PipelineForward::render()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Prisma::ComponentsHandler::getInstance().updatePreRender(m_fbo);
 	//COLOR PASS
-	
+	Prisma::PipelineSkybox::getInstance().render();
+
 	m_shaderAnimate->use();
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
 	m_shader->use();
 	Prisma::MeshIndirect::getInstance().renderMeshes();
 
-	Prisma::PipelineSkybox::getInstance().render();
 	glDisable(GL_BLEND);
 
 	Prisma::ComponentsHandler::getInstance().updateRender(m_fbo);
