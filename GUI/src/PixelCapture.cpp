@@ -46,7 +46,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 
     shader->use();
 
-    Prisma::MeshIndirect::getInstance().renderMeshes();
+    Prisma::MeshIndirect::getInstance().renderMeshesCopy();
 
     shaderAnimation->use();
 

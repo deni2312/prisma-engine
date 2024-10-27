@@ -108,6 +108,7 @@ namespace Prisma {
 		void removeAnimate(unsigned int remove);
 
 		void renderMeshes();
+		void renderMeshesCopy();
 		void renderAnimateMeshes();
 
 		void update();
