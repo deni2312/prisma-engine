@@ -64,15 +64,11 @@ void Prisma::PipelineForward::render()
 	glDepthMask(GL_FALSE);          // Disable depth writing
 	glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
 	*/
-	/*glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Prisma::ComponentsHandler::getInstance().updatePreRender(m_fbo);
 	//COLOR PASS
-	auto sizeMeshes = currentGlobalScene->meshes.size() + currentGlobalScene->animateMeshes.size();
-	m_shaderTransparent->use();
-	m_shaderTransparent->dispatchCompute({ 1,1,1});
-	m_shaderTransparent->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-	*/
+	
 	m_shaderAnimate->use();
 	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
 
@@ -80,7 +76,7 @@ void Prisma::PipelineForward::render()
 	Prisma::MeshIndirect::getInstance().renderMeshes();
 
 	Prisma::PipelineSkybox::getInstance().render();
-	//glDisable(GL_BLEND);
+	glDisable(GL_BLEND);
 
 	Prisma::ComponentsHandler::getInstance().updateRender(m_fbo);
 

@@ -14,9 +14,19 @@ layout(std430, binding = 18) buffer DrawElementsIndirectMesh
     InstanceData instanceData[];
 };
 
+layout(std430, binding = 22) buffer DrawElementsIndirectMeshCopy
+{
+    InstanceData instanceDataCopy[];
+};
+
 layout(std430, binding = 1) buffer Matrices
 {
     mat4 modelMatrices[];
+};
+
+layout(std430, binding = 20) buffer MatricesCopy
+{
+    mat4 modelMatricesCopy[];
 };
 
 layout(std140, binding = 1) uniform MeshData
@@ -49,6 +59,11 @@ layout(std430, binding = 0) buffer Material
     MaterialData materialData[];
 };
 
+layout(std430, binding = 21) buffer MaterialCopy
+{
+    MaterialData materialDataCopy[];
+};
+
 
 // Function to calculate depth from the camera for sorting
 float calculateDepth(mat4 modelMatrix) {
@@ -57,13 +72,22 @@ float calculateDepth(mat4 modelMatrix) {
     return length(viewPosition); // Depth value (negative for view direction)
 }
 
+uniform int size = 0;
+
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index == 0) {
         // Simple in-place bubble sort for demonstration (serial, single invocation)
-        uint n = instanceData.length();
-        for (uint i = 0; i < n - 1; i++) {
-            for (uint j = 0; j < n - 1; j++) {
+
+
+        for (uint i = 0; i < size; i++) {
+            instanceData[i] = instanceDataCopy[i];
+            modelMatrices[i] = modelMatricesCopy[i];
+            materialData[i] = materialDataCopy[i];
+        }
+
+        for (uint i = 0; i < size - 1; i++) {
+            for (uint j = 0; j < size - 1; j++) {
                 // Calculate depths for two consecutive instances
                 float depthA = calculateDepth(modelMatrices[i]);
                 float depthB = calculateDepth(modelMatrices[i + 1]);

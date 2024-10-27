@@ -12,6 +12,14 @@
 #include "../../include/GlobalData/CacheScene.h"
 
 
+void Prisma::MeshIndirect::sort()
+{
+    m_shader->use();
+    m_shader->setInt(m_sizeLocation, currentGlobalScene->meshes.size());
+    m_shader->dispatchCompute({ 1,1,1 });
+    m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+}
+
 void Prisma::MeshIndirect::load()
 {
     updateSize();
@@ -89,6 +97,7 @@ void Prisma::MeshIndirect::update()
     if (Prisma::CacheScene::getInstance().updateStatus()) {
         updateStatus();
     }
+    sort();
 }
 
 void Prisma::MeshIndirect::updateSize()
@@ -108,15 +117,17 @@ void Prisma::MeshIndirect::updateSize()
         }
 
         //PUSH MODEL MATRICES TO AN SSBO WITH ID 1
+        m_ssboModelCopy->resize(sizeof(glm::mat4) * (models.size()));
         m_ssboModel->resize(sizeof(glm::mat4) * (models.size()));
-        m_ssboModel->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
+        m_ssboModelCopy->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
 
         //PUSH MATERIAL TO AN SSBO WITH ID 0
         for (const auto& material : meshes) {
             m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id(),material->material()->specular()[0].id(), material->material()->ambientOcclusion()[0].id() ,material->material()->transparent(),0.0});
         }
+        m_ssboMaterialCopy->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
         m_ssboMaterial->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
-        m_ssboMaterial->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
+        m_ssboMaterialCopy->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
 
 
         //GENERATE DATA TO SEND INDIRECT
@@ -201,7 +212,7 @@ void Prisma::MeshIndirect::updateSize()
         m_cacheRemove.clear();
 
         //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
-        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
 
         m_currentIndex = 0;
         m_currentVertex = 0;
@@ -220,9 +231,15 @@ void Prisma::MeshIndirect::updateSize()
             m_currentIndex = m_currentIndex + indices.size();
             m_currentVertex = m_currentVertex + vertices.size();
         }
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectCopySSBOId, m_indirectDrawCopy);
+        // Upload the draw commands to the buffer
+        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
+
     }
     updateAnimation();
 
@@ -234,7 +251,7 @@ void Prisma::MeshIndirect::updateModels()
     for (const auto& model : currentGlobalScene->meshes) {
         models.push_back(model->parent()->finalMatrix());
     }
-    m_ssboModel->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
+    m_ssboModelCopy->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
 
     std::vector<glm::mat4> modelsAnimation;
     for (const auto& model : currentGlobalScene->animateMeshes) {
@@ -246,6 +263,7 @@ void Prisma::MeshIndirect::updateModels()
 Prisma::MeshIndirect::MeshIndirect()
 {
     glGenBuffers(1, &m_indirectDraw);
+    glGenBuffers(1, &m_indirectDrawCopy);
     glGenBuffers(1, &m_indirectDrawAnimation);
 
     m_vao=std::make_shared<Prisma::VAO>();
@@ -259,8 +277,15 @@ Prisma::MeshIndirect::MeshIndirect()
     m_ssboModel = std::make_shared<Prisma::SSBO>(1);
     m_ssboMaterial = std::make_shared<Prisma::SSBO>(0);
 
+    m_ssboModelCopy = std::make_shared<Prisma::SSBO>(20);
+    m_ssboMaterialCopy = std::make_shared<Prisma::SSBO>(21);
+
     m_ssboModelAnimation = std::make_shared<Prisma::SSBO>(6);
     m_ssboMaterialAnimation = std::make_shared<Prisma::SSBO>(7);
+
+    m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/compute.glsl");
+    m_shader->use();
+    m_sizeLocation = m_shader->getUniformPosition("size");
 }
 
 void Prisma::MeshIndirect::updateAnimation()
@@ -406,9 +431,10 @@ void Prisma::MeshIndirect::updateTextureSize() {
     for (auto material : meshes) {
         m_materialData.push_back({ material->material()->diffuse()[0].id(),material->material()->normal()[0].id() ,material->material()->roughness_metalness()[0].id(),material->material()->specular()[0].id(), material->material()->ambientOcclusion()[0].id() ,material->material()->transparent(),0.0 });
     }
+    m_ssboMaterialCopy->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
     m_ssboMaterial->resize(sizeof(Prisma::MaterialData) * (m_materialData.size()));
-    m_ssboMaterial->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
-
+    m_ssboMaterialCopy->modifyData(0, sizeof(Prisma::MaterialData) * m_materialData.size(), m_materialData.data());
+    
     m_materialDataAnimation.clear();
     auto meshesAnimation = currentGlobalScene->animateMeshes;
     for (auto material : meshesAnimation) {
@@ -423,7 +449,7 @@ void Prisma::MeshIndirect::updateStatus()
     auto meshes = currentGlobalScene->meshes;
     if (meshes.size() > 0) {
         //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
-        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
 
         m_currentIndex = 0;
         m_currentVertex = 0;
@@ -443,7 +469,12 @@ void Prisma::MeshIndirect::updateStatus()
             m_currentIndex = m_currentIndex + indices.size();
             m_currentVertex = m_currentVertex + vertices.size();
         }
-        glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
+        glBindBuffer(GL_ARRAY_BUFFER, m_indirectDrawCopy);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectCopySSBOId, m_indirectDrawCopy);
+        // Upload the draw commands to the buffer
+        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
         glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);

@@ -38,6 +38,7 @@ namespace Prisma {
 		//INDIRECT INDEX
 
 		unsigned int m_indirectDraw;
+		unsigned int m_indirectDrawCopy;
 		unsigned int m_currentIndex;
 		unsigned int m_currentVertex;
 
@@ -62,6 +63,9 @@ namespace Prisma {
 		std::shared_ptr<Prisma::SSBO> m_ssboModel;
 		std::shared_ptr<Prisma::SSBO> m_ssboMaterial;
 
+		std::shared_ptr<Prisma::SSBO> m_ssboModelCopy;
+		std::shared_ptr<Prisma::SSBO> m_ssboMaterialCopy;
+
 
 		Prisma::AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
 		std::vector<DrawElementsIndirectCommand> m_drawCommandsAnimation;
@@ -82,6 +86,12 @@ namespace Prisma {
 
 		unsigned int m_indirectSSBOId = 18;
 		unsigned int m_indirectAnimationSSBOId = 19;
+		unsigned int m_indirectCopySSBOId = 22;
+		unsigned int m_sizeLocation;
+
+		std::shared_ptr<Prisma::Shader> m_shader;
+
+		void sort();
 
 	public:
 		void load();
