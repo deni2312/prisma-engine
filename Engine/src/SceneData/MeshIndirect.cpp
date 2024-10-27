@@ -240,7 +240,7 @@ void Prisma::MeshIndirect::updateSize()
         glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
-        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), NULL, GL_DYNAMIC_DRAW);
 
     }
     updateAnimation();
@@ -480,7 +480,7 @@ void Prisma::MeshIndirect::updateStatus()
         glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
         // Upload the draw commands to the buffer
-        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), m_drawCommands.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), NULL, GL_DYNAMIC_DRAW);
     }
 
     auto animateMeshes = currentGlobalScene->animateMeshes;
