@@ -142,6 +142,14 @@ void Prisma::MeshIndirect::updateSize()
 
         m_ssboIndices->resize(sizeof(unsigned int) * meshes.size());
 
+        std::vector<unsigned int> status;
+        for (int i = 0; i < meshes.size(); i++) {
+            status.push_back(meshes[i]->visible());
+        }
+        m_ssboStatusCopy->resize(sizeof(unsigned int) * status.size());
+        m_ssboStatusCopy->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
+        m_ssboStatus->resize(sizeof(unsigned int) * status.size());
+
         //GENERATE DATA TO SEND INDIRECT
         m_vao->bind();
 
@@ -295,6 +303,10 @@ Prisma::MeshIndirect::MeshIndirect()
     m_ssboMaterialCopy = std::make_shared<Prisma::SSBO>(21);
     m_ssboIndices = std::make_shared<Prisma::SSBO>(23);
 
+    m_ssboStatus = std::make_shared<Prisma::SSBO>(24);
+    m_ssboStatusCopy = std::make_shared<Prisma::SSBO>(25);
+    m_ssboStatusAnimation = std::make_shared<Prisma::SSBO>(26);
+
     m_ssboModelAnimation = std::make_shared<Prisma::SSBO>(6);
     m_ssboMaterialAnimation = std::make_shared<Prisma::SSBO>(7);
 
@@ -329,6 +341,12 @@ void Prisma::MeshIndirect::updateAnimation()
         m_ssboMaterialAnimation->resize(sizeof(Prisma::MaterialData) * (m_materialDataAnimation.size()));
         m_ssboMaterialAnimation->modifyData(0, sizeof(Prisma::MaterialData) * m_materialDataAnimation.size(), m_materialDataAnimation.data());
 
+        std::vector<unsigned int> status;
+        for (int i = 0; i < meshes.size(); i++) {
+            status.push_back(meshes[i]->visible());
+        }
+        m_ssboStatusAnimation->resize(sizeof(unsigned int) * status.size());
+        m_ssboStatusAnimation->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
 
         //GENERATE DATA TO SEND INDIRECT
         m_vaoAnimation->bind();
@@ -463,6 +481,14 @@ void Prisma::MeshIndirect::updateStatus()
 {
     auto meshes = currentGlobalScene->meshes;
     if (meshes.size() > 0) {
+        std::vector<unsigned int> status;
+        for (int i = 0; i < meshes.size(); i++) {
+            status.push_back(meshes[i]->visible());
+        }
+        m_ssboStatusCopy->resize(sizeof(unsigned int) * status.size());
+        m_ssboStatusCopy->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
+        m_ssboStatus->resize(sizeof(unsigned int) * status.size());
+
         //BIND INDIRECT DRAW BUFFER AND SET OFFSETS
         glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
 

@@ -34,13 +34,18 @@ layout(std430, binding = 0) buffer Material
     MaterialData materialData[];
 };
 
+layout(std430, binding = 24) buffer Status
+{
+    uint status[];
+};
+
 uniform bool transparent;
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index == 0) {
         for (int i = 0; i < materialData.length(); i++) {
-            if (instanceDataCopy[i].instanceCount > 0) {
+            if (status[i] > 0) {
                 if (transparent) {
                     if (materialData[i].transparent) {
                         instanceData[i].instanceCount = 1;

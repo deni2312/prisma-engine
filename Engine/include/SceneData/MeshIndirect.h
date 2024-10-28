@@ -94,6 +94,9 @@ namespace Prisma {
 
 		void sort();
 
+		std::shared_ptr<Prisma::SSBO> m_ssboStatus;
+		std::shared_ptr<Prisma::SSBO> m_ssboStatusCopy;
+		std::shared_ptr<Prisma::SSBO> m_ssboStatusAnimation;
 	public:
 		void load();
 
