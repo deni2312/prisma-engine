@@ -12,12 +12,15 @@
 #include <memory>
 #include "PipelinePrePass.h"
 
-namespace Prisma {
-	class PipelineForward {
+namespace Prisma
+{
+	class PipelineForward
+	{
 	public:
-		PipelineForward(const unsigned int& width=1920, const unsigned int& height=1080,bool srgb=true);
+		PipelineForward(const unsigned int& width = 1920, const unsigned int& height = 1080, bool srgb = true);
 		void render();
 		~PipelineForward();
+
 	private:
 		unsigned int m_width;
 		unsigned int m_height;
@@ -25,11 +28,10 @@ namespace Prisma {
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderAnimate;
 		std::shared_ptr<Shader> m_shaderTransparent;
-		std::shared_ptr<Prisma::FBO> m_fbo;
-		std::shared_ptr<Prisma::FBO> m_fboCopy;
-		std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
+		std::shared_ptr<FBO> m_fbo;
+		std::shared_ptr<FBO> m_fboCopy;
+		std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
 
-		std::shared_ptr<Prisma::PipelinePrePass> m_prepass;
-
-    };
+		std::shared_ptr<PipelinePrePass> m_prepass;
+	};
 }

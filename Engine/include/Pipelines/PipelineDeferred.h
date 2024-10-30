@@ -11,12 +11,15 @@
 #include <memory>
 #include "../Helpers/Settings.h"
 
-namespace Prisma {
-	class PipelineDeferred {
+namespace Prisma
+{
+	class PipelineDeferred
+	{
 	public:
-		PipelineDeferred(const unsigned int& width,const unsigned int& height,bool srgb);
+		PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb);
 		void render();
 		~PipelineDeferred();
+
 	private:
 		unsigned int m_width;
 		unsigned int m_height;
@@ -33,9 +36,9 @@ namespace Prisma {
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;
 		unsigned int m_ambientLocation;
-		std::shared_ptr<Prisma::FBO> m_fbo;
-        std::shared_ptr<Prisma::PipelineFullScreen> m_fullscreenPipeline;
+		std::shared_ptr<FBO> m_fbo;
+		std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
 
-        std::shared_ptr<Prisma::PipelineSSR> m_ssr;
-    };
+		std::shared_ptr<PipelineSSR> m_ssr;
+	};
 }

@@ -7,7 +7,8 @@
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 
-class ParticleController {
+class ParticleController
+{
 public:
 	void init(std::shared_ptr<Prisma::Node> root);
 
@@ -20,5 +21,4 @@ private:
 	bool m_start = false;
 	float currentTime = 0;
 	std::chrono::steady_clock::time_point m_startPoint;
-
 };

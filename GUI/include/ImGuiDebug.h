@@ -14,30 +14,34 @@
 #include "../../Engine/include/Helpers/TimeCounter.h"
 
 
-namespace Prisma {
-	class ImguiDebug : public InstanceData<ImguiDebug>{
+namespace Prisma
+{
+	class ImguiDebug : public InstanceData<ImguiDebug>
+	{
 	public:
-		struct ImGuiData {
+		struct ImGuiData
+		{
 			std::vector<std::shared_ptr<std::pair<std::string, float>>> performances;
 		};
 
 
-
-        struct ImGuiStatus {
-            //PIPELINE DATA
-            std::vector<const char*> items;
-            int currentitem = 0;
+		struct ImGuiStatus
+		{
+			//PIPELINE DATA
+			std::vector<const char*> items;
+			int currentitem = 0;
 
 			std::vector<const char*> postprocess;
 			int currentPostprocess = 0;
-        };
+		};
+
 		ImguiDebug();
 		void drawGui();
 		float fps();
 		void start();
 		void close();
 		void imguiData(std::shared_ptr<ImGuiData> data);
-		std::shared_ptr<Prisma::FBO> fbo();
+		std::shared_ptr<FBO> fbo();
 
 		std::shared_ptr<SceneHandler> handlers();
 
@@ -45,7 +49,7 @@ namespace Prisma {
 		double m_lastFrameTime = 0.0;
 		float m_fps;
 		std::shared_ptr<ImGuiData> m_data;
-		std::shared_ptr<Prisma::FBO> m_fbo;
+		std::shared_ptr<FBO> m_fbo;
 		std::shared_ptr<Shader> m_shader;
 		unsigned int m_bindlessPos;
 		unsigned int m_modelPos;
@@ -66,13 +70,13 @@ namespace Prisma {
 
 		ImGuiCamera m_imguiCamera;
 
-		std::shared_ptr<Prisma::Camera> m_camera;
+		std::shared_ptr<Camera> m_camera;
 
-        Prisma::MeshInfo meshInfo;
+		MeshInfo meshInfo;
 
-		Prisma::LightInfo lightInfo;
+		LightInfo lightInfo;
 
-        std::shared_ptr<Prisma::FileBrowser> m_fileBrowser;
+		std::shared_ptr<FileBrowser> m_fileBrowser;
 
 		glm::mat4 m_projection;
 
@@ -80,9 +84,9 @@ namespace Prisma {
 
 		std::string m_saveLocation;
 
-		std::shared_ptr<Prisma::Texture> m_runButton;
+		std::shared_ptr<Texture> m_runButton;
 
-		std::shared_ptr<Prisma::Texture> m_pauseButton;
+		std::shared_ptr<Texture> m_pauseButton;
 
 		SettingsTab m_settingsTab;
 
@@ -90,7 +94,7 @@ namespace Prisma {
 
 		PlotFPS m_plot;
 
-		Prisma::TimeCounter m_timeCounterUI;
-		Prisma::TimeCounter m_timeCounterEngine;
-    };
+		TimeCounter m_timeCounterUI;
+		TimeCounter m_timeCounterEngine;
+	};
 }

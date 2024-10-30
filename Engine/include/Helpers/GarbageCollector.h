@@ -3,31 +3,30 @@
 #include <vector>
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma {
+namespace Prisma
+{
+	class GarbageCollector : public InstanceData<GarbageCollector>
+	{
+	public:
+		enum GarbageType
+		{
+			VAO,
+			BUFFER,
+			TEXTURE,
+			FBO,
+			RBO
+		};
 
-    class GarbageCollector : public InstanceData<GarbageCollector>{
-    public:
+		void add(std::pair<GarbageType, unsigned int> garbage);
 
-        enum GarbageType{
-            VAO,
-            BUFFER,
-            TEXTURE,
-            FBO,
-            RBO
-        };
+		void addTexture(std::pair<unsigned int, uint64_t> texture);
 
-        void add(std::pair<GarbageType,unsigned int> garbage);
+		void clear();
 
-        void addTexture(std::pair<unsigned int,uint64_t> texture);
+		GarbageCollector();
 
-        void clear();
-
-        GarbageCollector();
-
-    private:
-
-        std::vector<std::pair<GarbageType,unsigned int>> m_garbage;
-        std::vector<std::pair<unsigned int, uint64_t>> m_garbageTexture;
-    };
-
+	private:
+		std::vector<std::pair<GarbageType, unsigned int>> m_garbage;
+		std::vector<std::pair<unsigned int, uint64_t>> m_garbageTexture;
+	};
 }

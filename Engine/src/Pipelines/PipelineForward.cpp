@@ -18,19 +18,24 @@
 #include "../../include/Handlers/ComponentsHandler.h"
 
 
-Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{ width }, m_height{ height }
+Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{
+	width
+}, m_height{height}
 {
 	Shader::ShaderHeaders header;
 	header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n";
 
-	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/ForwardPipeline/vertex.glsl", "../../../Engine/Shaders/ForwardPipeline/fragment.glsl",nullptr,header);
-	
+	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/ForwardPipeline/vertex.glsl",
+	                                    "../../../Engine/Shaders/ForwardPipeline/fragment.glsl", nullptr, header);
+
 	header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n#define ANIMATE 1\n";
 
-	m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_forward.glsl", "../../../Engine/Shaders/ForwardPipeline/fragment.glsl",nullptr,header);
+	m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_forward.glsl",
+	                                           "../../../Engine/Shaders/ForwardPipeline/fragment.glsl", nullptr,
+	                                           header);
 
 	m_shaderTransparent = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/compute.glsl");
-	Prisma::FBO::FBOData fboData;
+	FBO::FBOData fboData;
 	fboData.width = m_width;
 	fboData.height = m_height;
 	fboData.enableDepth = true;
@@ -39,61 +44,61 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 	fboData.enableMultisample = true;
 
 
-    m_fbo = std::make_shared<Prisma::FBO>(fboData);
+	m_fbo = std::make_shared<FBO>(fboData);
 	fboData.enableMultisample = false;
 	fboData.rbo = false;
 
 
-	m_fboCopy = std::make_shared<Prisma::FBO>(fboData);
+	m_fboCopy = std::make_shared<FBO>(fboData);
 	m_shader->use();
-	m_fullscreenPipeline = std::make_shared<Prisma::PipelineFullScreen>();
+	m_fullscreenPipeline = std::make_shared<PipelineFullScreen>();
 
-	m_prepass = std::make_shared<Prisma::PipelinePrePass>();
-
+	m_prepass = std::make_shared<PipelinePrePass>();
 }
 
 void Prisma::PipelineForward::render()
 {
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-/*
-	//DEPTH PREPASS
-	m_prepass->render();
-
-	// After depth pre-pass
-	glDepthMask(GL_FALSE);          // Disable depth writing
-	glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
-	*/
+	/*
+		//DEPTH PREPASS
+		m_prepass->render();
+	
+		// After depth pre-pass
+		glDepthMask(GL_FALSE);          // Disable depth writing
+		glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
+		*/
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	Prisma::ComponentsHandler::getInstance().updatePreRender(m_fbo);
+	ComponentsHandler::getInstance().updatePreRender(m_fbo);
 	//COLOR PASS
-	Prisma::PipelineSkybox::getInstance().render();
+	PipelineSkybox::getInstance().render();
 
 	m_shaderAnimate->use();
-	Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+	MeshIndirect::getInstance().renderAnimateMeshes();
 
 	m_shader->use();
-	Prisma::MeshIndirect::getInstance().renderMeshes();
+	MeshIndirect::getInstance().renderMeshes();
 
 	glDisable(GL_BLEND);
 
-	Prisma::ComponentsHandler::getInstance().updateRender(m_fbo);
+	ComponentsHandler::getInstance().updateRender(m_fbo);
 
-	for (auto& sprite : currentGlobalScene->sprites) {
+	for (auto& sprite : currentGlobalScene->sprites)
+	{
 		sprite->render();
 	}
 
 
-/*
-	// After rendering
-	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LESS);
-*/
+	/*
+		// After rendering
+		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LESS);
+	*/
 
-	Prisma::Physics::getInstance().drawDebug();
+	Physics::getInstance().drawDebug();
 
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	m_fbo->unbind();
 
 
@@ -105,15 +110,17 @@ void Prisma::PipelineForward::render()
 	glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	m_fboCopy->unbind();
 
-	Prisma::Postprocess::getInstance().fboRaw(m_fboCopy);
+	Postprocess::getInstance().fboRaw(m_fboCopy);
 	Postprocess::getInstance().fbo(fboTarget);
-	if (fboTarget) {
+	if (fboTarget)
+	{
 		fboTarget->bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		m_fullscreenPipeline->render(m_fboCopy->texture());
 		fboTarget->unbind();
 	}
-	else {
+	else
+	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		m_fullscreenPipeline->render(m_fboCopy->texture());
 	}

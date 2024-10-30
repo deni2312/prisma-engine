@@ -2,5 +2,5 @@
 
 float Prisma::PipelineSSAO::ourLerp(float a, float b, float f)
 {
-    return a + f * (b - a);
+	return a + f * (b - a);
 }

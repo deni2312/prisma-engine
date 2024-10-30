@@ -9,7 +9,7 @@
 
 namespace Prisma
 {
-	class CullingComponent : public Prisma::Component
+	class CullingComponent : public Component
 	{
 	public:
 		CullingComponent();
@@ -21,7 +21,7 @@ namespace Prisma
 		void start() override;
 
 	private:
-		std::shared_ptr<Prisma::Shader> m_shader;
-		std::shared_ptr<Prisma::SSBO> m_ssbo;
+		std::shared_ptr<Shader> m_shader;
+		std::shared_ptr<SSBO> m_ssbo;
 	};
 }

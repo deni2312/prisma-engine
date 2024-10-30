@@ -16,7 +16,7 @@ namespace Prisma
 
 	class Animator;
 
-	class AnimatedMesh : public Prisma::Mesh
+	class AnimatedMesh : public Mesh
 	{
 	public:
 		struct AnimateVertex
@@ -37,7 +37,7 @@ namespace Prisma
 			std::vector<unsigned int> indices;
 		};
 
-		virtual void computeAABB() override;
+		void computeAABB() override;
 
 		void loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices);
 

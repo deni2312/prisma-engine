@@ -8,32 +8,32 @@
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 #include "ParticleController.h"
 
-class PlayerController {
+class PlayerController
+{
 public:
-
-	enum ANIMATIONS {
+	enum ANIMATIONS
+	{
 		IDLE,
 		WALK,
 		JUMP,
 		DEFAULT
 	};
 
-    PlayerController(std::shared_ptr<Prisma::Scene> scene);
+	PlayerController(std::shared_ptr<Prisma::Scene> scene);
 
-    void updateCamera();
+	void updateCamera();
 
-    void updateKeyboard();
+	void updateKeyboard();
 
-    void scene(std::shared_ptr<Prisma::Scene> scene);
+	void scene(std::shared_ptr<Prisma::Scene> scene);
 
-    void update();
+	void update();
 
-    std::shared_ptr<Prisma::CallbackHandler> callback();
+	std::shared_ptr<Prisma::CallbackHandler> callback();
 
 	void target(glm::vec3 target);
 
 private:
-
 	void createCamera();
 
 	void createKeyboard();
@@ -68,7 +68,7 @@ private:
 
 	glm::vec3 m_target = glm::vec3(0.0f);
 
-    std::shared_ptr<Prisma::Scene> m_scene;
+	std::shared_ptr<Prisma::Scene> m_scene;
 
 	std::shared_ptr<Prisma::AnimatedMesh> m_animatedMesh;
 
@@ -88,7 +88,7 @@ private:
 
 	glm::mat4 m_baseData;
 
-	glm::mat4 m_basePosition ;
+	glm::mat4 m_basePosition;
 
 	std::shared_ptr<Prisma::Animation> m_walkAnimation;
 
@@ -104,7 +104,7 @@ private:
 
 	ANIMATIONS m_previousAnimations;
 
-	Vec3 m_currentDirection = Vec3(0,0,1);
+	Vec3 m_currentDirection = Vec3(0, 0, 1);
 
 	ParticleController m_particleController;
 };

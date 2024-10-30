@@ -8,19 +8,19 @@
 
 #include <memory>
 
-class UserEngine : public Prisma::UserData {
+class UserEngine : public Prisma::UserData
+{
 public:
-	virtual void start();
+	void start() override;
 
-	virtual void update();
+	void update() override;
 
-	virtual void finish();
+	void finish() override;
 
-	virtual std::shared_ptr<Prisma::CallbackHandler> callbacks();
+	std::shared_ptr<Prisma::CallbackHandler> callbacks() override;
+
 private:
-
 	std::shared_ptr<PlayerController> m_player;
 
 	std::shared_ptr<Prisma::Scene> m_root;
-
 };

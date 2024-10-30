@@ -9,14 +9,13 @@
 #include "ImGuizmo.h"
 #include "NodeViewer.h"
 
-namespace Prisma {
-    class MeshInfo {
-    public:
+namespace Prisma
+{
+	class MeshInfo
+	{
+	public:
+		void showSelected(const NodeViewer::NodeData& meshData);
 
-        void showSelected(const Prisma::NodeViewer::NodeData& meshData);
-
-        MeshInfo();
-
-    };
+		MeshInfo();
+	};
 }
-

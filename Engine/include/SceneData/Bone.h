@@ -10,8 +10,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include "../Helpers/PrismaMath.h"
 
-namespace Prisma {
-
+namespace Prisma
+{
 	struct KeyPosition
 	{
 		glm::vec3 position;
@@ -41,16 +41,13 @@ namespace Prisma {
 		int GetBoneID();
 
 
-
 		int GetPositionIndex(float animationTime) const;
 
 		int GetRotationIndex(float animationTime) const;
 
 		int GetScaleIndex(float animationTime) const;
 
-
 	private:
-
 		float GetScaleFactor(float lastTimeStamp, float nextTimeStamp, float animationTime) const;
 
 		glm::mat4 InterpolatePosition(float animationTime) const;
@@ -70,5 +67,4 @@ namespace Prisma {
 		std::string m_Name;
 		int m_ID;
 	};
-
 }

@@ -10,7 +10,8 @@
 #include <chrono>
 
 
-class GrassRenderer {
+class GrassRenderer
+{
 public:
 	void start(Prisma::Texture heightMap);
 
@@ -23,18 +24,20 @@ public:
 private:
 	struct DrawElementsIndirectCommandPadded
 	{
-		unsigned int  count;
-		unsigned int  instanceCount;
-		unsigned int  firstIndex;
-		unsigned int  baseVertex;
-		unsigned int  baseInstance;
+		unsigned int count;
+		unsigned int instanceCount;
+		unsigned int firstIndex;
+		unsigned int baseVertex;
+		unsigned int baseInstance;
 		glm::ivec3 padding;
 	};
 
-	struct GrassPosition {
+	struct GrassPosition
+	{
 		glm::mat4 direction;
 		glm::mat4 position;
 	};
+
 	std::shared_ptr<Prisma::Texture> m_grassSprite = nullptr;
 	Prisma::VAO m_vao;
 	Prisma::Texture m_heightMap;
@@ -66,5 +69,5 @@ private:
 
 	std::chrono::steady_clock::time_point m_startPoint;
 
-	void generateGrassPositions(float density,float mult,float shift);
+	void generateGrassPositions(float density, float mult, float shift);
 };

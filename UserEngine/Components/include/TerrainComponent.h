@@ -10,36 +10,39 @@
 #include "../../../Engine/include/Containers/SSBO.h"
 #include "GrassRenderer.h"
 
-namespace Prisma {
-	class TerrainComponent : public Component {
+namespace Prisma
+{
+	class TerrainComponent : public Component
+	{
 	public:
 		TerrainComponent();
 
 		void ui() override;
 
-		void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0) override;
+		void updateRender(std::shared_ptr<FBO> fbo = nullptr) override;
 
 		void generateCpu();
 
 		void start() override;
 
-		void heightMap(Prisma::Texture heightMap);
-	private:
-		Prisma::Texture m_heightMap;
-		std::shared_ptr<Prisma::Texture> m_grass = nullptr;
-		std::shared_ptr<Prisma::Texture> m_stone = nullptr;
-		std::shared_ptr<Prisma::Texture> m_snow = nullptr;
-		std::shared_ptr<Prisma::Texture> m_grassNormal = nullptr;
-		std::shared_ptr<Prisma::Texture> m_stoneNormal = nullptr;
-		std::shared_ptr<Prisma::Texture> m_snowNormal = nullptr;
-		std::shared_ptr<Prisma::Texture> m_grassRoughness = nullptr;
-		std::shared_ptr<Prisma::Texture> m_stoneRoughness = nullptr;
-		std::shared_ptr<Prisma::Texture> m_snowRoughness = nullptr;
+		void heightMap(Texture heightMap);
 
-		std::shared_ptr<Prisma::Mesh> m_mesh;
-		Prisma::VAO m_vao;
-		std::shared_ptr<Prisma::Shader> m_shader;
-		std::shared_ptr<Prisma::Shader> m_csmShader;
+	private:
+		Texture m_heightMap;
+		std::shared_ptr<Texture> m_grass = nullptr;
+		std::shared_ptr<Texture> m_stone = nullptr;
+		std::shared_ptr<Texture> m_snow = nullptr;
+		std::shared_ptr<Texture> m_grassNormal = nullptr;
+		std::shared_ptr<Texture> m_stoneNormal = nullptr;
+		std::shared_ptr<Texture> m_snowNormal = nullptr;
+		std::shared_ptr<Texture> m_grassRoughness = nullptr;
+		std::shared_ptr<Texture> m_stoneRoughness = nullptr;
+		std::shared_ptr<Texture> m_snowRoughness = nullptr;
+
+		std::shared_ptr<Mesh> m_mesh;
+		VAO m_vao;
+		std::shared_ptr<Shader> m_shader;
+		std::shared_ptr<Shader> m_csmShader;
 
 		unsigned int m_modelPos;
 		unsigned int m_heightPos;

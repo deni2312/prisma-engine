@@ -4,23 +4,25 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 
-namespace Prisma {
-
+namespace Prisma
+{
 	class Animation;
 
 	struct AssimpNodeData;
 
-	class Animator {
+	class Animator
+	{
 	public:
 		Animator(std::shared_ptr<Animation> animation);
 
 		void updateAnimation(float dt);
 
-		void playAnimation(std::shared_ptr<Animation> pAnimation,float blendDuration);
+		void playAnimation(std::shared_ptr<Animation> pAnimation, float blendDuration);
 
-		void calculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform,Prisma::AnimationHandler::SSBOAnimation& animation);
+		void calculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform,
+		                            AnimationHandler::SSBOAnimation& animation);
 
-		void mesh(Prisma::Node* mesh);
+		void mesh(Node* mesh);
 
 		void frame(float frame);
 
@@ -33,7 +35,7 @@ namespace Prisma {
 
 		int findUUID();
 
-		Prisma::Node* m_mesh;
+		Node* m_mesh;
 
 		float m_CurrentTime;
 
@@ -41,7 +43,7 @@ namespace Prisma {
 
 		float m_BlendFactor = 0.0f;
 
-		float m_BlendDuration = 0.8f;  // Duration of the blend in seconds
+		float m_BlendDuration = 0.8f; // Duration of the blend in seconds
 
 		bool m_IsBlending = false;
 
@@ -55,5 +57,4 @@ namespace Prisma {
 
 		glm::mat4 m_previousTransform[MAX_BONES];
 	};
-
 }

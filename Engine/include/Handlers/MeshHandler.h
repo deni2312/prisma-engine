@@ -6,15 +6,19 @@
 
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma {
-	class MeshHandler : public InstanceData<MeshHandler>{
+namespace Prisma
+{
+	class MeshHandler : public InstanceData<MeshHandler>
+	{
 	public:
-		struct UBOData {
+		struct UBOData
+		{
 			glm::mat4 view;
 			glm::mat4 projection;
 		};
 
-		struct alignas(16) UBOCluster {
+		struct alignas(16) UBOCluster
+		{
 			glm::uvec4 gridSize;
 			glm::uvec4 screenDimensions;
 			float zNear;
@@ -22,7 +26,8 @@ namespace Prisma {
 			float padding[2];
 		};
 
-		struct alignas(16) UBOFragment {
+		struct alignas(16) UBOFragment
+		{
 			glm::vec4 viewPos;
 			uint64_t irradiancePos;
 			uint64_t prefilterPos;
@@ -30,23 +35,23 @@ namespace Prisma {
 			glm::vec2 padding;
 		};
 
-		static const unsigned int VIEW_OFFSET = 0;
-		static const unsigned int PROJECTION_OFFSET = sizeof(glm::mat4);
+		static constexpr unsigned int VIEW_OFFSET = 0;
+		static constexpr unsigned int PROJECTION_OFFSET = sizeof(glm::mat4);
 
 		std::shared_ptr<UBOData> data() const;
 		std::shared_ptr<Ubo> ubo() const;
 		void updateCamera();
 		void updateCluster();
 		void updateFragment();
-        MeshHandler();
+		MeshHandler();
 
-    private:
-        std::shared_ptr<UBOData> m_uboData;
+	private:
+		std::shared_ptr<UBOData> m_uboData;
 		std::shared_ptr<Ubo> m_ubo;
 		std::shared_ptr<Ubo> m_uboCluster;
 		std::shared_ptr<Ubo> m_uboFragment;
 		UBOCluster m_uboClusterData;
 		UBOFragment m_fragment;
-		Prisma::Settings m_settings;
+		Settings m_settings;
 	};
 }

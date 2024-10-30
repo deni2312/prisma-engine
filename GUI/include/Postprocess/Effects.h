@@ -3,12 +3,13 @@
 #include "../../../Engine/include/Helpers/Shader.h"
 #include "../../../Engine/include/Helpers/PrismaRender.h"
 
-namespace Prisma {
-
-	class Effects : public Prisma::PostprocessEffect{
+namespace Prisma
+{
+	class Effects : public PostprocessEffect
+	{
 	public:
-
-		enum class EFFECTS {
+		enum class EFFECTS
+		{
 			NORMAL,
 			SEPPIA,
 			CARTOON,
@@ -22,7 +23,8 @@ namespace Prisma {
 		void effect(EFFECTS effect);
 
 
-		virtual void render(std::shared_ptr<Prisma::FBO> texture, std::shared_ptr<Prisma::FBO> raw) override;
+		void render(std::shared_ptr<FBO> texture, std::shared_ptr<FBO> raw) override;
+
 	private:
 		std::shared_ptr<Shader> m_shaderSeppia;
 		unsigned int m_bindlessPosSeppia;
@@ -41,7 +43,7 @@ namespace Prisma {
 		unsigned int m_bindlessPosHdr;
 		unsigned int m_bindlessPosHBloom;
 
-		std::shared_ptr<Prisma::FBO> m_brightnessFbo;
+		std::shared_ptr<FBO> m_brightnessFbo;
 
 		std::shared_ptr<Shader> m_shaderBrightness;
 		unsigned int m_bindlessPosBrightness;
@@ -55,5 +57,4 @@ namespace Prisma {
 
 		EFFECTS m_effects = EFFECTS::NORMAL;
 	};
-
 }

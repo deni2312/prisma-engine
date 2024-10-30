@@ -8,27 +8,26 @@
 #include "../Helpers/Settings.h"
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma {
-
+namespace Prisma
+{
 	struct CallbackHandler;
 
-	class PrismaFunc : public InstanceData<PrismaFunc>{
+	class PrismaFunc : public InstanceData<PrismaFunc>
+	{
 	public:
-
 		void swapBuffers();
 		void clear();
 		void setCallback(std::shared_ptr<CallbackHandler> callbackHandler);
 		void closeWindow();
 		bool shouldClose();
 		void hiddenMouse(bool hidden);
-		void msaa(bool isMsaa,int samples);
+		void msaa(bool isMsaa, int samples);
 		GLFWwindow* window();
 		void destroy();
 
-        PrismaFunc();
+		PrismaFunc();
 
-    private:
-
-        GLFWwindow* m_window;
+	private:
+		GLFWwindow* m_window;
 	};
 }

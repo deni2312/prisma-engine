@@ -8,10 +8,12 @@ Prisma::Animation::Animation()
 	uid++;
 }
 
-Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model):m_animationPath{animationPath}
+Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<AnimatedMesh> model): m_animationPath{
+	animationPath
+}
 {
 	Assimp::Importer importer;
-	m_BoneInfoMap = std::make_shared<std::map<std::string, Prisma::BoneInfo>>();
+	m_BoneInfoMap = std::make_shared<std::map<std::string, BoneInfo>>();
 	const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
 	assert(scene && scene->mRootNode);
 	auto animation = scene->mAnimations[0];
@@ -33,16 +35,19 @@ std::shared_ptr<Prisma::Bone> Prisma::Animation::FindBone(const std::string& nam
 	return m_Bones[name];
 }
 
-int Prisma::Animation::ticksPerSecond() {
-	return m_TicksPerSecond; 
+int Prisma::Animation::ticksPerSecond()
+{
+	return m_TicksPerSecond;
 }
 
-float Prisma::Animation::duration() {
-	return m_Duration; 
+float Prisma::Animation::duration()
+{
+	return m_Duration;
 }
 
-const Prisma::AssimpNodeData& Prisma::Animation::rootNode() {
-	return m_RootNode; 
+const Prisma::AssimpNodeData& Prisma::Animation::rootNode()
+{
+	return m_RootNode;
 }
 
 std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> Prisma::Animation::boneIdMap()
@@ -50,7 +55,8 @@ std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> Prisma::Animation::bone
 	return m_BoneInfoMap;
 }
 
-std::string Prisma::Animation::name() const {
+std::string Prisma::Animation::name() const
+{
 	return m_animationPath;
 }
 
@@ -59,11 +65,11 @@ unsigned int Prisma::Animation::id()
 	return m_id;
 }
 
-void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model)
+void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shared_ptr<AnimatedMesh> model)
 {
 	int size = animation->mNumChannels;
 
-	std::map<std::string, Prisma::BoneInfo>& boneInfoMap = model->boneInfoMap();//getting m_BoneInfoMap from Model class
+	std::map<std::string, BoneInfo>& boneInfoMap = model->boneInfoMap(); //getting m_BoneInfoMap from Model class
 	int& boneCount = model->boneInfoCounter(); //getting the m_BoneCounter from Model class
 
 	//reading channels(bones engaged in an animation and their keyframes)
@@ -78,8 +84,8 @@ void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shar
 			boneCount++;
 		}
 		const std::string name = channel->mNodeName.data;
-		m_Bones[name]=std::make_shared<Bone>(channel->mNodeName.data,
-			boneInfoMap[channel->mNodeName.data].id, channel);
+		m_Bones[name] = std::make_shared<Bone>(channel->mNodeName.data,
+		                                       boneInfoMap[channel->mNodeName.data].id, channel);
 	}
 
 	*m_BoneInfoMap = boneInfoMap;

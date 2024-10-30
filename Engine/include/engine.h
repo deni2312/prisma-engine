@@ -24,13 +24,13 @@ namespace Prisma
 		void setCallback(std::shared_ptr<CallbackHandler> callbackHandler);
 		float fps();
 		void mainCamera(const std::shared_ptr<Camera>& camera);
-		void engineSettings(const Prisma::EngineSettings::Settings& pipeline);
-		Prisma::EngineSettings::Settings engineSettings() const;
-		std::shared_ptr<Prisma::Scene> getScene(const std::string& scene,
-		                                        Prisma::SceneLoader::SceneParameters sceneParameters);
-		void setUserEngine(std::shared_ptr<Prisma::UserData> userData);
-		std::shared_ptr<Prisma::UserData> getUserEngine();
-		void setGuiData(std::shared_ptr<Prisma::SceneHandler> guiData);
+		void engineSettings(const EngineSettings::Settings& pipeline);
+		EngineSettings::Settings engineSettings() const;
+		std::shared_ptr<Scene> getScene(const std::string& scene,
+		                                SceneLoader::SceneParameters sceneParameters);
+		void setUserEngine(std::shared_ptr<UserData> userData);
+		std::shared_ptr<UserData> getUserEngine();
+		void setGuiData(std::shared_ptr<SceneHandler> guiData);
 		void debug(bool debug);
 
 	private:

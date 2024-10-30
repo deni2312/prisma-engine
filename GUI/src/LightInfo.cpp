@@ -5,111 +5,125 @@
 #include "../../Engine/include/GlobalData/CacheScene.h"
 
 
-void Prisma::LightInfo::showSelectedDir(Prisma::Light<Prisma::LightType::LightDir>* lightData,const Prisma::NodeViewer::NodeData& meshData)
+void Prisma::LightInfo::showSelectedDir(Light<LightType::LightDir>* lightData, const NodeViewer::NodeData& meshData)
 {
-    auto type = lightData->type();
-    float windowWidth = meshData.translate * meshData.width / 2.0f;
-    auto nextRight = [&](float pos) {
-        ImGui::SetNextWindowPos(ImVec2(windowWidth + meshData.scale * meshData.width, pos));
-        ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
-    };
-    nextRight(meshData.initOffset);
-    ImGui::Begin(lightData->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+	auto type = lightData->type();
+	float windowWidth = meshData.translate * meshData.width / 2.0f;
+	auto nextRight = [&](float pos)
+	{
+		ImGui::SetNextWindowPos(ImVec2(windowWidth + meshData.scale * meshData.width, pos));
+		ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
+	};
+	nextRight(meshData.initOffset);
+	ImGui::Begin(lightData->name().c_str(), nullptr,
+	             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
 
-    if (ImGui::InputFloat3("Diffuse ", glm::value_ptr(type.diffuse))) {
-        lightData->type(type);
-    }
+	if (ImGui::InputFloat3("Diffuse ", value_ptr(type.diffuse)))
+	{
+		lightData->type(type);
+	}
 
-    bool hasShadow = lightData->hasShadow();
+	bool hasShadow = lightData->hasShadow();
 
-    if (ImGui::Checkbox("Shadow ", &hasShadow)) {
-        lightData->hasShadow(hasShadow);
-    }
+	if (ImGui::Checkbox("Shadow ", &hasShadow))
+	{
+		lightData->hasShadow(hasShadow);
+	}
 
-    auto shadow = lightData->shadow();
+	auto shadow = lightData->shadow();
 
-    if (hasShadow && shadow) {
-        auto shadow = lightData->shadow();
+	if (hasShadow && shadow)
+	{
+		auto shadow = lightData->shadow();
 
-        float farPlane = shadow->farPlane();
-        float nearPlane = shadow->nearPlane();
+		float farPlane = shadow->farPlane();
+		float nearPlane = shadow->nearPlane();
 
-        auto csmShadow = std::dynamic_pointer_cast<Prisma::PipelineCSM>(shadow);
+		auto csmShadow = std::dynamic_pointer_cast<PipelineCSM>(shadow);
 
-        float bias = csmShadow->bias();
+		float bias = csmShadow->bias();
 
-        if (ImGui::InputFloat("Far Plane ", &farPlane)) {
-            shadow->farPlane(farPlane);
-        }
+		if (ImGui::InputFloat("Far Plane ", &farPlane))
+		{
+			shadow->farPlane(farPlane);
+		}
 
-        if (ImGui::InputFloat("Near Plane ", &nearPlane)) {
-            shadow->nearPlane(nearPlane);
-        }
+		if (ImGui::InputFloat("Near Plane ", &nearPlane))
+		{
+			shadow->nearPlane(nearPlane);
+		}
 
-        if (ImGui::InputFloat("Bias ", &bias)) {
-            csmShadow->bias(bias);
-        }
-    }
+		if (ImGui::InputFloat("Bias ", &bias))
+		{
+			csmShadow->bias(bias);
+		}
+	}
 
 
-    ImGui::End();
+	ImGui::End();
 }
 
-void Prisma::LightInfo::showSelectedOmni(Prisma::Light<Prisma::LightType::LightOmni>* lightData,const Prisma::NodeViewer::NodeData& meshData)
+void Prisma::LightInfo::showSelectedOmni(Light<LightType::LightOmni>* lightData, const NodeViewer::NodeData& meshData)
 {
-    auto type = lightData->type();
-    float windowWidth = meshData.translate * meshData.width / 2.0f;
-    auto nextRight = [&](float pos) {
-        ImGui::SetNextWindowPos(ImVec2(windowWidth + meshData.scale * meshData.width, pos));
-        ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
-    };
-    nextRight(meshData.initOffset);
-    ImGui::Begin(lightData->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+	auto type = lightData->type();
+	float windowWidth = meshData.translate * meshData.width / 2.0f;
+	auto nextRight = [&](float pos)
+	{
+		ImGui::SetNextWindowPos(ImVec2(windowWidth + meshData.scale * meshData.width, pos));
+		ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
+	};
+	nextRight(meshData.initOffset);
+	ImGui::Begin(lightData->name().c_str(), nullptr,
+	             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    if (ImGui::InputFloat3("Diffuse ", glm::value_ptr(type.diffuse))) {
-        lightData->type(type);
-    }
+	if (ImGui::InputFloat3("Diffuse ", value_ptr(type.diffuse)))
+	{
+		lightData->type(type);
+	}
 
-    if (ImGui::InputFloat("Radius ", &type.radius)) {
-        lightData->type(type);
-    }
+	if (ImGui::InputFloat("Radius ", &type.radius))
+	{
+		lightData->type(type);
+	}
 
-    bool hasShadow = lightData->hasShadow();
+	bool hasShadow = lightData->hasShadow();
 
-    if (ImGui::Checkbox("Shadow ", &hasShadow)) {
-        lightData->hasShadow(hasShadow);
-    }
+	if (ImGui::Checkbox("Shadow ", &hasShadow))
+	{
+		lightData->hasShadow(hasShadow);
+	}
 
-    auto shadow = lightData->shadow();
+	auto shadow = lightData->shadow();
 
-    if (hasShadow && shadow) {
+	if (hasShadow && shadow)
+	{
+		float farPlane = shadow->farPlane();
+		float nearPlane = shadow->nearPlane();
 
-        float farPlane = shadow->farPlane();
-        float nearPlane = shadow->nearPlane();
+		if (ImGui::InputFloat("Far Plane ", &farPlane))
+		{
+			shadow->farPlane(farPlane);
+		}
 
-        if (ImGui::InputFloat("Far Plane ", &farPlane)) {
-            shadow->farPlane(farPlane);
-        }
-
-        if (ImGui::InputFloat("Near Plane ", &nearPlane)) {
-            shadow->nearPlane(nearPlane);
-        }
-
-    }
-    ImGui::End();
-
+		if (ImGui::InputFloat("Near Plane ", &nearPlane))
+		{
+			shadow->nearPlane(nearPlane);
+		}
+	}
+	ImGui::End();
 }
 
-glm::vec3 Prisma::LightInfo::directionToEulerAngles(const glm::vec3& direction) {
-    // Compute yaw (heading) angle
-    float yaw = atan2(direction.x, direction.z);
+glm::vec3 Prisma::LightInfo::directionToEulerAngles(const glm::vec3& direction)
+{
+	// Compute yaw (heading) angle
+	float yaw = atan2(direction.x, direction.z);
 
-    // Compute pitch (elevation) angle
-    float pitch = asin(direction.y);
+	// Compute pitch (elevation) angle
+	float pitch = asin(direction.y);
 
-    // Since we only have the direction vector and no roll information, roll is set to 0
-    float roll = 0.0f;
+	// Since we only have the direction vector and no roll information, roll is set to 0
+	float roll = 0.0f;
 
-    return glm::vec3(pitch, yaw, roll);
+	return glm::vec3(pitch, yaw, roll);
 }

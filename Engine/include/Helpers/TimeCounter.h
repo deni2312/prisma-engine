@@ -1,21 +1,20 @@
 #include <chrono>
 
-namespace Prisma {
+namespace Prisma
+{
+	class TimeCounter
+	{
+		std::chrono::high_resolution_clock::time_point start_time;
+		std::chrono::high_resolution_clock::time_point end_time;
+		bool running;
 
-    class TimeCounter {
-    private:
-        std::chrono::high_resolution_clock::time_point start_time;
-        std::chrono::high_resolution_clock::time_point end_time;
-        bool running;
+	public:
+		TimeCounter();
 
-    public:
-        TimeCounter();
+		void start();
 
-        void start();
+		void stop();
 
-        void stop();
-
-        double duration_seconds() const;
-    };
-
+		double duration_seconds() const;
+	};
 }

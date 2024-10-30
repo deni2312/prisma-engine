@@ -2,36 +2,40 @@
 
 Prisma::Postprocess::Postprocess()
 {
-
 }
 
 void Prisma::Postprocess::render()
 {
-    if (m_fbo) {
-        m_fbo->bind();
-        for (auto effect : m_effects) {
-            effect->render(m_fbo, m_fboRaw);
-        }
-        m_fbo->unbind();
-    }
-    else {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        for (auto effect : m_effects) {
-            effect->render(m_fbo, m_fboRaw);
-        }
-    }
+	if (m_fbo)
+	{
+		m_fbo->bind();
+		for (auto effect : m_effects)
+		{
+			effect->render(m_fbo, m_fboRaw);
+		}
+		m_fbo->unbind();
+	}
+	else
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		for (auto effect : m_effects)
+		{
+			effect->render(m_fbo, m_fboRaw);
+		}
+	}
 }
 
-void Prisma::Postprocess::addPostProcess(std::shared_ptr<Prisma::PostprocessEffect> postprocessEffect)
+void Prisma::Postprocess::addPostProcess(std::shared_ptr<PostprocessEffect> postprocessEffect)
 {
-    m_effects.push_back(postprocessEffect);
+	m_effects.push_back(postprocessEffect);
 }
 
-void Prisma::Postprocess::fbo(std::shared_ptr<Prisma::FBO> fbo)
+void Prisma::Postprocess::fbo(std::shared_ptr<FBO> fbo)
 {
-    m_fbo = fbo;
+	m_fbo = fbo;
 }
 
-void Prisma::Postprocess::fboRaw(std::shared_ptr<Prisma::FBO> fbo) {
-    m_fboRaw = fbo;
+void Prisma::Postprocess::fboRaw(std::shared_ptr<FBO> fbo)
+{
+	m_fboRaw = fbo;
 }

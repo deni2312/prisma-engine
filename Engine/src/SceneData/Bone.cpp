@@ -2,9 +2,9 @@
 
 Prisma::Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel)
 	:
+	m_LocalTransform(1.0f),
 	m_Name(name),
-	m_ID(ID),
-	m_LocalTransform(1.0f)
+	m_ID(ID)
 {
 	m_NumPositions = channel->mNumPositionKeys;
 
@@ -97,45 +97,44 @@ float Prisma::Bone::GetScaleFactor(float lastTimeStamp, float nextTimeStamp, flo
 glm::mat4 Prisma::Bone::InterpolatePosition(float animationTime) const
 {
 	if (1 == m_NumPositions)
-		return glm::translate(glm::mat4(1.0f), m_Positions[0].position);
+		return translate(glm::mat4(1.0f), m_Positions[0].position);
 
 	int p0Index = GetPositionIndex(animationTime);
 	int p1Index = p0Index + 1;
 	float scaleFactor = GetScaleFactor(m_Positions[p0Index].timeStamp,
-		m_Positions[p1Index].timeStamp, animationTime);
-	glm::vec3 finalPosition = glm::mix(m_Positions[p0Index].position, m_Positions[p1Index].position
-		, scaleFactor);
-	return glm::translate(glm::mat4(1.0f), finalPosition);
+	                                   m_Positions[p1Index].timeStamp, animationTime);
+	glm::vec3 finalPosition = mix(m_Positions[p0Index].position, m_Positions[p1Index].position
+	                              , scaleFactor);
+	return translate(glm::mat4(1.0f), finalPosition);
 }
 
 glm::mat4 Prisma::Bone::InterpolateRotation(float animationTime) const
 {
 	if (1 == m_NumRotations)
 	{
-		auto rotation = glm::normalize(m_Rotations[0].orientation);
-		return glm::toMat4(rotation);
+		auto rotation = normalize(m_Rotations[0].orientation);
+		return toMat4(rotation);
 	}
 	int p0Index = GetRotationIndex(animationTime);
 	int p1Index = p0Index + 1;
 	float scaleFactor = GetScaleFactor(m_Rotations[p0Index].timeStamp,
-		m_Rotations[p1Index].timeStamp, animationTime);
+	                                   m_Rotations[p1Index].timeStamp, animationTime);
 	glm::quat finalRotation = glm::slerp(m_Rotations[p0Index].orientation, m_Rotations[p1Index].orientation
-		, scaleFactor);
-	finalRotation = glm::normalize(finalRotation);
-	return glm::toMat4(finalRotation);
-
+	                                     , scaleFactor);
+	finalRotation = normalize(finalRotation);
+	return toMat4(finalRotation);
 }
 
 glm::mat4 Prisma::Bone::InterpolateScaling(float animationTime) const
 {
 	if (1 == m_NumScalings)
-		return glm::scale(glm::mat4(1.0f), m_Scales[0].scale);
+		return scale(glm::mat4(1.0f), m_Scales[0].scale);
 
 	int p0Index = GetScaleIndex(animationTime);
 	int p1Index = p0Index + 1;
 	float scaleFactor = GetScaleFactor(m_Scales[p0Index].timeStamp,
-		m_Scales[p1Index].timeStamp, animationTime);
-	glm::vec3 finalScale = glm::mix(m_Scales[p0Index].scale, m_Scales[p1Index].scale
-		, scaleFactor);
-	return glm::scale(glm::mat4(1.0f), finalScale);
+	                                   m_Scales[p1Index].timeStamp, animationTime);
+	glm::vec3 finalScale = mix(m_Scales[p0Index].scale, m_Scales[p1Index].scale
+	                           , scaleFactor);
+	return scale(glm::mat4(1.0f), finalScale);
 }

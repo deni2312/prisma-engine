@@ -8,12 +8,13 @@
 #include "../GlobalData/Defines.h"
 #include "Bone.h"
 
-namespace Prisma {
+namespace Prisma
+{
 	class AnimatedMesh;
 }
 
-namespace Prisma {
-
+namespace Prisma
+{
 	struct BoneInfo;
 
 	struct AssimpNodeData
@@ -24,11 +25,12 @@ namespace Prisma {
 		std::vector<AssimpNodeData> children;
 	};
 
-	class Animation {
+	class Animation
+	{
 	public:
 		Animation();
 
-		Animation(const std::string& animationPath, std::shared_ptr<Prisma::AnimatedMesh> model);
+		Animation(const std::string& animationPath, std::shared_ptr<AnimatedMesh> model);
 
 		~Animation();
 
@@ -37,22 +39,21 @@ namespace Prisma {
 		int ticksPerSecond();
 		float duration();
 		const AssimpNodeData& rootNode();
-		std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> boneIdMap();
+		std::shared_ptr<std::map<std::string, BoneInfo>> boneIdMap();
 		std::string name() const;
 
 		unsigned int id();
 
 	private:
 		std::string m_animationPath;
-		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<Prisma::AnimatedMesh> model);
+		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<AnimatedMesh> model);
 		glm::mat4 m_inverseTransform;
 		void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src);
 		float m_Duration;
 		int m_TicksPerSecond;
 		std::map<const std::string, std::shared_ptr<Bone>> m_Bones;
 		AssimpNodeData m_RootNode;
-		std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> m_BoneInfoMap;
+		std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap;
 		unsigned int m_id;
 	};
-
 }

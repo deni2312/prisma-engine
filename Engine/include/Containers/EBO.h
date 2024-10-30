@@ -2,22 +2,21 @@
 
 #include "GL/glew.h"
 
-namespace Prisma {
+namespace Prisma
+{
+	class EBO
+	{
+	public:
+		EBO();
 
-    class EBO {
-    public:
-        EBO();
+		void bind();
 
-        void bind();
+		void writeData(unsigned int size, void* offset, unsigned int type = GL_STATIC_DRAW);
+		void writeSubData(unsigned int size, unsigned int offset, void* data);
 
-        void writeData(unsigned int size, void *offset, unsigned int type = GL_STATIC_DRAW);
-        void writeSubData(unsigned int size, unsigned int offset, void* data);
+		unsigned int id() const;
 
-        unsigned int id() const;
-
-    private:
-        unsigned int m_id;
-    };
-
+	private:
+		unsigned int m_id;
+	};
 }
-

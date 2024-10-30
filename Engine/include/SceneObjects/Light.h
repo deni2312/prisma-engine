@@ -8,9 +8,12 @@
 #include "../Pipelines/PipelineCSM.h"
 #include "../Pipelines/PipelineOmniShadow.h"
 
-namespace Prisma {
-	namespace LightType {
-		struct LightDir {
+namespace Prisma
+{
+	namespace LightType
+	{
+		struct LightDir
+		{
 			glm::vec4 direction;
 			glm::vec4 diffuse;
 			glm::vec4 specular;
@@ -18,92 +21,106 @@ namespace Prisma {
 			glm::vec2 padding;
 		};
 
-		struct LightOmni {
-			glm::vec4 position = glm::vec4(0.0f,0.0f,0.0f,1.0f);
+		struct LightOmni
+		{
+			glm::vec4 position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			glm::vec4 diffuse = glm::vec4(1.0f);
 			glm::vec4 specular = glm::vec4(1.0f);
-            glm::vec4 farPlane=glm::vec4(100.0f,0.0f,0.0f,0.0f);
-			glm::vec4 attenuation =glm::vec4(1.0f,0.0f,0.0f,0.0f);
-            uint64_t shadowMap = 0;
-            float padding = 0;
+			glm::vec4 farPlane = glm::vec4(100.0f, 0.0f, 0.0f, 0.0f);
+			glm::vec4 attenuation = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+			uint64_t shadowMap = 0;
+			float padding = 0;
 			float radius = 1;
-        };
+		};
 	};
 
-	template <typename T> class Light :public Prisma::Node {
+	template <typename T>
+	class Light : public Node
+	{
 	public:
-		Light() {
-
+		Light()
+		{
 		}
+
 		T type() const
 		{
 			return m_type;
 		}
-		void type(T p_type) 
+
+		void type(T p_type)
 		{
 			m_type = p_type;
-			Prisma::CacheScene::getInstance().updateLights(true);
-		}
-		~Light() {
-
+			CacheScene::getInstance().updateLights(true);
 		}
 
-		void matrix(const glm::mat4& matrix, bool update)
+		~Light()
 		{
-			Prisma::Node::matrix(matrix);
-			Prisma::CacheScene::getInstance().updateLights(true);
 		}
 
-		void finalMatrix(const glm::mat4& matrix, bool update)
+		void matrix(const glm::mat4& matrix, bool update) override
 		{
-			Prisma::Node::finalMatrix(matrix);
-			Prisma::CacheScene::getInstance().updateLights(true);
+			Node::matrix(matrix);
+			CacheScene::getInstance().updateLights(true);
 		}
 
-		glm::mat4 matrix() const
+		void finalMatrix(const glm::mat4& matrix, bool update) override
 		{
-			return Prisma::Node::matrix();
+			Node::finalMatrix(matrix);
+			CacheScene::getInstance().updateLights(true);
 		}
 
-		glm::mat4 finalMatrix() const
+		glm::mat4 matrix() const override
 		{
-			return Prisma::Node::finalMatrix();
+			return Node::matrix();
 		}
 
-        std::shared_ptr<GenericShadow> shadow(){
-            return m_shadow;
-        }
+		glm::mat4 finalMatrix() const override
+		{
+			return Node::finalMatrix();
+		}
 
-        void createShadow(unsigned int width, unsigned int height){
-            if(std::is_same<LightType::LightOmni,T>()){
-                m_shadow=std::make_shared<PipelineOmniShadow>(width,height);
+		std::shared_ptr<GenericShadow> shadow()
+		{
+			return m_shadow;
+		}
+
+		void createShadow(unsigned int width, unsigned int height)
+		{
+			if (std::is_same<LightType::LightOmni, T>())
+			{
+				m_shadow = std::make_shared<PipelineOmniShadow>(width, height);
 				m_type.shadowMap = m_shadow->id();
-            }
+			}
 
-			if (std::is_same<LightType::LightDir, T>()) {
+			if (std::is_same<LightType::LightDir, T>())
+			{
 				m_shadow = std::make_shared<PipelineCSM>(width, height);
 				m_type.shadowMap = m_shadow->id();
 			}
-			Prisma::CacheScene::getInstance().updateLights(true);
-        }
-
-		void hasShadow(bool hasShadow) {
-			m_hasShadow = hasShadow;
-			Prisma::CacheScene::getInstance().updateLights(true);
+			CacheScene::getInstance().updateLights(true);
 		}
 
-		bool hasShadow() {
+		void hasShadow(bool hasShadow)
+		{
+			m_hasShadow = hasShadow;
+			CacheScene::getInstance().updateLights(true);
+		}
+
+		bool hasShadow()
+		{
 			return m_hasShadow;
 		}
 
-		static std::shared_ptr<Prisma::Light<T>> instantiate(std::shared_ptr<Prisma::Light<T>> light) {
-			std::shared_ptr<Prisma::Light<T>> newInstance = nullptr;
-			if (light) {
-				newInstance = std::make_shared<Prisma::Light<T>>();
+		static std::shared_ptr<Light<T>> instantiate(std::shared_ptr<Light<T>> light)
+		{
+			std::shared_ptr<Light<T>> newInstance = nullptr;
+			if (light)
+			{
+				newInstance = std::make_shared<Light<T>>();
 				newInstance->hasShadow(light->hasShadow())
 				newInstance->matrix(light->matrix());
 				newInstance->name(light->name() + std::to_string(newInstance->uuid()));
-				std::shared_ptr<Node> parent = std::make_shared<Node>();
+				auto parent = std::make_shared<Node>();
 				parent->name(light->parent()->name() + std::to_string(parent->uuid()));
 				parent->matrix(light->parent()->matrix());
 				parent->addChild(newInstance);
@@ -115,7 +132,7 @@ namespace Prisma {
 
 	private:
 		T m_type;
-        std::shared_ptr<GenericShadow> m_shadow = nullptr;
+		std::shared_ptr<GenericShadow> m_shadow = nullptr;
 		bool m_hasShadow = false;
 	};
 }

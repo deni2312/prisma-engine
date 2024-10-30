@@ -3,11 +3,14 @@
 #include <chrono>
 #include <imgui.h>
 
-namespace Prisma {
-	class PlotFPS {
+namespace Prisma
+{
+	class PlotFPS
+	{
 	public:
 		PlotFPS();
 		void showFPS(float fps);
+
 	private:
 		std::vector<float> m_fpsBuffer;
 
@@ -19,10 +22,11 @@ namespace Prisma {
 
 		float m_max = 0;
 
-        void UpdateFPSBuffer(float fps);
+		void UpdateFPSBuffer(float fps);
 
-        void Sparkline(const char* id, const float* values, int count, float min_v, float max_v, int offset, const ImVec4& col, const ImVec2& size);
+		void Sparkline(const char* id, const float* values, int count, float min_v, float max_v, int offset,
+		               const ImVec4& col, const ImVec2& size);
 
-        void ShowFPSPlot();
+		void ShowFPSPlot();
 	};
 }

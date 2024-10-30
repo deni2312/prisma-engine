@@ -2,9 +2,10 @@
 
 #include "imgui.h"
 
-namespace Prisma {
-
-	class ImGuiStyles {
+namespace Prisma
+{
+	class ImGuiStyles
+	{
 	public:
 		static void darkMode()
 		{
@@ -90,5 +91,4 @@ namespace Prisma {
 			style.TabRounding = 4;
 		}
 	};
-
 }

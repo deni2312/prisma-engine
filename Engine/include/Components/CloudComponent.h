@@ -19,7 +19,7 @@ namespace Prisma
 
 		void ui() override;
 
-		void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0) override;
+		void updateRender(std::shared_ptr<FBO> fbo = nullptr) override;
 
 		void start() override;
 
@@ -45,7 +45,7 @@ namespace Prisma
 
 		GLuint m_downscalesq = 4 * 4;
 
-		std::shared_ptr<Prisma::SSBO> m_ssbo;
+		std::shared_ptr<SSBO> m_ssbo;
 
 		struct alignas(16) CloudSSBO
 		{
@@ -107,7 +107,7 @@ namespace Prisma
 
 		std::chrono::system_clock::time_point m_start;
 
-		std::shared_ptr<Prisma::FBO> m_fbo;
+		std::shared_ptr<FBO> m_fbo;
 
 		uint64_t m_worley;
 
@@ -131,13 +131,13 @@ namespace Prisma
 
 		std::function<void()> m_updateButton;
 
-		Prisma::Settings m_settings;
+		Settings m_settings;
 
-		std::shared_ptr<Prisma::Shader> m_cloudShader;
-		std::shared_ptr<Prisma::Shader> m_noiseShader;
-		std::shared_ptr<Prisma::Shader> m_worleyShader;
-		std::shared_ptr<Prisma::Shader> m_perlinWorleyShader;
-		std::shared_ptr<Prisma::Shader> m_weatherShader;
-		std::shared_ptr<Prisma::Shader> m_upscaleShader;
+		std::shared_ptr<Shader> m_cloudShader;
+		std::shared_ptr<Shader> m_noiseShader;
+		std::shared_ptr<Shader> m_worleyShader;
+		std::shared_ptr<Shader> m_perlinWorleyShader;
+		std::shared_ptr<Shader> m_weatherShader;
+		std::shared_ptr<Shader> m_upscaleShader;
 	};
 }

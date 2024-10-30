@@ -4,9 +4,10 @@
 #include "../Containers/SSBO.h"
 #include "../GlobalData/Defines.h"
 
-namespace Prisma {
-
-	class ClusterCalculation {
+namespace Prisma
+{
+	class ClusterCalculation
+	{
 	public:
 		struct alignas(16) Cluster
 		{
@@ -20,17 +21,18 @@ namespace Prisma {
 		void updateCamera();
 		void updateLights();
 
-		static glm::vec3 grids() {
-			return { m_gridSizeX,m_gridSizeY ,m_gridSizeZ };
+		static glm::vec3 grids()
+		{
+			return {m_gridSizeX, m_gridSizeY, m_gridSizeZ};
 		}
 
 	private:
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderLights;
 
-		static const unsigned int m_gridSizeX = 12;
-		static const unsigned int m_gridSizeY = 12;
-		static const unsigned int m_gridSizeZ = 24;
+		static constexpr unsigned int m_gridSizeX = 12;
+		static constexpr unsigned int m_gridSizeY = 12;
+		static constexpr unsigned int m_gridSizeZ = 24;
 
 		unsigned int m_nearPos;
 		unsigned int m_farPos;
@@ -38,7 +40,6 @@ namespace Prisma {
 		unsigned int m_gridSizePos;
 		unsigned int m_screenDimensionsPos;
 
-		std::shared_ptr<Prisma::SSBO> m_ssbo;
+		std::shared_ptr<SSBO> m_ssbo;
 	};
-
 }

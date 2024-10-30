@@ -6,10 +6,13 @@
 #include "../GlobalData/InstanceData.h"
 #include <vector>
 
-namespace Prisma {
-	class AnimationHandler : public InstanceData<AnimationHandler>{
+namespace Prisma
+{
+	class AnimationHandler : public InstanceData<AnimationHandler>
+	{
 	public:
-		struct SSBOAnimation {
+		struct SSBOAnimation
+		{
 			glm::mat4 animations[MAX_BONES];
 		};
 

@@ -9,16 +9,19 @@
 #include <memory>
 #include "PipelineDeferredForward.h"
 
-namespace Prisma {
-	class PipelineHandler {
+namespace Prisma
+{
+	class PipelineHandler
+	{
 	public:
-		bool initScene(Prisma::SceneLoader::SceneParameters sceneParameters);
-		std::shared_ptr<Prisma::PipelineForward> forward();
-		std::shared_ptr<Prisma::PipelineDeferred> deferred();
-		std::shared_ptr<Prisma::PipelineDeferredForward> deferredForward();
+		bool initScene(SceneLoader::SceneParameters sceneParameters);
+		std::shared_ptr<PipelineForward> forward();
+		std::shared_ptr<PipelineDeferred> deferred();
+		std::shared_ptr<PipelineDeferredForward> deferredForward();
+
 	private:
-		std::shared_ptr<Prisma::PipelineForward> m_forwardPipeline;
-		std::shared_ptr<Prisma::PipelineDeferred> m_deferredPipeline;
-		std::shared_ptr<Prisma::PipelineDeferredForward> m_deferredForwardPipeline;
+		std::shared_ptr<PipelineForward> m_forwardPipeline;
+		std::shared_ptr<PipelineDeferred> m_deferredPipeline;
+		std::shared_ptr<PipelineDeferredForward> m_deferredForwardPipeline;
 	};
 }

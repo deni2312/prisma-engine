@@ -9,15 +9,15 @@
 #include "ImGuizmo.h"
 #include "MeshInfo.h"
 
-namespace Prisma {
-    class LightInfo {
-    public:
+namespace Prisma
+{
+	class LightInfo
+	{
+	public:
+		void showSelectedDir(Light<LightType::LightDir>* lightData, const NodeViewer::NodeData& meshData);
+		void showSelectedOmni(Light<LightType::LightOmni>* lightData, const NodeViewer::NodeData& meshData);
 
-        void showSelectedDir(Prisma::Light<Prisma::LightType::LightDir>* lightData,const Prisma::NodeViewer::NodeData& meshData);
-        void showSelectedOmni(Prisma::Light<Prisma::LightType::LightOmni>* lightData,const Prisma::NodeViewer::NodeData& meshData);
-
-    private:
-        glm::vec3 directionToEulerAngles(const glm::vec3& direction);
-    };
+	private:
+		glm::vec3 directionToEulerAngles(const glm::vec3& direction);
+	};
 }
-

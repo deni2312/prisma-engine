@@ -71,13 +71,13 @@ Prisma::Engine::Engine()
 
 	AnimationHandler::getInstance();
 
-	data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD;
+	data->engineSettings.pipeline = EngineSettings::Pipeline::DEFERRED_FORWARD;
 
 	data->engineSettings.ssr = false;
 
 	data->settings = SettingsLoader::getInstance().getSettings();
 
-	data->sceneHandler = std::make_shared<Prisma::SceneHandler>();
+	data->sceneHandler = std::make_shared<SceneHandler>();
 
 	currentGlobalScene = std::make_shared<Scene>();
 
@@ -108,15 +108,15 @@ bool Prisma::Engine::run()
 			if (!data->debug)
 			{
 				data->userData->update();
-				Prisma::ComponentsHandler::getInstance().updateStart();
-				Prisma::ComponentsHandler::getInstance().updateComponents();
-				Physics::getInstance().update(1.0f / (float)fps());
+				ComponentsHandler::getInstance().updateStart();
+				ComponentsHandler::getInstance().updateComponents();
+				Physics::getInstance().update(1.0f / fps());
 			}
 
 			data->sceneHandler->onBeginRender();
 			if (data->debug)
 			{
-				Prisma::ComponentsHandler::getInstance().updateUi();
+				ComponentsHandler::getInstance().updateUi();
 			}
 			MeshHandler::getInstance().updateCamera();
 			MeshHandler::getInstance().updateFragment();
@@ -126,14 +126,14 @@ bool Prisma::Engine::run()
 
 			switch (data->engineSettings.pipeline)
 			{
-			case Prisma::EngineSettings::Pipeline::FORWARD:
+			case EngineSettings::Pipeline::FORWARD:
 				data->pipelineHandler.forward()->render();
 				break;
 
-			case Prisma::EngineSettings::Pipeline::DEFERRED:
+			case EngineSettings::Pipeline::DEFERRED:
 				data->pipelineHandler.deferred()->render();
 				break;
-			case Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD:
+			case EngineSettings::Pipeline::DEFERRED_FORWARD:
 				data->pipelineHandler.deferredForward()->render();
 				break;
 			}
@@ -150,12 +150,12 @@ bool Prisma::Engine::run()
 			PrismaFunc::getInstance().closeWindow();
 		}
 	}
-	Prisma::GarbageCollector::getInstance().clear();
+	GarbageCollector::getInstance().clear();
 	PrismaFunc::getInstance().destroy();
 	return true;
 }
 
-void Prisma::Engine::setUserEngine(std::shared_ptr<Prisma::UserData> userData)
+void Prisma::Engine::setUserEngine(std::shared_ptr<UserData> userData)
 {
 	data->userData = userData;
 }
@@ -174,7 +174,7 @@ void Prisma::Engine::initScene()
 	}
 }
 
-void Prisma::Engine::setGuiData(std::shared_ptr<Prisma::SceneHandler> guiData)
+void Prisma::Engine::setGuiData(std::shared_ptr<SceneHandler> guiData)
 {
 	data->sceneHandler = guiData;
 }
@@ -194,20 +194,22 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 	callbackHandler->resize = [&](int width, int height)
 	{
 		currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
-		                                     (float)data->settings.width / (float)data->settings.height,
+		                                     static_cast<float>(data->settings.width) / static_cast<float>(data->
+			                                     settings.height),
 		                                     currentGlobalScene->camera->nearPlane(),
 		                                     currentGlobalScene->camera->farPlane());
-		MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4),
-		                                             glm::value_ptr(currentProjection));
+		MeshHandler::getInstance().ubo()->modifyData(MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4),
+		                                             value_ptr(currentProjection));
 	};
 	currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
-	                                     (float)data->settings.width / (float)data->settings.height,
+	                                     static_cast<float>(data->settings.width) / static_cast<float>(data->settings.
+		                                     height),
 	                                     currentGlobalScene->camera->nearPlane(),
 	                                     currentGlobalScene->camera->farPlane());
-	MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4),
-	                                             glm::value_ptr(currentProjection));
+	MeshHandler::getInstance().ubo()->modifyData(MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4),
+	                                             value_ptr(currentProjection));
 	data->callbackHandler = callbackHandler;
-	Prisma::PrismaFunc::getInstance().setCallback(callbackHandler);
+	PrismaFunc::getInstance().setCallback(callbackHandler);
 }
 
 float Prisma::Engine::fps()
@@ -232,7 +234,7 @@ std::shared_ptr<Prisma::UserData> Prisma::Engine::getUserEngine()
 }
 
 std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(const std::string& scene,
-                                                        Prisma::SceneLoader::SceneParameters sceneParameters)
+                                                        SceneLoader::SceneParameters sceneParameters)
 {
 	SceneLoader sceneLoader;
 	data->sceneParameters = sceneParameters;

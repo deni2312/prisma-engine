@@ -31,7 +31,7 @@ using namespace JPH::literals;
 
 namespace Prisma
 {
-	class PhysicsMeshComponent : public Prisma::Component
+	class PhysicsMeshComponent : public Component
 	{
 	public:
 		PhysicsMeshComponent();
@@ -40,13 +40,13 @@ namespace Prisma
 
 		void update() override;
 
-		virtual void destroy() override;
+		void destroy() override;
 
-		void collisionData(Prisma::Physics::CollisionData collisionData);
+		void collisionData(Physics::CollisionData collisionData);
 
 		void updateCollisionData();
 
-		Prisma::Physics::CollisionData collisionData();
+		Physics::CollisionData collisionData();
 
 		void start() override;
 
@@ -66,12 +66,12 @@ namespace Prisma
 
 		std::function<void(const BodyID&)> onCollisionExit();
 
-		void landscapeData(const Prisma::Physics::LandscapeData& landscapeData);
+		void landscapeData(const Physics::LandscapeData& landscapeData);
 
 	private:
 		ComponentList m_status;
 		std::function<void()> m_apply;
-		Prisma::Physics::CollisionData m_collisionData{};
+		Physics::CollisionData m_collisionData{};
 		btCollisionShape* m_shape = nullptr;
 		btRigidBody* m_body = nullptr;
 		void colliderDispatcher();
@@ -79,7 +79,7 @@ namespace Prisma
 		BodyID m_physicsId;
 		bool m_initPhysics = false;
 
-		Prisma::Physics::LandscapeData m_landscapeData;
+		Physics::LandscapeData m_landscapeData;
 
 		const float m_minScale = 0.001;
 

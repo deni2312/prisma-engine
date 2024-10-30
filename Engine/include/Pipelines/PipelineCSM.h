@@ -8,75 +8,74 @@
 #include "../Helpers/Settings.h"
 #include "../Containers/SSBO.h"
 
-namespace Prisma {
+namespace Prisma
+{
+	class PipelineCSM : public GenericShadow
+	{
+	public:
+		PipelineCSM(unsigned int width, unsigned int height);
+		uint64_t id() override;
+		float farPlane() override;
+		void farPlane(float farPlane) override;
 
-    class PipelineCSM : public GenericShadow {
-    public:
-        PipelineCSM(unsigned int width, unsigned int height);
-        uint64_t id();
-        float farPlane() override;
-        void farPlane(float farPlane) override;
+		float nearPlane() override;
+		void nearPlane(float nearPlane) override;
 
-        float nearPlane() override;
-        void nearPlane(float nearPlane) override;
+		void lightDir(glm::vec3 lightDir);
 
-        void lightDir(glm::vec3 lightDir);
+		glm::vec3 lightDir();
 
-        glm::vec3 lightDir();
+		void update(glm::vec3 lightPos) override;
 
-        void update(glm::vec3 lightPos) override;
+		std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
 
-        std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
+		std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view);
 
-        std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view);
+		glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane);
 
-        glm::mat4 getLightSpaceMatrix(const float nearPlane, const float farPlane);
+		std::vector<glm::mat4> getLightSpaceMatrices();
 
-        std::vector<glm::mat4> getLightSpaceMatrices();
+		std::vector<float>& cascadeLevels();
 
-        std::vector<float>& cascadeLevels();
+		void bias(float bias);
 
-        void bias(float bias);
+		float bias();
 
-        float bias();
+	private:
+		unsigned int m_width;
 
-    private:
+		unsigned int m_height;
 
-        unsigned int m_width;
+		unsigned int m_fbo;
 
-        unsigned int m_height;
+		glm::vec3 m_lightDir = glm::vec3(0.0f);
 
-        unsigned int m_fbo;
+		uint64_t m_id;
 
-        glm::vec3 m_lightDir=glm::vec3(0.0f);
+		float m_farPlane = 200.0f;
 
-        uint64_t m_id;
+		float m_nearPlane = 0.1f;
 
-        float m_farPlane = 200.0f;
+		float m_bias = 0.5f;
 
-        float m_nearPlane = 0.1f;
+		std::vector<float> m_shadowCascadeLevels;
 
-        float m_bias = 0.5f;
+		Settings m_settings;
 
-        std::vector<float> m_shadowCascadeLevels;
+		std::shared_ptr<SSBO> m_ssbo = nullptr;
 
-        Prisma::Settings m_settings;
+		bool m_init = false;
 
-        std::shared_ptr<Prisma::SSBO> m_ssbo = nullptr;
+		glm::vec3 m_boundingBoxMin;
 
-        bool m_init = false;
+		glm::vec3 m_boundingBoxMax;
 
-        glm::vec3 m_boundingBoxMin;
+		std::vector<glm::mat4> m_lightMatrices;
 
-        glm::vec3 m_boundingBoxMax;
+		uint64_t m_numCSM;
 
-        std::vector<glm::mat4> m_lightMatrices;
+		std::shared_ptr<Shader> m_shader = nullptr;
 
-        uint64_t m_numCSM;
-
-        std::shared_ptr<Prisma::Shader> m_shader = nullptr;
-
-        std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
-
-    };
+		std::shared_ptr<Shader> m_shaderAnimation = nullptr;
+	};
 }

@@ -5,37 +5,41 @@
 #include "../GlobalData/InstanceData.h"
 
 
-namespace Prisma {
+namespace Prisma
+{
+	class ComponentsHandler : public InstanceData<ComponentsHandler>
+	{
+	public:
+		void updateStart();
 
-    class ComponentsHandler : public InstanceData<ComponentsHandler>{
-    public:
-        void updateStart();
+		void updateUi();
 
-        void updateUi();
+		void updateComponents();
 
-        void updateComponents();
+		void updateRender(std::shared_ptr<FBO> fbo = nullptr);
 
-        void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0);
+		void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
 
-        void updatePreRender(std::shared_ptr<Prisma::FBO> fbo = 0);
+		void addComponent(std::shared_ptr<Component> component)
+		{
+			m_components.push_back(component);
+		}
 
-        void addComponent(std::shared_ptr<Component> component) {
-            m_components.push_back(component);
-        }
+		void removeComponent(std::shared_ptr<Component> component)
+		{
+			// Find and remove the component from the vector
+			auto it = std::remove(m_components.begin(), m_components.end(), component);
 
-        void removeComponent(std::shared_ptr<Component> component) {
-            // Find and remove the component from the vector
-            auto it = std::remove(m_components.begin(), m_components.end(), component);
+			// Erase the removed elements (if any)
+			if (it != m_components.end())
+			{
+				m_components.erase(it, m_components.end());
+			}
+		}
 
-            // Erase the removed elements (if any)
-            if (it != m_components.end()) {
-                m_components.erase(it, m_components.end());
-            }
-        }
-        ComponentsHandler();
+		ComponentsHandler();
 
-    private:
-        std::vector<std::shared_ptr<Component>> m_components;
-    };
-
+	private:
+		std::vector<std::shared_ptr<Component>> m_components;
+	};
 }

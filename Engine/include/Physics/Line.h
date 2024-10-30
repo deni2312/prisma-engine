@@ -6,27 +6,29 @@
 #include <iostream>
 #include "../Helpers/Shader.h"
 
-namespace Prisma {
-    class Line {
-    private:
-        unsigned int m_VBO, m_VAO;
-        std::vector<float> m_vertices;
-        glm::vec3 m_startPoint;
-        glm::vec3 m_endPoint;
-        glm::mat4 m_MVP;
-        glm::vec3 m_lineColor;
-        std::shared_ptr<Prisma::Shader> m_shader;
-        unsigned int m_colorPos;
-        unsigned int m_MVPPos;
-    public:
-        Line();
+namespace Prisma
+{
+	class Line
+	{
+		unsigned int m_VBO, m_VAO;
+		std::vector<float> m_vertices;
+		glm::vec3 m_startPoint;
+		glm::vec3 m_endPoint;
+		glm::mat4 m_MVP;
+		glm::vec3 m_lineColor;
+		std::shared_ptr<Shader> m_shader;
+		unsigned int m_colorPos;
+		unsigned int m_MVPPos;
 
-        int setMVP(glm::mat4 mvp);
+	public:
+		Line();
 
-        int setColor(glm::vec3 color);
+		int setMVP(glm::mat4 mvp);
 
-        int draw(glm::vec3 start, glm::vec3 end);
+		int setColor(glm::vec3 color);
 
-        ~Line();
-    };
+		int draw(glm::vec3 start, glm::vec3 end);
+
+		~Line();
+	};
 }

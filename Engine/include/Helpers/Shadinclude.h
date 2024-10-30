@@ -91,7 +91,8 @@ public:
 
 				// Remove quotation marks from the include-string, in case there are any
 				auto lineBufferQuotationMarkPositions = std::remove(lineBuffer.begin(), lineBuffer.end(), '\"');
-				while (lineBuffer.cend() != lineBufferQuotationMarkPositions) {
+				while (lineBuffer.cend() != lineBufferQuotationMarkPositions)
+				{
 					lineBuffer.erase(lineBufferQuotationMarkPositions, lineBuffer.cend());
 					lineBufferQuotationMarkPositions = std::remove(lineBuffer.begin(), lineBuffer.end(), '\"');
 				}

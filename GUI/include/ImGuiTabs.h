@@ -6,17 +6,18 @@
 #include "../../Engine/include/Containers/Texture.h"
 #include "../../Engine/include/GlobalData/InstanceData.h"
 
-namespace Prisma {
-    class ImGuiTabs : public InstanceData<ImGuiTabs>{
-    public:
+namespace Prisma
+{
+	class ImGuiTabs : public InstanceData<ImGuiTabs>
+	{
+	public:
+		void showNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera);
 
-        void showNodes(std::shared_ptr<Node> root, int depth, Prisma::ImGuiCamera& camera);
+		ImGuiTabs();
 
-        ImGuiTabs();
-    private:
-        void showCurrentNodes(std::shared_ptr<Node> root, int depth, Prisma::ImGuiCamera& camera);
+	private:
+		void showCurrentNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera);
 
-        unsigned long int m_index = 0;
-    };
-
+		unsigned long int m_index = 0;
+	};
 }

@@ -10,17 +10,17 @@
 #include <memory>
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma {
-	class PipelineLUT : public InstanceData<PipelineLUT>{
+namespace Prisma
+{
+	class PipelineLUT : public InstanceData<PipelineLUT>
+	{
 	public:
-
 		void texture();
 
 		uint64_t id() const;
-        PipelineLUT();
+		PipelineLUT();
 
-    private:
-
+	private:
 		uint64_t m_id;
 
 		unsigned int m_quadVAO = 0;

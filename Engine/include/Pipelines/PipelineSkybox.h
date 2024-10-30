@@ -10,20 +10,22 @@
 #include <memory>
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma {
-	class PipelineSkybox : public InstanceData<PipelineSkybox>{
+namespace Prisma
+{
+	class PipelineSkybox : public InstanceData<PipelineSkybox>
+	{
 	public:
 		void render();
 
 
-		void texture(Prisma::Texture texture, bool equirectangular = false);
-        PipelineSkybox();
+		void texture(Texture texture, bool equirectangular = false);
+		PipelineSkybox();
 
-    private:
-        uint64_t calculateSkybox();
+	private:
+		uint64_t calculateSkybox();
 
 
-		Prisma::Texture m_texture;
+		Texture m_texture;
 
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderEquirectangular;
@@ -31,7 +33,7 @@ namespace Prisma {
 		unsigned int m_bindlessPos;
 		unsigned int m_bindlessPosEquirectangular;
 
-		bool m_equirectangular=false;
+		bool m_equirectangular = false;
 
 		uint64_t m_skyboxId;
 	};

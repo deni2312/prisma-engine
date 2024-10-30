@@ -10,72 +10,80 @@ static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
 
 Prisma::PixelCapture::PixelCapture()
 {
-    if (!shader) {
-        auto settings = Prisma::SettingsLoader::getInstance().getSettings();
+	if (!shader)
+	{
+		auto settings = SettingsLoader::getInstance().getSettings();
 
-        Prisma::FBO::FBOData fboData;
-        fboData.enableDepth = true;
-        fboData.height = settings.height;
-        fboData.width = settings.width;
+		FBO::FBOData fboData;
+		fboData.enableDepth = true;
+		fboData.height = settings.height;
+		fboData.width = settings.width;
 
-        m_fbo = std::make_shared<Prisma::FBO>(fboData);
+		m_fbo = std::make_shared<FBO>(fboData);
 
-        shader = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex.glsl", "../../../GUI/Shaders/PixelCapture/fragment.glsl");
+		shader = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex.glsl",
+		                                  "../../../GUI/Shaders/PixelCapture/fragment.glsl");
 
-        shaderAnimation = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex_animation.glsl", "../../../GUI/Shaders/PixelCapture/fragment_animation.glsl");
-    }
+		shaderAnimation = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex_animation.glsl",
+		                                           "../../../GUI/Shaders/PixelCapture/fragment_animation.glsl");
+	}
 }
 
 std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 {
-    m_fbo->bind();
-    GLfloat bkColor[4];
-    glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
-    
-    float color = bkColor[3];
+	m_fbo->bind();
+	GLfloat bkColor[4];
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
 
-    bkColor[3] = 0.2;
+	float color = bkColor[3];
 
-    glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
+	bkColor[3] = 0.2;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
 
-    bkColor[3] = color;
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
+	bkColor[3] = color;
 
-    shader->use();
+	glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
 
-    Prisma::MeshIndirect::getInstance().renderMeshesCopy();
+	shader->use();
 
-    shaderAnimation->use();
+	MeshIndirect::getInstance().renderMeshesCopy();
 
-    Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
+	shaderAnimation->use();
 
-    glFlush();
-    glFinish();
+	MeshIndirect::getInstance().renderAnimateMeshes();
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glFlush();
+	glFinish();
 
-    unsigned char data[4];
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    glReadPixels(position.x, position.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	unsigned char data[4];
 
-    m_fbo->unbind();
+	glReadPixels(position.x, position.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-    uint32_t encodedUUID = (data[0] << 16) | (data[1] << 8) | data[2];
-    if (data[3] < 0.1) {
-        if (encodedUUID < currentGlobalScene->meshes.size() && encodedUUID >= 0) {
-            return currentGlobalScene->meshes[encodedUUID];
-        }
-    }
-    else if (data[3] < 255 && data[3] > 0) {
-        return nullptr;
-    }
-    else {
-        if (encodedUUID < currentGlobalScene->animateMeshes.size() && encodedUUID >= 0) {
-            return currentGlobalScene->animateMeshes[encodedUUID];
-        }
-    }
-    return nullptr;
+	m_fbo->unbind();
+
+	uint32_t encodedUUID = (data[0] << 16) | (data[1] << 8) | data[2];
+	if (data[3] < 0.1)
+	{
+		if (encodedUUID < currentGlobalScene->meshes.size() && encodedUUID >= 0)
+		{
+			return currentGlobalScene->meshes[encodedUUID];
+		}
+	}
+	else if (data[3] < 255 && data[3] > 0)
+	{
+		return nullptr;
+	}
+	else
+	{
+		if (encodedUUID < currentGlobalScene->animateMeshes.size() && encodedUUID >= 0)
+		{
+			return currentGlobalScene->animateMeshes[encodedUUID];
+		}
+	}
+	return nullptr;
 }

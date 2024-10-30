@@ -3,33 +3,35 @@
 #include "../../Engine/include/Helpers/Settings.h"
 #include <memory>
 
-namespace Prisma {
-
-	class ImGuiCamera {
+namespace Prisma
+{
+	class ImGuiCamera
+	{
 	public:
-        struct CameraConstarints{
-            float minX;
-            float minY;
-            float maxX;
-            float maxY;
+		struct CameraConstarints
+		{
+			float minX;
+			float minY;
+			float maxX;
+			float maxY;
 			bool isOver;
 			float scale;
-        };
+		};
 
 		ImGuiCamera();
-		void updateCamera(std::shared_ptr<Prisma::Camera> camera);
+		void updateCamera(std::shared_ptr<Camera> camera);
 		void keyboardUpdate(void* windowData);
 		void mouseCallback();
-        void mouseButtonCallback();
-        void velocity(float velocity);
+		void mouseButtonCallback();
+		void velocity(float velocity);
 		void currentSelect(Node* currentSelect);
-        Node* currentSelect();
+		Node* currentSelect();
 
-        void constraints(CameraConstarints constraints);
+		void constraints(CameraConstarints constraints);
 
-		std::shared_ptr<Prisma::CallbackHandler> callback();
+		std::shared_ptr<CallbackHandler> callback();
+
 	private:
-
 		glm::vec3 m_position = glm::vec3(0.0f);
 		glm::vec3 m_front = glm::vec3(0.0f, 0.0f, -1.0f);
 		glm::vec3 m_up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -48,9 +50,9 @@ namespace Prisma {
 
 		float m_totalVelocity = 0;
 
-		std::shared_ptr<Prisma::CallbackHandler> m_callback;
+		std::shared_ptr<CallbackHandler> m_callback;
 
-        Node* m_currentSelect;
-        CameraConstarints m_constraints;
+		Node* m_currentSelect;
+		CameraConstarints m_constraints;
 	};
 }

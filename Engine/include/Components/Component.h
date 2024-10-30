@@ -40,15 +40,15 @@ namespace Prisma
 
 		virtual void update();
 
-		virtual void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0);
+		virtual void updateRender(std::shared_ptr<FBO> fbo = nullptr);
 
-		virtual void updatePreRender(std::shared_ptr<Prisma::FBO> fbo = 0);
+		virtual void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
 
 		virtual void destroy();
 
-		void parent(Prisma::Node* parent);
+		void parent(Node* parent);
 
-		Prisma::Node* parent();
+		Node* parent();
 
 		void isStart(bool start);
 
@@ -73,7 +73,7 @@ namespace Prisma
 		virtual ~Component();
 
 	private:
-		Prisma::Node* m_parent = nullptr;
+		Node* m_parent = nullptr;
 		bool m_start = false;
 		bool m_ui = false;
 		ComponentTypeVector m_globalVars;

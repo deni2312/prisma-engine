@@ -12,28 +12,28 @@
 #include "../Containers/EBO.h"
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma {
-
+namespace Prisma
+{
 	struct DrawElementsIndirectCommand
 	{
-		unsigned int  count;
-		unsigned int  instanceCount;
-		unsigned int  firstIndex;
-		unsigned int  baseVertex;
-		unsigned int  baseInstance;
+		unsigned int count;
+		unsigned int instanceCount;
+		unsigned int firstIndex;
+		unsigned int baseVertex;
+		unsigned int baseInstance;
 	};
 
-	class MeshIndirect : public InstanceData<MeshIndirect>{
-	private:
+	class MeshIndirect : public InstanceData<MeshIndirect>
+	{
 		//BINDING DATA
 
-		std::shared_ptr<Prisma::VAO> m_vao;
-        std::shared_ptr<Prisma::VBO> m_vbo;
-        std::shared_ptr<Prisma::EBO> m_ebo;
+		std::shared_ptr<VAO> m_vao;
+		std::shared_ptr<VBO> m_vbo;
+		std::shared_ptr<EBO> m_ebo;
 
-		std::shared_ptr<Prisma::VAO> m_vaoAnimation;
-		std::shared_ptr<Prisma::VBO> m_vboAnimation;
-		std::shared_ptr<Prisma::EBO> m_eboAnimation;
+		std::shared_ptr<VAO> m_vaoAnimation;
+		std::shared_ptr<VBO> m_vboAnimation;
+		std::shared_ptr<EBO> m_eboAnimation;
 
 		//INDIRECT INDEX
 
@@ -58,23 +58,23 @@ namespace Prisma {
 
 		//VERTICES DATA
 
-		Prisma::Mesh::VerticesData m_verticesData;
+		Mesh::VerticesData m_verticesData;
 		std::vector<DrawElementsIndirectCommand> m_drawCommands;
-		std::shared_ptr<Prisma::SSBO> m_ssboModel;
-		std::shared_ptr<Prisma::SSBO> m_ssboMaterial;
+		std::shared_ptr<SSBO> m_ssboModel;
+		std::shared_ptr<SSBO> m_ssboMaterial;
 
-		std::shared_ptr<Prisma::SSBO> m_ssboModelCopy;
-		std::shared_ptr<Prisma::SSBO> m_ssboMaterialCopy;
-		std::shared_ptr<Prisma::SSBO> m_ssboIndices;
+		std::shared_ptr<SSBO> m_ssboModelCopy;
+		std::shared_ptr<SSBO> m_ssboMaterialCopy;
+		std::shared_ptr<SSBO> m_ssboIndices;
 
 
-		Prisma::AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
+		AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
 		std::vector<DrawElementsIndirectCommand> m_drawCommandsAnimation;
-		std::shared_ptr<Prisma::SSBO> m_ssboModelAnimation;
-		std::shared_ptr<Prisma::SSBO> m_ssboMaterialAnimation;
+		std::shared_ptr<SSBO> m_ssboModelAnimation;
+		std::shared_ptr<SSBO> m_ssboMaterialAnimation;
 
-		std::vector<Prisma::MaterialData> m_materialData;
-		std::vector<Prisma::MaterialData> m_materialDataAnimation;
+		std::vector<MaterialData> m_materialData;
+		std::vector<MaterialData> m_materialDataAnimation;
 
 		void updateAnimation();
 
@@ -90,13 +90,14 @@ namespace Prisma {
 		unsigned int m_indirectCopySSBOId = 22;
 		unsigned int m_sizeLocation;
 
-		std::shared_ptr<Prisma::Shader> m_shader;
+		std::shared_ptr<Shader> m_shader;
 
 		void sort();
 
-		std::shared_ptr<Prisma::SSBO> m_ssboStatus;
-		std::shared_ptr<Prisma::SSBO> m_ssboStatusCopy;
-		std::shared_ptr<Prisma::SSBO> m_ssboStatusAnimation;
+		std::shared_ptr<SSBO> m_ssboStatus;
+		std::shared_ptr<SSBO> m_ssboStatusCopy;
+		std::shared_ptr<SSBO> m_ssboStatusAnimation;
+
 	public:
 		void load();
 
@@ -117,10 +118,9 @@ namespace Prisma {
 		void update();
 		void updateSize();
 		void updateModels();
-        void updateTextureSize();
+		void updateTextureSize();
 		void updateStatus();
 
-        MeshIndirect();
-    };
-
+		MeshIndirect();
+	};
 }

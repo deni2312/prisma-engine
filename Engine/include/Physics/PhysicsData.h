@@ -30,7 +30,8 @@ using namespace JPH;
 // If you want your code to compile using single or double precision write 0.0_r to get a Real value that compiles to double or float depending if JPH_DOUBLE_PRECISION is set or not.
 using namespace JPH::literals;
 
-namespace Prisma {
+namespace Prisma
+{
 	namespace Layers
 	{
 		static constexpr ObjectLayer NON_MOVING = 0;
@@ -42,7 +43,7 @@ namespace Prisma {
 	class ObjectLayerPairFilterImpl : public ObjectLayerPairFilter
 	{
 	public:
-		virtual bool					ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
+		bool ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
 		{
 			switch (inObject1)
 			{
@@ -81,38 +82,39 @@ namespace Prisma {
 			mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
 		}
 
-		virtual uint					GetNumBroadPhaseLayers() const override
+		uint GetNumBroadPhaseLayers() const override
 		{
 			return BroadPhaseLayers::NUM_LAYERS;
 		}
 
-		virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const override
+		BroadPhaseLayer GetBroadPhaseLayer(ObjectLayer inLayer) const override
 		{
 			JPH_ASSERT(inLayer < Layers::NUM_LAYERS);
 			return mObjectToBroadPhase[inLayer];
 		}
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
-		virtual const char* GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
+		const char* GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
 		{
-			switch ((BroadPhaseLayer::Type)inLayer)
+			switch (static_cast<BroadPhaseLayer::Type>(inLayer))
 			{
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	return "NON_MOVING";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		return "MOVING";
-			default:													JPH_ASSERT(false); return "INVALID";
+			case static_cast<BroadPhaseLayer::Type>(BroadPhaseLayers::NON_MOVING): return "NON_MOVING";
+			case static_cast<BroadPhaseLayer::Type>(BroadPhaseLayers::MOVING): return "MOVING";
+			default: JPH_ASSERT(false);
+				return "INVALID";
 			}
 		}
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
 
 	private:
-		BroadPhaseLayer					mObjectToBroadPhase[Layers::NUM_LAYERS];
+		BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS];
 	};
 
 	/// Class that determines if an object layer can collide with a broadphase layer
 	class ObjectVsBroadPhaseLayerFilterImpl : public ObjectVsBroadPhaseLayerFilter
 	{
 	public:
-		virtual bool				ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
+		bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
 		{
 			switch (inLayer1)
 			{
@@ -132,51 +134,61 @@ namespace Prisma {
 	{
 	public:
 		// See: ContactListener
-		virtual ValidateResult	OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset, const CollideShapeResult& inCollisionResult) override
+		ValidateResult OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset,
+		                                 const CollideShapeResult& inCollisionResult) override
 		{
-
 			// Allows you to ignore a contact before it is created (using layers to not make objects collide is cheaper!)
 			return ValidateResult::AcceptAllContactsForThisBodyPair;
 		}
 
-		virtual void OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
+		void OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold,
+		                    ContactSettings& ioSettings) override
 		{
-			auto physicsComponent = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[inBody1.GetUserData()]);
-			if (physicsComponent && physicsComponent->onCollisionEnter()) {
+			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[inBody1.GetUserData()]);
+			if (physicsComponent && physicsComponent->onCollisionEnter())
+			{
 				auto addComponent = physicsComponent->onCollisionEnter();
 				addComponent(inBody2);
 			}
-			auto physicsComponent2 = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[inBody2.GetUserData()]);
-			if (physicsComponent2 && physicsComponent2->onCollisionEnter()) {
+			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[inBody2.GetUserData()]);
+			if (physicsComponent2 && physicsComponent2->onCollisionEnter())
+			{
 				auto addComponent = physicsComponent2->onCollisionEnter();
 				addComponent(inBody1);
 			}
 		}
 
-		virtual void OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
+		void OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold,
+		                        ContactSettings& ioSettings) override
 		{
-			auto physicsComponent = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[inBody1.GetUserData()]);
-			if (physicsComponent && physicsComponent->onCollisionStay()) {
+			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[inBody1.GetUserData()]);
+			if (physicsComponent && physicsComponent->onCollisionStay())
+			{
 				auto stayComponent = physicsComponent->onCollisionStay();
 				stayComponent(inBody2);
 			}
-			auto physicsComponent2 = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[inBody2.GetUserData()]);
-			if (physicsComponent2 && physicsComponent2->onCollisionStay()) {
+			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[inBody2.GetUserData()]);
+			if (physicsComponent2 && physicsComponent2->onCollisionStay())
+			{
 				auto stayComponent = physicsComponent2->onCollisionStay();
 				stayComponent(inBody1);
 			}
 		}
 
-		virtual void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
+		void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
 		{
-			auto physicsComponent = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody1ID())]);
-			if (physicsComponent && physicsComponent->onCollisionExit()) {
+			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[Physics::getInstance().
+				physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody1ID())]);
+			if (physicsComponent && physicsComponent->onCollisionExit())
+			{
 				auto removeComponent = physicsComponent->onCollisionExit();
 				removeComponent(inSubShapePair.GetBody2ID());
 			}
 
-			auto physicsComponent2 = dynamic_cast<Prisma::PhysicsMeshComponent*>(sceneComponents[Prisma::Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody2ID())]);
-			if (physicsComponent2 && physicsComponent2->onCollisionExit()) {
+			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[Physics::getInstance().
+				physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody2ID())]);
+			if (physicsComponent2 && physicsComponent2->onCollisionExit())
+			{
 				auto removeComponent2 = physicsComponent2->onCollisionExit();
 				removeComponent2(inSubShapePair.GetBody1ID());
 			}
@@ -187,14 +199,12 @@ namespace Prisma {
 	class MyBodyActivationListener : public BodyActivationListener
 	{
 	public:
-		virtual void OnBodyActivated(const BodyID& inBodyID, uint64 inBodyUserData) override
+		void OnBodyActivated(const BodyID& inBodyID, uint64 inBodyUserData) override
 		{
-
 		}
 
-		virtual void OnBodyDeactivated(const BodyID& inBodyID, uint64 inBodyUserData) override
+		void OnBodyDeactivated(const BodyID& inBodyID, uint64 inBodyUserData) override
 		{
-
 		}
 	};
 }

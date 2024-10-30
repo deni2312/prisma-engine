@@ -16,32 +16,32 @@ namespace Prisma
 		float padding;
 	};
 
-	class MaterialComponent : public Prisma::Component
+	class MaterialComponent : public Component
 	{
 	public:
 		void ui() override;
 
 		void update() override;
 
-		void diffuse(std::vector<Prisma::Texture> diffuse);
+		void diffuse(std::vector<Texture> diffuse);
 
-		const std::vector<Prisma::Texture>& diffuse() const;
+		const std::vector<Texture>& diffuse() const;
 
-		void normal(std::vector<Prisma::Texture> normal);
+		void normal(std::vector<Texture> normal);
 
-		const std::vector<Prisma::Texture>& normal() const;
+		const std::vector<Texture>& normal() const;
 
-		void roughness_metalness(std::vector<Prisma::Texture> roughness_metalness);
+		void roughness_metalness(std::vector<Texture> roughness_metalness);
 
-		const std::vector<Prisma::Texture>& roughness_metalness() const;
+		const std::vector<Texture>& roughness_metalness() const;
 
-		void specular(std::vector<Prisma::Texture> specular);
+		void specular(std::vector<Texture> specular);
 
-		const std::vector<Prisma::Texture>& specular() const;
+		const std::vector<Texture>& specular() const;
 
-		void ambientOcclusion(std::vector<Prisma::Texture> ambientOcclusion);
+		void ambientOcclusion(std::vector<Texture> ambientOcclusion);
 
-		const std::vector<Prisma::Texture>& ambientOcclusion() const;
+		const std::vector<Texture>& ambientOcclusion() const;
 
 		unsigned int material_id();
 
@@ -56,11 +56,11 @@ namespace Prisma
 		bool transparent();
 
 	private:
-		std::vector<Prisma::Texture> m_diffuse;
-		std::vector<Prisma::Texture> m_normal;
-		std::vector<Prisma::Texture> m_roughness_metalness;
-		std::vector<Prisma::Texture> m_specular;
-		std::vector<Prisma::Texture> m_ambientOcclusion;
+		std::vector<Texture> m_diffuse;
+		std::vector<Texture> m_normal;
+		std::vector<Texture> m_roughness_metalness;
+		std::vector<Texture> m_specular;
+		std::vector<Texture> m_ambientOcclusion;
 
 		std::shared_ptr<std::string> m_diffuseName;
 		std::shared_ptr<std::string> m_normalName;

@@ -10,15 +10,15 @@
 #include "../../Engine/include/SceneObjects/Mesh.h"
 #include "../../Engine/include/GlobalData/InstanceData.h"
 
-namespace Prisma {
+namespace Prisma
+{
+	class PixelCapture : public InstanceData<PixelCapture>
+	{
+	public:
+		PixelCapture();
+		std::shared_ptr<Mesh> capture(glm::vec2 position);
 
-    class PixelCapture : public InstanceData<PixelCapture>{
-    public:
-        PixelCapture();
-        std::shared_ptr<Prisma::Mesh> capture(glm::vec2 position);
-
-    private:
-        std::shared_ptr<Prisma::FBO> m_fbo;
-    };
+	private:
+		std::shared_ptr<FBO> m_fbo;
+	};
 }
-

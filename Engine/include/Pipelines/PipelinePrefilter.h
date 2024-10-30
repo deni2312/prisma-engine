@@ -10,17 +10,17 @@
 #include <memory>
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma {
-	class PipelinePrefilter : public InstanceData<PipelinePrefilter>{
+namespace Prisma
+{
+	class PipelinePrefilter : public InstanceData<PipelinePrefilter>
+	{
 	public:
-
-		void texture(Prisma::Texture texture);
+		void texture(Texture texture);
 
 		uint64_t id() const;
-        PipelinePrefilter();
+		PipelinePrefilter();
 
-    private:
-
+	private:
 		uint64_t m_id;
 
 		std::shared_ptr<Shader> m_shader;

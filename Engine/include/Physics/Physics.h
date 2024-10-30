@@ -9,47 +9,50 @@
 #include "DrawDebugger.h"
 
 
-namespace Prisma {
-    class Physics : public InstanceData<Physics>{
-    public:
+namespace Prisma
+{
+	class Physics : public InstanceData<Physics>
+	{
+	public:
+		enum Collider
+		{
+			BOX_COLLIDER,
+			SPHERE_COLLIDER,
+			LANDSCAPE_COLLIDER,
+			CONVEX_COLLIDER
+		};
 
-        enum Collider{
-            BOX_COLLIDER,
-            SPHERE_COLLIDER,
-            LANDSCAPE_COLLIDER,
-            CONVEX_COLLIDER
-        };
+		struct CollisionData
+		{
+			Collider collider;
+			float mass = 0.0f;
+			bool dynamic = false;
+		};
 
-        struct CollisionData{
-            Collider collider;
-            float mass = 0.0f;
-            bool dynamic=false;
-        };
+		struct LandscapeData
+		{
+			JPH::Array<float> landscape;
+			JPH::Vec3 offset;
+			JPH::Vec3 scale;
+			float width;
+		};
 
-        struct LandscapeData {
-            JPH::Array<float> landscape;
-            JPH::Vec3 offset;
-            JPH::Vec3 scale;
-            float width;
-        };
+		Physics();
+		void update(float delta);
 
-        Physics();
-        void update(float delta);
+		JPH::BodyInterface& bodyInterface();
 
-        JPH::BodyInterface& bodyInterface();
+		JPH::PhysicsSystem& physicsSystem();
 
-        JPH::PhysicsSystem& physicsSystem();
+		void drawDebug();
 
-        void drawDebug();
+		void debug(bool debug);
 
-        void debug(bool debug);
+		bool debug();
 
-        bool debug();
-
-    private:
-        DrawDebugger* m_drawDebugger;
-        JPH::BodyManager::DrawSettings m_settings;
-        bool m_debug;
-
-    };
+	private:
+		DrawDebugger* m_drawDebugger;
+		JPH::BodyManager::DrawSettings m_settings;
+		bool m_debug;
+	};
 }
