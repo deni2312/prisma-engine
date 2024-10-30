@@ -172,7 +172,8 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 		{
 			auto length = (aabbData.max - aabbData.min) * 0.5f;
 			auto boxShape = new BoxShape(JtoVec3(length));
-			shape = new ScaledShape(boxShape, JtoVec3(scale));
+			auto result = boxShape->ScaleShape(JtoVec3(scale));
+			shape = result.Get();
 			aabbSettings = BodyCreationSettings(shape, JtoVec3(translation), JtoQuat(rotation),
 			                                    m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static,
 			                                    m_collisionData.dynamic
@@ -184,7 +185,8 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	case Physics::Collider::SPHERE_COLLIDER:
 		{
 			auto sphereShape = new SphereShape(1.0);
-			shape = new ScaledShape(sphereShape, JtoVec3(scale));
+			auto result = sphereShape->ScaleShape(JtoVec3(scale));
+			shape = result.Get();
 			aabbSettings = BodyCreationSettings(shape, JtoVec3(translation), JtoQuat(rotation),
 			                                    m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static,
 			                                    m_collisionData.dynamic

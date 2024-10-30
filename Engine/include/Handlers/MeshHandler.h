@@ -35,9 +35,6 @@ namespace Prisma
 			glm::vec2 padding;
 		};
 
-		static constexpr unsigned int VIEW_OFFSET = 0;
-		static constexpr unsigned int PROJECTION_OFFSET = sizeof(glm::mat4);
-
 		std::shared_ptr<UBOData> data() const;
 		std::shared_ptr<Ubo> ubo() const;
 		void updateCamera();

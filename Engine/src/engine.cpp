@@ -198,7 +198,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 			                                     settings.height),
 		                                     currentGlobalScene->camera->nearPlane(),
 		                                     currentGlobalScene->camera->farPlane());
-		MeshHandler::getInstance().ubo()->modifyData(MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4),
+		MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),
 		                                             value_ptr(currentProjection));
 	};
 	currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
@@ -206,7 +206,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 		                                     height),
 	                                     currentGlobalScene->camera->nearPlane(),
 	                                     currentGlobalScene->camera->farPlane());
-	MeshHandler::getInstance().ubo()->modifyData(MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4),
+	MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),
 	                                             value_ptr(currentProjection));
 	data->callbackHandler = callbackHandler;
 	PrismaFunc::getInstance().setCallback(callbackHandler);
