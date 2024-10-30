@@ -14,14 +14,21 @@
 
 void Prisma::MeshIndirect::sort() const
 {
-	m_shader->use();
-	m_shader->dispatchCompute({1, 1, 1});
-	m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+	auto& meshes = currentGlobalScene->meshes;
+	if (!meshes.empty())
+	{
+		m_shader->use();
+		m_shader->dispatchCompute({1, 1, 1});
+		m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+	}
 }
 
 void Prisma::MeshIndirect::updateStatusShader() const
 {
 	m_statusShader->use();
+	m_statusShader->setVec2(m_sizeLocation, {
+		                        currentGlobalScene->meshes.size(), currentGlobalScene->animateMeshes.size()
+	                        });
 	m_statusShader->dispatchCompute({1, 1, 1});
 	m_statusShader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
@@ -134,7 +141,6 @@ void Prisma::MeshIndirect::update()
 void Prisma::MeshIndirect::updateSize()
 {
 	auto& meshes = currentGlobalScene->meshes;
-
 	if (!meshes.empty())
 	{
 		//CLEAR DATA
@@ -350,6 +356,8 @@ Prisma::MeshIndirect::MeshIndirect()
 
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/compute.glsl");
 	m_statusShader = std::make_shared<Shader>("../../../Engine/Shaders/StatusPipeline/compute.glsl");
+	m_statusShader->use();
+	m_sizeLocation = m_statusShader->getUniformPosition("size");
 }
 
 void Prisma::MeshIndirect::updateAnimation()
