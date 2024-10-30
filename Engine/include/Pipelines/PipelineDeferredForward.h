@@ -27,6 +27,7 @@ namespace Prisma
 		std::shared_ptr<Shader> m_shaderD;
 		std::shared_ptr<Shader> m_shaderAnimate;
 		std::shared_ptr<Shader> m_shaderCompute;
+		std::shared_ptr<Shader> m_shaderForward;
 		unsigned int m_gBuffer;
 		uint64_t m_position;
 		uint64_t m_normal;
@@ -40,6 +41,8 @@ namespace Prisma
 		unsigned int m_transparentLocation;
 		std::shared_ptr<FBO> m_fbo;
 		std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
+		void showTransparencies(bool show);
+
 
 		std::shared_ptr<PipelineSSR> m_ssr;
 	};

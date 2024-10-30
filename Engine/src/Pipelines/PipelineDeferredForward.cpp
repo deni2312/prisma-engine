@@ -17,6 +17,8 @@
 #include "../../include/Postprocess/Postprocess.h"
 #include "../../include/engine.h"
 #include "../../include/Handlers/ComponentsHandler.h"
+#include "../../include/Pipelines/PipelineForward.h"
+#include "../../include/Pipelines/PipelineHandler.h"
 
 
 Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& width, const unsigned int& height,
@@ -119,6 +121,9 @@ Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& wid
 	m_shaderCompute->use();
 	m_transparentLocation = m_shaderCompute->getUniformPosition("transparent");
 
+	m_shaderForward = std::make_shared<Shader>("../../../Engine/Shaders/DeferredForwardPipeline/vertex.glsl",
+	                                           "../../../Engine/Shaders/DeferredForwardPipeline/fragment.glsl");
+
 	FBO::FBOData fboData;
 	fboData.width = m_width;
 	fboData.height = m_height;
@@ -132,10 +137,7 @@ Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& wid
 
 void Prisma::PipelineDeferredForward::render()
 {
-	m_shaderCompute->use();
-	m_shaderCompute->setBool(m_transparentLocation, true);
-	m_shaderCompute->dispatchCompute({1, 1, 1});
-	m_shaderCompute->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+	showTransparencies(false);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_shader->use();
@@ -165,13 +167,25 @@ void Prisma::PipelineDeferredForward::render()
 	glBlitFramebuffer(
 		0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
 	);
+
+	showTransparencies(true);
+
 	PipelineSkybox::getInstance().render();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_BLEND);
+	m_shaderForward->use();
+	MeshIndirect::getInstance().renderMeshes();
 
 	ComponentsHandler::getInstance().updateRender(m_fbo);
 	for (auto& sprite : currentGlobalScene->sprites)
 	{
 		sprite->render();
 	}
+
+	glDisable(GL_BLEND);
+
 	Physics::getInstance().drawDebug();
 
 	m_fbo->unbind();
@@ -205,4 +219,12 @@ void Prisma::PipelineDeferredForward::render()
 
 Prisma::PipelineDeferredForward::~PipelineDeferredForward()
 {
+}
+
+void Prisma::PipelineDeferredForward::showTransparencies(bool show)
+{
+	m_shaderCompute->use();
+	m_shaderCompute->setBool(m_transparentLocation, show);
+	m_shaderCompute->dispatchCompute({1, 1, 1});
+	m_shaderCompute->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }

@@ -25,7 +25,7 @@ struct MaterialData {
     vec2 roughness_metalness;
     vec2 specularMap;
     vec2 ambient_occlusion;
-    bool transparent;
+    int transparent;
     float padding;
 };
 
@@ -47,7 +47,7 @@ void main() {
         for (int i = 0; i < materialData.length(); i++) {
             if (status[i] > 0) {
                 if (transparent) {
-                    if (materialData[i].transparent) {
+                    if (materialData[i].transparent==1) {
                         instanceData[i].instanceCount = 1;
                     }
                     else {
@@ -55,7 +55,7 @@ void main() {
                     }
                 }
                 else {
-                    if (!materialData[i].transparent) {
+                    if (materialData[i].transparent==0) {
                         instanceData[i].instanceCount = 1;
                     }
                     else {

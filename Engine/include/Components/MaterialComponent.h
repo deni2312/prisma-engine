@@ -12,7 +12,7 @@ namespace Prisma
 		uint64_t roughness_metalness;
 		uint64_t specular;
 		uint64_t ambient_occlusion;
-		bool transparent;
+		int transparent;
 		float padding;
 	};
 
