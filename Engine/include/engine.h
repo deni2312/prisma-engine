@@ -12,20 +12,22 @@
 #include "GlobalData/EngineSettings.h"
 #include "../../GUI/include/ImGuiDebug.h"
 
-namespace Prisma {
-	class Engine : public InstanceData<Engine>{
+namespace Prisma
+{
+	class Engine : public InstanceData<Engine>
+	{
 	public:
-
 		bool run();
 
 		Engine();
 
 		void setCallback(std::shared_ptr<CallbackHandler> callbackHandler);
 		float fps();
-		void mainCamera(std::shared_ptr<Camera> camera);
+		void mainCamera(const std::shared_ptr<Camera>& camera);
 		void engineSettings(const Prisma::EngineSettings::Settings& pipeline);
 		Prisma::EngineSettings::Settings engineSettings() const;
-		std::shared_ptr<Prisma::Scene> getScene(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters);
+		std::shared_ptr<Prisma::Scene> getScene(const std::string& scene,
+		                                        Prisma::SceneLoader::SceneParameters sceneParameters);
 		void setUserEngine(std::shared_ptr<Prisma::UserData> userData);
 		std::shared_ptr<Prisma::UserData> getUserEngine();
 		void setGuiData(std::shared_ptr<Prisma::SceneHandler> guiData);

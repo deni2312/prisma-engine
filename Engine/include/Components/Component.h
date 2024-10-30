@@ -5,80 +5,79 @@
 #include "../SceneObjects/Node.h"
 #include "../Containers/FBO.h"
 
-namespace Prisma {
+namespace Prisma
+{
+	class Node;
 
-    class Node;
+	class Component
+	{
+	public:
+		struct ComponentList
+		{
+			std::vector<const char*> items;
+			int currentitem = 0;
+		};
 
-    class Component {
-    public:
+		enum class TYPES
+		{
+			INT,
+			FLOAT,
+			STRING,
+			BOOL,
+			STRINGLIST,
+			BUTTON,
+			VEC2,
+			VEC3
+		};
 
-        struct ComponentList {
-            std::vector<const char*> items;
-            int currentitem = 0;
-        };
+		using ComponentType = std::tuple<TYPES, std::string, void*>;
 
-        enum class TYPES{
-            INT,
-            FLOAT,
-            STRING,
-            BOOL,
-            STRINGLIST,
-            BUTTON,
-            VEC2,
-            VEC3
-        };
+		using ComponentTypeVector = std::vector<ComponentType>;
 
-        using ComponentType = std::tuple<TYPES,std::string,void*>;
+		virtual void ui();
 
-        using ComponentTypeVector = std::vector<ComponentType>;
+		virtual void start();
 
-        virtual void ui();
+		virtual void update();
 
-        virtual void start();
+		virtual void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0);
 
-        virtual void update();
+		virtual void updatePreRender(std::shared_ptr<Prisma::FBO> fbo = 0);
 
-        virtual void updateRender(std::shared_ptr<Prisma::FBO> fbo = 0);
+		virtual void destroy();
 
-        virtual void updatePreRender(std::shared_ptr<Prisma::FBO> fbo = 0);
+		void parent(Prisma::Node* parent);
 
-        virtual void destroy();
+		Prisma::Node* parent();
 
-        void parent(Prisma::Node* parent);
+		void isStart(bool start);
 
-        Prisma::Node* parent();
+		bool isStart() const;
 
-        void isStart(bool start);
+		void isUi(bool ui);
 
-        bool isStart() const;
+		bool isUi() const;
 
-        void isUi(bool ui);
+		void addGlobal(ComponentType globalVar);
 
-        bool isUi() const;
+		ComponentTypeVector globalVars();
 
-        void addGlobal(ComponentType globalVar);
+		void name(std::string name);
 
-        ComponentTypeVector globalVars();
+		std::string name();
 
-        void name(std::string name);
+		uint64_t uuid();
 
-        std::string name();
+		Component();
 
-        uint64_t uuid();
+		virtual ~Component();
 
-        Component();
-
-        virtual ~Component();
-
-    private:
-
-        Prisma::Node* m_parent = nullptr;
-        bool m_start=false;
-        bool m_ui = false;
-        ComponentTypeVector m_globalVars;
-        std::string m_name;
-        uint64_t m_uuid;
-    };
-
+	private:
+		Prisma::Node* m_parent = nullptr;
+		bool m_start = false;
+		bool m_ui = false;
+		ComponentTypeVector m_globalVars;
+		std::string m_name;
+		uint64_t m_uuid;
+	};
 }
-

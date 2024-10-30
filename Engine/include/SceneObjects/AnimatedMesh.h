@@ -6,53 +6,55 @@
 #include "../GlobalData/Defines.h"
 #include "../SceneData/Animator.h"
 
-namespace Prisma {
+namespace Prisma
+{
+	struct BoneInfo
+	{
+		int id;
+		glm::mat4 offset;
+	};
 
-    struct BoneInfo
-    {
-        int id;
-        glm::mat4 offset;
-    };
+	class Animator;
 
-    class Animator;
+	class AnimatedMesh : public Prisma::Mesh
+	{
+	public:
+		struct AnimateVertex
+		{
+			glm::vec3 position = glm::vec3(0, 0, 0);
+			glm::vec3 normal = glm::vec3(0, 0, 0);
+			glm::vec2 texCoords = glm::vec2(0, 0);
+			glm::vec3 tangent = glm::vec3(0, 0, 0);
+			glm::vec3 bitangent = glm::vec3(0, 0, 0);
+			int m_BoneIDs[MAX_BONE_INFLUENCE];
+			//weights from each bone
+			float m_Weights[MAX_BONE_INFLUENCE];
+		};
 
-    class AnimatedMesh : public Prisma::Mesh {
-    public:
+		struct AnimateVerticesData
+		{
+			std::vector<AnimateVertex> vertices;
+			std::vector<unsigned int> indices;
+		};
 
-        struct AnimateVertex{
-            glm::vec3 position = glm::vec3(0, 0, 0);
-            glm::vec3 normal = glm::vec3(0, 0, 0);
-            glm::vec2 texCoords = glm::vec2(0, 0);
-            glm::vec3 tangent = glm::vec3(0, 0, 0);
-            glm::vec3 bitangent = glm::vec3(0, 0, 0);
-            int m_BoneIDs[MAX_BONE_INFLUENCE];
-            //weights from each bone
-            float m_Weights[MAX_BONE_INFLUENCE];
-        };
+		virtual void computeAABB() override;
 
-        struct AnimateVerticesData{
-            std::vector<AnimateVertex> vertices;
-            std::vector<unsigned int> indices;
-        };
+		void loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices);
 
-        virtual void computeAABB() override;
+		std::shared_ptr<AnimateVerticesData> animateVerticesData();
 
-        void loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices);
+		std::map<std::string, Prisma::BoneInfo>& boneInfoMap();
+		int& boneInfoCounter();
 
-        std::shared_ptr<AnimateVerticesData> animateVerticesData();
+		void animator(std::shared_ptr<Animator> animator);
 
-        std::map<std::string, Prisma::BoneInfo>& boneInfoMap();
-        int& boneInfoCounter();
+		std::shared_ptr<Animator> animator();
 
-        void animator(std::shared_ptr<Animator> animator);
+	private:
+		std::map<std::string, Prisma::BoneInfo> m_BoneInfoMap;
+		std::shared_ptr<AnimateVerticesData> m_animateVertices;
+		std::shared_ptr<Animator> m_animator = nullptr;
 
-        std::shared_ptr<Animator> animator();
-
-    private:
-        std::map<std::string, Prisma::BoneInfo> m_BoneInfoMap;
-        std::shared_ptr<AnimateVerticesData> m_animateVertices;
-        std::shared_ptr<Animator> m_animator = nullptr;
-
-        int m_BoneCounter = 0;
-    };
+		int m_BoneCounter = 0;
+	};
 }

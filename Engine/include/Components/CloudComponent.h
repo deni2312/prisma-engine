@@ -10,8 +10,10 @@
 #include "../Containers/VAO.h"
 #include <chrono>
 
-namespace Prisma {
-	class CloudComponent : public Component{
+namespace Prisma
+{
+	class CloudComponent : public Component
+	{
 	public:
 		CloudComponent();
 
@@ -44,7 +46,9 @@ namespace Prisma {
 		GLuint m_downscalesq = 4 * 4;
 
 		std::shared_ptr<Prisma::SSBO> m_ssbo;
-		struct alignas(16) CloudSSBO {
+
+		struct alignas(16) CloudSSBO
+		{
 			// Cloud model
 			float m_coverageScale = 0.45f;
 			float m_cloudType = 0.8f;
@@ -135,6 +139,5 @@ namespace Prisma {
 		std::shared_ptr<Prisma::Shader> m_perlinWorleyShader;
 		std::shared_ptr<Prisma::Shader> m_weatherShader;
 		std::shared_ptr<Prisma::Shader> m_upscaleShader;
-
 	};
 }

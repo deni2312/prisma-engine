@@ -29,63 +29,62 @@ using namespace JPH;
 // If you want your code to compile using single or double precision write 0.0_r to get a Real value that compiles to double or float depending if JPH_DOUBLE_PRECISION is set or not.
 using namespace JPH::literals;
 
-namespace Prisma {
+namespace Prisma
+{
+	class PhysicsMeshComponent : public Prisma::Component
+	{
+	public:
+		PhysicsMeshComponent();
 
-    class PhysicsMeshComponent : public Prisma::Component {
-    public:
+		void ui() override;
 
-        PhysicsMeshComponent();
+		void update() override;
 
-        void ui() override;
+		virtual void destroy() override;
 
-        void update() override;
+		void collisionData(Prisma::Physics::CollisionData collisionData);
 
-        virtual void destroy() override;
+		void updateCollisionData();
 
-        void collisionData(Prisma::Physics::CollisionData collisionData);
+		Prisma::Physics::CollisionData collisionData();
 
-        void updateCollisionData();
+		void start() override;
 
-        Prisma::Physics::CollisionData collisionData();
+		BodyID& physicsId();
 
-        void start() override;
+		bool initPhysics();
 
-        BodyID& physicsId();
+		void onCollisionEnter(std::function<void(const Body&)> add);
 
-        bool initPhysics();
+		void onCollisionStay(std::function<void(const Body&)> stay);
 
-        void onCollisionEnter(std::function<void(const Body&)> add);
+		void onCollisionExit(std::function<void(const BodyID&)> remove);
 
-        void onCollisionStay(std::function<void(const Body&)> stay);
+		std::function<void(const Body&)> onCollisionEnter();
 
-        void onCollisionExit(std::function<void(const BodyID&)> remove);
+		std::function<void(const Body&)> onCollisionStay();
 
-        std::function<void(const Body&)> onCollisionEnter();
+		std::function<void(const BodyID&)> onCollisionExit();
 
-        std::function<void(const Body&)> onCollisionStay();
+		void landscapeData(const Prisma::Physics::LandscapeData& landscapeData);
 
-        std::function<void(const BodyID&)> onCollisionExit();
+	private:
+		ComponentList m_status;
+		std::function<void()> m_apply;
+		Prisma::Physics::CollisionData m_collisionData{};
+		btCollisionShape* m_shape = nullptr;
+		btRigidBody* m_body = nullptr;
+		void colliderDispatcher();
+		BodyCreationSettings getBodySettings();
+		BodyID m_physicsId;
+		bool m_initPhysics = false;
 
-        void landscapeData(const Prisma::Physics::LandscapeData& landscapeData);
+		Prisma::Physics::LandscapeData m_landscapeData;
 
-    private:
-        ComponentList m_status;
-        std::function<void()> m_apply;
-        Prisma::Physics::CollisionData m_collisionData{};
-        btCollisionShape *m_shape = nullptr;
-        btRigidBody *m_body = nullptr;
-        void colliderDispatcher();
-        BodyCreationSettings getBodySettings();
-        BodyID m_physicsId;
-        bool m_initPhysics = false;
+		const float m_minScale = 0.001;
 
-        Prisma::Physics::LandscapeData m_landscapeData;
-
-        const float minScale = 0.001;
-
-        std::function<void(const Body&)> m_add = nullptr;
-        std::function<void(const Body&)> m_stay = nullptr;
-        std::function<void(const BodyID&)> m_remove = nullptr;
-    };
-
+		std::function<void(const Body&)> m_add = nullptr;
+		std::function<void(const Body&)> m_stay = nullptr;
+		std::function<void(const BodyID&)> m_remove = nullptr;
+	};
 }

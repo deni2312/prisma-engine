@@ -26,199 +26,218 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../include/SceneData/SceneExporter.h"
 
-struct PrivateData {
-    Prisma::PipelineHandler pipelineHandler;
-    Prisma::Settings settings;
-    std::shared_ptr<Prisma::CallbackHandler> callbackHandler;
-    std::shared_ptr<Prisma::Camera> camera;
-    Prisma::SceneLoader::SceneParameters sceneParameters;
-    Prisma::EngineSettings::Settings engineSettings;
-    std::shared_ptr<Prisma::SceneHandler> sceneHandler;
-    std::shared_ptr<Prisma::UserData> userData;
-    std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
-    float fps;
-    bool debug;
+struct PrivateData
+{
+	Prisma::PipelineHandler pipelineHandler;
+	Prisma::Settings settings;
+	std::shared_ptr<Prisma::CallbackHandler> callbackHandler;
+	std::shared_ptr<Prisma::Camera> camera;
+	Prisma::SceneLoader::SceneParameters sceneParameters;
+	Prisma::EngineSettings::Settings engineSettings;
+	std::shared_ptr<Prisma::SceneHandler> sceneHandler;
+	std::shared_ptr<Prisma::UserData> userData;
+	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
+	float fps;
+	bool debug;
 };
 
 std::shared_ptr<PrivateData> data;
 
 Prisma::Engine::Engine()
 {
-    data = std::make_shared<PrivateData>();
+	data = std::make_shared<PrivateData>();
 
-    SettingsLoader::getInstance().load(DIR_DEFAULT_SETTINGS);
+	SettingsLoader::getInstance().load(DIR_DEFAULT_SETTINGS);
 
-    PrismaFunc::getInstance();
+	PrismaFunc::getInstance();
 
-    LightHandler::getInstance();
+	LightHandler::getInstance();
 
-    MeshIndirect::getInstance();
+	MeshIndirect::getInstance();
 
-    MeshHandler::getInstance();
+	MeshHandler::getInstance();
 
-    PrismaRender::getInstance();
+	PrismaRender::getInstance();
 
-    PipelineDiffuseIrradiance::getInstance();
+	PipelineDiffuseIrradiance::getInstance();
 
-    PipelineSkybox::getInstance();
+	PipelineSkybox::getInstance();
 
-    PipelinePrefilter::getInstance();
-    
-    Physics::getInstance();
+	PipelinePrefilter::getInstance();
 
-    Postprocess::getInstance();
+	Physics::getInstance();
 
-    AnimationHandler::getInstance();
-    
-    data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD;
+	Postprocess::getInstance();
 
-    data->engineSettings.ssr = false;
+	AnimationHandler::getInstance();
 
-    data->settings = SettingsLoader::getInstance().getSettings();
+	data->engineSettings.pipeline = Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD;
 
-    data->sceneHandler = std::make_shared<Prisma::SceneHandler>();
-    
-    currentGlobalScene = std::make_shared<Scene>();
+	data->engineSettings.ssr = false;
 
-    data->lastTime = std::chrono::high_resolution_clock::now();
+	data->settings = SettingsLoader::getInstance().getSettings();
 
-    data->sceneParameters.srgb = true;
+	data->sceneHandler = std::make_shared<Prisma::SceneHandler>();
 
-    data->fps = 0.0f;
+	currentGlobalScene = std::make_shared<Scene>();
 
-    data->debug = true;
+	data->lastTime = std::chrono::high_resolution_clock::now();
 
-    data->camera = std::make_shared<Camera>();
+	data->sceneParameters.srgb = true;
+
+	data->fps = 0.0f;
+
+	data->debug = true;
+
+	data->camera = std::make_shared<Camera>();
 }
-
 
 
 bool Prisma::Engine::run()
 {
-    initScene();
-    while (!PrismaFunc::getInstance().shouldClose()) {
-        if (data->camera && currentGlobalScene) {
-            auto currentTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
-            data->lastTime = currentTime;
-            data->fps = 1.0f / deltaTime.count();
-            PrismaFunc::getInstance().clear();
-            if (!data->debug) {
-                data->userData->update();
-                Prisma::ComponentsHandler::getInstance().updateStart();
-                Prisma::ComponentsHandler::getInstance().updateComponents();
-                Physics::getInstance().update(1.0f / (float)fps());
-            }
+	initScene();
+	while (!PrismaFunc::getInstance().shouldClose())
+	{
+		if (data->camera && currentGlobalScene)
+		{
+			auto currentTime = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
+			data->lastTime = currentTime;
+			data->fps = 1.0f / deltaTime.count();
+			PrismaFunc::getInstance().clear();
+			if (!data->debug)
+			{
+				data->userData->update();
+				Prisma::ComponentsHandler::getInstance().updateStart();
+				Prisma::ComponentsHandler::getInstance().updateComponents();
+				Physics::getInstance().update(1.0f / (float)fps());
+			}
 
-            data->sceneHandler->onBeginRender();
-            if (data->debug) {
-                Prisma::ComponentsHandler::getInstance().updateUi();
-            }
-            MeshHandler::getInstance().updateCamera();
-            MeshHandler::getInstance().updateFragment();
-            AnimationHandler::getInstance().updateAnimations();
-            MeshIndirect::getInstance().update();
-            LightHandler::getInstance().update();
+			data->sceneHandler->onBeginRender();
+			if (data->debug)
+			{
+				Prisma::ComponentsHandler::getInstance().updateUi();
+			}
+			MeshHandler::getInstance().updateCamera();
+			MeshHandler::getInstance().updateFragment();
+			AnimationHandler::getInstance().updateAnimations();
+			MeshIndirect::getInstance().update();
+			LightHandler::getInstance().update();
 
-            switch (data->engineSettings.pipeline) {
-                case Prisma::EngineSettings::Pipeline::FORWARD:
-                    data->pipelineHandler.forward()->render();
-                    break;
+			switch (data->engineSettings.pipeline)
+			{
+			case Prisma::EngineSettings::Pipeline::FORWARD:
+				data->pipelineHandler.forward()->render();
+				break;
 
-                case Prisma::EngineSettings::Pipeline::DEFERRED:
-                    data->pipelineHandler.deferred()->render();
-                    break;
-                case Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD:
-                    data->pipelineHandler.deferredForward()->render();
-                    break;
+			case Prisma::EngineSettings::Pipeline::DEFERRED:
+				data->pipelineHandler.deferred()->render();
+				break;
+			case Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD:
+				data->pipelineHandler.deferredForward()->render();
+				break;
+			}
 
-            }
+			Postprocess::getInstance().render();
 
-            Postprocess::getInstance().render();
+			data->sceneHandler->onEndRender();
 
-            data->sceneHandler->onEndRender();
-
-            PrismaFunc::getInstance().swapBuffers();
-        } else {
-            std::cerr << "Null camera or scene" << std::endl;
-            PrismaFunc::getInstance().closeWindow();
-        }
-    }
-    Prisma::GarbageCollector::getInstance().clear();
-    PrismaFunc::getInstance().destroy();
+			PrismaFunc::getInstance().swapBuffers();
+		}
+		else
+		{
+			std::cerr << "Null camera or scene" << std::endl;
+			PrismaFunc::getInstance().closeWindow();
+		}
+	}
+	Prisma::GarbageCollector::getInstance().clear();
+	PrismaFunc::getInstance().destroy();
 	return true;
 }
 
-void Prisma::Engine::setUserEngine(std::shared_ptr<Prisma::UserData> userData) {
-    data->userData = userData;
+void Prisma::Engine::setUserEngine(std::shared_ptr<Prisma::UserData> userData)
+{
+	data->userData = userData;
 }
 
 void Prisma::Engine::initScene()
 {
-    data->userData->start();
-    MeshHandler::getInstance().updateCluster();
-    if (data->pipelineHandler.initScene(data->sceneParameters)) {
-        
-    }
-    else {
-        std::cerr << "Null camera or scene" << std::endl;
-        PrismaFunc::getInstance().closeWindow();
-    }
+	data->userData->start();
+	MeshHandler::getInstance().updateCluster();
+	if (data->pipelineHandler.initScene(data->sceneParameters))
+	{
+	}
+	else
+	{
+		std::cerr << "Null camera or scene" << std::endl;
+		PrismaFunc::getInstance().closeWindow();
+	}
 }
 
 void Prisma::Engine::setGuiData(std::shared_ptr<Prisma::SceneHandler> guiData)
 {
-    data->sceneHandler = guiData;
+	data->sceneHandler = guiData;
 }
 
 void Prisma::Engine::engineSettings(const EngineSettings::Settings& engineSettings)
 {
-    data->engineSettings = engineSettings;
+	data->engineSettings = engineSettings;
 }
 
 Prisma::EngineSettings::Settings Prisma::Engine::engineSettings() const
 {
-    return data->engineSettings;
+	return data->engineSettings;
 }
 
 void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandler)
 {
-    callbackHandler->resize = [&](int width, int height) {
-        currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()), (float)data->settings.width / (float)data->settings.height, currentGlobalScene->camera->nearPlane(), currentGlobalScene->camera->farPlane());
-        MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4), glm::value_ptr(currentProjection));
-    };
-    currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()), (float)data->settings.width / (float)data->settings.height, currentGlobalScene->camera->nearPlane(), currentGlobalScene->camera->farPlane());
-    MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4), glm::value_ptr(currentProjection));
-    data->callbackHandler = callbackHandler;
-    Prisma::PrismaFunc::getInstance().setCallback(callbackHandler);
-}
-float Prisma::Engine::fps()
-{
-    return data->fps;
+	callbackHandler->resize = [&](int width, int height)
+	{
+		currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
+		                                     (float)data->settings.width / (float)data->settings.height,
+		                                     currentGlobalScene->camera->nearPlane(),
+		                                     currentGlobalScene->camera->farPlane());
+		MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4),
+		                                             glm::value_ptr(currentProjection));
+	};
+	currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
+	                                     (float)data->settings.width / (float)data->settings.height,
+	                                     currentGlobalScene->camera->nearPlane(),
+	                                     currentGlobalScene->camera->farPlane());
+	MeshHandler::getInstance().ubo()->modifyData(Prisma::MeshHandler::PROJECTION_OFFSET, sizeof(glm::mat4),
+	                                             glm::value_ptr(currentProjection));
+	data->callbackHandler = callbackHandler;
+	Prisma::PrismaFunc::getInstance().setCallback(callbackHandler);
 }
 
-void Prisma::Engine::mainCamera(std::shared_ptr<Camera> camera)
+float Prisma::Engine::fps()
 {
-    data->camera = camera;
-    currentGlobalScene->camera = data->camera;
+	return data->fps;
+}
+
+void Prisma::Engine::mainCamera(const std::shared_ptr<Camera>& camera)
+{
+	data->camera = camera;
+	currentGlobalScene->camera = data->camera;
 }
 
 void Prisma::Engine::debug(bool debug)
 {
-    data->debug = debug;
+	data->debug = debug;
 }
 
 std::shared_ptr<Prisma::UserData> Prisma::Engine::getUserEngine()
 {
-    return data->userData;
+	return data->userData;
 }
 
-std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters)
+std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(const std::string& scene,
+                                                        Prisma::SceneLoader::SceneParameters sceneParameters)
 {
-    SceneLoader sceneLoader;
-    data->sceneParameters = sceneParameters;
-    currentGlobalScene = sceneLoader.loadScene(scene,sceneParameters);
-    currentGlobalScene->camera = data->camera;
-    MeshIndirect::getInstance().init();
-    return currentGlobalScene;
+	SceneLoader sceneLoader;
+	data->sceneParameters = sceneParameters;
+	currentGlobalScene = sceneLoader.loadScene(scene, sceneParameters);
+	currentGlobalScene->camera = data->camera;
+	MeshIndirect::getInstance().init();
+	return currentGlobalScene;
 }
