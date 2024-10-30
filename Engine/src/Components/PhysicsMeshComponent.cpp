@@ -155,7 +155,6 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	glm::vec3 translation;
 	glm::vec3 skew;
 	glm::vec4 perspective;
-
 	decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
 
 	if (scale.x < m_minScale || scale.y < m_minScale || scale.z < m_minScale)
