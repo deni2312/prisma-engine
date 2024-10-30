@@ -12,14 +12,14 @@
 #include "../../include/GlobalData/CacheScene.h"
 
 
-void Prisma::MeshIndirect::sort()
+void Prisma::MeshIndirect::sort() const
 {
 	m_shader->use();
 	m_shader->dispatchCompute({1, 1, 1});
 	m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
-void Prisma::MeshIndirect::updateStatusShader()
+void Prisma::MeshIndirect::updateStatusShader() const
 {
 	m_statusShader->use();
 	m_statusShader->dispatchCompute({1, 1, 1});
@@ -51,29 +51,29 @@ void Prisma::MeshIndirect::init()
 	CacheScene::getInstance().updateSizes(true);
 }
 
-void Prisma::MeshIndirect::add(unsigned int add)
+void Prisma::MeshIndirect::add(const unsigned int add)
 {
 	m_cacheAdd.push_back(add);
 }
 
-void Prisma::MeshIndirect::remove(unsigned int remove)
+void Prisma::MeshIndirect::remove(const unsigned int remove)
 {
 	m_cacheRemove.push_back(remove);
 }
 
-void Prisma::MeshIndirect::addAnimate(unsigned int add)
+void Prisma::MeshIndirect::addAnimate(const unsigned int add)
 {
 	m_cacheAddAnimate.push_back(add);
 }
 
-void Prisma::MeshIndirect::removeAnimate(unsigned int remove)
+void Prisma::MeshIndirect::removeAnimate(const unsigned int remove)
 {
 	m_cacheRemoveAnimate.push_back(remove);
 }
 
-void Prisma::MeshIndirect::renderMeshes()
+void Prisma::MeshIndirect::renderMeshes() const
 {
-	if (currentGlobalScene->meshes.size() > 0)
+	if (!currentGlobalScene->meshes.empty())
 	{
 		m_vao->bind();
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
@@ -84,9 +84,9 @@ void Prisma::MeshIndirect::renderMeshes()
 	}
 }
 
-void Prisma::MeshIndirect::renderMeshesCopy()
+void Prisma::MeshIndirect::renderMeshesCopy() const
 {
-	if (currentGlobalScene->meshes.size() > 0)
+	if (!currentGlobalScene->meshes.empty())
 	{
 		m_vao->bind();
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
@@ -97,9 +97,9 @@ void Prisma::MeshIndirect::renderMeshesCopy()
 	}
 }
 
-void Prisma::MeshIndirect::renderAnimateMeshes()
+void Prisma::MeshIndirect::renderAnimateMeshes() const
 {
-	if (currentGlobalScene->animateMeshes.size() > 0)
+	if (!currentGlobalScene->animateMeshes.empty())
 	{
 		m_vaoAnimation->bind();
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
@@ -133,9 +133,9 @@ void Prisma::MeshIndirect::update()
 
 void Prisma::MeshIndirect::updateSize()
 {
-	auto meshes = currentGlobalScene->meshes;
+	auto& meshes = currentGlobalScene->meshes;
 
-	if (meshes.size() > 0)
+	if (!meshes.empty())
 	{
 		//CLEAR DATA
 		m_materialData.clear();
@@ -169,9 +169,9 @@ void Prisma::MeshIndirect::updateSize()
 		m_ssboIndices->resize(sizeof(unsigned int) * meshes.size());
 
 		std::vector<unsigned int> status;
-		for (int i = 0; i < meshes.size(); i++)
+		for (const auto& mesh : meshes)
 		{
-			status.push_back(meshes[i]->visible());
+			status.push_back(mesh->visible());
 		}
 		m_ssboStatusCopy->resize(sizeof(unsigned int) * status.size());
 		m_ssboStatusCopy->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
@@ -180,7 +180,7 @@ void Prisma::MeshIndirect::updateSize()
 		//GENERATE DATA TO SEND INDIRECT
 		m_vao->bind();
 
-		if (m_cacheRemove.size() > 0)
+		if (!m_cacheRemove.empty())
 		{
 			m_verticesData.vertices.clear();
 			m_verticesData.indices.clear();
@@ -209,32 +209,32 @@ void Prisma::MeshIndirect::updateSize()
 		uint64_t currentVboCache = vboCache;
 		uint64_t currentEboCache = eboCache;
 		// PUSH VERTICES
-		for (int i = 0; i < m_cacheAdd.size(); i++)
+		for (unsigned int i : m_cacheAdd)
 		{
-			sizeVbo += meshes[m_cacheAdd[i]]->verticesData().vertices.size();
+			sizeVbo += meshes[i]->verticesData().vertices.size();
 			m_verticesData.vertices.insert(
 				m_verticesData.vertices.begin() + currentVboCache,
-				meshes[m_cacheAdd[i]]->verticesData().vertices.begin(),
-				meshes[m_cacheAdd[i]]->verticesData().vertices.end()
+				meshes[i]->verticesData().vertices.begin(),
+				meshes[i]->verticesData().vertices.end()
 			);
 			// Update the current position in the VBO cache
-			currentVboCache += meshes[m_cacheAdd[i]]->verticesData().vertices.size();
+			currentVboCache += meshes[i]->verticesData().vertices.size();
 		}
 
 		// PUSH INDICES
-		for (int i = 0; i < m_cacheAdd.size(); i++)
+		for (unsigned int i : m_cacheAdd)
 		{
-			sizeEbo += meshes[m_cacheAdd[i]]->verticesData().indices.size();
+			sizeEbo += meshes[i]->verticesData().indices.size();
 			m_verticesData.indices.insert(
 				m_verticesData.indices.begin() + currentEboCache,
-				meshes[m_cacheAdd[i]]->verticesData().indices.begin(),
-				meshes[m_cacheAdd[i]]->verticesData().indices.end()
+				meshes[i]->verticesData().indices.begin(),
+				meshes[i]->verticesData().indices.end()
 			);
 			// Update the current position in the EBO cache
-			currentEboCache += meshes[m_cacheAdd[i]]->verticesData().indices.size();
+			currentEboCache += meshes[i]->verticesData().indices.size();
 		}
 
-		if (m_cacheAdd.size() > 0)
+		if (!m_cacheAdd.empty())
 		{
 			//GENERATE CACHE DATA 
 
@@ -303,7 +303,7 @@ void Prisma::MeshIndirect::updateSize()
 	updateAnimation();
 }
 
-void Prisma::MeshIndirect::updateModels()
+void Prisma::MeshIndirect::updateModels() const
 {
 	std::vector<glm::mat4> models;
 	for (const auto& model : currentGlobalScene->meshes)
@@ -354,8 +354,8 @@ Prisma::MeshIndirect::MeshIndirect()
 
 void Prisma::MeshIndirect::updateAnimation()
 {
-	auto meshes = currentGlobalScene->animateMeshes;
-	if (meshes.size() > 0)
+	auto& meshes = currentGlobalScene->animateMeshes;
+	if (!meshes.empty())
 	{
 		//CLEAR DATA
 		m_materialDataAnimation.clear();
@@ -386,9 +386,9 @@ void Prisma::MeshIndirect::updateAnimation()
 		                                    m_materialDataAnimation.data());
 
 		std::vector<unsigned int> status;
-		for (int i = 0; i < meshes.size(); i++)
+		for (const auto& mesh : meshes)
 		{
-			status.push_back(meshes[i]->visible());
+			status.push_back(mesh->visible());
 		}
 		m_ssboStatusAnimation->resize(sizeof(unsigned int) * status.size());
 		m_ssboStatusAnimation->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
@@ -396,7 +396,7 @@ void Prisma::MeshIndirect::updateAnimation()
 		//GENERATE DATA TO SEND INDIRECT
 		m_vaoAnimation->bind();
 
-		if (m_cacheRemoveAnimate.size() > 0)
+		if (!m_cacheRemoveAnimate.empty())
 		{
 			m_verticesDataAnimation.vertices.clear();
 			m_verticesDataAnimation.indices.clear();
@@ -428,32 +428,32 @@ void Prisma::MeshIndirect::updateAnimation()
 		uint64_t currentEboCache = eboCache;
 
 		// PUSH VERTICES
-		for (int i = 0; i < m_cacheAddAnimate.size(); i++)
+		for (unsigned int i : m_cacheAddAnimate)
 		{
-			sizeVbo += meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.size();
+			sizeVbo += meshes[i]->animateVerticesData()->vertices.size();
 			m_verticesDataAnimation.vertices.insert(
 				m_verticesDataAnimation.vertices.begin() + currentVboCache,
-				meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.begin(),
-				meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.end()
+				meshes[i]->animateVerticesData()->vertices.begin(),
+				meshes[i]->animateVerticesData()->vertices.end()
 			);
 			// Update the current position in the VBO cache
-			currentVboCache += meshes[m_cacheAddAnimate[i]]->animateVerticesData()->vertices.size();
+			currentVboCache += meshes[i]->animateVerticesData()->vertices.size();
 		}
 
 		// PUSH INDICES
-		for (int i = 0; i < m_cacheAddAnimate.size(); i++)
+		for (unsigned int i : m_cacheAddAnimate)
 		{
-			sizeEbo += meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.size();
+			sizeEbo += meshes[i]->animateVerticesData()->indices.size();
 			m_verticesDataAnimation.indices.insert(
 				m_verticesDataAnimation.indices.begin() + currentEboCache,
-				meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.begin(),
-				meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.end()
+				meshes[i]->animateVerticesData()->indices.begin(),
+				meshes[i]->animateVerticesData()->indices.end()
 			);
 			// Update the current position in the EBO cache
-			currentEboCache += meshes[m_cacheAddAnimate[i]]->animateVerticesData()->indices.size();
+			currentEboCache += meshes[i]->animateVerticesData()->indices.size();
 		}
 
-		if (m_cacheAddAnimate.size() > 0)
+		if (!m_cacheAddAnimate.empty())
 		{
 			//GENERATE CACHE DATA 
 
@@ -528,7 +528,7 @@ void Prisma::MeshIndirect::updateAnimation()
 void Prisma::MeshIndirect::updateTextureSize()
 {
 	m_materialData.clear();
-	auto meshes = currentGlobalScene->meshes;
+	auto& meshes = currentGlobalScene->meshes;
 	for (auto material : meshes)
 	{
 		m_materialData.push_back({
@@ -542,7 +542,7 @@ void Prisma::MeshIndirect::updateTextureSize()
 	m_ssboMaterialCopy->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
 
 	m_materialDataAnimation.clear();
-	auto meshesAnimation = currentGlobalScene->animateMeshes;
+	auto& meshesAnimation = currentGlobalScene->animateMeshes;
 	for (auto material : meshesAnimation)
 	{
 		m_materialDataAnimation.push_back({
@@ -556,15 +556,15 @@ void Prisma::MeshIndirect::updateTextureSize()
 	                                    m_materialDataAnimation.data());
 }
 
-void Prisma::MeshIndirect::updateStatus()
+void Prisma::MeshIndirect::updateStatus() const
 {
-	auto meshes = currentGlobalScene->meshes;
+	auto& meshes = currentGlobalScene->meshes;
 	if (!meshes.empty())
 	{
 		std::vector<unsigned int> status;
-		for (int i = 0; i < meshes.size(); i++)
+		for (const auto& mesh : meshes)
 		{
-			status.push_back(meshes[i]->visible());
+			status.push_back(mesh->visible());
 		}
 		m_ssboStatusCopy->resize(sizeof(unsigned int) * status.size());
 		m_ssboStatusCopy->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
@@ -577,9 +577,9 @@ void Prisma::MeshIndirect::updateStatus()
 	if (!animateMeshes.empty())
 	{
 		std::vector<unsigned int> status;
-		for (int i = 0; i < animateMeshes.size(); i++)
+		for (const auto& animateMesh : animateMeshes)
 		{
-			status.push_back(animateMeshes[i]->visible());
+			status.push_back(animateMesh->visible());
 		}
 		m_ssboStatusAnimation->resize(sizeof(unsigned int) * status.size());
 		m_ssboStatusAnimation->modifyData(0, sizeof(unsigned int) * status.size(), status.data());

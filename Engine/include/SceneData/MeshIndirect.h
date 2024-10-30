@@ -92,8 +92,8 @@ namespace Prisma
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_statusShader;
 
-		void sort();
-		void updateStatusShader();
+		void sort() const;
+		void updateStatusShader() const;
 
 		std::shared_ptr<SSBO> m_ssboStatus;
 		std::shared_ptr<SSBO> m_ssboStatusCopy;
@@ -112,15 +112,15 @@ namespace Prisma
 
 		void removeAnimate(unsigned int remove);
 
-		void renderMeshes();
-		void renderMeshesCopy();
-		void renderAnimateMeshes();
+		void renderMeshes() const;
+		void renderMeshesCopy() const;
+		void renderAnimateMeshes() const;
 
 		void update();
 		void updateSize();
-		void updateModels();
+		void updateModels() const;
 		void updateTextureSize();
-		void updateStatus();
+		void updateStatus() const;
 
 		MeshIndirect();
 	};
