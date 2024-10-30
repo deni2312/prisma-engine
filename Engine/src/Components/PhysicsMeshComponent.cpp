@@ -67,7 +67,7 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher()
 	auto mesh = dynamic_cast<Mesh*>(parent());
 	if (mesh)
 	{
-		auto& bodySettings = getBodySettings();
+		auto bodySettings = getBodySettings();
 		if (!m_initPhysics)
 		{
 			m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
@@ -170,7 +170,7 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	{
 	case Physics::Collider::BOX_COLLIDER:
 		{
-			auto length = (aabbData.max - aabbData.min) * 0.5f;
+			auto length = glm::abs((aabbData.max - aabbData.min) * 0.5f);
 			auto boxShape = new BoxShape(JtoVec3(length));
 			auto result = boxShape->ScaleShape(JtoVec3(scale));
 			shape = result.Get();
