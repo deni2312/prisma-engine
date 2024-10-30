@@ -88,11 +88,12 @@ namespace Prisma
 		unsigned int m_indirectSSBOId = 18;
 		unsigned int m_indirectAnimationSSBOId = 19;
 		unsigned int m_indirectCopySSBOId = 22;
-		unsigned int m_sizeLocation;
 
 		std::shared_ptr<Shader> m_shader;
+		std::shared_ptr<Shader> m_statusShader;
 
 		void sort();
+		void updateStatusShader();
 
 		std::shared_ptr<SSBO> m_ssboStatus;
 		std::shared_ptr<SSBO> m_ssboStatusCopy;

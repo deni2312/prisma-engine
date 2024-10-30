@@ -15,9 +15,15 @@
 void Prisma::MeshIndirect::sort()
 {
 	m_shader->use();
-	m_shader->setInt(m_sizeLocation, currentGlobalScene->meshes.size());
 	m_shader->dispatchCompute({1, 1, 1});
 	m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+}
+
+void Prisma::MeshIndirect::updateStatusShader()
+{
+	m_statusShader->use();
+	m_statusShader->dispatchCompute({1, 1, 1});
+	m_statusShader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void Prisma::MeshIndirect::load()
@@ -343,8 +349,7 @@ Prisma::MeshIndirect::MeshIndirect()
 	m_ssboMaterialAnimation = std::make_shared<SSBO>(7);
 
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/compute.glsl");
-	m_shader->use();
-	m_sizeLocation = m_shader->getUniformPosition("size");
+	m_statusShader = std::make_shared<Shader>("../../../Engine/Shaders/StatusPipeline/compute.glsl");
 }
 
 void Prisma::MeshIndirect::updateAnimation()
@@ -554,7 +559,7 @@ void Prisma::MeshIndirect::updateTextureSize()
 void Prisma::MeshIndirect::updateStatus()
 {
 	auto meshes = currentGlobalScene->meshes;
-	if (meshes.size() > 0)
+	if (!meshes.empty())
 	{
 		std::vector<unsigned int> status;
 		for (int i = 0; i < meshes.size(); i++)
@@ -564,68 +569,20 @@ void Prisma::MeshIndirect::updateStatus()
 		m_ssboStatusCopy->resize(sizeof(unsigned int) * status.size());
 		m_ssboStatusCopy->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
 		m_ssboStatus->resize(sizeof(unsigned int) * status.size());
-
-		//BIND INDIRECT DRAW BUFFER AND SET OFFSETS
-		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
-
-		m_currentIndex = 0;
-		m_currentVertex = 0;
-		m_drawCommands.clear();
-		for (const auto& mesh : meshes)
-		{
-			const auto& indices = mesh->verticesData().indices;
-			const auto& vertices = mesh->verticesData().vertices;
-			DrawElementsIndirectCommand command{};
-			command.count = static_cast<GLuint>(indices.size());
-			command.instanceCount = mesh->visible();
-			command.firstIndex = m_currentIndex;
-			command.baseVertex = m_currentVertex;
-			command.baseInstance = 0;
-
-			m_drawCommands.push_back(command);
-			m_currentIndex = m_currentIndex + indices.size();
-			m_currentVertex = m_currentVertex + vertices.size();
-		}
-		glBindBuffer(GL_ARRAY_BUFFER, m_indirectDrawCopy);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectCopySSBOId, m_indirectDrawCopy);
-		// Upload the draw commands to the buffer
-		glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand),
-		             m_drawCommands.data(), GL_DYNAMIC_DRAW);
-
-		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
-		glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
-		// Upload the draw commands to the buffer
-		glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), nullptr,
-		             GL_DYNAMIC_DRAW);
+		updateStatusShader();
 	}
-
 	auto animateMeshes = currentGlobalScene->animateMeshes;
 
-	//BIND INDIRECT DRAW BUFFER AND SET OFFSETS
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
 
-	m_currentIndexAnimation = 0;
-	m_currentVertexAnimation = 0;
-	m_drawCommandsAnimation.clear();
-	for (const auto& mesh : animateMeshes)
+	if (!animateMeshes.empty())
 	{
-		const auto& indices = mesh->animateVerticesData()->indices;
-		const auto& vertices = mesh->animateVerticesData()->vertices;
-		DrawElementsIndirectCommand command{};
-		command.count = static_cast<GLuint>(indices.size());
-		command.instanceCount = mesh->visible();
-		command.firstIndex = m_currentIndexAnimation;
-		command.baseVertex = m_currentVertexAnimation;
-		command.baseInstance = 0;
-
-		m_drawCommandsAnimation.push_back(command);
-		m_currentIndexAnimation = m_currentIndexAnimation + indices.size();
-		m_currentVertexAnimation = m_currentVertexAnimation + vertices.size();
+		std::vector<unsigned int> status;
+		for (int i = 0; i < animateMeshes.size(); i++)
+		{
+			status.push_back(animateMeshes[i]->visible());
+		}
+		m_ssboStatusAnimation->resize(sizeof(unsigned int) * status.size());
+		m_ssboStatusAnimation->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
+		updateStatusShader();
 	}
-	glBindBuffer(GL_ARRAY_BUFFER, m_indirectDrawAnimation);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectAnimationSSBOId, m_indirectDrawAnimation);
-	// Upload the draw commands to the buffer
-	glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommandsAnimation.size() * sizeof(DrawElementsIndirectCommand),
-	             m_drawCommandsAnimation.data(), GL_DYNAMIC_DRAW);
 }

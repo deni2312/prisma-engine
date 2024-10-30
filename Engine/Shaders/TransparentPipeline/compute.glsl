@@ -86,13 +86,11 @@ float calculateDepth(mat4 modelMatrix) {
     return length(viewPosition); // Depth value (negative for view direction)
 }
 
-uniform int size = 0;
-
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index == 0) {
         // Sort using indices to avoid modifying the copy buffers
-
+        uint size = statusCopy.length();
         // Initialize indices
         for (uint i = 0; i < size; i++) {
             indicesData[i] = i;
