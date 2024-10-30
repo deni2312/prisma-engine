@@ -50,56 +50,56 @@ namespace Prisma
 		struct alignas(16) CloudSSBO
 		{
 			// Cloud model
-			float m_coverageScale = 0.45f;
-			float m_cloudType = 0.8f;
-			float m_lowFrequencyNoiseScale = 0.3f;
-			int m_ignoreDetailNoise = false;
+			float coverageScale = 0.45f;
+			float cloudType = 0.8f;
+			float lowFrequencyNoiseScale = 0.3f;
+			int ignoreDetailNoise = false;
 
-			float m_highFrequencyNoiseScale = 0.3f;
-			float m_highFrequencyNoiseErodeMuliplier = 0.19f;
-			float m_highFrequencyHeightTransitionMultiplier = 10.0f;
-			float m_anvilBias = 0.1f;
+			float highFrequencyNoiseScale = 0.3f;
+			float highFrequencyNoiseErodeMuliplier = 0.19f;
+			float highFrequencyHeightTransitionMultiplier = 10.0f;
+			float anvilBias = 0.1f;
 
 
 			// Cloud lighting
-			glm::vec3 m_cloudColor = glm::vec3(1.0f, 1.0f, 1.0f);
+			glm::vec3 cloudColor = glm::vec3(1.0f, 1.0f, 1.0f);
 			float padding1;
 
-			float m_sunIntensity = 0.4f;
-			float m_ambientColorScale = 0.7f;
-			float m_rainCloudAbsorptionGain = 2.3f;
-			float m_cloudAttenuationScale = 2.5f;
+			float sunIntensity = 0.4f;
+			float ambientColorScale = 0.7f;
+			float rainCloudAbsorptionGain = 2.3f;
+			float cloudAttenuationScale = 2.5f;
 
-			float m_phaseEccentricity = 0.5f;
-			float m_phaseSilverLiningIntensity = 0.15f;
-			float m_phaseSilverLiningSpread = 0.5f;
-			float m_coneSpreadMultplier = 0.2f;
+			float phaseEccentricity = 0.5f;
+			float phaseSilverLiningIntensity = 0.15f;
+			float phaseSilverLiningSpread = 0.5f;
+			float coneSpreadMultplier = 0.2f;
 
-			float m_shadowSampleConeSpreadMultiplier = 0.6f;
-			float m_powderedSugarEffectMultiplier = 10.0f;
-			float m_toneMapperEyeExposure = 0.8f;
-			float m_maxRenderDistance = 150000.0f;
+			float shadowSampleConeSpreadMultiplier = 0.6f;
+			float powderedSugarEffectMultiplier = 10.0f;
+			float toneMapperEyeExposure = 0.8f;
+			float maxRenderDistance = 150000.0f;
 
-			float m_maxHorizontalSampleCount = 192.0f;
-			float m_maxVerticalSampleCount = 128.0f;
-			int m_useEarlyExitAtFullOpacity = true;
-			int m_useBayerFilter = true;
+			float maxHorizontalSampleCount = 192.0f;
+			float maxVerticalSampleCount = 128.0f;
+			int useEarlyExitAtFullOpacity = true;
+			int useBayerFilter = true;
 
-			float m_earthRadius = 600000.0f;
-			float m_volumetricCloudsStartRadius = 607000.0f;
-			float m_volumetricCloudsEndRadius = 633000.0f;
+			float earthRadius = 600000.0f;
+			float volumetricCloudsStartRadius = 607000.0f;
+			float volumetricCloudsEndRadius = 633000.0f;
 			float padding2;
 
 			// Wind settings
-			glm::vec3 m_windDirection = glm::vec3(1.0f, 0.0f, 0.0f);
+			glm::vec3 windDirection = glm::vec3(1.0f, 0.0f, 0.0f);
 			float padding3;
 
-			float m_windUpwardBias = 0.15f;
-			float m_cloudSpeed = 300.0f;
-			float m_cloudTopOffset = 500.0f;
+			float windUpwardBias = 0.15f;
+			float cloudSpeed = 300.0f;
+			float cloudTopOffset = 500.0f;
 			float padding4;
 
-			glm::vec2 m_resolution;
+			glm::vec2 resolution;
 			glm::vec2 padding5;
 		};
 

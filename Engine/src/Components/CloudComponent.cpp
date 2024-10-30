@@ -16,64 +16,64 @@ void Prisma::CloudComponent::ui()
 {
 	std::vector<ComponentType> components;
 
-	components.push_back(std::make_tuple(TYPES::FLOAT, "CoverageScale", &m_cloudSSBO.m_coverageScale));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "AmbientColorScale", &m_cloudSSBO.m_ambientColorScale));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "CloudType", &m_cloudSSBO.m_cloudType));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "CoverageScale", &m_cloudSSBO.coverageScale));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "AmbientColorScale", &m_cloudSSBO.ambientColorScale));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "CloudType", &m_cloudSSBO.cloudType));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "LowFrequencyNoiseScale",
-	                                     &m_cloudSSBO.m_lowFrequencyNoiseScale));
+	                                     &m_cloudSSBO.lowFrequencyNoiseScale));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "HighFrequencyNoiseScale",
-	                                     &m_cloudSSBO.m_highFrequencyNoiseScale));
+	                                     &m_cloudSSBO.highFrequencyNoiseScale));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "HighFrequencyNoiseErodeMuliplier",
-	                                     &m_cloudSSBO.m_highFrequencyNoiseErodeMuliplier));
+	                                     &m_cloudSSBO.highFrequencyNoiseErodeMuliplier));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "HighFrequencyHeightTransitionMultiplier",
-	                                     &m_cloudSSBO.m_highFrequencyHeightTransitionMultiplier));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "AnvilBias", &m_cloudSSBO.m_anvilBias));
+	                                     &m_cloudSSBO.highFrequencyHeightTransitionMultiplier));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "AnvilBias", &m_cloudSSBO.anvilBias));
 
 	// Add vec3 components
-	components.push_back(std::make_tuple(TYPES::VEC3, "CloudColor", &m_cloudSSBO.m_cloudColor));
-	components.push_back(std::make_tuple(TYPES::VEC3, "WindDirection", &m_cloudSSBO.m_windDirection));
+	components.push_back(std::make_tuple(TYPES::VEC3, "CloudColor", &m_cloudSSBO.cloudColor));
+	components.push_back(std::make_tuple(TYPES::VEC3, "WindDirection", &m_cloudSSBO.windDirection));
 
 	// Add more float components
 	components.push_back(std::make_tuple(TYPES::FLOAT, "RainCloudAbsorptionGain",
-	                                     &m_cloudSSBO.m_rainCloudAbsorptionGain));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "CloudAttenuationScale", &m_cloudSSBO.m_cloudAttenuationScale));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "PhaseEccentricity", &m_cloudSSBO.m_phaseEccentricity));
+	                                     &m_cloudSSBO.rainCloudAbsorptionGain));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "CloudAttenuationScale", &m_cloudSSBO.cloudAttenuationScale));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "PhaseEccentricity", &m_cloudSSBO.phaseEccentricity));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "PhaseSilverLiningIntensity",
-	                                     &m_cloudSSBO.m_phaseSilverLiningIntensity));
+	                                     &m_cloudSSBO.phaseSilverLiningIntensity));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "PhaseSilverLiningSpread",
-	                                     &m_cloudSSBO.m_phaseSilverLiningSpread));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "ConeSpreadMultiplier", &m_cloudSSBO.m_coneSpreadMultplier));
+	                                     &m_cloudSSBO.phaseSilverLiningSpread));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "ConeSpreadMultiplier", &m_cloudSSBO.coneSpreadMultplier));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "ShadowSampleConeSpreadMultiplier",
-	                                     &m_cloudSSBO.m_shadowSampleConeSpreadMultiplier));
+	                                     &m_cloudSSBO.shadowSampleConeSpreadMultiplier));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "PowderedSugarEffectMultiplier",
-	                                     &m_cloudSSBO.m_powderedSugarEffectMultiplier));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "ToneMapperEyeExposure", &m_cloudSSBO.m_toneMapperEyeExposure));
+	                                     &m_cloudSSBO.powderedSugarEffectMultiplier));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "ToneMapperEyeExposure", &m_cloudSSBO.toneMapperEyeExposure));
 
 	// Add bool components
-	components.push_back(std::make_tuple(TYPES::BOOL, "IgnoreDetailNoise", &m_cloudSSBO.m_ignoreDetailNoise));
+	components.push_back(std::make_tuple(TYPES::BOOL, "IgnoreDetailNoise", &m_cloudSSBO.ignoreDetailNoise));
 	components.push_back(std::make_tuple(TYPES::BOOL, "UseEarlyExitAtFullOpacity",
-	                                     &m_cloudSSBO.m_useEarlyExitAtFullOpacity));
-	components.push_back(std::make_tuple(TYPES::BOOL, "UseBayerFilter", &m_cloudSSBO.m_useBayerFilter));
+	                                     &m_cloudSSBO.useEarlyExitAtFullOpacity));
+	components.push_back(std::make_tuple(TYPES::BOOL, "UseBayerFilter", &m_cloudSSBO.useBayerFilter));
 
 	// Add raymarch settings
-	components.push_back(std::make_tuple(TYPES::FLOAT, "MaxRenderDistance", &m_cloudSSBO.m_maxRenderDistance));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "MaxRenderDistance", &m_cloudSSBO.maxRenderDistance));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "MaxHorizontalSampleCount",
-	                                     &m_cloudSSBO.m_maxHorizontalSampleCount));
+	                                     &m_cloudSSBO.maxHorizontalSampleCount));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "MaxVerticalSampleCount",
-	                                     &m_cloudSSBO.m_maxVerticalSampleCount));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "EarthRadius", &m_cloudSSBO.m_earthRadius));
+	                                     &m_cloudSSBO.maxVerticalSampleCount));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "EarthRadius", &m_cloudSSBO.earthRadius));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "VolumetricCloudsStartRadius",
-	                                     &m_cloudSSBO.m_volumetricCloudsStartRadius));
+	                                     &m_cloudSSBO.volumetricCloudsStartRadius));
 	components.push_back(std::make_tuple(TYPES::FLOAT, "VolumetricCloudsEndRadius",
-	                                     &m_cloudSSBO.m_volumetricCloudsEndRadius));
+	                                     &m_cloudSSBO.volumetricCloudsEndRadius));
 
 	// Add wind settings
-	components.push_back(std::make_tuple(TYPES::FLOAT, "WindUpwardBias", &m_cloudSSBO.m_windUpwardBias));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "CloudSpeed", &m_cloudSSBO.m_cloudSpeed));
-	components.push_back(std::make_tuple(TYPES::FLOAT, "CloudTopOffset", &m_cloudSSBO.m_cloudTopOffset));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "WindUpwardBias", &m_cloudSSBO.windUpwardBias));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "CloudSpeed", &m_cloudSSBO.cloudSpeed));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "CloudTopOffset", &m_cloudSSBO.cloudTopOffset));
 
 	// Add sun settings
-	components.push_back(std::make_tuple(TYPES::FLOAT, "SunIntensity", &m_cloudSSBO.m_sunIntensity));
+	components.push_back(std::make_tuple(TYPES::FLOAT, "SunIntensity", &m_cloudSSBO.sunIntensity));
 
 	ComponentType componentButton;
 	m_startButton = [&]()
@@ -154,7 +154,7 @@ void Prisma::CloudComponent::start()
 	fboData.internalType = GL_FLOAT;
 	fboData.name = "CLOUDS";
 
-	m_cloudSSBO.m_resolution = glm::vec2(m_settings.width / m_downscale, m_settings.height / m_downscale);
+	m_cloudSSBO.resolution = glm::vec2(m_settings.width / m_downscale, m_settings.height / m_downscale);
 
 	m_fbo = std::make_shared<FBO>(fboData);
 
