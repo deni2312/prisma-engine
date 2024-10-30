@@ -3,6 +3,8 @@
 #include "../../include/Physics/PhysicsData.h"
 #include <glm/gtx/string_cast.hpp>
 
+#include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
+
 void Prisma::PhysicsMeshComponent::ui()
 {
 	ComponentType componentType;
@@ -154,8 +156,6 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	glm::vec3 skew;
 	glm::vec4 perspective;
 
-	auto isAnimate = dynamic_cast<AnimatedMesh*>(mesh);
-
 	decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
 
 	if (scale.x < m_minScale || scale.y < m_minScale || scale.z < m_minScale)
@@ -206,8 +206,16 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	case Physics::Collider::CONVEX_COLLIDER:
 		{
 			auto length = (aabbData.max - aabbData.min) * 0.5f;
-			auto boxShape = new BoxShape(JtoVec3(length));
-			shape = new ScaledShape(boxShape, JtoVec3(scale));
+			ConvexHullShapeSettings settings;
+			for (auto v : mesh->verticesData().vertices)
+			{
+				settings.mPoints.push_back(Prisma::JtoVec3(v.position));
+			}
+
+			Shape::ShapeResult result;
+			auto convexShape = new ConvexHullShape(settings, result);
+			auto resultShape = convexShape->ScaleShape(JtoVec3(scale));
+			shape = resultShape.Get();
 			aabbSettings = BodyCreationSettings(shape, JtoVec3(translation), JtoQuat(rotation),
 			                                    m_collisionData.dynamic ? EMotionType::Dynamic : EMotionType::Static,
 			                                    m_collisionData.dynamic
