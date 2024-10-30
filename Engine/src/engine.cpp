@@ -212,7 +212,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 	PrismaFunc::getInstance().setCallback(callbackHandler);
 }
 
-float Prisma::Engine::fps()
+float Prisma::Engine::fps() const
 {
 	return data->fps;
 }

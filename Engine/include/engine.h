@@ -22,7 +22,7 @@ namespace Prisma
 		Engine();
 
 		void setCallback(std::shared_ptr<CallbackHandler> callbackHandler);
-		float fps();
+		float fps() const;
 		void mainCamera(const std::shared_ptr<Camera>& camera);
 		void engineSettings(const EngineSettings::Settings& pipeline);
 		EngineSettings::Settings engineSettings() const;
