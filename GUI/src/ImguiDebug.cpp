@@ -140,9 +140,16 @@ void Prisma::ImguiDebug::drawGui()
 				std::string model = openFolder();
 				if (model != "")
 				{
-					SceneLoader sceneLoader;
-					auto scene = sceneLoader.loadScene(model, {true});
-					currentGlobalScene->root->addChild(scene->root);
+					if (currentGlobalScene->root)
+					{
+						SceneLoader sceneLoader;
+						auto scene = sceneLoader.loadScene(model, {true});
+						currentGlobalScene->root->addChild(scene->root);
+					}
+					else
+					{
+						Engine::getInstance().getScene(model, {true});
+					}
 
 					MeshIndirect::getInstance().init();
 
