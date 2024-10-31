@@ -14,14 +14,34 @@ Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<A
 {
 	Assimp::Importer importer;
 	m_BoneInfoMap = std::make_shared<std::map<std::string, BoneInfo>>();
-	const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
-	assert(scene && scene->mRootNode);
-	auto animation = scene->mAnimations[0];
-	m_Duration = animation->mDuration;
-	m_TicksPerSecond = animation->mTicksPerSecond;
+	importer.ReadFile(animationPath, aiProcess_Triangulate);
+
+	auto currentScene = importer.GetOrphanedScene();
+
+	assert(currentScene && currentScene->mRootNode);
+	m_scene = currentScene->mRootNode;
+	m_animation = currentScene->mAnimations[0];
+	m_Duration = m_animation->mDuration;
+	m_TicksPerSecond = m_animation->mTicksPerSecond;
 	m_inverseTransform = glm::inverse(model->parent()->finalMatrix());
-	ReadHierarchyData(m_RootNode, scene->mRootNode);
-	ReadMissingBones(animation, model);
+
+	ReadHierarchyData(m_RootNode, m_scene);
+	ReadMissingBones(m_animation, model);
+	this->m_id = uid;
+	uid++;
+}
+
+Prisma::Animation::Animation(std::shared_ptr<Animation> animation, std::shared_ptr<AnimatedMesh> model)
+{
+	Assimp::Importer importer;
+	m_BoneInfoMap = std::make_shared<std::map<std::string, BoneInfo>>();
+	m_animation = animation->m_animation;
+	m_Duration = animation->m_Duration;
+	m_TicksPerSecond = animation->m_TicksPerSecond;
+	m_inverseTransform = animation->m_inverseTransform;
+	m_scene = animation->m_scene;
+	m_RootNode = animation->m_RootNode;
+	ReadMissingBones(m_animation, model);
 	this->m_id = uid;
 	uid++;
 }
@@ -87,7 +107,6 @@ void Prisma::Animation::ReadMissingBones(const aiAnimation* animation, std::shar
 		m_Bones[name] = std::make_shared<Bone>(channel->mNodeName.data,
 		                                       boneInfoMap[channel->mNodeName.data].id, channel);
 	}
-
 	*m_BoneInfoMap = boneInfoMap;
 }
 

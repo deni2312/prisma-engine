@@ -32,6 +32,8 @@ namespace Prisma
 
 		Animation(const std::string& animationPath, std::shared_ptr<AnimatedMesh> model);
 
+		Animation(std::shared_ptr<Animation> animation, std::shared_ptr<AnimatedMesh> model);
+
 		~Animation();
 
 		std::shared_ptr<Bone> FindBone(const std::string& name);
@@ -45,6 +47,8 @@ namespace Prisma
 		unsigned int id();
 
 	private:
+		aiNode* m_scene;
+		aiAnimation* m_animation;
 		std::string m_animationPath;
 		void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<AnimatedMesh> model);
 		glm::mat4 m_inverseTransform;
