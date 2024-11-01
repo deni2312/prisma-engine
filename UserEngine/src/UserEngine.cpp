@@ -24,10 +24,6 @@ void UserEngine::start()
 
 	nodeHelper.nodeIterator(m_root->root, [](auto mesh, auto parent)
 	{
-		if (std::dynamic_pointer_cast<Prisma::AnimatedMesh>(mesh))
-		{
-			std::cout << mesh->name() << std::endl;
-		}
 	});
 
 	m_player = std::make_shared<PlayerController>(m_root);
@@ -35,6 +31,7 @@ void UserEngine::start()
 
 void UserEngine::update()
 {
+	m_player->update();
 }
 
 void UserEngine::finish()

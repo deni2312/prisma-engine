@@ -11,27 +11,13 @@
 class PlayerController
 {
 public:
-	enum ANIMATIONS
-	{
-		IDLE,
-		WALK,
-		JUMP,
-		DEFAULT
-	};
-
 	PlayerController(std::shared_ptr<Prisma::Scene> scene);
-
 
 	std::shared_ptr<Prisma::CallbackHandler> callback();
 
+	void update();
+
 private:
 	std::shared_ptr<Prisma::Scene> m_scene;
-
-	std::shared_ptr<Prisma::AnimatedMesh> m_animatedMesh;
-
-	std::shared_ptr<Prisma::Animation> m_walkAnimation;
-
-	std::shared_ptr<Prisma::Animation> m_jumpAnimation;
-
-	std::shared_ptr<Prisma::Animation> m_idleAnimation;
+	std::vector<std::shared_ptr<Prisma::AnimatedMesh>> m_animatedMeshes;
 };
