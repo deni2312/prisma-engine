@@ -128,7 +128,6 @@ bool Prisma::Engine::run()
 			case EngineSettings::Pipeline::FORWARD:
 				data->pipelineHandler.forward()->render();
 				break;
-
 			case EngineSettings::Pipeline::DEFERRED:
 				data->pipelineHandler.deferred()->render();
 				break;
