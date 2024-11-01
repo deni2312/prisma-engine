@@ -109,7 +109,7 @@ void Prisma::LightHandler::updateCSM()
 {
 	const auto& dirLights = currentGlobalScene->dirLights;
 
-	if (dirLights.size() > 0 && dirLights[0]->shadow())
+	if (dirLights.size() > 0 && dirLights[0]->shadow() && dirLights[0]->hasShadow())
 	{
 		auto shadow = dirLights[0]->shadow();
 
