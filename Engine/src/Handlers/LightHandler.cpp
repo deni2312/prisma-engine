@@ -86,12 +86,12 @@ void Prisma::LightHandler::updateOmni()
 				omniMatrix = light->matrix();
 			}
 			m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
-			if (light->shadow() && scene->omniLights[i]->hasShadow())
+			if (light->shadow() && light->hasShadow())
 			{
 				light->shadow()->update(m_dataOmni->lights[i].position);
 				m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
 			}
-			m_dataOmni->lights[i].padding = scene->omniLights[i]->hasShadow() ? 2.0f : 0.0f;
+			m_dataOmni->lights[i].padding = light->hasShadow() ? 2.0f : 0.0f;
 			numVisible++;
 		}
 	}
