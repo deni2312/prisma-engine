@@ -105,12 +105,13 @@ bool Prisma::Engine::run()
 			data->lastTime = currentTime;
 			data->fps = 1.0f / deltaTime.count();
 			PrismaFunc::getInstance().clear();
-
-			data->userData->update();
-			ComponentsHandler::getInstance().updateStart();
-			ComponentsHandler::getInstance().updateComponents();
-			Physics::getInstance().update(1.0f / fps());
-
+			if (!data->debug)
+			{
+				data->userData->update();
+				ComponentsHandler::getInstance().updateStart();
+				ComponentsHandler::getInstance().updateComponents();
+				Physics::getInstance().update(1.0f / fps());
+			}
 			data->sceneHandler->onBeginRender();
 			if (data->debug)
 			{
