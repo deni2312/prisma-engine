@@ -33,6 +33,7 @@ const std::vector<std::shared_ptr<Prisma::Node>>& Prisma::Node::children() const
 
 void Prisma::Node::addChild(std::shared_ptr<Node> child, bool updateScene)
 {
+	sceneNodes[child->uuid()] = child;
 	m_children.push_back(child);
 	child->parent(this);
 	updateChild(this);
@@ -49,6 +50,8 @@ void Prisma::Node::removeChild(uint64_t uuid)
 
 	if (index != -1)
 	{
+		sceneNodes.erase(sceneNodes.find(uuid));
+
 		while (m_children[index]->children().size() > 0)
 		{
 			m_children[index]->removeChild(m_children[index]->children()[0]->uuid());
@@ -71,6 +74,8 @@ void Prisma::Node::removeChild(uint64_t uuid)
 				component.second->destroy();
 			}
 			currentGlobalScene->animateMeshes.erase(find);
+			Prisma::AnimationHandler::getInstance().clear();
+			Prisma::AnimationHandler::getInstance().fill();
 		}
 		else if (std::dynamic_pointer_cast<Mesh>(m_children[index]))
 		{

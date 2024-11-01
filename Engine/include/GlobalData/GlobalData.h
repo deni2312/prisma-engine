@@ -16,6 +16,7 @@ namespace Prisma
 	extern std::shared_ptr<Scene> currentGlobalScene;
 	extern std::shared_ptr<FBO> fboTarget;
 	extern std::unordered_map<uint64_t, Component*> sceneComponents;
+	extern std::unordered_map<uint64_t, std::shared_ptr<Node>> sceneNodes;
 	extern glm::mat4 currentProjection;
 	extern Texture defaultBlack;
 	extern Texture defaultWhite;

@@ -5,6 +5,7 @@ namespace Prisma
 {
 	std::shared_ptr<Scene> currentGlobalScene = nullptr;
 	glm::mat4 currentProjection = glm::mat4(1.0f);
+	std::unordered_map<uint64_t, std::shared_ptr<Node>> sceneNodes;
 	Texture defaultBlack;
 	Texture defaultWhite;
 	Texture defaultNormal;

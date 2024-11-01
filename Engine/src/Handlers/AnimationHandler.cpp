@@ -20,6 +20,17 @@ void Prisma::AnimationHandler::clear()
 	}
 }
 
+void Prisma::AnimationHandler::fill()
+{
+	for (auto mesh : currentGlobalScene->animateMeshes)
+	{
+		if (mesh->animator())
+		{
+			mesh->animator()->updateAnimation(0);
+		}
+	}
+}
+
 std::vector<Prisma::AnimationHandler::SSBOAnimation>& Prisma::AnimationHandler::animations()
 {
 	return m_animations;
