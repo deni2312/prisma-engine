@@ -122,11 +122,23 @@ void Prisma::LightHandler::updateCSM()
 }
 
 
+bool Prisma::LightHandler::updateCascade()
+{
+	return m_updateCascade;
+}
+
+void Prisma::LightHandler::updateCascade(bool updateCascade)
+{
+	m_updateCascade;
+}
+
 void Prisma::LightHandler::update()
 {
 	const auto& scene = currentGlobalScene;
-
-	updateCSM();
+	if (m_updateCascade)
+	{
+		updateCSM();
+	}
 
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
 		CacheScene::getInstance().updateLights())

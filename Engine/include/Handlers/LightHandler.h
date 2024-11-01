@@ -37,7 +37,19 @@ namespace Prisma
 
 		bool m_init;
 
+		bool m_updateCascade = true;
+
 	public:
+		bool updateCascade()
+		{
+			return m_updateCascade;
+		}
+
+		void updateCascade(bool updateCascade)
+		{
+			m_updateCascade;
+		}
+
 		void update();
 		void bind();
 		std::shared_ptr<SSBODataDirectional> dataDirectional() const;
