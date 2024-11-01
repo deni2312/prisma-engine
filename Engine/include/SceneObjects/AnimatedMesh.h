@@ -43,6 +43,9 @@ namespace Prisma
 
 		std::shared_ptr<AnimateVerticesData> animateVerticesData();
 
+
+		static std::shared_ptr<Prisma::AnimatedMesh> instantiate(std::shared_ptr<AnimatedMesh> mesh);
+
 		std::map<std::string, Prisma::BoneInfo>& boneInfoMap();
 		int& boneInfoCounter();
 

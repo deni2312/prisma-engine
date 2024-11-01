@@ -45,6 +45,33 @@ std::shared_ptr<Prisma::AnimatedMesh::AnimateVerticesData> Prisma::AnimatedMesh:
 	return m_animateVertices;
 }
 
+std::shared_ptr<Prisma::AnimatedMesh> Prisma::AnimatedMesh::instantiate(std::shared_ptr<AnimatedMesh> mesh)
+{
+	std::shared_ptr<AnimatedMesh> newInstance = nullptr;
+	if (mesh)
+	{
+		newInstance = std::make_shared<AnimatedMesh>();
+		newInstance->loadAnimateModel(std::make_shared<AnimateVerticesData>(*mesh->m_animateVertices));
+		newInstance->m_BoneInfoMap = mesh->m_BoneInfoMap;
+		newInstance->m_BoneCounter = mesh->m_BoneCounter;
+		newInstance->material(std::make_shared<MaterialComponent>(*mesh->material()));
+		newInstance->matrix(mesh->matrix());
+		newInstance->name(mesh->name() + std::to_string(newInstance->uuid()));
+		auto parent = std::make_shared<Node>();
+		auto parentParent = std::make_shared<Node>();
+
+		parent->name(mesh->parent()->name() + std::to_string(parent->uuid()));
+		parent->matrix(mesh->parent()->matrix());
+
+		parentParent->name(mesh->parent()->parent()->name() + std::to_string(parent->uuid()));
+		parentParent->matrix(mesh->parent()->parent()->matrix());
+		currentGlobalScene->root->addChild(parentParent);
+		parent->addChild(newInstance);
+		parentParent->addChild(parent);
+	}
+	return newInstance;
+}
+
 std::map<std::string, Prisma::BoneInfo>& Prisma::AnimatedMesh::boneInfoMap()
 {
 	return m_BoneInfoMap;
