@@ -40,15 +40,9 @@ namespace Prisma
 		bool m_updateCascade = true;
 
 	public:
-		bool updateCascade()
-		{
-			return m_updateCascade;
-		}
+		bool updateCascade();
 
-		void updateCascade(bool updateCascade)
-		{
-			m_updateCascade;
-		}
+		void updateCascade(bool updateCascade);
 
 		void update();
 		void bind();
