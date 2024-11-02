@@ -79,8 +79,7 @@ namespace Prisma
 		void colliderDispatcher();
 		BodyCreationSettings getBodySettings();
 		void addSoftBody();
-		BodyID m_physicsId;
-		bool m_initPhysics = false;
+		std::shared_ptr<BodyID> m_physicsId = nullptr;
 
 		Physics::LandscapeData m_landscapeData;
 

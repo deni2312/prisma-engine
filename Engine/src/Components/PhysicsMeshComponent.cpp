@@ -55,8 +55,8 @@ void Prisma::PhysicsMeshComponent::update()
 
 void Prisma::PhysicsMeshComponent::destroy()
 {
-	Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
-	Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
+	Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(*m_physicsId);
+	Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(*m_physicsId);
 	Component::destroy();
 }
 
@@ -79,17 +79,17 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher()
 		if (!m_collisionData.softBody)
 		{
 			auto bodySettings = getBodySettings();
-			if (!m_initPhysics)
+			if (!m_physicsId)
 			{
-				m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
+				m_physicsId = std::make_shared<BodyID>();
+				*m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
 					bodySettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
-				m_initPhysics = true;
 			}
 			else
 			{
-				Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
-				Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
-				m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
+				Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(*m_physicsId);
+				Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(*m_physicsId);
+				*m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
 					bodySettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
 			}
 		}
@@ -108,7 +108,7 @@ Prisma::Physics::CollisionData Prisma::PhysicsMeshComponent::collisionData()
 void Prisma::PhysicsMeshComponent::start()
 {
 	Component::start();
-	if (!m_initPhysics)
+	if (!m_physicsId)
 	{
 		updateCollisionData();
 	}
@@ -116,12 +116,12 @@ void Prisma::PhysicsMeshComponent::start()
 
 BodyID& Prisma::PhysicsMeshComponent::physicsId()
 {
-	return m_physicsId;
+	return *m_physicsId;
 }
 
 bool Prisma::PhysicsMeshComponent::initPhysics()
 {
-	return m_initPhysics;
+	return static_cast<bool>(m_physicsId);
 }
 
 void Prisma::PhysicsMeshComponent::onCollisionEnter(std::function<void(const Body&)> add)
