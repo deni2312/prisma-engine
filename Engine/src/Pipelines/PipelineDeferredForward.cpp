@@ -167,6 +167,7 @@ void Prisma::PipelineDeferredForward::render()
 	glBlitFramebuffer(
 		0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST
 	);
+	ComponentsHandler::getInstance().updateRender(m_fbo);
 
 	showTransparencies(true);
 
@@ -178,7 +179,6 @@ void Prisma::PipelineDeferredForward::render()
 	m_shaderForward->use();
 	MeshIndirect::getInstance().renderMeshes();
 
-	ComponentsHandler::getInstance().updateRender(m_fbo);
 	for (auto& sprite : currentGlobalScene->sprites)
 	{
 		sprite->render();

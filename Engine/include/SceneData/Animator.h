@@ -31,6 +31,10 @@ namespace Prisma
 
 		void updateSSBO();
 
+		void automaticUpdate(bool automatic);
+
+		bool automaticUpdate();
+
 	private:
 		std::shared_ptr<Animation> m_CurrentAnimation;
 
@@ -47,6 +51,8 @@ namespace Prisma
 		float m_BlendDuration = 0.8f; // Duration of the blend in seconds
 
 		bool m_IsBlending = false;
+
+		bool m_automatic = true;
 
 		void blendAnimations(float blendFactor);
 

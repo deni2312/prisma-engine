@@ -22,8 +22,7 @@ public:
 	void finish();
 
 private:
-	bool checkFinish();
-	void clearFinish();
+	void createLights();
 	std::vector<std::thread> m_threads;
 	std::mutex m_mutex;
 	std::atomic_bool m_start = false;
@@ -32,4 +31,6 @@ private:
 	std::shared_ptr<Prisma::Scene> m_scene;
 	std::vector<std::shared_ptr<Prisma::AnimatedMesh>> m_animatedMeshes;
 	std::atomic_bool m_finishProgram;
+	std::vector<std::shared_ptr<Prisma::Light<Prisma::LightType::LightOmni>>> m_lights;
+	float m_angle;
 };

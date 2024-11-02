@@ -41,7 +41,10 @@ void Prisma::Animator::updateAnimation(float dt)
 			// No blending, use current animation directly
 			calculateBoneTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f));
 		}
-		//updateSSBO();
+		if (m_automatic)
+		{
+			updateSSBO();
+		}
 	}
 }
 
@@ -62,6 +65,10 @@ void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation, floa
 	}
 	m_BlendDuration = blendDuration;
 	m_IsBlending = true;
+	if (m_automatic)
+	{
+		updateSSBO();
+	}
 }
 
 void Prisma::Animator::calculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform)
@@ -102,7 +109,10 @@ void Prisma::Animator::frame(float frame)
 		m_CurrentTime = frame;
 		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->duration());
 		calculateBoneTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f));
-		//updateSSBO();
+		if (m_automatic)
+		{
+			updateSSBO();
+		}
 	}
 }
 
@@ -128,6 +138,16 @@ void Prisma::Animator::updateSSBO()
 	auto uuid = findUUID();
 	ssbo->modifyData(sizeof(Prisma::AnimationHandler::SSBOAnimation) * uuid,
 	                 sizeof(Prisma::AnimationHandler::SSBOAnimation), &m_ssboAnimation);
+}
+
+void Prisma::Animator::automaticUpdate(bool automatic)
+{
+	m_automatic = automatic;
+}
+
+bool Prisma::Animator::automaticUpdate()
+{
+	return m_automatic;
 }
 
 int Prisma::Animator::findUUID()
