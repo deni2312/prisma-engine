@@ -186,6 +186,8 @@ void Prisma::PipelineDeferredForward::render()
 
 	glDisable(GL_BLEND);
 
+	ComponentsHandler::getInstance().updatePostRender(m_fbo);
+
 	Physics::getInstance().drawDebug();
 
 	m_fbo->unbind();

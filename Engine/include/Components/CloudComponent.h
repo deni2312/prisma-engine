@@ -19,7 +19,7 @@ namespace Prisma
 
 		void ui() override;
 
-		void updateRender(std::shared_ptr<FBO> fbo = nullptr) override;
+		void updatePostRender(std::shared_ptr<FBO> fbo = nullptr) override;
 
 		void start() override;
 

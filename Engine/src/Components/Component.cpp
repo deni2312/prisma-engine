@@ -25,6 +25,10 @@ void Prisma::Component::updatePreRender(std::shared_ptr<FBO> fbo)
 {
 }
 
+void Prisma::Component::updatePostRender(std::shared_ptr<FBO> fbo)
+{
+}
+
 void Prisma::Component::destroy()
 {
 	sceneComponents.erase(m_uuid);

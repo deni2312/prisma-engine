@@ -19,8 +19,8 @@
 
 
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{
-	width
-}, m_height{height}
+		width
+	}, m_height{height}
 {
 	Shader::ShaderHeaders header;
 	header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n";
@@ -83,6 +83,8 @@ void Prisma::PipelineForward::render()
 	glDisable(GL_BLEND);
 
 	ComponentsHandler::getInstance().updateRender(m_fbo);
+
+	ComponentsHandler::getInstance().updatePostRender(m_fbo);
 
 	for (auto& sprite : currentGlobalScene->sprites)
 	{

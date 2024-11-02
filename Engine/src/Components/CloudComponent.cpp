@@ -102,7 +102,7 @@ void Prisma::CloudComponent::ui()
 	addGlobal(updateButton);
 }
 
-void Prisma::CloudComponent::updateRender(std::shared_ptr<FBO> fbo)
+void Prisma::CloudComponent::updatePostRender(std::shared_ptr<FBO> fbo)
 {
 	if (m_cloudShader)
 	{

@@ -158,6 +158,7 @@ void Prisma::PipelineDeferred::render()
 	PipelineSkybox::getInstance().render();
 
 	ComponentsHandler::getInstance().updateRender(m_fbo);
+	ComponentsHandler::getInstance().updatePostRender(m_fbo);
 	for (auto& sprite : currentGlobalScene->sprites)
 	{
 		sprite->render();
