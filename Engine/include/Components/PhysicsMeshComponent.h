@@ -23,6 +23,8 @@
 #include <Jolt/Physics/Collision/Shape/HeightFieldShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
+
+#include "Jolt/Physics/SoftBody/SoftBodySharedSettings.h"
 // All Jolt symbols are in the JPH namespace
 using namespace JPH;
 
@@ -76,12 +78,15 @@ namespace Prisma
 		btRigidBody* m_body = nullptr;
 		void colliderDispatcher();
 		BodyCreationSettings getBodySettings();
+		void addSoftBody();
 		BodyID m_physicsId;
 		bool m_initPhysics = false;
 
 		Physics::LandscapeData m_landscapeData;
 
 		const float m_minScale = 0.001;
+
+		Ref<JPH::SoftBodySharedSettings> m_softBodySharedSettings = nullptr;
 
 		std::function<void(const Body&)> m_add = nullptr;
 		std::function<void(const Body&)> m_stay = nullptr;

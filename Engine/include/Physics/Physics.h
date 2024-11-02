@@ -27,6 +27,7 @@ namespace Prisma
 			Collider collider;
 			float mass = 0.0f;
 			bool dynamic = false;
+			bool softBody = false;
 		};
 
 		struct LandscapeData

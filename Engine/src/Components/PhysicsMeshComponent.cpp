@@ -30,6 +30,10 @@ void Prisma::PhysicsMeshComponent::ui()
 		}
 		updateCollisionData();
 	};
+
+	ComponentType componentSoftBody;
+	componentSoftBody = std::make_tuple(TYPES::BOOL, "Soft Body", &m_collisionData.softBody);
+
 	componentButton = std::make_tuple(TYPES::BUTTON, "Apply Collider", &m_apply);
 
 	addGlobal(componentType);
@@ -39,6 +43,9 @@ void Prisma::PhysicsMeshComponent::ui()
 	addGlobal(componentDynamic);
 
 	addGlobal(componentButton);
+
+	addGlobal(componentSoftBody);
+
 	updateCollisionData();
 }
 
@@ -69,19 +76,26 @@ void Prisma::PhysicsMeshComponent::colliderDispatcher()
 	auto mesh = dynamic_cast<Mesh*>(parent());
 	if (mesh)
 	{
-		auto bodySettings = getBodySettings();
-		if (!m_initPhysics)
+		if (!m_collisionData.softBody)
 		{
-			m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
-				bodySettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
-			m_initPhysics = true;
+			auto bodySettings = getBodySettings();
+			if (!m_initPhysics)
+			{
+				m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
+					bodySettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
+				m_initPhysics = true;
+			}
+			else
+			{
+				Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
+				Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
+				m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
+					bodySettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
+			}
 		}
 		else
 		{
-			Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsId);
-			Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsId);
-			m_physicsId = Physics::getInstance().bodyInterface().CreateAndAddBody(
-				bodySettings, m_collisionData.dynamic ? EActivation::Activate : EActivation::DontActivate);
+			addSoftBody();
 		}
 	}
 }
@@ -232,6 +246,25 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	}
 	aabbSettings.mUserData = uuid();
 	return aabbSettings;
+}
+
+void Prisma::PhysicsMeshComponent::addSoftBody()
+{
+	auto mesh = dynamic_cast<Mesh*>(parent());
+	m_softBodySharedSettings = new SoftBodySharedSettings;
+	for (auto vertex : mesh->verticesData().vertices)
+	{
+		SoftBodySharedSettings::Vertex v;
+		v.mPosition = Float3(v.mPosition.x, v.mPosition.y, v.mPosition.z);
+		m_softBodySharedSettings->mVertices.push_back(v);
+	}
+
+	for (int i = 0; i < mesh->verticesData().indices.size() - 3; i = i + 3)
+	{
+		m_softBodySharedSettings->AddFace(SoftBodySharedSettings::Face(mesh->verticesData().indices[i],
+		                                                               mesh->verticesData().indices[i + 1],
+		                                                               mesh->verticesData().indices[i + 2]));
+	}
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Component{}
