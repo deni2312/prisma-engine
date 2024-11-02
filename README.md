@@ -30,7 +30,10 @@ Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 
 - **Particle effects**
 - **Volumetric Clouds**
 - **Heightmap landscapes**
+- **Procedural texture generation**
 - **Grass optimized by frustum culling**
+- **GPU sorted transparencies**
+- **Thread safe animations**
 - **Editor:**
     - **Run/Debug modes**
     - **Transform Modifier**
@@ -68,6 +71,15 @@ cd ..
 6. (Optionally) In  `configuration\settings.json` file you can change some settings like width, height and name of the window.
 
 ## Demos
+
+### Demo
+
+
+An example of a demo scene with deferred clustered shading and forward to run smoothly many lights, with some updates like GPU sorted transparencies, terrain rendering and height based texture, frustum culled grass, that has also animations , it runs at 120 FPS 500+ different animated meshes that run updates in different threads. (Click on the image for the youtube video)
+
+https://www.youtube.com/watch?v=ylrV2Ebg6FA
+
+[![Sponza](https://img.youtube.com/vi/ylrV2Ebg6FA/0.jpg)](https://youtu.be/ylrV2Ebg6FA?si=CkqPa_8tHgQe89RT)
 
 ### Demo
 
@@ -123,8 +135,6 @@ If you encounter a bug, please submit an issue with detailed information about h
 ## Next updates
 
 - **Code refactoring/Eventual bug fixes**
-- **Cache physic states**
-- **Transparency**
 - **Frustum culling(compute shader)**
 
 ## LICENSE
