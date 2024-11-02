@@ -29,10 +29,10 @@ namespace Prisma
 
 		float currentTime() const;
 
+		void updateSSBO();
+
 	private:
 		std::shared_ptr<Animation> m_CurrentAnimation;
-
-		void updateSSBO();
 
 		int findUUID();
 

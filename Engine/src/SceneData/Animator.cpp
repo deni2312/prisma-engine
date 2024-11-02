@@ -41,7 +41,7 @@ void Prisma::Animator::updateAnimation(float dt)
 			// No blending, use current animation directly
 			calculateBoneTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f));
 		}
-		updateSSBO();
+		//updateSSBO();
 	}
 }
 
@@ -102,7 +102,7 @@ void Prisma::Animator::frame(float frame)
 		m_CurrentTime = frame;
 		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->duration());
 		calculateBoneTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f));
-		updateSSBO();
+		//updateSSBO();
 	}
 }
 

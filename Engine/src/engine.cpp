@@ -24,7 +24,6 @@
 #include "../include/Handlers/ComponentsHandler.h"
 #include "../include/Postprocess/Postprocess.h"
 #include <glm/gtx/string_cast.hpp>
-#include "../include/SceneData/SceneExporter.h"
 
 struct PrivateData
 {
@@ -104,13 +103,10 @@ bool Prisma::Engine::run()
 			data->lastTime = currentTime;
 			data->fps = 1.0f / deltaTime.count();
 			PrismaFunc::getInstance().clear();
-			if (!data->debug)
-			{
-				data->userData->update();
-				ComponentsHandler::getInstance().updateStart();
-				ComponentsHandler::getInstance().updateComponents();
-				Physics::getInstance().update(1.0f / fps());
-			}
+			data->userData->update();
+			ComponentsHandler::getInstance().updateStart();
+			ComponentsHandler::getInstance().updateComponents();
+			Physics::getInstance().update(1.0f / fps());
 			data->sceneHandler->onBeginRender();
 			if (data->debug)
 			{
@@ -146,6 +142,7 @@ bool Prisma::Engine::run()
 			PrismaFunc::getInstance().closeWindow();
 		}
 	}
+	data->userData->finish();
 	GarbageCollector::getInstance().clear();
 	PrismaFunc::getInstance().destroy();
 	return true;

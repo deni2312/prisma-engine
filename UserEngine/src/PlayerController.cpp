@@ -14,7 +14,8 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 		nodeHelper.find(m_scene->root, "Mesh"));
 	animatedMesh->visible(false);
 	int maxMeshes = 10;
-
+	m_animationThread = 10;
+	m_finishProgram = false;
 	if (animatedMesh)
 	{
 		std::vector<std::shared_ptr<Prisma::Animation>> animations;
@@ -50,6 +51,35 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 				m_animatedMeshes.push_back(animatedMeshInstance);
 			}
 		}
+
+		auto func = [&](int i)
+		{
+			while (!m_start);
+			while (!m_finishProgram)
+			{
+				if (!m_finish[i])
+				{
+					int index = i * m_animationThread;
+					int finish = index + m_animationThread;
+
+					for (; index < finish && index < m_animatedMeshes.size(); index++)
+					{
+						m_animatedMeshes[index]->animator()->
+						                         updateAnimation(1.0f / Prisma::Engine::getInstance().fps());
+					}
+					m_finish[i] = true;
+				}
+			}
+		};
+
+
+		for (int i = 0; i < m_animatedMeshes.size() / m_animationThread; i++)
+		{
+			std::thread currentThread(func, i);
+			m_threads.push_back(std::move(currentThread));
+			m_threads[i].detach();
+			m_finish.emplace_back(false);
+		}
 	}
 }
 
@@ -60,8 +90,45 @@ std::shared_ptr<Prisma::CallbackHandler> PlayerController::callback()
 
 void PlayerController::update()
 {
-	for (auto mesh : m_animatedMeshes)
+	m_start = true;
+
+	for (int i = 0; i < m_finish.size(); i++)
 	{
-		mesh->animator()->updateAnimation(1.0f / Prisma::Engine::getInstance().fps());
+		if (m_finish[i])
+		{
+			int index = i * m_animationThread;
+			int finish = index + m_animationThread;
+			for (; index < finish && index < m_animatedMeshes.size(); index++)
+			{
+				m_animatedMeshes[index]->animator()->updateSSBO();
+			}
+			m_finish[i] = false;
+		}
+	}
+}
+
+void PlayerController::finish()
+{
+	m_finishProgram = true;
+}
+
+bool PlayerController::checkFinish()
+{
+	bool hasFinish = false;
+	for (int i = 0; i < m_finish.size(); i++)
+	{
+		if (!m_finish[i])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void PlayerController::clearFinish()
+{
+	for (int i = 0; i < m_finish.size(); i++)
+	{
+		m_finish[i] = false;
 	}
 }

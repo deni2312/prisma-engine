@@ -36,6 +36,7 @@ void UserEngine::update()
 
 void UserEngine::finish()
 {
+	m_player->finish();
 }
 
 std::shared_ptr<Prisma::CallbackHandler> UserEngine::callbacks()
