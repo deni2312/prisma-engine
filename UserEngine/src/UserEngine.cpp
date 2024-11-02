@@ -24,9 +24,18 @@ void UserEngine::start()
 
 	nodeHelper.nodeIterator(m_root->root, [](auto mesh, auto parent)
 	{
+		auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(mesh);
+		if (currentMesh && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(mesh))
+		{
+			auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
+			physicsComponent->collisionData({Prisma::Physics::Collider::BOX_COLLIDER, 0.0, false});
+			currentMesh->addComponent(physicsComponent);
+		}
 	});
 
 	m_player = std::make_shared<PlayerController>(m_root);
+
+	m_player->scene(m_root);
 }
 
 void UserEngine::update()
@@ -36,7 +45,6 @@ void UserEngine::update()
 
 void UserEngine::finish()
 {
-	m_player->finish();
 }
 
 std::shared_ptr<Prisma::CallbackHandler> UserEngine::callbacks()
