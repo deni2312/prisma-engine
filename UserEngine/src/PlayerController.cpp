@@ -13,8 +13,8 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	auto animatedMesh = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(
 		nodeHelper.find(m_scene->root, "Mesh"));
 	animatedMesh->visible(false);
-	int maxMeshes = 10;
-	m_animationThread = 10;
+	int maxMeshes = 24;
+	m_animationThread = 50;
 	m_finishProgram = false;
 	if (animatedMesh)
 	{
@@ -65,7 +65,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 					for (; index < finish && index < m_animatedMeshes.size(); index++)
 					{
 						m_animatedMeshes[index]->animator()->
-						                         updateAnimation(1.0f / Prisma::Engine::getInstance().fps());
+						                         updateAnimation(1.0f / Prisma::Engine::getInstance().fps() * 2);
 					}
 					m_finish[i] = true;
 				}
