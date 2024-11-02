@@ -16,18 +16,13 @@ namespace Prisma
 			glm::mat4 animations[MAX_BONES];
 		};
 
-		void updateAnimations();
-
-		void clear();
-
 		void fill();
 
-		std::vector<SSBOAnimation>& animations();
+		std::shared_ptr<Prisma::SSBO> ssbo();
 
 		AnimationHandler();
 
 	private:
 		std::shared_ptr<SSBO> m_ssboAnimation;
-		std::vector<SSBOAnimation> m_animations;
 	};
 }

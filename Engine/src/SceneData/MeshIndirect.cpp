@@ -44,7 +44,6 @@ void Prisma::MeshIndirect::init()
 	m_cacheAddAnimate.clear();
 	m_cacheRemove.clear();
 	m_cacheRemoveAnimate.clear();
-	AnimationHandler::getInstance().clear();
 
 	for (int i = 0; i < currentGlobalScene->meshes.size(); i++)
 	{

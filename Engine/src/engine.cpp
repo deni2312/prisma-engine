@@ -92,7 +92,6 @@ Prisma::Engine::Engine()
 	data->camera = std::make_shared<Camera>();
 }
 
-
 bool Prisma::Engine::run()
 {
 	initScene();
@@ -119,7 +118,6 @@ bool Prisma::Engine::run()
 			}
 			MeshHandler::getInstance().updateCamera();
 			MeshHandler::getInstance().updateFragment();
-			AnimationHandler::getInstance().updateAnimations();
 			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();
 

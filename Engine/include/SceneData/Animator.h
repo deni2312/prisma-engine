@@ -19,8 +19,7 @@ namespace Prisma
 
 		void playAnimation(std::shared_ptr<Animation> pAnimation, float blendDuration);
 
-		void calculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform,
-		                            AnimationHandler::SSBOAnimation& animation);
+		void calculateBoneTransform(const AssimpNodeData* node, const glm::mat4& parentTransform);
 
 		void mesh(Node* mesh);
 
@@ -32,6 +31,8 @@ namespace Prisma
 
 	private:
 		std::shared_ptr<Animation> m_CurrentAnimation;
+
+		void updateSSBO();
 
 		int findUUID();
 
@@ -56,5 +57,7 @@ namespace Prisma
 		glm::mat4 m_currentTransform[MAX_BONES];
 
 		glm::mat4 m_previousTransform[MAX_BONES];
+
+		AnimationHandler::SSBOAnimation m_ssboAnimation;
 	};
 }

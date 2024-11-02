@@ -74,7 +74,6 @@ void Prisma::Node::removeChild(uint64_t uuid)
 				component.second->destroy();
 			}
 			currentGlobalScene->animateMeshes.erase(find);
-			Prisma::AnimationHandler::getInstance().clear();
 			Prisma::AnimationHandler::getInstance().fill();
 		}
 		else if (std::dynamic_pointer_cast<Mesh>(m_children[index]))
