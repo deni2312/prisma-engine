@@ -4,6 +4,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
+#include "Jolt/Physics/SoftBody/SoftBodyCreationSettings.h"
 
 void Prisma::PhysicsMeshComponent::ui()
 {
@@ -159,6 +160,11 @@ void Prisma::PhysicsMeshComponent::landscapeData(const Physics::LandscapeData& l
 	m_landscapeData = landscapeData;
 }
 
+Body& Prisma::PhysicsMeshComponent::softId()
+{
+	return *m_physicsSoftId;
+}
+
 BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 {
 	auto mesh = dynamic_cast<Mesh*>(parent());
@@ -251,7 +257,32 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 void Prisma::PhysicsMeshComponent::addSoftBody()
 {
 	auto mesh = dynamic_cast<Mesh*>(parent());
-	m_softBodySharedSettings = new SoftBodySharedSettings;
+
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
+
+	if (m_physicsId)
+	{
+		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(*m_physicsId);
+		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(*m_physicsId);
+		m_physicsId = nullptr;
+	}
+
+	if (m_physicsSoftId)
+	{
+		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsSoftId->GetID());
+		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsSoftId->GetID());
+		m_softBodySharedSettings = new SoftBodySharedSettings;
+	}
+	else
+	{
+		m_softBodySharedSettings = new SoftBodySharedSettings;
+	}
+
 	for (auto vertex : mesh->verticesData().vertices)
 	{
 		SoftBodySharedSettings::Vertex v;
@@ -265,6 +296,22 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		                                                               mesh->verticesData().indices[i + 1],
 		                                                               mesh->verticesData().indices[i + 2]));
 	}
+
+	m_softBodySharedSettings->Optimize();
+
+	SoftBodyCreationSettings sb_settings(m_softBodySharedSettings, JtoVec3(translation), Quat::sIdentity(),
+	                                     m_collisionData.dynamic
+		                                     ? Layers::MOVING
+		                                     : Layers::NON_MOVING);
+	sb_settings.mGravityFactor = 0.0f;
+	sb_settings.mAllowSleeping = false;
+	sb_settings.mUpdatePosition = false;
+
+	m_physicsSoftId = Physics::getInstance().bodyInterface().CreateSoftBody(sb_settings);
+	Physics::getInstance().bodyInterface().AddBody(m_physicsSoftId->GetID(),
+	                                               m_collisionData.dynamic
+		                                               ? EActivation::Activate
+		                                               : EActivation::DontActivate);
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Component{}

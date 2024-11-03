@@ -70,6 +70,8 @@ namespace Prisma
 
 		void landscapeData(const Physics::LandscapeData& landscapeData);
 
+		Body& softId();
+
 	private:
 		ComponentList m_status;
 		std::function<void()> m_apply;
@@ -80,6 +82,8 @@ namespace Prisma
 		BodyCreationSettings getBodySettings();
 		void addSoftBody();
 		std::shared_ptr<BodyID> m_physicsId = nullptr;
+		Body* m_physicsSoftId = nullptr;
+
 
 		Physics::LandscapeData m_landscapeData;
 

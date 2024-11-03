@@ -5,6 +5,7 @@
 #include "../../include/Physics/DrawDebugger.h"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "../../include/Components/PhysicsMeshComponent.h"
+#include "Jolt/Physics/SoftBody/SoftBodyMotionProperties.h"
 
 struct PhysicsWorldJolt
 {
@@ -64,10 +65,17 @@ void Prisma::Physics::update(float delta)
 			if (scaledShape)
 			{
 				prismaMatrix = scale(prismaMatrix, JfromVec3(scaledShape->GetScale()));
+				if (!mat4Equals(prismaMatrix, matrix))
+				{
+					mesh->parent()->matrix(prismaMatrix);
+				}
 			}
-			if (!mat4Equals(prismaMatrix, matrix))
+
+			if (physicsComponent->collisionData().softBody)
 			{
-				mesh->parent()->matrix(prismaMatrix);
+				auto& softId = physicsComponent->softId();
+				SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId.GetMotionProperties());
+				auto& faces = mp->GetFaces();
 			}
 		}
 	}
