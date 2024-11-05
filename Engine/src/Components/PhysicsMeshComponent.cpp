@@ -122,7 +122,7 @@ BodyID& Prisma::PhysicsMeshComponent::physicsId()
 
 bool Prisma::PhysicsMeshComponent::initPhysics()
 {
-	return static_cast<bool>(m_physicsId);
+	return static_cast<bool>(m_physicsId) || static_cast<bool>(m_physicsSoftId);
 }
 
 void Prisma::PhysicsMeshComponent::onCollisionEnter(std::function<void(const Body&)> add)
