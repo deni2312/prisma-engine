@@ -99,6 +99,19 @@ void Prisma::Physics::drawDebug()
 		m_drawDebugger->line.setMVP(currentProjection * currentGlobalScene->camera->matrix());
 		m_settings.mDrawShape = true;
 		physicsWorldJolt->physics_system.DrawBodies(m_settings, m_drawDebugger);
+		for (const auto& mesh : currentGlobalScene->meshes)
+		{
+			auto physicsComponent = std::dynamic_pointer_cast<PhysicsMeshComponent>(mesh->components()["Physics"]);
+			if (physicsComponent && physicsComponent->initPhysics())
+			{
+				if (physicsComponent->collisionData().softBody)
+				{
+					auto& softId = physicsComponent->softId();
+					SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId.GetMotionProperties());
+					mp->DrawVertices(m_drawDebugger, JPH::Mat44::sIdentity());
+				}
+			}
+		}
 	}
 }
 
