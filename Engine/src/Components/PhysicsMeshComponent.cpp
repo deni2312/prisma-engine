@@ -200,6 +200,10 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	case Physics::Collider::BOX_COLLIDER:
 		{
 			auto length = glm::abs((aabbData.max - aabbData.min) * 0.5f);
+			if (length.x < m_minScale || length.y < m_minScale || length.z < m_minScale)
+			{
+				length = glm::vec3(1, 1, 1);
+			}
 			auto boxShape = new BoxShape(JtoVec3(length));
 			auto result = boxShape->ScaleShape(JtoVec3(scale));
 			shape = result.Get();
