@@ -43,9 +43,9 @@ void Prisma::PhysicsMeshComponent::ui()
 
 	addGlobal(componentDynamic);
 
-	addGlobal(componentButton);
-
 	addGlobal(componentSoftBody);
+
+	addGlobal(componentButton);
 
 	updateCollisionData();
 }
@@ -158,6 +158,16 @@ std::function<void(const BodyID&)> Prisma::PhysicsMeshComponent::onCollisionExit
 void Prisma::PhysicsMeshComponent::landscapeData(const Physics::LandscapeData& landscapeData)
 {
 	m_landscapeData = landscapeData;
+}
+
+void Prisma::PhysicsMeshComponent::settingsSoftBody(Prisma::Physics::SoftBodySettings settingsSoft)
+{
+	m_settingsSoft = settingsSoft;
+}
+
+Prisma::Physics::SoftBodySettings Prisma::PhysicsMeshComponent::settingsSoftBody()
+{
+	return m_settingsSoft;
 }
 
 Body& Prisma::PhysicsMeshComponent::softId()
@@ -286,11 +296,11 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 	for (auto vertex : mesh->verticesData().vertices)
 	{
 		SoftBodySharedSettings::Vertex v;
-		v.mPosition = Float3(v.mPosition.x, v.mPosition.y, v.mPosition.z);
+		v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
 		m_softBodySharedSettings->mVertices.push_back(v);
 	}
 
-	for (int i = 0; i < mesh->verticesData().indices.size() - 3; i = i + 3)
+	for (int i = 0; i < mesh->verticesData().indices.size(); i = i + 3)
 	{
 		m_softBodySharedSettings->AddFace(SoftBodySharedSettings::Face(mesh->verticesData().indices[i],
 		                                                               mesh->verticesData().indices[i + 1],
@@ -303,9 +313,9 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 	                                     m_collisionData.dynamic
 		                                     ? Layers::MOVING
 		                                     : Layers::NON_MOVING);
-	sb_settings.mGravityFactor = 0.0f;
-	sb_settings.mAllowSleeping = false;
-	sb_settings.mUpdatePosition = false;
+	sb_settings.mGravityFactor = m_settingsSoft.gravity;
+	sb_settings.mAllowSleeping = m_settingsSoft.sleep;
+	sb_settings.mUpdatePosition = m_settingsSoft.updatePosition;
 
 	m_physicsSoftId = Physics::getInstance().bodyInterface().CreateSoftBody(sb_settings);
 	Physics::getInstance().bodyInterface().AddBody(m_physicsSoftId->GetID(),

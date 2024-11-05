@@ -32,6 +32,13 @@ namespace Prisma
 			bool softBody = false;
 		};
 
+		struct SoftBodySettings
+		{
+			float gravity = 9.8f;
+			bool sleep = false;
+			bool updatePosition = false;
+		};
+
 		struct LandscapeData
 		{
 			JPH::Array<float> landscape;

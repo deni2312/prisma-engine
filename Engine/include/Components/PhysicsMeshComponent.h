@@ -70,6 +70,10 @@ namespace Prisma
 
 		void landscapeData(const Physics::LandscapeData& landscapeData);
 
+		void settingsSoftBody(Prisma::Physics::SoftBodySettings settingsSoft);
+
+		Prisma::Physics::SoftBodySettings settingsSoftBody();
+
 		Body& softId();
 
 	private:
@@ -94,5 +98,7 @@ namespace Prisma
 		std::function<void(const Body&)> m_add = nullptr;
 		std::function<void(const Body&)> m_stay = nullptr;
 		std::function<void(const BodyID&)> m_remove = nullptr;
+
+		Prisma::Physics::SoftBodySettings m_settingsSoft;
 	};
 }
