@@ -42,7 +42,7 @@ namespace Prisma
 		};
 
 		void loadModel(std::shared_ptr<VerticesData> vertices, bool compute = true);
-		const VerticesData& verticesData() const;
+		VerticesData& verticesData() const;
 		void matrix(const glm::mat4& matrix, bool update = true) override;
 		glm::mat4 matrix() const override;
 		void finalMatrix(const glm::mat4& matrix, bool update = true) override;

@@ -76,6 +76,25 @@ void Prisma::Physics::update(float delta)
 				auto& softId = physicsComponent->softId();
 				SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId.GetMotionProperties());
 				auto& faces = mp->GetFaces();
+				auto& verticesSoft = mp->GetVertices();
+
+				std::vector<Prisma::Mesh::Vertex> vertices;
+
+				auto& verticesData = mesh->verticesData();
+
+				verticesData.indices.clear();
+
+				for (auto face : faces)
+				{
+					verticesData.indices.push_back(face.mVertex[0]);
+					verticesData.indices.push_back(face.mVertex[1]);
+					verticesData.indices.push_back(face.mVertex[2]);
+				}
+
+				for (int i = 0; i < verticesData.vertices.size(); i++)
+				{
+					verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
+				}
 			}
 		}
 	}

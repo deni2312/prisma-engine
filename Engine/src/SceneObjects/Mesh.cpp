@@ -18,7 +18,7 @@ void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices, bool comput
 	}
 }
 
-const Prisma::Mesh::VerticesData& Prisma::Mesh::verticesData() const
+Prisma::Mesh::VerticesData& Prisma::Mesh::verticesData() const
 {
 	return *m_vertices;
 }
