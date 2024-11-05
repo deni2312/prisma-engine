@@ -63,9 +63,7 @@ void Prisma::Physics::update(float delta)
 			else
 			{
 				const auto& matrix = mesh->parent()->matrix();
-
 				auto id = physicsComponent->physicsId();
-
 				glm::mat4 prismaMatrix(1.0);
 				prismaMatrix = JfromMat4(bInterface.GetWorldTransform(id));
 				auto scaledShape = static_cast<const ScaledShape*>(bInterface.GetShape(id).GetPtr());
