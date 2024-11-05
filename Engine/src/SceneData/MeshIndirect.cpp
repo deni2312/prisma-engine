@@ -33,6 +33,21 @@ void Prisma::MeshIndirect::updateStatusShader() const
 	m_statusShader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
+std::shared_ptr<Prisma::VAO> Prisma::MeshIndirect::vao()
+{
+	return m_vao;
+}
+
+std::shared_ptr<Prisma::VBO> Prisma::MeshIndirect::vbo()
+{
+	return m_vbo;
+}
+
+std::shared_ptr<Prisma::EBO> Prisma::MeshIndirect::ebo()
+{
+	return m_ebo;
+}
+
 void Prisma::MeshIndirect::load()
 {
 	updateSize();

@@ -102,6 +102,13 @@ namespace Prisma
 		unsigned int m_sizeLocation;
 
 	public:
+		std::shared_ptr<VAO> vao();
+
+		std::shared_ptr<VBO> vbo();
+
+		std::shared_ptr<EBO> ebo();
+
+
 		void load();
 
 		void init();

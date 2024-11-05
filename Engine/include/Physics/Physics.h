@@ -11,6 +11,8 @@
 
 namespace Prisma
 {
+	class PhysicsMeshComponent;
+
 	class Physics : public InstanceData<Physics>
 	{
 	public:
@@ -52,6 +54,7 @@ namespace Prisma
 		bool debug();
 
 	private:
+		void softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> physics);
 		DrawDebugger* m_drawDebugger;
 		JPH::BodyManager::DrawSettings m_settings;
 		bool m_debug;

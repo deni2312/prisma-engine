@@ -5,6 +5,7 @@
 #include "../../include/Physics/DrawDebugger.h"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "../../include/Components/PhysicsMeshComponent.h"
+#include "../../include/SceneData/MeshIndirect.h"
 #include "Jolt/Physics/SoftBody/SoftBodyMotionProperties.h"
 
 struct PhysicsWorldJolt
@@ -70,32 +71,7 @@ void Prisma::Physics::update(float delta)
 					mesh->parent()->matrix(prismaMatrix);
 				}
 			}
-
-			if (physicsComponent->collisionData().softBody)
-			{
-				auto& softId = physicsComponent->softId();
-				SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId.GetMotionProperties());
-				auto& faces = mp->GetFaces();
-				auto& verticesSoft = mp->GetVertices();
-
-				std::vector<Prisma::Mesh::Vertex> vertices;
-
-				auto& verticesData = mesh->verticesData();
-
-				verticesData.indices.clear();
-
-				for (auto face : faces)
-				{
-					verticesData.indices.push_back(face.mVertex[0]);
-					verticesData.indices.push_back(face.mVertex[1]);
-					verticesData.indices.push_back(face.mVertex[2]);
-				}
-
-				for (int i = 0; i < verticesData.vertices.size(); i++)
-				{
-					verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
-				}
-			}
+			softBody(physicsComponent);
 		}
 	}
 }
@@ -132,4 +108,67 @@ bool Prisma::Physics::debug()
 		m_drawDebugger->init();
 	}
 	return m_debug;
+}
+
+void Prisma::Physics::softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> physics)
+{
+	std::cout << physics->collisionData().softBody << std::endl;
+	if (physics->collisionData().softBody)
+	{
+		auto mesh = dynamic_cast<Mesh*>(physics->parent());
+		auto& softId = physics->softId();
+		SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId.GetMotionProperties());
+		auto& faces = mp->GetFaces();
+		auto& verticesSoft = mp->GetVertices();
+
+		auto& verticesData = mesh->verticesData();
+
+		verticesData.indices.clear();
+
+		for (auto face : faces)
+		{
+			verticesData.indices.push_back(face.mVertex[0]);
+			verticesData.indices.push_back(face.mVertex[1]);
+			verticesData.indices.push_back(face.mVertex[2]);
+		}
+
+		for (int i = 0; i < verticesData.vertices.size(); i++)
+		{
+			verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
+		}
+
+		auto vao = Prisma::MeshIndirect::getInstance().vao();
+		auto vbo = Prisma::MeshIndirect::getInstance().vbo();
+		auto ebo = Prisma::MeshIndirect::getInstance().ebo();
+
+		unsigned int indexVbo = 0;
+		unsigned int indexEbo = 0;
+
+		for (auto currentMesh : currentGlobalScene->meshes)
+		{
+			if (mesh->uuid() != currentMesh->uuid())
+			{
+				indexVbo = indexVbo + currentMesh->verticesData().vertices.size();
+				indexEbo = indexEbo + currentMesh->verticesData().indices.size();
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		vao->bind();
+
+		vbo->writeSubData(verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex),
+		                  indexVbo * sizeof(Prisma::Mesh::Vertex),
+		                  verticesData.vertices.data());
+		ebo->writeSubData(verticesData.indices.size() * sizeof(unsigned int), indexEbo * sizeof(unsigned int),
+		                  verticesData.indices.data());
+
+		vao->addAttribPointer(0, 3, sizeof(Mesh::Vertex), nullptr);
+		vao->addAttribPointer(1, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
+		vao->addAttribPointer(2, 2, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
+		vao->addAttribPointer(3, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, tangent));
+		vao->addAttribPointer(4, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, bitangent));
+	}
 }
