@@ -55,8 +55,18 @@ void Prisma::PhysicsMeshComponent::update()
 
 void Prisma::PhysicsMeshComponent::destroy()
 {
-	Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(*m_physicsId);
-	Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(*m_physicsId);
+	if (m_physicsId)
+	{
+		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(*m_physicsId);
+		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(*m_physicsId);
+		m_physicsId = nullptr;
+	}
+	if (m_physicsSoftId)
+	{
+		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsSoftId->GetID());
+		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsSoftId->GetID());
+		m_physicsSoftId = nullptr;
+	}
 	Component::destroy();
 }
 

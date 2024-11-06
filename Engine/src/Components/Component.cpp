@@ -31,6 +31,7 @@ void Prisma::Component::updatePostRender(std::shared_ptr<FBO> fbo)
 
 void Prisma::Component::destroy()
 {
+	m_parent = nullptr;
 	sceneComponents.erase(m_uuid);
 }
 
