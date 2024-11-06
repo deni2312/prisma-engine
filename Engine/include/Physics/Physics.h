@@ -34,7 +34,7 @@ namespace Prisma
 
 		struct SoftBodySettings
 		{
-			float gravity = 9.8f;
+			float gravity = 0.0f;
 			bool sleep = false;
 			bool updatePosition = false;
 		};

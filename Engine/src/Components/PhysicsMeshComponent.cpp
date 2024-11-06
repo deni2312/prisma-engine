@@ -300,7 +300,11 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 	for (auto vertex : mesh->verticesData().vertices)
 	{
 		SoftBodySharedSettings::Vertex v;
+
+		vertex.position = mesh->parent()->finalMatrix() * glm::vec4(vertex.position, 1.0);
+
 		v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
+		v.mInvMass = 1;
 		m_softBodySharedSettings->mVertices.push_back(v);
 	}
 
@@ -311,9 +315,14 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		                                                               mesh->verticesData().indices[i + 2]));
 	}
 
+
 	m_softBodySharedSettings->Optimize();
 
-	SoftBodyCreationSettings sb_settings(m_softBodySharedSettings, JtoVec3(translation), Quat::sIdentity(),
+	SoftBodySharedSettings::VertexAttributes va = {1.0e-4f, 1.0e-4f, 1.0e-3f};
+
+	m_softBodySharedSettings->CreateConstraints(&va, 1, SoftBodySharedSettings::EBendType::None);
+
+	SoftBodyCreationSettings sb_settings(m_softBodySharedSettings, Vec3::sZero(), Quat::sIdentity(),
 	                                     m_collisionData.dynamic
 		                                     ? Layers::MOVING
 		                                     : Layers::NON_MOVING);
