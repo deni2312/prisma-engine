@@ -1,5 +1,4 @@
 #include "../../include/Components/PhysicsMeshComponent.h"
-#include "bullet/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "../../include/Physics/PhysicsData.h"
 #include <glm/gtx/string_cast.hpp>
 

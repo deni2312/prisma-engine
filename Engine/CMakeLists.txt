@@ -34,7 +34,6 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
-find_package(Bullet CONFIG REQUIRED)
 find_package(implot CONFIG REQUIRED)
 
-target_link_libraries(PrismaEngineDll PRIVATE Jolt GLEW::GLEW glfw glm::glm assimp::assimp imgui::imgui nlohmann_json::nlohmann_json LinearMath Bullet3Common BulletDynamics BulletSoftBody BulletCollision BulletInverseDynamics imguizmo::imguizmo implot::implot)
+target_link_libraries(PrismaEngineDll PRIVATE Jolt GLEW::GLEW glfw glm::glm assimp::assimp imgui::imgui nlohmann_json::nlohmann_json imguizmo::imguizmo implot::implot)

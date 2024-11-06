@@ -1,9 +1,6 @@
 #include "../../include/SceneObjects/Mesh.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "glm/glm.hpp"
-#include "LinearMath/btTransform.h"
-#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
-#include "btBulletDynamicsCommon.h"
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include <string>
