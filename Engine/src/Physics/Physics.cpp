@@ -104,9 +104,13 @@ void Prisma::Physics::drawDebug()
 			{
 				if (physicsComponent->collisionData().softBody)
 				{
-					auto& softId = physicsComponent->softId();
-					SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId.GetMotionProperties());
-					mp->DrawVertices(m_drawDebugger, JPH::Mat44::sIdentity());
+					auto* softId = physicsComponent->softId();
+					if (softId)
+					{
+						SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId->
+							GetMotionProperties());
+						mp->DrawVertices(m_drawDebugger, JPH::Mat44::sIdentity());
+					}
 				}
 			}
 		}
@@ -130,56 +134,59 @@ bool Prisma::Physics::debug()
 void Prisma::Physics::softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> physics)
 {
 	auto mesh = dynamic_cast<Mesh*>(physics->parent());
-	auto& softId = physics->softId();
-	SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId.GetMotionProperties());
-	auto& faces = mp->GetFaces();
-	auto& verticesSoft = mp->GetVertices();
-
-	auto& verticesData = mesh->verticesData();
-
-	verticesData.indices.clear();
-
-	for (auto face : faces)
+	auto softId = physics->softId();
+	if (softId)
 	{
-		verticesData.indices.push_back(face.mVertex[0]);
-		verticesData.indices.push_back(face.mVertex[1]);
-		verticesData.indices.push_back(face.mVertex[2]);
-	}
+		SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId->GetMotionProperties());
+		auto& faces = mp->GetFaces();
+		auto& verticesSoft = mp->GetVertices();
 
-	for (int i = 0; i < verticesData.vertices.size(); i++)
-	{
-		verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
-	}
+		auto& verticesData = mesh->verticesData();
 
-	auto vao = Prisma::MeshIndirect::getInstance().vao();
-	auto vbo = Prisma::MeshIndirect::getInstance().vbo();
-	auto ebo = Prisma::MeshIndirect::getInstance().ebo();
+		verticesData.indices.clear();
 
-	unsigned int indexVbo = 0;
-	unsigned int indexEbo = 0;
-
-	for (auto currentMesh : currentGlobalScene->meshes)
-	{
-		if (mesh->uuid() != currentMesh->uuid())
+		for (auto face : faces)
 		{
-			indexVbo = indexVbo + currentMesh->verticesData().vertices.size();
-			indexEbo = indexEbo + currentMesh->verticesData().indices.size();
+			verticesData.indices.push_back(face.mVertex[0]);
+			verticesData.indices.push_back(face.mVertex[1]);
+			verticesData.indices.push_back(face.mVertex[2]);
 		}
-		else
+
+		for (int i = 0; i < verticesData.vertices.size(); i++)
 		{
-			break;
+			verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
 		}
+
+		auto vao = Prisma::MeshIndirect::getInstance().vao();
+		auto vbo = Prisma::MeshIndirect::getInstance().vbo();
+		auto ebo = Prisma::MeshIndirect::getInstance().ebo();
+
+		unsigned int indexVbo = 0;
+		unsigned int indexEbo = 0;
+
+		for (auto currentMesh : currentGlobalScene->meshes)
+		{
+			if (mesh->uuid() != currentMesh->uuid())
+			{
+				indexVbo = indexVbo + currentMesh->verticesData().vertices.size();
+				indexEbo = indexEbo + currentMesh->verticesData().indices.size();
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		vao->bind();
+
+		vbo->writeSubData(verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex),
+		                  indexVbo * sizeof(Prisma::Mesh::Vertex),
+		                  verticesData.vertices.data());
+		ebo->writeSubData(verticesData.indices.size() * sizeof(unsigned int), indexEbo * sizeof(unsigned int),
+		                  verticesData.indices.data());
+
+		mesh->parent()->matrix(glm::mat4(1.0));
+
+		vao->resetVao();
 	}
-
-	vao->bind();
-
-	vbo->writeSubData(verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex),
-	                  indexVbo * sizeof(Prisma::Mesh::Vertex),
-	                  verticesData.vertices.data());
-	ebo->writeSubData(verticesData.indices.size() * sizeof(unsigned int), indexEbo * sizeof(unsigned int),
-	                  verticesData.indices.data());
-
-	mesh->parent()->matrix(glm::mat4(1.0));
-
-	vao->resetVao();
 }

@@ -74,7 +74,7 @@ namespace Prisma
 
 		Prisma::Physics::SoftBodySettings settingsSoftBody();
 
-		Body& softId();
+		Body* softId();
 
 	private:
 		ComponentList m_status;

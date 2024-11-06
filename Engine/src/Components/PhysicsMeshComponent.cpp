@@ -169,9 +169,9 @@ Prisma::Physics::SoftBodySettings Prisma::PhysicsMeshComponent::settingsSoftBody
 	return m_settingsSoft;
 }
 
-Body& Prisma::PhysicsMeshComponent::softId()
+Body* Prisma::PhysicsMeshComponent::softId()
 {
-	return *m_physicsSoftId;
+	return m_physicsSoftId;
 }
 
 BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
