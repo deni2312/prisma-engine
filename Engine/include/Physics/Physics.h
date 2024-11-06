@@ -7,6 +7,7 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include "DrawDebugger.h"
+#include "Jolt/Physics/SoftBody/SoftBodySharedSettings.h"
 
 
 namespace Prisma
@@ -34,9 +35,11 @@ namespace Prisma
 
 		struct SoftBodySettings
 		{
-			float gravity = 0.0f;
+			float gravity = 1.0f;
 			bool sleep = false;
 			bool updatePosition = false;
+			JPH::SoftBodySharedSettings::VertexAttributes vertexAttributes = {1, 1, 1};
+			JPH::SoftBodySharedSettings::EBendType bendType = JPH::SoftBodySharedSettings::EBendType::None;
 		};
 
 		struct LandscapeData

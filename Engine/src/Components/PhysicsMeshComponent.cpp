@@ -301,7 +301,7 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 	{
 		SoftBodySharedSettings::Vertex v;
 
-		vertex.position = mesh->parent()->finalMatrix() * glm::vec4(vertex.position, 1.0);
+		vertex.position = mesh->parent()->matrix() * glm::vec4(vertex.position, 1.0);
 
 		v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
 		v.mInvMass = 1;
@@ -315,12 +315,10 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		                                                               mesh->verticesData().indices[i + 2]));
 	}
 
+	m_softBodySharedSettings->CreateConstraints(&m_settingsSoft.vertexAttributes, 1, m_settingsSoft.bendType);
 
 	m_softBodySharedSettings->Optimize();
 
-	SoftBodySharedSettings::VertexAttributes va = {1.0e-4f, 1.0e-4f, 1.0e-3f};
-
-	m_softBodySharedSettings->CreateConstraints(&va, 1, SoftBodySharedSettings::EBendType::None);
 
 	SoftBodyCreationSettings sb_settings(m_softBodySharedSettings, Vec3::sZero(), Quat::sIdentity(),
 	                                     m_collisionData.dynamic
