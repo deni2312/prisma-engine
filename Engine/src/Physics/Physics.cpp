@@ -157,7 +157,10 @@ void Prisma::Physics::softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> phy
 			verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
 		}
 
-		auto vao = Prisma::MeshIndirect::getInstance().vao();
+		Prisma::MeshIndirect::getInstance().remove(0);
+		Prisma::CacheScene::getInstance().updateSizes(true);
+
+		/*auto vao = Prisma::MeshIndirect::getInstance().vao();
 		auto vbo = Prisma::MeshIndirect::getInstance().vbo();
 		auto ebo = Prisma::MeshIndirect::getInstance().ebo();
 
@@ -184,9 +187,8 @@ void Prisma::Physics::softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> phy
 		                  verticesData.vertices.data());
 		ebo->writeSubData(verticesData.indices.size() * sizeof(unsigned int), indexEbo * sizeof(unsigned int),
 		                  verticesData.indices.data());
+		vao->resetVao();*/
 
 		mesh->parent()->matrix(glm::mat4(1.0));
-
-		vao->resetVao();
 	}
 }
