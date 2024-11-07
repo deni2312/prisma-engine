@@ -2,6 +2,7 @@
 #include "../../include/Physics/PhysicsData.h"
 #include <glm/gtx/string_cast.hpp>
 
+#include "../../include/SceneData/MeshIndirect.h"
 #include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
 #include "Jolt/Physics/SoftBody/SoftBodyCreationSettings.h"
 
@@ -306,12 +307,14 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		m_softBodySharedSettings = new SoftBodySharedSettings;
 	}
 
+	auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
+
 	for (auto vertex : mesh->verticesData().vertices)
 	{
 		SoftBodySharedSettings::Vertex v;
 
 		vertex.position = mesh->parent()->matrix() * glm::vec4(vertex.position, 1.0);
-
+		verticesData->vertices.push_back(vertex);
 		v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
 		v.mInvMass = 1;
 		m_softBodySharedSettings->mVertices.push_back(v);
@@ -323,6 +326,10 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		                                                               mesh->verticesData().indices[i + 1],
 		                                                               mesh->verticesData().indices[i + 2]));
 	}
+
+	verticesData->indices = mesh->verticesData().indices;
+
+	mesh->loadModel(verticesData);
 
 	m_softBodySharedSettings->CreateConstraints(&m_settingsSoft.vertexAttributes, 1, m_settingsSoft.bendType);
 
@@ -342,6 +349,9 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 	                                               m_collisionData.dynamic
 		                                               ? EActivation::Activate
 		                                               : EActivation::DontActivate);
+	mesh->parent()->matrix(glm::mat4(1.0));
+	Prisma::MeshIndirect::getInstance().remove(0);
+	Prisma::CacheScene::getInstance().updateSizes(true);
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Component{}
