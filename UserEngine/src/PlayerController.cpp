@@ -66,14 +66,14 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	m_scene->root->addChild(terrain);*/
 
 
-	auto plane = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Plane.001"));
+	/*auto plane = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Plane.001"));
 
 	if (plane)
 	{
 		auto physicsComponent = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(plane->components()["Physics"]);
 		physicsComponent->collisionData({Prisma::Physics::Collider::BOX_COLLIDER, 0.0, true, true});
 		physicsComponent->settingsSoftBody({9.8, false, false, {1, 1, 1}, SoftBodySharedSettings::EBendType::None});
-	}
+	}*/
 
 	auto contact = [&](const Body& body)
 	{

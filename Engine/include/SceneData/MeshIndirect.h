@@ -108,6 +108,7 @@ namespace Prisma
 
 		std::shared_ptr<EBO> ebo();
 
+		Prisma::Mesh::VerticesData& verticesData();
 
 		void load();
 

@@ -48,6 +48,11 @@ std::shared_ptr<Prisma::EBO> Prisma::MeshIndirect::ebo()
 	return m_ebo;
 }
 
+Prisma::Mesh::VerticesData& Prisma::MeshIndirect::verticesData()
+{
+	return m_verticesData;
+}
+
 void Prisma::MeshIndirect::load()
 {
 	updateSize();
