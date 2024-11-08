@@ -79,6 +79,7 @@ namespace Prisma
 	private:
 		ComponentList m_status;
 		std::function<void()> m_apply;
+		std::function<void()> m_applySoft;
 		Physics::CollisionData m_collisionData{};
 		btCollisionShape* m_shape = nullptr;
 		btRigidBody* m_body = nullptr;

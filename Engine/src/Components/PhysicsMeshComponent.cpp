@@ -32,8 +32,14 @@ void Prisma::PhysicsMeshComponent::ui()
 		updateCollisionData();
 	};
 
+	m_applySoft = [&]()
+	{
+		m_collisionData.softBody = true;
+		updateCollisionData();
+	};
+
 	ComponentType componentSoftBody;
-	componentSoftBody = std::make_tuple(TYPES::BOOL, "Soft Body", &m_collisionData.softBody);
+	componentSoftBody = std::make_tuple(TYPES::BUTTON, "Soft Body", &m_applySoft);
 
 	componentButton = std::make_tuple(TYPES::BUTTON, "Apply Collider", &m_apply);
 
@@ -196,7 +202,6 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	glm::vec3 skew;
 	glm::vec4 perspective;
 	decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
-
 	if (scale.x < m_minScale || scale.y < m_minScale || scale.z < m_minScale)
 	{
 		scale = glm::vec3(m_minScale);
@@ -280,15 +285,6 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 
 void Prisma::PhysicsMeshComponent::addSoftBody()
 {
-	auto mesh = dynamic_cast<Mesh*>(parent());
-
-	glm::vec3 scale;
-	glm::quat rotation;
-	glm::vec3 translation;
-	glm::vec3 skew;
-	glm::vec4 perspective;
-	decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
-
 	if (m_physicsId)
 	{
 		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(*m_physicsId);
@@ -296,55 +292,58 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		m_physicsId = nullptr;
 	}
 
-	if (m_physicsSoftId)
+	if (!m_physicsSoftId)
 	{
-		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().RemoveBody(m_physicsSoftId->GetID());
-		Physics::getInstance().physicsSystem().GetBodyInterfaceNoLock().DestroyBody(m_physicsSoftId->GetID());
+		auto mesh = dynamic_cast<Mesh*>(parent());
+
+		glm::vec3 scale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
+
 		m_softBodySharedSettings = new SoftBodySharedSettings;
+
+		for (auto& vertex : mesh->verticesData().vertices)
+		{
+			SoftBodySharedSettings::Vertex v;
+
+			vertex.position = mesh->parent()->matrix() * glm::vec4(vertex.position, 1.0);
+			v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
+			v.mInvMass = 1;
+			m_softBodySharedSettings->mVertices.push_back(v);
+		}
+
+		for (int i = 0; i < mesh->verticesData().indices.size(); i = i + 3)
+		{
+			m_softBodySharedSettings->AddFace(SoftBodySharedSettings::Face(mesh->verticesData().indices[i],
+			                                                               mesh->verticesData().indices[i + 1],
+			                                                               mesh->verticesData().indices[i + 2]));
+		}
+
+		m_softBodySharedSettings->CreateConstraints(&m_settingsSoft.vertexAttributes, 1, m_settingsSoft.bendType);
+
+		m_softBodySharedSettings->Optimize();
+
+
+		SoftBodyCreationSettings sb_settings(m_softBodySharedSettings, Vec3::sZero(), Quat::sIdentity(),
+		                                     m_collisionData.dynamic
+			                                     ? Layers::MOVING
+			                                     : Layers::NON_MOVING);
+		sb_settings.mGravityFactor = m_settingsSoft.gravity;
+		sb_settings.mAllowSleeping = m_settingsSoft.sleep;
+		sb_settings.mUpdatePosition = m_settingsSoft.updatePosition;
+
+		m_physicsSoftId = Physics::getInstance().bodyInterface().CreateSoftBody(sb_settings);
+		Physics::getInstance().bodyInterface().AddBody(m_physicsSoftId->GetID(),
+		                                               m_collisionData.dynamic
+			                                               ? EActivation::Activate
+			                                               : EActivation::DontActivate);
+		mesh->parent()->matrix(glm::mat4(1.0));
+		Prisma::MeshIndirect::getInstance().remove(0);
+		Prisma::CacheScene::getInstance().updateSizes(true);
 	}
-	else
-	{
-		m_softBodySharedSettings = new SoftBodySharedSettings;
-	}
-
-	for (auto& vertex : mesh->verticesData().vertices)
-	{
-		SoftBodySharedSettings::Vertex v;
-
-		vertex.position = mesh->parent()->matrix() * glm::vec4(vertex.position, 1.0);
-		v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
-		v.mInvMass = 1;
-		m_softBodySharedSettings->mVertices.push_back(v);
-	}
-
-	for (int i = 0; i < mesh->verticesData().indices.size(); i = i + 3)
-	{
-		m_softBodySharedSettings->AddFace(SoftBodySharedSettings::Face(mesh->verticesData().indices[i],
-		                                                               mesh->verticesData().indices[i + 1],
-		                                                               mesh->verticesData().indices[i + 2]));
-	}
-
-	m_softBodySharedSettings->CreateConstraints(&m_settingsSoft.vertexAttributes, 1, m_settingsSoft.bendType);
-
-	m_softBodySharedSettings->Optimize();
-
-
-	SoftBodyCreationSettings sb_settings(m_softBodySharedSettings, Vec3::sZero(), Quat::sIdentity(),
-	                                     m_collisionData.dynamic
-		                                     ? Layers::MOVING
-		                                     : Layers::NON_MOVING);
-	sb_settings.mGravityFactor = m_settingsSoft.gravity;
-	sb_settings.mAllowSleeping = m_settingsSoft.sleep;
-	sb_settings.mUpdatePosition = m_settingsSoft.updatePosition;
-
-	m_physicsSoftId = Physics::getInstance().bodyInterface().CreateSoftBody(sb_settings);
-	Physics::getInstance().bodyInterface().AddBody(m_physicsSoftId->GetID(),
-	                                               m_collisionData.dynamic
-		                                               ? EActivation::Activate
-		                                               : EActivation::DontActivate);
-	mesh->parent()->matrix(glm::mat4(1.0));
-	Prisma::MeshIndirect::getInstance().remove(0);
-	Prisma::CacheScene::getInstance().updateSizes(true);
 }
 
 Prisma::PhysicsMeshComponent::PhysicsMeshComponent() : Component{}

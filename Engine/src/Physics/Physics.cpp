@@ -51,9 +51,12 @@ void Prisma::Physics::update(float delta)
 	                                        &*physicsWorldJolt->job_system);
 
 	auto& bInterface = physicsWorldJolt->physics_system.GetBodyInterface();
+	m_indexVbo = 0;
+	m_indexEbo = 0;
 	for (const auto& mesh : currentGlobalScene->meshes)
 	{
-		auto physicsComponent = std::dynamic_pointer_cast<PhysicsMeshComponent>(mesh->components()["Physics"]);
+		auto physicsComponent = std::dynamic_pointer_cast<PhysicsMeshComponent>(
+			mesh->components()["Physics"]);
 		if (physicsComponent && physicsComponent->initPhysics())
 		{
 			if (physicsComponent->collisionData().softBody)
@@ -77,6 +80,8 @@ void Prisma::Physics::update(float delta)
 				}
 			}
 		}
+		m_indexVbo = m_indexVbo + mesh->verticesData().vertices.size();
+		m_indexEbo = m_indexEbo + mesh->verticesData().indices.size();
 	}
 }
 
@@ -147,31 +152,15 @@ void Prisma::Physics::softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> phy
 		auto vbo = Prisma::MeshIndirect::getInstance().vbo();
 		auto ebo = Prisma::MeshIndirect::getInstance().ebo();
 
-		unsigned int indexVbo = 0;
-		unsigned int indexEbo = 0;
-
-		for (auto currentMesh : currentGlobalScene->meshes)
-		{
-			if (mesh->uuid() != currentMesh->uuid())
-			{
-				indexVbo = indexVbo + currentMesh->verticesData().vertices.size();
-				indexEbo = indexEbo + currentMesh->verticesData().indices.size();
-			}
-			else
-			{
-				break;
-			}
-		}
-
 		auto& verticesIndirect = Prisma::MeshIndirect::getInstance().verticesData();
 
 		verticesData.indices.clear();
 
 		for (int i = 0; i < faces.size(); i++)
 		{
-			verticesIndirect.indices[indexEbo + i] = faces[i].mVertex[0];
-			verticesIndirect.indices[indexEbo + i + 1] = faces[i].mVertex[1];
-			verticesIndirect.indices[indexEbo + i + 2] = faces[i].mVertex[2];
+			verticesIndirect.indices[m_indexEbo + i] = faces[i].mVertex[0];
+			verticesIndirect.indices[m_indexEbo + i + 1] = faces[i].mVertex[1];
+			verticesIndirect.indices[m_indexEbo + i + 2] = faces[i].mVertex[2];
 			verticesData.indices.push_back(faces[i].mVertex[0]);
 			verticesData.indices.push_back(faces[i].mVertex[1]);
 			verticesData.indices.push_back(faces[i].mVertex[2]);
@@ -180,18 +169,15 @@ void Prisma::Physics::softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> phy
 		for (int i = 0; i < verticesData.vertices.size(); i++)
 		{
 			verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
-			verticesIndirect.vertices[indexVbo + i].position = verticesData.vertices[i].position;
+			verticesIndirect.vertices[m_indexVbo + i].position = verticesData.vertices[i].position;
 		}
-
-		//Prisma::MeshIndirect::getInstance().remove(0);
-		//Prisma::CacheScene::getInstance().updateSizes(true);
 
 		vao->bind();
 
 		vbo->writeSubData(verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex),
-		                  indexVbo * sizeof(Prisma::Mesh::Vertex),
+		                  m_indexVbo * sizeof(Prisma::Mesh::Vertex),
 		                  verticesData.vertices.data());
-		ebo->writeSubData(verticesData.indices.size() * sizeof(unsigned int), indexEbo * sizeof(unsigned int),
+		ebo->writeSubData(verticesData.indices.size() * sizeof(unsigned int), m_indexEbo * sizeof(unsigned int),
 		                  verticesData.indices.data());
 		vao->resetVao();
 	}

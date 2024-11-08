@@ -68,5 +68,7 @@ namespace Prisma
 		DrawDebugger* m_drawDebugger;
 		JPH::BodyManager::DrawSettings m_settings;
 		bool m_debug;
+		unsigned int m_indexVbo = 0;
+		unsigned int m_indexEbo = 0;
 	};
 }
