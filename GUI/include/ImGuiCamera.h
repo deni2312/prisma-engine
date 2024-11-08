@@ -31,6 +31,10 @@ namespace Prisma
 
 		std::shared_ptr<CallbackHandler> callback();
 
+		bool openPopup() const;
+
+		void openPopup(bool openPopup);
+
 	private:
 		glm::vec3 m_position = glm::vec3(0.0f);
 		glm::vec3 m_front = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -47,6 +51,8 @@ namespace Prisma
 		bool m_pressed = false;
 		bool m_save = false;
 		bool m_right = false;
+
+		bool m_openPopup = false;
 
 		float m_totalVelocity = 0;
 

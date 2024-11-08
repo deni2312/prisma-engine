@@ -319,8 +319,8 @@ void Prisma::ImguiDebug::close()
 		m_translate * m_width / 2, m_initOffset + 50, m_translate * m_width / 2 + m_scale * m_width, m_height * m_scale,
 		ImGuizmo::IsOver(), m_scale
 	});
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
 	if (!m_run)
 	{
 		double currentFrameTime = glfwGetTime();
@@ -333,7 +333,28 @@ void Prisma::ImguiDebug::close()
 
 		m_imguiCamera.updateCamera(m_camera);
 		m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
+
+		if (m_imguiCamera.openPopup())
+		{
+			ImGui::OpenPopup("RightClickMenu");
+			m_imguiCamera.openPopup(false);
+		}
+		// Right-click context menu
+		if (ImGui::BeginPopup("RightClickMenu"))
+		{
+			if (ImGui::MenuItem("Add Cube"))
+			{
+				// Add code to add a cube
+			}
+			if (ImGui::MenuItem("Add Sphere"))
+			{
+				// Add code to add a sphere
+			}
+			ImGui::EndPopup();
+		}
 	}
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Prisma::ImguiDebug::imguiData(std::shared_ptr<ImGuiData> data)

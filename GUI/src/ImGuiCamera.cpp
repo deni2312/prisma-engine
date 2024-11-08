@@ -6,6 +6,7 @@
 #include "../../Engine/include/Helpers/SettingsLoader.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
 #include "../../Engine/include/engine.h"
+#include <imgui.h>
 
 Prisma::ImGuiCamera::ImGuiCamera()
 {
@@ -132,6 +133,16 @@ std::shared_ptr<Prisma::CallbackHandler> Prisma::ImGuiCamera::callback()
 	return m_callback;
 }
 
+bool Prisma::ImGuiCamera::openPopup() const
+{
+	return m_openPopup;
+}
+
+void Prisma::ImGuiCamera::openPopup(bool openPopup)
+{
+	m_openPopup = openPopup;
+}
+
 int id = 0;
 
 void Prisma::ImGuiCamera::mouseButtonCallback()
@@ -165,6 +176,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 			}
 		}
 
+
 		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
 		{
 			m_right = true;
@@ -173,6 +185,10 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
 		{
 			m_right = false;
+			if (x < m_constraints.minX && y < m_constraints.maxY)
+			{
+				m_openPopup = true;
+			}
 		}
 	};
 
