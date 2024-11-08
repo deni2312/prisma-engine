@@ -26,6 +26,7 @@ Prisma::LightHandler::LightHandler()
 void Prisma::LightHandler::updateDirectional()
 {
 	const auto& scene = currentGlobalScene;
+	int numVisible = 0;
 
 	if (scene->dirLights.size() > 0)
 	{
@@ -46,18 +47,22 @@ void Prisma::LightHandler::updateDirectional()
 	m_dataDirectional = std::make_shared<SSBODataDirectional>();
 	for (int i = 0; i < scene->dirLights.size(); i++)
 	{
-		const auto& light = scene->dirLights[i];
-		m_dataDirectional->lights.push_back(scene->dirLights[i]->type());
-		const auto& dirMatrix = scene->dirLights[i]->finalMatrix();
-		auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
+		if (scene->dirLights[i]->visible())
+		{
+			const auto& light = scene->dirLights[i];
+			m_dataDirectional->lights.push_back(scene->dirLights[i]->type());
+			const auto& dirMatrix = scene->dirLights[i]->finalMatrix();
+			auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
 
-		const auto& dirMult = normalize(dirMatrix * m_dataDirectional->lights[i].direction);
-		m_dataDirectional->lights[i].direction = dirMult;
-		m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
-		m_dataDirectional->lights[i].padding.y = shadow->bias();
+			const auto& dirMult = normalize(dirMatrix * m_dataDirectional->lights[i].direction);
+			m_dataDirectional->lights[i].direction = dirMult;
+			m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
+			m_dataDirectional->lights[i].padding.y = shadow->bias();
+			numVisible++;
+		}
 	}
 	glm::vec4 dirLength;
-	dirLength.r = scene->dirLights.size();
+	dirLength.r = numVisible;
 	m_dirLights->modifyData(0, sizeof(glm::vec4),
 	                        value_ptr(dirLength));
 	m_dirLights->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(LightType::LightDir),
