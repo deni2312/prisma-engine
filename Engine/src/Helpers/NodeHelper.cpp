@@ -1,8 +1,14 @@
 #include "../../include/Helpers/NodeHelper.h"
+#include "../../include/GlobalData/GlobalData.h"
 
 std::shared_ptr<Prisma::Node> Prisma::NodeHelper::find(std::shared_ptr<Node> root, const std::string& name)
 {
 	return findRecursive(root, name);
+}
+
+std::shared_ptr<Prisma::Node> Prisma::NodeHelper::find(uint64_t uuid)
+{
+	return sceneNodes[uuid];
 }
 
 std::shared_ptr<Prisma::Node> Prisma::NodeHelper::findRecursive(const std::shared_ptr<Node>& currentNode,

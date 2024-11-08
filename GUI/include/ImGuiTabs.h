@@ -20,7 +20,7 @@ namespace Prisma
 
 		unsigned long int m_index = 0;
 
-		Prisma::Node* m_current = nullptr;
+		int64_t m_current = -1;
 		std::shared_ptr<Prisma::Node> m_parent = nullptr;
 	};
 }

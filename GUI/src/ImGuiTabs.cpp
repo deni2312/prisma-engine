@@ -33,7 +33,7 @@ void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, 
 			//src_flags |= ImGuiDragDropFlags_SourceNoPreviewTooltip; // Hide the tooltip
 			if (ImGui::BeginDragDropSource(src_flags))
 			{
-				ImGui::SetDragDropPayload("DND_DEMO_NAME", child.get(), sizeof(child));
+				ImGui::SetDragDropPayload("DND_DEMO_NAME", &m_current, sizeof(int64_t));
 				ImGui::EndDragDropSource();
 			}
 
@@ -45,7 +45,7 @@ void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, 
 				target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect; // Don't display the yellow rectangle
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DEMO_NAME", target_flags))
 				{
-					m_current = (Node*)payload->Data;
+					m_current = *(int64_t*)payload->Data;
 					m_parent = child;
 				}
 				ImGui::EndDragDropTarget();
@@ -61,25 +61,23 @@ void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, 
 
 void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera)
 {
-	m_current = nullptr;
+	m_current = -1;
 	m_parent = nullptr;
 	showCurrentNodes(root, depth, camera);
 
-	if (m_current && m_parent && m_current->uuid() == m_parent->uuid())
+	if (m_current && m_parent && m_current == m_parent->uuid())
 	{
-		m_current = nullptr;
+		m_current = -1;
 		m_parent = nullptr;
 	}
-	if (m_current && m_parent)
-	{
-		std::cout << m_current->name() << " " << m_parent->name() << std::endl;
-	}
-	if (m_current && m_parent)
+
+	if (m_current != -1 && m_parent)
 	{
 		Prisma::NodeHelper nodeHelper;
-		m_current->parent()->removeChild(m_current->uuid());
-		m_parent->addChild(nodeHelper.find(root, m_current->name()));
-		m_current = nullptr;
+		auto current = nodeHelper.find(m_current);
+		current->parent()->removeChild(m_current);
+		m_parent->addChild(nodeHelper.find(m_current));
+		m_current = -1;
 		m_parent = nullptr;
 	}
 	m_index = 0;

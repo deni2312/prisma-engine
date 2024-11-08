@@ -25,6 +25,9 @@ namespace Prisma
 		}
 
 		std::shared_ptr<Node> find(std::shared_ptr<Node> root, const std::string& name);
+
+		std::shared_ptr<Node> find(uint64_t uuid);
+
 		void nodeIterator(std::shared_ptr<Node> root,
 		                  std::function<void(std::shared_ptr<Node>, std::shared_ptr<Node>)> current);
 
