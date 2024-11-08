@@ -19,5 +19,8 @@ namespace Prisma
 		void showCurrentNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera);
 
 		unsigned long int m_index = 0;
+
+		Prisma::Node* m_current = nullptr;
+		std::shared_ptr<Prisma::Node> m_parent = nullptr;
 	};
 }

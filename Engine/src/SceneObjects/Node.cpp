@@ -135,8 +135,8 @@ void Prisma::Node::removeChild(uint64_t uuid)
 			currentGlobalScene->sprites.erase(find);
 		}
 
-
 		m_children.erase(m_children.begin() + index);
+
 		CacheScene::getInstance().updateSizes(true);
 	}
 }
@@ -175,6 +175,7 @@ glm::mat4 Prisma::Node::finalMatrix() const
 void Prisma::Node::parent(Node* parent)
 {
 	m_parent = parent;
+	CacheScene::getInstance().updateData(true);
 }
 
 Prisma::Node* Prisma::Node::parent() const
