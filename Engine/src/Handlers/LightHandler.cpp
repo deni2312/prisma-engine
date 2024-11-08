@@ -61,7 +61,7 @@ void Prisma::LightHandler::updateDirectional()
 			numVisible++;
 		}
 	}
-	glm::vec4 dirLength;
+	glm::ivec4 dirLength;
 	dirLength.r = numVisible;
 	m_dirLights->modifyData(0, sizeof(glm::vec4),
 	                        value_ptr(dirLength));
@@ -101,7 +101,7 @@ void Prisma::LightHandler::updateOmni()
 		}
 	}
 
-	glm::vec4 omniLength;
+	glm::ivec4 omniLength;
 	omniLength.r = numVisible;
 	m_omniLights->modifyData(0, sizeof(glm::vec4),
 	                         value_ptr(omniLength));

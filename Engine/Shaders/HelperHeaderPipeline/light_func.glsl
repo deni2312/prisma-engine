@@ -21,14 +21,14 @@ struct OmniData {
 
 layout(std430, binding = 2) buffer Directional
 {
-    vec4 lenDir;
+    ivec4 lenDir;
     DirectionalData directionalData[];
 };
 
 
 layout(std430, binding = 3) buffer Omni
 {
-    vec4 lenOmni;
+    ivec4 lenOmni;
     OmniData omniData[];
 };
 

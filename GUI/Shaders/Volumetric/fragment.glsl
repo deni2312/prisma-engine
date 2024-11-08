@@ -38,7 +38,7 @@ layout(std140, binding = 3) uniform FragmentData
 
 layout(std430, binding = 2) buffer Directional
 {
-	vec4 lenDir;
+	ivec4 lenDir;
 	DirectionalData directionalData[];
 };
 

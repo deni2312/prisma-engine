@@ -12,13 +12,13 @@ namespace Prisma
 	{
 		struct SSBODataDirectional
 		{
-			glm::vec4 size;
+			glm::ivec4 size;
 			std::vector<LightType::LightDir> lights;
 		};
 
 		struct SSBODataOmni
 		{
-			glm::vec4 size;
+			glm::ivec4 size;
 			std::vector<LightType::LightOmni> lights;
 		};
 

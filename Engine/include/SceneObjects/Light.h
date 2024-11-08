@@ -117,7 +117,7 @@ namespace Prisma
 			if (light)
 			{
 				newInstance = std::make_shared<Light<T>>();
-				newInstance->hasShadow(light->hasShadow())
+				newInstance->hasShadow(light->hasShadow());
 				newInstance->matrix(light->matrix());
 				newInstance->name(light->name() + std::to_string(newInstance->uuid()));
 				auto parent = std::make_shared<Node>();
