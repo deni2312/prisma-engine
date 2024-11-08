@@ -144,9 +144,8 @@ void Prisma::LightHandler::update()
 	{
 		updateCSM();
 	}
-
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
-		CacheScene::getInstance().updateLights())
+		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus())
 	{
 		if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS)
 		{
