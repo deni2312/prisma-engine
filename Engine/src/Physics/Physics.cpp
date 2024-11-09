@@ -73,9 +73,10 @@ void Prisma::Physics::update(float delta)
 				if (scaledShape)
 				{
 					prismaMatrix = scale(prismaMatrix, JfromVec3(scaledShape->GetScale()));
+					auto inverseMatrix = glm::inverse(mesh->parent()->parent()->finalMatrix());
 					if (!mat4Equals(prismaMatrix, matrix))
 					{
-						mesh->parent()->matrix(prismaMatrix);
+						mesh->parent()->matrix(inverseMatrix * prismaMatrix);
 					}
 				}
 			}

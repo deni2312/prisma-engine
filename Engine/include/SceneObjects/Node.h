@@ -40,6 +40,7 @@ namespace Prisma
 
 	private:
 		void updateCaches(std::shared_ptr<Node> child);
+		void updateParent(Node* parent);
 		void dispatch(std::shared_ptr<Node> child);
 		std::map<std::string, std::shared_ptr<Component>> m_components;
 

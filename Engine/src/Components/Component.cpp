@@ -29,6 +29,10 @@ void Prisma::Component::updatePostRender(std::shared_ptr<FBO> fbo)
 {
 }
 
+void Prisma::Component::onParent(Node* parent)
+{
+}
+
 void Prisma::Component::destroy()
 {
 	m_parent = nullptr;

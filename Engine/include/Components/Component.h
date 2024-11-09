@@ -46,6 +46,8 @@ namespace Prisma
 
 		virtual void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
 
+		virtual void onParent(Node* parent);
+
 		virtual void destroy();
 
 		void parent(Node* parent);

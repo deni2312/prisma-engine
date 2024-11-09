@@ -77,6 +77,12 @@ void Prisma::PhysicsMeshComponent::destroy()
 	Component::destroy();
 }
 
+void Prisma::PhysicsMeshComponent::onParent(Node* parent)
+{
+	Component::onParent(parent);
+	updateCollisionData();
+}
+
 void Prisma::PhysicsMeshComponent::collisionData(Physics::CollisionData collisionData)
 {
 	m_collisionData = collisionData;
@@ -201,7 +207,7 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	glm::vec3 translation;
 	glm::vec3 skew;
 	glm::vec4 perspective;
-	decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
+	decompose(mesh->parent()->finalMatrix(), scale, rotation, translation, skew, perspective);
 	if (scale.x < m_minScale || scale.y < m_minScale || scale.z < m_minScale)
 	{
 		scale = glm::vec3(m_minScale);
@@ -296,12 +302,6 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 	{
 		auto mesh = dynamic_cast<Mesh*>(parent());
 
-		glm::vec3 scale;
-		glm::quat rotation;
-		glm::vec3 translation;
-		glm::vec3 skew;
-		glm::vec4 perspective;
-		decompose(mesh->parent()->matrix(), scale, rotation, translation, skew, perspective);
 
 		m_softBodySharedSettings = new SoftBodySharedSettings;
 
@@ -309,7 +309,7 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		{
 			SoftBodySharedSettings::Vertex v;
 
-			vertex.position = mesh->parent()->matrix() * glm::vec4(vertex.position, 1.0);
+			vertex.position = mesh->parent()->finalMatrix() * glm::vec4(vertex.position, 1.0);
 			v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
 			v.mInvMass = 1;
 			m_softBodySharedSettings->mVertices.push_back(v);

@@ -35,8 +35,8 @@ void Prisma::Node::addChild(std::shared_ptr<Node> child, bool updateScene)
 {
 	sceneNodes[child->uuid()] = child;
 	m_children.push_back(child);
-	child->parent(this);
 	updateChild(this);
+	child->parent(this);
 	if (updateScene)
 	{
 		updateCaches(child);
@@ -175,6 +175,7 @@ glm::mat4 Prisma::Node::finalMatrix() const
 void Prisma::Node::parent(Node* parent)
 {
 	m_parent = parent;
+	updateParent(parent);
 	CacheScene::getInstance().updateData(true);
 }
 
@@ -213,6 +214,21 @@ void Prisma::Node::updateCaches(std::shared_ptr<Node> child)
 	for (auto c : child->children())
 	{
 		child->updateCaches(c);
+	}
+}
+
+void Prisma::Node::updateParent(Node* parent)
+{
+	if (parent)
+	{
+		for (auto& child : parent->children())
+		{
+			for (auto& component : child->components())
+			{
+				component.second->onParent(parent);
+			}
+			updateParent(child.get());
+		}
 	}
 }
 
