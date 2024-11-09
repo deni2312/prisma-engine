@@ -33,6 +33,7 @@ void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, 
 			//src_flags |= ImGuiDragDropFlags_SourceNoPreviewTooltip; // Hide the tooltip
 			if (ImGui::BeginDragDropSource(src_flags))
 			{
+				m_current = child->uuid();
 				ImGui::SetDragDropPayload("DND_DEMO_NAME", &m_current, sizeof(int64_t));
 				ImGui::EndDragDropSource();
 			}
@@ -65,6 +66,7 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCa
 	m_parent = nullptr;
 	showCurrentNodes(root, depth, camera);
 
+
 	if (m_current && m_parent && m_current == m_parent->uuid())
 	{
 		m_current = -1;
@@ -75,10 +77,13 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCa
 	{
 		Prisma::NodeHelper nodeHelper;
 		auto current = nodeHelper.find(m_current);
-		current->parent()->removeChild(m_current);
-		m_parent->addChild(nodeHelper.find(m_current));
-		m_current = -1;
-		m_parent = nullptr;
+		if (current && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+		{
+			current->parent()->removeChild(m_current, false);
+			m_parent->addChild(current);
+			m_current = -1;
+			m_parent = nullptr;
+		}
 	}
 	m_index = 0;
 }

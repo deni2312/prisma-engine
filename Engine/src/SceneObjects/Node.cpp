@@ -43,7 +43,7 @@ void Prisma::Node::addChild(std::shared_ptr<Node> child, bool updateScene)
 	}
 }
 
-void Prisma::Node::removeChild(uint64_t uuid)
+void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 {
 	NodeHelper nodeHelper;
 	int index = nodeHelper.findUUID(m_children, uuid);
@@ -52,7 +52,7 @@ void Prisma::Node::removeChild(uint64_t uuid)
 	{
 		sceneNodes.erase(sceneNodes.find(uuid));
 
-		while (m_children[index]->children().size() > 0)
+		while (m_children[index]->children().size() > 0 && removeRecursive)
 		{
 			m_children[index]->removeChild(m_children[index]->children()[0]->uuid());
 		}
