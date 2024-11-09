@@ -12,8 +12,6 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 		NodeViewer::NodeData parentData = meshData;
 		parentData.node = parentData.node->parent();
 
-		NodeViewer::getInstance().showSelected(parentData, false);
-
 		std::shared_ptr<PhysicsMeshComponent> physicsComponent = nullptr;
 		for (auto component : meshData.node->components())
 		{
@@ -23,6 +21,8 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 				physicsComponent = physicsMesh;
 			}
 		}
+
+		NodeViewer::getInstance().showSelected(parentData, false);
 		if (physicsComponent)
 		{
 			physicsComponent->updateCollisionData();
@@ -50,7 +50,10 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 			}
 		}
 		ImGui::Dummy(ImVec2(0.0f, 10.0f));
-		NodeViewer::getInstance().showComponents(meshData.node);
+		if (isAnimate || (physicsComponent && !physicsComponent->collisionData().softBody))
+		{
+			NodeViewer::getInstance().showComponents(meshData.node);
+		}
 		ImGui::End();
 	}
 }
