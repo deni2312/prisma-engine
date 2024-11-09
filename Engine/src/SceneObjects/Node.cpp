@@ -302,9 +302,12 @@ void Prisma::Node::updateChild(Node* node)
 
 void Prisma::Node::addComponent(std::shared_ptr<Component> component)
 {
-	ComponentsHandler::getInstance().addComponent(component);
-	component->parent(this);
-	m_components[component->name()] = component;
+	if (m_components.find(component->name()) == m_components.end())
+	{
+		ComponentsHandler::getInstance().addComponent(component);
+		component->parent(this);
+		m_components[component->name()] = component;
+	}
 }
 
 std::map<std::string, std::shared_ptr<Prisma::Component>> Prisma::Node::components()
