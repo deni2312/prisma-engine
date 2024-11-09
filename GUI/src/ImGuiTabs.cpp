@@ -29,14 +29,14 @@ void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, 
 			}
 
 			ImGuiDragDropFlags src_flags = 0;
-			src_flags |= ImGuiDragDropFlags_SourceNoDisableHover; // Keep the source displayed as hovered
+			src_flags |= ImGuiDragDropFlags_SourceNoDisableHover;
 			src_flags |= ImGuiDragDropFlags_SourceNoHoldToOpenOthers;
-			// Because our dragging is local, we disable the feature of opening foreign treenodes/tabs while dragging
-			//src_flags |= ImGuiDragDropFlags_SourceNoPreviewTooltip; // Hide the tooltip
+
 			if (ImGui::BeginDragDropSource(src_flags))
 			{
 				m_current = child->uuid();
-				ImGui::SetDragDropPayload("DND_DEMO_NAME", &m_current, sizeof(int64_t));
+				ImGui::SetDragDropPayload("DATA_NAME", &m_current, sizeof(int64_t));
+				ImGui::Text(child->name().c_str());
 				ImGui::EndDragDropSource();
 			}
 
@@ -44,9 +44,8 @@ void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, 
 			{
 				ImGuiDragDropFlags target_flags = 0;
 				target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
-				// Don't wait until the delivery (release mouse button on a target) to do something
 				target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect; // Don't display the yellow rectangle
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_DEMO_NAME", target_flags))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DATA_NAME", target_flags))
 				{
 					m_current = *(int64_t*)payload->Data;
 					m_parent = child;
