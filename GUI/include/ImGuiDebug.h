@@ -12,6 +12,7 @@
 #include "PlotFPS.h"
 #include "../../Engine/include/GlobalData/InstanceData.h"
 #include "../../Engine/include/Helpers/TimeCounter.h"
+#include "AddingMenu.h"
 
 
 namespace Prisma
@@ -96,5 +97,7 @@ namespace Prisma
 
 		TimeCounter m_timeCounterUI;
 		TimeCounter m_timeCounterEngine;
+
+		Prisma::ImGuiAddingMenu m_addingMenu;
 	};
 }
