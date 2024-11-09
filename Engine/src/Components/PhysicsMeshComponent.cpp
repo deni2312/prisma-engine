@@ -19,6 +19,17 @@ void Prisma::PhysicsMeshComponent::ui()
 	ComponentType componentMass;
 	componentMass = std::make_tuple(TYPES::FLOAT, "Mass", &m_collisionData.mass);
 
+	ComponentType componentGravity;
+	componentGravity = std::make_tuple(TYPES::FLOAT, "Gravity", &m_settingsSoft.gravity);
+
+	m_statusBend.currentitem = static_cast<int>(m_settingsSoft.bendType);
+	m_statusBend.items.push_back("NONE");
+	m_statusBend.items.push_back("DISTANCE");
+	m_statusBend.items.push_back("DIHEDRAL");
+
+	ComponentType componentBend;
+	componentBend = std::make_tuple(TYPES::STRINGLIST, "Bend", &m_statusBend);
+
 	ComponentType componentDynamic;
 	componentDynamic = std::make_tuple(TYPES::BOOL, "Dynamic", &m_collisionData.dynamic);
 
@@ -46,6 +57,12 @@ void Prisma::PhysicsMeshComponent::ui()
 	addGlobal(componentType);
 
 	addGlobal(componentMass);
+
+	addGlobal(componentGravity);
+
+	addGlobal(componentBend);
+
+	addGlobal(componentType);
 
 	addGlobal(componentDynamic);
 
