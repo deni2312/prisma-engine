@@ -21,13 +21,38 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 				physicsComponent = physicsMesh;
 			}
 		}
+		auto mesh = dynamic_cast<Prisma::Mesh*>(meshData.node);
+		auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.node);
 
 		NodeViewer::getInstance().showSelected(parentData, false);
+		ImGui::Dummy(ImVec2(0.0f, 4.0f));
+
+		if (mesh)
+		{
+			std::string numberVertices = "";
+
+			if (isAnimate)
+			{
+				numberVertices = "Vertices: " + std::to_string(isAnimate->animateVerticesData()->vertices.size());
+			}
+			else
+			{
+				numberVertices = "Vertices: " + std::to_string(mesh->verticesData().vertices.size());
+			}
+			ImGui::Text(numberVertices.c_str());
+		}
+		ImGui::Dummy(ImVec2(0.0f, 4.0f));
+
 		if (physicsComponent)
 		{
 			physicsComponent->updateCollisionData();
 		}
-		auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.node);
+
+		if (isAnimate || (physicsComponent && !physicsComponent->collisionData().softBody))
+		{
+			NodeViewer::getInstance().showComponents(meshData.node);
+		}
+		ImGui::Dummy(ImVec2(0, 10));
 		if (isAnimate)
 		{
 			auto animator = isAnimate->animator();
@@ -48,11 +73,6 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 					animator->frame(current);
 				}
 			}
-		}
-		ImGui::Dummy(ImVec2(0.0f, 10.0f));
-		if (isAnimate || (physicsComponent && !physicsComponent->collisionData().softBody))
-		{
-			NodeViewer::getInstance().showComponents(meshData.node);
 		}
 		ImGui::End();
 	}
