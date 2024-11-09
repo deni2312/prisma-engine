@@ -4,6 +4,8 @@
 
 #include "imgui_internal.h"
 #include "../../Engine/include/Helpers/NodeHelper.h"
+#include "../../Engine/include/SceneObjects/Mesh.h"
+
 
 Prisma::ImGuiTabs::ImGuiTabs()
 {
@@ -77,7 +79,11 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCa
 	{
 		Prisma::NodeHelper nodeHelper;
 		auto current = nodeHelper.find(m_current);
-		if (current && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+
+		auto isMesh = std::dynamic_pointer_cast<Prisma::Mesh>(current);
+
+
+		if (current && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !isMesh)
 		{
 			current->parent()->removeChild(m_current, false);
 			m_parent->addChild(current);
