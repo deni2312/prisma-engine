@@ -33,7 +33,8 @@ namespace Prisma
 
 		void showComponents(Node* nodeData);
 
-		void showSelected(const NodeData& nodeData, bool end = true, bool showData = true);
+		void showSelected(const NodeData& nodeData, bool end = true, bool showData = true,
+		                  Node* componentAdding = nullptr);
 		// Getters for textures
 		const std::shared_ptr<Texture>& rotateTexture() const;
 

@@ -80,7 +80,6 @@ void Prisma::ComponentsHandler::removeComponent(std::shared_ptr<Component> compo
 	// Erase the removed elements (if any)
 	if (it != m_components.end())
 	{
-		std::cout << "a" << std::endl;
 		m_components.erase(it);
 	}
 }

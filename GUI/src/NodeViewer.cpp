@@ -118,7 +118,8 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 
 // Getters for textures
 
-void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool showData)
+void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool showData,
+                                      Node* componentAdding)
 {
 	if (nodeData.node)
 	{
@@ -210,7 +211,14 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 		ImGui::SameLine();
 		if (ImGui::Button("Add component"))
 		{
-			nodeData.node->addComponent(Prisma::Factory::createInstance(components[m_componentSelect]));
+			if (componentAdding)
+			{
+				componentAdding->addComponent(Prisma::Factory::createInstance(components[m_componentSelect]));
+			}
+			else
+			{
+				nodeData.node->addComponent(Prisma::Factory::createInstance(components[m_componentSelect]));
+			}
 		}
 		if (showData)
 		{

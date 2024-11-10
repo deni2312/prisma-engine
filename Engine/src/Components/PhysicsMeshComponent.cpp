@@ -64,8 +64,6 @@ void Prisma::PhysicsMeshComponent::ui()
 
 	addGlobal(componentBend);
 
-	addGlobal(componentType);
-
 	addGlobal(componentDynamic);
 
 	addGlobal(componentSoftBody);
