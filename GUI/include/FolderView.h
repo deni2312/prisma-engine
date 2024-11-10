@@ -19,7 +19,7 @@ namespace Prisma
 		ImVec2 m_fontSize;
 		ImVec2 m_iconSize;
 
-		fs::path currentPath;
+		fs::path m_currentPath;
 		std::shared_ptr<Texture> m_folder;
 		std::shared_ptr<Texture> m_file;
 		std::shared_ptr<Texture> m_back;

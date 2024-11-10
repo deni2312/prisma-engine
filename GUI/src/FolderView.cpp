@@ -28,7 +28,7 @@ void Prisma::FileBrowser::setPath(const fs::path& path)
 {
 	if (exists(path) && is_directory(path))
 	{
-		currentPath = path;
+		m_currentPath = path;
 	}
 }
 
@@ -38,7 +38,8 @@ void Prisma::FileBrowser::listDirectoryContents()
 	int numColumn = 10;
 
 	auto itemSize = ImVec2(windowSize.x / numColumn - 20, windowSize.x / numColumn - 20);
-
+	bool isDirectory = false;
+	fs::directory_entry entryPath;
 	for (const auto& entry : m_entries)
 	{
 		try
@@ -57,20 +58,8 @@ void Prisma::FileBrowser::listDirectoryContents()
 				ImGui::ImageButton((void*)m_folder->id(), itemSize);
 				if (ImGui::IsItemClicked())
 				{
-					currentPath = entry.path();
-					m_entries.clear();
-
-					for (const auto& entry : fs::directory_iterator(currentPath))
-					{
-						m_entries.push_back(entry);
-					}
-
-					// Custom sort function to ensure folders come first
-					std::sort(m_entries.begin(), m_entries.end(),
-					          [](const fs::directory_entry& a, const fs::directory_entry& b)
-					          {
-						          return a.is_directory() > b.is_directory();
-					          });
+					isDirectory = true;
+					entryPath = entry;
 				}
 			}
 			else
@@ -106,9 +95,27 @@ void Prisma::FileBrowser::listDirectoryContents()
 		{
 		}
 	}
+
+	if (isDirectory)
+	{
+		m_currentPath = entryPath.path();
+		m_entries.clear();
+
+		for (const auto& entry : fs::directory_iterator(m_currentPath))
+		{
+			m_entries.push_back(entry);
+		}
+
+		// Custom sort function to ensure folders come first
+		std::sort(m_entries.begin(), m_entries.end(),
+		          [](const fs::directory_entry& a, const fs::directory_entry& b)
+		          {
+			          return a.is_directory() > b.is_directory();
+		          });
+	}
 }
 
-Prisma::FileBrowser::FileBrowser() : currentPath(fs::current_path().parent_path().parent_path().parent_path())
+Prisma::FileBrowser::FileBrowser() : m_currentPath(fs::current_path().parent_path().parent_path().parent_path())
 {
 	m_folder = std::make_shared<Texture>();
 	m_folder->loadTexture({"../../../GUI/icons/folder.png", false, false, false});
@@ -121,7 +128,7 @@ Prisma::FileBrowser::FileBrowser() : currentPath(fs::current_path().parent_path(
 	m_iconSize = ImVec2(24, 24);
 	m_fontSize = m_iconSize;
 
-	for (const auto& entry : fs::directory_iterator(currentPath))
+	for (const auto& entry : fs::directory_iterator(m_currentPath))
 	{
 		m_entries.push_back(entry);
 	}
@@ -153,13 +160,13 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
 
 	if (ImGui::BeginTabItem("Folders"))
 	{
-		if (ImGui::ImageButton((void*)m_back->id(), m_iconSize) && currentPath.has_parent_path())
+		if (ImGui::ImageButton((void*)m_back->id(), m_iconSize) && m_currentPath.has_parent_path())
 		{
-			currentPath = currentPath.parent_path();
+			m_currentPath = m_currentPath.parent_path();
 
 			m_entries.clear();
 
-			for (const auto& entry : fs::directory_iterator(currentPath))
+			for (const auto& entry : fs::directory_iterator(m_currentPath))
 			{
 				m_entries.push_back(entry);
 			}
