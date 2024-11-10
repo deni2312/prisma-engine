@@ -52,23 +52,28 @@ void Prisma::Exporter::exportScene(const std::string& sceneName)
 		std::cerr << "Error: No scene data available to export." << std::endl;
 		return;
 	}
+
 	// Serialize rootNode to JSON
 	json j = currentGlobalScene->root;
 
-	// Write JSON to file
-	std::ofstream outFile(sceneName);
-	outFile << j.dump();
+	// Serialize JSON to MessagePack format and write to binary file
+	std::ofstream outFile(sceneName, std::ios::binary); // Open in binary mode
+	std::vector<std::uint8_t> msgpackData = json::to_msgpack(j);
+	outFile.write(reinterpret_cast<const char*>(msgpackData.data()), msgpackData.size());
 	outFile.close();
 }
 
 std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& sceneName)
 {
-	// Read JSON from file
-	std::ifstream inFile(sceneName);
-	json jIn;
-	inFile >> jIn;
+	// Read binary MessagePack data from file
+	std::ifstream inFile(sceneName, std::ios::binary); // Open in binary mode
+	std::vector<std::uint8_t> msgpackData((std::istreambuf_iterator<char>(inFile)), {});
 
+	// Deserialize MessagePack data to JSON
+	json jIn = json::from_msgpack(msgpackData);
+
+	// Convert JSON to Node (assuming `from_json` function exists for Node type)
 	auto newRootNode = std::make_shared<Node>();
-	from_json(jIn, newRootNode);
+	from_json(jIn, newRootNode); // Make sure this function is implemented for Node type
 	return newRootNode;
 }
