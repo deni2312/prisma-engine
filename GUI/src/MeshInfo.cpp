@@ -9,9 +9,6 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 {
 	if (meshData.node)
 	{
-		NodeViewer::NodeData parentData = meshData;
-		parentData.node = parentData.node->parent();
-
 		std::shared_ptr<PhysicsMeshComponent> physicsComponent = nullptr;
 		for (auto component : meshData.node->components())
 		{
@@ -24,7 +21,7 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 		auto mesh = dynamic_cast<Prisma::Mesh*>(meshData.node);
 		auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.node);
 
-		NodeViewer::getInstance().showSelected(parentData, false);
+		NodeViewer::getInstance().showSelected(meshData, false);
 		ImGui::Dummy(ImVec2(0.0f, 4.0f));
 
 		if (mesh)

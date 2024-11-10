@@ -27,7 +27,7 @@ namespace Prisma
 
 		struct CollisionData
 		{
-			Collider collider;
+			Collider collider = Collider::BOX_COLLIDER;
 			float mass = 0.0f;
 			bool dynamic = false;
 			bool softBody = false;
