@@ -86,6 +86,7 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCa
 		{
 			current->parent()->removeChild(m_current, false);
 			m_parent->addChild(current);
+			current->parent(m_parent.get(), true);
 			m_current = -1;
 			m_parent = nullptr;
 		}

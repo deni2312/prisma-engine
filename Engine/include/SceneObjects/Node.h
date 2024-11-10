@@ -23,7 +23,7 @@ namespace Prisma
 		virtual glm::mat4 matrix() const;
 		virtual void finalMatrix(const glm::mat4& matrix, bool update = true);
 		virtual glm::mat4 finalMatrix() const;
-		void parent(Node* parent);
+		void parent(Node* parent, bool update = false);
 		Node* parent() const;
 		virtual void istantiate(std::shared_ptr<Node> node);
 		uint64_t uuid();

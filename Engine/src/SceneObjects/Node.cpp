@@ -177,10 +177,13 @@ glm::mat4 Prisma::Node::finalMatrix() const
 	return m_finalMatrix;
 }
 
-void Prisma::Node::parent(Node* parent)
+void Prisma::Node::parent(Node* parent, bool update)
 {
 	m_parent = parent;
-	updateParent(parent);
+	if (update)
+	{
+		updateParent(parent);
+	}
 	CacheScene::getInstance().updateData(true);
 }
 
