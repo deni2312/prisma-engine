@@ -47,7 +47,7 @@ Prisma::Physics::Physics()
 
 void Prisma::Physics::update(float delta)
 {
-	physicsWorldJolt->physics_system.Update(delta, 10, &*physicsWorldJolt->temp_allocator,
+	physicsWorldJolt->physics_system.Update(delta, 1, &*physicsWorldJolt->temp_allocator,
 	                                        &*physicsWorldJolt->job_system);
 
 	auto& bInterface = physicsWorldJolt->physics_system.GetBodyInterface();
