@@ -3,7 +3,8 @@
 
 bool Prisma::PipelineHandler::initScene(SceneLoader::SceneParameters sceneParameters)
 {
-	if (currentGlobalScene && currentGlobalScene->camera)
+	if (Prisma::GlobalData::getInstance().currentGlobalScene() && Prisma::GlobalData::getInstance().currentGlobalScene()
+		->camera)
 	{
 		auto settings = SettingsLoader::getInstance().getSettings();
 		m_forwardPipeline = std::make_shared<PipelineForward>(settings.width, settings.height, sceneParameters.srgb);

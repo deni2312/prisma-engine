@@ -152,7 +152,7 @@ bool Prisma::Animator::automaticUpdate()
 
 int Prisma::Animator::findUUID()
 {
-	auto meshes = currentGlobalScene->animateMeshes;
+	auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		if (meshes[i]->uuid() == m_mesh->uuid())

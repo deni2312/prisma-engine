@@ -126,7 +126,7 @@ namespace Prisma
 				parent->addChild(newInstance);
 				parent->parent(light->parent()->parent());
 				newInstance->parent(parent);
-				currentGlobalScene->root->addChild(parent);
+				Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parent);
 			}
 		}
 

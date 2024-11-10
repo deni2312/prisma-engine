@@ -47,14 +47,15 @@ void printScene(std::shared_ptr<Prisma::Node> nodeNext, int depth = 0)
 
 void Prisma::Exporter::exportScene(const std::string& sceneName)
 {
-	if (!currentGlobalScene || !currentGlobalScene->root)
+	if (!Prisma::GlobalData::getInstance().currentGlobalScene() || !Prisma::GlobalData::getInstance().
+	                                                                currentGlobalScene()->root)
 	{
 		std::cerr << "Error: No scene data available to export." << std::endl;
 		return;
 	}
 
 	// Serialize rootNode to JSON
-	json j = currentGlobalScene->root;
+	json j = Prisma::GlobalData::getInstance().currentGlobalScene()->root;
 
 	// Serialize JSON to MessagePack format and write to binary file
 	std::ofstream outFile(sceneName, std::ios::binary); // Open in binary mode

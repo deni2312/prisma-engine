@@ -39,7 +39,7 @@ void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t no
 	m_shader->setInt64(m_positionPos, position);
 	m_shader->setInt64(m_finalImagePos, finalImage);
 	m_shader->setInt64(m_depthPos, depth);
-	m_shader->setMat4(m_invProjPos, glm::inverse(currentProjection));
+	m_shader->setMat4(m_invProjPos, glm::inverse(Prisma::GlobalData::getInstance().currentProjection()));
 
 
 	PrismaRender::getInstance().renderQuad();

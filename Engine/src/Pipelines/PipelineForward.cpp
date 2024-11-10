@@ -86,7 +86,7 @@ void Prisma::PipelineForward::render()
 
 	ComponentsHandler::getInstance().updatePostRender(m_fbo);
 
-	for (auto& sprite : currentGlobalScene->sprites)
+	for (auto& sprite : Prisma::GlobalData::getInstance().currentGlobalScene()->sprites)
 	{
 		sprite->render();
 	}
@@ -113,13 +113,13 @@ void Prisma::PipelineForward::render()
 	m_fboCopy->unbind();
 
 	Postprocess::getInstance().fboRaw(m_fboCopy);
-	Postprocess::getInstance().fbo(fboTarget);
-	if (fboTarget)
+	Postprocess::getInstance().fbo(Prisma::GlobalData::getInstance().fboTarget());
+	if (Prisma::GlobalData::getInstance().fboTarget())
 	{
-		fboTarget->bind();
+		Prisma::GlobalData::getInstance().fboTarget()->bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		m_fullscreenPipeline->render(m_fboCopy->texture());
-		fboTarget->unbind();
+		Prisma::GlobalData::getInstance().fboTarget()->unbind();
 	}
 	else
 	{

@@ -71,7 +71,7 @@ void Prisma::FileBrowser::listDirectoryContents()
 					auto path = windowsToString(entry.path().c_str());
 					SceneLoader sceneLoader;
 					auto scene = sceneLoader.loadScene(path, {true});
-					currentGlobalScene->root->addChild(scene->root);
+					Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
 					MeshIndirect::getInstance().init();
 
 					CacheScene::getInstance().updateSizes(true);

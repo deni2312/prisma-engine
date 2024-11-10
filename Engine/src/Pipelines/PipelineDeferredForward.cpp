@@ -179,7 +179,7 @@ void Prisma::PipelineDeferredForward::render()
 	m_shaderForward->use();
 	MeshIndirect::getInstance().renderMeshes();
 
-	for (auto& sprite : currentGlobalScene->sprites)
+	for (auto& sprite : Prisma::GlobalData::getInstance().currentGlobalScene()->sprites)
 	{
 		sprite->render();
 	}
@@ -194,7 +194,7 @@ void Prisma::PipelineDeferredForward::render()
 
 	Postprocess::getInstance().fboRaw(m_fbo);
 	uint64_t finalTexture = m_fbo->texture();
-	Postprocess::getInstance().fbo(fboTarget);
+	Postprocess::getInstance().fbo(Prisma::GlobalData::getInstance().fboTarget());
 	if (Engine::getInstance().engineSettings().ssr)
 	{
 		m_ssr->update(m_albedo, m_position, m_normal, m_fbo->texture(), m_depth);
@@ -204,13 +204,13 @@ void Prisma::PipelineDeferredForward::render()
 		finalTexture = ssrTexture->texture();
 		Postprocess::getInstance().fboRaw(ssrTexture);
 	}
-	if (fboTarget)
+	if (Prisma::GlobalData::getInstance().fboTarget())
 	{
-		fboTarget->bind();
+		Prisma::GlobalData::getInstance().fboTarget()->bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		m_fullscreenPipeline->render(finalTexture);
 
-		fboTarget->unbind();
+		Prisma::GlobalData::getInstance().fboTarget()->unbind();
 	}
 	else
 	{

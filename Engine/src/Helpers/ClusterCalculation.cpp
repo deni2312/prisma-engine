@@ -21,9 +21,9 @@ void Prisma::ClusterCalculation::updateCamera()
 {
 	auto currentSettings = SettingsLoader::getInstance().getSettings();
 	m_shader->use();
-	m_shader->setFloat(m_nearPos, currentGlobalScene->camera->nearPlane());
-	m_shader->setFloat(m_farPos, currentGlobalScene->camera->farPlane());
-	m_shader->setMat4(m_inverseProjectionPos, glm::inverse(currentProjection));
+	m_shader->setFloat(m_nearPos, Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane());
+	m_shader->setFloat(m_farPos, Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
+	m_shader->setMat4(m_inverseProjectionPos, glm::inverse(Prisma::GlobalData::getInstance().currentProjection()));
 	m_shader->setUVec3(m_gridSizePos, {m_gridSizeX, m_gridSizeY, m_gridSizeZ});
 	m_shader->setUVec2(m_screenDimensionsPos, {currentSettings.width, currentSettings.height});
 	m_shader->dispatchCompute({m_gridSizeX, m_gridSizeY, m_gridSizeZ});

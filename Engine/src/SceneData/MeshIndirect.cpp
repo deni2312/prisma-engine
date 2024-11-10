@@ -14,7 +14,7 @@
 
 void Prisma::MeshIndirect::sort() const
 {
-	auto& meshes = currentGlobalScene->meshes;
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 	if (!meshes.empty())
 	{
 		m_shader->use();
@@ -27,7 +27,8 @@ void Prisma::MeshIndirect::updateStatusShader() const
 {
 	m_statusShader->use();
 	m_statusShader->setVec2(m_sizeLocation, {
-		                        currentGlobalScene->meshes.size(), currentGlobalScene->animateMeshes.size()
+		                        Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size(),
+		                        Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size()
 	                        });
 	m_statusShader->dispatchCompute({1, 1, 1});
 	m_statusShader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
@@ -65,12 +66,12 @@ void Prisma::MeshIndirect::init()
 	m_cacheRemove.clear();
 	m_cacheRemoveAnimate.clear();
 
-	for (int i = 0; i < currentGlobalScene->meshes.size(); i++)
+	for (int i = 0; i < Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size(); i++)
 	{
 		getInstance().add(i);
 	}
 
-	for (int i = 0; i < currentGlobalScene->animateMeshes.size(); i++)
+	for (int i = 0; i < Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size(); i++)
 	{
 		getInstance().addAnimate(i);
 	}
@@ -99,39 +100,42 @@ void Prisma::MeshIndirect::removeAnimate(const unsigned int remove)
 
 void Prisma::MeshIndirect::renderMeshes() const
 {
-	if (!currentGlobalScene->meshes.empty())
+	if (!Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.empty())
 	{
 		m_vao->bind();
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
 		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr,
-		                            static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
+		                            static_cast<GLuint>(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.
+			                            size()), 0);
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	}
 }
 
 void Prisma::MeshIndirect::renderMeshesCopy() const
 {
-	if (!currentGlobalScene->meshes.empty())
+	if (!Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.empty())
 	{
 		m_vao->bind();
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectCopySSBOId, m_indirectDrawCopy);
 		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr,
-		                            static_cast<GLuint>(currentGlobalScene->meshes.size()), 0);
+		                            static_cast<GLuint>(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.
+			                            size()), 0);
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	}
 }
 
 void Prisma::MeshIndirect::renderAnimateMeshes() const
 {
-	if (!currentGlobalScene->animateMeshes.empty())
+	if (!Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.empty())
 	{
 		m_vaoAnimation->bind();
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectAnimationSSBOId, m_indirectDrawAnimation);
 		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr,
-		                            static_cast<GLuint>(currentGlobalScene->animateMeshes.size()), 0);
+		                            static_cast<GLuint>(Prisma::GlobalData::getInstance().currentGlobalScene()->
+			                            animateMeshes.size()), 0);
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	}
 }
@@ -159,7 +163,7 @@ void Prisma::MeshIndirect::update()
 
 void Prisma::MeshIndirect::updateSize()
 {
-	auto& meshes = currentGlobalScene->meshes;
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 	if (!meshes.empty())
 	{
 		//CLEAR DATA
@@ -210,7 +214,7 @@ void Prisma::MeshIndirect::updateSize()
 			m_verticesData.vertices.clear();
 			m_verticesData.indices.clear();
 			m_cacheAdd.clear();
-			for (int i = 0; i < currentGlobalScene->meshes.size(); i++)
+			for (int i = 0; i < Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size(); i++)
 			{
 				getInstance().add(i);
 			}
@@ -331,14 +335,14 @@ void Prisma::MeshIndirect::updateSize()
 void Prisma::MeshIndirect::updateModels() const
 {
 	std::vector<glm::mat4> models;
-	for (const auto& model : currentGlobalScene->meshes)
+	for (const auto& model : Prisma::GlobalData::getInstance().currentGlobalScene()->meshes)
 	{
 		models.push_back(model->parent()->finalMatrix());
 	}
 	m_ssboModelCopy->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
 
 	std::vector<glm::mat4> modelsAnimation;
-	for (const auto& model : currentGlobalScene->animateMeshes)
+	for (const auto& model : Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes)
 	{
 		modelsAnimation.push_back(model->parent()->finalMatrix());
 	}
@@ -381,7 +385,7 @@ Prisma::MeshIndirect::MeshIndirect()
 
 void Prisma::MeshIndirect::updateAnimation()
 {
-	auto& meshes = currentGlobalScene->animateMeshes;
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
 	if (!meshes.empty())
 	{
 		//CLEAR DATA
@@ -428,7 +432,7 @@ void Prisma::MeshIndirect::updateAnimation()
 			m_verticesDataAnimation.vertices.clear();
 			m_verticesDataAnimation.indices.clear();
 			m_cacheAddAnimate.clear();
-			for (int i = 0; i < currentGlobalScene->animateMeshes.size(); i++)
+			for (int i = 0; i < Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size(); i++)
 			{
 				getInstance().addAnimate(i);
 			}
@@ -555,7 +559,7 @@ void Prisma::MeshIndirect::updateAnimation()
 void Prisma::MeshIndirect::updateTextureSize()
 {
 	m_materialData.clear();
-	auto& meshes = currentGlobalScene->meshes;
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 	for (auto material : meshes)
 	{
 		m_materialData.push_back({
@@ -569,7 +573,7 @@ void Prisma::MeshIndirect::updateTextureSize()
 	m_ssboMaterialCopy->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
 
 	m_materialDataAnimation.clear();
-	auto& meshesAnimation = currentGlobalScene->animateMeshes;
+	auto& meshesAnimation = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
 	for (auto material : meshesAnimation)
 	{
 		m_materialDataAnimation.push_back({
@@ -585,7 +589,7 @@ void Prisma::MeshIndirect::updateTextureSize()
 
 void Prisma::MeshIndirect::updateStatus() const
 {
-	auto& meshes = currentGlobalScene->meshes;
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 	if (!meshes.empty())
 	{
 		std::vector<unsigned int> status;
@@ -598,7 +602,7 @@ void Prisma::MeshIndirect::updateStatus() const
 		m_ssboStatus->resize(sizeof(unsigned int) * status.size());
 		updateStatusShader();
 	}
-	auto animateMeshes = currentGlobalScene->animateMeshes;
+	auto animateMeshes = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
 
 
 	if (!animateMeshes.empty())

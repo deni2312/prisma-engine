@@ -25,14 +25,14 @@ Prisma::LightHandler::LightHandler()
 
 void Prisma::LightHandler::updateDirectional()
 {
-	const auto& scene = currentGlobalScene;
+	const auto& scene = Prisma::GlobalData::getInstance().currentGlobalScene();
 	int numVisible = 0;
 
 	if (scene->dirLights.size() > 0)
 	{
-		auto shadow = currentGlobalScene->dirLights[0]->shadow();
+		auto shadow = Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights[0]->shadow();
 
-		if (shadow && currentGlobalScene->dirLights[0]->hasShadow())
+		if (shadow && Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights[0]->hasShadow())
 		{
 			auto& levels = std::dynamic_pointer_cast<PipelineCSM>(shadow)->cascadeLevels();
 			glm::vec4 length;
@@ -54,7 +54,7 @@ void Prisma::LightHandler::updateDirectional()
 			const auto& dirMatrix = scene->dirLights[i]->finalMatrix();
 			auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
 
-			const auto& dirMult = normalize(dirMatrix * m_dataDirectional->lights[i].direction);
+			const auto& dirMult = glm::normalize(dirMatrix * m_dataDirectional->lights[i].direction);
 			m_dataDirectional->lights[i].direction = dirMult;
 			m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
 			m_dataDirectional->lights[i].padding.y = shadow->bias();
@@ -71,7 +71,7 @@ void Prisma::LightHandler::updateDirectional()
 
 void Prisma::LightHandler::updateOmni()
 {
-	const auto& scene = currentGlobalScene;
+	const auto& scene = Prisma::GlobalData::getInstance().currentGlobalScene();
 
 	m_dataOmni = std::make_shared<SSBODataOmni>();
 	int numVisible = 0;
@@ -112,7 +112,7 @@ void Prisma::LightHandler::updateOmni()
 
 void Prisma::LightHandler::updateCSM()
 {
-	const auto& dirLights = currentGlobalScene->dirLights;
+	const auto& dirLights = Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights;
 
 	if (dirLights.size() > 0 && dirLights[0]->shadow() && dirLights[0]->hasShadow())
 	{
@@ -139,7 +139,7 @@ void Prisma::LightHandler::updateCascade(bool updateCascade)
 
 void Prisma::LightHandler::update()
 {
-	const auto& scene = currentGlobalScene;
+	const auto& scene = Prisma::GlobalData::getInstance().currentGlobalScene();
 	if (m_updateCascade)
 	{
 		updateCSM();

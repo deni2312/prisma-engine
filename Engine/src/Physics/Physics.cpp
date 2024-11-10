@@ -52,7 +52,7 @@ void Prisma::Physics::update(float delta)
 
 	auto& bInterface = physicsWorldJolt->physics_system.GetBodyInterface();
 	m_indexVbo = 0;
-	for (const auto& mesh : currentGlobalScene->meshes)
+	for (const auto& mesh : Prisma::GlobalData::getInstance().currentGlobalScene()->meshes)
 	{
 		auto physicsComponent = std::dynamic_pointer_cast<PhysicsMeshComponent>(
 			mesh->components()["Physics"]);
@@ -98,10 +98,12 @@ void Prisma::Physics::drawDebug()
 {
 	if (m_debug)
 	{
-		m_drawDebugger->line.setMVP(currentProjection * currentGlobalScene->camera->matrix());
+		m_drawDebugger->line.setMVP(
+			Prisma::GlobalData::getInstance().currentProjection() * Prisma::GlobalData::getInstance().
+			                                                        currentGlobalScene()->camera->matrix());
 		m_settings.mDrawShape = true;
 		physicsWorldJolt->physics_system.DrawBodies(m_settings, m_drawDebugger);
-		for (const auto& mesh : currentGlobalScene->meshes)
+		for (const auto& mesh : Prisma::GlobalData::getInstance().currentGlobalScene()->meshes)
 		{
 			auto physicsComponent = std::dynamic_pointer_cast<PhysicsMeshComponent>(mesh->components()["Physics"]);
 			if (physicsComponent && physicsComponent->initPhysics())

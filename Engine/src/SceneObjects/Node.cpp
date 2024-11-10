@@ -33,7 +33,7 @@ const std::vector<std::shared_ptr<Prisma::Node>>& Prisma::Node::children() const
 
 void Prisma::Node::addChild(std::shared_ptr<Node> child, bool updateScene)
 {
-	sceneNodes[child->uuid()] = child;
+	Prisma::GlobalData::getInstance().sceneNodes()[child->uuid()] = child;
 	m_children.push_back(child);
 	updateChild(this);
 	child->parent(this);
@@ -50,7 +50,7 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 
 	if (index != -1)
 	{
-		sceneNodes.erase(sceneNodes.find(uuid));
+		Prisma::GlobalData::getInstance().sceneNodes().erase(Prisma::GlobalData::getInstance().sceneNodes().find(uuid));
 
 		while (m_children[index]->children().size() > 0 && removeRecursive)
 		{
@@ -59,7 +59,8 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 		if (std::dynamic_pointer_cast<AnimatedMesh>(m_children[index]))
 		{
 			MeshIndirect::getInstance().removeAnimate(index);
-			auto find = std::find_if(currentGlobalScene->animateMeshes.begin(), currentGlobalScene->animateMeshes.end(),
+			auto find = std::find_if(Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.begin(),
+			                         Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.end(),
 			                         [uuid](auto mesh)
 			                         {
 				                         if (mesh->uuid() == uuid)
@@ -73,13 +74,14 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 			{
 				component.second->destroy();
 			}
-			currentGlobalScene->animateMeshes.erase(find);
+			Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.erase(find);
 			Prisma::AnimationHandler::getInstance().fill();
 		}
 		else if (std::dynamic_pointer_cast<Mesh>(m_children[index]))
 		{
 			MeshIndirect::getInstance().remove(index);
-			auto find = std::find_if(currentGlobalScene->meshes.begin(), currentGlobalScene->meshes.end(),
+			auto find = std::find_if(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.begin(),
+			                         Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.end(),
 			                         [uuid](auto mesh)
 			                         {
 				                         if (mesh->uuid() == uuid)
@@ -93,11 +95,12 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 			{
 				component.second->destroy();
 			}
-			currentGlobalScene->meshes.erase(find);
+			Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.erase(find);
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(m_children[index]))
 		{
-			auto find = std::find_if(currentGlobalScene->dirLights.begin(), currentGlobalScene->dirLights.end(),
+			auto find = std::find_if(Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.begin(),
+			                         Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.end(),
 			                         [uuid](auto light)
 			                         {
 				                         if (light->uuid() == uuid)
@@ -106,11 +109,12 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 				                         }
 				                         return false;
 			                         });
-			currentGlobalScene->dirLights.erase(find);
+			Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.erase(find);
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(m_children[index]))
 		{
-			auto find = std::find_if(currentGlobalScene->omniLights.begin(), currentGlobalScene->omniLights.end(),
+			auto find = std::find_if(Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.begin(),
+			                         Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.end(),
 			                         [uuid](auto light)
 			                         {
 				                         if (light->uuid() == uuid)
@@ -119,11 +123,12 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 				                         }
 				                         return false;
 			                         });
-			currentGlobalScene->omniLights.erase(find);
+			Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.erase(find);
 		}
 		else if (std::dynamic_pointer_cast<Sprite>(m_children[index]))
 		{
-			auto find = std::find_if(currentGlobalScene->sprites.begin(), currentGlobalScene->sprites.end(),
+			auto find = std::find_if(Prisma::GlobalData::getInstance().currentGlobalScene()->sprites.begin(),
+			                         Prisma::GlobalData::getInstance().currentGlobalScene()->sprites.end(),
 			                         [uuid](auto sprite)
 			                         {
 				                         if (sprite->uuid() == uuid)
@@ -132,7 +137,7 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 				                         }
 				                         return false;
 			                         });
-			currentGlobalScene->sprites.erase(find);
+			Prisma::GlobalData::getInstance().currentGlobalScene()->sprites.erase(find);
 		}
 
 		m_children.erase(m_children.begin() + index);
@@ -238,48 +243,59 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 	if (std::dynamic_pointer_cast<Mesh>(child) && !std::dynamic_pointer_cast<AnimatedMesh>(child) &&
 		std::dynamic_pointer_cast<Mesh>(child)->addGlobalList())
 	{
-		if (nodeHelper.findUUID<Mesh>(currentGlobalScene->meshes, child->uuid()) < 0)
+		if (nodeHelper.findUUID<Mesh>(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes, child->uuid()) <
+			0)
 		{
-			MeshIndirect::getInstance().add(currentGlobalScene->meshes.size());
-			currentGlobalScene->meshes.push_back(std::dynamic_pointer_cast<Mesh>(child));
+			MeshIndirect::getInstance().add(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size());
+			Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.push_back(
+				std::dynamic_pointer_cast<Mesh>(child));
 			CacheScene::getInstance().updateSizes(true);
 		}
 	}
 
 	if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(child))
 	{
-		if (nodeHelper.findUUID<Light<LightType::LightDir>>(currentGlobalScene->dirLights, child->uuid()) < 0)
+		if (nodeHelper.findUUID<Light<LightType::LightDir>>(
+			Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights, child->uuid()) < 0)
 		{
-			currentGlobalScene->dirLights.push_back(std::dynamic_pointer_cast<Light<LightType::LightDir>>(child));
+			Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.push_back(
+				std::dynamic_pointer_cast<Light<LightType::LightDir>>(child));
 			CacheScene::getInstance().updateLights(true);
 		}
 	}
 
 	if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(child))
 	{
-		if (nodeHelper.findUUID<Light<LightType::LightOmni>>(currentGlobalScene->omniLights, child->uuid()) < 0)
+		if (nodeHelper.findUUID<Light<LightType::LightOmni>>(
+			Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights, child->uuid()) < 0)
 		{
-			currentGlobalScene->omniLights.push_back(std::dynamic_pointer_cast<Light<LightType::LightOmni>>(child));
+			Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.push_back(
+				std::dynamic_pointer_cast<Light<LightType::LightOmni>>(child));
 			CacheScene::getInstance().updateLights(true);
 		}
 	}
 
 	if (std::dynamic_pointer_cast<Sprite>(child))
 	{
-		if (nodeHelper.findUUID<Sprite>(currentGlobalScene->sprites, child->uuid()) < 0)
+		if (nodeHelper.findUUID<Sprite>(Prisma::GlobalData::getInstance().currentGlobalScene()->sprites,
+		                                child->uuid()) < 0)
 		{
-			currentGlobalScene->sprites.push_back(std::dynamic_pointer_cast<Sprite>(child));
+			Prisma::GlobalData::getInstance().currentGlobalScene()->sprites.push_back(
+				std::dynamic_pointer_cast<Sprite>(child));
 		}
 	}
 
-	if (currentGlobalScene->animateMeshes.size() < MAX_ANIMATION_MESHES)
+	if (Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size() < MAX_ANIMATION_MESHES)
 	{
 		if (std::dynamic_pointer_cast<AnimatedMesh>(child))
 		{
-			if (nodeHelper.findUUID<AnimatedMesh>(currentGlobalScene->animateMeshes, child->uuid()) < 0)
+			if (nodeHelper.findUUID<AnimatedMesh>(Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes,
+			                                      child->uuid()) < 0)
 			{
-				MeshIndirect::getInstance().addAnimate(currentGlobalScene->animateMeshes.size());
-				currentGlobalScene->animateMeshes.push_back(std::dynamic_pointer_cast<AnimatedMesh>(child));
+				MeshIndirect::getInstance().addAnimate(
+					Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size());
+				Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.push_back(
+					std::dynamic_pointer_cast<AnimatedMesh>(child));
 				CacheScene::getInstance().updateSizes(true);
 			}
 		}

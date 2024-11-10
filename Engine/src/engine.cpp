@@ -78,7 +78,7 @@ Prisma::Engine::Engine()
 
 	data->sceneHandler = std::make_shared<SceneHandler>();
 
-	currentGlobalScene = std::make_shared<Scene>();
+	Prisma::GlobalData::getInstance().currentGlobalScene(std::make_shared<Scene>());
 
 	data->lastTime = std::chrono::high_resolution_clock::now();
 
@@ -96,7 +96,7 @@ bool Prisma::Engine::run()
 	initScene();
 	while (!PrismaFunc::getInstance().shouldClose())
 	{
-		if (data->camera && currentGlobalScene)
+		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene())
 		{
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
@@ -189,19 +189,23 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 {
 	callbackHandler->resize = [&](int width, int height)
 	{
-		currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
-		                                     static_cast<float>(data->settings.width) / static_cast<float>(data->
-			                                     settings.height),
-		                                     currentGlobalScene->camera->nearPlane(),
-		                                     currentGlobalScene->camera->farPlane());
+		Prisma::GlobalData::getInstance().currentProjection(glm::perspective(
+			glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+			static_cast<float>(data->settings.width) / static_cast<float>(data->
+			                                                              settings.height),
+			Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
+			Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
+		auto currentProjection = Prisma::GlobalData::getInstance().currentProjection();
 		MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),
 		                                             value_ptr(currentProjection));
 	};
-	currentProjection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
-	                                     static_cast<float>(data->settings.width) / static_cast<float>(data->settings.
-		                                     height),
-	                                     currentGlobalScene->camera->nearPlane(),
-	                                     currentGlobalScene->camera->farPlane());
+	Prisma::GlobalData::getInstance().currentProjection(glm::perspective(
+		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+		static_cast<float>(data->settings.width) / static_cast<float>(data->settings.
+		                                                                    height),
+		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
+		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
+	auto currentProjection = Prisma::GlobalData::getInstance().currentProjection();
 	MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),
 	                                             value_ptr(currentProjection));
 	data->callbackHandler = callbackHandler;
@@ -216,7 +220,7 @@ float Prisma::Engine::fps() const
 void Prisma::Engine::mainCamera(const std::shared_ptr<Camera>& camera)
 {
 	data->camera = camera;
-	currentGlobalScene->camera = data->camera;
+	Prisma::GlobalData::getInstance().currentGlobalScene()->camera = data->camera;
 }
 
 void Prisma::Engine::debug(bool debug)
@@ -234,8 +238,8 @@ std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(const std::string& scene
 {
 	SceneLoader sceneLoader;
 	data->sceneParameters = sceneParameters;
-	currentGlobalScene = sceneLoader.loadScene(scene, sceneParameters);
-	currentGlobalScene->camera = data->camera;
+	Prisma::GlobalData::getInstance().currentGlobalScene(sceneLoader.loadScene(scene, sceneParameters));
+	Prisma::GlobalData::getInstance().currentGlobalScene()->camera = data->camera;
 	MeshIndirect::getInstance().init();
-	return currentGlobalScene;
+	return Prisma::GlobalData::getInstance().currentGlobalScene();
 }

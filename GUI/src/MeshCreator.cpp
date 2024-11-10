@@ -187,7 +187,7 @@ std::shared_ptr<Prisma::Node> Prisma::MeshCreator::createMesh(std::shared_ptr<Pr
 	auto parent = std::make_shared<Node>();
 	parent->name(name + "Parent" + std::to_string(parent->uuid()));
 	parent->matrix(glm::mat4(1.0));
-	currentGlobalScene->root->addChild(parent);
+	Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parent);
 	parent->addChild(newInstance);
 	return parent;
 }
@@ -197,19 +197,19 @@ std::shared_ptr<Prisma::MaterialComponent> Prisma::MeshCreator::getEmptyMaterial
 	auto currentMaterial = std::make_shared<Prisma::MaterialComponent>();
 	std::vector<Texture> emptyVector;
 	emptyVector.clear();
-	emptyVector.push_back(defaultBlack);
+	emptyVector.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 	currentMaterial->diffuse(emptyVector);
 	emptyVector.clear();
-	emptyVector.push_back(defaultNormal);
+	emptyVector.push_back(Prisma::GlobalData::getInstance().defaultNormal());
 	currentMaterial->normal(emptyVector);
 	emptyVector.clear();
-	emptyVector.push_back(defaultBlack);
+	emptyVector.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 	currentMaterial->roughness_metalness(emptyVector);
 	emptyVector.clear();
-	emptyVector.push_back(defaultWhite);
+	emptyVector.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 	currentMaterial->specular(emptyVector);
 	emptyVector.clear();
-	emptyVector.push_back(defaultWhite);
+	emptyVector.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 	currentMaterial->ambientOcclusion(emptyVector);
 	return currentMaterial;
 }

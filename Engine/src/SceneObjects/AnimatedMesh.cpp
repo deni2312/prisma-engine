@@ -65,7 +65,7 @@ std::shared_ptr<Prisma::AnimatedMesh> Prisma::AnimatedMesh::instantiate(std::sha
 
 		parentParent->name(mesh->parent()->parent()->name() + std::to_string(parent->uuid()));
 		parentParent->matrix(mesh->parent()->parent()->matrix());
-		currentGlobalScene->root->addChild(parentParent);
+		Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parentParent);
 		parent->addChild(newInstance);
 		parentParent->addChild(parent);
 	}

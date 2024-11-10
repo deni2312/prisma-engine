@@ -311,7 +311,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	if (currentMaterial->diffuse().empty())
 	{
 		emptyVector.clear();
-		emptyVector.push_back(defaultBlack);
+		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 		currentMaterial->diffuse(emptyVector);
 		std::cout << "No diffuse texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().
 			C_Str() << std::endl;
@@ -319,7 +319,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	if (currentMaterial->normal().empty())
 	{
 		emptyVector.clear();
-		emptyVector.push_back(defaultNormal);
+		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultNormal());
 		currentMaterial->normal(emptyVector);
 		std::cout << "No normal texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().
 			C_Str() << std::endl;
@@ -327,7 +327,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	if (currentMaterial->roughness_metalness().empty())
 	{
 		emptyVector.clear();
-		emptyVector.push_back(defaultBlack);
+		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 		currentMaterial->roughness_metalness(emptyVector);
 		std::cout << "No roughness or metalness texture " + currentMesh->name() + " MaterialComponent name: " + material
 			->GetName().C_Str() << std::endl;
@@ -335,7 +335,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	if (currentMaterial->specular().empty())
 	{
 		emptyVector.clear();
-		emptyVector.push_back(defaultWhite);
+		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 		currentMaterial->specular(emptyVector);
 		std::cout << "No specular texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().
 			C_Str() << std::endl;
@@ -343,7 +343,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	if (currentMaterial->ambientOcclusion().empty())
 	{
 		emptyVector.clear();
-		emptyVector.push_back(defaultWhite);
+		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 		currentMaterial->ambientOcclusion(emptyVector);
 		std::cout << "No ambient occlusion texture " + currentMesh->name() + " MaterialComponent name: " + material->
 			GetName().C_Str() << std::endl;

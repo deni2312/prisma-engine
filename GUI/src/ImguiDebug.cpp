@@ -63,7 +63,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	fboData.enableSrgb = true;
 	fboData.enableDepth = true;
 	m_fbo = std::make_shared<FBO>(fboData);
-	fboTarget = m_fbo;
+	Prisma::GlobalData::getInstance().fboTarget(m_fbo);
 	m_shader = std::make_shared<Shader>("../../../GUI/Shaders/Output/vertex.glsl",
 	                                    "../../../GUI/Shaders/Output/fragment.glsl");
 	m_shader->use();
@@ -71,9 +71,11 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_modelPos = m_shader->getUniformPosition("model");
 	m_scale = 0.72f;
 	m_translate = 1.0f - m_scale;
-	m_projection = glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
-	                                static_cast<float>(settings.width) / static_cast<float>(settings.height),
-	                                currentGlobalScene->camera->nearPlane(), currentGlobalScene->camera->farPlane());
+	m_projection = glm::perspective(
+		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+		static_cast<float>(settings.width) / static_cast<float>(settings.height),
+		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
+		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
 	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * scale(
 		glm::mat4(1.0f), glm::vec3(m_scale));
 	m_fileBrowser = std::make_shared<FileBrowser>();
@@ -124,10 +126,10 @@ void Prisma::ImguiDebug::drawGui()
 					return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 				};
 
-				auto prismaScene = endsWith(currentGlobalScene->name, ".prisma");
+				auto prismaScene = endsWith(Prisma::GlobalData::getInstance().currentGlobalScene()->name, ".prisma");
 				if (prismaScene)
 				{
-					Exporter::getInstance().exportScene(currentGlobalScene->name);
+					Exporter::getInstance().exportScene(Prisma::GlobalData::getInstance().currentGlobalScene()->name);
 				}
 				else
 				{
@@ -141,11 +143,11 @@ void Prisma::ImguiDebug::drawGui()
 				std::string model = openFolder();
 				if (model != "")
 				{
-					if (currentGlobalScene->root)
+					if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
 					{
 						SceneLoader sceneLoader;
 						auto scene = sceneLoader.loadScene(model, {true});
-						currentGlobalScene->root->addChild(scene->root);
+						Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
 					}
 					else
 					{
@@ -257,7 +259,8 @@ void Prisma::ImguiDebug::drawGui()
 
 		ImGui::Separator();
 
-		ImGuiTabs::getInstance().showNodes(currentGlobalScene->root, 1, m_imguiCamera);
+		ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 1,
+		                                   m_imguiCamera);
 		// Check if the node is clicked
 		ImGui::End();
 		m_fileBrowser->show(m_width, m_height, m_initOffset, m_scale, m_translate);

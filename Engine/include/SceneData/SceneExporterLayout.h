@@ -346,7 +346,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultBlack);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 						}
 						else
 						{
@@ -362,7 +362,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultNormal);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultNormal());
 						}
 						else
 						{
@@ -378,7 +378,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultBlack);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 						}
 						else
 						{
@@ -394,7 +394,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultWhite);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 						}
 						else
 						{
@@ -410,7 +410,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultWhite);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 						}
 						else
 						{
@@ -502,7 +502,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultBlack);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 						}
 						else
 						{
@@ -518,7 +518,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultNormal);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultNormal());
 						}
 						else
 						{
@@ -534,7 +534,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultBlack);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 						}
 						else
 						{
@@ -550,7 +550,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultBlack);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 						}
 						else
 						{
@@ -566,7 +566,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultBlack);
+							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 						}
 						else
 						{

@@ -7,7 +7,7 @@
 
 void Prisma::AnimationHandler::fill()
 {
-	for (auto mesh : currentGlobalScene->animateMeshes)
+	for (auto mesh : Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes)
 	{
 		if (mesh->animator())
 		{

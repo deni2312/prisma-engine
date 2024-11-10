@@ -8,7 +8,7 @@ std::shared_ptr<Prisma::Node> Prisma::NodeHelper::find(std::shared_ptr<Node> roo
 
 std::shared_ptr<Prisma::Node> Prisma::NodeHelper::find(uint64_t uuid)
 {
-	return sceneNodes[uuid];
+	return Prisma::GlobalData::getInstance().sceneNodes()[uuid];
 }
 
 std::shared_ptr<Prisma::Node> Prisma::NodeHelper::findRecursive(const std::shared_ptr<Node>& currentNode,

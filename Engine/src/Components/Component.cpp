@@ -36,7 +36,7 @@ void Prisma::Component::onParent(Node* parent)
 void Prisma::Component::destroy()
 {
 	m_parent = nullptr;
-	sceneComponents.erase(m_uuid);
+	Prisma::GlobalData::getInstance().sceneComponents().erase(m_uuid);
 }
 
 void Prisma::Component::parent(Node* parent)
@@ -94,7 +94,7 @@ Prisma::Component::Component()
 	name("BaseComponent");
 	m_uuid = uuidComponent;
 	uuidComponent = uuidComponent + 1;
-	sceneComponents[m_uuid] = this;
+	Prisma::GlobalData::getInstance().sceneComponents()[m_uuid] = this;
 }
 
 

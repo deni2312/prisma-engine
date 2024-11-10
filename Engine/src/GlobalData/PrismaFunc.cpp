@@ -87,9 +87,9 @@ Prisma::PrismaFunc::PrismaFunc()
 
 	privatePrisma = std::make_shared<PrivatePrisma>();
 
-	defaultBlack.loadTexture({DIR_DEFAULT_BLACK});
-	defaultWhite.loadTexture({DIR_DEFAULT_WHITE});
-	defaultNormal.loadTexture({DIR_DEFAULT_NORMAL});
+	Prisma::GlobalData::getInstance().defaultBlack().loadTexture({DIR_DEFAULT_BLACK});
+	Prisma::GlobalData::getInstance().defaultWhite().loadTexture({DIR_DEFAULT_WHITE});
+	Prisma::GlobalData::getInstance().defaultNormal().loadTexture({DIR_DEFAULT_NORMAL});
 }
 
 void Prisma::PrismaFunc::swapBuffers()

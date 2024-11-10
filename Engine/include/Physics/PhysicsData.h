@@ -144,13 +144,15 @@ namespace Prisma
 		void OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold,
 		                    ContactSettings& ioSettings) override
 		{
-			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[inBody1.GetUserData()]);
+			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(Prisma::GlobalData::getInstance().
+				sceneComponents()[inBody1.GetUserData()]);
 			if (physicsComponent && physicsComponent->onCollisionEnter())
 			{
 				auto addComponent = physicsComponent->onCollisionEnter();
 				addComponent(inBody2);
 			}
-			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[inBody2.GetUserData()]);
+			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(Prisma::GlobalData::getInstance().
+				sceneComponents()[inBody2.GetUserData()]);
 			if (physicsComponent2 && physicsComponent2->onCollisionEnter())
 			{
 				auto addComponent = physicsComponent2->onCollisionEnter();
@@ -161,13 +163,15 @@ namespace Prisma
 		void OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold,
 		                        ContactSettings& ioSettings) override
 		{
-			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[inBody1.GetUserData()]);
+			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(Prisma::GlobalData::getInstance().
+				sceneComponents()[inBody1.GetUserData()]);
 			if (physicsComponent && physicsComponent->onCollisionStay())
 			{
 				auto stayComponent = physicsComponent->onCollisionStay();
 				stayComponent(inBody2);
 			}
-			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[inBody2.GetUserData()]);
+			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(Prisma::GlobalData::getInstance().
+				sceneComponents()[inBody2.GetUserData()]);
 			if (physicsComponent2 && physicsComponent2->onCollisionStay())
 			{
 				auto stayComponent = physicsComponent2->onCollisionStay();
@@ -177,16 +181,18 @@ namespace Prisma
 
 		void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
 		{
-			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[Physics::getInstance().
-				physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody1ID())]);
+			auto physicsComponent = dynamic_cast<PhysicsMeshComponent*>(Prisma::GlobalData::getInstance().
+				sceneComponents()[Physics::getInstance().
+				                  physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody1ID())]);
 			if (physicsComponent && physicsComponent->onCollisionExit())
 			{
 				auto removeComponent = physicsComponent->onCollisionExit();
 				removeComponent(inSubShapePair.GetBody2ID());
 			}
 
-			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(sceneComponents[Physics::getInstance().
-				physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody2ID())]);
+			auto physicsComponent2 = dynamic_cast<PhysicsMeshComponent*>(Prisma::GlobalData::getInstance().
+				sceneComponents()[Physics::getInstance().
+				                  physicsSystem().GetBodyInterfaceNoLock().GetUserData(inSubShapePair.GetBody2ID())]);
 			if (physicsComponent2 && physicsComponent2->onCollisionExit())
 			{
 				auto removeComponent2 = physicsComponent2->onCollisionExit();

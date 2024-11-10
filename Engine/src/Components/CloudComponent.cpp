@@ -305,11 +305,12 @@ void Prisma::CloudComponent::generateWeather()
 
 void Prisma::CloudComponent::setVariables()
 {
-	m_cloudShader->setVec3(m_camPos, currentGlobalScene->camera->position());
-	if (currentGlobalScene->dirLights.size() > 0)
+	m_cloudShader->setVec3(m_camPos, Prisma::GlobalData::getInstance().currentGlobalScene()->camera->position());
+	if (Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.size() > 0)
 	{
 		m_cloudShader->setVec3(m_lightPos, normalize(
-			                       currentGlobalScene->dirLights[0]->parent()->finalMatrix() * currentGlobalScene->
+			                       Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights[0]->parent()->
+			                       finalMatrix() * Prisma::GlobalData::getInstance().currentGlobalScene()->
 			                       dirLights[0]->type().direction));
 	}
 	// Calculate elapsed time since the first render call
@@ -322,6 +323,9 @@ void Prisma::CloudComponent::setVariables()
 	m_cloudShader->setInt64(m_worlPos, m_worley);
 
 	// Setting the uniforms
-	m_cloudShader->setMat4(m_invViewPos, glm::inverse(currentGlobalScene->camera->matrix())); // Inverse View matrix
-	m_cloudShader->setMat4(m_invProjPos, glm::inverse(currentProjection)); // Inverse Projection matrix
+	m_cloudShader->setMat4(m_invViewPos,
+	                       glm::inverse(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix()));
+	// Inverse View matrix
+	m_cloudShader->setMat4(m_invProjPos, glm::inverse(Prisma::GlobalData::getInstance().currentProjection()));
+	// Inverse Projection matrix
 }

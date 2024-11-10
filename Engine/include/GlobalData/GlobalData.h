@@ -13,12 +13,57 @@ namespace Prisma::LightType
 
 namespace Prisma
 {
-	extern std::shared_ptr<Scene> currentGlobalScene;
-	extern std::shared_ptr<FBO> fboTarget;
-	extern std::unordered_map<uint64_t, Component*> sceneComponents;
-	extern std::unordered_map<uint64_t, std::shared_ptr<Node>> sceneNodes;
-	extern glm::mat4 currentProjection;
-	extern Texture defaultBlack;
-	extern Texture defaultWhite;
-	extern Texture defaultNormal;
+	class GlobalData : public InstanceData<GlobalData>
+	{
+	public:
+		// Getter and Setter for m_currentGlobalScene
+		std::shared_ptr<Scene> currentGlobalScene() const;
+
+		void currentGlobalScene(const std::shared_ptr<Scene>& currentGlobalScene);
+
+		// Getter and Setter for m_fboTarget
+		std::shared_ptr<FBO> fboTarget() const;
+
+		void fboTarget(const std::shared_ptr<FBO>& fboTarget);
+
+		// Getter and Setter for m_sceneComponents
+		std::unordered_map<uint64_t, Component*>& sceneComponents();
+
+		void sceneComponents(const std::unordered_map<uint64_t, Component*>& sceneComponents);
+
+		// Getter and Setter for m_sceneNodes
+		std::unordered_map<uint64_t, std::shared_ptr<Node>>& sceneNodes();
+
+		void sceneNodes(const std::unordered_map<uint64_t, std::shared_ptr<Node>>& sceneNodes);
+
+		// Getter and Setter for m_currentProjection
+		glm::mat4 currentProjection();
+
+		void currentProjection(const glm::mat4& currentProjection);
+
+		// Getter and Setter for m_defaultBlack
+		Texture& defaultBlack();
+
+		void defaultBlack(const Texture& defaultBlack);
+
+		// Getter and Setter for m_defaultWhite
+		Texture& defaultWhite();
+
+		void defaultWhite(const Texture& defaultWhite);
+
+		// Getter and Setter for m_defaultNormal
+		Texture& defaultNormal();
+
+		void defaultNormal(const Texture& defaultNormal);
+
+	private:
+		std::shared_ptr<Scene> m_currentGlobalScene;
+		std::shared_ptr<FBO> m_fboTarget;
+		std::unordered_map<uint64_t, Component*> m_sceneComponents;
+		std::unordered_map<uint64_t, std::shared_ptr<Node>> m_sceneNodes;
+		glm::mat4 m_currentProjection;
+		Texture m_defaultBlack;
+		Texture m_defaultWhite;
+		Texture m_defaultNormal;
+	};
 }

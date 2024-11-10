@@ -36,10 +36,11 @@ void Prisma::TerrainComponent::ui()
 		if (isStart())
 		{
 			auto settings = SettingsLoader::getInstance().getSettings();
-			m_grassRenderer.projection(glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
-			                                            static_cast<float>(settings.width) / static_cast<float>(settings
-				                                            .height), currentGlobalScene->camera->nearPlane(),
-			                                            m_farPlane));
+			m_grassRenderer.projection(glm::perspective(
+				glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+				static_cast<float>(settings.width) / static_cast<float>(settings
+					.height), Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
+				m_farPlane));
 		}
 	};
 	componentApply = std::make_tuple(TYPES::BUTTON, "Apply", &m_apply);
@@ -137,11 +138,12 @@ void Prisma::TerrainComponent::start()
 	m_stoneRoughnessPos = m_shader->getUniformPosition("stoneRoughness");
 	m_snowRoughnessPos = m_shader->getUniformPosition("snowRoughness");
 	m_grassRenderer.start(m_heightMap);
-	m_farPlane = currentGlobalScene->camera->farPlane();
+	m_farPlane = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane();
 	auto settings = SettingsLoader::getInstance().getSettings();
-	m_grassRenderer.projection(glm::perspective(glm::radians(currentGlobalScene->camera->angle()),
-	                                            static_cast<float>(settings.width) / static_cast<float>(settings.
-		                                            height), currentGlobalScene->camera->nearPlane(), m_farPlane));
+	m_grassRenderer.projection(glm::perspective(
+		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+		static_cast<float>(settings.width) / static_cast<float>(settings.
+			height), Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(), m_farPlane));
 	generateCpu();
 	std::vector<Mesh::Vertex> vertices;
 	int rez = 1;
