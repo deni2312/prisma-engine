@@ -12,8 +12,10 @@ Prisma::CloudComponent::CloudComponent() : Component{}
 	name("Cloud");
 }
 
+
 void Prisma::CloudComponent::ui()
 {
+	Prisma::Component::ui();
 	std::vector<ComponentType> components;
 
 	components.push_back(std::make_tuple(TYPES::FLOAT, "CoverageScale", &m_cloudSSBO.coverageScale));

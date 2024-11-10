@@ -125,6 +125,7 @@ namespace Prisma
 
 		void setVariables();
 
+	private:
 		const int m_downscale = 4;
 
 		std::function<void()> m_startButton;

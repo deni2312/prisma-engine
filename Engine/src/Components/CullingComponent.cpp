@@ -2,10 +2,12 @@
 
 Prisma::CullingComponent::CullingComponent()
 {
+	name("Culling");
 }
 
 void Prisma::CullingComponent::ui()
 {
+	Prisma::Component::ui();
 }
 
 void Prisma::CullingComponent::update()

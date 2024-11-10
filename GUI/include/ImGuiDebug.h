@@ -13,6 +13,7 @@
 #include "../../Engine/include/GlobalData/InstanceData.h"
 #include "../../Engine/include/Helpers/TimeCounter.h"
 #include "AddingMenu.h"
+#include "RegisterCreator.h"
 
 
 namespace Prisma
@@ -99,5 +100,6 @@ namespace Prisma
 		TimeCounter m_timeCounterEngine;
 
 		Prisma::ImGuiAddingMenu m_addingMenu;
+		Prisma::RegisterData m_registerData;
 	};
 }

@@ -59,6 +59,8 @@ namespace Prisma
 		std::shared_ptr<Texture> m_scaleTexture;
 		std::shared_ptr<Texture> m_eyeOpen;
 		std::shared_ptr<Texture> m_eyeClose;
+		int m_componentSelect = 0;
+		std::vector<const char*> m_components;
 
 		ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
 		ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;

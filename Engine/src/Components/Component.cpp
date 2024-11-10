@@ -91,10 +91,12 @@ uint64_t Prisma::Component::uuid()
 
 Prisma::Component::Component()
 {
+	name("BaseComponent");
 	m_uuid = uuidComponent;
 	uuidComponent = uuidComponent + 1;
 	sceneComponents[m_uuid] = this;
 }
+
 
 Prisma::Component::~Component()
 {

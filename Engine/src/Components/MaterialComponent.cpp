@@ -23,29 +23,45 @@ const std::vector<Prisma::Texture>& Prisma::MaterialComponent::diffuse() const
 
 void Prisma::MaterialComponent::ui()
 {
+	Prisma::Component::ui();
+
 	auto getLast = [](std::string s)
 	{
 		size_t found = s.find_last_of('/');
 		return found != std::string::npos ? s.substr(found + 1) : s;
 	};
-	m_diffuseName = std::make_shared<std::string>(getLast(m_diffuse[0].name()));
-	m_normalName = std::make_shared<std::string>(getLast(m_normal[0].name()));
-	m_metalness_roughnessName = std::make_shared<std::string>(getLast(m_roughness_metalness[0].name()));
-	m_specularName = std::make_shared<std::string>(getLast(m_specular[0].name()));
-	m_ambientOcclusionName = std::make_shared<std::string>(getLast(m_ambientOcclusion[0].name()));
+	if (m_diffuse.size() > 0)
+	{
+		m_diffuseName = std::make_shared<std::string>(getLast(m_diffuse[0].name()));
+		m_componentTypeDiffuse = std::make_tuple(TYPES::STRING, "Diffuse", m_diffuseName.get());
+		addGlobal(m_componentTypeDiffuse);
+	}
+	if (m_normal.size() > 0)
+	{
+		m_normalName = std::make_shared<std::string>(getLast(m_normal[0].name()));
+		m_componentTypeNormal = std::make_tuple(TYPES::STRING, "Normal", m_normalName.get());
+		addGlobal(m_componentTypeNormal);
+	}
+	if (m_roughness_metalness.size() > 0)
+	{
+		m_metalness_roughnessName = std::make_shared<std::string>(getLast(m_roughness_metalness[0].name()));
+		m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::STRING, "Metalness-Roughness",
+		                                                    m_metalness_roughnessName.get());
+		addGlobal(m_componentTypeMetalnessRoughness);
+	}
+	if (m_specular.size() > 0)
+	{
+		m_specularName = std::make_shared<std::string>(getLast(m_specular[0].name()));
+		m_componentTypeSpecular = std::make_tuple(TYPES::STRING, "Specular", m_specularName.get());
+		addGlobal(m_componentTypeSpecular);
+	}
+	if (m_ambientOcclusion.size() > 0)
+	{
+		m_ambientOcclusionName = std::make_shared<std::string>(getLast(m_ambientOcclusion[0].name()));
+		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::STRING, "Diffuse", m_ambientOcclusionName.get());
+		addGlobal(m_componentTypeAmbientOcclusion);
+	}
 
-	m_componentTypeDiffuse = std::make_tuple(TYPES::STRING, "Diffuse", m_diffuseName.get());
-	m_componentTypeNormal = std::make_tuple(TYPES::STRING, "Normal", m_normalName.get());
-	m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::STRING, "Metalness-Roughness",
-	                                                    m_metalness_roughnessName.get());
-	m_componentTypeSpecular = std::make_tuple(TYPES::STRING, "Specular", m_specularName.get());
-	m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::STRING, "Diffuse", m_ambientOcclusionName.get());
-
-	addGlobal(m_componentTypeDiffuse);
-	addGlobal(m_componentTypeNormal);
-	addGlobal(m_componentTypeMetalnessRoughness);
-	addGlobal(m_componentTypeSpecular);
-	addGlobal(m_componentTypeAmbientOcclusion);
 
 	m_id = materialId;
 	materialId++;

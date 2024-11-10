@@ -1,4 +1,6 @@
 #include "../include/NodeViewer.h"
+#include "../include/RegisterComponent.h"
+#include "../../Engine/include/GlobalData/GlobalData.h"
 
 void Prisma::NodeViewer::varsDispatcher(Component::ComponentType types, int index)
 {
@@ -7,58 +9,61 @@ void Prisma::NodeViewer::varsDispatcher(Component::ComponentType types, int inde
 	auto type = std::get<0>(types);
 	auto name = std::get<1>(types);
 	auto variable = std::get<2>(types);
-	std::string label = "##dispatcherlabel" + std::to_string(index) + name;
-	switch (type)
+	if (variable)
 	{
-	case Component::TYPES::BUTTON:
+		std::string label = "##dispatcherlabel" + std::to_string(index) + name;
+		switch (type)
 		{
-			if (ImGui::Button(name.c_str()))
+		case Component::TYPES::BUTTON:
 			{
-				(*static_cast<std::function<void()>*>(variable))();
+				if (ImGui::Button(name.c_str()))
+				{
+					(*static_cast<std::function<void()>*>(variable))();
+				}
 			}
+			break;
+		case Component::TYPES::VEC3:
+			{
+				ImGui::Text(name.c_str());
+				ImGui::InputFloat3(label.c_str(), value_ptr(*static_cast<glm::vec3*>(variable)));
+			}
+			break;
+		case Component::TYPES::VEC2:
+			{
+				ImGui::Text(name.c_str());
+				ImGui::InputFloat2(label.c_str(), value_ptr(*static_cast<glm::vec2*>(variable)));
+			}
+			break;
+		case Component::TYPES::INT:
+			{
+				ImGui::Text(name.c_str());
+				ImGui::InputInt(name.c_str(), static_cast<int*>(variable));
+			}
+			break;
+		case Component::TYPES::FLOAT:
+			{
+				ImGui::Text(name.c_str());
+				ImGui::InputFloat(label.c_str(), static_cast<float*>(variable));
+			}
+			break;
+		case Component::TYPES::STRING:
+			{
+				ImGui::Text("%s", static_cast<std::string*>(variable)->c_str());
+			}
+			break;
+		case Component::TYPES::BOOL:
+			{
+				ImGui::Checkbox(name.c_str(), static_cast<bool*>(variable));
+			}
+			break;
+		case Component::TYPES::STRINGLIST:
+			{
+				ImGui::Text(name.c_str());
+				auto comboData = static_cast<Component::ComponentList*>(variable);
+				ImGui::Combo(label.c_str(), &comboData->currentitem, comboData->items.data(), comboData->items.size());
+			}
+			break;
 		}
-		break;
-	case Component::TYPES::VEC3:
-		{
-			ImGui::Text(name.c_str());
-			ImGui::InputFloat3(label.c_str(), value_ptr(*static_cast<glm::vec3*>(variable)));
-		}
-		break;
-	case Component::TYPES::VEC2:
-		{
-			ImGui::Text(name.c_str());
-			ImGui::InputFloat2(label.c_str(), value_ptr(*static_cast<glm::vec2*>(variable)));
-		}
-		break;
-	case Component::TYPES::INT:
-		{
-			ImGui::Text(name.c_str());
-			ImGui::InputInt(name.c_str(), static_cast<int*>(variable));
-		}
-		break;
-	case Component::TYPES::FLOAT:
-		{
-			ImGui::Text(name.c_str());
-			ImGui::InputFloat(label.c_str(), static_cast<float*>(variable));
-		}
-		break;
-	case Component::TYPES::STRING:
-		{
-			ImGui::Text("%s", static_cast<std::string*>(variable)->c_str());
-		}
-		break;
-	case Component::TYPES::BOOL:
-		{
-			ImGui::Checkbox(name.c_str(), static_cast<bool*>(variable));
-		}
-		break;
-	case Component::TYPES::STRINGLIST:
-		{
-			ImGui::Text(name.c_str());
-			auto comboData = static_cast<Component::ComponentList*>(variable);
-			ImGui::Combo(label.c_str(), &comboData->currentitem, comboData->items.data(), comboData->items.size());
-		}
-		break;
 	}
 	ImGui::Dummy(ImVec2(0.0f, 2.0f));
 }
@@ -146,6 +151,7 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end)
 			textureId = m_eyeClose->id();
 		}
 
+
 		if (ImGui::ImageButton((void*)textureId, ImVec2(24, 24)))
 		{
 			nodeData.node->visible(!nodeData.node->visible());
@@ -161,6 +167,42 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end)
 		drawGizmo(nodeData);
 
 		ImGui::Dummy(ImVec2(0.0f, 10.0f));
+
+
+		std::vector<std::string> components;
+		for (auto component : Prisma::Factory::getRegistry())
+		{
+			components.push_back(component.first);
+		}
+
+		if (components.size() > 0)
+		{
+			if (ImGui::BeginCombo("##ComponentsList", components[m_componentSelect].c_str()))
+			{
+				for (int i = 0; i < components.size(); i++)
+				{
+					bool isSelected = (m_componentSelect == i);
+					if (ImGui::Selectable(components[i].c_str(), isSelected))
+					{
+						// Update the selected index when the item is clicked
+						m_componentSelect = i;
+					}
+					// Set the initial focus when opening the combo box
+					if (isSelected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+
+				ImGui::EndCombo();
+			}
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Add component"))
+		{
+			nodeData.node->addComponent(Prisma::Factory::createInstance(components[m_componentSelect]));
+		}
+
 		showComponents(nodeData.node);
 		if (end)
 		{
