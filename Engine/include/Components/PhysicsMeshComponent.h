@@ -90,7 +90,6 @@ namespace Prisma
 		BodyCreationSettings getBodySettings();
 		void addSoftBody();
 
-	private:
 		std::shared_ptr<BodyID> m_physicsId = nullptr;
 		Body* m_physicsSoftId = nullptr;
 

@@ -318,5 +318,6 @@ std::map<std::string, std::shared_ptr<Prisma::Component>> Prisma::Node::componen
 void Prisma::Node::removeComponent(const std::string& name)
 {
 	ComponentsHandler::getInstance().removeComponent(m_components[name]);
+	m_components[name]->destroy();
 	m_components.erase(name);
 }

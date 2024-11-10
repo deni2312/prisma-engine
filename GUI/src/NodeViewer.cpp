@@ -103,7 +103,11 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 				getInstance().varsDispatcher(field, i);
 			}
 		}
-		ImGui::Button("Remove Component");
+		std::string nameRemove = "Remove Component##" + std::to_string(i);
+		if (ImGui::Button(nameRemove.c_str()))
+		{
+			indexRemove = component.first;
+		}
 		i++;
 	}
 	if (!indexRemove.empty())
