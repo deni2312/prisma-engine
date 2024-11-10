@@ -90,6 +90,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 {
 	auto components = nodeData->components();
 	int i = 0;
+	std::string indexRemove = "";
 	for (const auto& component : components)
 	{
 		ImGui::Separator();
@@ -102,13 +103,18 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 				getInstance().varsDispatcher(field, i);
 			}
 		}
+		ImGui::Button("Remove Component");
 		i++;
+	}
+	if (!indexRemove.empty())
+	{
+		nodeData->removeComponent(indexRemove);
 	}
 }
 
 // Getters for textures
 
-void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end)
+void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool showData)
 {
 	if (nodeData.node)
 	{
@@ -202,8 +208,10 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end)
 		{
 			nodeData.node->addComponent(Prisma::Factory::createInstance(components[m_componentSelect]));
 		}
-
-		showComponents(nodeData.node);
+		if (showData)
+		{
+			showComponents(nodeData.node);
+		}
 		if (end)
 		{
 			ImGui::End();
