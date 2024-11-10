@@ -94,6 +94,31 @@ namespace Prisma
 				}
 			}
 
+			if (mesh->material()->specular().size() > 0)
+			{
+				std::string textureName = mesh->material()->specular()[0].name();
+				if (textureName == "")
+				{
+					textures.push_back({"SPECULAR", "NO_TEXTURE"});
+				}
+				else
+				{
+					textures.push_back({"SPECULAR", textureName});
+				}
+			}
+			if (mesh->material()->ambientOcclusion().size() > 0)
+			{
+				std::string textureName = mesh->material()->ambientOcclusion()[0].name();
+				if (textureName == "")
+				{
+					textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
+				}
+				else
+				{
+					textures.push_back({"AMBIENT_OCCLUSION", textureName});
+				}
+			}
+
 			j["textures"] = textures;
 			// Convert Vertex properties to arrays of floats
 			std::vector<json> verticesJson;
@@ -193,6 +218,31 @@ namespace Prisma
 				else
 				{
 					textures.push_back({"ROUGHNESS", textureName});
+				}
+			}
+
+			if (mesh->material()->specular().size() > 0)
+			{
+				std::string textureName = mesh->material()->specular()[0].name();
+				if (textureName == "")
+				{
+					textures.push_back({"SPECULAR", "NO_TEXTURE"});
+				}
+				else
+				{
+					textures.push_back({"SPECULAR", textureName});
+				}
+			}
+			if (mesh->material()->ambientOcclusion().size() > 0)
+			{
+				std::string textureName = mesh->material()->ambientOcclusion()[0].name();
+				if (textureName == "")
+				{
+					textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
+				}
+				else
+				{
+					textures.push_back({"AMBIENT_OCCLUSION", textureName});
 				}
 			}
 
@@ -344,7 +394,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultBlack);
+							textures.push_back(defaultWhite);
 						}
 						else
 						{
@@ -360,7 +410,7 @@ namespace Prisma
 						Texture texture;
 						if (t.second == "NO_TEXTURE")
 						{
-							textures.push_back(defaultBlack);
+							textures.push_back(defaultWhite);
 						}
 						else
 						{
