@@ -103,6 +103,16 @@ Prisma::Component::~Component()
 	//destroy();
 }
 
+void Prisma::Component::uiRemovable(bool uiRemovable)
+{
+	m_uiRemovable = uiRemovable;
+}
+
+bool Prisma::Component::uiRemovable()
+{
+	return m_uiRemovable;
+}
+
 void Prisma::Component::addGlobal(ComponentType globalVar)
 {
 	m_globalVars.push_back(globalVar);

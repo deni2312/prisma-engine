@@ -62,6 +62,7 @@ void Prisma::MaterialComponent::ui()
 		addGlobal(m_componentTypeAmbientOcclusion);
 	}
 
+	uiRemovable(false);
 
 	m_id = materialId;
 	materialId++;

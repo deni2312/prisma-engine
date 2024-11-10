@@ -76,6 +76,10 @@ namespace Prisma
 
 		virtual ~Component();
 
+		void uiRemovable(bool uiRemovable);
+
+		bool uiRemovable();
+
 	private:
 		Node* m_parent = nullptr;
 		bool m_start = false;
@@ -83,5 +87,6 @@ namespace Prisma
 		ComponentTypeVector m_globalVars;
 		std::string m_name;
 		uint64_t m_uuid;
+		bool m_uiRemovable = true;
 	};
 }

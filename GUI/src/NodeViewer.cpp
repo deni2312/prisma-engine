@@ -104,7 +104,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 			}
 		}
 		std::string nameRemove = "Remove Component##" + std::to_string(i);
-		if (ImGui::Button(nameRemove.c_str()))
+		if (component.second->uiRemovable() && ImGui::Button(nameRemove.c_str()))
 		{
 			indexRemove = component.first;
 		}
