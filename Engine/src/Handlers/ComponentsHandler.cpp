@@ -67,6 +67,24 @@ void Prisma::ComponentsHandler::updatePostRender(std::shared_ptr<FBO> fbo)
 	}
 }
 
+void Prisma::ComponentsHandler::addComponent(std::shared_ptr<Component> component)
+{
+	m_components.push_back(component);
+}
+
+void Prisma::ComponentsHandler::removeComponent(std::shared_ptr<Component> component)
+{
+	// Find and remove the component from the vector
+	auto it = std::find(m_components.begin(), m_components.end(), component);
+
+	// Erase the removed elements (if any)
+	if (it != m_components.end())
+	{
+		std::cout << "a" << std::endl;
+		m_components.erase(it);
+	}
+}
+
 Prisma::ComponentsHandler::ComponentsHandler()
 {
 }

@@ -23,7 +23,7 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 
 		NodeViewer::getInstance().showSelected(meshData, false,
 		                                       isAnimate || (physicsComponent && !physicsComponent->collisionData().
-			                                       softBody));
+			                                       softBody) || !physicsComponent);
 		ImGui::Dummy(ImVec2(0.0f, 4.0f));
 
 		if (mesh)

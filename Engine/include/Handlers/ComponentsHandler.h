@@ -22,22 +22,9 @@ namespace Prisma
 
 		void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
 
-		void addComponent(std::shared_ptr<Component> component)
-		{
-			m_components.push_back(component);
-		}
+		void addComponent(std::shared_ptr<Component> component);
 
-		void removeComponent(std::shared_ptr<Component> component)
-		{
-			// Find and remove the component from the vector
-			auto it = std::remove(m_components.begin(), m_components.end(), component);
-
-			// Erase the removed elements (if any)
-			if (it != m_components.end())
-			{
-				m_components.erase(it, m_components.end());
-			}
-		}
+		void removeComponent(std::shared_ptr<Component> component);
 
 		ComponentsHandler();
 
