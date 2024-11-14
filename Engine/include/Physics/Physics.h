@@ -35,11 +35,10 @@ namespace Prisma
 
 		struct SoftBodySettings
 		{
-			float gravity = 1.0f;
+			int numIteration = 1.0f;
 			bool sleep = false;
 			bool updatePosition = false;
-			JPH::SoftBodySharedSettings::VertexAttributes vertexAttributes = {1, 1, 1};
-			JPH::SoftBodySharedSettings::EBendType bendType = JPH::SoftBodySharedSettings::EBendType::None;
+			JPH::SoftBodySharedSettings::VertexAttributes vertexAttributes = {1.0e-5f, 1.0e-5f, 1.0e-5f};
 		};
 
 		struct LandscapeData

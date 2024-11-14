@@ -17,21 +17,10 @@ void Prisma::PhysicsMeshComponent::ui()
 	m_status.items.push_back("LANDSCAPE COLLIDER");
 	m_status.items.push_back("CONVEX COLLIDER");
 	componentType = std::make_tuple(TYPES::STRINGLIST, "Collider", &m_status);
-
 	ComponentType componentMass;
 	componentMass = std::make_tuple(TYPES::FLOAT, "Mass", &m_collisionData.mass);
-
-	ComponentType componentGravity;
-	componentGravity = std::make_tuple(TYPES::FLOAT, "Gravity", &m_settingsSoft.gravity);
-
-	m_statusBend.currentitem = static_cast<int>(m_settingsSoft.bendType);
-	m_statusBend.items.push_back("NONE");
-	m_statusBend.items.push_back("DISTANCE");
-	m_statusBend.items.push_back("DIHEDRAL");
-
-	ComponentType componentBend;
-	componentBend = std::make_tuple(TYPES::STRINGLIST, "Bend", &m_statusBend);
-
+	ComponentType componentIteration;
+	componentIteration = std::make_tuple(TYPES::INT, "Iteration", &m_settingsSoft.numIteration);
 	ComponentType componentDynamic;
 	componentDynamic = std::make_tuple(TYPES::BOOL, "Dynamic", &m_collisionData.dynamic);
 
@@ -60,9 +49,7 @@ void Prisma::PhysicsMeshComponent::ui()
 
 	addGlobal(componentMass);
 
-	addGlobal(componentGravity);
-
-	addGlobal(componentBend);
+	addGlobal(componentIteration);
 
 	addGlobal(componentDynamic);
 
@@ -238,9 +225,19 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	case Physics::Collider::BOX_COLLIDER:
 		{
 			auto length = glm::abs((aabbData.max - aabbData.min) * 0.5f);
-			if (length.x < m_minScale || length.y < m_minScale || length.z < m_minScale)
+			if (length.x < m_minScale)
 			{
-				length = glm::vec3(1, 1, 1);
+				length.x = 1;
+			}
+
+			if (length.y < m_minScale)
+			{
+				length.y = 1;
+			}
+
+			if (length.z < m_minScale)
+			{
+				length.z = 1;
 			}
 			auto boxShape = new BoxShape(JtoVec3(length));
 			auto result = boxShape->ScaleShape(JtoVec3(scale));
@@ -339,7 +336,7 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 			                                                               mesh->verticesData().indices[i + 2]));
 		}
 
-		m_softBodySharedSettings->CreateConstraints(&m_settingsSoft.vertexAttributes, 1, m_settingsSoft.bendType);
+		m_softBodySharedSettings->CreateConstraints(&m_settingsSoft.vertexAttributes, 1);
 
 		m_softBodySharedSettings->Optimize();
 
@@ -348,9 +345,9 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		                                     m_collisionData.dynamic
 			                                     ? Layers::MOVING
 			                                     : Layers::NON_MOVING);
-		sb_settings.mGravityFactor = m_settingsSoft.gravity;
 		sb_settings.mAllowSleeping = m_settingsSoft.sleep;
 		sb_settings.mUpdatePosition = m_settingsSoft.updatePosition;
+		sb_settings.mNumIterations = m_settingsSoft.numIteration;
 
 		m_physicsSoftId = Physics::getInstance().bodyInterface().CreateSoftBody(sb_settings);
 		Physics::getInstance().bodyInterface().AddBody(m_physicsSoftId->GetID(),

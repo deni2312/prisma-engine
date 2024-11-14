@@ -80,7 +80,6 @@ namespace Prisma
 
 	private:
 		ComponentList m_status;
-		ComponentList m_statusBend;
 		std::function<void()> m_apply;
 		std::function<void()> m_applySoft;
 		Physics::CollisionData m_collisionData{};
