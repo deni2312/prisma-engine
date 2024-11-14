@@ -19,6 +19,12 @@ void Prisma::PhysicsMeshComponent::ui()
 	componentType = std::make_tuple(TYPES::STRINGLIST, "Collider", &m_status);
 	ComponentType componentMass;
 	componentMass = std::make_tuple(TYPES::FLOAT, "Mass", &m_collisionData.mass);
+	ComponentType componentFriction;
+	componentFriction = std::make_tuple(TYPES::FLOAT, "Friction", &m_collisionData.friction);
+	ComponentType componentRestitution;
+	componentRestitution = std::make_tuple(TYPES::FLOAT, "Restitution", &m_collisionData.restitution);
+	ComponentType componentPressure;
+	componentPressure = std::make_tuple(TYPES::FLOAT, "Pressure", &m_collisionData.pressure);
 	ComponentType componentIteration;
 	componentIteration = std::make_tuple(TYPES::INT, "Iteration", &m_settingsSoft.numIteration);
 	ComponentType componentDynamic;
@@ -48,6 +54,12 @@ void Prisma::PhysicsMeshComponent::ui()
 	addGlobal(componentType);
 
 	addGlobal(componentMass);
+
+	addGlobal(componentFriction);
+
+	addGlobal(componentRestitution);
+
+	addGlobal(componentPressure);
 
 	addGlobal(componentIteration);
 
@@ -299,6 +311,9 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 		aabbSettings.mMassPropertiesOverride = mass;
 		aabbSettings.mOverrideMassProperties = EOverrideMassProperties::CalculateInertia;
 	}
+	aabbSettings.mFriction = m_collisionData.friction;
+	aabbSettings.mRestitution = m_collisionData.restitution;
+
 	aabbSettings.mUserData = uuid();
 	return aabbSettings;
 }
@@ -348,6 +363,10 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 		sb_settings.mAllowSleeping = m_settingsSoft.sleep;
 		sb_settings.mUpdatePosition = m_settingsSoft.updatePosition;
 		sb_settings.mNumIterations = m_settingsSoft.numIteration;
+
+		sb_settings.mFriction = m_collisionData.friction;
+		sb_settings.mRestitution = m_collisionData.restitution;
+		sb_settings.mPressure = m_collisionData.pressure;
 
 		m_physicsSoftId = Physics::getInstance().bodyInterface().CreateSoftBody(sb_settings);
 		Physics::getInstance().bodyInterface().AddBody(m_physicsSoftId->GetID(),

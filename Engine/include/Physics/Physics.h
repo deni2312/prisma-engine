@@ -31,6 +31,9 @@ namespace Prisma
 			float mass = 0.0f;
 			bool dynamic = false;
 			bool softBody = false;
+			float friction = 0;
+			float restitution = 0;
+			float pressure = 0;
 		};
 
 		struct SoftBodySettings
