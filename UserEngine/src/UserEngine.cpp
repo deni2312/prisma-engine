@@ -14,24 +14,11 @@
 
 void UserEngine::start()
 {
-	m_root = Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.gltf", {true});
+	m_root = Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.prisma", {true});
 	Prisma::Texture texture;
 	texture.loadEquirectangular("../../../Resources/Skybox/cloudy.hdr");
 	texture.data({4096, 4096, 3});
 	Prisma::PipelineSkybox::getInstance().texture(texture, true);
-
-	Prisma::NodeHelper nodeHelper;
-
-	nodeHelper.nodeIterator(m_root->root, [](auto mesh, auto parent)
-	{
-		auto currentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(mesh);
-		if (currentMesh && !std::dynamic_pointer_cast<Prisma::AnimatedMesh>(mesh))
-		{
-			auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
-			physicsComponent->collisionData({Prisma::Physics::Collider::BOX_COLLIDER, 0.0, false});
-			currentMesh->addComponent(physicsComponent);
-		}
-	});
 
 	m_player = std::make_shared<PlayerController>(m_root);
 
