@@ -78,6 +78,10 @@ namespace Prisma
 
 		Body* softId();
 
+		nlohmann::json& serialize() override;
+
+		void deserialize(nlohmann::json& data) override;
+
 	private:
 		ComponentList m_status;
 		std::function<void()> m_apply;
@@ -91,6 +95,8 @@ namespace Prisma
 
 		std::shared_ptr<BodyID> m_physicsId = nullptr;
 		Body* m_physicsSoftId = nullptr;
+
+		nlohmann::json m_jsonComponent;
 
 
 		Physics::LandscapeData m_landscapeData;

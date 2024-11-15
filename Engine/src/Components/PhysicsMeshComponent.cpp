@@ -5,6 +5,7 @@
 #include "../../include/SceneData/MeshIndirect.h"
 #include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
 #include "Jolt/Physics/SoftBody/SoftBodyCreationSettings.h"
+#include "../../include/SceneData/ComponentTypeLayout.h"
 
 void Prisma::PhysicsMeshComponent::ui()
 {
@@ -211,6 +212,21 @@ Prisma::Physics::SoftBodySettings Prisma::PhysicsMeshComponent::settingsSoftBody
 Body* Prisma::PhysicsMeshComponent::softId()
 {
 	return m_physicsSoftId;
+}
+
+nlohmann::json& Prisma::PhysicsMeshComponent::serialize()
+{
+	m_jsonComponent = {
+		{"CollisionData", m_collisionData},
+		{"LandscapeData", m_landscapeData},
+		{"SoftBodySettings", m_settingsSoft}
+	};
+	return m_jsonComponent;
+}
+
+void Prisma::PhysicsMeshComponent::deserialize(nlohmann::json& data)
+{
+	Component::deserialize(data);
 }
 
 BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()

@@ -4,6 +4,7 @@
 #include <tuple>
 #include "../SceneObjects/Node.h"
 #include "../Containers/FBO.h"
+#include <nlohmann/json.hpp>
 
 namespace Prisma
 {
@@ -73,6 +74,10 @@ namespace Prisma
 		uint64_t uuid();
 
 		Component();
+
+		virtual nlohmann::json& serialize();
+
+		virtual void deserialize(nlohmann::json& data);
 
 		virtual ~Component();
 
