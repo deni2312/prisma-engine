@@ -43,25 +43,21 @@ uniform bool transparent;
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
-    if (index == 0) {
-        for (int i = 0; i < materialData.length(); i++) {
-            if (status[i] > 0) {
-                if (transparent) {
-                    if (materialData[i].transparent==1) {
-                        instanceData[i].instanceCount = 1;
-                    }
-                    else {
-                        instanceData[i].instanceCount = 0;
-                    }
-                }
-                else {
-                    if (materialData[i].transparent==0) {
-                        instanceData[i].instanceCount = 1;
-                    }
-                    else {
-                        instanceData[i].instanceCount = 0;
-                    }
-                }
+    if (status[index] > 0) {
+        if (transparent) {
+            if (materialData[index].transparent==1) {
+                instanceData[index].instanceCount = 1;
+            }
+            else {
+                instanceData[index].instanceCount = 0;
+            }
+        }
+        else {
+            if (materialData[index].transparent==0) {
+                instanceData[index].instanceCount = 1;
+            }
+            else {
+                instanceData[index].instanceCount = 0;
             }
         }
     }

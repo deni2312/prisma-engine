@@ -227,6 +227,6 @@ void Prisma::PipelineDeferredForward::showTransparencies(bool show)
 {
 	m_shaderCompute->use();
 	m_shaderCompute->setBool(m_transparentLocation, show);
-	m_shaderCompute->dispatchCompute({1, 1, 1});
+	m_shaderCompute->dispatchCompute({Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size(), 1, 1});
 	m_shaderCompute->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }

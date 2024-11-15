@@ -66,7 +66,7 @@ layout(std430, binding = 21) buffer MaterialCopy
 
 layout(std430, binding = 23) buffer IndicesData
 {
-    uint indicesData[];
+    ivec4 indicesData[];
 };
 
 layout(std430, binding = 24) buffer Status
@@ -92,30 +92,59 @@ void main() {
         // Sort using indices to avoid modifying the copy buffers
         uint size = statusCopy.length();
         // Initialize indices
-        for (uint i = 0; i < size; i++) {
-            indicesData[i] = i;
+        for (int i = 0; i < size; i++) {
+            indicesData[i].x = i;
         }
 
-        // Perform bubble sort on indices based on depth from copy buffers
-        for (uint i = 0; i < size - 1; i++) {
-            for (uint j = 0; j < size - 1 - i; j++) {
-                // Calculate depths using the copy buffers
-                float depthA = calculateDepth(modelMatricesCopy[indicesData[j]]);
-                float depthB = calculateDepth(modelMatricesCopy[indicesData[j + 1]]);
+        uint bitMask = 1u;
+        int maxBits = 32; // Assuming 32-bit floats represented as integers
 
-                // Sort in descending order (farthest first) for transparency blending
-                if (depthA < depthB) {
-                    // Swap indices instead of modifying the copy buffer data
-                    uint temp = indicesData[j];
-                    indicesData[j] = indicesData[j + 1];
-                    indicesData[j + 1] = temp;
+        // Perform sorting bit-by-bit
+        for (int bit = 0; bit < maxBits; bit++) {
+            int zeroCount = 0;
+
+            // Create a count of zeros for the current bit position
+            for (int i = 0; i < size; i++) {
+                float depth = calculateDepth(modelMatricesCopy[indicesData[i].x]);
+                int intDepth = floatBitsToInt(depth);
+                if ((intDepth & bitMask) == 0u) {
+                    zeroCount++;
                 }
             }
+
+            // Compute the output indices
+            int zeroIndex = 0;
+            int oneIndex = zeroCount;
+            for (int i = 0; i < size; i++) {
+                float depth = calculateDepth(modelMatricesCopy[indicesData[i].x]);
+                int intDepth = floatBitsToInt(depth);
+                if ((intDepth & bitMask) == 0u) {
+                    indicesData[zeroIndex++].y = indicesData[i].x;
+                }
+                else {
+                    indicesData[oneIndex++].y = indicesData[i].x;
+                }
+            }
+
+            // Copy sorted data back to indicesData
+            for (int i = 0; i < size; i++) {
+                indicesData[i].x = indicesData[i].y;
+            }
+
+            // Move to the next bit
+            bitMask <<= 1u;
+        }
+
+        // Reverse the array to ensure descending order (largest first)
+        for (int i = 0; i < size / 2; i++) {
+            int temp = indicesData[i].x;
+            indicesData[i].x = indicesData[size - 1 - i].x;
+            indicesData[size - 1 - i].x = temp;
         }
 
         // Write sorted data from copy buffers to main buffers
         for (uint i = 0; i < size; i++) {
-            uint sortedIndex = indicesData[i];
+            int sortedIndex = indicesData[i].x;
             instanceData[i] = instanceDataCopy[sortedIndex];
             modelMatrices[i] = modelMatricesCopy[sortedIndex];
             materialData[i] = materialDataCopy[sortedIndex];

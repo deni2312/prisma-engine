@@ -195,7 +195,7 @@ void Prisma::MeshIndirect::updateSize()
 		m_ssboMaterialCopy->resize(sizeof(MaterialData) * (m_materialData.size()));
 		m_ssboMaterialCopy->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
 
-		m_ssboIndices->resize(sizeof(unsigned int) * meshes.size());
+		m_ssboIndices->resize(sizeof(glm::ivec4) * meshes.size());
 
 		std::vector<unsigned int> status;
 		for (const auto& mesh : meshes)
