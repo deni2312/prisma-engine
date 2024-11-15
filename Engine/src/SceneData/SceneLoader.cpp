@@ -372,14 +372,12 @@ std::vector<Prisma::Texture> Prisma::SceneLoader::loadMaterialTextures(aiMateria
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		bool skip = false;
-		for (auto& texture : textures_loaded)
+
+		if (m_texturesLoaded.find(m_folder + str.C_Str()) != m_texturesLoaded.end())
 		{
-			if (texture.name() == m_folder + str.C_Str())
-			{
-				textures.push_back(texture);
-				skip = true;
-				break;
-			}
+			textures.push_back(m_texturesLoaded[m_folder + str.C_Str()]);
+			skip = true;
+			break;
 		}
 		if (!skip)
 		{
@@ -394,7 +392,7 @@ std::vector<Prisma::Texture> Prisma::SceneLoader::loadMaterialTextures(aiMateria
 			{
 				texture.name(name);
 				textures.push_back(texture);
-				textures_loaded.push_back(texture);
+				m_texturesLoaded[m_folder + str.C_Str()] = texture;
 			}
 		}
 	}

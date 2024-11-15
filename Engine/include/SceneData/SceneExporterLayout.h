@@ -344,6 +344,7 @@ namespace Prisma
 		if (type == "MESH")
 		{
 			auto mesh = std::dynamic_pointer_cast<Mesh>(n);
+			static std::map<std::string, Texture> texturesLoaded;
 			// Deserialize textures
 			if (j.contains("textures"))
 			{
@@ -361,9 +362,17 @@ namespace Prisma
 						}
 						else
 						{
-							texture.name(t.second);
-							texture.loadTexture({t.second, true});
-							textures.push_back(texture);
+							if (texturesLoaded.find(t.second) == texturesLoaded.end())
+							{
+								texture.name(t.second);
+								texture.loadTexture({t.second, true});
+								textures.push_back(texture);
+								texturesLoaded[t.second] = texture;
+							}
+							else
+							{
+								textures.push_back(texturesLoaded[t.second]);
+							}
 						}
 						material->diffuse(textures);
 					}
@@ -377,9 +386,17 @@ namespace Prisma
 						}
 						else
 						{
-							texture.name(t.second);
-							texture.loadTexture({t.second});
-							textures.push_back(texture);
+							if (texturesLoaded.find(t.second) == texturesLoaded.end())
+							{
+								texture.name(t.second);
+								texture.loadTexture({t.second});
+								textures.push_back(texture);
+								texturesLoaded[t.second] = texture;
+							}
+							else
+							{
+								textures.push_back(texturesLoaded[t.second]);
+							}
 						}
 						material->normal(textures);
 					}
@@ -393,9 +410,16 @@ namespace Prisma
 						}
 						else
 						{
-							texture.name(t.second);
-							texture.loadTexture({t.second});
-							textures.push_back(texture);
+							if (texturesLoaded.find(t.second) == texturesLoaded.end())
+							{
+								texture.name(t.second);
+								texture.loadTexture({t.second});
+								textures.push_back(texture);
+							}
+							else
+							{
+								textures.push_back(texturesLoaded[t.second]);
+							}
 						}
 						material->roughness_metalness(textures);
 					}
@@ -409,9 +433,16 @@ namespace Prisma
 						}
 						else
 						{
-							texture.name(t.second);
-							texture.loadTexture({t.second});
-							textures.push_back(texture);
+							if (texturesLoaded.find(t.second) == texturesLoaded.end())
+							{
+								texture.name(t.second);
+								texture.loadTexture({t.second});
+								textures.push_back(texture);
+							}
+							else
+							{
+								textures.push_back(texturesLoaded[t.second]);
+							}
 						}
 						material->specular(textures);
 					}
@@ -425,9 +456,16 @@ namespace Prisma
 						}
 						else
 						{
-							texture.name(t.second);
-							texture.loadTexture({t.second});
-							textures.push_back(texture);
+							if (texturesLoaded.find(t.second) == texturesLoaded.end())
+							{
+								texture.name(t.second);
+								texture.loadTexture({t.second});
+								textures.push_back(texture);
+							}
+							else
+							{
+								textures.push_back(texturesLoaded[t.second]);
+							}
 						}
 						material->ambientOcclusion(textures);
 					}

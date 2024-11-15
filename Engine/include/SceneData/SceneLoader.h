@@ -43,7 +43,7 @@ namespace Prisma
 		std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, bool srgb = false);
 		void loadLights(const aiScene* currentScene, std::shared_ptr<Node> root);
 
-		std::vector<Texture> textures_loaded;
+		std::map<std::string, Texture> m_texturesLoaded;
 		std::shared_ptr<Scene> m_scene;
 		std::string m_folder;
 		NodeHelper m_nodeFinder;
