@@ -90,56 +90,40 @@ void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index == 0) {
         // Sort using indices to avoid modifying the copy buffers
-        uint size = statusCopy.length();
+        int size = statusCopy.length();
         // Initialize indices
         for (int i = 0; i < size; i++) {
             indicesData[i].x = i;
         }
 
-        uint bitMask = 1u;
-        int maxBits = 32; // Assuming 32-bit floats represented as integers
-
-        // Perform sorting bit-by-bit
-        for (int bit = 0; bit < maxBits; bit++) {
-            int zeroCount = 0;
-
-            // Create a count of zeros for the current bit position
-            for (int i = 0; i < size; i++) {
-                float depth = calculateDepth(modelMatricesCopy[indicesData[i].x]);
-                int intDepth = floatBitsToInt(depth);
-                if ((intDepth & bitMask) == 0u) {
-                    zeroCount++;
-                }
+        // Count transparent materials in indicesData and create separate index lists
+        int transparentCount = 0;
+        for (int i = 0; i < size; i++) {
+            if (materialDataCopy[indicesData[i].x].transparent) {
+                int temp = indicesData[i].x;
+                indicesData[i].x = indicesData[size - 1 - transparentCount].x;
+                indicesData[size - 1 - transparentCount].x = temp;
+                transparentCount++;
             }
-
-            // Compute the output indices
-            int zeroIndex = 0;
-            int oneIndex = zeroCount;
-            for (int i = 0; i < size; i++) {
-                float depth = calculateDepth(modelMatricesCopy[indicesData[i].x]);
-                int intDepth = floatBitsToInt(depth);
-                if ((intDepth & bitMask) == 0u) {
-                    indicesData[zeroIndex++].y = indicesData[i].x;
-                }
-                else {
-                    indicesData[oneIndex++].y = indicesData[i].x;
-                }
-            }
-
-            // Copy sorted data back to indicesData
-            for (int i = 0; i < size; i++) {
-                indicesData[i].x = indicesData[i].y;
-            }
-
-            // Move to the next bit
-            bitMask <<= 1u;
         }
 
-        // Reverse the array to ensure descending order (largest first)
-        for (int i = 0; i < size / 2; i++) {
-            int temp = indicesData[i].x;
-            indicesData[i].x = indicesData[size - 1 - i].x;
-            indicesData[size - 1 - i].x = temp;
+        int transparentStart = size - transparentCount;
+
+        // Perform bubble sort on indices based on depth from copy buffers
+        for (uint i = transparentStart; i < size - 1; i++) {
+            for (uint j = transparentStart; j < size - 1 - (i- transparentStart); j++) {
+                // Calculate depths using the copy buffers
+                float depthA = calculateDepth(modelMatricesCopy[indicesData[j].x]);
+                float depthB = calculateDepth(modelMatricesCopy[indicesData[j + 1].x]);
+
+                // Sort in descending order (farthest first) for transparency blending
+                if (depthA < depthB) {
+                    // Swap indices instead of modifying the copy buffer data
+                    int temp = indicesData[j].x;
+                    indicesData[j].x = indicesData[j + 1].x;
+                    indicesData[j + 1].x = temp;
+                }
+            }
         }
 
         // Write sorted data from copy buffers to main buffers
