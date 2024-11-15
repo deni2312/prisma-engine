@@ -1,5 +1,6 @@
 #include "../include/NodeViewer.h"
-#include "../include/RegisterComponent.h"
+#include "../../Engine/include/Components/Component.h"
+#include "../../Engine/include/Components/RegisterComponent.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
 
 void Prisma::NodeViewer::varsDispatcher(Component::ComponentType types, int index)

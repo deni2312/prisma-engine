@@ -3,7 +3,7 @@
 #include <memory>
 #include <functional>
 #include <string>
-#include "../../Engine/include/Components/Component.h"
+#include "Component.h"
 
 namespace Prisma
 {

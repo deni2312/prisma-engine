@@ -13,7 +13,7 @@
 #include "../../Engine/include/GlobalData/InstanceData.h"
 #include "../../Engine/include/Helpers/TimeCounter.h"
 #include "AddingMenu.h"
-#include "RegisterCreator.h"
+#include "../../Engine/include/Components/RegisterCreator.h"
 
 
 namespace Prisma
