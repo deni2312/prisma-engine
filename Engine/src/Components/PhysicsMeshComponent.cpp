@@ -214,7 +214,7 @@ Body* Prisma::PhysicsMeshComponent::softId()
 	return m_physicsSoftId;
 }
 
-nlohmann::json& Prisma::PhysicsMeshComponent::serialize()
+nlohmann::json Prisma::PhysicsMeshComponent::serialize()
 {
 	m_jsonComponent = {
 		{"CollisionData", m_collisionData},
@@ -226,7 +226,15 @@ nlohmann::json& Prisma::PhysicsMeshComponent::serialize()
 
 void Prisma::PhysicsMeshComponent::deserialize(nlohmann::json& data)
 {
-	Component::deserialize(data);
+	// Validate input JSON and populate member variables
+	if (data.contains("CollisionData") && data["CollisionData"].is_object())
+		data.at("CollisionData").get_to(m_collisionData);
+
+	if (data.contains("LandscapeData") && data["LandscapeData"].is_object())
+		data.at("LandscapeData").get_to(m_landscapeData);
+
+	if (data.contains("SoftBodySettings") && data["SoftBodySettings"].is_object())
+		data.at("SoftBodySettings").get_to(m_settingsSoft);
 }
 
 BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()

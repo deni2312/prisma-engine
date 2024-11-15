@@ -100,6 +100,5 @@ namespace Prisma
 		TimeCounter m_timeCounterEngine;
 
 		Prisma::ImGuiAddingMenu m_addingMenu;
-		Prisma::RegisterData m_registerData;
 	};
 }

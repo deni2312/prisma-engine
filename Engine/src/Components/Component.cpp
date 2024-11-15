@@ -97,9 +97,9 @@ Prisma::Component::Component()
 	Prisma::GlobalData::getInstance().sceneComponents()[m_uuid] = this;
 }
 
-nlohmann::json& Prisma::Component::serialize()
+nlohmann::json Prisma::Component::serialize()
 {
-	return std::move(nlohmann::json());
+	return nlohmann::json();
 }
 
 void Prisma::Component::deserialize(nlohmann::json& data)

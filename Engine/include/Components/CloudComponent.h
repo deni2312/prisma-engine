@@ -23,30 +23,6 @@ namespace Prisma
 
 		void start() override;
 
-	private:
-		unsigned int m_modelPos;
-
-		unsigned int m_lightPos;
-
-		unsigned int m_timePos;
-
-		unsigned int m_noisePos;
-
-		unsigned int m_invViewPos;
-		unsigned int m_invProjPos;
-		unsigned int m_camPos;
-
-		unsigned int m_perlworlPos;
-		unsigned int m_worlPos;
-
-		unsigned int m_upscalePos;
-		unsigned int m_resUpscalePos;
-		unsigned int m_factorPos;
-
-		GLuint m_downscalesq = 4 * 4;
-
-		std::shared_ptr<SSBO> m_ssbo;
-
 		struct alignas(16) CloudSSBO
 		{
 			// Cloud model
@@ -103,6 +79,29 @@ namespace Prisma
 			glm::vec2 padding5;
 		};
 
+	private:
+		unsigned int m_modelPos;
+
+		unsigned int m_lightPos;
+
+		unsigned int m_timePos;
+
+		unsigned int m_noisePos;
+
+		unsigned int m_invViewPos;
+		unsigned int m_invProjPos;
+		unsigned int m_camPos;
+
+		unsigned int m_perlworlPos;
+		unsigned int m_worlPos;
+
+		unsigned int m_upscalePos;
+		unsigned int m_resUpscalePos;
+		unsigned int m_factorPos;
+
+		GLuint m_downscalesq = 4 * 4;
+
+		std::shared_ptr<SSBO> m_ssbo;
 		CloudSSBO m_cloudSSBO;
 
 		std::chrono::system_clock::time_point m_start;
@@ -125,7 +124,6 @@ namespace Prisma
 
 		void setVariables();
 
-	private:
 		const int m_downscale = 4;
 
 		std::function<void()> m_startButton;

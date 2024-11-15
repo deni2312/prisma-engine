@@ -3,6 +3,7 @@
 #include "../GlobalData/GlobalData.h"
 #include "../Components/Component.h"
 #include "../GlobalData/InstanceData.h"
+#include "../Components/RegisterCreator.h"
 
 
 namespace Prisma
@@ -30,5 +31,6 @@ namespace Prisma
 
 	private:
 		std::vector<std::shared_ptr<Component>> m_components;
+		Prisma::RegisterData m_registerData;
 	};
 }

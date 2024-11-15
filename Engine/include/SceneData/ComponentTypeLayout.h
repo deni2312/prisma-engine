@@ -1,6 +1,7 @@
 #pragma once
 #include <nlohmann/json.hpp>
 #include "../Physics/Physics.h"
+#include "../Components/CloudComponent.h"
 
 
 namespace Prisma
@@ -101,5 +102,11 @@ namespace Prisma
 		data.scale.SetY(scale[1]);
 		data.scale.SetZ(scale[2]);
 		j.at("width").get_to(data.width);
+	}
+
+	// Serialization for glm::vec3
+	void to_json(json& j, const glm::vec3& vec)
+	{
+		j = json{vec.x, vec.y, vec.z};
 	}
 }

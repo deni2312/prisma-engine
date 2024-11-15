@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "../Components/RegisterComponent.h"
 #include "../SceneObjects/Node.h"
 #include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Light.h"
@@ -289,6 +291,15 @@ namespace Prisma
 			};
 			j["farPlane"] = light->type().farPlane.x;
 		}
+
+		std::vector<std::pair<std::string, json>> componentJson;
+
+		for (auto& [name, component] : n->components())
+		{
+			componentJson.push_back({name, component->serialize()});
+		}
+
+		j["components"] = componentJson;
 	}
 
 	// Deserialize NodeExport from JSON
@@ -631,6 +642,23 @@ namespace Prisma
 
 
 			mesh->loadAnimateModel(verticesData);
+		}
+		if (!j.contains("components") || !j["components"].is_array())
+			return;
+
+		for (const auto& componentData : j["components"])
+		{
+			std::string componentName = componentData[0];
+			if (!name.empty())
+			{
+				json componentJson = componentData[1];
+				auto component = Prisma::Factory::createInstance(componentName);
+				if (component)
+				{
+					component->deserialize(componentJson);
+					n->addComponent(component);
+				}
+			}
 		}
 	}
 }

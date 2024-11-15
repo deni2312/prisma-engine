@@ -86,4 +86,5 @@ void Prisma::ComponentsHandler::removeComponent(std::shared_ptr<Component> compo
 
 Prisma::ComponentsHandler::ComponentsHandler()
 {
+	m_registerData.init();
 }

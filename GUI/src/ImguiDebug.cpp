@@ -88,7 +88,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png", false, false, false});
 
 	NodeViewer::getInstance();
-	m_registerData.init();
 
 	initStatus();
 }

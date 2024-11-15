@@ -75,7 +75,7 @@ namespace Prisma
 
 		Component();
 
-		virtual nlohmann::json& serialize();
+		virtual nlohmann::json serialize();
 
 		virtual void deserialize(nlohmann::json& data);
 

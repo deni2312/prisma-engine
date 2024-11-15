@@ -78,7 +78,7 @@ namespace Prisma
 
 		Body* softId();
 
-		nlohmann::json& serialize() override;
+		nlohmann::json serialize() override;
 
 		void deserialize(nlohmann::json& data) override;
 
