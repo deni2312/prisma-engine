@@ -26,10 +26,8 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	}
 
 	m_bboxMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "BBoxMesh"));
-	m_bboxMesh->visible(false);
 
 	m_sphereMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "SphereMesh"));
-	m_sphereMesh->visible(false);
 
 	m_gunPosition = nodeHelper.find(m_scene->root, "GunPosition");
 

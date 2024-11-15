@@ -300,6 +300,7 @@ namespace Prisma
 		}
 
 		j["components"] = componentJson;
+		j["visible"] = n->visible();
 	}
 
 	// Deserialize NodeExport from JSON
@@ -681,6 +682,13 @@ namespace Prisma
 
 			mesh->loadAnimateModel(verticesData);
 		}
+		if (j.contains("visible"))
+		{
+			bool visible = true;
+			j.at("visible").get_to(visible);
+			n->visible(visible);
+		}
+
 		if (!j.contains("components") || !j["components"].is_array())
 			return;
 

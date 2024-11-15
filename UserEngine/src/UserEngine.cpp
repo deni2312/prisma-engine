@@ -19,7 +19,6 @@ void UserEngine::start()
 	texture.loadEquirectangular("../../../Resources/Skybox/cloudy.hdr");
 	texture.data({4096, 4096, 3});
 	Prisma::PipelineSkybox::getInstance().texture(texture, true);
-
 	m_player = std::make_shared<PlayerController>(m_root);
 
 	m_player->scene(m_root);
