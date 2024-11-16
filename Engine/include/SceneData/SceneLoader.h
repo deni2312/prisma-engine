@@ -10,6 +10,7 @@
 #include "assimp/postprocess.h"
 #include "../Helpers/NodeHelper.h"
 #include "SceneData.h"
+#include "SceneExporter.h"
 
 namespace Prisma
 {
@@ -19,12 +20,19 @@ namespace Prisma
 		struct SceneParameters
 		{
 			bool srgb = false;
+			std::function<void(std::shared_ptr<Scene>)> onLoad = nullptr;
 		};
 
 		std::shared_ptr<Scene> loadScene(std::string scene, SceneParameters sceneParameters);
 
+		void loadSceneAsync(std::string scene, SceneParameters sceneParameters);
+
+		std::shared_ptr<Scene> hasFinish();
+
 		const aiScene* assimpScene();
 		const aiScene* m_aScene;
+
+		Prisma::Exporter m_exporter;
 
 	private:
 		float calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold);

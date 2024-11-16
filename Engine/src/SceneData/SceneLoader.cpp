@@ -6,7 +6,6 @@
 #include "../../include/Components/Component.h"
 #include "../../include/Components/MaterialComponent.h"
 #include "../../include/Helpers/PrismaMath.h"
-#include "../../include/SceneData/SceneExporter.h"
 
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters)
 {
@@ -43,7 +42,7 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
 	m_scene->name = scene;
 	if (prismaScene)
 	{
-		Exporter exporter;
+		Prisma::Exporter exporter;
 		auto newRootNode = exporter.importScene(scene);
 		newRootNode->parent(nullptr);
 		m_scene->root = newRootNode;
@@ -97,6 +96,84 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
 		return m_scene;
 	}
 	std::cerr << "Could not find the directory" << std::endl;
+	return nullptr;
+}
+
+void Prisma::SceneLoader::loadSceneAsync(std::string scene, SceneParameters sceneParameters)
+{
+	m_sceneParameters = sceneParameters;
+	// Extracting the directory to the last folder
+	size_t lastSlash = scene.find_last_of("/");
+
+	if (lastSlash != std::string::npos)
+	{
+		m_folder = scene.substr(0, lastSlash) + "/";
+	}
+	else
+	{
+		lastSlash = scene.find_last_of("\\");
+		if (lastSlash != std::string::npos)
+		{
+			m_folder = scene.substr(0, lastSlash) + "\\";
+		}
+		else
+		{
+			// Handle the case where there is no directory
+			m_folder = "";
+		}
+	}
+
+	auto endsWith = [](const std::string& value, const std::string& ending)
+	{
+		if (ending.size() > value.size()) return false;
+		return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+	};
+
+	auto prismaScene = endsWith(scene, ".prisma");
+	m_scene = std::make_shared<Scene>();
+	m_scene->name = scene;
+	if (prismaScene)
+	{
+		m_exporter.importSceneAsync(scene);
+	}
+}
+
+std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::hasFinish()
+{
+	if (m_exporter.hasFinish())
+	{
+		auto newRootNode = std::make_shared<Prisma::Node>();
+		newRootNode = m_exporter.newRootNode();
+		newRootNode->parent(nullptr);
+		m_scene->root = newRootNode;
+
+		NodeHelper nodeHelper;
+
+		nodeHelper.nodeIterator(m_scene->root, [&](auto node, auto parent)
+		{
+			auto isAnimateMesh = std::dynamic_pointer_cast<AnimatedMesh>(node);
+			auto isMesh = std::dynamic_pointer_cast<Mesh>(node);
+			auto isLightDir = std::dynamic_pointer_cast<Light<LightType::LightDir>>(node);
+			auto isLightOmni = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(node);
+			if (isAnimateMesh)
+			{
+				m_scene->animateMeshes.push_back(isAnimateMesh);
+			}
+			else if (isMesh)
+			{
+				m_scene->meshes.push_back(isMesh);
+			}
+			else if (isLightDir)
+			{
+				m_scene->dirLights.push_back(isLightDir);
+			}
+			else if (isLightOmni)
+			{
+				m_scene->omniLights.push_back(isLightOmni);
+			}
+		});
+		return m_scene;
+	}
 	return nullptr;
 }
 

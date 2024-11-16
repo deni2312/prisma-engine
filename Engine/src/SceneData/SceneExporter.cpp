@@ -71,20 +71,20 @@ void Prisma::Exporter::exportScene(const std::string& sceneName)
 
 void Prisma::Exporter::importSceneAsync(const std::string& sceneName)
 {
-	auto loadData = [&]()
+	auto loadData = [&](std::string name)
 	{
 		// Read binary MessagePack data from file
-		std::ifstream inFile(sceneName, std::ios::binary); // Open in binary mode
+		std::ifstream inFile(name, std::ios::binary); // Open in binary mode
 		std::vector<std::uint8_t> msgpackData((std::istreambuf_iterator<char>(inFile)), {});
-
 		// Deserialize MessagePack data to JSON
 		json jIn = json::from_msgpack(msgpackData);
 
+		m_newRootNode = std::make_shared<Prisma::Node>();
 		// Convert JSON to Node (assuming `from_json` function exists for Node type)
 		from_json(jIn, m_newRootNode); // Make sure this function is implemented for Node type
 		m_finish = true;
 	};
-	auto threadData = std::thread(loadData);
+	auto threadData = std::thread(loadData, sceneName);
 	threadData.detach();
 }
 
@@ -93,7 +93,6 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& s
 	// Read binary MessagePack data from file
 	std::ifstream inFile(sceneName, std::ios::binary); // Open in binary mode
 	std::vector<std::uint8_t> msgpackData((std::istreambuf_iterator<char>(inFile)), {});
-
 	// Deserialize MessagePack data to JSON
 	json jIn = json::from_msgpack(msgpackData);
 
@@ -295,6 +294,7 @@ bool Prisma::Exporter::hasFinish()
 				}
 			}
 		});
+		m_finish = false;
 		return true;
 	}
 	return false;

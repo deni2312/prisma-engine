@@ -26,8 +26,8 @@ namespace Prisma
 		void mainCamera(const std::shared_ptr<Camera>& camera);
 		void engineSettings(const EngineSettings::Settings& pipeline);
 		EngineSettings::Settings engineSettings() const;
-		std::shared_ptr<Scene> getScene(const std::string& scene,
-		                                SceneLoader::SceneParameters sceneParameters);
+		void getScene(const std::string& scene,
+		              SceneLoader::SceneParameters sceneParameters);
 		void setUserEngine(std::shared_ptr<UserData> userData);
 		std::shared_ptr<UserData> getUserEngine();
 		void setGuiData(std::shared_ptr<SceneHandler> guiData);

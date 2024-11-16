@@ -21,6 +21,4 @@ public:
 
 private:
 	std::shared_ptr<PlayerController> m_player;
-
-	std::shared_ptr<Prisma::Scene> m_root;
 };

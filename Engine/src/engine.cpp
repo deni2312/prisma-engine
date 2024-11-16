@@ -24,6 +24,7 @@
 #include "../include/Handlers/ComponentsHandler.h"
 #include "../include/Postprocess/Postprocess.h"
 #include <glm/gtx/string_cast.hpp>
+#include "../include/Handlers/LoadingHandler.h"
 
 struct PrivateData
 {
@@ -98,6 +99,8 @@ bool Prisma::Engine::run()
 	{
 		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene())
 		{
+			Prisma::LoadingHandler::getInstance().update(data->camera);
+
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
 			data->lastTime = currentTime;
@@ -233,13 +236,8 @@ std::shared_ptr<Prisma::UserData> Prisma::Engine::getUserEngine()
 	return data->userData;
 }
 
-std::shared_ptr<Prisma::Scene> Prisma::Engine::getScene(const std::string& scene,
-                                                        SceneLoader::SceneParameters sceneParameters)
+void Prisma::Engine::getScene(const std::string& scene,
+                              SceneLoader::SceneParameters sceneParameters)
 {
-	SceneLoader sceneLoader;
-	data->sceneParameters = sceneParameters;
-	Prisma::GlobalData::getInstance().currentGlobalScene(sceneLoader.loadScene(scene, sceneParameters));
-	Prisma::GlobalData::getInstance().currentGlobalScene()->camera = data->camera;
-	MeshIndirect::getInstance().init();
-	return Prisma::GlobalData::getInstance().currentGlobalScene();
+	Prisma::LoadingHandler::getInstance().load(scene, sceneParameters);
 }
