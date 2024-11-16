@@ -69,6 +69,25 @@ void Prisma::Exporter::exportScene(const std::string& sceneName)
 	threadData.detach();
 }
 
+void Prisma::Exporter::importSceneAsync(const std::string& sceneName)
+{
+	auto loadData = [&]()
+	{
+		// Read binary MessagePack data from file
+		std::ifstream inFile(sceneName, std::ios::binary); // Open in binary mode
+		std::vector<std::uint8_t> msgpackData((std::istreambuf_iterator<char>(inFile)), {});
+
+		// Deserialize MessagePack data to JSON
+		json jIn = json::from_msgpack(msgpackData);
+
+		// Convert JSON to Node (assuming `from_json` function exists for Node type)
+		from_json(jIn, m_newRootNode); // Make sure this function is implemented for Node type
+		m_finish = true;
+	};
+	auto threadData = std::thread(loadData);
+	threadData.detach();
+}
+
 std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& sceneName)
 {
 	// Read binary MessagePack data from file
@@ -78,8 +97,9 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& s
 	// Deserialize MessagePack data to JSON
 	json jIn = json::from_msgpack(msgpackData);
 
+	auto newRootNode = std::make_shared<Prisma::Node>();
+
 	// Convert JSON to Node (assuming `from_json` function exists for Node type)
-	auto newRootNode = std::make_shared<Node>();
 	from_json(jIn, newRootNode); // Make sure this function is implemented for Node type
 
 	Prisma::NodeHelper nodeHelper;
@@ -175,6 +195,112 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& s
 			}
 		}
 	});
-
 	return newRootNode;
+}
+
+bool Prisma::Exporter::hasFinish()
+{
+	if (m_finish)
+	{
+		Prisma::NodeHelper nodeHelper;
+		std::map<std::string, Texture> texturesLoaded;
+
+		nodeHelper.nodeIterator(m_newRootNode, [&](auto node, auto parent)
+		{
+			auto mesh = std::dynamic_pointer_cast<Mesh>(node);
+			if (mesh)
+			{
+				if (!mesh->material()->diffuse()[0].name().empty())
+				{
+					if (texturesLoaded.find(mesh->material()->diffuse()[0].name()) == texturesLoaded.end())
+					{
+						Texture texture;
+						texture.name(mesh->material()->diffuse()[0].name());
+						texture.loadTexture({mesh->material()->diffuse()[0].name(), true});
+						texturesLoaded[mesh->material()->diffuse()[0].name()] = texture;
+						mesh->material()->diffuse({texture});
+					}
+					else
+					{
+						mesh->material()->diffuse({texturesLoaded[mesh->material()->diffuse()[0].name()]});
+					}
+				}
+
+				if (!mesh->material()->normal()[0].name().empty())
+				{
+					if (texturesLoaded.find(mesh->material()->normal()[0].name()) == texturesLoaded.end())
+					{
+						Texture texture;
+						texture.name(mesh->material()->normal()[0].name());
+						texture.loadTexture({mesh->material()->normal()[0].name()});
+						texturesLoaded[mesh->material()->normal()[0].name()] = texture;
+						mesh->material()->normal({texture});
+					}
+					else
+					{
+						mesh->material()->normal({texturesLoaded[mesh->material()->normal()[0].name()]});
+					}
+				}
+
+				if (!mesh->material()->roughness_metalness()[0].name().empty())
+				{
+					if (texturesLoaded.find(mesh->material()->roughness_metalness()[0].name()) == texturesLoaded.end())
+					{
+						Texture texture;
+						texture.name(mesh->material()->roughness_metalness()[0].name());
+						texture.loadTexture({mesh->material()->roughness_metalness()[0].name()});
+						texturesLoaded[mesh->material()->roughness_metalness()[0].name()] = texture;
+						mesh->material()->roughness_metalness({texture});
+					}
+					else
+					{
+						mesh->material()->roughness_metalness({
+							texturesLoaded[mesh->material()->roughness_metalness()[0].name()]
+						});
+					}
+				}
+
+				if (!mesh->material()->specular()[0].name().empty())
+				{
+					if (texturesLoaded.find(mesh->material()->specular()[0].name()) == texturesLoaded.end())
+					{
+						Texture texture;
+						texture.name(mesh->material()->specular()[0].name());
+						texture.loadTexture({mesh->material()->specular()[0].name()});
+						texturesLoaded[mesh->material()->specular()[0].name()] = texture;
+						mesh->material()->specular({texture});
+					}
+					else
+					{
+						mesh->material()->specular({texturesLoaded[mesh->material()->specular()[0].name()]});
+					}
+				}
+
+				if (!mesh->material()->ambientOcclusion()[0].name().empty())
+				{
+					if (texturesLoaded.find(mesh->material()->ambientOcclusion()[0].name()) == texturesLoaded.end())
+					{
+						Texture texture;
+						texture.name(mesh->material()->ambientOcclusion()[0].name());
+						texture.loadTexture({mesh->material()->ambientOcclusion()[0].name()});
+						texturesLoaded[mesh->material()->ambientOcclusion()[0].name()] = texture;
+						mesh->material()->ambientOcclusion({texture});
+					}
+					else
+					{
+						mesh->material()->ambientOcclusion({
+							texturesLoaded[mesh->material()->ambientOcclusion()[0].name()]
+						});
+					}
+				}
+			}
+		});
+		return true;
+	}
+	return false;
+}
+
+std::shared_ptr<Prisma::Node> Prisma::Exporter::newRootNode()
+{
+	return m_newRootNode;
 }
