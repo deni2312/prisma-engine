@@ -25,23 +25,23 @@ namespace Prisma
 
 		void diffuse(std::vector<Texture> diffuse);
 
-		const std::vector<Texture>& diffuse() const;
+		std::vector<Texture>& diffuse();
 
 		void normal(std::vector<Texture> normal);
 
-		const std::vector<Texture>& normal() const;
+		std::vector<Texture>& normal();
 
 		void roughness_metalness(std::vector<Texture> roughness_metalness);
 
-		const std::vector<Texture>& roughness_metalness() const;
+		std::vector<Texture>& roughness_metalness();
 
 		void specular(std::vector<Texture> specular);
 
-		const std::vector<Texture>& specular() const;
+		std::vector<Texture>& specular();
 
 		void ambientOcclusion(std::vector<Texture> ambientOcclusion);
 
-		const std::vector<Texture>& ambientOcclusion() const;
+		std::vector<Texture>& ambientOcclusion();
 
 		unsigned int material_id();
 

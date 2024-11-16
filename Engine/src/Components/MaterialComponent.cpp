@@ -16,7 +16,7 @@ void Prisma::MaterialComponent::normal(std::vector<Texture> normal)
 	CacheScene::getInstance().updateTextures(true);
 }
 
-const std::vector<Prisma::Texture>& Prisma::MaterialComponent::diffuse() const
+std::vector<Prisma::Texture>& Prisma::MaterialComponent::diffuse()
 {
 	return m_diffuse;
 }
@@ -72,7 +72,7 @@ void Prisma::MaterialComponent::update()
 {
 }
 
-const std::vector<Prisma::Texture>& Prisma::MaterialComponent::normal() const
+std::vector<Prisma::Texture>& Prisma::MaterialComponent::normal()
 {
 	return m_normal;
 }
@@ -88,12 +88,12 @@ void Prisma::MaterialComponent::specular(std::vector<Texture> specular)
 	m_specular = specular;
 }
 
-const std::vector<Prisma::Texture>& Prisma::MaterialComponent::specular() const
+std::vector<Prisma::Texture>& Prisma::MaterialComponent::specular()
 {
 	return m_specular;
 }
 
-const std::vector<Prisma::Texture>& Prisma::MaterialComponent::roughness_metalness() const
+std::vector<Prisma::Texture>& Prisma::MaterialComponent::roughness_metalness()
 {
 	return m_roughness_metalness;
 }
@@ -103,7 +103,7 @@ void Prisma::MaterialComponent::ambientOcclusion(std::vector<Texture> ambientOcc
 	m_ambientOcclusion = ambientOcclusion;
 }
 
-const std::vector<Prisma::Texture>& Prisma::MaterialComponent::ambientOcclusion() const
+std::vector<Prisma::Texture>& Prisma::MaterialComponent::ambientOcclusion()
 {
 	return m_ambientOcclusion;
 }

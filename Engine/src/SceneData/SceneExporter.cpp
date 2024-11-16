@@ -2,6 +2,7 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include <assimp/Exporter.hpp>
 #include "../../include/SceneData/SceneExporterLayout.h"
+#include "../../include/Helpers/NodeHelper.h"
 
 
 Assimp::Importer importer;
@@ -80,5 +81,42 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& s
 	// Convert JSON to Node (assuming `from_json` function exists for Node type)
 	auto newRootNode = std::make_shared<Node>();
 	from_json(jIn, newRootNode); // Make sure this function is implemented for Node type
+
+	/*Prisma::NodeHelper nodeHelper;
+
+	nodeHelper.nodeIterator(newRootNode, [](auto node, auto parent)
+	{
+		auto mesh = std::dynamic_pointer_cast<Mesh>(node);
+		if (mesh)
+		{
+			if (mesh->material()->diffuse()[0].name() != "")
+			{
+				mesh->material()->diffuse()[0].loadTexture({mesh->material()->diffuse()[0].name(), true});
+			}
+
+			if (mesh->material()->normal()[0].name() != "")
+			{
+				mesh->material()->normal()[0].loadTexture({mesh->material()->normal()[0].name()});
+			}
+
+			if (mesh->material()->roughness_metalness()[0].name() != "")
+			{
+				mesh->material()->roughness_metalness()[0].loadTexture({
+					mesh->material()->roughness_metalness()[0].name()
+				});
+			}
+
+			if (mesh->material()->specular()[0].name() != "")
+			{
+				mesh->material()->specular()[0].loadTexture({mesh->material()->specular()[0].name()});
+			}
+
+			if (mesh->material()->ambientOcclusion()[0].name() != "")
+			{
+				mesh->material()->ambientOcclusion()[0].loadTexture({mesh->material()->ambientOcclusion()[0].name()});
+			}
+		}
+	});*/
+
 	return newRootNode;
 }
