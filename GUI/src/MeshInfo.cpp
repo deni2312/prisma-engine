@@ -47,11 +47,8 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 			physicsComponent->updateCollisionData();
 		}
 		ImGui::Dummy(ImVec2(0, 4));
-		if (isAnimate || (physicsComponent && !physicsComponent->collisionData().
-		                                                         softBody) || !physicsComponent)
-		{
-			NodeViewer::getInstance().showComponents(meshData.node);
-		}
+
+		NodeViewer::getInstance().showComponents(meshData.node);
 
 		ImGui::Dummy(ImVec2(0, 10));
 		if (isAnimate)
