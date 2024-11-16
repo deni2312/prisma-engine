@@ -132,7 +132,8 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 		glm::radians(90.0f), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane,
 		farPlane);
 
-	const auto corners = getFrustumCornersWorldSpace(proj, Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix());
+	const auto corners = getFrustumCornersWorldSpace(
+		proj, Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix());
 
 	auto center = glm::vec3(0, 0, 0);
 	for (const auto& v : corners)
@@ -172,9 +173,6 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 	maxOrtho = glm::vec3(glm::vec4(maxOrtho, 1.0f));
 	minOrtho = glm::vec3(glm::vec4(minOrtho, 1.0f));
 
-	//Just checking when debugging to make sure the AABB is the same size
-	GLfloat lengthofTemp = glm::length(maxOrtho - minOrtho);
-
 	//Store the far and near planes
 	float far = maxOrtho.z;
 	float near = minOrtho.z;
@@ -184,7 +182,6 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 	glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
 	auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	shadowOrigin = shadowMatrix * shadowOrigin;
-	float storedW = shadowOrigin.w;
 	shadowOrigin = shadowOrigin * static_cast<float>(m_width) / 2.0f;
 
 	glm::vec4 roundedOrigin = round(shadowOrigin);
