@@ -276,6 +276,9 @@ namespace Prisma
 			j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
 			j["specular"] = {light->type().specular.x, light->type().specular.y, light->type().specular.z};
 			j["padding"] = {light->type().padding.x, light->type().padding.y};
+			j["shadow"] = light->hasShadow();
+			j["near"] = light->shadow()->nearPlane();
+			j["far"] = light->shadow()->farPlane();
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(n))
 		{
@@ -290,6 +293,7 @@ namespace Prisma
 				light->type().attenuation.w
 			};
 			j["farPlane"] = light->type().farPlane.x;
+			j["shadow"] = light->hasShadow();
 		}
 
 		std::vector<std::pair<std::string, json>> componentJson;
@@ -511,8 +515,19 @@ namespace Prisma
 			                               j.at("specular").get<std::vector<float>>().at(2), 1.0);
 			lightType.padding = glm::vec2(j.at("padding").get<std::vector<float>>().at(0),
 			                              j.at("padding").get<std::vector<float>>().at(1));
+			bool hasShadow = false;
+			j.at("shadow").get_to(hasShadow);
+
+			float nearPlane = 1;
+			float farPlane = 200;
+			j.at("near").get_to(nearPlane);
+			j.at("far").get_to(farPlane);
+
+			light->hasShadow(hasShadow);
 			light->type(lightType);
 			light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
+			light->shadow()->nearPlane(nearPlane);
+			light->shadow()->farPlane(farPlane);
 		}
 		else if (type == "LIGHT_OMNI")
 		{
@@ -533,6 +548,9 @@ namespace Prisma
 			                                  j.at("attenuation").get<std::vector<float>>().at(2),
 			                                  j.at("attenuation").get<std::vector<float>>().at(3));
 			lightType.farPlane.x = j.at("farPlane").get<float>();
+			bool hasShadow = false;
+			j.at("shadow").get_to(hasShadow);
+			light->hasShadow(hasShadow);
 			light->type(lightType);
 			light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
 		}
