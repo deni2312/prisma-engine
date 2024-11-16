@@ -86,11 +86,11 @@ float calculateDepth(mat4 modelMatrix) {
     return length(viewPosition); // Depth value (negative for view direction)
 }
 
+uniform int size;
+
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index == 0) {
-        // Sort using indices to avoid modifying the copy buffers
-        int size = statusCopy.length();
         // Initialize indices
         for (int i = 0; i < size; i++) {
             indicesData[i].x = i;
@@ -124,15 +124,6 @@ void main() {
                     indicesData[j + 1].x = temp;
                 }
             }
-        }
-
-        // Write sorted data from copy buffers to main buffers
-        for (uint i = 0; i < size; i++) {
-            int sortedIndex = indicesData[i].x;
-            instanceData[i] = instanceDataCopy[sortedIndex];
-            modelMatrices[i] = modelMatricesCopy[sortedIndex];
-            materialData[i] = materialDataCopy[sortedIndex];
-            status[i] = statusCopy[sortedIndex];
         }
     }
 }

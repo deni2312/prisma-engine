@@ -29,16 +29,14 @@ layout(std430, binding = 26) buffer StatusAnimation
     uint statusAnimation[];
 };
 
-uniform vec2 size;
+uniform int size;
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
-    if (index == 0) {
-        for (int i = 0; i < size.x; i++) {
-            instanceDataCopy[i].instanceCount = statusCopy[i];
-        }
-        for (int i = 0; i < size.y; i++) {
-            instanceDataAnimation[i].instanceCount = statusAnimation[i];
-        }
+    if (index < size) {
+        instanceDataCopy[index].instanceCount = statusCopy[index];
+    }
+    else {
+        instanceDataAnimation[index-size].instanceCount = statusAnimation[index-size];
     }
 }

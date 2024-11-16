@@ -91,6 +91,7 @@ namespace Prisma
 
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_statusShader;
+		std::shared_ptr<Shader> m_shaderCopy;
 
 		void sort() const;
 		void updateStatusShader() const;
@@ -100,6 +101,7 @@ namespace Prisma
 		std::shared_ptr<SSBO> m_ssboStatusAnimation;
 
 		unsigned int m_sizeLocation;
+		unsigned int m_sizeMeshesLocation;
 
 	public:
 		std::shared_ptr<VAO> vao();

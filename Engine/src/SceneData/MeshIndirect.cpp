@@ -18,19 +18,25 @@ void Prisma::MeshIndirect::sort() const
 	if (!meshes.empty())
 	{
 		m_shader->use();
+		m_shader->setInt(m_sizeMeshesLocation, meshes.size());
 		m_shader->dispatchCompute({1, 1, 1});
 		m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		m_shaderCopy->use();
+		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
+		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }
 
 void Prisma::MeshIndirect::updateStatusShader() const
 {
+	int size = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size();
 	m_statusShader->use();
-	m_statusShader->setVec2(m_sizeLocation, {
-		                        Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size(),
-		                        Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size()
-	                        });
-	m_statusShader->dispatchCompute({1, 1, 1});
+	m_statusShader->setInt(m_sizeLocation, size);
+	m_statusShader->dispatchCompute({
+		size +
+		Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size(),
+		1, 1
+	});
 	m_statusShader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
@@ -378,9 +384,12 @@ Prisma::MeshIndirect::MeshIndirect()
 	m_ssboMaterialAnimation = std::make_shared<SSBO>(7);
 
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/compute.glsl");
+	m_shaderCopy = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/computeCopy.glsl");
 	m_statusShader = std::make_shared<Shader>("../../../Engine/Shaders/StatusPipeline/compute.glsl");
 	m_statusShader->use();
 	m_sizeLocation = m_statusShader->getUniformPosition("size");
+	m_shader->use();
+	m_sizeMeshesLocation = m_statusShader->getUniformPosition("size");
 }
 
 void Prisma::MeshIndirect::updateAnimation()
