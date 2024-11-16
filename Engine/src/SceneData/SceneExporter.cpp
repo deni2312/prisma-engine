@@ -82,41 +82,99 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& s
 	auto newRootNode = std::make_shared<Node>();
 	from_json(jIn, newRootNode); // Make sure this function is implemented for Node type
 
-	/*Prisma::NodeHelper nodeHelper;
+	Prisma::NodeHelper nodeHelper;
+	std::map<std::string, Texture> texturesLoaded;
 
-	nodeHelper.nodeIterator(newRootNode, [](auto node, auto parent)
+	nodeHelper.nodeIterator(newRootNode, [&](auto node, auto parent)
 	{
 		auto mesh = std::dynamic_pointer_cast<Mesh>(node);
 		if (mesh)
 		{
-			if (mesh->material()->diffuse()[0].name() != "")
+			if (!mesh->material()->diffuse()[0].name().empty())
 			{
-				mesh->material()->diffuse()[0].loadTexture({mesh->material()->diffuse()[0].name(), true});
+				if (texturesLoaded.find(mesh->material()->diffuse()[0].name()) == texturesLoaded.end())
+				{
+					Texture texture;
+					texture.name(mesh->material()->diffuse()[0].name());
+					texture.loadTexture({mesh->material()->diffuse()[0].name(), true});
+					texturesLoaded[mesh->material()->diffuse()[0].name()] = texture;
+					mesh->material()->diffuse({texture});
+				}
+				else
+				{
+					mesh->material()->diffuse({texturesLoaded[mesh->material()->diffuse()[0].name()]});
+				}
 			}
 
-			if (mesh->material()->normal()[0].name() != "")
+			if (!mesh->material()->normal()[0].name().empty())
 			{
-				mesh->material()->normal()[0].loadTexture({mesh->material()->normal()[0].name()});
+				if (texturesLoaded.find(mesh->material()->normal()[0].name()) == texturesLoaded.end())
+				{
+					Texture texture;
+					texture.name(mesh->material()->normal()[0].name());
+					texture.loadTexture({mesh->material()->normal()[0].name()});
+					texturesLoaded[mesh->material()->normal()[0].name()] = texture;
+					mesh->material()->normal({texture});
+				}
+				else
+				{
+					mesh->material()->normal({texturesLoaded[mesh->material()->normal()[0].name()]});
+				}
 			}
 
-			if (mesh->material()->roughness_metalness()[0].name() != "")
+			if (!mesh->material()->roughness_metalness()[0].name().empty())
 			{
-				mesh->material()->roughness_metalness()[0].loadTexture({
-					mesh->material()->roughness_metalness()[0].name()
-				});
+				if (texturesLoaded.find(mesh->material()->roughness_metalness()[0].name()) == texturesLoaded.end())
+				{
+					Texture texture;
+					texture.name(mesh->material()->roughness_metalness()[0].name());
+					texture.loadTexture({mesh->material()->roughness_metalness()[0].name()});
+					texturesLoaded[mesh->material()->roughness_metalness()[0].name()] = texture;
+					mesh->material()->roughness_metalness({texture});
+				}
+				else
+				{
+					mesh->material()->roughness_metalness({
+						texturesLoaded[mesh->material()->roughness_metalness()[0].name()]
+					});
+				}
 			}
 
-			if (mesh->material()->specular()[0].name() != "")
+			if (!mesh->material()->specular()[0].name().empty())
 			{
-				mesh->material()->specular()[0].loadTexture({mesh->material()->specular()[0].name()});
+				if (texturesLoaded.find(mesh->material()->specular()[0].name()) == texturesLoaded.end())
+				{
+					Texture texture;
+					texture.name(mesh->material()->specular()[0].name());
+					texture.loadTexture({mesh->material()->specular()[0].name()});
+					texturesLoaded[mesh->material()->specular()[0].name()] = texture;
+					mesh->material()->specular({texture});
+				}
+				else
+				{
+					mesh->material()->specular({texturesLoaded[mesh->material()->specular()[0].name()]});
+				}
 			}
 
-			if (mesh->material()->ambientOcclusion()[0].name() != "")
+			if (!mesh->material()->ambientOcclusion()[0].name().empty())
 			{
-				mesh->material()->ambientOcclusion()[0].loadTexture({mesh->material()->ambientOcclusion()[0].name()});
+				if (texturesLoaded.find(mesh->material()->ambientOcclusion()[0].name()) == texturesLoaded.end())
+				{
+					Texture texture;
+					texture.name(mesh->material()->ambientOcclusion()[0].name());
+					texture.loadTexture({mesh->material()->ambientOcclusion()[0].name()});
+					texturesLoaded[mesh->material()->ambientOcclusion()[0].name()] = texture;
+					mesh->material()->ambientOcclusion({texture});
+				}
+				else
+				{
+					mesh->material()->ambientOcclusion({
+						texturesLoaded[mesh->material()->ambientOcclusion()[0].name()]
+					});
+				}
 			}
 		}
-	});*/
+	});
 
 	return newRootNode;
 }
