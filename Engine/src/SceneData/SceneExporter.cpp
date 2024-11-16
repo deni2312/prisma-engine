@@ -54,14 +54,18 @@ void Prisma::Exporter::exportScene(const std::string& sceneName)
 		return;
 	}
 
-	// Serialize rootNode to JSON
-	json j = Prisma::GlobalData::getInstance().currentGlobalScene()->root;
-
-	// Serialize JSON to MessagePack format and write to binary file
-	std::ofstream outFile(sceneName, std::ios::binary); // Open in binary mode
-	std::vector<std::uint8_t> msgpackData = json::to_msgpack(j);
-	outFile.write(reinterpret_cast<const char*>(msgpackData.data()), msgpackData.size());
-	outFile.close();
+	auto writeData = [&]()
+	{
+		// Serialize rootNode to JSON
+		json j = Prisma::GlobalData::getInstance().currentGlobalScene()->root;
+		// Serialize JSON to MessagePack format and write to binary file
+		std::ofstream outFile(sceneName, std::ios::binary); // Open in binary mode
+		std::vector<std::uint8_t> msgpackData = json::to_msgpack(j);
+		outFile.write(reinterpret_cast<const char*>(msgpackData.data()), msgpackData.size());
+		outFile.close();
+	};
+	auto threadData = std::thread(writeData);
+	threadData.detach();
 }
 
 std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& sceneName)
