@@ -42,6 +42,7 @@ namespace Prisma
 			bool sleep = false;
 			bool updatePosition = false;
 			JPH::SoftBodySharedSettings::VertexAttributes vertexAttributes = {1.0e-5f, 1.0e-5f, 1.0e-5f};
+			std::vector<std::pair<glm::vec3, float>> customVertices;
 		};
 
 		struct LandscapeData

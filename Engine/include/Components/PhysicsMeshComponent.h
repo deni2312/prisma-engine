@@ -102,6 +102,7 @@ namespace Prisma
 		Physics::LandscapeData m_landscapeData;
 
 		const float m_minScale = 0.001;
+		const float m_minSize = 0.1;
 
 		Ref<JPH::SoftBodySharedSettings> m_softBodySharedSettings = nullptr;
 

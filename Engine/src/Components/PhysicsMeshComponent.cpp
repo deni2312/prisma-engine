@@ -263,17 +263,17 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 			auto length = glm::abs((aabbData.max - aabbData.min) * 0.5f);
 			if (length.x < m_minScale)
 			{
-				length.x = 1;
+				length.x = m_minSize;
 			}
 
 			if (length.y < m_minScale)
 			{
-				length.y = 1;
+				length.y = m_minSize;
 			}
 
 			if (length.z < m_minScale)
 			{
-				length.z = 1;
+				length.z = m_minSize;
 			}
 			auto boxShape = new BoxShape(JtoVec3(length));
 			auto result = boxShape->ScaleShape(JtoVec3(scale));
@@ -358,14 +358,32 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 
 		m_softBodySharedSettings = new SoftBodySharedSettings;
 
-		for (auto& vertex : mesh->verticesData().vertices)
+		if (m_settingsSoft.customVertices.size() > 0)
 		{
-			SoftBodySharedSettings::Vertex v;
+			int i = 0;
+			for (auto& vertex : mesh->verticesData().vertices)
+			{
+				SoftBodySharedSettings::Vertex v;
 
-			vertex.position = mesh->parent()->finalMatrix() * glm::vec4(vertex.position, 1.0);
-			v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
-			v.mInvMass = 1;
-			m_softBodySharedSettings->mVertices.push_back(v);
+				vertex.position = mesh->parent()->finalMatrix() *
+					glm::vec4(m_settingsSoft.customVertices[i].first, 1.0);
+				v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
+				v.mInvMass = m_settingsSoft.customVertices[i].second;
+				m_softBodySharedSettings->mVertices.push_back(v);
+				i++;
+			}
+		}
+		else
+		{
+			for (auto& vertex : mesh->verticesData().vertices)
+			{
+				SoftBodySharedSettings::Vertex v;
+
+				vertex.position = mesh->parent()->finalMatrix() * glm::vec4(vertex.position, 1.0);
+				v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
+				v.mInvMass = 1;
+				m_softBodySharedSettings->mVertices.push_back(v);
+			}
 		}
 
 		for (int i = 0; i < mesh->verticesData().indices.size(); i = i + 3)
