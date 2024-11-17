@@ -36,6 +36,12 @@ namespace Prisma
 
 		std::map<std::string, std::shared_ptr<Component>> components();
 
+		bool loadingComponent();
+
+		void loadingComponent(bool loadingComponent);
+
+		void loadComponents();
+
 		~Node();
 
 	private:
@@ -52,5 +58,6 @@ namespace Prisma
 		Node* m_parent = nullptr;
 		void updateChild(Node* node);
 		bool m_visible = true;
+		bool m_loadingComponent = true;
 	};
 }

@@ -682,6 +682,7 @@ namespace Prisma
 				if (component)
 				{
 					component->deserialize(componentJson);
+					n->loadingComponent(false);
 					n->addComponent(component);
 				}
 			}

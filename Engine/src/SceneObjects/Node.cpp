@@ -323,7 +323,10 @@ void Prisma::Node::addComponent(std::shared_ptr<Component> component)
 {
 	if (m_components.find(component->name()) == m_components.end())
 	{
-		ComponentsHandler::getInstance().addComponent(component);
+		if (m_loadingComponent)
+		{
+			ComponentsHandler::getInstance().addComponent(component);
+		}
 		component->parent(this);
 		m_components[component->name()] = component;
 	}
@@ -332,6 +335,24 @@ void Prisma::Node::addComponent(std::shared_ptr<Component> component)
 std::map<std::string, std::shared_ptr<Prisma::Component>> Prisma::Node::components()
 {
 	return m_components;
+}
+
+bool Prisma::Node::loadingComponent()
+{
+	return m_loadingComponent;
+}
+
+void Prisma::Node::loadingComponent(bool loadingComponent)
+{
+	m_loadingComponent = loadingComponent;
+}
+
+void Prisma::Node::loadComponents()
+{
+	for (auto component : m_components)
+	{
+		ComponentsHandler::getInstance().addComponent(component.second);
+	}
 }
 
 void Prisma::Node::removeComponent(const std::string& name)

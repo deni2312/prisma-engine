@@ -293,6 +293,7 @@ bool Prisma::Exporter::hasFinish()
 					}
 				}
 			}
+			node->loadComponents();
 		});
 		m_finish = false;
 		return true;
