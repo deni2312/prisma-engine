@@ -103,6 +103,9 @@ namespace Prisma
 		unsigned int m_sizeLocation;
 		unsigned int m_sizeMeshesLocation;
 
+		std::vector<int> m_updateModels;
+		std::vector<int> m_updateModelsAnimate;
+
 	public:
 		std::shared_ptr<VAO> vao();
 
@@ -120,9 +123,13 @@ namespace Prisma
 
 		void remove(unsigned int remove);
 
+		void updateModels(int model);
+
 		void addAnimate(unsigned int add);
 
 		void removeAnimate(unsigned int remove);
+
+		void updateModelsAnimate(int model);
 
 		void renderMeshes() const;
 		void renderMeshesCopy() const;
@@ -130,7 +137,7 @@ namespace Prisma
 
 		void update();
 		void updateSize();
-		void updateModels() const;
+		void updateModels();
 		void updateTextureSize();
 		void updateStatus() const;
 

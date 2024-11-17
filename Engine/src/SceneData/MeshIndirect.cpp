@@ -94,6 +94,11 @@ void Prisma::MeshIndirect::remove(const unsigned int remove)
 	m_cacheRemove.push_back(remove);
 }
 
+void Prisma::MeshIndirect::updateModels(int model)
+{
+	m_updateModels.push_back(model);
+}
+
 void Prisma::MeshIndirect::addAnimate(const unsigned int add)
 {
 	m_cacheAddAnimate.push_back(add);
@@ -102,6 +107,11 @@ void Prisma::MeshIndirect::addAnimate(const unsigned int add)
 void Prisma::MeshIndirect::removeAnimate(const unsigned int remove)
 {
 	m_cacheRemoveAnimate.push_back(remove);
+}
+
+void Prisma::MeshIndirect::updateModelsAnimate(int model)
+{
+	m_updateModelsAnimate.push_back(model);
 }
 
 void Prisma::MeshIndirect::renderMeshes() const
@@ -170,12 +180,14 @@ void Prisma::MeshIndirect::update()
 void Prisma::MeshIndirect::updateSize()
 {
 	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+
+	//CLEAR DATA
+	m_materialData.clear();
+	m_drawCommands.clear();
+	m_updateModels.clear();
+
 	if (!meshes.empty())
 	{
-		//CLEAR DATA
-		m_materialData.clear();
-		m_drawCommands.clear();
-
 		std::vector<glm::mat4> models;
 		for (int i = 0; i < meshes.size(); i++)
 		{
@@ -338,21 +350,25 @@ void Prisma::MeshIndirect::updateSize()
 	updateAnimation();
 }
 
-void Prisma::MeshIndirect::updateModels() const
+void Prisma::MeshIndirect::updateModels()
 {
-	std::vector<glm::mat4> models;
-	for (const auto& model : Prisma::GlobalData::getInstance().currentGlobalScene()->meshes)
+	for (const auto& model : m_updateModels)
 	{
-		models.push_back(model->parent()->finalMatrix());
+		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model]->parent()->
+			finalMatrix();
+		m_ssboModelCopy->modifyData(sizeof(glm::mat4) * model, sizeof(glm::mat4),
+		                            glm::value_ptr(finalMatrix));
 	}
-	m_ssboModelCopy->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
 
-	std::vector<glm::mat4> modelsAnimation;
-	for (const auto& model : Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes)
+	for (const auto& model : m_updateModelsAnimate)
 	{
-		modelsAnimation.push_back(model->parent()->finalMatrix());
+		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes[model]->parent()->
+			finalMatrix();
+		m_ssboModelAnimation->modifyData(sizeof(glm::mat4) * model, sizeof(glm::mat4),
+		                                 glm::value_ptr(finalMatrix));
 	}
-	m_ssboModelAnimation->modifyData(0, sizeof(glm::mat4) * modelsAnimation.size(), modelsAnimation.data());
+
+	m_updateModelsAnimate.clear();
 }
 
 Prisma::MeshIndirect::MeshIndirect()
@@ -395,12 +411,13 @@ Prisma::MeshIndirect::MeshIndirect()
 void Prisma::MeshIndirect::updateAnimation()
 {
 	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
+
+	//CLEAR DATA
+	m_materialDataAnimation.clear();
+	m_drawCommandsAnimation.clear();
+	m_updateModelsAnimate.clear();
 	if (!meshes.empty())
 	{
-		//CLEAR DATA
-		m_materialDataAnimation.clear();
-		m_drawCommandsAnimation.clear();
-
 		std::vector<glm::mat4> models;
 		for (int i = 0; i < meshes.size(); i++)
 		{

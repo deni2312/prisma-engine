@@ -48,15 +48,14 @@ namespace Prisma
 		void finalMatrix(const glm::mat4& matrix, bool update = true) override;
 		glm::mat4 finalMatrix() const override;
 
-		unsigned int vao() const;
 		static std::shared_ptr<Mesh> instantiate(std::shared_ptr<Mesh> mesh);
 		void material(std::shared_ptr<MaterialComponent> material);
 		std::shared_ptr<MaterialComponent> material();
-		void vectorId(unsigned int vectorId);
+		void vectorId(int vectorId);
 		virtual void computeAABB();
 		AABBData aabbData();
 
-		unsigned int vectorId();
+		int vectorId();
 
 		void addGlobalList(bool globalList);
 		bool addGlobalList() const;
@@ -65,7 +64,7 @@ namespace Prisma
 		std::shared_ptr<VerticesData> m_vertices;
 		std::shared_ptr<MaterialComponent> m_material;
 
-		unsigned int m_vectorId;
+		int m_vectorId = -1;
 		AABBData m_aabbData;
 		bool m_addGlobal = true;
 	};

@@ -1,5 +1,6 @@
 #include "../../include/SceneObjects/AnimatedMesh.h"
 #include "../../include/GlobalData/GlobalData.h"
+#include "../../include/SceneData/MeshIndirect.h"
 
 void Prisma::AnimatedMesh::computeAABB()
 {
@@ -38,6 +39,16 @@ void Prisma::AnimatedMesh::loadAnimateModel(std::shared_ptr<AnimateVerticesData>
 {
 	m_animateVertices = vertices;
 	computeAABB();
+}
+
+void Prisma::AnimatedMesh::finalMatrix(const glm::mat4& matrix, bool update)
+{
+	Node::finalMatrix(matrix);
+	if (m_vectorId >= 0)
+	{
+		Prisma::MeshIndirect::getInstance().updateModelsAnimate(m_vectorId);
+	}
+	CacheScene::getInstance().updateData(true);
 }
 
 std::shared_ptr<Prisma::AnimatedMesh::AnimateVerticesData> Prisma::AnimatedMesh::animateVerticesData()

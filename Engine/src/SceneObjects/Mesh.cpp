@@ -1,5 +1,6 @@
 #include "../../include/SceneObjects/Mesh.h"
 #include "../../include/GlobalData/GlobalData.h"
+#include "../../include/SceneData/MeshIndirect.h"
 #include "glm/glm.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
@@ -34,6 +35,10 @@ glm::mat4 Prisma::Mesh::matrix() const
 void Prisma::Mesh::finalMatrix(const glm::mat4& matrix, bool update)
 {
 	Node::finalMatrix(matrix);
+	if (m_vectorId >= 0)
+	{
+		Prisma::MeshIndirect::getInstance().updateModels(m_vectorId);
+	}
 	CacheScene::getInstance().updateData(true);
 }
 
@@ -73,12 +78,12 @@ std::shared_ptr<Prisma::MaterialComponent> Prisma::Mesh::material()
 	return m_material;
 }
 
-void Prisma::Mesh::vectorId(unsigned int vectorId)
+void Prisma::Mesh::vectorId(int vectorId)
 {
 	m_vectorId = vectorId;
 }
 
-unsigned int Prisma::Mesh::vectorId()
+int Prisma::Mesh::vectorId()
 {
 	return m_vectorId;
 }
