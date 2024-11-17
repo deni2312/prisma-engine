@@ -8,9 +8,18 @@ void Prisma::LoadingHandler::load(std::string scene, Prisma::SceneLoader::SceneP
 	m_hasLoad = true;
 }
 
-void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera)
+void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera,
+                                    std::function<void(std::pair<std::string, int>)> loading)
 {
 	auto hasFinish = m_loader.hasFinish();
+
+	if (!hasFinish && m_hasLoad)
+	{
+		m_loader.exporter().mutexData().lock();
+		loading(m_loader.exporter().status());
+		m_loader.exporter().mutexData().unlock();
+	}
+
 	if (hasFinish && m_hasLoad)
 	{
 		Prisma::GlobalData::getInstance().currentGlobalScene(hasFinish);

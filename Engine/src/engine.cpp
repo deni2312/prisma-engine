@@ -99,8 +99,6 @@ bool Prisma::Engine::run()
 	{
 		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene())
 		{
-			Prisma::LoadingHandler::getInstance().update(data->camera);
-
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
 			data->lastTime = currentTime;
@@ -137,6 +135,8 @@ bool Prisma::Engine::run()
 			}
 
 			Postprocess::getInstance().render();
+
+			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
 
 			data->sceneHandler->onEndRender();
 

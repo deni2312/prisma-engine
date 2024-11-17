@@ -22,6 +22,10 @@ namespace Prisma
 
 		std::shared_ptr<Node> newRootNode();
 
+		std::mutex& mutexData();
+
+		std::pair<std::string, int> status();
+
 	private:
 		std::string getFileName(const std::string& filePath);
 		std::atomic_bool m_finish;

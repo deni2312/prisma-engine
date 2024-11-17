@@ -25,6 +25,9 @@ namespace Prisma
 		std::function<void()> onBeginRender = []()
 		{
 		};
+		std::function<void(std::pair<std::string, int>)> onLoading = [](std::pair<std::string, int> node)
+		{
+		};
 		std::function<void()> onEndRender = []()
 		{
 		};

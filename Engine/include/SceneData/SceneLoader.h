@@ -32,7 +32,7 @@ namespace Prisma
 		const aiScene* assimpScene();
 		const aiScene* m_aScene;
 
-		Prisma::Exporter m_exporter;
+		Prisma::Exporter& exporter();
 
 	private:
 		float calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold);
@@ -46,6 +46,7 @@ namespace Prisma
 		void extractBoneWeightForVertices(std::shared_ptr<AnimatedMesh> animatedMesh,
 		                                  std::shared_ptr<AnimatedMesh::AnimateVerticesData> vertices, aiMesh* mesh,
 		                                  const aiScene* scene);
+		Prisma::Exporter m_exporter;
 
 		std::shared_ptr<Mesh> getMesh(aiMesh* mesh, const aiScene* scene);
 		std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, bool srgb = false);

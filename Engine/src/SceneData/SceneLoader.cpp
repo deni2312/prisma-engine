@@ -182,6 +182,11 @@ const aiScene* Prisma::SceneLoader::assimpScene()
 	return m_aScene;
 }
 
+Prisma::Exporter& Prisma::SceneLoader::exporter()
+{
+	return m_exporter;
+}
+
 float Prisma::SceneLoader::calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold)
 {
 	// Calculate coefficients for the quadratic equation

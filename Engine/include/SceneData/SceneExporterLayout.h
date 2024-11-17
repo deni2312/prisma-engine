@@ -35,6 +35,12 @@ namespace Prisma
 		}
 	};
 
+	namespace SceneExporterLayout
+	{
+		static std::pair<std::string, int> status;
+		static std::mutex mutex;
+	}
+
 	void to_json(json& j, std::shared_ptr<Node> n)
 	{
 		Transform t;
@@ -323,6 +329,9 @@ namespace Prisma
 		n->finalMatrix(k.transform);
 		std::vector<json> childrenJson;
 		j.at("c").get_to(childrenJson);
+		SceneExporterLayout::mutex.lock();
+		SceneExporterLayout::status = std::make_pair(name, 1);
+		SceneExporterLayout::mutex.unlock();
 		for (json& childJson : childrenJson)
 		{
 			auto child = std::make_shared<Node>();

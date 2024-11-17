@@ -305,3 +305,13 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::newRootNode()
 {
 	return m_newRootNode;
 }
+
+std::mutex& Prisma::Exporter::mutexData()
+{
+	return Prisma::SceneExporterLayout::mutex;
+}
+
+std::pair<std::string, int> Prisma::Exporter::status()
+{
+	return Prisma::SceneExporterLayout::status;
+}
