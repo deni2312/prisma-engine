@@ -468,7 +468,6 @@ void Prisma::ImguiDebug::onLoading(std::pair<std::string, int>& data)
 			progress = static_cast<float>(data.second) / 100.0f; // Convert percentage to fraction
 		}
 		ImGui::ProgressBar(progress, ImVec2(300, 0)); // ProgressBar(width, height)
-		ImGui::Text("Progress: %d%%", data.second);
 		ImGui::EndPopup();
 	}
 }
