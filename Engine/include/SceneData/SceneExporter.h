@@ -30,5 +30,7 @@ namespace Prisma
 		std::string getFileName(const std::string& filePath);
 		std::atomic_bool m_finish;
 		std::shared_ptr<Node> m_newRootNode = nullptr;
+
+		void countNodes(std::shared_ptr<Node> next, int& counter);
 	};
 }

@@ -1,8 +1,8 @@
 #include "../../include/SceneData/SceneExporter.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include <assimp/Exporter.hpp>
-#include "../../include/SceneData/SceneExporterLayout.h"
 #include "../../include/Helpers/NodeHelper.h"
+#include "../../include/SceneData/SceneExporterLayout.h"
 
 
 Assimp::Importer importer;
@@ -22,6 +22,15 @@ std::string Prisma::Exporter::getFileName(const std::string& filePath)
 		return filePath.substr(pos + 1);
 	}
 	return filePath;
+}
+
+void Prisma::Exporter::countNodes(std::shared_ptr<Node> next, int& counter)
+{
+	counter = counter + 1;
+	for (auto child : next->children())
+	{
+		countNodes(child, counter);
+	}
 }
 
 void printScene(std::shared_ptr<Prisma::Node> nodeNext, int depth = 0)
@@ -57,8 +66,11 @@ void Prisma::Exporter::exportScene(const std::string& sceneName)
 
 	auto writeData = [&]()
 	{
+		int counter = 0;
+		countNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root, counter);
 		// Serialize rootNode to JSON
 		json j = Prisma::GlobalData::getInstance().currentGlobalScene()->root;
+		j["Counter"] = counter;
 		// Serialize JSON to MessagePack format and write to binary file
 		std::ofstream outFile(sceneName, std::ios::binary); // Open in binary mode
 		std::vector<std::uint8_t> msgpackData = json::to_msgpack(j);
@@ -78,7 +90,10 @@ void Prisma::Exporter::importSceneAsync(const std::string& sceneName)
 		std::vector<std::uint8_t> msgpackData((std::istreambuf_iterator<char>(inFile)), {});
 		// Deserialize MessagePack data to JSON
 		json jIn = json::from_msgpack(msgpackData);
-
+		Prisma::SceneExporterLayout::mutex.lock();
+		Prisma::SceneExporterLayout::percentage = 0;
+		jIn.at("Counter").get_to(Prisma::SceneExporterLayout::counter);
+		Prisma::SceneExporterLayout::mutex.unlock();
 		m_newRootNode = std::make_shared<Prisma::Node>();
 		// Convert JSON to Node (assuming `from_json` function exists for Node type)
 		from_json(jIn, m_newRootNode); // Make sure this function is implemented for Node type

@@ -38,279 +38,292 @@ namespace Prisma
 	namespace SceneExporterLayout
 	{
 		static std::pair<std::string, int> status;
+		static int counter;
+		static int percentage;
 		static std::mutex mutex;
 	}
 
 	void to_json(json& j, std::shared_ptr<Node> n)
 	{
-		Transform t;
-		Transform k;
-		t.transform = n->matrix();
-		k.transform = n->finalMatrix();
-		j = json{
-			{"name", n->name()},
-			{"t", t},
-			{"k", k},
-			{"c", n->children()}
-		};
-		j["type"] = "NODE";
-		std::vector<std::pair<std::string, std::string>> textures;
-
-		if (std::dynamic_pointer_cast<AnimatedMesh>(n))
+		if (!n->name().empty())
 		{
-			auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
-
-			// Add the diffuse texture property
-			if (mesh->material()->diffuse().size() > 0)
-			{
-				std::string textureName = mesh->material()->diffuse()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"DIFFUSE", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"DIFFUSE", textureName});
-				}
-			}
-
-			// Add the normal texture property
-			if (mesh->material()->normal().size() > 0)
-			{
-				std::string textureName = mesh->material()->normal()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"NORMAL", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"NORMAL", textureName});
-				}
-			}
-
-			// Add the roughness/metalness texture property
-			if (mesh->material()->roughness_metalness().size() > 0)
-			{
-				std::string textureName = mesh->material()->roughness_metalness()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"ROUGHNESS", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"ROUGHNESS", textureName});
-				}
-			}
-
-			if (mesh->material()->specular().size() > 0)
-			{
-				std::string textureName = mesh->material()->specular()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"SPECULAR", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"SPECULAR", textureName});
-				}
-			}
-			if (mesh->material()->ambientOcclusion().size() > 0)
-			{
-				std::string textureName = mesh->material()->ambientOcclusion()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"AMBIENT_OCCLUSION", textureName});
-				}
-			}
-
-			j["textures"] = textures;
-			// Convert Vertex properties to arrays of floats
-			std::vector<json> verticesJson;
-			for (const auto& vertex : mesh->animateVerticesData()->vertices)
-			{
-				verticesJson.push_back({
-					{"p", {vertex.position.x, vertex.position.y, vertex.position.z}},
-					{"boneId", {vertex.m_BoneIDs[0], vertex.m_BoneIDs[1], vertex.m_BoneIDs[2], vertex.m_BoneIDs[3]}},
-					{"weight", {vertex.m_Weights[0], vertex.m_Weights[1], vertex.m_Weights[2], vertex.m_Weights[3]}},
-					{"n", {vertex.normal.x, vertex.normal.y, vertex.normal.z}},
-					{"texCoords", {vertex.texCoords.x, vertex.texCoords.y}},
-					{"ta", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
-					{"bi", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
-				});
-			}
-			std::vector<std::vector<float>> data;
-
-			for (const auto& vertex : mesh->animateVerticesData()->vertices)
-			{
-				data.push_back({vertex.position.x, vertex.position.y, vertex.position.z});
-
-				data.push_back({vertex.normal.x, vertex.normal.y, vertex.normal.z});
-
-				data.push_back({vertex.texCoords.x, vertex.texCoords.y});
-
-				data.push_back({vertex.tangent.x, vertex.tangent.y, vertex.tangent.z});
-
-				data.push_back({vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z});
-
-				data.push_back({
-					static_cast<float>(vertex.m_BoneIDs[0]), static_cast<float>(vertex.m_BoneIDs[1]),
-					static_cast<float>(vertex.m_BoneIDs[2]), static_cast<float>(vertex.m_BoneIDs[3])
-				});
-
-				data.push_back({vertex.m_Weights[0], vertex.m_Weights[1], vertex.m_Weights[2], vertex.m_Weights[3]});
-			}
-
-			j["type"] = "MESH_ANIMATE";
-			j["vertices"] = data;
-			j["boneCount"] = mesh->boneInfoCounter();
-
-			int i = 0;
-
-			for (const auto& boneData : mesh->boneInfoMap())
-			{
-				j["boneData"][i]["name"] = boneData.first;
-				auto data = boneData.second;
-				j["boneData"][i]["data"]["id"] = data.id;
-				Transform transform;
-				transform.transform = data.offset;
-				j["boneData"][i]["data"]["offset"] = transform;
-				i++;
-			}
-
-			j["faces"] = mesh->animateVerticesData()->indices;
-		}
-		else if (std::dynamic_pointer_cast<Mesh>(n))
-		{
-			auto mesh = std::dynamic_pointer_cast<Mesh>(n);
-
-			// Add the diffuse texture property
-			if (mesh->material()->diffuse().size() > 0)
-			{
-				std::string textureName = mesh->material()->diffuse()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"DIFFUSE", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"DIFFUSE", textureName});
-				}
-			}
-
-			// Add the normal texture property
-			if (mesh->material()->normal().size() > 0)
-			{
-				std::string textureName = mesh->material()->normal()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"NORMAL", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"NORMAL", textureName});
-				}
-			}
-
-			// Add the roughness/metalness texture property
-			if (mesh->material()->roughness_metalness().size() > 0)
-			{
-				std::string textureName = mesh->material()->roughness_metalness()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"ROUGHNESS", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"ROUGHNESS", textureName});
-				}
-			}
-
-			if (mesh->material()->specular().size() > 0)
-			{
-				std::string textureName = mesh->material()->specular()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"SPECULAR", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"SPECULAR", textureName});
-				}
-			}
-			if (mesh->material()->ambientOcclusion().size() > 0)
-			{
-				std::string textureName = mesh->material()->ambientOcclusion()[0].name();
-				if (textureName == "")
-				{
-					textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
-				}
-				else
-				{
-					textures.push_back({"AMBIENT_OCCLUSION", textureName});
-				}
-			}
-
-			j["textures"] = textures;
-			// Convert Vertex properties to arrays of floats
-			std::vector<std::vector<float>> data;
-
-			for (const auto& vertex : mesh->verticesData().vertices)
-			{
-				data.push_back({vertex.position.x, vertex.position.y, vertex.position.z});
-
-				data.push_back({vertex.normal.x, vertex.normal.y, vertex.normal.z});
-
-				data.push_back({vertex.texCoords.x, vertex.texCoords.y});
-
-				data.push_back({vertex.tangent.x, vertex.tangent.y, vertex.tangent.z});
-
-				data.push_back({vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z});
-			}
-			j["type"] = "MESH";
-			j["vertices"] = data;
-			j["faces"] = mesh->verticesData().indices;
-		}
-		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(n))
-		{
-			j["type"] = "LIGHT_DIRECTIONAL";
-			auto light = std::dynamic_pointer_cast<Light<LightType::LightDir>>(n);
-			j["direction"] = {light->type().direction.x, light->type().direction.y, light->type().direction.z};
-			j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
-			j["specular"] = {light->type().specular.x, light->type().specular.y, light->type().specular.z};
-			j["padding"] = {light->type().padding.x, light->type().padding.y};
-			j["shadow"] = light->hasShadow();
-			j["near"] = light->shadow()->nearPlane();
-			j["far"] = light->shadow()->farPlane();
-		}
-		else if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(n))
-		{
-			j["type"] = "LIGHT_OMNI";
-			auto light = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(n);
-			j["position"] = {light->type().position.x, light->type().position.y, light->type().position.z};
-			j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
-			j["specular"] = {light->type().specular.x, light->type().specular.y, light->type().specular.z};
-			j["radius"] = light->type().radius;
-			j["attenuation"] = {
-				light->type().attenuation.x, light->type().attenuation.y, light->type().attenuation.z,
-				light->type().attenuation.w
+			Transform t;
+			Transform k;
+			t.transform = n->matrix();
+			k.transform = n->finalMatrix();
+			j = json{
+				{"name", n->name()},
+				{"t", t},
+				{"k", k},
+				{"c", n->children()}
 			};
-			j["farPlane"] = light->type().farPlane.x;
-			j["shadow"] = light->hasShadow();
+			j["type"] = "NODE";
+			std::vector<std::pair<std::string, std::string>> textures;
+
+			if (std::dynamic_pointer_cast<AnimatedMesh>(n))
+			{
+				auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
+
+				// Add the diffuse texture property
+				if (mesh->material()->diffuse().size() > 0)
+				{
+					std::string textureName = mesh->material()->diffuse()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"DIFFUSE", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"DIFFUSE", textureName});
+					}
+				}
+
+				// Add the normal texture property
+				if (mesh->material()->normal().size() > 0)
+				{
+					std::string textureName = mesh->material()->normal()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"NORMAL", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"NORMAL", textureName});
+					}
+				}
+
+				// Add the roughness/metalness texture property
+				if (mesh->material()->roughness_metalness().size() > 0)
+				{
+					std::string textureName = mesh->material()->roughness_metalness()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"ROUGHNESS", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"ROUGHNESS", textureName});
+					}
+				}
+
+				if (mesh->material()->specular().size() > 0)
+				{
+					std::string textureName = mesh->material()->specular()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"SPECULAR", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"SPECULAR", textureName});
+					}
+				}
+				if (mesh->material()->ambientOcclusion().size() > 0)
+				{
+					std::string textureName = mesh->material()->ambientOcclusion()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"AMBIENT_OCCLUSION", textureName});
+					}
+				}
+
+				j["textures"] = textures;
+				// Convert Vertex properties to arrays of floats
+				std::vector<json> verticesJson;
+				for (const auto& vertex : mesh->animateVerticesData()->vertices)
+				{
+					verticesJson.push_back({
+						{"p", {vertex.position.x, vertex.position.y, vertex.position.z}},
+						{
+							"boneId",
+							{vertex.m_BoneIDs[0], vertex.m_BoneIDs[1], vertex.m_BoneIDs[2], vertex.m_BoneIDs[3]}
+						},
+						{
+							"weight",
+							{vertex.m_Weights[0], vertex.m_Weights[1], vertex.m_Weights[2], vertex.m_Weights[3]}
+						},
+						{"n", {vertex.normal.x, vertex.normal.y, vertex.normal.z}},
+						{"texCoords", {vertex.texCoords.x, vertex.texCoords.y}},
+						{"ta", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
+						{"bi", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
+					});
+				}
+				std::vector<std::vector<float>> data;
+
+				for (const auto& vertex : mesh->animateVerticesData()->vertices)
+				{
+					data.push_back({vertex.position.x, vertex.position.y, vertex.position.z});
+
+					data.push_back({vertex.normal.x, vertex.normal.y, vertex.normal.z});
+
+					data.push_back({vertex.texCoords.x, vertex.texCoords.y});
+
+					data.push_back({vertex.tangent.x, vertex.tangent.y, vertex.tangent.z});
+
+					data.push_back({vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z});
+
+					data.push_back({
+						static_cast<float>(vertex.m_BoneIDs[0]), static_cast<float>(vertex.m_BoneIDs[1]),
+						static_cast<float>(vertex.m_BoneIDs[2]), static_cast<float>(vertex.m_BoneIDs[3])
+					});
+
+					data.push_back({
+						vertex.m_Weights[0], vertex.m_Weights[1], vertex.m_Weights[2], vertex.m_Weights[3]
+					});
+				}
+
+				j["type"] = "MESH_ANIMATE";
+				j["vertices"] = data;
+				j["boneCount"] = mesh->boneInfoCounter();
+
+				int i = 0;
+
+				for (const auto& boneData : mesh->boneInfoMap())
+				{
+					j["boneData"][i]["name"] = boneData.first;
+					auto data = boneData.second;
+					j["boneData"][i]["data"]["id"] = data.id;
+					Transform transform;
+					transform.transform = data.offset;
+					j["boneData"][i]["data"]["offset"] = transform;
+					i++;
+				}
+
+				j["faces"] = mesh->animateVerticesData()->indices;
+			}
+			else if (std::dynamic_pointer_cast<Mesh>(n))
+			{
+				auto mesh = std::dynamic_pointer_cast<Mesh>(n);
+
+				// Add the diffuse texture property
+				if (mesh->material()->diffuse().size() > 0)
+				{
+					std::string textureName = mesh->material()->diffuse()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"DIFFUSE", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"DIFFUSE", textureName});
+					}
+				}
+
+				// Add the normal texture property
+				if (mesh->material()->normal().size() > 0)
+				{
+					std::string textureName = mesh->material()->normal()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"NORMAL", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"NORMAL", textureName});
+					}
+				}
+
+				// Add the roughness/metalness texture property
+				if (mesh->material()->roughness_metalness().size() > 0)
+				{
+					std::string textureName = mesh->material()->roughness_metalness()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"ROUGHNESS", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"ROUGHNESS", textureName});
+					}
+				}
+
+				if (mesh->material()->specular().size() > 0)
+				{
+					std::string textureName = mesh->material()->specular()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"SPECULAR", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"SPECULAR", textureName});
+					}
+				}
+				if (mesh->material()->ambientOcclusion().size() > 0)
+				{
+					std::string textureName = mesh->material()->ambientOcclusion()[0].name();
+					if (textureName == "")
+					{
+						textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
+					}
+					else
+					{
+						textures.push_back({"AMBIENT_OCCLUSION", textureName});
+					}
+				}
+
+				j["textures"] = textures;
+				// Convert Vertex properties to arrays of floats
+				std::vector<std::vector<float>> data;
+
+				for (const auto& vertex : mesh->verticesData().vertices)
+				{
+					data.push_back({vertex.position.x, vertex.position.y, vertex.position.z});
+
+					data.push_back({vertex.normal.x, vertex.normal.y, vertex.normal.z});
+
+					data.push_back({vertex.texCoords.x, vertex.texCoords.y});
+
+					data.push_back({vertex.tangent.x, vertex.tangent.y, vertex.tangent.z});
+
+					data.push_back({vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z});
+				}
+				j["type"] = "MESH";
+				j["vertices"] = data;
+				j["faces"] = mesh->verticesData().indices;
+			}
+			else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(n))
+			{
+				j["type"] = "LIGHT_DIRECTIONAL";
+				auto light = std::dynamic_pointer_cast<Light<LightType::LightDir>>(n);
+				j["direction"] = {light->type().direction.x, light->type().direction.y, light->type().direction.z};
+				j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
+				j["specular"] = {light->type().specular.x, light->type().specular.y, light->type().specular.z};
+				j["padding"] = {light->type().padding.x, light->type().padding.y};
+				j["shadow"] = light->hasShadow();
+				j["near"] = light->shadow()->nearPlane();
+				j["far"] = light->shadow()->farPlane();
+			}
+			else if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(n))
+			{
+				j["type"] = "LIGHT_OMNI";
+				auto light = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(n);
+				j["position"] = {light->type().position.x, light->type().position.y, light->type().position.z};
+				j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
+				j["specular"] = {light->type().specular.x, light->type().specular.y, light->type().specular.z};
+				j["radius"] = light->type().radius;
+				j["attenuation"] = {
+					light->type().attenuation.x, light->type().attenuation.y, light->type().attenuation.z,
+					light->type().attenuation.w
+				};
+				j["farPlane"] = light->type().farPlane.x;
+				j["shadow"] = light->hasShadow();
+			}
+
+			std::vector<std::pair<std::string, json>> componentJson;
+
+			for (auto& [name, component] : n->components())
+			{
+				componentJson.push_back({name, component->serialize()});
+			}
+
+			j["components"] = componentJson;
+			j["visible"] = n->visible();
 		}
-
-		std::vector<std::pair<std::string, json>> componentJson;
-
-		for (auto& [name, component] : n->components())
-		{
-			componentJson.push_back({name, component->serialize()});
-		}
-
-		j["components"] = componentJson;
-		j["visible"] = n->visible();
 	}
 
 	// Deserialize NodeExport from JSON
@@ -330,7 +343,10 @@ namespace Prisma
 		std::vector<json> childrenJson;
 		j.at("c").get_to(childrenJson);
 		SceneExporterLayout::mutex.lock();
-		SceneExporterLayout::status = std::make_pair(name, 1);
+		SceneExporterLayout::status = std::make_pair(
+			name, (static_cast<float>(SceneExporterLayout::percentage) / static_cast<float>(
+				SceneExporterLayout::counter)) * 100);
+		SceneExporterLayout::percentage++;
 		SceneExporterLayout::mutex.unlock();
 		for (json& childJson : childrenJson)
 		{

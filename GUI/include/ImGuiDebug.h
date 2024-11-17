@@ -66,6 +66,7 @@ namespace Prisma
 		void initStatus();
 		std::string openFolder();
 		std::string saveFile();
+		void onLoading(std::pair<std::string, int>& data);
 
 
 		float m_initOffset = 0.0f;

@@ -22,7 +22,6 @@
 #include "../include/TextureInfo.h"
 #include "../include/PixelCapture.h"
 #include "ImGuizmo.h"
-#include "../../Engine/include/SceneData/SceneExporter.h"
 #include "../../Engine/include/Helpers/SettingsLoader.h"
 #include "../../Engine/include/engine.h"
 #include "../../Engine/include/Pipelines/PipelineSkybox.h"
@@ -355,6 +354,10 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 		m_timeCounterEngine.start();
 		getInstance().start();
 	};
+	handlers->onLoading = [&](auto data)
+	{
+		getInstance().onLoading(data);
+	};
 	handlers->onEndRender = [&]()
 	{
 		m_timeCounterEngine.stop();
@@ -444,4 +447,25 @@ std::string Prisma::ImguiDebug::saveFile()
 		return szFile;
 	}
 	return "";
+}
+
+void Prisma::ImguiDebug::onLoading(std::pair<std::string, int>& data)
+{
+	// Begin the popup
+	ImGui::OpenPopup("Loading...");
+
+	if (ImGui::BeginPopupModal("Loading...", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		// Display the name of the task being loaded
+		ImGui::Text("Loading: %s", data.first.c_str());
+
+		// Display a progress bar
+		float progress = static_cast<float>(data.second) / 100.0f; // Convert percentage to fraction
+		ImGui::ProgressBar(progress, ImVec2(300, 0)); // ProgressBar(width, height)
+
+		// Display percentage as text
+		ImGui::Text("Progress: %d%%", data.second);
+
+		ImGui::EndPopup();
+	}
 }
