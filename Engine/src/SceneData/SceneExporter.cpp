@@ -208,6 +208,7 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& s
 				}
 			}
 		}
+		node->loadComponents();
 	});
 	return newRootNode;
 }

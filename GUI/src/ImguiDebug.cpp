@@ -456,16 +456,19 @@ void Prisma::ImguiDebug::onLoading(std::pair<std::string, int>& data)
 
 	if (ImGui::BeginPopupModal("Loading...", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
+		float progress = 0;
 		// Display the name of the task being loaded
-		ImGui::Text("Loading: %s", data.first.c_str());
-
-		// Display a progress bar
-		float progress = static_cast<float>(data.second) / 100.0f; // Convert percentage to fraction
+		if (data.first.empty())
+		{
+			ImGui::Text("Reading prisma");
+		}
+		else
+		{
+			ImGui::Text("Loading: %s", data.first.c_str());
+			progress = static_cast<float>(data.second) / 100.0f; // Convert percentage to fraction
+		}
 		ImGui::ProgressBar(progress, ImVec2(300, 0)); // ProgressBar(width, height)
-
-		// Display percentage as text
 		ImGui::Text("Progress: %d%%", data.second);
-
 		ImGui::EndPopup();
 	}
 }
