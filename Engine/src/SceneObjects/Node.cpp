@@ -353,6 +353,7 @@ void Prisma::Node::loadComponents()
 	{
 		ComponentsHandler::getInstance().addComponent(component.second);
 	}
+	m_loadingComponent = true;
 }
 
 void Prisma::Node::removeComponent(const std::string& name)

@@ -127,12 +127,12 @@ void Prisma::ImguiDebug::drawGui()
 				auto prismaScene = endsWith(Prisma::GlobalData::getInstance().currentGlobalScene()->name, ".prisma");
 				if (prismaScene)
 				{
-					Exporter::getInstance().exportScene(Prisma::GlobalData::getInstance().currentGlobalScene()->name);
+					m_exporter.exportScene(Prisma::GlobalData::getInstance().currentGlobalScene()->name);
 				}
 				else
 				{
 					std::string scene = saveFile();
-					Exporter::getInstance().exportScene(scene);
+					m_exporter.exportScene(scene);
 				}
 			}
 

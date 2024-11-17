@@ -57,7 +57,6 @@ namespace Prisma
 		};
 		j["type"] = "NODE";
 		std::vector<std::pair<std::string, std::string>> textures;
-
 		if (std::dynamic_pointer_cast<AnimatedMesh>(n))
 		{
 			auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
@@ -337,6 +336,7 @@ namespace Prisma
 		n->name(name);
 		n->matrix(t.transform);
 		n->finalMatrix(k.transform);
+		n->loadingComponent(false);
 		std::vector<json> childrenJson;
 		j.at("c").get_to(childrenJson);
 		SceneExporterLayout::mutex.lock();
@@ -704,7 +704,6 @@ namespace Prisma
 				if (component)
 				{
 					component->deserialize(componentJson);
-					n->loadingComponent(false);
 					n->addComponent(component);
 				}
 			}

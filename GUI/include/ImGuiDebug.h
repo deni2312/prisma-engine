@@ -13,7 +13,7 @@
 #include "../../Engine/include/GlobalData/InstanceData.h"
 #include "../../Engine/include/Helpers/TimeCounter.h"
 #include "AddingMenu.h"
-#include "../../Engine/include/Components/RegisterCreator.h"
+#include "../../Engine/include/SceneData/SceneExporter.h"
 
 
 namespace Prisma
@@ -101,5 +101,7 @@ namespace Prisma
 		TimeCounter m_timeCounterEngine;
 
 		Prisma::ImGuiAddingMenu m_addingMenu;
+
+		Exporter m_exporter;
 	};
 }
