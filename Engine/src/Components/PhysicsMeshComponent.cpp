@@ -358,6 +358,8 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 
 		m_softBodySharedSettings = new SoftBodySharedSettings;
 
+		glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat4(mesh->parent()->finalMatrix())));
+
 		if (m_settingsSoft.customVertices.size() > 0)
 		{
 			int i = 0;
@@ -367,6 +369,7 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 
 				vertex.position = mesh->parent()->finalMatrix() *
 					glm::vec4(m_settingsSoft.customVertices[i].first, 1.0);
+				vertex.normal = glm::normalize(normalMatrix * glm::vec4(vertex.normal, 1.0));
 				v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
 				v.mInvMass = m_settingsSoft.customVertices[i].second;
 				m_softBodySharedSettings->mVertices.push_back(v);
@@ -380,6 +383,8 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 				SoftBodySharedSettings::Vertex v;
 
 				vertex.position = mesh->parent()->finalMatrix() * glm::vec4(vertex.position, 1.0);
+				vertex.normal = glm::normalize(normalMatrix * glm::vec4(vertex.normal, 1.0));
+				// Normalize to unit vector
 				v.mPosition = Float3(vertex.position.x, vertex.position.y, vertex.position.z);
 				v.mInvMass = 1;
 				m_softBodySharedSettings->mVertices.push_back(v);
