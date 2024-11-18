@@ -50,7 +50,6 @@ void Prisma::Physics::update(float delta)
 	physicsWorldJolt->physics_system.Update(delta, 1, &*physicsWorldJolt->temp_allocator,
 	                                        &*physicsWorldJolt->job_system);
 
-	auto& bInterface = physicsWorldJolt->physics_system.GetBodyInterface();
 	m_indexVbo = 0;
 	for (const auto& mesh : Prisma::GlobalData::getInstance().currentGlobalScene()->meshes)
 	{
@@ -64,18 +63,23 @@ void Prisma::Physics::update(float delta)
 			}
 			else
 			{
-				const auto& matrix = mesh->parent()->matrix();
-				auto id = physicsComponent->physicsId();
-				glm::mat4 prismaMatrix(1.0);
-				prismaMatrix = JfromMat4(bInterface.GetWorldTransform(id));
-				auto scaledShape = static_cast<const ScaledShape*>(bInterface.GetShape(id).GetPtr());
-				if (scaledShape)
+				BodyLockRead lock(physicsSystem().GetBodyLockInterface(), physicsComponent->physicsId());
+				if (lock.Succeeded())
 				{
-					prismaMatrix = scale(prismaMatrix, physicsComponent->scale());
-					auto inverseMatrix = glm::inverse(mesh->parent()->parent()->finalMatrix());
-					if (!mat4Equals(prismaMatrix, matrix))
+					auto& bInterface = lock.GetBody();
+					const auto& matrix = mesh->parent()->matrix();
+					auto id = physicsComponent->physicsId();
+					glm::mat4 prismaMatrix(1.0);
+					prismaMatrix = JfromMat4(bInterface.GetWorldTransform());
+					auto scaledShape = static_cast<const ScaledShape*>(bInterface.GetShape());
+					if (scaledShape)
 					{
-						mesh->parent()->matrix(inverseMatrix * prismaMatrix);
+						prismaMatrix = scale(prismaMatrix, physicsComponent->scale());
+						auto inverseMatrix = glm::inverse(mesh->parent()->parent()->finalMatrix());
+						if (!mat4Equals(prismaMatrix, matrix))
+						{
+							mesh->parent()->matrix(inverseMatrix * prismaMatrix);
+						}
 					}
 				}
 			}
@@ -143,29 +147,33 @@ void Prisma::Physics::softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> phy
 	auto softId = physics->softId();
 	if (softId)
 	{
-		SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId->GetMotionProperties());
-		auto& faces = mp->GetFaces();
-		auto& verticesSoft = mp->GetVertices();
-
-		auto& verticesData = mesh->verticesData();
-
-		auto vao = Prisma::MeshIndirect::getInstance().vao();
-		auto vbo = Prisma::MeshIndirect::getInstance().vbo();
-		auto ebo = Prisma::MeshIndirect::getInstance().ebo();
-
-		auto& verticesIndirect = Prisma::MeshIndirect::getInstance().verticesData();
-
-		for (int i = 0; i < verticesData.vertices.size(); i++)
+		BodyLockRead lock(physicsSystem().GetBodyLockInterface(), softId->GetID());
+		if (lock.Succeeded())
 		{
-			verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
-			verticesIndirect.vertices[m_indexVbo + i].position = verticesData.vertices[i].position;
+			SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId->GetMotionProperties());
+			auto& faces = mp->GetFaces();
+			auto& verticesSoft = mp->GetVertices();
+
+			auto& verticesData = mesh->verticesData();
+
+			auto vao = Prisma::MeshIndirect::getInstance().vao();
+			auto vbo = Prisma::MeshIndirect::getInstance().vbo();
+			auto ebo = Prisma::MeshIndirect::getInstance().ebo();
+
+			auto& verticesIndirect = Prisma::MeshIndirect::getInstance().verticesData();
+
+			for (int i = 0; i < verticesData.vertices.size(); i++)
+			{
+				verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
+				verticesIndirect.vertices[m_indexVbo + i].position = verticesData.vertices[i].position;
+			}
+
+			vao->bind();
+
+			vbo->writeSubData(verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex),
+			                  m_indexVbo * sizeof(Prisma::Mesh::Vertex),
+			                  verticesData.vertices.data());
+			vao->resetVao();
 		}
-
-		vao->bind();
-
-		vbo->writeSubData(verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex),
-		                  m_indexVbo * sizeof(Prisma::Mesh::Vertex),
-		                  verticesData.vertices.data());
-		vao->resetVao();
 	}
 }
