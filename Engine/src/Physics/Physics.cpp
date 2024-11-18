@@ -71,7 +71,7 @@ void Prisma::Physics::update(float delta)
 				auto scaledShape = static_cast<const ScaledShape*>(bInterface.GetShape(id).GetPtr());
 				if (scaledShape)
 				{
-					prismaMatrix = scale(prismaMatrix, JfromVec3(scaledShape->GetScale()));
+					prismaMatrix = scale(prismaMatrix, physicsComponent->scale());
 					auto inverseMatrix = glm::inverse(mesh->parent()->parent()->finalMatrix());
 					if (!mat4Equals(prismaMatrix, matrix))
 					{

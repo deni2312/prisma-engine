@@ -237,6 +237,11 @@ void Prisma::PhysicsMeshComponent::deserialize(nlohmann::json& data)
 		data.at("SoftBodySettings").get_to(m_settingsSoft);
 }
 
+glm::vec3 Prisma::PhysicsMeshComponent::scale() const
+{
+	return m_scale;
+}
+
 BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 {
 	auto mesh = dynamic_cast<Mesh*>(parent());
@@ -248,13 +253,13 @@ BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 	glm::vec3 skew;
 	glm::vec4 perspective;
 	decompose(mesh->parent()->finalMatrix(), scale, rotation, translation, skew, perspective);
+	m_scale = scale;
 	if (scale.x < m_minScale || scale.y < m_minScale || scale.z < m_minScale)
 	{
 		scale = glm::vec3(m_minScale);
 		translation = glm::vec3(0.0);
 		rotation = glm::quat({0, 0, 0});
 	}
-
 	Shape* shape = nullptr;
 	switch (m_collisionData.collider)
 	{

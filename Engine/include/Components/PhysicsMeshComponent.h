@@ -82,6 +82,8 @@ namespace Prisma
 
 		void deserialize(nlohmann::json& data) override;
 
+		glm::vec3 scale() const;
+
 	private:
 		ComponentList m_status;
 		std::function<void()> m_apply;
@@ -111,5 +113,6 @@ namespace Prisma
 		std::function<void(const BodyID&)> m_remove = nullptr;
 
 		Prisma::Physics::SoftBodySettings m_settingsSoft;
+		glm::vec3 m_scale = glm::vec3(1, 1, 1);
 	};
 }
