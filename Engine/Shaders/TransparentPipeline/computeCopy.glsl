@@ -79,11 +79,20 @@ layout(std430, binding = 25) buffer StatusCopy
     uint statusCopy[];
 };
 
+uniform bool initIndices = false;
+
 void main() {
     uint index = gl_GlobalInvocationID.x;
-    int sortedIndex = indicesData[index].x;
-    instanceData[index] = instanceDataCopy[sortedIndex];
-    modelMatrices[index] = modelMatricesCopy[sortedIndex];
-    materialData[index] = materialDataCopy[sortedIndex];
-    status[index] = statusCopy[sortedIndex];
+    if (initIndices) 
+    {
+        indicesData[index].x = int(index);
+    }
+    else 
+    {
+        int sortedIndex = indicesData[index].x;
+        instanceData[index] = instanceDataCopy[sortedIndex];
+        modelMatrices[index] = modelMatricesCopy[sortedIndex];
+        materialData[index] = materialDataCopy[sortedIndex];
+        status[index] = statusCopy[sortedIndex];
+    }
 }

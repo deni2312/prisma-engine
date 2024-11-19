@@ -102,6 +102,7 @@ namespace Prisma
 
 		unsigned int m_sizeLocation;
 		unsigned int m_sizeMeshesLocation;
+		unsigned int m_indicesCopyLocation;
 
 		std::vector<int> m_updateModels;
 		std::vector<int> m_updateModelsAnimate;

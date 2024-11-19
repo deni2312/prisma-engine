@@ -91,10 +91,6 @@ uniform int size;
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index == 0) {
-        // Initialize indices
-        for (int i = 0; i < size; i++) {
-            indicesData[i].x = i;
-        }
 
         // Count transparent materials in indicesData and create separate index lists
         int transparentCount = 0;

@@ -17,11 +17,16 @@ void Prisma::MeshIndirect::sort() const
 	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 	if (!meshes.empty())
 	{
+		m_shaderCopy->use();
+		m_shaderCopy->setBool(m_indicesCopyLocation, true);
+		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
+		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		m_shader->use();
 		m_shader->setInt(m_sizeMeshesLocation, meshes.size());
 		m_shader->dispatchCompute({1, 1, 1});
 		m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		m_shaderCopy->use();
+		m_shaderCopy->setBool(m_indicesCopyLocation, false);
 		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
 		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 	}
@@ -406,6 +411,8 @@ Prisma::MeshIndirect::MeshIndirect()
 	m_sizeLocation = m_statusShader->getUniformPosition("size");
 	m_shader->use();
 	m_sizeMeshesLocation = m_statusShader->getUniformPosition("size");
+	m_shaderCopy->use();
+	m_indicesCopyLocation = m_shaderCopy->getUniformPosition("initIndices");
 }
 
 void Prisma::MeshIndirect::updateAnimation()
