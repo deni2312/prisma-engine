@@ -17,7 +17,6 @@ namespace Prisma
 			unsigned int internalFormat = GL_RGBA;
 			unsigned int internalType = GL_UNSIGNED_INT;
 			bool enableDepth = false;
-			bool enableSrgb = false;
 			bool enableMultisample = false;
 			bool enableColor = true;
 			bool rbo = true;
