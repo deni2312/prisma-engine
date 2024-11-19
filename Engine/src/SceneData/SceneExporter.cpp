@@ -85,6 +85,10 @@ void Prisma::Exporter::importSceneAsync(const std::string& sceneName)
 {
 	auto loadData = [&](std::string name)
 	{
+		Prisma::SceneExporterLayout::mutex.lock();
+		Prisma::SceneExporterLayout::counter = 0;
+		Prisma::SceneExporterLayout::status = std::make_pair("", 0);
+		Prisma::SceneExporterLayout::mutex.unlock();
 		// Read binary MessagePack data from file
 		std::ifstream inFile(name, std::ios::binary); // Open in binary mode
 		std::vector<std::uint8_t> msgpackData((std::istreambuf_iterator<char>(inFile)), {});

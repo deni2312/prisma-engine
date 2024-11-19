@@ -174,6 +174,10 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::hasFinish()
 		});
 		return m_scene;
 	}
+	if (m_loading)
+	{
+		m_loading();
+	}
 	return nullptr;
 }
 
@@ -185,6 +189,11 @@ const aiScene* Prisma::SceneLoader::assimpScene()
 Prisma::Exporter& Prisma::SceneLoader::exporter()
 {
 	return m_exporter;
+}
+
+void Prisma::SceneLoader::onLoading(std::function<void()> loading)
+{
+	m_loading = loading;
 }
 
 float Prisma::SceneLoader::calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold)

@@ -34,6 +34,8 @@ namespace Prisma
 
 		Prisma::Exporter& exporter();
 
+		void onLoading(std::function<void()> loading);
+
 	private:
 		float calculateOmniLightRadius(float Kc, float Kl, float Kq, float I_threshold);
 
@@ -57,6 +59,7 @@ namespace Prisma
 		std::string m_folder;
 		NodeHelper m_nodeFinder;
 
+		std::function<void()> m_loading;
 
 		SceneParameters m_sceneParameters;
 	};
