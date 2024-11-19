@@ -26,7 +26,6 @@ namespace Prisma
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderD;
 		std::shared_ptr<Shader> m_shaderAnimate;
-		unsigned int m_gBuffer;
 		uint64_t m_position;
 		uint64_t m_normal;
 		uint64_t m_albedo;
@@ -36,6 +35,7 @@ namespace Prisma
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;
 		unsigned int m_ambientLocation;
+		std::shared_ptr<FBO> m_fboBuffer;
 		std::shared_ptr<FBO> m_fbo;
 		std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
 

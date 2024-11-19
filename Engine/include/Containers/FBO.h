@@ -2,6 +2,7 @@
 
 #include "GL/glew.h"
 #include <memory>
+#include <vector>
 #include "../Helpers/Shader.h"
 
 namespace Prisma
@@ -11,8 +12,8 @@ namespace Prisma
 	public:
 		struct FBOData
 		{
-			int width = 1920;
-			int height = 1080;
+			unsigned int width = 1920;
+			unsigned int height = 1080;
 			unsigned int internalFormat = GL_RGBA;
 			unsigned int internalType = GL_UNSIGNED_INT;
 			bool enableDepth = false;
@@ -26,12 +27,17 @@ namespace Prisma
 		};
 
 		FBO(FBOData fboData);
+
+		FBO(std::vector<FBOData> fboData);
+
 		~FBO();
 
 		void bind();
 		void unbind();
 
 		uint64_t texture() const;
+
+		std::vector<uint64_t> textures() const;
 
 		uint64_t depth() const;
 
@@ -40,6 +46,7 @@ namespace Prisma
 	private:
 		unsigned int m_framebufferID;
 		uint64_t m_id = -1;
+		std::vector<uint64_t> m_textureId;
 		uint64_t m_depthId = -1;
 		std::shared_ptr<Shader> m_shader;
 		unsigned int m_vao;
