@@ -22,9 +22,16 @@ void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera,
 
 	if (hasFinish && m_hasLoad)
 	{
-		Prisma::GlobalData::getInstance().currentGlobalScene(hasFinish);
+		if (m_sceneParameters.append)
+		{
+			Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(hasFinish->root);
+		}
+		else
+		{
+			Prisma::GlobalData::getInstance().currentGlobalScene(hasFinish);
+			Prisma::MeshIndirect::getInstance().init();
+		}
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera = camera;
-		Prisma::MeshIndirect::getInstance().init();
 		if (m_sceneParameters.onLoad)
 		{
 			m_sceneParameters.onLoad(hasFinish);

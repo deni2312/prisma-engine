@@ -163,10 +163,7 @@ void Prisma::Engine::initScene()
 {
 	data->userData->start();
 	MeshHandler::getInstance().updateCluster();
-	if (data->pipelineHandler.initScene(data->sceneParameters))
-	{
-	}
-	else
+	if (!data->pipelineHandler.initScene(data->sceneParameters))
 	{
 		std::cerr << "Null camera or scene" << std::endl;
 		PrismaFunc::getInstance().closeWindow();

@@ -103,5 +103,7 @@ namespace Prisma
 		Prisma::ImGuiAddingMenu m_addingMenu;
 
 		Exporter m_exporter;
+
+		std::shared_ptr<SceneHandler> m_handlers;
 	};
 }

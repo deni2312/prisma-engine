@@ -21,6 +21,7 @@ namespace Prisma
 		{
 			bool srgb = false;
 			std::function<void(std::shared_ptr<Scene>)> onLoad = nullptr;
+			bool append = false;
 		};
 
 		std::shared_ptr<Scene> loadScene(std::string scene, SceneParameters sceneParameters);

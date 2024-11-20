@@ -1,6 +1,6 @@
 #include "../include/FolderView.h"
-#include "imgui_internal.h"
 #include "../include/TextureInfo.h"
+#include "../../Engine/include/Handlers/LoadingHandler.h"
 
 std::string Prisma::FileBrowser::windowsToString(std::wstring wStr)
 {
@@ -69,11 +69,15 @@ void Prisma::FileBrowser::listDirectoryContents()
 				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 				{
 					auto path = windowsToString(entry.path().c_str());
-					SceneLoader sceneLoader;
-					auto scene = sceneLoader.loadScene(path, {true});
-					Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
+					if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+					{
+						Prisma::LoadingHandler::getInstance().load(path, {true, nullptr, true});
+					}
+					else
+					{
+						Prisma::LoadingHandler::getInstance().load(path, {true, nullptr, false});
+					}
 					MeshIndirect::getInstance().init();
-
 					CacheScene::getInstance().updateSizes(true);
 				}
 			}

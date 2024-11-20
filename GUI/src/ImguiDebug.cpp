@@ -26,6 +26,7 @@
 #include "../../Engine/include/engine.h"
 #include "../../Engine/include/Pipelines/PipelineSkybox.h"
 #include "implot.h"
+#include "../../Engine/include/Handlers/LoadingHandler.h"
 #include "../include/NodeViewer.h"
 
 struct PrivateIO
@@ -117,22 +118,8 @@ void Prisma::ImguiDebug::drawGui()
 
 			if (ImGui::MenuItem("Save"))
 			{
-				auto endsWith = [](const std::string& value, const std::string& ending)
-				{
-					if (ending.size() > value.size()) return false;
-					return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-				};
-
-				auto prismaScene = endsWith(Prisma::GlobalData::getInstance().currentGlobalScene()->name, ".prisma");
-				if (prismaScene)
-				{
-					m_exporter.exportScene(Prisma::GlobalData::getInstance().currentGlobalScene()->name);
-				}
-				else
-				{
-					std::string scene = saveFile();
-					m_exporter.exportScene(scene);
-				}
+				std::string scene = saveFile();
+				m_exporter.exportScene(scene);
 			}
 
 			if (ImGui::MenuItem("Add model"))
@@ -142,9 +129,7 @@ void Prisma::ImguiDebug::drawGui()
 				{
 					if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
 					{
-						SceneLoader sceneLoader;
-						auto scene = sceneLoader.loadScene(model, {true});
-						Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
+						Prisma::LoadingHandler::getInstance().load(model, {true, nullptr, true});
 					}
 					else
 					{
@@ -347,17 +332,17 @@ void Prisma::ImguiDebug::imguiData(std::shared_ptr<ImGuiData> data)
 
 std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 {
-	auto handlers = std::make_shared<SceneHandler>();
-	handlers->onBeginRender = [&]()
+	m_handlers = std::make_shared<SceneHandler>();
+	m_handlers->onBeginRender = [&]()
 	{
 		m_timeCounterEngine.start();
 		getInstance().start();
 	};
-	handlers->onLoading = [&](auto data)
+	m_handlers->onLoading = [&](auto data)
 	{
 		getInstance().onLoading(data);
 	};
-	handlers->onEndRender = [&]()
+	m_handlers->onEndRender = [&]()
 	{
 		m_timeCounterEngine.stop();
 		m_timeCounterUI.start();
@@ -366,7 +351,7 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 		getInstance().close();
 		m_timeCounterUI.stop();
 	};
-	return handlers;
+	return m_handlers;
 }
 
 std::shared_ptr<Prisma::FBO> Prisma::ImguiDebug::fbo()
