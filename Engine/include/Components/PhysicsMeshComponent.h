@@ -89,8 +89,6 @@ namespace Prisma
 		std::function<void()> m_apply;
 		std::function<void()> m_applySoft;
 		Physics::CollisionData m_collisionData{};
-		btCollisionShape* m_shape = nullptr;
-		btRigidBody* m_body = nullptr;
 		void colliderDispatcher();
 		BodyCreationSettings getBodySettings();
 		void addSoftBody();

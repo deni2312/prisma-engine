@@ -5,7 +5,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <assimp/matrix4x4.h>
 #include <assimp/quaternion.h>
-#include "bullet/btBulletDynamicsCommon.h"
 #include <Jolt/Jolt.h>
 
 
@@ -151,16 +150,6 @@ namespace Prisma
 			}
 		}
 		return false;
-	}
-
-	static glm::vec3 getVec3GLM(const btVector3& vec)
-	{
-		return glm::vec3(vec.getX(), vec.getY(), vec.getZ());
-	}
-
-	static btVector3 getVec3BT(const glm::vec3& vec)
-	{
-		return btVector3(vec.x, vec.y, vec.z);
 	}
 
 	static glm::quat getQuat(const aiQuaternion& pOrientation)
