@@ -6,6 +6,7 @@
 #include "../../include/Components/Component.h"
 #include "../../include/Components/MaterialComponent.h"
 #include "../../include/Helpers/PrismaMath.h"
+#include "../../include/Helpers/StringHelper.h"
 
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters)
 {
@@ -31,13 +32,8 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
 		}
 	}
 
-	auto endsWith = [](const std::string& value, const std::string& ending)
-	{
-		if (ending.size() > value.size()) return false;
-		return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-	};
 
-	auto prismaScene = endsWith(scene, ".prisma");
+	auto prismaScene = Prisma::StringHelper::endsWith(scene, ".prisma");
 	m_scene = std::make_shared<Scene>();
 	m_scene->name = scene;
 	if (prismaScene)

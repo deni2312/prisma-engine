@@ -1,11 +1,15 @@
 #include "../../include/Handlers/LoadingHandler.h"
 #include "../../include/SceneData/MeshIndirect.h"
+#include "../../include/Helpers/StringHelper.h"
 
 void Prisma::LoadingHandler::load(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters)
 {
-	m_sceneParameters = sceneParameters;
-	m_loader.loadSceneAsync(scene, sceneParameters);
-	m_hasLoad = true;
+	if (Prisma::StringHelper::endsWith(scene, "prisma"))
+	{
+		m_sceneParameters = sceneParameters;
+		m_loader.loadSceneAsync(scene, sceneParameters);
+		m_hasLoad = true;
+	}
 }
 
 void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera,

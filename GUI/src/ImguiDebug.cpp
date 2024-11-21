@@ -27,6 +27,7 @@
 #include "../../Engine/include/Pipelines/PipelineSkybox.h"
 #include "implot.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
+#include "../../Engine/include/Helpers/StringHelper.h"
 #include "../include/NodeViewer.h"
 
 struct PrivateIO
@@ -127,13 +128,29 @@ void Prisma::ImguiDebug::drawGui()
 				std::string model = openFolder();
 				if (model != "")
 				{
-					if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+					if (Prisma::StringHelper::endsWith(model, ".prisma"))
 					{
-						Prisma::LoadingHandler::getInstance().load(model, {true, nullptr, true});
+						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+						{
+							Prisma::LoadingHandler::getInstance().load(model, {true, nullptr, true});
+						}
+						else
+						{
+							Engine::getInstance().getScene(model, {true});
+						}
 					}
 					else
 					{
-						Engine::getInstance().getScene(model, {true});
+						Prisma::SceneLoader loader;
+						auto scene = loader.loadScene(model, {true});
+						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+						{
+							Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
+						}
+						else
+						{
+							Prisma::GlobalData::getInstance().currentGlobalScene(scene);
+						}
 					}
 
 					MeshIndirect::getInstance().init();

@@ -27,8 +27,6 @@ namespace Prisma
 
 		std::string windowsToString(std::wstring wStr);
 
-		bool endsWith(const std::string& fullString, const std::string& ending);
-
 		void setPath(const fs::path& path);
 
 		void listDirectoryContents();

@@ -1,6 +1,7 @@
 #include "../include/FolderView.h"
 #include "../include/TextureInfo.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
+#include "../../Engine/include/Helpers/StringHelper.h"
 
 std::string Prisma::FileBrowser::windowsToString(std::wstring wStr)
 {
@@ -13,15 +14,6 @@ std::string Prisma::FileBrowser::windowsToString(std::wstring wStr)
 	// Access the underlying char array
 	const char* charStr = utf8Str.c_str();
 	return std::string(charStr);
-}
-
-bool Prisma::FileBrowser::endsWith(const std::string& fullString, const std::string& ending)
-{
-	if (fullString.length() >= ending.length())
-	{
-		return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
-	}
-	return false;
 }
 
 void Prisma::FileBrowser::setPath(const fs::path& path)
@@ -69,13 +61,30 @@ void Prisma::FileBrowser::listDirectoryContents()
 				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 				{
 					auto path = windowsToString(entry.path().c_str());
-					if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+
+					if (Prisma::StringHelper::endsWith(path, ".prisma"))
 					{
-						Prisma::LoadingHandler::getInstance().load(path, {true, nullptr, true});
+						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+						{
+							Prisma::LoadingHandler::getInstance().load(path, {true, nullptr, true});
+						}
+						else
+						{
+							Prisma::LoadingHandler::getInstance().load(path, {true, nullptr, false});
+						}
 					}
 					else
 					{
-						Prisma::LoadingHandler::getInstance().load(path, {true, nullptr, false});
+						Prisma::SceneLoader loader;
+						auto scene = loader.loadScene(path, {true});
+						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+						{
+							Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
+						}
+						else
+						{
+							Prisma::GlobalData::getInstance().currentGlobalScene(scene);
+						}
 					}
 					MeshIndirect::getInstance().init();
 					CacheScene::getInstance().updateSizes(true);
