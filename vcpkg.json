@@ -5,7 +5,6 @@
     "glew",
     "assimp",
     "nlohmann-json",
-    "bullet3",
     "implot",
     {"name": "imgui", "features": ["glfw-binding","opengl3-binding"]},
     "imguizmo"
