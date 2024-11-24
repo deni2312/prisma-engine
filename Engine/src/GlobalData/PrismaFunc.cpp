@@ -71,7 +71,19 @@ Prisma::PrismaFunc::PrismaFunc()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
+
+	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+	if (settings.width < mode->width && settings.height < mode->height)
+	{
+		m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
+	}
+	else
+	{
+		std::cout << "Error: Cannot init a window bigger than screen size: " << mode->width << " " << mode->height <<
+			std::endl;
+		glfwDestroyWindow(m_window);
+	}
 	if (m_window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
