@@ -15,6 +15,11 @@ namespace Prisma
 		// Accessor method to get the loaded settings
 		const Settings& getSettings() const;
 
+		void settings(Settings settings)
+		{
+			m_settings = settings;
+		}
+
 		SettingsLoader();
 
 	private:
@@ -22,6 +27,6 @@ namespace Prisma
 		void setDefaultSettings(const std::string& filename);
 
 		// Member variable to store the loaded settings
-		Settings settings;
+		Settings m_settings;
 	};
 }
