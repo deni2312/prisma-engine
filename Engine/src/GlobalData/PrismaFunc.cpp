@@ -64,31 +64,37 @@ namespace Prisma
 
 Prisma::PrismaFunc::PrismaFunc()
 {
-	std::ifstream f(DIR_DEFAULT_SETTINGS);
 	Settings settings = SettingsLoader::getInstance().getSettings();
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // Allow resizing
+	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
 
-	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	int x, y, width, height;
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	glfwGetMonitorWorkarea(monitor, &x, &y, &width, &height);
 
-	if (settings.width <= mode->width && settings.height <= mode->height)
-	{
-		m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
-	}
-	else
-	{
-		std::cout << "Error: Cannot init a window bigger than screen size: " << mode->width << " " << mode->height <<
-			std::endl;
-		glfwDestroyWindow(m_window);
-	}
+	// Set settings to match monitor work area
+	settings.width = width;
+	settings.height = height;
+	SettingsLoader::getInstance().settings(settings);
+
+	// Create window
+	m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
+	glfwMaximizeWindow(m_window);
+	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
 	if (m_window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
+		return;
 	}
+
+	// Position the window to the work area (top-left corner)
+	//glfwSetWindowPos(m_window, x, y);
 	glfwMakeContextCurrent(m_window);
 	glewInit();
 	glewExperimental = GL_TRUE;

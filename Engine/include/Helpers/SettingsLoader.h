@@ -15,10 +15,7 @@ namespace Prisma
 		// Accessor method to get the loaded settings
 		const Settings& getSettings() const;
 
-		void settings(Settings settings)
-		{
-			m_settings = settings;
-		}
+		void settings(Settings settings);
 
 		SettingsLoader();
 
