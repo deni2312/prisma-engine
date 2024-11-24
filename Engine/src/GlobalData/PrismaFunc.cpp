@@ -74,7 +74,7 @@ Prisma::PrismaFunc::PrismaFunc()
 
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-	if (settings.width < mode->width && settings.height < mode->height)
+	if (settings.width <= mode->width && settings.height <= mode->height)
 	{
 		m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
 	}
