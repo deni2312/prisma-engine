@@ -4,6 +4,8 @@
 #include "../../include/Pipelines/PipelinePrefilter.h"
 #include "../../include/Pipelines/PipelineLUT.h"
 #include "../../include/Helpers/PrismaRender.h"
+#include "../../include/Helpers/SettingsLoader.h"
+
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -47,10 +49,6 @@ uint64_t Prisma::PipelineSkybox::calculateSkybox()
 
 
 	auto posView = m_shaderEquirectangular->getUniformPosition("view");
-	GLint viewport[4];
-
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
 	glViewport(0, 0, width, height); // don't forget to configure the viewport to the capture dimensions.
 	glBindFramebuffer(GL_FRAMEBUFFER, PrismaRender::getInstance().data().fbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, PrismaRender::getInstance().data().rbo);
@@ -63,7 +61,8 @@ uint64_t Prisma::PipelineSkybox::calculateSkybox()
 		PrismaRender::getInstance().renderCube();
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
+	           Prisma::SettingsLoader().getInstance().getSettings().height);
 	// don't forget to configure the viewport to the capture dimensions.
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);

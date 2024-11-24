@@ -1,5 +1,6 @@
 #include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../../include/Helpers/PrismaRender.h"
+#include "../../include/Helpers/SettingsLoader.h"
 
 Prisma::PipelineDiffuseIrradiance::PipelineDiffuseIrradiance()
 {
@@ -34,10 +35,6 @@ void Prisma::PipelineDiffuseIrradiance::texture(Texture texture)
 	m_shader->setInt64(m_shader->getUniformPosition("environmentMap"), texture.id());
 	m_shader->setMat4(m_shader->getUniformPosition("projection"), PrismaRender::getInstance().data().captureProjection);
 
-	GLint viewport[4];
-
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
 	glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
 	glBindFramebuffer(GL_FRAMEBUFFER, PrismaRender::getInstance().data().fbo);
 	for (unsigned int i = 0; i < 6; ++i)
@@ -49,7 +46,8 @@ void Prisma::PipelineDiffuseIrradiance::texture(Texture texture)
 
 		PrismaRender::getInstance().renderCube();
 	}
-	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
+	           Prisma::SettingsLoader().getInstance().getSettings().height);
 	// don't forget to configure the viewport to the capture dimensions.
 
 	m_id = glGetTextureHandleARB(irradianceMap);

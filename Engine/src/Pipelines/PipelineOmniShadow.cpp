@@ -4,6 +4,8 @@
 #include "../../include/SceneData/MeshIndirect.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../../GUI/include/TextureInfo.h"
+#include "../../include/Helpers/SettingsLoader.h"
+
 
 static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
 static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
@@ -74,10 +76,6 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 	                                                   glm::vec3(0.0f, -1.0f, 0.0f)));
 	m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
 	                                                   glm::vec3(0.0f, -1.0f, 0.0f)));
-	GLint viewport[4];
-
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
 	glViewport(0, 0, m_width, m_height);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -103,7 +101,8 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 	MeshIndirect::getInstance().renderAnimateMeshes();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
+	           Prisma::SettingsLoader().getInstance().getSettings().height);
 	// don't forget to configure the viewport to the capture dimensions.
 }
 

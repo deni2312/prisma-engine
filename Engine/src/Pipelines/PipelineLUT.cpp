@@ -7,6 +7,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "../../include/Helpers/PrismaRender.h"
+#include "../../include/Helpers/SettingsLoader.h"
 
 
 Prisma::PipelineLUT::PipelineLUT()
@@ -42,10 +43,6 @@ void Prisma::PipelineLUT::texture()
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
 
-	GLint viewport[4];
-
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
 	glViewport(0, 0, PrismaRender::getInstance().data().width, PrismaRender::getInstance().data().height);
 	m_shader->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -54,7 +51,8 @@ void Prisma::PipelineLUT::texture()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	m_id = glGetTextureHandleARB(brdfLUTTexture);
 	glMakeTextureHandleResidentARB(m_id);
-	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
+	           Prisma::SettingsLoader().getInstance().getSettings().height);
 	// don't forget to configure the viewport to the capture dimensions.
 }
 

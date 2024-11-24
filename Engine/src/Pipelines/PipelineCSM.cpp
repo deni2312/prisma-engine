@@ -78,10 +78,6 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 
 			m_shader->use();
 
-			GLint viewport[4];
-
-			glGetIntegerv(GL_VIEWPORT, viewport);
-
 			glViewport(0, 0, m_width, m_height);
 			glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 			glClear(GL_DEPTH_BUFFER_BIT);
@@ -95,7 +91,8 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 			glCullFace(GL_BACK);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+			glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
+			           Prisma::SettingsLoader().getInstance().getSettings().height);
 			// don't forget to configure the viewport to the capture dimensions.
 		}
 	}

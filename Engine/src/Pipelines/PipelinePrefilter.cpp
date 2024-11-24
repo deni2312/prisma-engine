@@ -6,6 +6,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "../../include/Helpers/SettingsLoader.h"
+
 
 Prisma::PipelinePrefilter::PipelinePrefilter()
 {
@@ -39,10 +41,6 @@ void Prisma::PipelinePrefilter::texture(Texture texture)
 	m_shader->setInt64(m_shader->getUniformPosition("environmentMap"), texture.id());
 	m_shader->setMat4(m_shader->getUniformPosition("projection"), PrismaRender::getInstance().data().captureProjection);
 
-	GLint viewport[4];
-
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, PrismaRender::getInstance().data().fbo);
 	glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
 
@@ -69,7 +67,8 @@ void Prisma::PipelinePrefilter::texture(Texture texture)
 		}
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
+	           Prisma::SettingsLoader().getInstance().getSettings().height);
 	// don't forget to configure the viewport to the capture dimensions.
 	m_id = glGetTextureHandleARB(prefilterMap);
 	glMakeTextureHandleResidentARB(m_id);
