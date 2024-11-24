@@ -21,8 +21,8 @@ Prisma::PipelineSkybox::PipelineSkybox()
 
 uint64_t Prisma::PipelineSkybox::calculateSkybox()
 {
-	unsigned int width = m_texture.data().width;
-	unsigned int height = m_texture.data().height;
+	unsigned int width = 512;
+	unsigned int height = 512;
 
 	unsigned int envCubemap;
 	glGenTextures(1, &envCubemap);
