@@ -11,7 +11,8 @@
 struct PrivatePrisma
 {
 	std::shared_ptr<Prisma::CallbackHandler> callback;
-	bool initCallback = false;;
+	bool initCallback = false;
+	std::map<std::string, std::string> errorMap;
 };
 
 std::shared_ptr<PrivatePrisma> privatePrisma;
@@ -60,11 +61,40 @@ namespace Prisma
 			privatePrisma->callback->rollMouse(x, y);
 		}
 	}
+
+	void GLAPIENTRY
+	MessageCallback(GLenum source,
+	                GLenum type,
+	                GLuint id,
+	                GLenum severity,
+	                GLsizei length,
+	                const GLchar* message,
+	                const void* userParam)
+	{
+		// Create a unique key based on the error type and ID
+		std::string errorKey = std::to_string(type) + "_" + std::to_string(id);
+
+		// Check if the error has been logged before
+		auto it = privatePrisma->errorMap.find(errorKey);
+		if (it == privatePrisma->errorMap.end())
+		{
+			std::cerr << "GL CALLBACK: "
+				<< (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
+				<< " type = 0x" << std::hex << type
+				<< ", severity = 0x" << std::hex << severity
+				<< ", message = " << message
+				<< std::dec << std::endl;
+
+			// Store the error with the message in the map
+			privatePrisma->errorMap[errorKey] = message;
+		}
+	}
 }
 
 Prisma::PrismaFunc::PrismaFunc()
 {
 	Settings settings = SettingsLoader::getInstance().getSettings();
+	privatePrisma = std::make_shared<PrivatePrisma>();
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
@@ -102,9 +132,8 @@ Prisma::PrismaFunc::PrismaFunc()
 	glClearColor(CLEAR_COLOR.x, CLEAR_COLOR.y, CLEAR_COLOR.z, CLEAR_COLOR.w);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-
-	privatePrisma = std::make_shared<PrivatePrisma>();
-
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
 	Prisma::GlobalData::getInstance().defaultBlack().loadTexture({DIR_DEFAULT_BLACK});
 	Prisma::GlobalData::getInstance().defaultWhite().loadTexture({DIR_DEFAULT_WHITE});
 	Prisma::GlobalData::getInstance().defaultNormal().loadTexture({DIR_DEFAULT_NORMAL});

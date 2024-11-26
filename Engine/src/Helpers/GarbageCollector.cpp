@@ -39,9 +39,9 @@ void Prisma::GarbageCollector::clear()
 		}
 	}
 
-	for (auto garbage : m_garbageTexture)
+	/*for (auto garbage : m_garbageTexture)
 	{
 		glMakeImageHandleNonResidentARB(garbage.second);
 		glDeleteTextures(1, &garbage.first);
-	}
+	}*/
 }
