@@ -3,6 +3,7 @@
 #include "../../include/GlobalData/Defines.h"
 #include "../../include/Helpers/Settings.h"
 #include "../../include/Helpers/SettingsLoader.h"
+#include "../../include/Helpers/Logger.h"
 
 #include <iostream>
 
@@ -62,14 +63,13 @@ namespace Prisma
 		}
 	}
 
-	void GLAPIENTRY
-	MessageCallback(GLenum source,
-	                GLenum type,
-	                GLuint id,
-	                GLenum severity,
-	                GLsizei length,
-	                const GLchar* message,
-	                const void* userParam)
+	void GLAPIENTRY MessageCallback(GLenum source,
+	                                GLenum type,
+	                                GLuint id,
+	                                GLenum severity,
+	                                GLsizei length,
+	                                const GLchar* message,
+	                                const void* userParam)
 	{
 		// Create a unique key based on the error type and ID
 		std::string errorKey = std::to_string(type) + "_" + std::to_string(id);
@@ -78,14 +78,29 @@ namespace Prisma
 		auto it = privatePrisma->errorMap.find(errorKey);
 		if (it == privatePrisma->errorMap.end())
 		{
-			std::cerr << "GL CALLBACK: "
+			// Log the error using Logger instance
+			Prisma::Logger& logger = Prisma::Logger::getInstance();
+
+			// Define the log message string
+			std::stringstream logMessage;
+			logMessage << "GL CALLBACK: "
 				<< (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
 				<< " type = 0x" << std::hex << type
 				<< ", severity = 0x" << std::hex << severity
 				<< ", message = " << message
-				<< std::dec << std::endl;
+				<< std::dec;
 
-			// Store the error with the message in the map
+			// Log the message based on its type and severity
+			if (type == GL_DEBUG_TYPE_ERROR)
+			{
+				logger.log(Prisma::LogLevel::ERROR, logMessage.str());
+			}
+			else
+			{
+				logger.log(Prisma::LogLevel::WARN, logMessage.str());
+			}
+
+			// Store the error with the message in the map (to prevent logging it again)
 			privatePrisma->errorMap[errorKey] = message;
 		}
 	}
@@ -118,7 +133,8 @@ Prisma::PrismaFunc::PrismaFunc()
 	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
 	if (m_window == nullptr)
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+		                                  "Window not created correctly.");
 		glfwTerminate();
 		return;
 	}

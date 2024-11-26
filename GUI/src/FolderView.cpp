@@ -62,7 +62,7 @@ void Prisma::FileBrowser::listDirectoryContents()
 				{
 					auto path = windowsToString(entry.path().c_str());
 
-					if (Prisma::StringHelper::endsWith(path, ".prisma"))
+					if (Prisma::StringHelper::getInstance().endsWith(path, ".prisma"))
 					{
 						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
 						{
@@ -171,7 +171,15 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
 		ImGui::EndTabItem();
 	}
 
-	if (ImGui::BeginTabItem("Folders"))
+
+	if (ImGui::BeginTabItem("Logs"))
+	{
+		m_logger.render();
+		ImGui::EndTabItem();
+	}
+
+
+	if (ImGui::BeginTabItem("Folders##1"))
 	{
 		if (ImGui::ImageButton((void*)m_back->id(), m_iconSize) && m_currentPath.has_parent_path())
 		{

@@ -128,7 +128,7 @@ void Prisma::ImguiDebug::drawGui()
 				std::string model = openFolder();
 				if (model != "")
 				{
-					if (Prisma::StringHelper::endsWith(model, ".prisma"))
+					if (Prisma::StringHelper::getInstance().endsWith(model, ".prisma"))
 					{
 						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
 						{

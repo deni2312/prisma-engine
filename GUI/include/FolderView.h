@@ -9,6 +9,7 @@
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../../Engine/include/GlobalData/CacheScene.h"
 #include "../../Engine/include/SceneData/MeshIndirect.h"
+#include "ImGuiLog.h"
 
 namespace Prisma
 {
@@ -24,6 +25,7 @@ namespace Prisma
 		std::shared_ptr<Texture> m_file;
 		std::shared_ptr<Texture> m_back;
 		std::vector<fs::directory_entry> m_entries;
+		ImGuiLog m_logger;
 
 		std::string windowsToString(std::wstring wStr);
 

@@ -385,6 +385,8 @@ namespace Prisma
 						if (t.second == "NO_TEXTURE")
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
+							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+							                                  "No diffuse texture " + mesh->name());
 						}
 						else
 						{
@@ -401,6 +403,8 @@ namespace Prisma
 						if (t.second == "NO_TEXTURE")
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultNormal());
+							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+							                                  "No normal texture " + mesh->name());
 						}
 						else
 						{
@@ -417,6 +421,8 @@ namespace Prisma
 						if (t.second == "NO_TEXTURE")
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
+							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+							                                  "No roughness or metalness texture " + mesh->name());
 						}
 						else
 						{
@@ -433,6 +439,8 @@ namespace Prisma
 						if (t.second == "NO_TEXTURE")
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultWhite());
+							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+							                                  "No specular texture " + mesh->name());
 						}
 						else
 						{
@@ -449,6 +457,8 @@ namespace Prisma
 						if (t.second == "NO_TEXTURE")
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultWhite());
+							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+							                                  "No ambient occlusion texture " + mesh->name());
 						}
 						else
 						{

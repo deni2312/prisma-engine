@@ -4,7 +4,7 @@
 
 void Prisma::LoadingHandler::load(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters)
 {
-	if (Prisma::StringHelper::endsWith(scene, "prisma"))
+	if (Prisma::StringHelper::getInstance().endsWith(scene, "prisma"))
 	{
 		m_sceneParameters = sceneParameters;
 		m_loader.loadSceneAsync(scene, sceneParameters);

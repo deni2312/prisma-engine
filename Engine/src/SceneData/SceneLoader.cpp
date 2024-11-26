@@ -33,7 +33,7 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
 	}
 
 
-	auto prismaScene = Prisma::StringHelper::endsWith(scene, ".prisma");
+	auto prismaScene = Prisma::StringHelper::getInstance().endsWith(scene, ".prisma");
 	m_scene = std::make_shared<Scene>();
 	m_scene->name = scene;
 	if (prismaScene)
@@ -400,40 +400,52 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 		emptyVector.clear();
 		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 		currentMaterial->diffuse(emptyVector);
-		std::cout << "No diffuse texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().
-			C_Str() << std::endl;
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+		                                  "No diffuse texture " + currentMesh->name() + " MaterialComponent name: " +
+		                                  material->GetName().
+		                                            C_Str());
 	}
 	if (currentMaterial->normal().empty())
 	{
 		emptyVector.clear();
 		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultNormal());
 		currentMaterial->normal(emptyVector);
-		std::cout << "No normal texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().
-			C_Str() << std::endl;
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+		                                  "No normal texture " + currentMesh->name() + " MaterialComponent name: " +
+		                                  material->GetName().
+		                                            C_Str());
 	}
 	if (currentMaterial->roughness_metalness().empty())
 	{
 		emptyVector.clear();
 		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 		currentMaterial->roughness_metalness(emptyVector);
-		std::cout << "No roughness or metalness texture " + currentMesh->name() + " MaterialComponent name: " + material
-			->GetName().C_Str() << std::endl;
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+		                                  "No roughness or metalness texture " + currentMesh->name() +
+		                                  " MaterialComponent name: " +
+		                                  material->GetName().
+		                                            C_Str());
 	}
 	if (currentMaterial->specular().empty())
 	{
 		emptyVector.clear();
 		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 		currentMaterial->specular(emptyVector);
-		std::cout << "No specular texture " + currentMesh->name() + " MaterialComponent name: " + material->GetName().
-			C_Str() << std::endl;
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+		                                  "No specular texture " + currentMesh->name() + " MaterialComponent name: " +
+		                                  material->GetName().
+		                                            C_Str());
 	}
 	if (currentMaterial->ambientOcclusion().empty())
 	{
 		emptyVector.clear();
 		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 		currentMaterial->ambientOcclusion(emptyVector);
-		std::cout << "No ambient occlusion texture " + currentMesh->name() + " MaterialComponent name: " + material->
-			GetName().C_Str() << std::endl;
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+		                                  "No ambient occlusion texture " + currentMesh->name() +
+		                                  " MaterialComponent name: " +
+		                                  material->GetName().
+		                                            C_Str());
 	}
 
 	currentMaterial->name(material->GetName().C_Str());

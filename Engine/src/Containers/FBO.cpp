@@ -75,7 +75,8 @@ Prisma::FBO::FBO(FBOData fboData)
 		}
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+			Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+			                                  "Frame buffer not created correctly.");
 	}
 
 	m_id = glGetTextureHandleARB(textureID);
@@ -157,7 +158,8 @@ Prisma::FBO::FBO(std::vector<FBOData> fboData)
 
 	// Check framebuffer completeness
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+		                                  "Frame buffer not created correctly.");
 
 	// Unbind framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

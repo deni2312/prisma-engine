@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+
+#include "Logger.h"
 #include "Shadinclude.h"
 
 
@@ -56,8 +58,11 @@ namespace Prisma
 			}
 			catch (std::ifstream::failure& e)
 			{
-				std::cout << vertexPath << std::endl;
-				std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+				Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+				                                  vertexPath);
+				Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+				                                  "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " + std::string(
+					                                  e.what()));
 			}
 
 			std::string shaderName = std::string(vertexPath) + " " + std::string(fragmentPath) + "\n";
@@ -133,8 +138,11 @@ namespace Prisma
 			}
 			catch (std::ifstream::failure& e)
 			{
-				std::cout << computePath << std::endl;
-				std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+				Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+				                                  computePath);
+				Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+				                                  "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " + std::string(
+					                                  e.what()));
 			}
 
 			unsigned int compute;
@@ -274,8 +282,10 @@ namespace Prisma
 				if (!success)
 				{
 					glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-					std::cout << shaderName << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog <<
-						"\n -- --------------------------------------------------- -- " << std::endl;
+					Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+					                                  "ERROR::SHADER_COMPILATION_ERROR of type: " + type + "\n" +
+					                                  infoLog +
+					                                  "\n -- --------------------------------------------------- -- ");
 				}
 			}
 			else
@@ -284,8 +294,10 @@ namespace Prisma
 				if (!success)
 				{
 					glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
-					std::cout << shaderName << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog <<
-						"\n -- --------------------------------------------------- -- " << std::endl;
+					Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+					                                  shaderName + "ERROR::PROGRAM_LINKING_ERROR of type: " + type +
+					                                  "\n" + infoLog +
+					                                  "\n -- --------------------------------------------------- -- ");
 				}
 			}
 		}

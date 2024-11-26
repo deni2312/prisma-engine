@@ -1,30 +1,18 @@
 #pragma once
 #include <string>
 #include <filesystem>
+#include "../GlobalData/InstanceData.h"
 
 
 namespace Prisma
 {
 	namespace fs = std::filesystem;
 
-	class StringHelper
+	class StringHelper : public InstanceData<StringHelper>
 	{
 	public:
-		static bool endsWith(const std::string& value, const std::string& ending)
-		{
-			if (ending.size() > value.size()) return false;
-			return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-		};
+		bool endsWith(const std::string& value, const std::string& ending);;
 
-		std::string toRelativePath(const std::string& absolutePath, const std::string& basePath)
-		{
-			fs::path absPath(absolutePath);
-			fs::path base(basePath);
-
-			// Convert to relative path
-			fs::path relativePath = fs::relative(absPath, base);
-
-			return relativePath.string(); // Return as string
-		}
+		std::string toRelativePath(const std::string& absolutePath, const std::string& basePath);
 	};
 }

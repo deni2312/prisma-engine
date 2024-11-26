@@ -7,6 +7,8 @@
 #include <iostream>
 #include <tuple>
 
+#include "../../include/Helpers/Logger.h"
+
 bool Prisma::Texture::loadTexture(const Parameters& parameters)
 {
 	m_parameters = parameters;
@@ -76,7 +78,8 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 		GarbageCollector::getInstance().addTexture({textureID, m_id});
 		return true;
 	}
-	std::cout << "Not found: " + m_parameters.texture << std::endl;
+	Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+	                                  "Not found: " + m_parameters.texture);
 	stbi_image_free(m_data.dataContent);
 	return false;
 }
@@ -122,7 +125,8 @@ bool Prisma::Texture::loadCubemap(std::vector<std::string> faces, bool srgb)
 		}
 		else
 		{
-			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+			Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+			                                  "Cubemap texture failed to load at path: " + faces[i]);
 			stbi_image_free(data);
 		}
 	}
@@ -163,7 +167,8 @@ bool Prisma::Texture::loadEquirectangular(std::string texture)
 	}
 	else
 	{
-		std::cout << "Failed to load HDR image." << std::endl;
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
+		                                  "Failed to load HDR image.");
 	}
 
 	m_id = glGetTextureHandleARB(hdrTexture);
