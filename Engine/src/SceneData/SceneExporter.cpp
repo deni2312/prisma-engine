@@ -64,21 +64,16 @@ void Prisma::Exporter::exportScene(const std::string& sceneName)
 		return;
 	}
 
-	auto writeData = [&]()
-	{
-		int counter = 0;
-		countNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root, counter);
-		// Serialize rootNode to JSON
-		json j = Prisma::GlobalData::getInstance().currentGlobalScene()->root;
-		j["Counter"] = counter;
-		// Serialize JSON to MessagePack format and write to binary file
-		std::ofstream outFile(sceneName, std::ios::binary); // Open in binary mode
-		std::vector<std::uint8_t> msgpackData = json::to_msgpack(j);
-		outFile.write(reinterpret_cast<const char*>(msgpackData.data()), msgpackData.size());
-		outFile.close();
-	};
-	auto threadData = std::thread(writeData);
-	threadData.detach();
+	int counter = 0;
+	countNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root, counter);
+	// Serialize rootNode to JSON
+	json j = Prisma::GlobalData::getInstance().currentGlobalScene()->root;
+	j["Counter"] = counter;
+	// Serialize JSON to MessagePack format and write to binary file
+	std::ofstream outFile(sceneName, std::ios::binary); // Open in binary mode
+	std::vector<std::uint8_t> msgpackData = json::to_msgpack(j);
+	outFile.write(reinterpret_cast<const char*>(msgpackData.data()), msgpackData.size());
+	outFile.close();
 }
 
 void Prisma::Exporter::importSceneAsync(const std::string& sceneName)
