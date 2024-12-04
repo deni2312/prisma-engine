@@ -69,16 +69,6 @@ layout(std430, binding = 23) buffer IndicesData
     ivec4 indicesData[];
 };
 
-layout(std430, binding = 24) buffer Status
-{
-    uint status[];
-};
-
-layout(std430, binding = 25) buffer StatusCopy
-{
-    uint statusCopy[];
-};
-
 // Function to calculate depth from the camera for sorting
 float calculateDepth(mat4 modelMatrix) {
     vec3 worldPosition = vec3(modelMatrix[3]); // Get position from model matrix

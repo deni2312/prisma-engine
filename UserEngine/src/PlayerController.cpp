@@ -54,32 +54,6 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	terrain->addComponent(terrainComponent);
 	m_scene->root->addChild(terrain);*/
 
-	auto soft = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "sponza_327")->children()[0]);
-	if (soft)
-	{
-		auto component = std::make_shared<Prisma::PhysicsMeshComponent>();
-
-		std::vector<std::pair<glm::vec3, float>> verticesData;
-
-		float curtainY = 2.0f; // Define your curtain threshold on the Y-axis
-
-		for (auto& v : soft->verticesData().vertices)
-		{
-			auto vertexPosition = soft->finalMatrix() * glm::vec4(v.position, 1.0);
-
-			// Check if the vertex is above or below the curtain threshold
-			float flag = (vertexPosition.y < curtainY) ? 1.0f : 0.0f;
-
-			// Push the original vertex position and the flag into verticesData
-			verticesData.push_back({v.position, flag});
-		}
-
-		component->settingsSoftBody({10, false, false, {1.0e-5f, 1.0e-5f, 1.0e-5f}, verticesData});
-
-		component->collisionData({Prisma::Physics::Collider::BOX_COLLIDER, 0, true, true});
-
-		soft->addComponent(component);
-	}
 
 	auto contact = [&](const Body& body)
 	{
