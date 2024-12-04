@@ -134,17 +134,5 @@ void main() {
         materialData[index] = materialDataCopy[sortedIndex];
         status[index] = statusCopy[sortedIndex];
 
-        
-        mat4 vp = projection * view;
-        vec4 frustumPlanes[6];
-        extractFrustumPlanes(vp, frustumPlanes);
-
-        AABB aabb = aabbData[sortedIndex];
-        mat4 modelMatrix = modelMatrices[index];
-
-        if (!isAABBInFrustum(frustumPlanes, aabb, modelMatrix)) {
-            status[index] = 0;
-            instanceData[index].instanceCount = 0;
-        }
     }
 }
