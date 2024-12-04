@@ -79,6 +79,16 @@ layout(std430, binding = 25) buffer StatusCopy
     uint statusCopy[];
 };
 
+struct AABB {
+    vec4 center;
+    vec4 extents;
+};
+
+layout(std430, binding = 27) buffer AABBData
+{
+    AABB aabbData[];
+};
+
 uniform bool initIndices = false;
 
 void main() {

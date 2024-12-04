@@ -194,16 +194,22 @@ void Prisma::MeshIndirect::updateSize()
 	if (!meshes.empty())
 	{
 		std::vector<glm::mat4> models;
+		std::vector<Prisma::Mesh::AABBssbo> aabb;
 		for (int i = 0; i < meshes.size(); i++)
 		{
 			models.push_back(meshes[i]->parent()->finalMatrix());
+			aabb.push_back(
+				{glm::vec4(meshes[i]->aabbData().center, 1.0), glm::vec4(meshes[i]->aabbData().extents, 1.0)});
 			meshes[i]->vectorId(i);
 		}
 
 		//PUSH MODEL MATRICES TO AN SSBO WITH ID 1
 		m_ssboModel->resize(sizeof(glm::mat4) * (models.size()));
+		m_ssboAABB->resize(sizeof(Prisma::Mesh::AABBssbo) * models.size());
 		m_ssboModelCopy->resize(sizeof(glm::mat4) * (models.size()));
 		m_ssboModelCopy->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
+		m_ssboAABB->modifyData(0, sizeof(Prisma::Mesh::AABBssbo) * models.size(), aabb.data());
+
 
 		//PUSH MATERIAL TO AN SSBO WITH ID 0
 		for (const auto& material : meshes)
@@ -361,8 +367,11 @@ void Prisma::MeshIndirect::updateModels()
 	{
 		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model]->parent()->
 			finalMatrix();
+		auto ssbo = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model]->aabbData();
+		Prisma::Mesh::AABBssbo aabb = {glm::vec4(ssbo.center, 1.0), glm::vec4(ssbo.extents, 1.0)};
 		m_ssboModelCopy->modifyData(sizeof(glm::mat4) * model, sizeof(glm::mat4),
 		                            glm::value_ptr(finalMatrix));
+		m_ssboAABB->modifyData(sizeof(Prisma::Mesh::AABBssbo) * model, sizeof(Prisma::Mesh::AABBssbo), &aabb);
 	}
 
 	for (const auto& model : m_updateModelsAnimate)
@@ -400,6 +409,7 @@ Prisma::MeshIndirect::MeshIndirect()
 	m_ssboStatus = std::make_shared<SSBO>(24);
 	m_ssboStatusCopy = std::make_shared<SSBO>(25);
 	m_ssboStatusAnimation = std::make_shared<SSBO>(26);
+	m_ssboAABB = std::make_shared<SSBO>(27);
 
 	m_ssboModelAnimation = std::make_shared<SSBO>(6);
 	m_ssboMaterialAnimation = std::make_shared<SSBO>(7);

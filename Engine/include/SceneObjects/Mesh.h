@@ -33,6 +33,13 @@ namespace Prisma
 			glm::vec3 min;
 			glm::vec3 max;
 			glm::vec3 center;
+			glm::vec3 extents;
+		};
+
+		struct AABBssbo
+		{
+			glm::vec4 center;
+			glm::vec4 extents;
 		};
 
 		struct BoneInfo

@@ -98,6 +98,8 @@ namespace Prisma
 
 		std::shared_ptr<SSBO> m_ssboStatus;
 		std::shared_ptr<SSBO> m_ssboStatusCopy;
+		std::shared_ptr<SSBO> m_ssboAABB;
+
 		std::shared_ptr<SSBO> m_ssboStatusAnimation;
 
 		unsigned int m_sizeLocation;
