@@ -23,20 +23,21 @@ void UserEngine::start()
 			                                       texture.data({4096, 4096, 3});
 			                                       Prisma::PipelineSkybox::getInstance().
 				                                       texture(texture, true);
-			                                       m_player = std::make_shared<PlayerController>(scene);
+			                                       //m_player = std::make_shared<PlayerController>(scene);
 
-			                                       m_player->scene(scene);
+			                                       //m_player->scene(scene);
 		                                       }
 	                                       });
 }
 
 void UserEngine::update()
 {
-	m_player->update();
+	//m_player->update();
 }
 
 void UserEngine::finish()
 {
+	//
 }
 
 std::shared_ptr<Prisma::CallbackHandler> UserEngine::callbacks()

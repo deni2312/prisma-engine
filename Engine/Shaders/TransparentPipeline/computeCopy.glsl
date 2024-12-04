@@ -99,7 +99,7 @@ bool isAABBInFrustum(vec4 planes[6], AABB aabb, mat4 modelMatrix) {
     // Transform AABB center to world space
     vec3 worldCenter = (modelMatrix * vec4(aabb.center.xyz, 1.0)).xyz;
 
-    // Calculate world extents
+    
     vec3 localExtents = aabb.extents.xyz;
     vec3 worldExtents = vec3(
         abs(modelMatrix[0][0]) * localExtents.x + abs(modelMatrix[1][0]) * localExtents.y + abs(modelMatrix[2][0]) * localExtents.z,
@@ -113,10 +113,10 @@ bool isAABBInFrustum(vec4 planes[6], AABB aabb, mat4 modelMatrix) {
         float r = dot(abs(planes[i].xyz), worldExtents);
 
         if (d + planes[i].w + r < 0.0) {
-            return false; // Outside frustum
+            return false;
         }
     }
-    return true; // Inside or intersects
+    return true;
 }
 
 void main() {
@@ -134,16 +134,16 @@ void main() {
         materialData[index] = materialDataCopy[sortedIndex];
         status[index] = statusCopy[sortedIndex];
 
-        // Frustum culling with rotation handling
-        mat4 vp = projection * view; // View-Projection matrix
+        
+        mat4 vp = projection * view;
         vec4 frustumPlanes[6];
         extractFrustumPlanes(vp, frustumPlanes);
 
-        AABB aabb = aabbData[index];
+        AABB aabb = aabbData[sortedIndex];
         mat4 modelMatrix = modelMatrices[index];
 
         if (!isAABBInFrustum(frustumPlanes, aabb, modelMatrix)) {
-            status[index] = 0; // Mark as culled
+            status[index] = 0;
             instanceData[index].instanceCount = 0;
         }
     }
