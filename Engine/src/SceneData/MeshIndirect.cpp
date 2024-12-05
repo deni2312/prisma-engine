@@ -10,6 +10,7 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../../include/GlobalData/CacheScene.h"
+#include "../../include/Helpers/SettingsLoader.h"
 
 
 void Prisma::MeshIndirect::sort() const
@@ -25,6 +26,14 @@ void Prisma::MeshIndirect::sort() const
 		m_shader->setInt(m_sizeMeshesLocation, meshes.size());
 		m_shader->dispatchCompute({1, 1, 1});
 		m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
+		Prisma::Settings globalSettings = Prisma::SettingsLoader::getInstance().getSettings();
+		CameraData data;
+		data.zFar = camera->farPlane();
+		data.zNear = camera->nearPlane();
+		data.fovY = glm::radians(camera->angle());
+		data.aspect = static_cast<float>(globalSettings.width) / static_cast<float>(globalSettings.height);
+		m_uboCamera->modifyData(0, sizeof(CameraData), &data);
 		m_shaderCopy->use();
 		m_shaderCopy->setBool(m_indicesCopyLocation, false);
 		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
@@ -423,6 +432,8 @@ Prisma::MeshIndirect::MeshIndirect()
 	m_sizeMeshesLocation = m_statusShader->getUniformPosition("size");
 	m_shaderCopy->use();
 	m_indicesCopyLocation = m_shaderCopy->getUniformPosition("initIndices");
+
+	m_uboCamera = std::make_shared<Prisma::Ubo>(sizeof(CameraData), 4);
 }
 
 void Prisma::MeshIndirect::updateAnimation()

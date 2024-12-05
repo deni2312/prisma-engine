@@ -30,6 +30,13 @@ layout(std140, binding = 1) uniform MeshData {
     mat4 projection;
 };
 
+layout(std140, binding = 4) uniform CameraData {
+    float zNear;
+    float zFar;
+    float fovY;
+    float aspect;
+};
+
 layout(std140, binding = 3) uniform FragmentData {
     vec4 viewPos;
     vec2 irradianceMap;
@@ -77,46 +84,94 @@ layout(std430, binding = 27) buffer AABBData {
     AABB aabbData[];
 };
 
+
 uniform bool initIndices = false;
 
-// Function to extract frustum planes from view and projection matrices
-void extractFrustumPlanes(mat4 vp, out vec4 planes[6]) {
-    // Left
-    planes[0] = vp[3] + vp[0];
-    // Right
-    planes[1] = vp[3] - vp[0];
-    // Bottom
-    planes[2] = vp[3] + vp[1];
-    // Top
-    planes[3] = vp[3] - vp[1];
-    // Near
-    planes[4] = vp[3] + vp[2];
-    // Far
-    planes[5] = vp[3] - vp[2];
-}
+struct Plane {
+    vec3 normal;
+    float distance;
+};
 
-bool isAABBInFrustum(vec4 planes[6], AABB aabb, mat4 modelMatrix) {
-    // Transform AABB center to world space
-    vec3 worldCenter = (modelMatrix * vec4(aabb.center.xyz, 1.0)).xyz;
+struct Frustum
+{
+    Plane topFace;
+    Plane bottomFace;
 
-    
-    vec3 localExtents = aabb.extents.xyz;
-    vec3 worldExtents = vec3(
-        abs(modelMatrix[0][0]) * localExtents.x + abs(modelMatrix[1][0]) * localExtents.y + abs(modelMatrix[2][0]) * localExtents.z,
-        abs(modelMatrix[0][1]) * localExtents.x + abs(modelMatrix[1][1]) * localExtents.y + abs(modelMatrix[2][1]) * localExtents.z,
-        abs(modelMatrix[0][2]) * localExtents.x + abs(modelMatrix[1][2]) * localExtents.y + abs(modelMatrix[2][2]) * localExtents.z
-    );
+    Plane rightFace;
+    Plane leftFace;
 
-    // Frustum test
-    for (int i = 0; i < 6; ++i) {
-        float d = dot(planes[i].xyz, worldCenter);
-        float r = dot(abs(planes[i].xyz), worldExtents);
+    Plane farFace;
+    Plane nearFace;
+};
 
-        if (d + planes[i].w + r < 0.0) {
+Frustum currentFrustum;
+
+
+bool isInFrustum(uint index) {
+
+    vec3 globalScale = vec3(length(modelMatricesCopy[index][0]), length(modelMatricesCopy[index][1]), length(modelMatricesCopy[index][2]));
+    vec3 globalCenter= vec3(modelMatricesCopy[index] * vec4(aabbData[index].center.xyz, 1.f));
+    float maxScale = max(max(globalScale.x, globalScale.y), globalScale.z);
+    float radius = max(max(aabbData[index].center.x, aabbData[index].center.y), aabbData[index].center.z)*(maxScale*0.5);
+    Plane[6] planes = Plane[6](
+        currentFrustum.nearFace,
+        currentFrustum.farFace,
+        currentFrustum.rightFace,
+        currentFrustum.leftFace,
+        currentFrustum.topFace,
+        currentFrustum.bottomFace
+        );
+
+    for (int i = 0; i < 6; i++) {
+        if (dot(planes[i].normal, globalCenter) + planes[i].distance < -radius) {
             return false;
         }
     }
+
     return true;
+}
+
+
+// Function to construct the frustum planes
+Frustum createFrustum() {
+    Frustum frustum;
+
+    mat4 viewData = inverse(view);
+
+    vec3 camFront = vec3(normalize(viewData[2]));
+    vec3 camUp = vec3(normalize(viewData[1]));
+    vec3 camRight = vec3(normalize(viewData[0]));
+    float halfVSide = zFar * tan(radians(fovY) * 0.5);
+    float halfHSide = halfVSide * aspect;
+    vec3 frontMultFar = camFront * zFar;
+
+    vec3 camPosition = vec3(viewPos);
+
+    // Near face
+    frustum.nearFace.normal = camFront;
+    frustum.nearFace.distance = dot(camPosition + camFront * zNear, camFront);
+
+    // Far face
+    frustum.farFace.normal = -camFront;
+    frustum.farFace.distance = dot(camPosition + frontMultFar, -camFront);
+
+    // Right face
+    frustum.rightFace.normal = normalize(cross(camUp, frontMultFar - camRight * halfHSide));
+    frustum.rightFace.distance = dot(camPosition, frustum.rightFace.normal);
+
+    // Left face
+    frustum.leftFace.normal = normalize(cross(frontMultFar + camRight * halfHSide, camUp));
+    frustum.leftFace.distance = dot(camPosition, frustum.leftFace.normal);
+
+    // Top face
+    frustum.topFace.normal = normalize(cross(camRight, frontMultFar - camUp * halfVSide));
+    frustum.topFace.distance = dot(camPosition, frustum.topFace.normal);
+
+    // Bottom face
+    frustum.bottomFace.normal = normalize(cross(frontMultFar + camUp * halfVSide, camRight));
+    frustum.bottomFace.distance = dot(camPosition, frustum.bottomFace.normal);
+
+    return frustum;
 }
 
 void main() {
@@ -133,6 +188,10 @@ void main() {
         modelMatrices[index] = modelMatricesCopy[sortedIndex];
         materialData[index] = materialDataCopy[sortedIndex];
         status[index] = statusCopy[sortedIndex];
-
+        currentFrustum = createFrustum();
+        if (!isInFrustum(sortedIndex)) {
+            status[index] = 0;
+            instanceData[index].instanceCount = 0;
+        }
     }
 }

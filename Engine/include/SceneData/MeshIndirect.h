@@ -10,6 +10,7 @@
 #include "../Containers/VAO.h"
 #include "../Containers/VBO.h"
 #include "../Containers/EBO.h"
+#include "../Containers/Ubo.h"
 #include "../GlobalData/InstanceData.h"
 
 namespace Prisma
@@ -108,6 +109,16 @@ namespace Prisma
 
 		std::vector<int> m_updateModels;
 		std::vector<int> m_updateModelsAnimate;
+
+		struct CameraData
+		{
+			float zNear;
+			float zFar;
+			float fovY;
+			float aspect;
+		};
+
+		std::shared_ptr<Prisma::Ubo> m_uboCamera;
 
 	public:
 		std::shared_ptr<VAO> vao();
