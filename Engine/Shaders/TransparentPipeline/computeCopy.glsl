@@ -189,9 +189,9 @@ void main() {
         materialData[index] = materialDataCopy[sortedIndex];
         status[index] = statusCopy[sortedIndex];
         currentFrustum = createFrustum();
-        if (!isInFrustum(sortedIndex)) {
+        /*if (!isInFrustum(sortedIndex)) {
             status[index] = 0;
             instanceData[index].instanceCount = 0;
-        }
+        }*/
     }
 }

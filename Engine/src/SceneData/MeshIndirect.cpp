@@ -12,6 +12,43 @@
 #include "../../include/GlobalData/CacheScene.h"
 #include "../../include/Helpers/SettingsLoader.h"
 
+struct Plane
+{
+	glm::vec3 normal = {0.f, 1.f, 0.f}; // unit vector
+	float distance = 0.f; // Distance with origin
+};
+
+struct Frustum
+{
+	Plane topFace;
+	Plane bottomFace;
+
+	Plane rightFace;
+	Plane leftFace;
+
+	Plane farFace;
+	Plane nearFace;
+};
+
+Plane transformPlane(glm::vec3 normal, glm::vec3 p1)
+{
+	normal = glm::normalize(normal);
+	return {normal, glm::dot(normal, p1)};
+}
+
+float getSignedDistanceToPlane(Plane plane, const glm::vec3& point)
+{
+	return glm::dot(plane.normal, point) - plane.distance;
+}
+
+bool isOnOrForwardPlane(const Plane& plane, glm::vec3 center, glm::vec3 extents)
+{
+	// Compute the projection interval radius of b onto L(t) = b.c + t * p.n
+	const float r = extents.x * std::abs(plane.normal.x) + extents.y * std::abs(plane.normal.y) +
+		extents.z * std::abs(plane.normal.z);
+
+	return -r <= getSignedDistanceToPlane(plane, center);
+}
 
 void Prisma::MeshIndirect::sort() const
 {
@@ -38,6 +75,70 @@ void Prisma::MeshIndirect::sort() const
 		m_shaderCopy->setBool(m_indicesCopyLocation, false);
 		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
 		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+
+
+		Frustum frustum;
+		const float halfVSide = data.zFar * tanf(data.fovY * .5f);
+		const float halfHSide = halfVSide * data.aspect;
+
+		glm::vec3 front = glm::normalize(glm::inverse(camera->matrix())[2]);
+		glm::vec3 right = glm::normalize(glm::inverse(camera->matrix())[0]);
+		glm::vec3 up = glm::normalize(glm::inverse(camera->matrix())[1]);
+
+
+		const glm::vec3 frontMultFar = data.zFar * front;
+
+		frustum.nearFace = transformPlane(camera->position() + data.zNear * front, front);
+		frustum.farFace = transformPlane(camera->position() + frontMultFar, -front);
+		frustum.rightFace = transformPlane(camera->position(), glm::cross(frontMultFar - right * halfHSide, up));
+		frustum.leftFace = transformPlane(camera->position(), glm::cross(up, frontMultFar + right * halfHSide));
+		frustum.topFace = transformPlane(camera->position(), glm::cross(right, frontMultFar - up * halfVSide));
+		frustum.bottomFace = transformPlane(camera->position(), glm::cross(frontMultFar + up * halfVSide, right));
+		std::vector<bool> isOnFrustum;
+		for (auto mesh : meshes)
+		{
+			auto model = mesh->parent()->finalMatrix();
+			auto center = mesh->aabbData().center;
+			auto extents = mesh->aabbData().extents;
+
+			glm::vec3 rightModel = model[0];
+			glm::vec3 upModel = model[1];
+			glm::vec3 forwardModel = -model[2];
+
+			//Get global scale thanks to our transform
+			const glm::vec3 globalCenter{model * glm::vec4(center, 1.f)};
+
+			// Scaled orientation
+			const glm::vec3 right = rightModel * extents.x;
+			const glm::vec3 up = upModel * extents.y;
+			const glm::vec3 forward = forwardModel * extents.z;
+
+			const float newIi = std::abs(glm::dot(glm::vec3{1.f, 0.f, 0.f}, right)) +
+				std::abs(glm::dot(glm::vec3{1.f, 0.f, 0.f}, up)) +
+				std::abs(glm::dot(glm::vec3{1.f, 0.f, 0.f}, forward));
+
+			const float newIj = std::abs(glm::dot(glm::vec3{0.f, 1.f, 0.f}, right)) +
+				std::abs(glm::dot(glm::vec3{0.f, 1.f, 0.f}, up)) +
+				std::abs(glm::dot(glm::vec3{0.f, 1.f, 0.f}, forward));
+
+			const float newIk = std::abs(glm::dot(glm::vec3{0.f, 0.f, 1.f}, right)) +
+				std::abs(glm::dot(glm::vec3{0.f, 0.f, 1.f}, up)) +
+				std::abs(glm::dot(glm::vec3{0.f, 0.f, 1.f}, forward));
+
+			auto isOn = isOnOrForwardPlane(frustum.leftFace, globalCenter, {newIi, newIj, newIk}) &&
+				isOnOrForwardPlane(frustum.rightFace, globalCenter, {newIi, newIj, newIk}) &&
+				isOnOrForwardPlane(frustum.topFace, globalCenter, {newIi, newIj, newIk}) &&
+				isOnOrForwardPlane(frustum.bottomFace, globalCenter, {newIi, newIj, newIk}) &&
+				isOnOrForwardPlane(frustum.nearFace, globalCenter, {newIi, newIj, newIk}) &&
+				isOnOrForwardPlane(frustum.farFace, globalCenter, {newIi, newIj, newIk});
+
+			isOnFrustum.push_back(isOn);
+		}
+		for (auto inOn : isOnFrustum)
+		{
+			std::cout << inOn << std::endl;
+		}
+		std::cout << std::endl;
 	}
 }
 
