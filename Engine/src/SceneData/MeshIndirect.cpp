@@ -81,9 +81,9 @@ void Prisma::MeshIndirect::sort() const
 		const float halfVSide = data.zFar * tanf(data.fovY * .5f);
 		const float halfHSide = halfVSide * data.aspect;
 
-		glm::vec3 front = glm::normalize(glm::inverse(camera->matrix())[2]);
-		glm::vec3 right = glm::normalize(glm::inverse(camera->matrix())[0]);
-		glm::vec3 up = glm::normalize(glm::inverse(camera->matrix())[1]);
+		glm::vec3 front = glm::normalize(camera->front());
+		glm::vec3 right = glm::normalize(camera->right());
+		glm::vec3 up = glm::normalize(camera->up());
 
 
 		const glm::vec3 frontMultFar = data.zFar * front;

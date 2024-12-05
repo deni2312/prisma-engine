@@ -19,6 +19,8 @@ void Prisma::ImGuiCamera::updateCamera(std::shared_ptr<Camera> camera)
 	camera->position(m_position);
 	camera->center(m_position + m_front);
 	camera->up(m_up);
+	camera->front(m_front);
+	camera->right(glm::normalize(glm::cross(m_front, m_up)));
 	m_totalVelocity = m_velocity * 1.0f / Engine::getInstance().fps();
 }
 

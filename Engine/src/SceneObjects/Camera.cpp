@@ -44,6 +44,26 @@ glm::vec3 Prisma::Camera::up() const
 	return m_up;
 }
 
+void Prisma::Camera::right(const glm::vec3& right)
+{
+	m_right = right;
+}
+
+glm::vec3 Prisma::Camera::right() const
+{
+	return m_right;
+}
+
+void Prisma::Camera::front(const glm::vec3& front)
+{
+	m_front = front;
+}
+
+glm::vec3 Prisma::Camera::front() const
+{
+	return m_front;
+}
+
 void Prisma::Camera::nearPlane(float nearPlane)
 {
 	m_nearPlane = nearPlane;
