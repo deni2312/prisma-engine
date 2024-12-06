@@ -87,7 +87,7 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 	m_shader->setFloat(m_farPlanePos, m_farPlane);
 	m_shader->setVec3(m_lightPos, lightPos);
 
-	MeshIndirect::getInstance().renderMeshes();
+	MeshIndirect::getInstance().renderMeshesCopy();
 
 	m_shaderAnimation->use();
 

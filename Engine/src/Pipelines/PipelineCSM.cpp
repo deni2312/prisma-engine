@@ -82,7 +82,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 			glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			glCullFace(GL_FRONT); // peter panning
-			MeshIndirect::getInstance().renderMeshes();
+			MeshIndirect::getInstance().renderMeshesCopy();
 
 			m_shaderAnimation->use();
 
