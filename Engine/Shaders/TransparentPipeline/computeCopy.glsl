@@ -30,7 +30,7 @@ layout(std140, binding = 1) uniform MeshData {
     mat4 projection;
 };
 
-layout(std140, binding = 4) uniform CameraData {
+layout(std430, binding = 28) buffer CameraData {
     float zNear;
     float zFar;
     float fovY;
@@ -168,6 +168,8 @@ bool isAABBInFrustum(mat4 viewProjection, AABB worldAABB) {
 
 uniform bool initIndices = false;
 
+layout(binding = 0) uniform atomic_uint counterSize;
+
 void main() {
     uint index = gl_GlobalInvocationID.x;
 
@@ -175,24 +177,33 @@ void main() {
         indicesData[index].x = int(index);
     }
     else {
+        if (index == 0) {
+            atomicCounterExchange(counterSize, 0);
+        }
+
+        barrier();// Wait till all threads reach this point
+
         int sortedIndex = indicesData[index].x;
 
-        // Copy data
-        instanceData[index] = instanceDataCopy[sortedIndex];
-        modelMatrices[index] = modelMatricesCopy[sortedIndex];
-        materialData[index] = materialDataCopy[sortedIndex];
-        status[index] = statusCopy[sortedIndex];
 
         // Compute the view-projection matrix
         mat4 viewProjection = projection * view;
 
         // Transform the AABB to world space
-        AABB worldAABB = transformAABB(aabbData[sortedIndex], modelMatrices[index]);
+        AABB worldAABB = transformAABB(aabbData[sortedIndex], modelMatricesCopy[sortedIndex]);
 
         // Perform frustum culling
         if (!isAABBInFrustum(viewProjection, worldAABB)) {
             status[index] = 0;
             instanceData[index].instanceCount = 0;
+        }
+        else {
+            uint culledIdx = atomicCounterIncrement(counterSize);
+            // Copy data
+            instanceData[culledIdx] = instanceDataCopy[sortedIndex];
+            modelMatrices[culledIdx] = modelMatricesCopy[sortedIndex];
+            materialData[culledIdx] = materialDataCopy[sortedIndex];
+            status[culledIdx] = statusCopy[sortedIndex];
         }
     }
 }

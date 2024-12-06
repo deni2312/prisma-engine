@@ -118,7 +118,9 @@ namespace Prisma
 			float aspect;
 		};
 
-		std::shared_ptr<Prisma::Ubo> m_uboCamera;
+		std::shared_ptr<Prisma::SSBO> m_ssboCamera;
+
+		unsigned int m_sizeAtomic;
 
 	public:
 		std::shared_ptr<VAO> vao();

@@ -1,19 +1,19 @@
 #include "../../include/Containers/SSBO.h"
 #include "../../include/Helpers/GarbageCollector.h"
 #include <iostream>
+#include <map>
 
-static std::vector<unsigned int> usedId;
+static std::map<unsigned int, bool> usedId;
 
 Prisma::SSBO::SSBO(unsigned int ssbo)
 {
-	auto find = std::find(usedId.begin(), usedId.end(), ssbo);
-	if (find != usedId.end())
+	if (usedId.find(ssbo) != usedId.end())
 	{
 		std::cerr << "SSBO ID " << ssbo << " ALREADY USED" << std::endl;
 	}
 	else
 	{
-		usedId.push_back(ssbo);
+		usedId[ssbo] = true;
 		glGenBuffers(1, &m_ssbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssbo, m_ssbo);

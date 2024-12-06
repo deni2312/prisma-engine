@@ -34,7 +34,7 @@ void Prisma::MeshIndirect::sort() const
 		data.zNear = camera->nearPlane();
 		data.fovY = glm::radians(camera->angle());
 		data.aspect = static_cast<float>(globalSettings.width) / static_cast<float>(globalSettings.height);
-		m_uboCamera->modifyData(0, sizeof(CameraData), &data);
+		m_ssboCamera->modifyData(0, sizeof(CameraData), &data);
 		m_shaderCopy->use();
 		m_shaderCopy->setBool(m_indicesCopyLocation, false);
 		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
@@ -135,10 +135,11 @@ void Prisma::MeshIndirect::renderMeshes() const
 	{
 		m_vao->bind();
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+		glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_sizeAtomic);
+		glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
-		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr,
-		                            static_cast<GLuint>(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.
-			                            size()), 0);
+		glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, NULL, 0, m_drawCommands.size(), 0);
+		glBindBuffer(GL_PARAMETER_BUFFER_ARB, 0);
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	}
 }
@@ -408,7 +409,12 @@ Prisma::MeshIndirect::MeshIndirect()
 	m_vaoAnimation = std::make_shared<VAO>();
 	m_vboAnimation = std::make_shared<VBO>();
 	m_eboAnimation = std::make_shared<EBO>();
-
+	unsigned int numData = 0;
+	glGenBuffers(1, &m_sizeAtomic);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_sizeAtomic);
+	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_sizeAtomic);
+	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(unsigned int), NULL, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 	m_ssboModel = std::make_shared<SSBO>(1);
 	m_ssboMaterial = std::make_shared<SSBO>(0);
 
@@ -434,7 +440,8 @@ Prisma::MeshIndirect::MeshIndirect()
 	m_shaderCopy->use();
 	m_indicesCopyLocation = m_shaderCopy->getUniformPosition("initIndices");
 
-	m_uboCamera = std::make_shared<Prisma::Ubo>(sizeof(CameraData), 4);
+	m_ssboCamera = std::make_shared<Prisma::SSBO>(28);
+	m_ssboCamera->resize(sizeof(CameraData));
 }
 
 void Prisma::MeshIndirect::updateAnimation()

@@ -71,7 +71,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_modelPos = m_shader->getUniformPosition("model");
 	m_scale = 0.72f;
 	m_translate = 1.0f - m_scale;
-	std::cout << Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle() << std::endl;
 	m_projection = glm::perspective(
 		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
 		static_cast<float>(settings.width) / static_cast<float>(settings.height),
