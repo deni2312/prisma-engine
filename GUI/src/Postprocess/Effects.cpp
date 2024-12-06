@@ -61,7 +61,8 @@ Prisma::Effects::Effects()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
 		// also check if framebuffers are complete (no need for depth buffer)
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "Framebuffer not complete!" << std::endl;
+			Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+			                                  "Frame buffer not created correctly.");
 		m_bloomTexture[i] = glGetTextureHandleARB(pingpongColorbuffers[i]);
 		glMakeTextureHandleResidentARB(m_bloomTexture[i]);
 	}
