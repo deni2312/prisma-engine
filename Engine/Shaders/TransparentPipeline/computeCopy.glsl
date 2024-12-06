@@ -87,93 +87,6 @@ layout(std430, binding = 27) buffer AABBData {
 
 uniform bool initIndices = false;
 
-struct Plane {
-    vec3 normal;
-    float distance;
-};
-
-struct Frustum
-{
-    Plane topFace;
-    Plane bottomFace;
-
-    Plane rightFace;
-    Plane leftFace;
-
-    Plane farFace;
-    Plane nearFace;
-};
-
-Frustum currentFrustum;
-
-
-bool isInFrustum(uint index) {
-
-    vec3 globalScale = vec3(length(modelMatricesCopy[index][0]), length(modelMatricesCopy[index][1]), length(modelMatricesCopy[index][2]));
-    vec3 globalCenter= vec3(modelMatricesCopy[index] * vec4(aabbData[index].center.xyz, 1.f));
-    float maxScale = max(max(globalScale.x, globalScale.y), globalScale.z);
-    float radius = max(max(aabbData[index].center.x, aabbData[index].center.y), aabbData[index].center.z)*(maxScale*0.5);
-    Plane[6] planes = Plane[6](
-        currentFrustum.nearFace,
-        currentFrustum.farFace,
-        currentFrustum.rightFace,
-        currentFrustum.leftFace,
-        currentFrustum.topFace,
-        currentFrustum.bottomFace
-        );
-
-    for (int i = 0; i < 6; i++) {
-        if (dot(planes[i].normal, globalCenter) + planes[i].distance < -radius) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-
-// Function to construct the frustum planes
-Frustum createFrustum() {
-    Frustum frustum;
-
-    mat4 viewData = inverse(view);
-
-    vec3 camFront = vec3(normalize(viewData[2]));
-    vec3 camUp = vec3(normalize(viewData[1]));
-    vec3 camRight = vec3(normalize(viewData[0]));
-    float halfVSide = zFar * tan(radians(fovY) * 0.5);
-    float halfHSide = halfVSide * aspect;
-    vec3 frontMultFar = camFront * zFar;
-
-    vec3 camPosition = vec3(viewPos);
-
-    // Near face
-    frustum.nearFace.normal = camFront;
-    frustum.nearFace.distance = dot(camPosition + camFront * zNear, camFront);
-
-    // Far face
-    frustum.farFace.normal = -camFront;
-    frustum.farFace.distance = dot(camPosition + frontMultFar, -camFront);
-
-    // Right face
-    frustum.rightFace.normal = normalize(cross(camUp, frontMultFar - camRight * halfHSide));
-    frustum.rightFace.distance = dot(camPosition, frustum.rightFace.normal);
-
-    // Left face
-    frustum.leftFace.normal = normalize(cross(frontMultFar + camRight * halfHSide, camUp));
-    frustum.leftFace.distance = dot(camPosition, frustum.leftFace.normal);
-
-    // Top face
-    frustum.topFace.normal = normalize(cross(camRight, frontMultFar - camUp * halfVSide));
-    frustum.topFace.distance = dot(camPosition, frustum.topFace.normal);
-
-    // Bottom face
-    frustum.bottomFace.normal = normalize(cross(frontMultFar + camUp * halfVSide, camRight));
-    frustum.bottomFace.distance = dot(camPosition, frustum.bottomFace.normal);
-
-    return frustum;
-}
-
 void main() {
     uint index = gl_GlobalInvocationID.x;
 
@@ -188,10 +101,6 @@ void main() {
         modelMatrices[index] = modelMatricesCopy[sortedIndex];
         materialData[index] = materialDataCopy[sortedIndex];
         status[index] = statusCopy[sortedIndex];
-        currentFrustum = createFrustum();
-        /*if (!isInFrustum(sortedIndex)) {
-            status[index] = 0;
-            instanceData[index].instanceCount = 0;
-        }*/
+        
     }
 }
