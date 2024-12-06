@@ -13,6 +13,7 @@
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/FrustumCulling.h"
 
+
 void Prisma::MeshIndirect::sort() const
 {
 	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -38,28 +39,6 @@ void Prisma::MeshIndirect::sort() const
 		m_shaderCopy->setBool(m_indicesCopyLocation, false);
 		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
 		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-
-
-		std::vector<bool> isOnFrustum;
-		for (auto mesh : meshes)
-		{
-			auto model = mesh->parent()->finalMatrix();
-			auto center = mesh->aabbData().center;
-			auto extents = mesh->aabbData().extents;
-
-			Prisma::FrustumCulling frustum(camera->matrix(), Prisma::GlobalData::getInstance().currentProjection());
-
-			auto worldAABB = frustum.transformAABB({glm::vec4(center, 1), glm::vec4(extents, 0)}, model);
-
-			auto isOn = frustum.isAABBInFrustum(worldAABB);
-
-			isOnFrustum.push_back(isOn);
-		}
-		for (auto inOn : isOnFrustum)
-		{
-			std::cout << inOn << std::endl;
-		}
-		std::cout << std::endl;
 	}
 }
 
