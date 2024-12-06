@@ -138,7 +138,7 @@ void Prisma::MeshIndirect::renderMeshes() const
 		glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_sizeAtomic);
 		glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
-		glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, NULL, 0, m_drawCommands.size(), 0);
+		glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, 0, m_drawCommands.size(), 0);
 		glBindBuffer(GL_PARAMETER_BUFFER_ARB, 0);
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	}

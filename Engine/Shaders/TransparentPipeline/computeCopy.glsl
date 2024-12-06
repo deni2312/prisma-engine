@@ -175,13 +175,9 @@ void main() {
 
     if (initIndices) {
         indicesData[index].x = int(index);
+        atomicCounterExchange(counterSize, 0);
     }
     else {
-        if (index == 0) {
-            atomicCounterExchange(counterSize, 0);
-        }
-
-        barrier();// Wait till all threads reach this point
 
         int sortedIndex = indicesData[index].x;
 
