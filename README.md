@@ -34,6 +34,7 @@ Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 
 - **Grass optimized by frustum culling**
 - **GPU sorted transparencies**
 - **Thread safe animations**
+- **GPU frustum culled meshes**
 - **Editor:**
     - **Run/Debug modes**
     - **Transform Modifier**
@@ -135,7 +136,6 @@ If you encounter a bug, please submit an issue with detailed information about h
 ## Next updates
 
 - **Code refactoring/Eventual bug fixes**
-- **Frustum culling(compute shader)**
 
 ## LICENSE
 
