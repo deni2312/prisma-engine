@@ -129,8 +129,8 @@ Prisma::PrismaFunc::PrismaFunc()
 
 	// Create window
 	m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
-	glfwMaximizeWindow(m_window);
 	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
+
 	if (m_window == nullptr)
 	{
 		Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
