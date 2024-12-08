@@ -20,6 +20,8 @@ namespace Prisma
 
 	private:
 		std::shared_ptr<FBO> m_fbo;
+		std::shared_ptr<FBO> m_fboData;
 		unsigned int m_modelLocation;
+		unsigned int m_textureLocation;
 	};
 }
