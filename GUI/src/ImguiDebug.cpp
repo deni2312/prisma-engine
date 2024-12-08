@@ -62,6 +62,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	fboData.width = settings.width;
 	fboData.height = settings.height;
 	fboData.enableDepth = true;
+	fboData.name = "DEBUG";
 	m_fbo = std::make_shared<FBO>(fboData);
 	Prisma::GlobalData::getInstance().fboTarget(m_fbo);
 	m_shader = std::make_shared<Shader>("../../../GUI/Shaders/Output/vertex.glsl",

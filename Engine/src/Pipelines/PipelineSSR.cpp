@@ -23,7 +23,7 @@ Prisma::PipelineSSR::PipelineSSR()
 	fboData.enableDepth = true;
 	fboData.internalFormat = GL_RGBA16F;
 	fboData.internalType = GL_FLOAT;
-
+	fboData.name = "SCREEN_SPACE_REFLECTIONS";
 	m_fboSSR = std::make_shared<FBO>(fboData);
 }
 

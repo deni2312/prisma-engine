@@ -73,7 +73,7 @@ Prisma::Effects::Effects()
 	fboData.width = settings.width;
 	fboData.height = settings.height;
 	fboData.enableDepth = true;
-
+	fboData.name = "BRIGHTNESS";
 	m_brightnessFbo = std::make_shared<FBO>(fboData);
 }
 

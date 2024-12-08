@@ -81,16 +81,19 @@ Prisma::FBO::FBO(FBOData fboData)
 
 	m_id = glGetTextureHandleARB(textureID);
 	glMakeTextureHandleResidentARB(m_id);
-	Texture texture;
-	texture.name("FBO");
-	texture.id(textureID);
-	texture.data({
-		static_cast<int>(m_fboData.width),
-		static_cast<int>(m_fboData.height)
-	});
 	GarbageCollector::getInstance().add({GarbageCollector::GarbageType::FBO, m_framebufferID});
 	GarbageCollector::getInstance().addTexture({textureID, m_id});
-	TextureInfo::getInstance().add({texture});
+	if (!m_fboData.enableMultisample)
+	{
+		Texture texture;
+		texture.name("FBO_" + fboData.name);
+		texture.id(textureID);
+		texture.data({
+			static_cast<int>(m_fboData.width),
+			static_cast<int>(m_fboData.height)
+		});
+		TextureInfo::getInstance().add({texture});
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -137,17 +140,20 @@ Prisma::FBO::FBO(std::vector<FBOData> fboData)
 
 		m_textureId.push_back(handle);
 
-		Texture texture;
-		texture.name("FBO");
-		texture.id(textureID);
-		texture.data({
-			static_cast<int>(currentFboData.width),
-			static_cast<int>(currentFboData.height)
-		});
 		// Register texture with GarbageCollector and TextureInfo
 		GarbageCollector::getInstance().addTexture({textureID, handle});
-		TextureInfo::getInstance().add(texture);
-		textures.push_back(GL_COLOR_ATTACHMENT0 + i);
+		if (!m_fboData.enableMultisample)
+		{
+			Texture texture;
+			texture.name("FBO_" + currentFboData.name);
+			texture.id(textureID);
+			texture.data({
+				static_cast<int>(currentFboData.width),
+				static_cast<int>(currentFboData.height)
+			});
+			TextureInfo::getInstance().add(texture);
+			textures.push_back(GL_COLOR_ATTACHMENT0 + i);
+		}
 	}
 
 	glDrawBuffers(textures.size(), textures.data());

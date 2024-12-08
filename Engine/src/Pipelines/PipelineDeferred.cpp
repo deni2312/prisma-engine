@@ -81,6 +81,7 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 	fboData.enableDepth = true;
 	fboData.internalFormat = GL_RGBA16F;
 	fboData.internalType = GL_FLOAT;
+	fboData.name = "DEFERRED";
 	m_fbo = std::make_shared<FBO>(fboData);
 
 	m_fullscreenPipeline = std::make_shared<PipelineFullScreen>();

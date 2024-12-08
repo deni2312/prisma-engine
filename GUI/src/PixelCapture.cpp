@@ -20,6 +20,7 @@ Prisma::PixelCapture::PixelCapture()
 		fboData.enableDepth = true;
 		fboData.height = settings.height;
 		fboData.width = settings.width;
+		fboData.name = "CAPTURES";
 
 		m_fbo = std::make_shared<FBO>(fboData);
 		m_fboData = std::make_shared<FBO>(fboData);
