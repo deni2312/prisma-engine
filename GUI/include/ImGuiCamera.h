@@ -16,6 +16,7 @@ namespace Prisma
 			float maxY;
 			bool isOver;
 			float scale;
+			glm::mat4 model;
 		};
 
 		ImGuiCamera();

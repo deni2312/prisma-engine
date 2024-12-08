@@ -156,15 +156,8 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 			&& x > m_constraints.minX && y > m_constraints.minY && !ImGuizmo::IsOver())
 		{
 			auto settings = SettingsLoader::getInstance().getSettings();
-
-			x = x - m_constraints.minX;
-			x = x / m_constraints.scale;
-
-			//y = y - m_constraints.minY;
-
-			y = y / m_constraints.scale;
-			y = settings.height - y + 30.0f * m_constraints.scale;
-			auto result = PixelCapture::getInstance().capture(glm::vec2(x, y));
+			y = settings.height - y;
+			auto result = PixelCapture::getInstance().capture(glm::vec2(x, y), m_constraints.model);
 
 			if (result)
 			{

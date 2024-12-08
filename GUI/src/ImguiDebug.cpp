@@ -182,7 +182,7 @@ void Prisma::ImguiDebug::drawGui()
 		ImGui::EndMainMenuBar();
 	}
 	m_initOffset = size.y;
-	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate - 30.0f / static_cast<float>(m_height), 0.0f)) *
+	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate - 100.0f / static_cast<float>(m_height), 0.0f)) *
 		scale(glm::mat4(1.0f), glm::vec3(m_scale));
 	bool isOpen = true;
 	if (!m_run)
@@ -320,7 +320,7 @@ void Prisma::ImguiDebug::close()
 {
 	m_imguiCamera.constraints({
 		m_translate * m_width / 2, m_initOffset + 50, m_translate * m_width / 2 + m_scale * m_width, m_height * m_scale,
-		ImGuizmo::IsOver(), m_scale
+		ImGuizmo::IsOver(), m_scale, m_model
 	});
 
 
@@ -386,7 +386,6 @@ void Prisma::ImguiDebug::drawScene()
 	{
 		model = m_model;
 	}
-
 	m_shader->setMat4(m_modelPos, model);
 	PrismaRender::getInstance().renderQuad();
 }

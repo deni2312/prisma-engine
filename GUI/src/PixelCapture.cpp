@@ -26,10 +26,12 @@ Prisma::PixelCapture::PixelCapture()
 
 		shaderAnimation = std::make_shared<Shader>("../../../GUI/Shaders/PixelCapture/vertex_animation.glsl",
 		                                           "../../../GUI/Shaders/PixelCapture/fragment_animation.glsl");
+		shader->use();
+		m_modelLocation = shader->getUniformPosition("model");
 	}
 }
 
-std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
+std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, const glm::mat4& model)
 {
 	m_fbo->bind();
 	GLfloat bkColor[4];
@@ -48,6 +50,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 	glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
 
 	shader->use();
+	shader->setMat4(m_modelLocation, model);
 
 	MeshIndirect::getInstance().renderMeshesCopy();
 
@@ -80,7 +83,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position)
 	}
 	else
 	{
-		if (encodedUUID < Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size() && encodedUUID >= 0)
+		if (encodedUUID < Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size() && encodedUUID >=
+			0)
 		{
 			return Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes[encodedUUID];
 		}

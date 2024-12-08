@@ -6,6 +6,7 @@
 #include "glm/glm.hpp"
 #include <string>
 #include "../../Engine/include/GlobalData/InstanceData.h"
+#include "../../Engine/include/Containers/Texture.h"
 
 namespace Prisma
 {
@@ -16,9 +17,9 @@ namespace Prisma
 
 		void showTextures();
 
-		void add(std::pair<unsigned int, std::string> id);
+		void add(Prisma::Texture id);
 
 	private:
-		std::vector<std::pair<unsigned int, std::string>> m_textures;
+		std::vector<Prisma::Texture> m_textures;
 	};
 }

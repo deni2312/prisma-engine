@@ -16,9 +16,10 @@ namespace Prisma
 	{
 	public:
 		PixelCapture();
-		std::shared_ptr<Mesh> capture(glm::vec2 position);
+		std::shared_ptr<Mesh> capture(glm::vec2 position, const glm::mat4& model);
 
 	private:
 		std::shared_ptr<FBO> m_fbo;
+		unsigned int m_modelLocation;
 	};
 }

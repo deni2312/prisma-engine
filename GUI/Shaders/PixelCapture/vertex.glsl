@@ -17,5 +17,5 @@ layout(std430, binding = 20) buffer Matrices
 void main()
 {
     drawId = gl_DrawID;
-    gl_Position = projection * view * modelMatricesCopy[gl_DrawID] * vec4(aPos, 1.0);
+    gl_Position = projection * view * modelMatricesCopy[gl_DrawID]*vec4(aPos, 1.0);
 }

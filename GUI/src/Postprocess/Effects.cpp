@@ -75,8 +75,6 @@ Prisma::Effects::Effects()
 	fboData.enableDepth = true;
 
 	m_brightnessFbo = std::make_shared<FBO>(fboData);
-	TextureInfo::getInstance().add({pingpongColorbuffers[0], "Bloom1"});
-	TextureInfo::getInstance().add({pingpongColorbuffers[1], "Bloom2"});
 }
 
 void Prisma::Effects::effect(EFFECTS effect)
