@@ -1,5 +1,7 @@
 #include "../include/TextureInfo.h"
 
+#include <algorithm>
+
 Prisma::TextureInfo::TextureInfo()
 {
 }
@@ -12,12 +14,7 @@ void Prisma::TextureInfo::showTextures()
 	// Display the images in a grid layout
 	for (auto texture : m_textures)
 	{
-		int width = texture.data().width;
-		int height = texture.data().height;
-		width = width / scale;
-		height = height / scale;
-
-		ImGui::Image((void*)static_cast<intptr_t>(texture.id()), ImVec2(width, height));
+		ImGui::Image((void*)static_cast<intptr_t>(texture.id()), ImVec2(100, 100));
 		auto getLast = [](std::string s)
 		{
 			size_t found = s.find_last_of('/');
