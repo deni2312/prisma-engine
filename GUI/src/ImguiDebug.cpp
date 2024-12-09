@@ -177,6 +177,11 @@ void Prisma::ImguiDebug::drawGui()
 				openSettings = true;
 			}
 
+			if (ImGui::MenuItem("Close"))
+			{
+				PrismaFunc::getInstance().closeWindow();
+			}
+
 			ImGui::EndMenu();
 		}
 		size = ImGui::GetWindowSize();
