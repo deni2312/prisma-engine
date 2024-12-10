@@ -189,11 +189,7 @@ void main() {
         AABB worldAABB = transformAABB(aabbData[sortedIndex], modelMatricesCopy[sortedIndex]);
 
         // Perform frustum culling
-        if (!isAABBInFrustum(viewProjection, worldAABB)) {
-            status[index] = 0;
-            instanceData[index].instanceCount = 0;
-        }
-        else {
+        if (isAABBInFrustum(viewProjection, worldAABB)) {
             uint culledIdx = atomicCounterIncrement(counterSize);
             // Copy data
             instanceData[culledIdx] = instanceDataCopy[sortedIndex];
