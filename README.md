@@ -6,9 +6,6 @@ Prisma Engine
     <img src="https://github.com/deni2312/prisma-engine/blob/main/bin/images/prism.png" width="50%" height="50%" alt="Prism">
 </center>
 
-## 
-Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 3D applications. It is a personal project created to showcase the capabilities of modern OpenGL. The engine is constantly evolving, so there could be significant changes from one version to another.
-
 ## Features
 
 - **OpenGL 4.6 Support**
