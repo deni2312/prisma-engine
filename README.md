@@ -3,7 +3,7 @@
 Prisma Engine
 </p>
 <center>
-    <img src="https://github.com/deni2312/prisma-engine/blob/main/bin/images/prism.png" alt="Prism">
+    <img src="https://github.com/deni2312/prisma-engine/blob/main/bin/images/prism.png" width="50%" height="50%" alt="Prism">
 </center>
 
 ## 
