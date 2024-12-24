@@ -61,11 +61,9 @@ namespace Prisma
 
 		Mesh::VerticesData m_verticesData;
 		std::vector<DrawElementsIndirectCommand> m_drawCommands;
+
 		std::shared_ptr<SSBO> m_ssboModel;
 		std::shared_ptr<SSBO> m_ssboMaterial;
-
-		std::shared_ptr<SSBO> m_ssboModelCopy;
-		std::shared_ptr<SSBO> m_ssboMaterialCopy;
 		std::shared_ptr<SSBO> m_ssboIndices;
 
 
@@ -100,6 +98,7 @@ namespace Prisma
 		std::shared_ptr<SSBO> m_ssboStatus;
 		std::shared_ptr<SSBO> m_ssboStatusCopy;
 		std::shared_ptr<SSBO> m_ssboAABB;
+		std::shared_ptr<SSBO> m_ssboId;
 
 		std::shared_ptr<SSBO> m_ssboStatusAnimation;
 

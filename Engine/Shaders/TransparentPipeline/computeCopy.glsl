@@ -21,10 +21,6 @@ layout(std430, binding = 1) buffer Matrices {
     mat4 modelMatrices[];
 };
 
-layout(std430, binding = 20) buffer MatricesCopy {
-    mat4 modelMatricesCopy[];
-};
-
 layout(std140, binding = 1) uniform MeshData {
     mat4 view;
     mat4 projection;
@@ -59,9 +55,6 @@ layout(std430, binding = 0) buffer Material {
     MaterialData materialData[];
 };
 
-layout(std430, binding = 21) buffer MaterialCopy {
-    MaterialData materialDataCopy[];
-};
 
 layout(std430, binding = 23) buffer IndicesData {
     ivec4 indicesData[];
@@ -82,6 +75,11 @@ struct AABB {
 
 layout(std430, binding = 27) buffer AABBData {
     AABB aabbData[];
+};
+
+
+layout(std430, binding = 29) buffer Ids {
+    uint ids[];
 };
 
 
@@ -186,16 +184,15 @@ void main() {
         mat4 viewProjection = projection * view;
 
         // Transform the AABB to world space
-        AABB worldAABB = transformAABB(aabbData[sortedIndex], modelMatricesCopy[sortedIndex]);
+        AABB worldAABB = transformAABB(aabbData[sortedIndex], modelMatrices[sortedIndex]);
 
         // Perform frustum culling
         if (isAABBInFrustum(viewProjection, worldAABB)) {
             uint culledIdx = atomicCounterIncrement(counterSize);
             // Copy data
             instanceData[culledIdx] = instanceDataCopy[sortedIndex];
-            modelMatrices[culledIdx] = modelMatricesCopy[sortedIndex];
-            materialData[culledIdx] = materialDataCopy[sortedIndex];
             status[culledIdx] = statusCopy[sortedIndex];
+            ids[culledIdx] = sortedIndex;
         }
     }
 }

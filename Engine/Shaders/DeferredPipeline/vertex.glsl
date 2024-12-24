@@ -19,17 +19,22 @@ layout(std140, binding = 1) uniform MeshData
     mat4 projection;
 };
 
-layout(std430, binding = 1) readonly buffer Matrices
-{
+layout(std430, binding = 1) buffer Matrices {
     mat4 modelMatrices[];
 };
 
+
+layout(std430, binding = 29) buffer Ids {
+    uint ids[];
+};
+
+
 void main()
 {
-    drawId = gl_DrawID;
-    FragPos = vec3(modelMatrices[gl_DrawID] * vec4(aPos, 1.0));
+    drawId = int(ids[gl_DrawID]);
+    FragPos = vec3(modelMatrices[drawId] * vec4(aPos, 1.0));
     TexCoords = aTexCoords;
-    mat3 normalMatrix = mat3(transpose(inverse(mat3(modelMatrices[gl_DrawID]))));
+    mat3 normalMatrix = mat3(transpose(inverse(mat3(modelMatrices[drawId]))));
     Normal = normalMatrix * aNormal;
 
     viewPos = vec3(inverse(view)[3]);

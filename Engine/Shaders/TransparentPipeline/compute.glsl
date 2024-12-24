@@ -24,11 +24,6 @@ layout(std430, binding = 1) buffer Matrices
     mat4 modelMatrices[];
 };
 
-layout(std430, binding = 20) buffer MatricesCopy
-{
-    mat4 modelMatricesCopy[];
-};
-
 layout(std140, binding = 1) uniform MeshData
 {
     mat4 view;
@@ -59,11 +54,6 @@ layout(std430, binding = 0) buffer Material
     MaterialData materialData[];
 };
 
-layout(std430, binding = 21) buffer MaterialCopy
-{
-    MaterialData materialDataCopy[];
-};
-
 layout(std430, binding = 23) buffer IndicesData
 {
     ivec4 indicesData[];
@@ -85,7 +75,7 @@ void main() {
         // Count transparent materials in indicesData and create separate index lists
         int transparentCount = 0;
         for (int i = 0; i < size; i++) {
-            if (materialDataCopy[indicesData[i].x].transparent) {
+            if (materialData[indicesData[i].x].transparent) {
                 int temp = indicesData[i].x;
                 indicesData[i].x = indicesData[size - 1 - transparentCount].x;
                 indicesData[size - 1 - transparentCount].x = temp;
@@ -99,8 +89,8 @@ void main() {
         for (uint i = transparentStart; i < size - 1; i++) {
             for (uint j = transparentStart; j < size - 1 - (i- transparentStart); j++) {
                 // Calculate depths using the copy buffers
-                float depthA = calculateDepth(modelMatricesCopy[indicesData[j].x]);
-                float depthB = calculateDepth(modelMatricesCopy[indicesData[j + 1].x]);
+                float depthA = calculateDepth(modelMatrices[indicesData[j].x]);
+                float depthB = calculateDepth(modelMatrices[indicesData[j + 1].x]);
 
                 // Sort in descending order (farthest first) for transparency blending
                 if (depthA < depthB) {

@@ -20,9 +20,14 @@ layout(std140, binding = 1) uniform MeshData
 #include ../ShadowHeaderPipeline/shadow_func.glsl
 #include ../PbrHeaderPipeline/pbr_calculation.glsl
 
+
+layout(std430, binding = 21) buffer MaterialCopy {
+    MaterialData materialDataCopy[];
+};
+
 void main()
 {
-    currentMaterial = materialData[drawId];
+    currentMaterial = materialDataCopy[drawId];
 
     vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords);
 

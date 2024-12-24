@@ -214,10 +214,10 @@ void Prisma::MeshIndirect::updateSize()
 		}
 
 		//PUSH MODEL MATRICES TO AN SSBO WITH ID 1
-		m_ssboModel->resize(sizeof(glm::mat4) * (models.size()));
 		m_ssboAABB->resize(sizeof(Prisma::Mesh::AABBssbo) * models.size());
-		m_ssboModelCopy->resize(sizeof(glm::mat4) * (models.size()));
-		m_ssboModelCopy->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
+		m_ssboModel->resize(sizeof(glm::mat4) * (models.size()));
+		m_ssboModel->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
+		m_ssboId->resize(sizeof(unsigned int) * (models.size()));
 		m_ssboAABB->modifyData(0, sizeof(Prisma::Mesh::AABBssbo) * models.size(), aabb.data());
 
 
@@ -231,8 +231,7 @@ void Prisma::MeshIndirect::updateSize()
 			});
 		}
 		m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
-		m_ssboMaterialCopy->resize(sizeof(MaterialData) * (m_materialData.size()));
-		m_ssboMaterialCopy->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
+		m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
 
 		m_ssboIndices->resize(sizeof(glm::ivec4) * meshes.size());
 
@@ -379,7 +378,7 @@ void Prisma::MeshIndirect::updateModels()
 			finalMatrix();
 		auto ssbo = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model]->aabbData();
 		Prisma::Mesh::AABBssbo aabb = {glm::vec4(ssbo.center, 1.0), glm::vec4(ssbo.extents, 1.0)};
-		m_ssboModelCopy->modifyData(sizeof(glm::mat4) * model, sizeof(glm::mat4),
+		m_ssboModel->modifyData(sizeof(glm::mat4) * model, sizeof(glm::mat4),
 		                            glm::value_ptr(finalMatrix));
 		m_ssboAABB->modifyData(sizeof(Prisma::Mesh::AABBssbo) * model, sizeof(Prisma::Mesh::AABBssbo), &aabb);
 	}
@@ -414,17 +413,16 @@ Prisma::MeshIndirect::MeshIndirect()
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_sizeAtomic);
 	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(unsigned int), NULL, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-	m_ssboModel = std::make_shared<SSBO>(1);
 	m_ssboMaterial = std::make_shared<SSBO>(0);
 
-	m_ssboModelCopy = std::make_shared<SSBO>(20);
-	m_ssboMaterialCopy = std::make_shared<SSBO>(21);
+	m_ssboModel = std::make_shared<SSBO>(1);
 	m_ssboIndices = std::make_shared<SSBO>(23);
 
 	m_ssboStatus = std::make_shared<SSBO>(24);
 	m_ssboStatusCopy = std::make_shared<SSBO>(25);
 	m_ssboStatusAnimation = std::make_shared<SSBO>(26);
 	m_ssboAABB = std::make_shared<SSBO>(27);
+	m_ssboId = std::make_shared<SSBO>(29);
 
 	m_ssboModelAnimation = std::make_shared<SSBO>(6);
 	m_ssboMaterialAnimation = std::make_shared<SSBO>(7);
@@ -629,9 +627,8 @@ void Prisma::MeshIndirect::updateTextureSize()
 			material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0
 		});
 	}
-	m_ssboMaterialCopy->resize(sizeof(MaterialData) * (m_materialData.size()));
 	m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
-	m_ssboMaterialCopy->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
+	m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
 
 	m_materialDataAnimation.clear();
 	auto& meshesAnimation = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
