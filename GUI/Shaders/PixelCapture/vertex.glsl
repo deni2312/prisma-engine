@@ -9,13 +9,18 @@ layout(std140, binding = 1) uniform MeshData
     mat4 projection;
 };
 
-layout(std430, binding = 20) buffer Matrices
+layout(std430, binding = 1) buffer Matrices
 {
-    mat4 modelMatricesCopy[];
+    mat4 modelMatrices[];
+};
+
+
+layout(std430, binding = 29) buffer Ids {
+    uint ids[];
 };
 
 void main()
 {
-    drawId = gl_DrawID;
-    gl_Position = projection * view * modelMatricesCopy[gl_DrawID]*vec4(aPos, 1.0);
+    drawId = int(ids[gl_DrawID]);
+    gl_Position = projection * view * modelMatrices[ids[gl_DrawID]]*vec4(aPos, 1.0);
 }

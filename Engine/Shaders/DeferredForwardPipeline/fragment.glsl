@@ -21,13 +21,14 @@ layout(std140, binding = 1) uniform MeshData
 #include ../PbrHeaderPipeline/pbr_calculation.glsl
 
 
-layout(std430, binding = 21) buffer MaterialCopy {
-    MaterialData materialDataCopy[];
+layout(std430, binding = 0) buffer Material {
+    MaterialData materialData[];
 };
+
 
 void main()
 {
-    currentMaterial = materialDataCopy[drawId];
+    currentMaterial = materialData[drawId];
 
     vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords);
 
