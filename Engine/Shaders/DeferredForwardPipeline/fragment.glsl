@@ -20,12 +20,6 @@ layout(std140, binding = 1) uniform MeshData
 #include ../ShadowHeaderPipeline/shadow_func.glsl
 #include ../PbrHeaderPipeline/pbr_calculation.glsl
 
-
-layout(std430, binding = 0) buffer Material {
-    MaterialData materialData[];
-};
-
-
 void main()
 {
     currentMaterial = materialData[drawId];
