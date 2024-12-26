@@ -103,9 +103,5 @@ void main() {
                 }
             }
         }
-        
-        for (int i = 0; i < size; i++) {
-            instanceData[i] = instanceDataCopy[ids[i]];
-        }
     }
 }

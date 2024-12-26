@@ -20,7 +20,7 @@ void Prisma::MeshIndirect::sort() const
 	if (!meshes.empty())
 	{
 		m_shaderCopy->use();
-		m_shaderCopy->setBool(m_indicesCopyLocation, true);
+		m_shaderCopy->setInt(m_indicesCopyLocation, 0);
 		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
 		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
@@ -31,13 +31,16 @@ void Prisma::MeshIndirect::sort() const
 		data.fovY = glm::radians(camera->angle());
 		data.aspect = static_cast<float>(globalSettings.width) / static_cast<float>(globalSettings.height);
 		m_ssboCamera->modifyData(0, sizeof(CameraData), &data);
-		m_shaderCopy->use();
-		m_shaderCopy->setBool(m_indicesCopyLocation, false);
+		m_shaderCopy->setInt(m_indicesCopyLocation, 1);
 		m_shaderCopy->dispatchCompute({ meshes.size(), 1, 1 });
 		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		m_shader->use();
 		m_shader->dispatchCompute({1, 1, 1});
 		m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		m_shaderCopy->use();
+		m_shaderCopy->setInt(m_indicesCopyLocation, 2);
+		m_shaderCopy->dispatchCompute({ meshes.size(), 1, 1 });
+		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }
 

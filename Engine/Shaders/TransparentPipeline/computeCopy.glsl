@@ -160,17 +160,17 @@ bool isAABBInFrustum(mat4 viewProjection, AABB worldAABB) {
     return true;
 }
 
-uniform bool initIndices = false;
+uniform int initIndices = 0;
 
 layout(binding = 0) uniform atomic_uint counterSize;
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
 
-    if (initIndices) {
+    if (initIndices==0) {
         atomicCounterExchange(counterSize, 0);
     }
-    else {
+    if(initIndices==1) {
 
 
         // Compute the view-projection matrix
@@ -183,9 +183,15 @@ void main() {
         if (isAABBInFrustum(viewProjection, worldAABB)) {
             uint culledIdx = atomicCounterIncrement(counterSize);
             // Copy data
-            instanceData[culledIdx] = instanceDataCopy[index];
-            status[culledIdx] = statusCopy[index];
             ids[culledIdx] = index;
+        }
+    }
+    if(initIndices==2)
+    {
+        int size=int(atomicCounter(counterSize));
+        if(index<size){
+            instanceData[index] = instanceDataCopy[ids[index]];
+            status[index] = statusCopy[ids[index]];
         }
     }
 }
