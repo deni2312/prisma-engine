@@ -56,10 +56,6 @@ layout(std430, binding = 0) buffer Material {
 };
 
 
-layout(std430, binding = 23) buffer IndicesData {
-    ivec4 indicesData[];
-};
-
 layout(std430, binding = 24) buffer Status {
     uint status[];
 };
@@ -172,27 +168,24 @@ void main() {
     uint index = gl_GlobalInvocationID.x;
 
     if (initIndices) {
-        indicesData[index].x = int(index);
         atomicCounterExchange(counterSize, 0);
     }
     else {
-
-        int sortedIndex = indicesData[index].x;
 
 
         // Compute the view-projection matrix
         mat4 viewProjection = projection * view;
 
         // Transform the AABB to world space
-        AABB worldAABB = transformAABB(aabbData[sortedIndex], modelMatrices[sortedIndex]);
+        AABB worldAABB = transformAABB(aabbData[index], modelMatrices[index]);
 
         // Perform frustum culling
         if (isAABBInFrustum(viewProjection, worldAABB)) {
             uint culledIdx = atomicCounterIncrement(counterSize);
             // Copy data
-            instanceData[culledIdx] = instanceDataCopy[sortedIndex];
-            status[culledIdx] = statusCopy[sortedIndex];
-            ids[culledIdx] = sortedIndex;
+            instanceData[culledIdx] = instanceDataCopy[index];
+            status[culledIdx] = statusCopy[index];
+            ids[culledIdx] = index;
         }
     }
 }

@@ -54,10 +54,6 @@ layout(std430, binding = 0) buffer Material
     MaterialData materialData[];
 };
 
-layout(std430, binding = 23) buffer IndicesData
-{
-    ivec4 indicesData[];
-};
 
 // Function to calculate depth from the camera for sorting
 float calculateDepth(mat4 modelMatrix) {
@@ -66,19 +62,25 @@ float calculateDepth(mat4 modelMatrix) {
     return length(viewPosition); // Depth value (negative for view direction)
 }
 
-uniform int size;
+
+layout(binding = 0) uniform atomic_uint counterSize;
+
+layout(std430, binding = 29) buffer Ids {
+    uint ids[];
+};
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
-    if (index == 0) {
+    int size=int(atomicCounter(counterSize));
 
+    if (index == 0 && size>0) {
         // Count transparent materials in indicesData and create separate index lists
         int transparentCount = 0;
         for (int i = 0; i < size; i++) {
-            if (materialData[indicesData[i].x].transparent) {
-                int temp = indicesData[i].x;
-                indicesData[i].x = indicesData[size - 1 - transparentCount].x;
-                indicesData[size - 1 - transparentCount].x = temp;
+            if (materialData[ids[i]].transparent) {
+                uint temp = ids[i];
+                ids[i] = ids[size - 1 - transparentCount];
+                ids[size - 1 - transparentCount] = temp;
                 transparentCount++;
             }
         }
@@ -89,17 +91,21 @@ void main() {
         for (uint i = transparentStart; i < size - 1; i++) {
             for (uint j = transparentStart; j < size - 1 - (i- transparentStart); j++) {
                 // Calculate depths using the copy buffers
-                float depthA = calculateDepth(modelMatrices[indicesData[j].x]);
-                float depthB = calculateDepth(modelMatrices[indicesData[j + 1].x]);
+                float depthA = calculateDepth(modelMatrices[ids[j]]);
+                float depthB = calculateDepth(modelMatrices[ids[j + 1]]);
 
                 // Sort in descending order (farthest first) for transparency blending
                 if (depthA < depthB) {
                     // Swap indices instead of modifying the copy buffer data
-                    int temp = indicesData[j].x;
-                    indicesData[j].x = indicesData[j + 1].x;
-                    indicesData[j + 1].x = temp;
+                    uint temp = ids[j];
+                    ids[j] = ids[j + 1];
+                    ids[j + 1] = temp;
                 }
             }
+        }
+        
+        for (int i = 0; i < size; i++) {
+            instanceData[i] = instanceDataCopy[ids[i]];
         }
     }
 }

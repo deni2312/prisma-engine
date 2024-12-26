@@ -103,7 +103,6 @@ namespace Prisma
 		std::shared_ptr<SSBO> m_ssboStatusAnimation;
 
 		unsigned int m_sizeLocation;
-		unsigned int m_sizeMeshesLocation;
 		unsigned int m_indicesCopyLocation;
 
 		std::vector<int> m_updateModels;
