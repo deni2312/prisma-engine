@@ -16,7 +16,7 @@ out vec2 TexCoords;
 
 out vec3 Normal;
 
-flat out int drawId;
+flat out uint drawId;
 
 uniform mat4 lightSpaceMatrix;
 

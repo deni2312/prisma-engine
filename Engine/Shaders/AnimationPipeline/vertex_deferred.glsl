@@ -16,7 +16,7 @@ out vec3 viewPos;
 out vec2 TexCoords;
 
 out vec3 Normal;
-flat out int drawId;
+flat out uint drawId;
 
 layout(std140, binding = 1) uniform MeshData
 {

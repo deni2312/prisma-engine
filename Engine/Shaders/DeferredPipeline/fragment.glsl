@@ -4,7 +4,7 @@ in vec3 FragPos;
 in vec2 TexCoords;
 in vec3 viewPos;
 in vec3 Normal;
-flat in int drawId;
+flat in uint drawId;
 
 layout(location = 0) out vec4 gPosition;
 layout(location = 1) out vec4 gNormal;

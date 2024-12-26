@@ -6,7 +6,7 @@ out vec4 FragColor;
 in vec3 FragPos;
 in vec2 TexCoords;
 in vec3 Normal;
-flat in int drawId;
+flat in uint drawId;
 
 layout(std140, binding = 1) uniform MeshData
 {

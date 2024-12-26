@@ -11,7 +11,7 @@ out vec2 TexCoords;
 
 out vec3 Normal;
 
-flat out int drawId;
+flat out uint drawId;
 
 layout(std140, binding = 1) uniform MeshData
 {
@@ -31,7 +31,7 @@ layout(std430, binding = 29) buffer Ids {
 
 void main()
 {
-    drawId = int(ids[gl_DrawID]);
+    drawId = ids[gl_DrawID];
     FragPos = vec3(modelMatrices[drawId] * vec4(aPos, 1.0));
     TexCoords = aTexCoords;
     mat3 normalMatrix = mat3(transpose(inverse(mat3(modelMatrices[drawId]))));
