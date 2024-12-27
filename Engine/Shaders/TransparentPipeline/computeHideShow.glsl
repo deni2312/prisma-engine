@@ -41,11 +41,16 @@ layout(std430, binding = 24) buffer Status
 
 uniform bool transparent;
 
+
+layout(std430, binding = 29) buffer Ids {
+    uint ids[];
+};
+
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (status[index] > 0) {
         if (transparent) {
-            if (materialData[index].transparent==1) {
+            if (materialData[ids[index]].transparent==1) {
                 instanceData[index].instanceCount = 1;
             }
             else {
@@ -53,7 +58,7 @@ void main() {
             }
         }
         else {
-            if (materialData[index].transparent==0) {
+            if (materialData[ids[index]].transparent==0) {
                 instanceData[index].instanceCount = 1;
             }
             else {
