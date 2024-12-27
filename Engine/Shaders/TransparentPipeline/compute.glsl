@@ -84,7 +84,6 @@ void main() {
                 transparentCount++;
             }
         }
-
         int transparentStart = 0;
 
         // Perform bubble sort on indices based on depth from copy buffers
