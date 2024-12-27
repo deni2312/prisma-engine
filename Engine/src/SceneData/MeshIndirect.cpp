@@ -21,7 +21,7 @@ void Prisma::MeshIndirect::sort() const
 	{
 		m_shaderCopy->use();
 		m_shaderCopy->setInt(m_indicesCopyLocation, 0);
-		m_shaderCopy->dispatchCompute({meshes.size(), 1, 1});
+		m_shaderCopy->dispatchCompute({1, 1, 1});
 		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 		auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
 		Prisma::Settings globalSettings = Prisma::SettingsLoader::getInstance().getSettings();

@@ -46,9 +46,12 @@ layout(std430, binding = 29) buffer Ids {
     uint ids[];
 };
 
+layout(binding = 0) uniform atomic_uint counterSize;
+
 void main() {
     uint index = gl_GlobalInvocationID.x;
-    if (status[index] > 0) {
+    int size=int(atomicCounter(counterSize));
+    if (status[index] > 0 && index<size) {
         if (transparent) {
             if (materialData[ids[index]].transparent==1) {
                 instanceData[index].instanceCount = 1;
