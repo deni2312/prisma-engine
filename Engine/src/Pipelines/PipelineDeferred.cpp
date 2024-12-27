@@ -13,7 +13,6 @@
 #include <iostream>
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/ClusterCalculation.h"
-#include "../../../GUI/include/TextureInfo.h"
 #include "../../include/Postprocess/Postprocess.h"
 #include "../../include/engine.h"
 #include "../../include/Handlers/ComponentsHandler.h"

@@ -17,11 +17,5 @@ namespace Prisma
 
 		void showTextures();
 
-		void add(Prisma::Texture id);
-
-		void add(std::pair<unsigned int, std::string> id);
-
-	private:
-		std::vector<Prisma::Texture> m_textures;
 	};
 }

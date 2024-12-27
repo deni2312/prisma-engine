@@ -56,11 +56,20 @@ namespace Prisma
 
 		void defaultNormal(const Texture& defaultNormal);
 
+		void addGlobalTexture(std::pair<unsigned int, std::string> texture) {
+			m_textures.push_back(texture);
+		}
+
+		const std::vector<std::pair<unsigned int,std::string>>& globalTextures() {
+			return m_textures;
+		}
+
 	private:
 		std::shared_ptr<Scene> m_currentGlobalScene;
 		std::shared_ptr<FBO> m_fboTarget;
 		std::unordered_map<uint64_t, Component*> m_sceneComponents;
 		std::unordered_map<uint64_t, std::shared_ptr<Node>> m_sceneNodes;
+		std::vector<std::pair<unsigned int,std::string>> m_textures;
 		glm::mat4 m_currentProjection;
 		Texture m_defaultBlack;
 		Texture m_defaultWhite;

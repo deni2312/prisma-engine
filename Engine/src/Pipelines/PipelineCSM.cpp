@@ -8,7 +8,6 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Helpers/SettingsLoader.h"
 #include <glm/gtx/string_cast.hpp>
-#include "../../../GUI/include/TextureInfo.h"
 #include "../../include/Helpers/PrismaRender.h"
 
 static std::shared_ptr<Prisma::Shader> shader = nullptr;

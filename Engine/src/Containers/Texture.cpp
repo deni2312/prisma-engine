@@ -3,9 +3,9 @@
 #include "../../include/Helpers/stb_image.h"
 #include "GL/glew.h"
 #include "../../include/Helpers/GarbageCollector.h"
-#include "../../../GUI/include/TextureInfo.h"
 #include <iostream>
 #include <tuple>
+#include "../../include/GlobalData/GlobalData.h"
 
 #include "../../include/Helpers/Logger.h"
 
@@ -72,8 +72,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 		{
 			m_id = textureID;
 		}
-
-		TextureInfo::getInstance().add({textureID, m_parameters.texture});
+		Prisma::GlobalData::getInstance().addGlobalTexture({ textureID, m_parameters.texture });
 
 		GarbageCollector::getInstance().addTexture({textureID, m_id});
 		return true;

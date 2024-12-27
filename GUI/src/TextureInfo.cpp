@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "GL/glew.h"
+#include "../../Engine/include/GlobalData/GlobalData.h"
 
 Prisma::TextureInfo::TextureInfo()
 {
@@ -15,31 +16,18 @@ void Prisma::TextureInfo::showTextures()
 	int scale = 10;
 
 	// Display the images in a grid layout
-	for (auto texture : m_textures)
+	for (auto texture : Prisma::GlobalData::getInstance().globalTextures())
 	{
-		ImGui::Image((void*)static_cast<intptr_t>(texture.id()), ImVec2(100, 100));
+		ImGui::Image((void*)static_cast<intptr_t>(texture.first), ImVec2(100, 100));
 		auto getLast = [](std::string s)
 		{
 			size_t found = s.find_last_of('/');
 			return found != std::string::npos ? s.substr(found + 1) : s;
 		};
-		ImGui::Text(getLast(texture.name()).c_str());
+		ImGui::Text(getLast(texture.second).c_str());
 		ImGui::NextColumn();
 	}
 
 	// End the columns
 	ImGui::Columns(1);
-}
-
-void Prisma::TextureInfo::add(Prisma::Texture id)
-{
-	m_textures.push_back(id);
-}
-
-void Prisma::TextureInfo::add(std::pair<unsigned int, std::string> id)
-{
-	Texture texture;
-	texture.id(id.first);
-	texture.name(id.second);
-	m_textures.push_back(texture);
 }

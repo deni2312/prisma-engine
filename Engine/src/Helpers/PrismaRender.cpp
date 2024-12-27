@@ -8,7 +8,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "../../include/Helpers/GarbageCollector.h"
-#include "../../../GUI/include/TextureInfo.h"
 
 Prisma::PrismaRender::PrismaRender()
 {

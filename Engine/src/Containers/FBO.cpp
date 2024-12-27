@@ -1,7 +1,7 @@
 #include "../../include/Containers/FBO.h"
 #include "../../include/Helpers/GarbageCollector.h"
 #include <iostream>
-#include "../../../GUI/include/TextureInfo.h"
+#include "../../include/GlobalData/GlobalData.h"
 
 Prisma::FBO::FBO(FBOData fboData)
 	: m_vao{0}, m_fboData{fboData}
@@ -85,14 +85,7 @@ Prisma::FBO::FBO(FBOData fboData)
 	GarbageCollector::getInstance().addTexture({textureID, m_id});
 	if (!m_fboData.enableMultisample)
 	{
-		Texture texture;
-		texture.name("FBO_" + fboData.name);
-		texture.id(textureID);
-		texture.data({
-			static_cast<int>(m_fboData.width),
-			static_cast<int>(m_fboData.height)
-		});
-		TextureInfo::getInstance().add({texture});
+		Prisma::GlobalData::getInstance().addGlobalTexture({ textureID,"FBO_" + fboData.name });
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -140,18 +133,10 @@ Prisma::FBO::FBO(std::vector<FBOData> fboData)
 
 		m_textureId.push_back(handle);
 
-		// Register texture with GarbageCollector and TextureInfo
 		GarbageCollector::getInstance().addTexture({textureID, handle});
 		if (!m_fboData.enableMultisample)
 		{
-			Texture texture;
-			texture.name("FBO_" + currentFboData.name);
-			texture.id(textureID);
-			texture.data({
-				static_cast<int>(currentFboData.width),
-				static_cast<int>(currentFboData.height)
-			});
-			TextureInfo::getInstance().add(texture);
+			Prisma::GlobalData::getInstance().addGlobalTexture({ textureID,"FBO_" + currentFboData.name });
 			textures.push_back(GL_COLOR_ATTACHMENT0 + i);
 		}
 	}

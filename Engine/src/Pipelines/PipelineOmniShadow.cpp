@@ -3,7 +3,6 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "../../include/SceneData/MeshIndirect.h"
 #include "../../include/GlobalData/GlobalData.h"
-#include "../../../GUI/include/TextureInfo.h"
 #include "../../include/Helpers/SettingsLoader.h"
 
 

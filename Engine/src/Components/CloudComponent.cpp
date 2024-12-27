@@ -5,7 +5,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/PrismaRender.h"
-#include "../../../GUI/include/TextureInfo.h"
 
 Prisma::CloudComponent::CloudComponent() : Component{}
 {
