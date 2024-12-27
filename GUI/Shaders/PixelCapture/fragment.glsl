@@ -1,6 +1,6 @@
 #version 460 core
 
-flat in int drawId;
+flat in uint drawId;
 
 out vec4 FragColor;
 
