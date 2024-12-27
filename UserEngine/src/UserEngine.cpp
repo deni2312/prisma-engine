@@ -26,6 +26,17 @@ void UserEngine::start()
 			                                       //m_player = std::make_shared<PlayerController>(scene);
 
 			                                       //m_player->scene(scene);
+
+												   Prisma::NodeHelper nodeHelper;
+
+												   auto transparentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(scene->root, "Cube.001"));
+												   auto transparentMesh1 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(scene->root, "Cube.002"));
+
+												   if (transparentMesh && transparentMesh1)
+												   {
+													   transparentMesh->material()->transparent(true);
+													   transparentMesh1->material()->transparent(true);
+												   }
 		                                       }
 	                                       });
 }
