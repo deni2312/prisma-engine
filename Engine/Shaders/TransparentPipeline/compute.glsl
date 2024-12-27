@@ -74,28 +74,29 @@ void main() {
     int size=int(atomicCounter(counterSize));
 
     if (index == 0 && size>0) {
-        // Count transparent materials in indicesData and create separate index lists
-        int transparentCount = 0;
-        for (int i = 0; i < size; i++) {
-            if (materialData[ids[i]].transparent) {
-                uint temp = ids[i];
-                ids[i] = ids[size - 1 - transparentCount];
-                ids[size - 1 - transparentCount] = temp;
+        int transparentCount=0;
+        for (uint i = 0; i < size; i++) {
+            if (materialData[ids[i]].transparent) { // Check if the mesh is transparent
+                // Swap the transparent mesh to the front of the array
+                if (i != transparentCount) {
+                    uint temp = ids[transparentCount];
+                    ids[transparentCount] = ids[i];
+                    ids[i] = temp;
+                }
                 transparentCount++;
             }
         }
-        int transparentStart = 0;
 
-        // Perform bubble sort on indices based on depth from copy buffers
-        for (uint i = transparentStart; i < size - 1; i++) {
-            for (uint j = transparentStart; j < size - 1 - (i- transparentStart); j++) {
+        // Perform bubble sort on the transparent portion of the `ids` array
+        for (uint i = 0; i < transparentCount - 1; i++) {
+            for (uint j = 0; j < transparentCount - 1 - i; j++) {
                 // Calculate depths using the copy buffers
                 float depthA = calculateDepth(modelMatrices[ids[j]]);
                 float depthB = calculateDepth(modelMatrices[ids[j + 1]]);
 
                 // Sort in descending order (farthest first) for transparency blending
                 if (depthA < depthB) {
-                    // Swap indices instead of modifying the copy buffer data
+                    // Swap indices
                     uint temp = ids[j];
                     ids[j] = ids[j + 1];
                     ids[j + 1] = temp;
