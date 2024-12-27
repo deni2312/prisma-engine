@@ -27,20 +27,6 @@ void UserEngine::start()
 
 			                                       //m_player->scene(scene);
 
-												   Prisma::NodeHelper nodeHelper;
-
-												   auto transparentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(scene->root, "Cube.001"));
-												   auto transparentMesh1 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(scene->root, "Cube.003"));
-												   auto transparentMesh11 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(scene->root, "Cube.004"));
-												   auto transparentMesh16 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(scene->root, "Cube.005"));
-												   if (transparentMesh && transparentMesh1 && transparentMesh11 && transparentMesh16)
-												   {
-													   transparentMesh->material()->transparent(true);
-													   transparentMesh1->material()->transparent(true);
-													   transparentMesh11->material()->transparent(true);
-													   transparentMesh16->material()->transparent(true);
-												   }
-
 		                                       }
 	                                       });
 }

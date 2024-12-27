@@ -86,10 +86,9 @@ void main() {
                 transparentCount++;
             }
         }
-
         // Perform bubble sort on the transparent portion of the `ids` array
-        for (uint i = 0; i < transparentCount - 1; i++) {
-            for (uint j = 0; j < transparentCount - 1 - i; j++) {
+        for (int i = 0; i < transparentCount - 1; i++) {
+            for (int j = 0; j < transparentCount - 1 - i; j++) {
                 // Calculate depths using the copy buffers
                 float depthA = calculateDepth(modelMatrices[ids[j]]);
                 float depthB = calculateDepth(modelMatrices[ids[j + 1]]);
