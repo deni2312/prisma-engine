@@ -7,12 +7,16 @@
 
 namespace Prisma
 {
-	class MeshCreator
+	class NodeCreator
 	{
 	public:
 		static std::shared_ptr<Prisma::Node> createCube();
 
 		static std::shared_ptr<Prisma::Node> createSphere(int subDivisions);
+
+		static std::shared_ptr<Prisma::Node> createOmnidirectional();
+
+		static std::shared_ptr<Prisma::Node> createDirectional();
 
 	private:
 		static std::shared_ptr<Node> createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,

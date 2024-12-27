@@ -12,11 +12,19 @@ void Prisma::ImGuiAddingMenu::addMenu(Prisma::ImGuiCamera& camera) const
 	{
 		if (ImGui::MenuItem("Add Cube"))
 		{
-			Prisma::MeshCreator::createCube();
+			Prisma::NodeCreator::createCube();
 		}
 		if (ImGui::MenuItem("Add Sphere"))
 		{
-			Prisma::MeshCreator::createSphere(m_subDivisions);
+			Prisma::NodeCreator::createSphere(m_subDivisions);
+		}
+		if (ImGui::MenuItem("Add Omni"))
+		{
+			Prisma::NodeCreator::createOmnidirectional();
+		}
+		if (ImGui::MenuItem("Add Directional"))
+		{
+			Prisma::NodeCreator::createDirectional();
 		}
 		ImGui::EndPopup();
 	}

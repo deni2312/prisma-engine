@@ -1,6 +1,6 @@
-#include "../include/MeshCreator.h"
+#include "../include/NodeCreator.h"
 
-std::shared_ptr<Prisma::Node> Prisma::MeshCreator::createCube()
+std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createCube()
 {
 	auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
 
@@ -85,7 +85,7 @@ std::shared_ptr<Prisma::Node> Prisma::MeshCreator::createCube()
 	return createMesh(verticesData, "Cube");
 }
 
-std::shared_ptr<Prisma::Node> Prisma::MeshCreator::createSphere(int subDivisions)
+std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createSphere(int subDivisions)
 {
 	auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
 	float PI = 3.14159265358979323846;
@@ -175,7 +175,31 @@ std::shared_ptr<Prisma::Node> Prisma::MeshCreator::createSphere(int subDivisions
 	return createMesh(verticesData, "Sphere");
 }
 
-std::shared_ptr<Prisma::Node> Prisma::MeshCreator::createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,
+std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createOmnidirectional()
+{
+	auto parent = std::make_shared<Prisma::Node>();
+	parent->name("ParentOmnidirectional_" + std::to_string(parent->uuid()));
+	auto light = std::make_shared<Light<LightType::LightOmni>>();
+	light->name("Omnidirectional_" + std::to_string(light->uuid()));
+	light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
+	parent->addChild(light);
+	Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parent);
+	return light;
+}
+
+std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createDirectional()
+{
+	auto parent = std::make_shared<Prisma::Node>();
+	parent->name("ParentDirectional_" + std::to_string(parent->uuid()));
+	auto light = std::make_shared<Light<LightType::LightDir>>();
+	light->name("Directional" + std::to_string(light->uuid()));
+	light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
+	parent->addChild(light);
+	Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parent);
+	return light;
+}
+
+std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,
                                                               const std::string& name)
 {
 	auto newInstance = std::make_shared<Mesh>();
@@ -192,7 +216,7 @@ std::shared_ptr<Prisma::Node> Prisma::MeshCreator::createMesh(std::shared_ptr<Pr
 	return parent;
 }
 
-std::shared_ptr<Prisma::MaterialComponent> Prisma::MeshCreator::getEmptyMaterial()
+std::shared_ptr<Prisma::MaterialComponent> Prisma::NodeCreator::getEmptyMaterial()
 {
 	auto currentMaterial = std::make_shared<Prisma::MaterialComponent>();
 	std::vector<Texture> emptyVector;
