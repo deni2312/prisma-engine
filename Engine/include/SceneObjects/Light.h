@@ -14,7 +14,7 @@ namespace Prisma
 	{
 		struct LightDir
 		{
-			glm::vec4 direction = glm::vec4(0,1,0,0);
+			glm::vec4 direction = glm::vec4(0,0.9,0,0);
 			glm::vec4 diffuse = glm::vec4(1, 1, 1, 0);
 			glm::vec4 specular = glm::vec4(1, 1, 1, 0);
 			uint64_t shadowMap = 0;

@@ -145,7 +145,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 	auto worldUp = glm::vec3(0.0f, 1.0f, 0.0f); // Define the world's up direction
 
 	// Check if direction and worldUp are parallel
-	if (glm::abs(glm::dot(direction, worldUp)) > 0.99f)
+	if (glm::abs(glm::dot(direction, worldUp)) > 0.9f)
 	{
 		// If they are nearly parallel, adjust the worldUp vector
 		worldUp = glm::vec3(0.0f, 0.0f, 1.0f); // Set a different perpendicular direction
