@@ -113,7 +113,7 @@ void Prisma::MeshIndirect::remove(const unsigned int remove)
 
 void Prisma::MeshIndirect::updateModels(int model)
 {
-	m_updateModels.push_back(model);
+	m_updateModels[model]=model;
 }
 
 void Prisma::MeshIndirect::addAnimate(const unsigned int add)
@@ -128,7 +128,7 @@ void Prisma::MeshIndirect::removeAnimate(const unsigned int remove)
 
 void Prisma::MeshIndirect::updateModelsAnimate(int model)
 {
-	m_updateModelsAnimate.push_back(model);
+	m_updateModelsAnimate[model]=model;
 }
 
 void Prisma::MeshIndirect::renderMeshes() const
@@ -376,23 +376,24 @@ void Prisma::MeshIndirect::updateModels()
 {
 	for (const auto& model : m_updateModels)
 	{
-		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model]->parent()->
+		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model.first]->parent()->
 			finalMatrix();
-		auto ssbo = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model]->aabbData();
+		auto ssbo = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model.first]->aabbData();
 		Prisma::Mesh::AABBssbo aabb = {glm::vec4(ssbo.center, 1.0), glm::vec4(ssbo.extents, 1.0)};
-		m_ssboModel->modifyData(sizeof(glm::mat4) * model, sizeof(glm::mat4),
+		m_ssboModel->modifyData(sizeof(glm::mat4) * model.first, sizeof(glm::mat4),
 		                            glm::value_ptr(finalMatrix));
-		m_ssboAABB->modifyData(sizeof(Prisma::Mesh::AABBssbo) * model, sizeof(Prisma::Mesh::AABBssbo), &aabb);
+		m_ssboAABB->modifyData(sizeof(Prisma::Mesh::AABBssbo) * model.first, sizeof(Prisma::Mesh::AABBssbo), &aabb);
 	}
 
 	for (const auto& model : m_updateModelsAnimate)
 	{
-		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes[model]->parent()->
+		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes[model.first]->parent()->
 			finalMatrix();
-		m_ssboModelAnimation->modifyData(sizeof(glm::mat4) * model, sizeof(glm::mat4),
+		m_ssboModelAnimation->modifyData(sizeof(glm::mat4) * model.first, sizeof(glm::mat4),
 		                                 glm::value_ptr(finalMatrix));
 	}
 
+	m_updateModels.clear();
 	m_updateModelsAnimate.clear();
 }
 
