@@ -4,6 +4,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../../Engine/include/Components/CloudComponent.h"
 #include "../Components/include/TerrainComponent.h"
+#include "../Components/include/ShockwaveComponent.h"
 #include "../../Engine/src/GlobalData/GlobalData.cpp"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene}
@@ -26,6 +27,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	}
 
 	m_bboxMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "BBoxMesh"));
+	m_bboxMesh->addComponent(std::make_shared<ShockwaveComponent>());
 
 	m_sphereMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "SphereMesh"));
 
@@ -64,6 +66,15 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	{
 		m_isColliding = false;
 	};
+
+	auto transparentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Cube.002"));
+	auto transparentMesh1 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Cube.003"));
+
+	if (transparentMesh && transparentMesh1)
+	{
+		transparentMesh->material()->transparent(true);
+		transparentMesh1->material()->transparent(true);
+	}
 
 	m_physics->onCollisionStay(contact);
 	m_physics->onCollisionExit(noContact);
