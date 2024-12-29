@@ -187,6 +187,13 @@ void PlayerController::update()
 	target(m_animatedMesh->parent()->finalMatrix()[3]);
 	updateCamera();
 	updateKeyboard();
+	for (auto ball:m_balls)
+	{
+		auto shockwaveComponent = std::make_shared<ShockwaveComponent>();
+		shockwaveComponent->position(ball->finalMatrix()[3]);
+		ball->addComponent(shockwaveComponent);
+	}
+	m_balls.clear();
 }
 
 std::shared_ptr<Prisma::CallbackHandler> PlayerController::callback()
@@ -263,7 +270,12 @@ void PlayerController::createCamera()
 			m_basePosition[3] = position;
 
 			ball->parent()->matrix(m_basePosition);
+			auto ballCopy = ball;
 			physicsComponent->collisionData({Prisma::Physics::Collider::SPHERE_COLLIDER, 1.0, true});
+			physicsComponent->onCollisionEnter([ballCopy,this](const auto& body)
+				{
+					this->m_balls.push_back(ballCopy);
+				});
 			Prisma::Physics::getInstance().bodyInterface().AddImpulse(physicsComponent->physicsId(),
 			                                                          m_currentDirection * 5);
 		}
@@ -293,9 +305,6 @@ void PlayerController::createKeyboard()
 
 			if (m_animatedMesh->animator()->animation()->id() != m_jumpAnimation->id())
 			{
-				auto shockwaveComponent = std::make_shared<ShockwaveComponent>();
-				shockwaveComponent->position(m_bboxMesh->finalMatrix()[3]-glm::vec4(0,0.5,0,0));
-				m_bboxMesh->addComponent(shockwaveComponent);
 				Prisma::Physics::getInstance().bodyInterface().AddImpulse(id, Vec3(0, 5.0f, 0));
 			}
 			m_previousClick = Prisma::KEY_SPACE;

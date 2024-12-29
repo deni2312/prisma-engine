@@ -107,4 +107,6 @@ private:
 	Vec3 m_currentDirection = Vec3(0, 0, 1);
 
 	ParticleController m_particleController;
+
+	std::vector<std::shared_ptr<Prisma::Mesh>> m_balls;
 };

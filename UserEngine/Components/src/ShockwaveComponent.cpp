@@ -19,7 +19,6 @@ void ShockwaveComponent::update()
 	if (m_counter.duration_seconds()>1)
 	{
 		Prisma::Postprocess::getInstance().removePostProcess(m_shockwave);
-		parent()->removeComponent("Shockwave");
 	}
 }
 
