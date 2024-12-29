@@ -5,11 +5,12 @@ static std::shared_ptr<Prisma::Shader> shader=nullptr;
 
 Shockwave::Shockwave()
 {
-	shader = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/ShockwavePipeline/vertex.glsl",
-		"../../../UserEngine/Shaders/ShockwavePipeline/fragment.glsl");
 	if (!shader) {
-		shader->use();
+
+		shader = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/ShockwavePipeline/vertex.glsl",
+			"../../../UserEngine/Shaders/ShockwavePipeline/fragment.glsl");
 	}
+	shader->use();
 	m_bindlessPos = shader->getUniformPosition("screenTexture");
 	m_centerPos = shader->getUniformPosition("shockCenter");
 	m_timePos = shader->getUniformPosition("time");
