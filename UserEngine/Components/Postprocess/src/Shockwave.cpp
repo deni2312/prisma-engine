@@ -1,4 +1,5 @@
 #include "../include/Shockwave.h"
+#include "../../../../Engine/include/Helpers/PrismaRender.h"
 
 static std::shared_ptr<Prisma::Shader> shader;
 
@@ -12,4 +13,8 @@ Shockwave::Shockwave()
 
 void Shockwave::render(std::shared_ptr<Prisma::FBO> texture, std::shared_ptr<Prisma::FBO> raw)
 {
+	glClear(GL_DEPTH_BUFFER_BIT);
+	shader->use();
+	shader->setInt64(m_bindlessPos, texture->texture());
+	Prisma::PrismaRender::getInstance().renderQuad();
 }
