@@ -1,4 +1,5 @@
 #pragma once
+#include "../../../../Engine/include/Helpers/TimeCounter.h"
 #include "../../../../Engine/include/Postprocess/PostprocessEffect.h"
 
 class Shockwave : public Prisma::PostprocessEffect
@@ -12,5 +13,8 @@ public:
 
 private:
 	unsigned int m_bindlessPos;
+	unsigned int m_centerPos;
+	unsigned int m_timePos;
+	Prisma::TimeCounter m_counter;
 };
 

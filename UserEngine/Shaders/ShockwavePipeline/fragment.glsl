@@ -4,23 +4,44 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
+// Bindless texture for the screen
 layout(bindless_sampler) uniform sampler2D screenTexture;
+
+layout(std140, binding = 1) uniform MeshData
+{
+    mat4 view;
+    mat4 projection;
+};
+
+// Uniforms for the shockwave effect
+uniform vec3 shockCenter; // The center of the shockwave in 3D space
+uniform float time;         // Current time (controls the animation)
+uniform float shockSpeed=1;   // Speed at which the shockwave propagates
+uniform float shockWidth=1;   // Width of the shockwave ring
+uniform float distortionStrength=1; // Amount of distortion
 
 void main()
 {
-    // Sample the input texture
-    vec4 texColor = texture(screenTexture, TexCoords);
+    // Project the 3D shockwave center into screen space
+    vec4 clipSpacePos = projection * view * vec4(shockCenter, 1.0);
+    vec2 shockCenter = (clipSpacePos.xy / clipSpacePos.w) * 0.5 + 0.5; // NDC to screen coordinates
 
-    // Sepia tone conversion
-    float r = texColor.r * 0.393 + texColor.g * 0.769 + texColor.b * 0.189;
-    float g = texColor.r * 0.349 + texColor.g * 0.686 + texColor.b * 0.168;
-    float b = texColor.r * 0.272 + texColor.g * 0.534 + texColor.b * 0.131;
+    // Calculate distance from the shock center
+    float distance = length(TexCoords - shockCenter);
 
-    // Make sure values are clamped between 0 and 1
-    r = clamp(r, 0.0, 1.0);
-    g = clamp(g, 0.0, 1.0);
-    b = clamp(b, 0.0, 1.0);
+    // Compute the wave based on time
+    float wave = sin((distance - time * shockSpeed) * 3.14159 / shockWidth);
+
+    // Apply attenuation to the wave (only affecting a narrow ring)
+    float attenuation = smoothstep(0.0, 0.5, 1.0 - abs(wave));
+
+    // Calculate distortion offset
+    vec2 distortion = normalize(TexCoords - shockCenter) * wave * distortionStrength * attenuation;
+
+    // Sample the screen texture with distortion
+    vec2 distortedCoords = TexCoords + distortion;
+    vec4 color = texture(screenTexture, distortedCoords);
 
     // Output the final color
-    FragColor = vec4(r, g, b, texColor.a);
+    FragColor = color;
 }
