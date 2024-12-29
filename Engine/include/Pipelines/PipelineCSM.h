@@ -60,8 +60,6 @@ namespace Prisma
 
 		Settings m_settings;
 
-		std::shared_ptr<SSBO> m_ssbo = nullptr;
-
 		bool m_init = false;
 
 		glm::vec3 m_boundingBoxMin;
@@ -69,11 +67,5 @@ namespace Prisma
 		glm::vec3 m_boundingBoxMax;
 
 		std::vector<glm::mat4> m_lightMatrices;
-
-		uint64_t m_numCSM;
-
-		std::shared_ptr<Shader> m_shader = nullptr;
-
-		std::shared_ptr<Shader> m_shaderAnimation = nullptr;
 	};
 }
