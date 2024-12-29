@@ -8,9 +8,6 @@ void Prisma::ComponentsHandler::updateStart()
 		{
 			component->start();
 		}
-		if (!component) {
-			std::cout << component << std::endl;
-		}
 	}
 }
 
@@ -23,9 +20,6 @@ void Prisma::ComponentsHandler::updateUi()
 			component->ui();
 			component->isUi(true);
 		}
-		if (!component) {
-			std::cout << component << std::endl;
-		}
 	}
 }
 
@@ -36,9 +30,6 @@ void Prisma::ComponentsHandler::updateComponents()
 		if (component && component->isStart())
 		{
 			component->update();
-		}
-		if (!component) {
-			std::cout << component << std::endl;
 		}
 	}
 }
@@ -51,9 +42,6 @@ void Prisma::ComponentsHandler::updateRender(std::shared_ptr<FBO> fbo)
 		{
 			component->updateRender(fbo);
 		}
-		if (!component) {
-			std::cout << component << std::endl;
-		}
 	}
 }
 
@@ -65,9 +53,6 @@ void Prisma::ComponentsHandler::updatePreRender(std::shared_ptr<FBO> fbo)
 		{
 			component->updatePreRender(fbo);
 		}
-		if (!component) {
-			std::cout << component << std::endl;
-		}
 	}
 }
 
@@ -78,9 +63,6 @@ void Prisma::ComponentsHandler::updatePostRender(std::shared_ptr<FBO> fbo)
 		if (component && component->isStart())
 		{
 			component->updatePostRender(fbo);
-		}
-		if (!component) {
-			std::cout << component << std::endl;
 		}
 	}
 }
