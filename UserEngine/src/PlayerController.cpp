@@ -296,7 +296,7 @@ void PlayerController::createKeyboard()
 			if (m_animatedMesh->animator()->animation()->id() != m_jumpAnimation->id())
 			{
 				auto shockwaveComponent = std::make_shared<ShockwaveComponent>();
-				shockwaveComponent->position(m_bboxMesh->finalMatrix()[3]);
+				shockwaveComponent->position(m_bboxMesh->finalMatrix()[3]-glm::vec4(0,0.5,0,0));
 				m_bboxMesh->addComponent(shockwaveComponent);
 				auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);
 				Prisma::Physics::getInstance().bodyInterface().AddImpulse(id, Vec3(0, 5.0f, 0));

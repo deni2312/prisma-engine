@@ -23,7 +23,7 @@ void ShockwaveComponent::update()
 	}
 }
 
-void ShockwaveComponent::position(glm::vec3 position)
+void ShockwaveComponent::position(const glm::vec3& position)
 {
 	m_position = position;
 	m_shockwave->position(m_position);

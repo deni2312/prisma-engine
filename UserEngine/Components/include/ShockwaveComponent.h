@@ -7,7 +7,7 @@ public:
 	ShockwaveComponent();
 	void start() override;
 	void update() override;
-	void position(glm::vec3 position);
+	void position(const glm::vec3& position);
 private:
 	std::shared_ptr<Shockwave> m_shockwave;
 	Prisma::TimeCounter m_counter;
