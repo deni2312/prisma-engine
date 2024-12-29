@@ -5,7 +5,6 @@
 #include "../../Engine/include/Components/CloudComponent.h"
 #include "../Components/include/TerrainComponent.h"
 #include "../Components/include/ShockwaveComponent.h"
-#include "../../Engine/src/GlobalData/GlobalData.cpp"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene}
 {
@@ -259,7 +258,6 @@ void PlayerController::createCamera()
 
 			auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
 			ball->addComponent(physicsComponent);
-			auto front = normalize(m_front);
 			auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(Prisma::JfromVec3(m_currentDirection), 0.0f);
 
 			m_basePosition[3] = position;
@@ -298,7 +296,6 @@ void PlayerController::createKeyboard()
 				auto shockwaveComponent = std::make_shared<ShockwaveComponent>();
 				shockwaveComponent->position(m_bboxMesh->finalMatrix()[3]-glm::vec4(0,0.5,0,0));
 				m_bboxMesh->addComponent(shockwaveComponent);
-				auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);
 				Prisma::Physics::getInstance().bodyInterface().AddImpulse(id, Vec3(0, 5.0f, 0));
 			}
 			m_previousClick = Prisma::KEY_SPACE;
