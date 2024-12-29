@@ -30,6 +30,18 @@ void Prisma::Postprocess::addPostProcess(std::shared_ptr<PostprocessEffect> post
 	m_effects.push_back(postprocessEffect);
 }
 
+void Prisma::Postprocess::removePostProcess(std::shared_ptr<PostprocessEffect> postprocessEffect)
+{
+	// Find the effect in the m_effects list
+	auto it = std::find(m_effects.begin(), m_effects.end(), postprocessEffect);
+
+	// If found, remove it
+	if (it != m_effects.end())
+	{
+		m_effects.erase(it);
+	}
+}
+
 void Prisma::Postprocess::fbo(std::shared_ptr<FBO> fbo)
 {
 	m_fbo = fbo;

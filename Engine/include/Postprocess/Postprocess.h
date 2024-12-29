@@ -13,6 +13,7 @@ namespace Prisma
 
 		void render();
 		void addPostProcess(std::shared_ptr<PostprocessEffect> postprocessEffect);
+		void removePostProcess(std::shared_ptr<PostprocessEffect> postprocessEffect);
 
 		void fbo(std::shared_ptr<FBO> fbo);
 		void fboRaw(std::shared_ptr<FBO> fbo);
