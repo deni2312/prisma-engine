@@ -54,7 +54,7 @@ void Prisma::Component::isStart(bool start)
 	m_start = start;
 }
 
-bool Prisma::Component::isStart() const
+bool Prisma::Component::isStart() const 
 {
 	return m_start;
 }

@@ -10,6 +10,8 @@ public:
 
 	void render(std::shared_ptr<Prisma::FBO> texture, std::shared_ptr<Prisma::FBO> raw) override;
 
+	void position(glm::vec3 position);
+
 private:
 	unsigned int m_bindlessPos;
 	unsigned int m_centerPos;

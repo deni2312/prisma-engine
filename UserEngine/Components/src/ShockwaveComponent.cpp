@@ -4,12 +4,12 @@
 ShockwaveComponent::ShockwaveComponent()
 {
 	name("Shockwave");
+	m_shockwave = std::make_shared<Shockwave>();
 }
 
 void ShockwaveComponent::start()
 {
 	Prisma::Component::start();
-	m_shockwave = std::make_shared<Shockwave>();
 	Prisma::Postprocess::getInstance().addPostProcess(m_shockwave);
 	m_counter.start();
 }
@@ -21,4 +21,10 @@ void ShockwaveComponent::update()
 		Prisma::Postprocess::getInstance().removePostProcess(m_shockwave);
 		parent()->removeComponent("Shockwave");
 	}
+}
+
+void ShockwaveComponent::position(glm::vec3 position)
+{
+	m_position = position;
+	m_shockwave->position(m_position);
 }

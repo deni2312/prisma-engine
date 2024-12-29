@@ -27,7 +27,6 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	}
 
 	m_bboxMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "BBoxMesh"));
-	m_bboxMesh->addComponent(std::make_shared<ShockwaveComponent>());
 
 	m_sphereMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "SphereMesh"));
 
@@ -296,6 +295,9 @@ void PlayerController::createKeyboard()
 
 			if (m_animatedMesh->animator()->animation()->id() != m_jumpAnimation->id())
 			{
+				auto shockwaveComponent = std::make_shared<ShockwaveComponent>();
+				shockwaveComponent->position(m_bboxMesh->finalMatrix()[3]);
+				m_bboxMesh->addComponent(shockwaveComponent);
 				auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);
 				Prisma::Physics::getInstance().bodyInterface().AddImpulse(id, Vec3(0, 5.0f, 0));
 			}
