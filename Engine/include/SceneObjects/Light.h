@@ -84,19 +84,18 @@ namespace Prisma
 			return m_shadow;
 		}
 
-		void createShadow(unsigned int width, unsigned int height)
+		void createShadow(unsigned int width, unsigned int height,bool post=false)
 		{
 			if (std::is_same<LightType::LightOmni, T>())
 			{
-				m_shadow = std::make_shared<PipelineOmniShadow>(width, height);
-				m_type.shadowMap = m_shadow->id();
+				m_shadow = std::make_shared<PipelineOmniShadow>(width, height,post);
 			}
 
 			if (std::is_same<LightType::LightDir, T>())
 			{
-				m_shadow = std::make_shared<PipelineCSM>(width, height);
-				m_type.shadowMap = m_shadow->id();
+				m_shadow = std::make_shared<PipelineCSM>(width, height,post);
 			}
+			m_type.shadowMap = m_shadow->id();
 			CacheScene::getInstance().updateLights(true);
 		}
 

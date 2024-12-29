@@ -14,6 +14,8 @@ namespace Prisma
 		virtual float nearPlane() = 0;
 		virtual void nearPlane(float nearPlane) = 0;
 
+		virtual void init() = 0;
+
 		virtual void update(glm::vec3 lightPos) =0;
 
 		virtual ~GenericShadow()

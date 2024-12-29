@@ -24,7 +24,7 @@ namespace Prisma
 		// Serialize Transform to JSON
 		friend void to_json(json& j, const Transform& t)
 		{
-			j = json{{"t", std::vector<float>(value_ptr(t.transform), value_ptr(t.transform) + 16)}};
+			j = json{ {"t", std::vector<float>(value_ptr(t.transform), value_ptr(t.transform) + 16)} };
 		}
 
 		// Deserialize Transform from JSON
@@ -67,11 +67,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->diffuse()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"DIFFUSE", "NO_TEXTURE"});
+					textures.push_back({ "DIFFUSE", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"DIFFUSE", textureName});
+					textures.push_back({ "DIFFUSE", textureName });
 				}
 			}
 
@@ -81,11 +81,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->normal()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"NORMAL", "NO_TEXTURE"});
+					textures.push_back({ "NORMAL", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"NORMAL", textureName});
+					textures.push_back({ "NORMAL", textureName });
 				}
 			}
 
@@ -95,11 +95,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->roughness_metalness()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"ROUGHNESS", "NO_TEXTURE"});
+					textures.push_back({ "ROUGHNESS", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"ROUGHNESS", textureName});
+					textures.push_back({ "ROUGHNESS", textureName });
 				}
 			}
 
@@ -108,11 +108,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->specular()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"SPECULAR", "NO_TEXTURE"});
+					textures.push_back({ "SPECULAR", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"SPECULAR", textureName});
+					textures.push_back({ "SPECULAR", textureName });
 				}
 			}
 			if (mesh->material()->ambientOcclusion().size() > 0)
@@ -120,11 +120,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->ambientOcclusion()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
+					textures.push_back({ "AMBIENT_OCCLUSION", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"AMBIENT_OCCLUSION", textureName});
+					textures.push_back({ "AMBIENT_OCCLUSION", textureName });
 				}
 			}
 
@@ -147,30 +147,30 @@ namespace Prisma
 					{"texCoords", {vertex.texCoords.x, vertex.texCoords.y}},
 					{"ta", {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z}},
 					{"bi", {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z}}
-				});
+					});
 			}
 			std::vector<std::vector<float>> data;
 
 			for (const auto& vertex : mesh->animateVerticesData()->vertices)
 			{
-				data.push_back({vertex.position.x, vertex.position.y, vertex.position.z});
+				data.push_back({ vertex.position.x, vertex.position.y, vertex.position.z });
 
-				data.push_back({vertex.normal.x, vertex.normal.y, vertex.normal.z});
+				data.push_back({ vertex.normal.x, vertex.normal.y, vertex.normal.z });
 
-				data.push_back({vertex.texCoords.x, vertex.texCoords.y});
+				data.push_back({ vertex.texCoords.x, vertex.texCoords.y });
 
-				data.push_back({vertex.tangent.x, vertex.tangent.y, vertex.tangent.z});
+				data.push_back({ vertex.tangent.x, vertex.tangent.y, vertex.tangent.z });
 
-				data.push_back({vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z});
+				data.push_back({ vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z });
 
 				data.push_back({
 					static_cast<float>(vertex.m_BoneIDs[0]), static_cast<float>(vertex.m_BoneIDs[1]),
 					static_cast<float>(vertex.m_BoneIDs[2]), static_cast<float>(vertex.m_BoneIDs[3])
-				});
+					});
 
 				data.push_back({
 					vertex.m_Weights[0], vertex.m_Weights[1], vertex.m_Weights[2], vertex.m_Weights[3]
-				});
+					});
 			}
 
 			j["type"] = "MESH_ANIMATE";
@@ -202,11 +202,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->diffuse()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"DIFFUSE", "NO_TEXTURE"});
+					textures.push_back({ "DIFFUSE", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"DIFFUSE", textureName});
+					textures.push_back({ "DIFFUSE", textureName });
 				}
 			}
 
@@ -216,11 +216,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->normal()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"NORMAL", "NO_TEXTURE"});
+					textures.push_back({ "NORMAL", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"NORMAL", textureName});
+					textures.push_back({ "NORMAL", textureName });
 				}
 			}
 
@@ -230,11 +230,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->roughness_metalness()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"ROUGHNESS", "NO_TEXTURE"});
+					textures.push_back({ "ROUGHNESS", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"ROUGHNESS", textureName});
+					textures.push_back({ "ROUGHNESS", textureName });
 				}
 			}
 
@@ -243,11 +243,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->specular()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"SPECULAR", "NO_TEXTURE"});
+					textures.push_back({ "SPECULAR", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"SPECULAR", textureName});
+					textures.push_back({ "SPECULAR", textureName });
 				}
 			}
 			if (mesh->material()->ambientOcclusion().size() > 0)
@@ -255,11 +255,11 @@ namespace Prisma
 				std::string textureName = mesh->material()->ambientOcclusion()[0].name();
 				if (textureName == "")
 				{
-					textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
+					textures.push_back({ "AMBIENT_OCCLUSION", "NO_TEXTURE" });
 				}
 				else
 				{
-					textures.push_back({"AMBIENT_OCCLUSION", textureName});
+					textures.push_back({ "AMBIENT_OCCLUSION", textureName });
 				}
 			}
 
@@ -269,15 +269,15 @@ namespace Prisma
 
 			for (const auto& vertex : mesh->verticesData().vertices)
 			{
-				data.push_back({vertex.position.x, vertex.position.y, vertex.position.z});
+				data.push_back({ vertex.position.x, vertex.position.y, vertex.position.z });
 
-				data.push_back({vertex.normal.x, vertex.normal.y, vertex.normal.z});
+				data.push_back({ vertex.normal.x, vertex.normal.y, vertex.normal.z });
 
-				data.push_back({vertex.texCoords.x, vertex.texCoords.y});
+				data.push_back({ vertex.texCoords.x, vertex.texCoords.y });
 
-				data.push_back({vertex.tangent.x, vertex.tangent.y, vertex.tangent.z});
+				data.push_back({ vertex.tangent.x, vertex.tangent.y, vertex.tangent.z });
 
-				data.push_back({vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z});
+				data.push_back({ vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z });
 			}
 			j["type"] = "MESH";
 			j["vertices"] = data;
@@ -287,10 +287,10 @@ namespace Prisma
 		{
 			j["type"] = "LIGHT_DIRECTIONAL";
 			auto light = std::dynamic_pointer_cast<Light<LightType::LightDir>>(n);
-			j["direction"] = {light->type().direction.x, light->type().direction.y, light->type().direction.z};
-			j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
-			j["specular"] = {light->type().specular.x, light->type().specular.y, light->type().specular.z};
-			j["padding"] = {light->type().padding.x, light->type().padding.y};
+			j["direction"] = { light->type().direction.x, light->type().direction.y, light->type().direction.z };
+			j["diffuse"] = { light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z };
+			j["specular"] = { light->type().specular.x, light->type().specular.y, light->type().specular.z };
+			j["padding"] = { light->type().padding.x, light->type().padding.y };
 			j["shadow"] = light->hasShadow();
 			j["near"] = light->shadow()->nearPlane();
 			j["far"] = light->shadow()->farPlane();
@@ -299,9 +299,9 @@ namespace Prisma
 		{
 			j["type"] = "LIGHT_OMNI";
 			auto light = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(n);
-			j["position"] = {light->type().position.x, light->type().position.y, light->type().position.z};
-			j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
-			j["specular"] = {light->type().specular.x, light->type().specular.y, light->type().specular.z};
+			j["position"] = { light->type().position.x, light->type().position.y, light->type().position.z };
+			j["diffuse"] = { light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z };
+			j["specular"] = { light->type().specular.x, light->type().specular.y, light->type().specular.z };
 			j["radius"] = light->type().radius;
 			j["attenuation"] = {
 				light->type().attenuation.x, light->type().attenuation.y, light->type().attenuation.z,
@@ -315,7 +315,7 @@ namespace Prisma
 
 		for (auto& [name, component] : n->components())
 		{
-			componentJson.push_back({name, component->serialize()});
+			componentJson.push_back({ name, component->serialize() });
 		}
 
 		j["components"] = componentJson;
@@ -386,7 +386,7 @@ namespace Prisma
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
-							                                  "No diffuse texture " + mesh->name());
+								"No diffuse texture " + mesh->name());
 						}
 						else
 						{
@@ -404,7 +404,7 @@ namespace Prisma
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultNormal());
 							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
-							                                  "No normal texture " + mesh->name());
+								"No normal texture " + mesh->name());
 						}
 						else
 						{
@@ -422,7 +422,7 @@ namespace Prisma
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultBlack());
 							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
-							                                  "No roughness or metalness texture " + mesh->name());
+								"No roughness or metalness texture " + mesh->name());
 						}
 						else
 						{
@@ -440,7 +440,7 @@ namespace Prisma
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
-							                                  "No specular texture " + mesh->name());
+								"No specular texture " + mesh->name());
 						}
 						else
 						{
@@ -458,7 +458,7 @@ namespace Prisma
 						{
 							textures.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 							Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
-							                                  "No ambient occlusion texture " + mesh->name());
+								"No ambient occlusion texture " + mesh->name());
 						}
 						else
 						{
@@ -481,12 +481,12 @@ namespace Prisma
 
 				vertices[vertexIndex].position = glm::vec3(verticesJson[i][0], verticesJson[i][1], verticesJson[i][2]);
 				vertices[vertexIndex].normal = glm::vec3(verticesJson[i + 1][0], verticesJson[i + 1][1],
-				                                         verticesJson[i + 1][2]);
+					verticesJson[i + 1][2]);
 				vertices[vertexIndex].texCoords = glm::vec2(verticesJson[i + 2][0], verticesJson[i + 2][1]);
 				vertices[vertexIndex].tangent = glm::vec3(verticesJson[i + 3][0], verticesJson[i + 3][1],
-				                                          verticesJson[i + 3][2]);
+					verticesJson[i + 3][2]);
 				vertices[vertexIndex].bitangent = glm::vec3(verticesJson[i + 4][0], verticesJson[i + 4][1],
-				                                            verticesJson[i + 4][2]);
+					verticesJson[i + 4][2]);
 			}
 
 			auto verticesData = std::make_shared<Mesh::VerticesData>();
@@ -499,16 +499,16 @@ namespace Prisma
 			auto light = std::dynamic_pointer_cast<Light<LightType::LightDir>>(n);
 			LightType::LightDir lightType;
 			lightType.direction = glm::vec4(j.at("direction").get<std::vector<float>>().at(0),
-			                                j.at("direction").get<std::vector<float>>().at(1),
-			                                j.at("direction").get<std::vector<float>>().at(2), 1.0);
+				j.at("direction").get<std::vector<float>>().at(1),
+				j.at("direction").get<std::vector<float>>().at(2), 1.0);
 			lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0),
-			                              j.at("diffuse").get<std::vector<float>>().at(1),
-			                              j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
+				j.at("diffuse").get<std::vector<float>>().at(1),
+				j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
 			lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0),
-			                               j.at("specular").get<std::vector<float>>().at(1),
-			                               j.at("specular").get<std::vector<float>>().at(2), 1.0);
+				j.at("specular").get<std::vector<float>>().at(1),
+				j.at("specular").get<std::vector<float>>().at(2), 1.0);
 			lightType.padding = glm::vec2(j.at("padding").get<std::vector<float>>().at(0),
-			                              j.at("padding").get<std::vector<float>>().at(1));
+				j.at("padding").get<std::vector<float>>().at(1));
 			bool hasShadow = false;
 			j.at("shadow").get_to(hasShadow);
 
@@ -519,7 +519,7 @@ namespace Prisma
 
 			light->hasShadow(hasShadow);
 			light->type(lightType);
-			light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
+			light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR,true);
 			light->shadow()->nearPlane(nearPlane);
 			light->shadow()->farPlane(farPlane);
 		}
@@ -528,25 +528,25 @@ namespace Prisma
 			auto light = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(n);
 			LightType::LightOmni lightType;
 			lightType.position = glm::vec4(j.at("position").get<std::vector<float>>().at(0),
-			                               j.at("position").get<std::vector<float>>().at(1),
-			                               j.at("position").get<std::vector<float>>().at(2), 1.0);
+				j.at("position").get<std::vector<float>>().at(1),
+				j.at("position").get<std::vector<float>>().at(2), 1.0);
 			lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0),
-			                              j.at("diffuse").get<std::vector<float>>().at(1),
-			                              j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
+				j.at("diffuse").get<std::vector<float>>().at(1),
+				j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
 			lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0),
-			                               j.at("specular").get<std::vector<float>>().at(1),
-			                               j.at("specular").get<std::vector<float>>().at(2), 1.0);
+				j.at("specular").get<std::vector<float>>().at(1),
+				j.at("specular").get<std::vector<float>>().at(2), 1.0);
 			lightType.radius = j.at("radius").get<float>();
 			lightType.attenuation = glm::vec4(j.at("attenuation").get<std::vector<float>>().at(0),
-			                                  j.at("attenuation").get<std::vector<float>>().at(1),
-			                                  j.at("attenuation").get<std::vector<float>>().at(2),
-			                                  j.at("attenuation").get<std::vector<float>>().at(3));
+				j.at("attenuation").get<std::vector<float>>().at(1),
+				j.at("attenuation").get<std::vector<float>>().at(2),
+				j.at("attenuation").get<std::vector<float>>().at(3));
 			lightType.farPlane.x = j.at("farPlane").get<float>();
 			bool hasShadow = false;
 			j.at("shadow").get_to(hasShadow);
 			light->hasShadow(hasShadow);
 			light->type(lightType);
-			light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
+			light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI,true);
 		}
 		else if (type == "MESH_ANIMATE")
 		{
@@ -653,12 +653,12 @@ namespace Prisma
 
 				vertices[vertexIndex].position = glm::vec3(verticesJson[i][0], verticesJson[i][1], verticesJson[i][2]);
 				vertices[vertexIndex].normal = glm::vec3(verticesJson[i + 1][0], verticesJson[i + 1][1],
-				                                         verticesJson[i + 1][2]);
+					verticesJson[i + 1][2]);
 				vertices[vertexIndex].texCoords = glm::vec2(verticesJson[i + 2][0], verticesJson[i + 2][1]);
 				vertices[vertexIndex].tangent = glm::vec3(verticesJson[i + 3][0], verticesJson[i + 3][1],
-				                                          verticesJson[i + 3][2]);
+					verticesJson[i + 3][2]);
 				vertices[vertexIndex].bitangent = glm::vec3(verticesJson[i + 4][0], verticesJson[i + 4][1],
-				                                            verticesJson[i + 4][2]);
+					verticesJson[i + 4][2]);
 				vertices[vertexIndex].m_BoneIDs[0] = verticesJson[i + 5][0];
 				vertices[vertexIndex].m_BoneIDs[1] = verticesJson[i + 5][1];
 				vertices[vertexIndex].m_BoneIDs[2] = verticesJson[i + 5][2];

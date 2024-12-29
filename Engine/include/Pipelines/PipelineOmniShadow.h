@@ -9,11 +9,11 @@ namespace Prisma
 	class PipelineOmniShadow : public GenericShadow
 	{
 	public:
-		PipelineOmniShadow(unsigned int width, unsigned int height);
+		PipelineOmniShadow(unsigned int width, unsigned int height,bool post=false);
 		uint64_t id() override;
 		float farPlane() override;
 		void farPlane(float farPlane) override;
-
+		void init() override;
 		float nearPlane() override;
 		void nearPlane(float nearPlane) override;
 

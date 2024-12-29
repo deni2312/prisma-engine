@@ -9,53 +9,13 @@
 static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
 static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
 
-Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int height): m_width{width},
+Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int height, bool post): m_width{width},
 	m_height{height}
 {
-	if (!m_shader)
+	if (!post)
 	{
-		m_shader = std::make_shared<Shader>("../../../Engine/Shaders/OmniShadowPipeline/vertex.glsl",
-		                                    "../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl",
-		                                    "../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl");
-		m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_omni.glsl",
-		                                             "../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl",
-		                                             "../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl");
+		init();
 	}
-
-	glGenFramebuffers(1, &m_fbo);
-	// create depth cubemap texture
-	unsigned int depthCubemap;
-	glGenTextures(1, &depthCubemap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-	for (unsigned int i = 0; i < 6; ++i)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0,
-		             GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	// attach depth texture as FBO's depth buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	m_shader->use();
-	m_farPlanePos = m_shader->getUniformPosition("far_plane");
-	m_lightPos = m_shader->getUniformPosition("lightPos");
-	for (unsigned int i = 0; i < 6; ++i)
-		m_shadowPosition.push_back(m_shader->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
-
-	m_shaderAnimation->use();
-	m_farPlanePosAnimation = m_shaderAnimation->getUniformPosition("far_plane");
-	m_lightPosAnimation = m_shaderAnimation->getUniformPosition("lightPos");
-	for (unsigned int i = 0; i < 6; ++i)
-		m_shadowPositionAnimation.push_back(
-			m_shaderAnimation->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
-	m_id = glGetTextureHandleARB(depthCubemap);
-	glMakeTextureHandleResidentARB(m_id);
 }
 
 void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
@@ -118,6 +78,54 @@ float Prisma::PipelineOmniShadow::farPlane()
 void Prisma::PipelineOmniShadow::farPlane(float farPlane)
 {
 	m_farPlane = farPlane;
+}
+
+void Prisma::PipelineOmniShadow::init()
+{
+	if (!m_shader)
+	{
+		m_shader = std::make_shared<Shader>("../../../Engine/Shaders/OmniShadowPipeline/vertex.glsl",
+			"../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl",
+			"../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl");
+		m_shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_omni.glsl",
+			"../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl",
+			"../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl");
+	}
+
+	glGenFramebuffers(1, &m_fbo);
+	// create depth cubemap texture
+	unsigned int depthCubemap;
+	glGenTextures(1, &depthCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+	for (unsigned int i = 0; i < 6; ++i)
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0,
+			GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	// attach depth texture as FBO's depth buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	m_shader->use();
+	m_farPlanePos = m_shader->getUniformPosition("far_plane");
+	m_lightPos = m_shader->getUniformPosition("lightPos");
+	for (unsigned int i = 0; i < 6; ++i)
+		m_shadowPosition.push_back(m_shader->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
+
+	m_shaderAnimation->use();
+	m_farPlanePosAnimation = m_shaderAnimation->getUniformPosition("far_plane");
+	m_lightPosAnimation = m_shaderAnimation->getUniformPosition("lightPos");
+	for (unsigned int i = 0; i < 6; ++i)
+		m_shadowPositionAnimation.push_back(
+			m_shaderAnimation->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
+	m_id = glGetTextureHandleARB(depthCubemap);
+	glMakeTextureHandleResidentARB(m_id);
 }
 
 float Prisma::PipelineOmniShadow::nearPlane()

@@ -28,6 +28,7 @@ namespace Prisma
 
 	private:
 		std::string getFileName(const std::string& filePath);
+		void postLoad(std::shared_ptr<Prisma::Node> node);
 		std::atomic_bool m_finish;
 		std::shared_ptr<Node> m_newRootNode = nullptr;
 

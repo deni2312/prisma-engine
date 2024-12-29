@@ -13,11 +13,11 @@ namespace Prisma
 	class PipelineCSM : public GenericShadow
 	{
 	public:
-		PipelineCSM(unsigned int width, unsigned int height);
+		PipelineCSM(unsigned int width, unsigned int height,bool post=false);
 		uint64_t id() override;
 		float farPlane() override;
 		void farPlane(float farPlane) override;
-
+		void init() override;
 		float nearPlane() override;
 		void nearPlane(float nearPlane) override;
 
@@ -28,8 +28,6 @@ namespace Prisma
 		void update(glm::vec3 lightPos) override;
 
 		std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
-
-		std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view);
 
 		glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane);
 
@@ -62,6 +60,8 @@ namespace Prisma
 
 		Settings m_settings;
 
+		std::shared_ptr<SSBO> m_ssbo = nullptr;
+
 		bool m_init = false;
 
 		glm::vec3 m_boundingBoxMin;
@@ -69,5 +69,11 @@ namespace Prisma
 		glm::vec3 m_boundingBoxMax;
 
 		std::vector<glm::mat4> m_lightMatrices;
+
+		uint64_t m_numCSM;
+
+		std::shared_ptr<Shader> m_shader = nullptr;
+
+		std::shared_ptr<Shader> m_shaderAnimation = nullptr;
 	};
 }
