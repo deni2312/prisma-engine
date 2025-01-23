@@ -58,7 +58,6 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
 	glClearColor(bkColor[0], bkColor[1], bkColor[2], bkColor[3]);
 
 	shader->use();
-	shader->setMat4(m_modelLocation, model);
 
 	MeshIndirect::getInstance().renderMeshesCopy();
 
