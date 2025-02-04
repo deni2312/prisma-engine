@@ -22,7 +22,7 @@ namespace Prisma
 
 		unsigned int m_maxSize = 0;
 
-		const int m_nextSize = 65;
+		const int m_nextSize = 25;
 
 		int64_t m_current = -1;
 		std::shared_ptr<Prisma::Node> m_parent = nullptr;

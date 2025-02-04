@@ -61,6 +61,12 @@ void Prisma::SettingsTab::drawSettings()
 
 		ImGui::Checkbox("PHYSICS DEBUG", &debugPhysics);
 
+		bool sortTransparencies = Prisma::GlobalData::getInstance().transparencies();
+
+		ImGui::Checkbox("SORT TRANSPARENCIES", &sortTransparencies);
+
+		Prisma::GlobalData::getInstance().transparencies(sortTransparencies);
+
 		Physics::getInstance().debug(debugPhysics);
 
 		Engine::getInstance().engineSettings(settings);

@@ -56,13 +56,13 @@ namespace Prisma
 
 		void defaultNormal(const Texture& defaultNormal);
 
-		void addGlobalTexture(std::pair<unsigned int, std::string> texture) {
-			m_textures.push_back(texture);
-		}
+		void transparencies(bool transparencies);
 
-		const std::vector<std::pair<unsigned int,std::string>>& globalTextures() {
-			return m_textures;
-		}
+		bool transparencies() const;
+
+		void addGlobalTexture(std::pair<unsigned int, std::string> texture);
+
+		const std::vector<std::pair<unsigned int,std::string>>& globalTextures();
 
 	private:
 		std::shared_ptr<Scene> m_currentGlobalScene;
@@ -74,5 +74,6 @@ namespace Prisma
 		Texture m_defaultBlack;
 		Texture m_defaultWhite;
 		Texture m_defaultNormal;
+		bool m_transparencies = true;
 	};
 }

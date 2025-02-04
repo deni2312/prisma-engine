@@ -14,11 +14,14 @@ Prisma::ImGuiTabs::ImGuiTabs()
 
 void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera)
 {
-	if (root&& m_index<m_maxSize)
+	if (root)
 	{
 		// Iterate through children of the current node
 		for (const auto& child : root->children())
 		{
+			if (m_index >= m_maxSize) {
+				break;
+			}
 			m_index++;
 			// Add spacing based on depth
 			ImGui::Indent(depth * 20.0f); // Indent by 20 pixels per depth level

@@ -34,9 +34,11 @@ void Prisma::MeshIndirect::sort() const
 		m_shaderCopy->setInt(m_indicesCopyLocation, 1);
 		m_shaderCopy->dispatchCompute({ meshes.size(), 1, 1 });
 		m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-		m_shader->use();
-		m_shader->dispatchCompute({1, 1, 1});
-		m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		if (Prisma::GlobalData::getInstance().transparencies()) {
+			m_shader->use();
+			m_shader->dispatchCompute({ 1, 1, 1 });
+			m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		}
 		m_shaderCopy->use();
 		m_shaderCopy->setInt(m_indicesCopyLocation, 2);
 		m_shaderCopy->dispatchCompute({ meshes.size(), 1, 1 });

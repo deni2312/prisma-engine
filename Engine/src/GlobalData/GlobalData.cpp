@@ -79,3 +79,19 @@ void Prisma::GlobalData::defaultNormal(const Texture& defaultNormal)
 {
 	m_defaultNormal = defaultNormal;
 }
+
+void Prisma::GlobalData::transparencies(bool transparencies) {
+	m_transparencies = transparencies;
+}
+
+bool Prisma::GlobalData::transparencies() const {
+	return m_transparencies;
+}
+
+void Prisma::GlobalData::addGlobalTexture(std::pair<unsigned int, std::string> texture) {
+	m_textures.push_back(texture);
+}
+
+const std::vector<std::pair<unsigned int, std::string>>& Prisma::GlobalData::globalTextures() {
+	return m_textures;
+}
