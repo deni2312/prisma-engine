@@ -33,7 +33,7 @@ void UserEngine::start()
 
 void UserEngine::update()
 {
-	m_player->update();
+	//m_player->update();
 }
 
 void UserEngine::finish()
@@ -43,5 +43,6 @@ void UserEngine::finish()
 
 std::shared_ptr<Prisma::CallbackHandler> UserEngine::callbacks()
 {
-	return m_player->callback();
+	auto callback = std::make_shared<Prisma::CallbackHandler>();
+	return callback;
 }
