@@ -32,6 +32,14 @@ namespace Prisma
 			float padding = 0;
 			float radius = 1;
 		};
+
+		struct LightArea
+		{
+			glm::vec4 position = glm::vec4(0, 0, 0, 1);
+			glm::vec4 diffuse = glm::vec4(1, 1, 1, 0);
+			uint64_t shadowMap = 0;
+			glm::vec2 padding;
+		};
 	};
 
 	template <typename T>

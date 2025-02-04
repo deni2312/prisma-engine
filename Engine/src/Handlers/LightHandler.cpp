@@ -16,6 +16,9 @@ Prisma::LightHandler::LightHandler()
 	m_dirCSM = std::make_shared<SSBO>(9);
 	m_dirCSM->resize(16 * sizeof(float) + sizeof(glm::vec4));
 
+	m_areaLights = std::make_shared<SSBO>(18);
+	m_areaLights->resize(MAX_AREA_LIGHTS * sizeof(LightType::LightArea) + sizeof(glm::vec4));
+
 	glm::vec3 size = ClusterCalculation::grids();
 
 	m_clusterCalculation = std::make_shared<ClusterCalculation>(size.x * size.y * size.z);
@@ -67,6 +70,41 @@ void Prisma::LightHandler::updateDirectional()
 	                        value_ptr(dirLength));
 	m_dirLights->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(LightType::LightDir),
 	                        m_dataDirectional->lights.data());
+}
+
+void Prisma::LightHandler::updateArea()
+{
+	const auto& scene = Prisma::GlobalData::getInstance().currentGlobalScene();
+
+	m_dataArea = std::make_shared<SSBODataArea>();
+	int numVisible = 0;
+	for (int i = 0; i < scene->areaLights.size(); i++)
+	{
+		const auto& light = scene->areaLights[i];
+		if (light->visible())
+		{
+			m_dataArea->lights.push_back(light->type());
+			glm::mat4 areaMatrix;
+			if (light->parent())
+			{
+				areaMatrix = light->parent()->finalMatrix();
+			}
+			else
+			{
+				areaMatrix = light->matrix();
+			}
+			m_dataArea->lights[i].position = areaMatrix * m_dataArea->lights[i].position;
+			numVisible++;
+		}
+	}
+
+	glm::ivec4 areaLength;
+	areaLength.r = numVisible;
+	m_areaLights->modifyData(0, sizeof(glm::vec4),
+		value_ptr(areaLength));
+
+	m_areaLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightArea),
+		m_dataArea->lights.data());
 }
 
 void Prisma::LightHandler::updateOmni()
@@ -147,10 +185,11 @@ void Prisma::LightHandler::update()
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
 		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus())
 	{
-		if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS)
+		if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS && scene->areaLights.size() < MAX_AREA_LIGHTS)
 		{
 			updateDirectional();
 			updateOmni();
+			updateArea();
 		}
 		else
 		{
@@ -187,4 +226,14 @@ std::shared_ptr<Prisma::LightHandler::SSBODataOmni> Prisma::LightHandler::dataOm
 std::shared_ptr<Prisma::SSBO> Prisma::LightHandler::ssboOmni() const
 {
 	return m_omniLights;
+}
+
+std::shared_ptr<Prisma::LightHandler::SSBODataArea> Prisma::LightHandler::dataArea() const
+{
+	return m_dataArea;
+}
+
+std::shared_ptr<Prisma::SSBO> Prisma::LightHandler::ssboArea() const
+{
+	return m_areaLights;
 }

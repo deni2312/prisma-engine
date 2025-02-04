@@ -45,6 +45,11 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         }
     }
 
+
+    for (int i = 0; i < lenArea.r; i++) {
+
+    }
+
     // Locating which cluster this fragment is part of
     uint zTile = uint((log(abs(vec3(view * vec4(FragPos, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
     vec2 tileSize = screenDimensions.xy / gridSize.xy;

@@ -22,14 +22,24 @@ namespace Prisma
 			std::vector<LightType::LightOmni> lights;
 		};
 
+		struct SSBODataArea
+		{
+			glm::ivec4 size;
+			std::vector<LightType::LightArea> lights;
+		};
+
 		std::shared_ptr<SSBODataDirectional> m_dataDirectional;
 		std::shared_ptr<SSBODataOmni> m_dataOmni;
+		std::shared_ptr<SSBODataArea> m_dataArea;
 
 		std::shared_ptr<SSBO> m_omniLights;
 		std::shared_ptr<SSBO> m_dirLights;
 		std::shared_ptr<SSBO> m_dirCSM;
+		std::shared_ptr<SSBO> m_areaLights;
 
 		void updateDirectional();
+
+		void updateArea();
 
 		void updateOmni();
 
@@ -50,6 +60,8 @@ namespace Prisma
 		std::shared_ptr<SSBO> ssboDirectional() const;
 		std::shared_ptr<SSBODataOmni> dataOmni() const;
 		std::shared_ptr<SSBO> ssboOmni() const;
+		std::shared_ptr<SSBODataArea> dataArea() const;
+		std::shared_ptr<SSBO> ssboArea() const;
 
 		std::shared_ptr<ClusterCalculation> m_clusterCalculation;
 

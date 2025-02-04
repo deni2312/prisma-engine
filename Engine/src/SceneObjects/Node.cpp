@@ -85,6 +85,11 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 			Prisma::VectorHelper::getInstance().remove<Sprite>(
 				Prisma::GlobalData::getInstance().currentGlobalScene()->sprites, uuid);
 		}
+		else if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(m_children[index]))
+		{
+			Prisma::VectorHelper::getInstance().remove<Light<LightType::LightArea>>(
+				Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights, uuid);
+		}
 
 		auto components = m_children[index]->components();
 		for (const auto& component : components)
@@ -237,6 +242,17 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 		{
 			Prisma::GlobalData::getInstance().currentGlobalScene()->sprites.push_back(
 				std::dynamic_pointer_cast<Sprite>(child));
+		}
+	}
+
+	if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(child))
+	{
+		if (nodeHelper.findUUID<Light<LightType::LightArea>>(
+			Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights, child->uuid()) < 0)
+		{
+			Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights.push_back(
+				std::dynamic_pointer_cast<Light<LightType::LightArea>>(child));
+			CacheScene::getInstance().updateLights(true);
 		}
 	}
 

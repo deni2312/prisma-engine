@@ -18,6 +18,13 @@ struct OmniData {
     float radius;
 };
 
+struct AreaData
+{
+    vec4 position;
+    vec4 diffuse;
+    vec4 padding;
+};
+
 
 layout(std430, binding = 2) buffer Directional
 {
@@ -30,6 +37,12 @@ layout(std430, binding = 3) buffer Omni
 {
     ivec4 lenOmni;
     OmniData omniData[];
+};
+
+layout(std430, binding = 18) buffer Area
+{
+    ivec4 lenArea;
+    AreaData areaData[];
 };
 
 struct Cluster

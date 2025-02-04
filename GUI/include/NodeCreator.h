@@ -18,6 +18,8 @@ namespace Prisma
 
 		static std::shared_ptr<Prisma::Node> createDirectional();
 
+		static std::shared_ptr<Prisma::Node> createArea();
+
 	private:
 		static std::shared_ptr<Node> createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,
 		                                        const std::string& name);

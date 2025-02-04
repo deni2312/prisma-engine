@@ -199,6 +199,17 @@ std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createDirectional()
 	return light;
 }
 
+std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createArea()
+{
+	auto parent = std::make_shared<Prisma::Node>();
+	parent->name("ParentArea_" + std::to_string(parent->uuid()));
+	auto light = std::make_shared<Light<LightType::LightArea>>();
+	light->name("Area" + std::to_string(light->uuid()));
+	parent->addChild(light);
+	Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parent);
+	return light;
+}
+
 std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,
                                                               const std::string& name)
 {

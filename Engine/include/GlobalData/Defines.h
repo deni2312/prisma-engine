@@ -4,6 +4,7 @@
 
 constexpr int MAX_DIR_LIGHTS = 1024;
 constexpr int MAX_OMNI_LIGHTS = 1024;
+constexpr int MAX_AREA_LIGHTS = 1024;
 constexpr int MAX_CLUSTER_SIZE = 100;
 constexpr int MAX_BONE_INFLUENCE = 4;
 constexpr int MAX_BONES = 128;

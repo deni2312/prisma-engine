@@ -18,6 +18,7 @@ namespace Prisma
 	{
 		struct LightDir;
 		struct LightOmni;
+		struct LightArea;
 	}
 
 	struct SceneHandler
@@ -49,6 +50,7 @@ namespace Prisma
 		std::vector<std::shared_ptr<AnimatedMesh>> animateMeshes;
 		std::vector<std::shared_ptr<Light<LightType::LightDir>>> dirLights;
 		std::vector<std::shared_ptr<Light<LightType::LightOmni>>> omniLights;
+		std::vector<std::shared_ptr<Light<LightType::LightArea>>> areaLights;
 		std::vector<std::shared_ptr<Sprite>> sprites;
 		std::string name;
 	};
