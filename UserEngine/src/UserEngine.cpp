@@ -24,7 +24,6 @@ void UserEngine::start()
 			                                       Prisma::PipelineSkybox::getInstance().
 				                                       texture(texture, true);
 			                                       m_player = std::make_shared<PlayerController>(scene);
-
 			                                       m_player->scene(scene);
 
 		                                       }
