@@ -9,11 +9,12 @@
 
 Prisma::ImGuiTabs::ImGuiTabs()
 {
+	m_maxSize = m_nextSize;
 }
 
 void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera)
 {
-	if (root)
+	if (root&& m_index<m_maxSize)
 	{
 		// Iterate through children of the current node
 		for (const auto& child : root->children())
@@ -66,6 +67,12 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCa
 	m_current = -1;
 	m_parent = nullptr;
 	showCurrentNodes(root, depth, camera);
+	if (m_index >= m_maxSize) {
+		if (ImGui::Button("Load next")) {
+			m_maxSize = m_maxSize + m_nextSize;
+		}
+	}
+	m_index = 0;
 
 
 	if (m_current && m_parent && m_current == m_parent->uuid())
@@ -91,5 +98,4 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCa
 			m_parent = nullptr;
 		}
 	}
-	m_index = 0;
 }

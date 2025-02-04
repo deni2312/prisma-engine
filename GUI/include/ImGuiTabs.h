@@ -20,6 +20,10 @@ namespace Prisma
 
 		unsigned long int m_index = 0;
 
+		unsigned int m_maxSize = 0;
+
+		const int m_nextSize = 65;
+
 		int64_t m_current = -1;
 		std::shared_ptr<Prisma::Node> m_parent = nullptr;
 	};
