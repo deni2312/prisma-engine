@@ -45,9 +45,44 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         }
     }
 
+    float dotNV = clamp(dot(N, V), 0.0f, 1.0f);
 
+    // use roughness and sqrt(1-cos_theta) to sample M_texture
+    vec2 uv = vec2(roughness, sqrt(1.0f - dotNV));
+    uv = uv*LUT_SCALE + LUT_BIAS;
+
+    // get 4 parameters for inverse_M
+    vec4 t1 = texture(textureM, uv);
+
+    // Get 2 parameters for Fresnel calculation
+    vec4 t2 = texture(textureLut, uv);
+
+    mat3 Minv = mat3(
+        vec3(t1.x, 0, t1.y),
+        vec3(  0,  1,    0),
+        vec3(t1.z, 0, t1.w)
+    );
+    vec3 mSpecular = ToLinear(vec3(0.23f, 0.23f, 0.23f)); // mDiffuse
     for (int i = 0; i < lenArea.r; i++) {
+        		// Evaluate LTC shading
 
+        vec3 position[4];
+        position[0]=vec3(areaData[i].position[0]);
+        position[1]=vec3(areaData[i].position[1]);
+        position[2]=vec3(areaData[i].position[2]);
+        position[3]=vec3(areaData[i].position[3]);
+
+
+		vec3 diffuse = LTC_Evaluate(N, V, FragPos, mat3(1), position, false);
+		vec3 specular = LTC_Evaluate(N, V, FragPos, Minv, position, false);
+
+		// GGX BRDF shadowing and Fresnel
+		// t2.x: shadowedF90 (F90 normally it should be 1.0)
+		// t2.y: Smith function for Geometric Attenuation Term, it is dot(V or L, H).
+		specular *= mSpecular*t2.x + (1.0f - mSpecular) * t2.y;
+
+		// Add contribution
+		Lo += vec3(areaData[i].diffuse) * (specular + albedo * diffuse);
     }
 
     // Locating which cluster this fragment is part of

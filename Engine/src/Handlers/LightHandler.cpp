@@ -16,7 +16,7 @@ Prisma::LightHandler::LightHandler()
 	m_dirCSM = std::make_shared<SSBO>(9);
 	m_dirCSM->resize(16 * sizeof(float) + sizeof(glm::vec4));
 
-	m_areaLights = std::make_shared<SSBO>(18);
+	m_areaLights = std::make_shared<SSBO>(31);
 	m_areaLights->resize(MAX_AREA_LIGHTS * sizeof(LightType::LightArea) + sizeof(glm::vec4));
 
 	glm::vec3 size = ClusterCalculation::grids();
@@ -106,7 +106,6 @@ void Prisma::LightHandler::updateArea()
 	areaLength.r = numVisible;
 	m_areaLights->modifyData(0, sizeof(glm::vec4),
 		value_ptr(areaLength));
-
 	m_areaLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightArea),
 		m_dataArea->lights.data());
 }

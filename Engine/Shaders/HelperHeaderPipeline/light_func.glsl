@@ -22,7 +22,8 @@ struct AreaData
 {
     vec4 position[4];
     vec4 diffuse;
-    vec4 padding;
+    sampler2D depthMap;
+    vec2 padding;
 };
 
 
@@ -39,7 +40,7 @@ layout(std430, binding = 3) buffer Omni
     OmniData omniData[];
 };
 
-layout(std430, binding = 18) buffer Area
+layout(std430, binding = 31) buffer Area
 {
     ivec4 lenArea;
     AreaData areaData[];
