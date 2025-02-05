@@ -37,6 +37,8 @@ layout(std140, binding = 3) uniform FragmentData
     vec2 prefilterMap;
     vec2 brdfLUT;
     vec2 paddingFragment;
+    vec2 textureLut;
+    vec2 textureM;
 };
 
 struct MaterialData {

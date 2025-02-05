@@ -33,6 +33,8 @@ namespace Prisma
 			uint64_t prefilterPos;
 			uint64_t lutPos;
 			glm::vec2 padding;
+			uint64_t textureLut;
+			uint64_t textureM;
 		};
 
 		std::shared_ptr<UBOData> data() const;

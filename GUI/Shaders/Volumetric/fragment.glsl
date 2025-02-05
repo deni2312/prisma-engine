@@ -34,6 +34,8 @@ layout(std140, binding = 3) uniform FragmentData
     samplerCube prefilterMap;
     sampler2D brdfLUT;
     vec2 paddingFragment;
+    sampler2D textureLut;
+    sampler2D textureM;
 };
 
 layout(std430, binding = 2) buffer Directional

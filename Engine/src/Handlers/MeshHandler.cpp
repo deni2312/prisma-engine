@@ -5,6 +5,7 @@
 #include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../../include/Pipelines/PipelinePrefilter.h"
 #include "../../include/Pipelines/PipelineLUT.h"
+#include "../../include/Helpers/AreaHandler.h"
 #include <glm/gtx/string_cast.hpp>
 
 void Prisma::MeshHandler::updateCamera()
@@ -28,6 +29,8 @@ void Prisma::MeshHandler::updateFragment()
 	m_fragment.prefilterPos = PipelinePrefilter::getInstance().id();
 	m_fragment.lutPos = PipelineLUT::getInstance().id();
 	m_fragment.viewPos = glm::vec4(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->position(), 1.0f);
+	m_fragment.textureLut = Prisma::AreaHandler::getInstance().idLut();
+	m_fragment.textureM = Prisma::AreaHandler::getInstance().idM();
 	m_uboFragment->modifyData(0, sizeof(UBOFragment), &m_fragment);
 }
 
