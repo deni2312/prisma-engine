@@ -114,6 +114,28 @@ void Prisma::LightInfo::showSelectedOmni(Light<LightType::LightOmni>* lightData,
 	ImGui::End();
 }
 
+void Prisma::LightInfo::showSelectedArea(Light<LightType::LightArea>* lightData, const NodeViewer::NodeData& meshData)
+{
+	auto type = lightData->type();
+	float windowWidth = meshData.translate * meshData.width / 2.0f;
+	auto nextRight = [&](float pos)
+		{
+			ImGui::SetNextWindowPos(ImVec2(windowWidth + meshData.scale * meshData.width, pos));
+			ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
+		};
+	nextRight(meshData.initOffset);
+	ImGui::Begin(lightData->name().c_str(), nullptr,
+		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
+	if (ImGui::InputFloat3("Diffuse ", value_ptr(type.diffuse)))
+	{
+		lightData->type(type);
+	}
+
+
+	ImGui::End();
+}
+
 glm::vec3 Prisma::LightInfo::directionToEulerAngles(const glm::vec3& direction)
 {
 	// Compute yaw (heading) angle

@@ -16,6 +16,7 @@ namespace Prisma
 	public:
 		void showSelectedDir(Light<LightType::LightDir>* lightData, const NodeViewer::NodeData& meshData);
 		void showSelectedOmni(Light<LightType::LightOmni>* lightData, const NodeViewer::NodeData& meshData);
+		void showSelectedArea(Light<LightType::LightArea>* lightData, const NodeViewer::NodeData& meshData);
 
 	private:
 		glm::vec3 directionToEulerAngles(const glm::vec3& direction);
