@@ -20,7 +20,7 @@ struct OmniData {
 
 struct AreaData
 {
-    vec4 position;
+    vec4 position[4];
     vec4 diffuse;
     vec4 padding;
 };
