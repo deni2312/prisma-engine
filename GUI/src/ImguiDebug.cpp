@@ -274,6 +274,7 @@ void Prisma::ImguiDebug::drawGui()
 			auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());
 			auto currentSelectLightDir = dynamic_cast<Light<LightType::LightDir>*>(m_imguiCamera.currentSelect());
 			auto currentSelectLightOmni = dynamic_cast<Light<LightType::LightOmni>*>(m_imguiCamera.currentSelect());
+			auto currentSelectLightArea = dynamic_cast<Light<LightType::LightArea>*>(m_imguiCamera.currentSelect());
 			NodeViewer::NodeData nodeData;
 			nodeData.camera = m_camera;
 			nodeData.projection = m_model * m_projection;
@@ -295,6 +296,10 @@ void Prisma::ImguiDebug::drawGui()
 			else if (currentSelectLightOmni)
 			{
 				lightInfo.showSelectedOmni(currentSelectLightOmni, nodeData);
+			}
+			else if (currentSelectLightArea)
+			{
+				lightInfo.showSelectedArea(currentSelectLightArea, nodeData);
 			}
 			else
 			{

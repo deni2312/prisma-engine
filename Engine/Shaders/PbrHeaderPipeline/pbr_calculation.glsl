@@ -62,7 +62,6 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         vec3(  0,  1,    0),
         vec3(t1.z, 0, t1.w)
     );
-    vec3 mSpecular = ToLinear(vec3(0.23f, 0.23f, 0.23f)); // mDiffuse
     for (int i = 0; i < lenArea.r; i++) {
         		// Evaluate LTC shading
 
@@ -72,9 +71,9 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         position[2]=vec3(areaData[i].position[2]);
         position[3]=vec3(areaData[i].position[3]);
 
-
-		vec3 diffuse = LTC_Evaluate(N, V, FragPos, mat3(1), position, false);
-		vec3 specular = LTC_Evaluate(N, V, FragPos, Minv, position, false);
+        vec3 mSpecular = ToLinear(vec3(areaData[i].diffuse)); // mDiffuse
+		vec3 diffuse = LTC_Evaluate(N, V, FragPos, mat3(1), position, true);
+		vec3 specular = LTC_Evaluate(N, V, FragPos, Minv, position, true);
 
 		// GGX BRDF shadowing and Fresnel
 		// t2.x: shadowedF90 (F90 normally it should be 1.0)
