@@ -150,6 +150,7 @@ glm::vec4 Prisma::MaterialComponent::color() const {
 void Prisma::MaterialComponent::plain(bool plain)
 {
 	m_plain = plain;
+	CacheScene::getInstance().updateStatus(true);
 }
 
 bool Prisma::MaterialComponent::plain()
