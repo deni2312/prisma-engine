@@ -129,6 +129,16 @@ void Prisma::LightInfo::showSelectedArea(Light<LightType::LightArea>* lightData,
 	if (ImGui::InputFloat3("Diffuse ", value_ptr(type.diffuse)))
 	{
 		lightData->type(type);
+		if (meshData.node && meshData.node->parent()) {
+			for (auto mesh : meshData.node->parent()->children()) {
+				auto isMesh = std::dynamic_pointer_cast<Mesh>(mesh);
+				if (isMesh) {
+					auto material = isMesh->material();
+					material->color(type.diffuse);
+					isMesh->material(material);
+				}
+			}
+		}
 	}
 	bool doubleSide = type.doubleSide;
 	if (ImGui::Checkbox("Double side", &doubleSide)) 
