@@ -36,10 +36,10 @@ namespace Prisma
 		struct LightArea
 		{
 			glm::vec4 position[4] = {
-				glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f),  // Bottom-left
 				glm::vec4(1.0f, -1.0f, 0.0f, 1.0f),  // Bottom-right
+				glm::vec4(1.0f,  1.0f, 0.0f, 1.0f),   // Top-right
 				glm::vec4(-1.0f,  1.0f, 0.0f, 1.0f),  // Top-left
-				glm::vec4(1.0f,  1.0f, 0.0f, 1.0f)   // Top-right
+				glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f)  // Bottom-left
 			};
 			glm::vec4 diffuse = glm::vec4(1, 1, 1, 0);
 			uint64_t shadowMap = 0;
