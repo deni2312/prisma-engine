@@ -96,7 +96,7 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 		{
 			component.second->destroy();
 		}
-
+		m_children[index]->parent(nullptr);
 		m_children.erase(m_children.begin() + index);
 
 		CacheScene::getInstance().updateSizes(true);

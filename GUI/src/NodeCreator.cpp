@@ -281,17 +281,20 @@ std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createArea()
 	verticesData->vertices = vertices;
 	verticesData->indices = indices;
 
-	auto planeArea=createMesh(verticesData, "PlaneArea");
+	auto newInstance = std::make_shared<Mesh>();
+	newInstance->loadModel(verticesData);
+	newInstance->matrix(glm::mat4(1.0));
+	newInstance->name("PlaneMesh" + std::to_string(newInstance->uuid()));
 	auto whiteMaterial = getEmptyMaterial();
 	whiteMaterial->color(glm::vec4(1.0));
 	whiteMaterial->plain(true);
-	std::dynamic_pointer_cast<Mesh>(planeArea->children()[0])->material(whiteMaterial);
+	newInstance->material(whiteMaterial);
 	auto parent = std::make_shared<Prisma::Node>();
 	parent->name("ParentArea_" + std::to_string(parent->uuid()));
 	auto light = std::make_shared<Light<LightType::LightArea>>();
 	light->name("Area" + std::to_string(light->uuid()));
 	parent->addChild(light);
-	parent->addChild(planeArea);
+	parent->addChild(newInstance);
 	Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parent);
 	return light;
 }
