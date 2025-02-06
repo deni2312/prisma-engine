@@ -261,20 +261,22 @@ void Prisma::NodeViewer::drawGizmo(const NodeData& nodeData)
 {
 	ImGuiIO& io = ImGui::GetIO();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-	glm::mat4 model = nodeData.node->finalMatrix();
-	auto inverseParent = glm::mat4(1.0f);
-	if (nodeData.node->parent())
-	{
-		inverseParent = inverse(nodeData.node->parent()->finalMatrix());
+	if (nodeData.node) {
+		glm::mat4 model = nodeData.node->finalMatrix();
+		auto inverseParent = glm::mat4(1.0f);
+		if (nodeData.node->parent())
+		{
+			inverseParent = inverse(nodeData.node->parent()->finalMatrix());
+		}
+
+		Manipulate(value_ptr(nodeData.camera->matrix()), value_ptr(nodeData.projection), mCurrentGizmoOperation,
+			mCurrentGizmoMode, value_ptr(model));
+
+		ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),
+			value_ptr(m_scale));
+
+		nodeData.node->matrix(inverseParent * model);
 	}
-
-	Manipulate(value_ptr(nodeData.camera->matrix()), value_ptr(nodeData.projection), mCurrentGizmoOperation,
-	           mCurrentGizmoMode, value_ptr(model));
-
-	ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),
-	                                      value_ptr(m_scale));
-
-	nodeData.node->matrix(inverseParent * model);
 }
 
 void Prisma::NodeViewer::hideChilds(Node* root, bool hide)
