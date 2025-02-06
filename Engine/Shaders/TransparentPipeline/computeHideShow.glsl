@@ -27,6 +27,7 @@ struct MaterialData {
     vec2 ambient_occlusion;
     int transparent;
     float padding;
+    vec4 materialColor;
 };
 
 layout(std430, binding = 0) buffer Material
@@ -34,9 +35,16 @@ layout(std430, binding = 0) buffer Material
     MaterialData materialData[];
 };
 
-layout(std430, binding = 24) buffer Status
-{
-    uint status[];
+
+struct StatusData{
+    uint status;
+    bool plainColor;
+    vec2 padding;
+};
+
+
+layout(std430, binding = 24) buffer Status {
+    StatusData status[];
 };
 
 uniform bool transparent;
@@ -51,7 +59,7 @@ layout(binding = 0) uniform atomic_uint counterSize;
 void main() {
     uint index = gl_GlobalInvocationID.x;
     int size=int(atomicCounter(counterSize));
-    if (status[index] > 0 && index<size) {
+    if (status[index].status > 0 && index<size) {
         if (transparent) {
             if (materialData[ids[index]].transparent==1) {
                 instanceData[index].instanceCount = 1;

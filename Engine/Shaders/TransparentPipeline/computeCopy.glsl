@@ -51,19 +51,26 @@ struct MaterialData {
     vec2 ambient_occlusion;
     bool transparent;
     float padding;
+    vec4 materialColor;
 };
 
 layout(std430, binding = 0) buffer Material {
     MaterialData materialData[];
 };
 
+struct StatusData{
+    uint status;
+    bool plainColor;
+    vec2 padding;
+};
+
 
 layout(std430, binding = 24) buffer Status {
-    uint status[];
+    StatusData status[];
 };
 
 layout(std430, binding = 25) buffer StatusCopy {
-    uint statusCopy[];
+    StatusData statusCopy[];
 };
 
 struct AABB {

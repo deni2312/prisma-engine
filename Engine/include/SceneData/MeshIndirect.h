@@ -116,6 +116,12 @@ namespace Prisma
 			float aspect;
 		};
 
+		struct StatusData {
+			unsigned int status;
+			bool plainMaterial;
+			glm::vec2 padding;
+		};
+
 		std::shared_ptr<Prisma::SSBO> m_ssboCamera;
 
 		unsigned int m_sizeAtomic;

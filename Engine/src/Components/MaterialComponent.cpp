@@ -133,7 +133,26 @@ void Prisma::MaterialComponent::transparent(bool transparent)
 	m_transparent = transparent;
 }
 
-bool Prisma::MaterialComponent::transparent()
+bool Prisma::MaterialComponent::transparent() const
 {
 	return m_transparent;
+}
+
+void Prisma::MaterialComponent::color(glm::vec4 color) {
+	m_color = color;
+	CacheScene::getInstance().updateTextures(true);
+}
+
+glm::vec4 Prisma::MaterialComponent::color() const {
+	return m_color;
+}
+
+void Prisma::MaterialComponent::plain(bool plain)
+{
+	m_plain = plain;
+}
+
+bool Prisma::MaterialComponent::plain()
+{
+	return m_plain;
 }

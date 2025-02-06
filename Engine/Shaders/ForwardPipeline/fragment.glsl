@@ -26,7 +26,7 @@ void main()
     currentMaterial = materialData[drawId];
     #endif
 
-    vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords);
+    vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords)+currentMaterial.materialColor;
 
     vec3 albedo = diffuseTexture.rgb;
     if (diffuseTexture.a < 0.1) {

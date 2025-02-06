@@ -21,7 +21,7 @@ namespace Prisma
 		static std::shared_ptr<Prisma::Node> createArea();
 
 	private:
-		static std::shared_ptr<Node> createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,
+		static std::shared_ptr<Prisma::Node> createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,
 		                                        const std::string& name);
 
 		static std::shared_ptr<MaterialComponent> getEmptyMaterial();

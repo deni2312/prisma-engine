@@ -19,6 +19,7 @@ struct MaterialData {
     sampler2D ambient_occlusion;
     int transparent;
     float padding;
+    vec4 materialColor;
 };
 
 MaterialData currentMaterial;
@@ -61,7 +62,7 @@ void main()
 #endif
 
 
-    vec4 albedoTexture = texture(currentMaterial.diffuse, TexCoords);
+    vec4 albedoTexture = texture(currentMaterial.diffuse, TexCoords)+currentMaterial.materialColor;
 
     if (albedoTexture.a < 0.1) {
         discard;

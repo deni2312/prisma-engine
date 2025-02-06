@@ -14,6 +14,7 @@ namespace Prisma
 		uint64_t ambient_occlusion;
 		int transparent;
 		float padding;
+		glm::vec4 color = glm::vec4(0);
 	};
 
 	class MaterialComponent : public Component
@@ -53,7 +54,15 @@ namespace Prisma
 
 		void transparent(bool transparent);
 
-		bool transparent();
+		bool transparent() const;
+
+		void color(glm::vec4 color);
+
+		glm::vec4 color() const;
+
+		void plain(bool plain);
+
+		bool plain();
 
 	private:
 		std::vector<Texture> m_diffuse;
@@ -67,6 +76,10 @@ namespace Prisma
 		std::shared_ptr<std::string> m_metalness_roughnessName;
 		std::shared_ptr<std::string> m_specularName;
 		std::shared_ptr<std::string> m_ambientOcclusionName;
+
+		glm::vec4 m_color=glm::vec4(0);
+
+		bool m_plain = false;
 
 		bool m_transparent = false;
 

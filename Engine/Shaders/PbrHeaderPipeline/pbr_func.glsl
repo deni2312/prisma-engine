@@ -8,6 +8,7 @@ struct MaterialData {
     sampler2D ambient_occlusion;
     int transparent;
     float padding;
+    vec4 materialColor;
 };
 
 

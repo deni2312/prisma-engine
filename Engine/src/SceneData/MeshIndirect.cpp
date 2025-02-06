@@ -231,7 +231,7 @@ void Prisma::MeshIndirect::updateSize()
 			m_materialData.push_back({
 				material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
 				material->material()->roughness_metalness()[0].id(), material->material()->specular()[0].id(),
-				material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0
+				material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
 			});
 		}
 		m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
@@ -471,7 +471,7 @@ void Prisma::MeshIndirect::updateAnimation()
 			m_materialDataAnimation.push_back({
 				material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
 				material->material()->roughness_metalness()[0].id(), material->material()->specular()[0].id(),
-				material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0
+				material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
 			});
 		}
 		m_ssboMaterialAnimation->resize(sizeof(MaterialData) * (m_materialDataAnimation.size()));
@@ -627,7 +627,7 @@ void Prisma::MeshIndirect::updateTextureSize()
 		m_materialData.push_back({
 			material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
 			material->material()->roughness_metalness()[0].id(), material->material()->specular()[0].id(),
-			material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0
+			material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
 		});
 	}
 	m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
@@ -640,7 +640,7 @@ void Prisma::MeshIndirect::updateTextureSize()
 		m_materialDataAnimation.push_back({
 			material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
 			material->material()->roughness_metalness()[0].id(), material->material()->specular()[0].id(),
-			material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0
+			material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
 		});
 	}
 	m_ssboMaterialAnimation->resize(sizeof(MaterialData) * (m_materialDataAnimation.size()));
@@ -653,14 +653,14 @@ void Prisma::MeshIndirect::updateStatus() const
 	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 	if (!meshes.empty())
 	{
-		std::vector<unsigned int> status;
+		std::vector<StatusData> status;
 		for (const auto& mesh : meshes)
 		{
-			status.push_back(mesh->visible());
+			status.push_back({ mesh->visible(),mesh->material()->plain(),glm::vec2(0.0)});
 		}
-		m_ssboStatusCopy->resize(sizeof(unsigned int) * status.size());
-		m_ssboStatusCopy->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
-		m_ssboStatus->resize(sizeof(unsigned int) * status.size());
+		m_ssboStatusCopy->resize(sizeof(StatusData) * status.size());
+		m_ssboStatusCopy->modifyData(0, sizeof(StatusData) * status.size(), status.data());
+		m_ssboStatus->resize(sizeof(StatusData) * status.size());
 		updateStatusShader();
 	}
 	auto animateMeshes = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
@@ -668,13 +668,13 @@ void Prisma::MeshIndirect::updateStatus() const
 
 	if (!animateMeshes.empty())
 	{
-		std::vector<unsigned int> status;
+		std::vector<StatusData> status;
 		for (const auto& animateMesh : animateMeshes)
 		{
-			status.push_back(animateMesh->visible());
+			status.push_back({ animateMesh->visible(),animateMesh->material()->plain(),glm::vec2(0.0) });
 		}
-		m_ssboStatusAnimation->resize(sizeof(unsigned int) * status.size());
-		m_ssboStatusAnimation->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
+		m_ssboStatusAnimation->resize(sizeof(StatusData) * status.size());
+		m_ssboStatusAnimation->modifyData(0, sizeof(StatusData) * status.size(), status.data());
 		updateStatusShader();
 	}
 }

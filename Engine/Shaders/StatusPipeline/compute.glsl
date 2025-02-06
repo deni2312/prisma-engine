@@ -14,9 +14,15 @@ layout(std430, binding = 22) buffer DrawElementsIndirectMeshCopy
     InstanceData instanceDataCopy[];
 };
 
-layout(std430, binding = 25) buffer StatusCopy
-{
-    uint statusCopy[];
+struct StatusData{
+    uint status;
+    bool plainColor;
+    vec2 padding;
+};
+
+
+layout(std430, binding = 25) buffer StatusCopy {
+    StatusData statusCopy[];
 };
 
 layout(std430, binding = 19) buffer DrawElementsIndirectMeshAnimation
@@ -26,7 +32,7 @@ layout(std430, binding = 19) buffer DrawElementsIndirectMeshAnimation
 
 layout(std430, binding = 26) buffer StatusAnimation
 {
-    uint statusAnimation[];
+    StatusData statusAnimation[];
 };
 
 uniform int size;
@@ -34,9 +40,9 @@ uniform int size;
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if (index < size) {
-        instanceDataCopy[index].instanceCount = statusCopy[index];
+        instanceDataCopy[index].instanceCount = statusCopy[index].status;
     }
     else {
-        instanceDataAnimation[index-size].instanceCount = statusAnimation[index-size];
+        instanceDataAnimation[index-size].instanceCount = statusAnimation[index-size].status;
     }
 }
