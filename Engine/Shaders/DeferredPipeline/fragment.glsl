@@ -78,7 +78,7 @@ void main()
     if (albedoTexture.a < 0.1) {
         discard;
     }
-    if(statusCopy[drawId].plainColor>1){
+    if(statusCopy[drawId].plainColor>0){
         gAmbient.b= float(statusCopy[drawId].plainColor);
         gAlbedoSpec.rgb = vec3(currentMaterial.materialColor);
     }else{

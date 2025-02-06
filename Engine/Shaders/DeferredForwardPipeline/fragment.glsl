@@ -24,7 +24,7 @@ void main()
 {
     currentMaterial = materialData[drawId];
 
-    if(statusCopy[drawId].plainColor>1){
+    if(statusCopy[drawId].plainColor>0){
         FragColor=currentMaterial.materialColor;
     }else{
     

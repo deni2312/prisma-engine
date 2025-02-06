@@ -205,40 +205,40 @@ std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createArea()
 
 	std::vector<Prisma::Mesh::Vertex> vertices = {
 		// Front face
-		{{-1, -1, 0.00001}, {0, 0, 1}, {0, 0}}, // Bottom-left
-		{{1, -1, 0.00001}, {0, 0, 1}, {1, 0}}, // Bottom-right
-		{{1, 1, 0.00001}, {0, 0, 1}, {1, 1}}, // Top-right
-		{{-1, 1, 0.00001}, {0, 0, 1}, {0, 1}}, // Top-left
+		{{-1, -1, 0.0001}, {0, 0, 1}, {0, 0}}, // Bottom-left
+		{{1, -1, 0.0001}, {0, 0, 1}, {1, 0}}, // Bottom-right
+		{{1, 1, 0.0001}, {0, 0, 1}, {1, 1}}, // Top-right
+		{{-1, 1, 0.0001}, {0, 0, 1}, {0, 1}}, // Top-left
 
 		// Back face
-		{{1, -1, -0.00001}, {0, 0, -1}, {0, 0}}, // Bottom-left
-		{{-1, -1, -0.00001}, {0, 0, -1}, {1, 0}}, // Bottom-right
-		{{-1, 1, -0.00001}, {0, 0, -1}, {1, 1}}, // Top-right
-		{{1, 1, -0.00001}, {0, 0, -1}, {0, 1}}, // Top-left
+		{{1, -1, -0.0001}, {0, 0, -1}, {0, 0}}, // Bottom-left
+		{{-1, -1, -0.0001}, {0, 0, -1}, {1, 0}}, // Bottom-right
+		{{-1, 1, -0.0001}, {0, 0, -1}, {1, 1}}, // Top-right
+		{{1, 1, -0.0001}, {0, 0, -1}, {0, 1}}, // Top-left
 
 		// Left face
-		{{-1, -1, -0.00001}, {-1, 0, 0}, {0, 0}}, // Bottom-left
-		{{-1, -1, 0.00001}, {-1, 0, 0}, {1, 0}}, // Bottom-right
-		{{-1, 1, 0.00001}, {-1, 0, 0}, {1, 1}}, // Top-right
-		{{-1, 1, -0.00001}, {-1, 0, 0}, {0, 1}}, // Top-left
+		{{-1, -1, -0.0001}, {-1, 0, 0}, {0, 0}}, // Bottom-left
+		{{-1, -1, 0.0001}, {-1, 0, 0}, {1, 0}}, // Bottom-right
+		{{-1, 1, 0.0001}, {-1, 0, 0}, {1, 1}}, // Top-right
+		{{-1, 1, -0.0001}, {-1, 0, 0}, {0, 1}}, // Top-left
 
 		// Right face
-		{{1, -1, 0.00001}, {1, 0, 0}, {0, 0}}, // Bottom-left
-		{{1, -1, -0.00001}, {1, 0, 0}, {1, 0}}, // Bottom-right
-		{{1, 1, -0.00001}, {1, 0, 0}, {1, 1}}, // Top-right
-		{{1, 1, 0.00001}, {1, 0, 0}, {0, 1}}, // Top-left
+		{{1, -1, 0.0001}, {1, 0, 0}, {0, 0}}, // Bottom-left
+		{{1, -1, -0.0001}, {1, 0, 0}, {1, 0}}, // Bottom-right
+		{{1, 1, -0.0001}, {1, 0, 0}, {1, 1}}, // Top-right
+		{{1, 1, 0.0001}, {1, 0, 0}, {0, 1}}, // Top-left
 
 		// Top face
-		{{-1, 1, 0.00001}, {0, 1, 0}, {0, 0}}, // Bottom-left
-		{{1, 1, 0.00001}, {0, 1, 0}, {1, 0}}, // Bottom-right
-		{{1, 1, -0.00001}, {0, 1, 0}, {1, 1}}, // Top-right
-		{{-1, 1, -0.00001}, {0, 1, 0}, {0, 1}}, // Top-left
+		{{-1, 1, 0.0001}, {0, 1, 0}, {0, 0}}, // Bottom-left
+		{{1, 1, 0.0001}, {0, 1, 0}, {1, 0}}, // Bottom-right
+		{{1, 1, -0.0001}, {0, 1, 0}, {1, 1}}, // Top-right
+		{{-1, 1, -0.0001}, {0, 1, 0}, {0, 1}}, // Top-left
 
 		// Bottom face
-		{{-1, -1, -0.00001}, {0, -1, 0}, {0, 0}}, // Bottom-left
-		{{1, -1, -0.00001}, {0, -1, 0}, {1, 0}}, // Bottom-right
-		{{1, -1, 0.00001}, {0, -1, 0}, {1, 1}}, // Top-right
-		{{-1, -1, 0.00001}, {0, -1, 0}, {0, 1}} // Top-left
+		{{-1, -1, -0.0001}, {0, -1, 0}, {0, 0}}, // Bottom-left
+		{{1, -1, -0.0001}, {0, -1, 0}, {1, 0}}, // Bottom-right
+		{{1, -1, 0.0001}, {0, -1, 0}, {1, 1}}, // Top-right
+		{{-1, -1, 0.0001}, {0, -1, 0}, {0, 1}} // Top-left
 	};
 
 	// Define indices for each face (two triangles per face)
@@ -284,6 +284,7 @@ std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createArea()
 	auto planeArea=createMesh(verticesData, "PlaneArea");
 	auto whiteMaterial = getEmptyMaterial();
 	whiteMaterial->color(glm::vec4(1.0));
+	whiteMaterial->plain(true);
 	std::dynamic_pointer_cast<Mesh>(planeArea->children()[0])->material(whiteMaterial);
 	auto parent = std::make_shared<Prisma::Node>();
 	parent->name("ParentArea_" + std::to_string(parent->uuid()));
