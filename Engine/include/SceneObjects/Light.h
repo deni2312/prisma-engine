@@ -43,7 +43,8 @@ namespace Prisma
 			};
 			glm::vec4 diffuse = glm::vec4(1, 1, 1, 0);
 			uint64_t shadowMap = 0;
-			glm::vec2 padding;
+			int doubleSide = 1;
+			float padding;
 		};
 	};
 

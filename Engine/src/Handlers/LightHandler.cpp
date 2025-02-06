@@ -93,10 +93,9 @@ void Prisma::LightHandler::updateArea()
 			{
 				areaMatrix = light->matrix();
 			}
-			m_dataArea->lights[i].position[0] = areaMatrix * m_dataArea->lights[i].position[0];
-			m_dataArea->lights[i].position[1] = areaMatrix * m_dataArea->lights[i].position[1];
-			m_dataArea->lights[i].position[2] = areaMatrix * m_dataArea->lights[i].position[2];
-			m_dataArea->lights[i].position[3] = areaMatrix * m_dataArea->lights[i].position[3];
+			for (int j = 0; j < 4; j++) {
+				m_dataArea->lights[i].position[j] = areaMatrix * m_dataArea->lights[i].position[j];
+			}
 
 			numVisible++;
 		}

@@ -126,12 +126,16 @@ void Prisma::LightInfo::showSelectedArea(Light<LightType::LightArea>* lightData,
 	nextRight(meshData.initOffset);
 	ImGui::Begin(lightData->name().c_str(), nullptr,
 		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
 	if (ImGui::InputFloat3("Diffuse ", value_ptr(type.diffuse)))
 	{
 		lightData->type(type);
 	}
-
+	bool doubleSide = type.doubleSide;
+	if (ImGui::Checkbox("Double side", &doubleSide)) 
+	{
+		type.doubleSide = doubleSide;
+		lightData->type(type);
+	}
 
 	ImGui::End();
 }

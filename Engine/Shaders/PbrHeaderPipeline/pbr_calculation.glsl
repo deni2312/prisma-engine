@@ -72,8 +72,9 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         position[3]=vec3(areaData[i].position[3]);
 
         vec3 mSpecular = ToLinear(vec3(areaData[i].diffuse)); // mDiffuse
-		vec3 diffuse = LTC_Evaluate(N, V, FragPos, mat3(1), position, true);
-		vec3 specular = LTC_Evaluate(N, V, FragPos, Minv, position, true);
+        bool doubleSide=areaData[i].doubleSide>0;
+		vec3 diffuse = LTC_Evaluate(N, V, FragPos, mat3(1), position, doubleSide);
+		vec3 specular = LTC_Evaluate(N, V, FragPos, Minv, position, doubleSide);
 
 		// GGX BRDF shadowing and Fresnel
 		// t2.x: shadowedF90 (F90 normally it should be 1.0)

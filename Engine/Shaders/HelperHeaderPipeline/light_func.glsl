@@ -23,7 +23,8 @@ struct AreaData
     vec4 position[4];
     vec4 diffuse;
     sampler2D depthMap;
-    vec2 padding;
+    int doubleSide;
+    float padding;
 };
 
 
