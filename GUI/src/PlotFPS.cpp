@@ -60,5 +60,5 @@ void Prisma::PlotFPS::ShowFPSPlot()
 	auto max = m_max + m_max / 20;
 
 	Sparkline("FPS Data", m_fpsBuffer.data(), m_fpsBuffer.size(), min, max, 0, ImPlot::GetColormapColor(1),
-	          ImVec2(300, 200));
+	          ImVec2(250, 150));
 }
