@@ -118,7 +118,7 @@ namespace Prisma
 
 		struct StatusData {
 			unsigned int status;
-			bool plainMaterial;
+			int plainMaterial;
 			glm::vec2 padding;
 		};
 

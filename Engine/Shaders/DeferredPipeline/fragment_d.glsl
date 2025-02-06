@@ -25,14 +25,16 @@ layout(std140, binding = 1) uniform MeshData
 void main()
 {             
     // retrieve data from gbuffer
-    vec3 FragPos = texture(gPosition, TexCoords).rgb;
-    vec3 N = texture(gNormal, TexCoords).rgb;
-    vec3 albedo = texture(gAlbedo, TexCoords).rgb;
     vec4 aoSpecular = texture(gAmbient, TexCoords);
-    float roughness = texture(gNormal, TexCoords).a;
-    float metallic = texture(gAlbedo, TexCoords).a;
-
-    vec3 pbrColor = pbrCalculation(FragPos, N, albedo, aoSpecular,roughness,metallic);
-
-    FragColor = vec4(pbrColor, 1.0);
+    vec3 albedo = texture(gAlbedo, TexCoords).rgb;
+    if(int(aoSpecular.b)>0){
+        FragColor = vec4(albedo, 1.0);
+    }else{
+        vec3 FragPos = texture(gPosition, TexCoords).rgb;
+        vec3 N = texture(gNormal, TexCoords).rgb;
+        float roughness = texture(gNormal, TexCoords).a;
+        float metallic = texture(gAlbedo, TexCoords).a;
+        vec3 pbrColor = pbrCalculation(FragPos, N, albedo, aoSpecular,roughness,metallic);
+        FragColor = vec4(pbrColor, 1.0);
+    }
 }

@@ -23,6 +23,16 @@ layout(std140, binding = 3) uniform FragmentData
     sampler2D textureM;
 };
 
+struct StatusData{
+    uint status;
+    int plainColor;
+    vec2 padding;
+};
+
+layout(std430, binding = 25) buffer StatusCopy {
+    StatusData statusCopy[];
+};
+
 
 const float LUT_SIZE  = 64.0; // ltc_texture size
 const float LUT_SCALE = (LUT_SIZE - 1.0)/LUT_SIZE;

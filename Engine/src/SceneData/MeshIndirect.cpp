@@ -239,14 +239,14 @@ void Prisma::MeshIndirect::updateSize()
 
 		m_ssboIndices->resize(sizeof(glm::ivec4) * meshes.size());
 
-		std::vector<unsigned int> status;
+		std::vector<StatusData> status;
 		for (const auto& mesh : meshes)
 		{
-			status.push_back(mesh->visible());
+			status.push_back({ mesh->visible(),mesh->material()->plain(),glm::vec2(0) });
 		}
-		m_ssboStatusCopy->resize(sizeof(unsigned int) * status.size());
-		m_ssboStatusCopy->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
-		m_ssboStatus->resize(sizeof(unsigned int) * status.size());
+		m_ssboStatusCopy->resize(sizeof(StatusData) * status.size());
+		m_ssboStatusCopy->modifyData(0, sizeof(StatusData) * status.size(), status.data());
+		m_ssboStatus->resize(sizeof(StatusData) * status.size());
 
 		//GENERATE DATA TO SEND INDIRECT
 		m_vao->bind();
@@ -478,13 +478,13 @@ void Prisma::MeshIndirect::updateAnimation()
 		m_ssboMaterialAnimation->modifyData(0, sizeof(MaterialData) * m_materialDataAnimation.size(),
 		                                    m_materialDataAnimation.data());
 
-		std::vector<unsigned int> status;
+		std::vector<StatusData> status;
 		for (const auto& mesh : meshes)
 		{
-			status.push_back(mesh->visible());
+			status.push_back({ mesh->visible(),mesh->material()->plain(),glm::vec2(0) });
 		}
-		m_ssboStatusAnimation->resize(sizeof(unsigned int) * status.size());
-		m_ssboStatusAnimation->modifyData(0, sizeof(unsigned int) * status.size(), status.data());
+		m_ssboStatusAnimation->resize(sizeof(StatusData) * status.size());
+		m_ssboStatusAnimation->modifyData(0, sizeof(StatusData) * status.size(), status.data());
 
 		//GENERATE DATA TO SEND INDIRECT
 		m_vaoAnimation->bind();

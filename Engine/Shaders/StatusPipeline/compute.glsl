@@ -16,7 +16,7 @@ layout(std430, binding = 22) buffer DrawElementsIndirectMeshCopy
 
 struct StatusData{
     uint status;
-    bool plainColor;
+    int plainColor;
     vec2 padding;
 };
 

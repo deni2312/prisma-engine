@@ -25,24 +25,28 @@ void main()
     #else
     currentMaterial = materialData[drawId];
     #endif
+    if(statusCopy[drawId].plainColor>1){
+        FragColor=currentMaterial.materialColor;
+    }else{
+    
+        vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords)+currentMaterial.materialColor;
 
-    vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords)+currentMaterial.materialColor;
+        vec3 albedo = diffuseTexture.rgb;
+        if (diffuseTexture.a < 0.1) {
+            discard;
+        }
+        vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
+        float metallic = roughnessMetalnessTexture.b;
+        float roughness = roughnessMetalnessTexture.g;
+        float specularMap = texture(currentMaterial.specularMap, TexCoords).r;
+        float ao = texture(currentMaterial.ambient_occlusion, TexCoords).r;
 
-    vec3 albedo = diffuseTexture.rgb;
-    if (diffuseTexture.a < 0.1) {
-        discard;
+        vec4 aoSpecular=vec4(specularMap, ao, 0, 0);
+
+        vec3 N = getNormalFromMap();
+
+        vec3 pbrColor = pbrCalculation(FragPos, N, albedo, aoSpecular,roughness,metallic);
+        FragColor = vec4(pbrColor, diffuseTexture.a);
     }
-    vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
-    float metallic = roughnessMetalnessTexture.b;
-    float roughness = roughnessMetalnessTexture.g;
-    float specularMap = texture(currentMaterial.specularMap, TexCoords).r;
-    float ao = texture(currentMaterial.ambient_occlusion, TexCoords).r;
 
-    vec4 aoSpecular=vec4(specularMap, ao, 0, 0);
-
-    vec3 N = getNormalFromMap();
-
-    vec3 pbrColor = pbrCalculation(FragPos, N, albedo, aoSpecular,roughness,metallic);
-
-    FragColor = vec4(pbrColor, diffuseTexture.a);
 }

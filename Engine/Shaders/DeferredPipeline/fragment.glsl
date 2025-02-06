@@ -53,6 +53,17 @@ vec3 getNormalFromMap()
     return normalize(TBN * tangentNormal);
 }
 
+struct StatusData{
+    uint status;
+    int plainColor;
+    vec2 padding;
+};
+
+layout(std430, binding = 25) buffer StatusCopy {
+    StatusData statusCopy[];
+};
+
+
 void main()
 {
 #if defined(ANIMATE)
@@ -67,22 +78,26 @@ void main()
     if (albedoTexture.a < 0.1) {
         discard;
     }
+    if(statusCopy[drawId].plainColor>1){
+        gAmbient.b= float(statusCopy[drawId].plainColor);
+        gAlbedoSpec.rgb = vec3(currentMaterial.materialColor);
+    }else{
+        // and the diffuse per-fragment color
+        gAlbedoSpec.rgb = albedoTexture.rgb;
 
-    // and the diffuse per-fragment color
-    gAlbedoSpec.rgb = albedoTexture.rgb;
+        // store the fragment position vector in the first gbuffer texture
+        gPosition.rgb = FragPos;
+        // also store the per-fragment normals into the gbuffer
+        gNormal.rgb = getNormalFromMap();
 
-    // store the fragment position vector in the first gbuffer texture
-    gPosition.rgb = FragPos;
-    // also store the per-fragment normals into the gbuffer
-    gNormal.rgb = getNormalFromMap();
+        vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
 
-    vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
+        gAlbedoSpec.a= roughnessMetalnessTexture.b;
+        gNormal.a = roughnessMetalnessTexture.g;
+        gPosition.a=gl_FragCoord.z;
 
-    gAlbedoSpec.a= roughnessMetalnessTexture.b;
-    gNormal.a = roughnessMetalnessTexture.g;
-    gPosition.a=gl_FragCoord.z;
-
-    gAmbient.r = texture(currentMaterial.specularMap, TexCoords).r;
-    gAmbient.g = texture(currentMaterial.ambient_occlusion, TexCoords).r;
-
+        gAmbient.r = texture(currentMaterial.specularMap, TexCoords).r;
+        gAmbient.g = texture(currentMaterial.ambient_occlusion, TexCoords).r;
+        gAmbient.b = 0;
+    }
 }

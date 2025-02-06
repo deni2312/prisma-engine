@@ -60,7 +60,7 @@ layout(std430, binding = 0) buffer Material {
 
 struct StatusData{
     uint status;
-    bool plainColor;
+    int plainColor;
     vec2 padding;
 };
 
