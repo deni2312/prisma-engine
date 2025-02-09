@@ -92,5 +92,6 @@ namespace Prisma
 		ComponentType m_componentTypeMetalnessRoughness;
 		ComponentType m_componentTypeSpecular;
 		ComponentType m_componentTypeAmbientOcclusion;
+		std::function<void()> m_apply;
 	};
 }

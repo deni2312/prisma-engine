@@ -62,6 +62,26 @@ void Prisma::MaterialComponent::ui()
 		addGlobal(m_componentTypeAmbientOcclusion);
 	}
 
+	ComponentType componentPlain;
+	componentPlain = std::make_tuple(TYPES::BOOL, "Plain", &m_plain);
+
+	ComponentType componentColor;
+	componentColor = std::make_tuple(TYPES::VEC3, "Color", &m_color);
+
+	m_apply = []()
+		{
+			CacheScene::getInstance().updateTextures(true);
+			CacheScene::getInstance().updateLights(true);
+			CacheScene::getInstance().updateStatus(true);
+		};
+
+	ComponentType componentButton;
+	componentButton = std::make_tuple(TYPES::BUTTON, "Apply", &m_apply);
+
+	addGlobal(componentPlain);
+	addGlobal(componentColor);
+	addGlobal(componentButton);
+
 	uiRemovable(false);
 
 	m_id = materialId;

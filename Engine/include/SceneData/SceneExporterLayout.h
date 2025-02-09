@@ -11,6 +11,7 @@
 #include "../SceneObjects/Node.h"
 #include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Light.h"
+#include <glm/gtx/string_cast.hpp>
 
 namespace Prisma
 {
@@ -129,6 +130,8 @@ namespace Prisma
 			}
 
 			j["textures"] = textures;
+			j["plain"] = mesh->material()->plain();
+			j["color"] = { mesh->material()->color().x,mesh->material()->color().y ,mesh->material()->color().z ,mesh->material()->color().w };
 			// Convert Vertex properties to arrays of floats
 			std::vector<json> verticesJson;
 			for (const auto& vertex : mesh->animateVerticesData()->vertices)
@@ -282,6 +285,8 @@ namespace Prisma
 			j["type"] = "MESH";
 			j["vertices"] = data;
 			j["faces"] = mesh->verticesData().indices;
+			j["plain"] = mesh->material()->plain();
+			j["color"] = { mesh->material()->color().x,mesh->material()->color().y ,mesh->material()->color().z ,mesh->material()->color().w };
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(n))
 		{
@@ -308,6 +313,18 @@ namespace Prisma
 				light->type().attenuation.w
 			};
 			j["farPlane"] = light->type().farPlane.x;
+			j["shadow"] = light->hasShadow();
+		}
+		else if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(n))
+		{
+			j["type"] = "LIGHT_AREA";
+			auto light = std::dynamic_pointer_cast<Light<LightType::LightArea>>(n);
+			j["position"][0] = {light->type().position[0].x, light->type().position[0].y, light->type().position[0].z};
+			j["position"][1] = { light->type().position[1].x, light->type().position[1].y, light->type().position[1].z };
+			j["position"][2] = { light->type().position[2].x, light->type().position[2].y, light->type().position[2].z };
+			j["position"][3] = { light->type().position[3].x, light->type().position[3].y, light->type().position[3].z };
+			j["diffuse"] = { light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z };
+			j["doubleSide"] = light->type().doubleSide;
 			j["shadow"] = light->hasShadow();
 		}
 
@@ -359,6 +376,10 @@ namespace Prisma
 			else if (childJson["type"] == "LIGHT_OMNI")
 			{
 				child = std::make_shared<Light<LightType::LightOmni>>();
+			}
+			else if (childJson["type"] == "LIGHT_AREA")
+			{
+				child = std::make_shared<Light<LightType::LightArea>>();
 			}
 			else if (childJson["type"] == "MESH_ANIMATE")
 			{
@@ -469,8 +490,21 @@ namespace Prisma
 						material->ambientOcclusion(textures);
 					}
 				}
+				glm::vec4 color;
+				color.x = j.at("color").at(0);
+				color.y = j.at("color").at(1);
+				color.z = j.at("color").at(2);
+				color.w = j.at("color").at(3);
+
+				int plain = 0;
+				plain=j.at("plain");
+
+				material->plain(plain);
+				material->color(color);
 				mesh->material(material);
 			}
+
+
 			// Convert arrays of floats back to Vertex properties
 			auto verticesJson = j.at("vertices").get<std::vector<std::vector<float>>>();
 			std::vector<Mesh::Vertex> vertices;
@@ -547,6 +581,36 @@ namespace Prisma
 			light->hasShadow(hasShadow);
 			light->type(lightType);
 			light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI,true);
+		}
+		else if (type == "LIGHT_AREA")
+		{
+			auto light = std::dynamic_pointer_cast<Light<LightType::LightArea>>(n);
+			LightType::LightArea lightType;
+			lightType.position[0] = glm::vec4(j.at("position").at(0).get<std::vector<float>>().at(0),
+				j.at("position").at(0).get<std::vector<float>>().at(1),
+				j.at("position").at(0).get<std::vector<float>>().at(2), 1.0);
+			lightType.position[1] = glm::vec4(j.at("position").at(1).get<std::vector<float>>().at(0),
+				j.at("position").at(1).get<std::vector<float>>().at(1),
+				j.at("position").at(1).get<std::vector<float>>().at(2), 1.0);
+			lightType.position[2] = glm::vec4(j.at("position").at(2).get<std::vector<float>>().at(0),
+				j.at("position").at(2).get<std::vector<float>>().at(1),
+				j.at("position").at(2).get<std::vector<float>>().at(2), 1.0);
+			lightType.position[3] = glm::vec4(j.at("position").at(3).get<std::vector<float>>().at(0),
+				j.at("position").at(3).get<std::vector<float>>().at(1),
+				j.at("position").at(3).get<std::vector<float>>().at(2), 1.0);
+			lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0),
+				j.at("diffuse").get<std::vector<float>>().at(1),
+				j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
+
+			bool hasShadow = false;
+			j.at("shadow").get_to(hasShadow);
+
+			int doubleSide = 0;
+
+			j.at("doubleSide").get_to(doubleSide);
+			lightType.doubleSide = doubleSide;
+			light->hasShadow(hasShadow);
+			light->type(lightType);
 		}
 		else if (type == "MESH_ANIMATE")
 		{
@@ -639,6 +703,17 @@ namespace Prisma
 						material->ambientOcclusion(textures);
 					}
 				}
+				glm::vec4 color;
+				color.x = j.at("color").at(0);
+				color.y = j.at("color").at(1);
+				color.z = j.at("color").at(2);
+				color.w = j.at("color").at(3);
+
+				int plain = 0;
+				plain = j.at("plain");
+
+				material->plain(plain);
+				material->color(color);
 				mesh->material(material);
 			}
 			// Convert arrays of floats back to Vertex properties
