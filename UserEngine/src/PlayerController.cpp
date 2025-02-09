@@ -77,7 +77,21 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	m_physics->onCollisionStay(contact);
 	m_physics->onCollisionExit(noContact);
 
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), glm::radians(90.0f), glm::vec3(1, 0, 0))*glm::translate(glm::mat4(1.0),glm::vec3(0,0,-1));
 
+	std::vector<Prisma::Interpolator::Timeframe> timeframes;
+	float amplitude = 1.0f;
+	float frequency = 2.0f;
+	for (int i = 0; i <= 10; ++i) {
+		float t = static_cast<float>(i) / 10.0f * glm::pi<float>() * 2.0f;
+		float x = std::cos(t) * amplitude;
+		float y = std::sin(t) * amplitude;
+		timeframes.push_back({ rotation * glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f)), 1.0f });
+	}
+
+	m_interpolator.timeframe(timeframes);
+
+	m_areaLight = nodeHelper.find(m_scene->root, "ParentArea_74");
 
 	createCamera();
 	createKeyboard();
@@ -194,6 +208,7 @@ void PlayerController::update()
 		ball->addComponent(shockwaveComponent);
 	}
 	m_balls.clear();
+	m_areaLight->matrix(m_interpolator.next(1.0 / Prisma::Engine::getInstance().fps()));
 }
 
 std::shared_ptr<Prisma::CallbackHandler> PlayerController::callback()

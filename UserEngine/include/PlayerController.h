@@ -7,6 +7,7 @@
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 #include "ParticleController.h"
+#include "../../Engine/include/Helpers/Interpolator.h"
 
 class PlayerController
 {
@@ -109,4 +110,8 @@ private:
 	ParticleController m_particleController;
 
 	std::vector<std::shared_ptr<Prisma::Mesh>> m_balls;
+
+	Prisma::Interpolator m_interpolator;
+
+	std::shared_ptr<Prisma::Node> m_areaLight;
 };
