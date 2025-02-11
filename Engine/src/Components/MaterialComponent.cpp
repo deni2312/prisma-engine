@@ -39,9 +39,10 @@ void Prisma::MaterialComponent::ui()
 			auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 			if (!openFolder.empty()) {
 				texture.loadTexture({openFolder,true});
+				texture.name(openFolder);
+				diffuseTextures.push_back(texture);
+				diffuse(diffuseTextures);
 			}
-			diffuseTextures.push_back(texture);
-			diffuse(diffuseTextures);
 		};
 	m_normalButton = [&]() {
 		std::vector<Texture> normalTextures;
@@ -49,9 +50,10 @@ void Prisma::MaterialComponent::ui()
 		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
 			texture.loadTexture({ openFolder });
+			texture.name(openFolder);
+			normalTextures.push_back(texture);
+			normal(normalTextures);
 		}
-		normalTextures.push_back(texture);
-		normal(normalTextures);
 		};
 	m_metalnessRoughnessButton = [&]() {
 		std::vector<Texture> metalnessRoughnessTextures;
@@ -59,9 +61,10 @@ void Prisma::MaterialComponent::ui()
 		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
 			texture.loadTexture({ openFolder });
+			texture.name(openFolder);
+			metalnessRoughnessTextures.push_back(texture);
+			roughnessMetalness(metalnessRoughnessTextures);
 		}
-		metalnessRoughnessTextures.push_back(texture);
-		roughnessMetalness(metalnessRoughnessTextures);
 		};
 	m_specularButton = [&]() {
 		std::vector<Texture> specularTextures;
@@ -69,9 +72,10 @@ void Prisma::MaterialComponent::ui()
 		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
 			texture.loadTexture({ openFolder });
+			texture.name(openFolder);
+			specularTextures.push_back(texture);
+			specular(specularTextures);
 		}
-		specularTextures.push_back(texture);
-		specular(specularTextures);
 		};
 	m_ambientOcclusionButton = [&]() {
 		std::vector<Texture> ambientOcclusionTextures;
@@ -79,9 +83,10 @@ void Prisma::MaterialComponent::ui()
 		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
 			texture.loadTexture({ openFolder });
+			texture.name(openFolder);
+			ambientOcclusionTextures.push_back(texture);
+			ambientOcclusion(ambientOcclusionTextures);
 		}
-		ambientOcclusionTextures.push_back(texture);
-		ambientOcclusion(ambientOcclusionTextures);
 		};
 
 	if (m_diffuse.size() > 0)
