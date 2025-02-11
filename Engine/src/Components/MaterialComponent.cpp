@@ -35,7 +35,7 @@ void Prisma::MaterialComponent::ui()
 	m_diffuseButton = [&]() {
 			std::vector<Texture> diffuseTextures;
 			Texture texture;
-			auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("png");
+			auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 			if (!openFolder.empty()) {
 				texture.loadTexture({openFolder,true});
 			}
@@ -45,7 +45,7 @@ void Prisma::MaterialComponent::ui()
 	m_normalButton = [&]() {
 		std::vector<Texture> normalTextures;
 		Texture texture;
-		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("png");
+		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
 			texture.loadTexture({ openFolder });
 		}
@@ -55,7 +55,7 @@ void Prisma::MaterialComponent::ui()
 	m_metalnessRoughnessButton = [&]() {
 		std::vector<Texture> metalnessRoughnessTextures;
 		Texture texture;
-		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("png");
+		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
 			texture.loadTexture({ openFolder });
 		}
@@ -65,7 +65,7 @@ void Prisma::MaterialComponent::ui()
 	m_specularButton = [&]() {
 		std::vector<Texture> specularTextures;
 		Texture texture;
-		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("png");
+		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
 			texture.loadTexture({ openFolder });
 		}
@@ -75,7 +75,7 @@ void Prisma::MaterialComponent::ui()
 	m_ambientOcclusionButton = [&]() {
 		std::vector<Texture> ambientOcclusionTextures;
 		Texture texture;
-		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("png");
+		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
 			texture.loadTexture({ openFolder });
 		}
@@ -86,31 +86,31 @@ void Prisma::MaterialComponent::ui()
 	if (m_diffuse.size() > 0)
 	{
 		m_diffuseName = std::make_shared<std::string>(getLast(m_diffuse[0].name()));
-		m_componentTypeDiffuse = std::make_tuple(TYPES::BUTTON, "Diffuse\n"+*m_diffuseName, &m_diffuseButton);
+		m_componentTypeDiffuse = std::make_tuple(TYPES::BUTTON, "Diffuse", &m_diffuseButton);
 		addGlobal(m_componentTypeDiffuse);
 	}
 	if (m_normal.size() > 0)
 	{
 		m_normalName = std::make_shared<std::string>(getLast(m_normal[0].name()));
-		m_componentTypeNormal = std::make_tuple(TYPES::BUTTON, "Normal\n" + *m_normalName, &m_normalButton);
+		m_componentTypeNormal = std::make_tuple(TYPES::BUTTON, "Normal", &m_normalButton);
 		addGlobal(m_componentTypeNormal);
 	}
 	if (m_roughnessMetalness.size() > 0)
 	{
 		m_metalness_roughnessName = std::make_shared<std::string>(getLast(m_roughnessMetalness[0].name()));
-		m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::BUTTON, "Metalness-Roughness\n" + *m_metalness_roughnessName, &m_metalnessRoughnessButton);
+		m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::BUTTON, "Metalness-Roughness", &m_metalnessRoughnessButton);
 		addGlobal(m_componentTypeMetalnessRoughness);
 	}
 	if (m_specular.size() > 0)
 	{
 		m_specularName = std::make_shared<std::string>(getLast(m_specular[0].name()));
-		m_componentTypeSpecular = std::make_tuple(TYPES::BUTTON, "Specular\n" + *m_specularName, &m_specularButton);
+		m_componentTypeSpecular = std::make_tuple(TYPES::BUTTON, "Specular", &m_specularButton);
 		addGlobal(m_componentTypeSpecular);
 	}
 	if (m_ambientOcclusion.size() > 0)
 	{
 		m_ambientOcclusionName = std::make_shared<std::string>(getLast(m_ambientOcclusion[0].name()));
-		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::BUTTON, "AmbientOcclusion\n" + *m_ambientOcclusionName, &m_ambientOcclusionButton);
+		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::BUTTON, "AmbientOcclusion", &m_ambientOcclusionButton);
 		addGlobal(m_componentTypeAmbientOcclusion);
 	}
 
