@@ -104,18 +104,21 @@ void Prisma::MaterialComponent::ui()
 	if (m_specular.size() > 0)
 	{
 		m_specularName = std::make_shared<std::string>(getLast(m_specular[0].name()));
-		m_componentTypeSpecular = std::make_tuple(TYPES::BUTTON, "Diffuse\n" + *m_specularName, &m_specularButton);
+		m_componentTypeSpecular = std::make_tuple(TYPES::BUTTON, "Specular\n" + *m_specularName, &m_specularButton);
 		addGlobal(m_componentTypeSpecular);
 	}
 	if (m_ambientOcclusion.size() > 0)
 	{
 		m_ambientOcclusionName = std::make_shared<std::string>(getLast(m_ambientOcclusion[0].name()));
-		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::BUTTON, "Diffuse\n" + *m_ambientOcclusionName, &m_ambientOcclusionButton);
+		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::BUTTON, "AmbientOcclusion\n" + *m_ambientOcclusionName, &m_ambientOcclusionButton);
 		addGlobal(m_componentTypeAmbientOcclusion);
 	}
 
 	ComponentType componentPlain;
 	componentPlain = std::make_tuple(TYPES::BOOL, "Plain", &m_plain);
+
+	ComponentType componentTransparent;
+	componentTransparent = std::make_tuple(TYPES::BOOL, "Transparent", &m_transparent);
 
 	ComponentType componentColor;
 	componentColor = std::make_tuple(TYPES::VEC3, "Color", &m_color);
@@ -131,6 +134,7 @@ void Prisma::MaterialComponent::ui()
 	componentButton = std::make_tuple(TYPES::BUTTON, "Apply", &m_apply);
 
 	addGlobal(componentPlain);
+	addGlobal(componentTransparent);
 	addGlobal(componentColor);
 	addGlobal(componentButton);
 
