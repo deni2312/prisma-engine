@@ -230,7 +230,7 @@ void Prisma::MeshIndirect::updateSize()
 		{
 			m_materialData.push_back({
 				material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
-				material->material()->roughness_metalness()[0].id(), material->material()->specular()[0].id(),
+				material->material()->roughnessMetalness()[0].id(), material->material()->specular()[0].id(),
 				material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
 			});
 		}
@@ -470,7 +470,7 @@ void Prisma::MeshIndirect::updateAnimation()
 		{
 			m_materialDataAnimation.push_back({
 				material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
-				material->material()->roughness_metalness()[0].id(), material->material()->specular()[0].id(),
+				material->material()->roughnessMetalness()[0].id(), material->material()->specular()[0].id(),
 				material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
 			});
 		}
@@ -626,7 +626,7 @@ void Prisma::MeshIndirect::updateTextureSize()
 	{
 		m_materialData.push_back({
 			material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
-			material->material()->roughness_metalness()[0].id(), material->material()->specular()[0].id(),
+			material->material()->roughnessMetalness()[0].id(), material->material()->specular()[0].id(),
 			material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
 		});
 	}
@@ -639,7 +639,7 @@ void Prisma::MeshIndirect::updateTextureSize()
 	{
 		m_materialDataAnimation.push_back({
 			material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
-			material->material()->roughness_metalness()[0].id(), material->material()->specular()[0].id(),
+			material->material()->roughnessMetalness()[0].id(), material->material()->specular()[0].id(),
 			material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
 		});
 	}

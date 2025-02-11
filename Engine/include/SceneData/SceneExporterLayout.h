@@ -91,9 +91,9 @@ namespace Prisma
 			}
 
 			// Add the roughness/metalness texture property
-			if (mesh->material()->roughness_metalness().size() > 0)
+			if (mesh->material()->roughnessMetalness().size() > 0)
 			{
-				std::string textureName = mesh->material()->roughness_metalness()[0].name();
+				std::string textureName = mesh->material()->roughnessMetalness()[0].name();
 				if (textureName == "")
 				{
 					textures.push_back({ "ROUGHNESS", "NO_TEXTURE" });
@@ -228,9 +228,9 @@ namespace Prisma
 			}
 
 			// Add the roughness/metalness texture property
-			if (mesh->material()->roughness_metalness().size() > 0)
+			if (mesh->material()->roughnessMetalness().size() > 0)
 			{
-				std::string textureName = mesh->material()->roughness_metalness()[0].name();
+				std::string textureName = mesh->material()->roughnessMetalness()[0].name();
 				if (textureName == "")
 				{
 					textures.push_back({ "ROUGHNESS", "NO_TEXTURE" });
@@ -451,7 +451,7 @@ namespace Prisma
 							//texture.loadTexture({t.second});
 							textures.push_back(texture);
 						}
-						material->roughness_metalness(textures);
+						material->roughnessMetalness(textures);
 					}
 					else if (t.first == "SPECULAR")
 					{
@@ -668,7 +668,7 @@ namespace Prisma
 							//texture.loadTexture({t.second});
 							textures.push_back(texture);
 						}
-						material->roughness_metalness(textures);
+						material->roughnessMetalness(textures);
 					}
 					else if (t.first == "SPECULAR")
 					{

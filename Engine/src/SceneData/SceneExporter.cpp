@@ -71,22 +71,22 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 				}
 			}
 
-			if (!mesh->material()->roughness_metalness()[0].name().empty())
+			if (!mesh->material()->roughnessMetalness()[0].name().empty())
 			{
-				if (texturesLoaded.find(mesh->material()->roughness_metalness()[0].name()) == texturesLoaded.end())
+				if (texturesLoaded.find(mesh->material()->roughnessMetalness()[0].name()) == texturesLoaded.end())
 				{
 					Texture texture;
-					texture.name(mesh->material()->roughness_metalness()[0].name());
-					if (!texture.loadTexture({ mesh->material()->roughness_metalness()[0].name() })) {
+					texture.name(mesh->material()->roughnessMetalness()[0].name());
+					if (!texture.loadTexture({ mesh->material()->roughnessMetalness()[0].name() })) {
 						texture = Prisma::GlobalData::getInstance().defaultBlack();
 					}
-					texturesLoaded[mesh->material()->roughness_metalness()[0].name()] = texture;
-					mesh->material()->roughness_metalness({ texture });
+					texturesLoaded[mesh->material()->roughnessMetalness()[0].name()] = texture;
+					mesh->material()->roughnessMetalness({ texture });
 				}
 				else
 				{
-					mesh->material()->roughness_metalness({
-						texturesLoaded[mesh->material()->roughness_metalness()[0].name()]
+					mesh->material()->roughnessMetalness({
+						texturesLoaded[mesh->material()->roughnessMetalness()[0].name()]
 					});
 				}
 			}

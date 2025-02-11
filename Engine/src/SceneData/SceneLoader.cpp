@@ -400,7 +400,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	auto currentMaterial = std::make_shared<MaterialComponent>();
 	currentMaterial->diffuse(loadMaterialTextures(material, aiTextureType_DIFFUSE, m_sceneParameters.srgb));
 	currentMaterial->normal(loadMaterialTextures(material, aiTextureType_NORMALS));
-	currentMaterial->roughness_metalness(loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS));
+	currentMaterial->roughnessMetalness(loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS));
 	currentMaterial->specular(loadMaterialTextures(material, aiTextureType_SPECULAR));
 	currentMaterial->ambientOcclusion(loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION));
 
@@ -425,11 +425,11 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 		                                  material->GetName().
 		                                            C_Str());
 	}
-	if (currentMaterial->roughness_metalness().empty())
+	if (currentMaterial->roughnessMetalness().empty())
 	{
 		emptyVector.clear();
 		emptyVector.push_back(Prisma::GlobalData::getInstance().defaultBlack());
-		currentMaterial->roughness_metalness(emptyVector);
+		currentMaterial->roughnessMetalness(emptyVector);
 		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
 		                                  "No roughness or metalness texture " + currentMesh->name() +
 		                                  " MaterialComponent name: " +

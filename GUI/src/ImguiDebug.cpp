@@ -28,6 +28,7 @@
 #include "implot.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
 #include "../../Engine/include/Helpers/StringHelper.h"
+#include "../../Engine/include/Helpers/WindowsHelper.h"
 #include "../include/NodeViewer.h"
 
 struct PrivateIO
@@ -111,7 +112,7 @@ void Prisma::ImguiDebug::drawGui()
 		{
 			if (ImGui::MenuItem("New"))
 			{
-				std::string scene = openFolder();
+				std::string scene = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 				if (scene != "")
 				{
 					Engine::getInstance().getScene(scene, {true});
@@ -126,7 +127,7 @@ void Prisma::ImguiDebug::drawGui()
 
 			if (ImGui::MenuItem("Add model"))
 			{
-				std::string model = openFolder();
+				std::string model = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 				if (model != "")
 				{
 					if (Prisma::StringHelper::getInstance().endsWith(model, ".prisma"))
@@ -162,7 +163,7 @@ void Prisma::ImguiDebug::drawGui()
 
 			if (ImGui::MenuItem("Add skybox"))
 			{
-				std::string scene = openFolder();
+				std::string scene = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 				if (scene != "")
 				{
 					Texture texture;
@@ -404,33 +405,6 @@ void Prisma::ImguiDebug::drawScene()
 void Prisma::ImguiDebug::initStatus()
 {
 	m_settingsTab.init();
-}
-
-std::string Prisma::ImguiDebug::openFolder()
-{
-	OPENFILENAME ofn;
-	char szFile[260];
-
-	// Initialize OPENFILENAME
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = nullptr;
-	ofn.lpstrFile = szFile;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = "All Files";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = nullptr;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = nullptr;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
-	// Open the File Explorer dialog
-	if (GetOpenFileName(&ofn) == TRUE)
-	{
-		return szFile;
-	}
-	return "";
 }
 
 std::string Prisma::ImguiDebug::saveFile()

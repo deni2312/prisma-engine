@@ -32,9 +32,9 @@ namespace Prisma
 
 		std::vector<Texture>& normal();
 
-		void roughness_metalness(std::vector<Texture> roughness_metalness);
+		void roughnessMetalness(std::vector<Texture> roughnessMetalness);
 
-		std::vector<Texture>& roughness_metalness();
+		std::vector<Texture>& roughnessMetalness();
 
 		void specular(std::vector<Texture> specular);
 
@@ -67,7 +67,7 @@ namespace Prisma
 	private:
 		std::vector<Texture> m_diffuse;
 		std::vector<Texture> m_normal;
-		std::vector<Texture> m_roughness_metalness;
+		std::vector<Texture> m_roughnessMetalness;
 		std::vector<Texture> m_specular;
 		std::vector<Texture> m_ambientOcclusion;
 
@@ -93,5 +93,10 @@ namespace Prisma
 		ComponentType m_componentTypeSpecular;
 		ComponentType m_componentTypeAmbientOcclusion;
 		std::function<void()> m_apply;
+		std::function<void()> m_diffuseButton;
+		std::function<void()> m_normalButton;
+		std::function<void()> m_metalnessRoughnessButton;
+		std::function<void()> m_specularButton;
+		std::function<void()> m_ambientOcclusionButton;
 	};
 }

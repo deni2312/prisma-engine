@@ -328,7 +328,7 @@ std::shared_ptr<Prisma::MaterialComponent> Prisma::NodeCreator::getEmptyMaterial
 	currentMaterial->normal(emptyVector);
 	emptyVector.clear();
 	emptyVector.push_back(Prisma::GlobalData::getInstance().defaultBlack());
-	currentMaterial->roughness_metalness(emptyVector);
+	currentMaterial->roughnessMetalness(emptyVector);
 	emptyVector.clear();
 	emptyVector.push_back(Prisma::GlobalData::getInstance().defaultWhite());
 	currentMaterial->specular(emptyVector);

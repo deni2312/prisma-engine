@@ -64,7 +64,6 @@ namespace Prisma
 
 		void drawScene();
 		void initStatus();
-		std::string openFolder();
 		std::string saveFile();
 		void onLoading(std::pair<std::string, int>& data);
 
