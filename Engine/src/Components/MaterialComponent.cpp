@@ -22,6 +22,7 @@ std::vector<Prisma::Texture>& Prisma::MaterialComponent::diffuse()
 	return m_diffuse;
 }
 
+
 void Prisma::MaterialComponent::ui()
 {
 	Prisma::Component::ui();
@@ -140,8 +141,6 @@ void Prisma::MaterialComponent::ui()
 
 	uiRemovable(false);
 
-	m_id = materialId;
-	materialId++;
 }
 
 void Prisma::MaterialComponent::update()
@@ -197,6 +196,8 @@ void Prisma::MaterialComponent::material_name(std::string name)
 Prisma::MaterialComponent::MaterialComponent()
 {
 	name("Material Component");
+	m_id = materialId;
+	materialId++;
 }
 
 std::string Prisma::MaterialComponent::material_name()

@@ -20,6 +20,7 @@ namespace Prisma
 	class MaterialComponent : public Component
 	{
 	public:
+
 		void ui() override;
 
 		void update() override;
