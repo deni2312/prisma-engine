@@ -11,6 +11,7 @@
 #include "../SceneObjects/Node.h"
 #include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Light.h"
+#include "../Helpers/WindowsHelper.h"
 #include <glm/gtx/string_cast.hpp>
 
 namespace Prisma
@@ -72,7 +73,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "DIFFUSE", textureName });
+					textures.push_back({ "DIFFUSE", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 
@@ -86,7 +87,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "NORMAL", textureName });
+					textures.push_back({ "NORMAL", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 
@@ -100,7 +101,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "ROUGHNESS", textureName });
+					textures.push_back({ "ROUGHNESS", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 
@@ -113,7 +114,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "SPECULAR", textureName });
+					textures.push_back({ "SPECULAR", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 			if (mesh->material()->ambientOcclusion().size() > 0)
@@ -125,7 +126,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "AMBIENT_OCCLUSION", textureName });
+					textures.push_back({ "AMBIENT_OCCLUSION", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 
@@ -209,7 +210,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "DIFFUSE", textureName });
+					textures.push_back({ "DIFFUSE", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 
@@ -223,7 +224,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "NORMAL", textureName });
+					textures.push_back({ "NORMAL", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 
@@ -237,7 +238,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "ROUGHNESS", textureName });
+					textures.push_back({ "ROUGHNESS", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 
@@ -250,7 +251,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "SPECULAR", textureName });
+					textures.push_back({ "SPECULAR", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 			if (mesh->material()->ambientOcclusion().size() > 0)
@@ -262,7 +263,7 @@ namespace Prisma
 				}
 				else
 				{
-					textures.push_back({ "AMBIENT_OCCLUSION", textureName });
+					textures.push_back({ "AMBIENT_OCCLUSION", Prisma::WindowsHelper::getInstance().relativePath(textureName) });
 				}
 			}
 

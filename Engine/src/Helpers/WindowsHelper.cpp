@@ -1,10 +1,23 @@
 #include "../../include/Helpers/WindowsHelper.h"
+#include <filesystem>
 
 Prisma::WindowsHelper::WindowsHelper() {
 
 }
 
-std::string Prisma::WindowsHelper::openFolder(const std::string& stringFilter)
+std::string Prisma::WindowsHelper::relativePath(const std::string& path) const 
+{
+	try {
+		std::filesystem::path absolutePath = std::filesystem::absolute(path);
+		std::filesystem::path basePath = std::filesystem::current_path();
+		return std::filesystem::relative(absolutePath, basePath).string();
+	}
+	catch (const std::exception& e) {
+		return path;
+	}
+}
+
+std::string Prisma::WindowsHelper::openFolder(const std::string& stringFilter) const
 {
 	OPENFILENAME ofn;
 	char szFile[260];
