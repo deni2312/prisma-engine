@@ -127,7 +127,7 @@ void Prisma::MaterialComponent::ui()
 	componentTransparent = std::make_tuple(TYPES::BOOL, "Transparent", &m_transparent);
 
 	ComponentType componentColor;
-	componentColor = std::make_tuple(TYPES::VEC3, "Color", &m_color);
+	componentColor = std::make_tuple(TYPES::COLOR, "Color", &m_color);
 
 	m_apply = []()
 		{

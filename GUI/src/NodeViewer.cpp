@@ -64,6 +64,12 @@ void Prisma::NodeViewer::varsDispatcher(Component::ComponentType types, int inde
 				ImGui::Combo(label.c_str(), &comboData->currentitem, comboData->items.data(), comboData->items.size());
 			}
 			break;
+		case Component::TYPES::COLOR:
+			{
+				ImGui::Text(name.c_str());
+				ImGui::ColorPicker3(label.c_str(), value_ptr(*static_cast<glm::vec3*>(variable)));
+			}
+			break;
 		}
 	}
 	ImGui::Dummy(ImVec2(0.0f, 2.0f));

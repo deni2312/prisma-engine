@@ -28,7 +28,8 @@ namespace Prisma
 			STRINGLIST,
 			BUTTON,
 			VEC2,
-			VEC3
+			VEC3,
+			COLOR
 		};
 
 		using ComponentType = std::tuple<TYPES, std::string, void*>;

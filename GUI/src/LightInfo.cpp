@@ -19,7 +19,7 @@ void Prisma::LightInfo::showSelectedDir(Light<LightType::LightDir>* lightData, c
 	             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
 
-	if (ImGui::InputFloat3("Diffuse ", value_ptr(type.diffuse)))
+	if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
 	{
 		lightData->type(type);
 	}
@@ -77,7 +77,7 @@ void Prisma::LightInfo::showSelectedOmni(Light<LightType::LightOmni>* lightData,
 	ImGui::Begin(lightData->name().c_str(), nullptr,
 	             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-	if (ImGui::InputFloat3("Diffuse ", value_ptr(type.diffuse)))
+	if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
 	{
 		lightData->type(type);
 	}
@@ -126,7 +126,7 @@ void Prisma::LightInfo::showSelectedArea(Light<LightType::LightArea>* lightData,
 	nextRight(meshData.initOffset);
 	ImGui::Begin(lightData->name().c_str(), nullptr,
 		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-	if (ImGui::InputFloat3("Diffuse ", value_ptr(type.diffuse)))
+	if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
 	{
 		lightData->type(type);
 		if (meshData.node && meshData.node->parent()) {
