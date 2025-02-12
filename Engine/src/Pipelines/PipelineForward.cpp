@@ -74,11 +74,11 @@ void Prisma::PipelineForward::render()
 	//COLOR PASS
 	PipelineSkybox::getInstance().render();
 
-	m_shaderAnimate->use();
-	MeshIndirect::getInstance().renderAnimateMeshes();
-
 	m_shader->use();
 	MeshIndirect::getInstance().renderMeshes();
+
+	m_shaderAnimate->use();
+	MeshIndirect::getInstance().renderAnimateMeshes();
 
 	glDisable(GL_BLEND);
 

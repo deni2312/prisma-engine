@@ -178,7 +178,7 @@ void Prisma::PipelineDeferredForward::render()
 	else
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		m_fullscreenPipeline->render(m_fbo->texture());
+		m_fullscreenPipeline->render(finalTexture);
 	}
 }
 
