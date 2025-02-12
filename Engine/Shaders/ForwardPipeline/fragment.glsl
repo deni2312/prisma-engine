@@ -26,7 +26,7 @@ void main()
     currentMaterial = materialData[drawId];
     #endif
     if(statusCopy[drawId].plainColor>0){
-        FragColor=currentMaterial.materialColor;
+        FragColor=vec4(currentMaterial.materialColor.rgb,1);
     }else{
     
         vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords)+currentMaterial.materialColor;
