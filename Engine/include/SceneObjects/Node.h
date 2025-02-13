@@ -42,6 +42,9 @@ namespace Prisma
 
 		void loadComponents();
 
+		void addGlobalList(bool globalList);
+		bool addGlobalList() const;
+
 		~Node();
 
 	private:
@@ -59,5 +62,6 @@ namespace Prisma
 		void updateChild(Node* node);
 		bool m_visible = true;
 		bool m_loadingComponent = true;
+		bool m_addGlobal = true;
 	};
 }

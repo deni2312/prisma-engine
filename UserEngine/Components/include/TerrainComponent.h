@@ -75,5 +75,7 @@ namespace Prisma
 
 		unsigned int m_strips;
 		unsigned int m_stripTris;
+
+		std::shared_ptr<Prisma::Mesh::VerticesData> m_vertices;
 	};
 }

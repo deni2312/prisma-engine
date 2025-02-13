@@ -201,7 +201,7 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 {
 	NodeHelper nodeHelper;
 	if (std::dynamic_pointer_cast<Mesh>(child) && !std::dynamic_pointer_cast<AnimatedMesh>(child) &&
-		std::dynamic_pointer_cast<Mesh>(child)->addGlobalList())
+		child->addGlobalList())
 	{
 		if (nodeHelper.findUUID<Mesh>(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes, child->uuid()) <
 			0)
@@ -213,7 +213,8 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 		}
 	}
 
-	if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(child))
+	if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(child) &&
+		child->addGlobalList())
 	{
 		if (nodeHelper.findUUID<Light<LightType::LightDir>>(
 			Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights, child->uuid()) < 0)
@@ -224,7 +225,8 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 		}
 	}
 
-	if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(child))
+	if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(child) &&
+		child->addGlobalList())
 	{
 		if (nodeHelper.findUUID<Light<LightType::LightOmni>>(
 			Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights, child->uuid()) < 0)
@@ -235,7 +237,8 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 		}
 	}
 
-	if (std::dynamic_pointer_cast<Sprite>(child))
+	if (std::dynamic_pointer_cast<Sprite>(child) &&
+		child->addGlobalList())
 	{
 		if (nodeHelper.findUUID<Sprite>(Prisma::GlobalData::getInstance().currentGlobalScene()->sprites,
 		                                child->uuid()) < 0)
@@ -245,7 +248,8 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 		}
 	}
 
-	if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(child))
+	if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(child) &&
+		child->addGlobalList())
 	{
 		if (nodeHelper.findUUID<Light<LightType::LightArea>>(
 			Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights, child->uuid()) < 0)
@@ -258,7 +262,8 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 
 	if (Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size() < MAX_ANIMATION_MESHES)
 	{
-		if (std::dynamic_pointer_cast<AnimatedMesh>(child))
+		if (std::dynamic_pointer_cast<AnimatedMesh>(child) &&
+			child->addGlobalList())
 		{
 			if (nodeHelper.findUUID<AnimatedMesh>(Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes,
 			                                      child->uuid()) < 0)
@@ -322,6 +327,16 @@ void Prisma::Node::loadComponents()
 		ComponentsHandler::getInstance().addComponent(component.second);
 	}
 	m_loadingComponent = true;
+}
+
+void Prisma::Node::addGlobalList(bool globalList)
+{
+	m_addGlobal = globalList;
+}
+
+bool Prisma::Node::addGlobalList() const
+{
+	return m_addGlobal;
 }
 
 void Prisma::Node::removeComponent(const std::string& name)

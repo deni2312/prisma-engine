@@ -88,16 +88,6 @@ int Prisma::Mesh::vectorId()
 	return m_vectorId;
 }
 
-void Prisma::Mesh::addGlobalList(bool globalList)
-{
-	m_addGlobal = globalList;
-}
-
-bool Prisma::Mesh::addGlobalList() const
-{
-	return m_addGlobal;
-}
-
 void Prisma::Mesh::computeAABB()
 {
 	auto vertices = verticesData().vertices;
@@ -120,7 +110,6 @@ void Prisma::Mesh::computeAABB()
 		maxPoint.y = std::max(maxPoint.y, vertex.position.y);
 		maxPoint.z = std::max(maxPoint.z, vertex.position.z);
 	}
-
 	m_aabbData.min = minPoint;
 	m_aabbData.max = maxPoint;
 

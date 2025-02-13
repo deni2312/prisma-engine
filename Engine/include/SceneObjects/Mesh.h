@@ -64,8 +64,6 @@ namespace Prisma
 
 		int vectorId();
 
-		void addGlobalList(bool globalList);
-		bool addGlobalList() const;
 
 	protected:
 		std::shared_ptr<VerticesData> m_vertices;
@@ -73,6 +71,5 @@ namespace Prisma
 
 		int m_vectorId = -1;
 		AABBData m_aabbData;
-		bool m_addGlobal = true;
 	};
 }

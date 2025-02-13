@@ -73,13 +73,7 @@ void Prisma::TerrainComponent::updateRender(std::shared_ptr<FBO> fbo)
 	m_shader->setInt64(m_snowRoughnessPos, m_snowRoughness->id());
 
 	m_vao.bind();
-	for (unsigned strip = 0; strip < m_strips; strip++)
-	{
-		glDrawElements(GL_TRIANGLE_STRIP, // primitive type
-		               m_stripTris + 2, // number of indices to render
-		               GL_UNSIGNED_INT, // index data type
-		               (void*)(sizeof(unsigned) * (m_stripTris + 2) * strip)); // offset to starting index
-	}
+	glDrawElements(GL_TRIANGLES, m_vertices->indices.size(), GL_UNSIGNED_INT, 0);
 	m_grassRenderer.renderGrass(parent()->finalMatrix());
 
 	glEnable(GL_CULL_FACE);
@@ -94,6 +88,7 @@ void Prisma::TerrainComponent::generateCpu()
 void Prisma::TerrainComponent::start()
 {
 	Component::start();
+	m_vertices = std::make_shared<Prisma::Mesh::VerticesData>();
 	Shader::ShaderHeaders headers;
 	m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl",
 	                                    "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl");
@@ -145,7 +140,6 @@ void Prisma::TerrainComponent::start()
 		static_cast<float>(settings.width) / static_cast<float>(settings.
 			height), Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(), m_farPlane));
 	generateCpu();
-	std::vector<Mesh::Vertex> vertices;
 	int rez = 1;
 	int width = m_heightMap.data().width;
 	int height = m_heightMap.data().height;
@@ -163,7 +157,7 @@ void Prisma::TerrainComponent::start()
 			v.texCoords.x = j / static_cast<float>(width - 1); // Normalized texture coordinate (0 to 1)
 			v.texCoords.y = i / static_cast<float>(height - 1); // Normalized texture coordinate (0 to 1)
 
-			vertices.push_back(v);
+			m_vertices->vertices.push_back(v);
 		}
 	}
 
@@ -176,17 +170,17 @@ void Prisma::TerrainComponent::start()
 			glm::vec3 normal(0.0f, 0.0f, 0.0f);
 
 			// Get current vertex
-			Mesh::Vertex& v = vertices[i * width + j];
+			Mesh::Vertex& v = m_vertices->vertices[i * width + j];
 
 			// Calculate vectors around the current vertex
 			if (j > 0) // Left
-				left = vertices[i * width + (j - 1)].position - v.position;
+				left = m_vertices->vertices[i * width + (j - 1)].position - v.position;
 			if (j < width - 1) // Right
-				right = vertices[i * width + (j + 1)].position - v.position;
+				right = m_vertices->vertices[i * width + (j + 1)].position - v.position;
 			if (i > 0) // Up
-				up = vertices[(i - 1) * width + j].position - v.position;
+				up = m_vertices->vertices[(i - 1) * width + j].position - v.position;
 			if (i < height - 1) // Down
-				down = vertices[(i + 1) * width + j].position - v.position;
+				down = m_vertices->vertices[(i + 1) * width + j].position - v.position;
 
 			// Calculate normals using cross products of adjacent vectors
 			if (j > 0 && i < height - 1) // Bottom-left
@@ -202,15 +196,24 @@ void Prisma::TerrainComponent::start()
 		}
 	}
 
-	std::vector<unsigned int> indices;
-	for (unsigned i = 0; i < height - 1; i += rez)
+	for (unsigned i = 0; i < height - 1; i++)
 	{
-		for (unsigned j = 0; j < width; j += rez)
+		for (unsigned j = 0; j < width - 1; j++)
 		{
-			for (unsigned k = 0; k < 2; k++)
-			{
-				indices.push_back(j + width * (i + k * rez));
-			}
+			unsigned int topLeft = i * width + j;
+			unsigned int topRight = topLeft + 1;
+			unsigned int bottomLeft = (i + 1) * width + j;
+			unsigned int bottomRight = bottomLeft + 1;
+
+			// First triangle
+			m_vertices->indices.push_back(topLeft);
+			m_vertices->indices.push_back(bottomLeft);
+			m_vertices->indices.push_back(topRight);
+
+			// Second triangle
+			m_vertices->indices.push_back(topRight);
+			m_vertices->indices.push_back(bottomLeft);
+			m_vertices->indices.push_back(bottomRight);
 		}
 	}
 
@@ -220,12 +223,13 @@ void Prisma::TerrainComponent::start()
 	m_vao.bind();
 	VBO vbo;
 	EBO ebo;
-	vbo.writeData(vertices.size() * sizeof(Mesh::Vertex), &vertices[0]);
-	ebo.writeData(sizeof(unsigned int) * indices.size(), indices.data());
+	vbo.writeData(m_vertices->vertices.size() * sizeof(Mesh::Vertex), &m_vertices->vertices[0]);
+	ebo.writeData(sizeof(unsigned int) * m_vertices->indices.size(), m_vertices->indices.data());
 	// link vertex attributes
 	m_vao.addAttribPointer(0, 3, sizeof(Mesh::Vertex), nullptr);
 	m_vao.addAttribPointer(1, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
 	m_vao.addAttribPointer(2, 2, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
+	m_mesh->loadModel(m_vertices);
 }
 
 void Prisma::TerrainComponent::heightMap(Texture heightMap)
@@ -238,8 +242,8 @@ void Prisma::TerrainComponent::generatePhysics()
 	int width = m_heightMap.data().width;
 	int height = m_heightMap.data().height;
 	unsigned bytePerPixel = m_heightMap.data().nrComponents;
-	auto mesh = std::make_shared<Mesh>();
-	mesh->addGlobalList(false);
+	m_mesh = std::make_shared<Mesh>();
+	m_mesh->addGlobalList(false);
 
 	unsigned int ratio = 1;
 
@@ -264,7 +268,7 @@ void Prisma::TerrainComponent::generatePhysics()
 
 	physicsComponent->landscapeData(landscapeData);
 	physicsComponent->collisionData({Physics::Collider::LANDSCAPE_COLLIDER, 0.0, false});
-	mesh->name("TerrainMesh");
-	mesh->addComponent(physicsComponent);
-	parent()->addChild(mesh);
+	m_mesh->name("TerrainMesh");
+	m_mesh->addComponent(physicsComponent);
+	parent()->addChild(m_mesh);
 }
