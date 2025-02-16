@@ -73,8 +73,16 @@ cd ..
 
 ## Demos
 
+
 ### Demo
 
+An example of a demo scene with area lights
+
+https://www.youtube.com/watch?v=uPrmhQE5edg
+
+[![Sponza](https://img.youtube.com/vi/uPrmhQE5edg/0.jpg)](https://www.youtube.com/watch?v=uPrmhQE5edg)
+
+### Demo
 
 An example of a demo scene with deferred clustered shading and forward to run smoothly many lights, with some updates like GPU sorted transparencies, terrain rendering and height based texture, frustum culled grass, that has also animations , it runs at 120 FPS 500+ different animated meshes that run updates in different threads. (Click on the image for the youtube video)
 
