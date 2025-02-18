@@ -44,11 +44,11 @@ Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& wid
 	std::vector<Prisma::FBO::FBOData> fboDataBuffer;
 
 	fboDataBuffer.push_back({
-		m_width, m_height,GL_RGBA16F,GL_FLOAT, true, false, true, false,GL_NEAREST,GL_CLAMP_TO_BORDER, "POSITION"
+		m_width, m_height,GL_RGBA16F,GL_FLOAT, true, false, true, false,GL_NEAREST,GL_CLAMP_TO_EDGE, "POSITION"
 	});
 
 	fboDataBuffer.push_back({
-		m_width, m_height,GL_RGBA16F,GL_FLOAT, false, false, true, false,GL_NEAREST,GL_CLAMP_TO_BORDER, "NORMAL"
+		m_width, m_height,GL_RGBA16F,GL_FLOAT, false, false, true, false,GL_NEAREST,GL_CLAMP_TO_EDGE, "NORMAL"
 	});
 
 	fboDataBuffer.push_back({
