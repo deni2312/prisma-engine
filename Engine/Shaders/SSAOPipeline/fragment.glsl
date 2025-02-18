@@ -30,12 +30,17 @@ void main(void)
 {
     vec3 position = vec3(view*vec4(texture(texturePosition, UV).rgb,1));
     vec3 randomVec = normalize(texture(textureNoise, UV * noiseScale).xyz);
+    vec3 normal = normalize(texture(textureNormal, UV).rgb);
+    // create TBN change-of-basis matrix: from tangent-space to view-space
+    vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+    vec3 bitangent = cross(normal, tangent);
+    mat3 TBN = mat3(tangent, bitangent, normal);
     // iterate over the sample kernel and calculate occlusion factor
     float occlusion = 0.0;
     for(int i = 0; i < kernelSize; ++i)
     {
         // get sample position
-        vec3 samplePos = vec3(kernelData[i]); // from tangent to view-space
+        vec3 samplePos = TBN*vec3(kernelData[i]); // from tangent to view-space
         samplePos = position + samplePos * radius; 
         
         // project sample position (to sample texture) (to get position on screen/texture)

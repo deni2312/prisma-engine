@@ -19,6 +19,7 @@ namespace Prisma
 	private:
 		float ourLerp(float a, float b, float f);
 		std::shared_ptr<Shader> m_shader;
+		std::shared_ptr<Shader> m_shaderBlur;
 		std::shared_ptr<FBO> m_fbo;
 		std::shared_ptr<FBO> m_fboBlur;
 
@@ -29,6 +30,7 @@ namespace Prisma
 		std::shared_ptr<Prisma::Ubo> m_ubo;
 		unsigned int m_noiseScalePos;
 		glm::vec2 m_scale;
+		unsigned int m_ssaoPos;
 
 	};
 }

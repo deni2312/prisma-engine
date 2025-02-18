@@ -10,12 +10,17 @@
 Prisma::PipelineSSAO::PipelineSSAO() {
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/SSAOPipeline/vertex.glsl",
 		"../../../Engine/Shaders/SSAOPipeline/fragment.glsl");
+
     m_shader->use();
 
     m_depthPos = m_shader->getUniformPosition("textureNormal");
     m_positionPos = m_shader->getUniformPosition("texturePosition");
     m_noisePos = m_shader->getUniformPosition("textureNoise");
     m_noiseScalePos = m_shader->getUniformPosition("noiseScale");
+    m_shaderBlur = std::make_shared<Shader>("../../../Engine/Shaders/SSAOBlurPipeline/vertex.glsl",
+        "../../../Engine/Shaders/SSAOBlurPipeline/fragment.glsl");
+    m_shaderBlur->use();
+    m_ssaoPos = m_shaderBlur->getUniformPosition("ssaoInput");
 
 	auto settings = SettingsLoader::getInstance().getSettings();
 
@@ -28,7 +33,12 @@ Prisma::PipelineSSAO::PipelineSSAO() {
 	fboData.name = "SSAO";
 	m_fbo = std::make_shared<FBO>(fboData);
 
-    FBO::FBOData fboDataBlur=fboData;
+    FBO::FBOData fboDataBlur;
+    fboDataBlur.width = settings.width;
+    fboDataBlur.height = settings.height;
+    fboDataBlur.enableDepth = true;
+    fboDataBlur.internalFormat = GL_RED;
+    fboDataBlur.internalType = GL_FLOAT;
     fboDataBlur.name = "SSAO_BLUR";
     m_fboBlur = std::make_shared<FBO>(fboDataBlur);
 
@@ -90,6 +100,14 @@ void Prisma::PipelineSSAO::update(uint64_t depth, uint64_t position) {
 
     Prisma::PrismaRender::getInstance().renderQuad();
     m_fbo->unbind();
+
+    m_fboBlur->bind();
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    m_shaderBlur->use();
+    m_shaderBlur->setInt64(m_ssaoPos,m_fbo->texture());
+    Prisma::PrismaRender::getInstance().renderQuad();
+    m_fboBlur->unbind();
+
 }
 
 std::shared_ptr<Prisma::FBO> Prisma::PipelineSSAO::texture() {
