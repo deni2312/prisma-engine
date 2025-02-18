@@ -28,7 +28,7 @@ namespace Prisma
 		unsigned int m_positionPos;
 		std::shared_ptr<Prisma::Ubo> m_ubo;
 		unsigned int m_noiseScalePos;
-		unsigned int m_aspectRatioPos;
-		glm::vec2 m_aspectRatio;
+		glm::vec2 m_scale;
+
 	};
 }

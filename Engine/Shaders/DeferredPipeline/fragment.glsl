@@ -79,7 +79,7 @@ void main()
         discard;
     }
     if(statusCopy[drawId].plainColor>0){
-        gAmbient.b= float(statusCopy[drawId].plainColor);
+        gAmbient.b = 1;
         gAlbedoSpec.rgb = vec3(currentMaterial.materialColor);
     }else{
         // and the diffuse per-fragment color
