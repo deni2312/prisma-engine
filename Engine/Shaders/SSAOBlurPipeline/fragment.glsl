@@ -1,4 +1,5 @@
 #version 460 core
+#extension GL_ARB_bindless_texture : enable
 
 out float FragColor;
 
@@ -10,13 +11,13 @@ void main()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(ssaoInput, 0));
     float result = 0.0;
-    for (int x = -4; x < 4; ++x) 
+    for (int x = -2; x < 2; ++x) 
     {
-        for (int y = -4; y < 4; ++y) 
+        for (int y = -2; y < 2; ++y) 
         {
             vec2 offset = vec2(float(x), float(y)) * texelSize;
             result += texture(ssaoInput, UV + offset).r;
         }
     }
-    FragColor = 1;
+    FragColor = result / (4.0 * 4.0);
 }  
