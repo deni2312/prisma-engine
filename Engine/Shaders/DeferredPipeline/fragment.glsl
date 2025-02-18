@@ -78,6 +78,11 @@ void main()
     if (albedoTexture.a < 0.1) {
         discard;
     }
+    // store the fragment position vector in the first gbuffer texture
+    gPosition.rgb = FragPos;
+    // also store the per-fragment normals into the gbuffer
+    gNormal.rgb = getNormalFromMap();
+
     if(statusCopy[drawId].plainColor>0){
         gAmbient.b = 1;
         gAlbedoSpec.rgb = vec3(currentMaterial.materialColor);
@@ -85,10 +90,6 @@ void main()
         // and the diffuse per-fragment color
         gAlbedoSpec.rgb = albedoTexture.rgb;
 
-        // store the fragment position vector in the first gbuffer texture
-        gPosition.rgb = FragPos;
-        // also store the per-fragment normals into the gbuffer
-        gNormal.rgb = getNormalFromMap();
 
         vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
 
