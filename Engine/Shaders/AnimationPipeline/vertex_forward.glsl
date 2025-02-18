@@ -59,7 +59,7 @@ void main()
     }
 
     drawId = gl_DrawID;
-    FragPos = vec3(modelAnimationMatrices[gl_DrawID] * vec4(aPos, 1.0));
+    FragPos = vec3(modelAnimationMatrices[gl_DrawID] * vec4(totalPosition.xyz, 1.0));
     TexCoords = aTexCoords;
     mat3 normalMatrix = mat3(transpose(inverse(mat3(modelAnimationMatrices[gl_DrawID]))));
     Normal = normalMatrix * normalize(localNormal);
