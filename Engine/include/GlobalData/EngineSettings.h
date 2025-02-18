@@ -13,5 +13,6 @@ namespace Prisma::EngineSettings
 	{
 		Pipeline pipeline;
 		bool ssr;
+		bool ssao;
 	};
 }

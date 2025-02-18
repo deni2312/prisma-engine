@@ -75,6 +75,8 @@ Prisma::Engine::Engine()
 
 	data->engineSettings.ssr = false;
 
+	data->engineSettings.ssao = true;
+
 	data->settings = SettingsLoader::getInstance().getSettings();
 
 	data->sceneHandler = std::make_shared<SceneHandler>();

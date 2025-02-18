@@ -96,6 +96,8 @@ Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& wid
 	m_fbo = std::make_shared<FBO>(fboData);
 
 	m_fullscreenPipeline = std::make_shared<PipelineFullScreen>();
+
+	m_ssao = std::make_shared<Prisma::PipelineSSAO>();
 }
 
 void Prisma::PipelineDeferredForward::render()
@@ -167,6 +169,17 @@ void Prisma::PipelineDeferredForward::render()
 		finalTexture = ssrTexture->texture();
 		Postprocess::getInstance().fboRaw(ssrTexture);
 	}
+
+	if (Engine::getInstance().engineSettings().ssao)
+	{
+		m_ssao->update(m_depth,m_position);
+
+		const auto& ssrTexture = m_ssao->texture();
+
+		//finalTexture = ssrTexture->texture();
+		//Postprocess::getInstance().fboRaw(ssrTexture);
+	}
+
 	if (Prisma::GlobalData::getInstance().fboTarget())
 	{
 		Prisma::GlobalData::getInstance().fboTarget()->bind();

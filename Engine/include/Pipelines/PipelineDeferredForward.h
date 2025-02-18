@@ -10,6 +10,7 @@
 #include "PipelineSSR.h"
 #include <memory>
 #include "../Helpers/Settings.h"
+#include "PipelineSSAO.h"
 
 namespace Prisma
 {
@@ -45,5 +46,6 @@ namespace Prisma
 
 
 		std::shared_ptr<PipelineSSR> m_ssr;
+		std::shared_ptr<PipelineSSAO> m_ssao;
 	};
 }

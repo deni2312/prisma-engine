@@ -283,7 +283,7 @@ namespace Prisma
 				{
 					glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
 					Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
-					                                  "ERROR::SHADER_COMPILATION_ERROR of type: " + type + "\n" +
+										              shaderName+"\nERROR::SHADER_COMPILATION_ERROR of type: " + type + "\n" +
 					                                  infoLog +
 					                                  "\n -- --------------------------------------------------- -- ");
 				}
@@ -295,7 +295,7 @@ namespace Prisma
 				{
 					glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
 					Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
-					                                  shaderName + "ERROR::PROGRAM_LINKING_ERROR of type: " + type +
+					                                  shaderName + "\nERROR::PROGRAM_LINKING_ERROR of type: " + type +
 					                                  "\n" + infoLog +
 					                                  "\n -- --------------------------------------------------- -- ");
 				}
