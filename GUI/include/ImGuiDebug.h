@@ -103,6 +103,8 @@ namespace Prisma
 
 		Exporter m_exporter;
 
+		float m_buttonSize = 44;
+
 		std::shared_ptr<SceneHandler> m_handlers;
 	};
 }

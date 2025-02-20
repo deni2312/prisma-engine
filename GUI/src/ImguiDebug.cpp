@@ -78,8 +78,8 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 		static_cast<float>(settings.width) / static_cast<float>(settings.height),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
-	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * scale(
-		glm::mat4(1.0f), glm::vec3(m_scale));
+	m_model = scale(
+		glm::mat4(1.0f), glm::vec3(m_scale)) * translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f));
 	m_fileBrowser = std::make_shared<FileBrowser>();
 	PixelCapture::getInstance();
 
@@ -189,22 +189,10 @@ void Prisma::ImguiDebug::drawGui()
 		ImGui::EndMainMenuBar();
 	}
 	m_initOffset = size.y;
-	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate - 30.0f / static_cast<float>(m_height), 0.0f)) *
-		scale(glm::mat4(1.0f), glm::vec3(m_scale));
 	bool isOpen = true;
-	if (!m_run)
-	{
-		ImGui::SetNextWindowPos(ImVec2(windowWidth, m_initOffset));
-		ImGui::SetNextWindowSize(ImVec2(m_width * m_scale, 0));
-	}
-	else
-	{
-		ImGui::SetNextWindowPos(ImVec2(0, m_initOffset));
-		ImGui::SetNextWindowSize(ImVec2(m_width, 0));
-	}
 	ImGui::Begin("Dummy Top", &isOpen,
-	             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
-	             ImGuiWindowFlags_NoCollapse);
+		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoCollapse);
 
 	auto positionRun = m_run ? m_width / 2 : m_width * m_scale / 2;
 
@@ -226,7 +214,21 @@ void Prisma::ImguiDebug::drawGui()
 			Engine::getInstance().setCallback(m_imguiCamera.callback());
 		}
 	}
+	m_buttonSize = ImGui::GetWindowSize().y;
+
 	ImGui::End();
+	m_model = scale(glm::mat4(1.0f), glm::vec3(m_scale))* translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate + (m_buttonSize) / static_cast<float>(m_height), 0.0f));
+	if (!m_run)
+	{
+		ImGui::SetNextWindowPos(ImVec2(windowWidth, m_initOffset));
+		ImGui::SetNextWindowSize(ImVec2(m_width * m_scale, 0));
+	}
+	else
+	{
+		ImGui::SetNextWindowPos(ImVec2(0, m_initOffset));
+		ImGui::SetNextWindowSize(ImVec2(m_width, 0));
+	}
+
 	if (!m_run)
 	{
 		ImGui::SetNextWindowPos(ImVec2(0, m_initOffset));
@@ -235,7 +237,7 @@ void Prisma::ImguiDebug::drawGui()
 		ImGui::Begin("Dummy Left", &isOpen,
 		             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
 		             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMouseInputs);
-		ImGui::Dummy(ImVec2(0.0f, m_height * m_scale));
+		ImGui::Dummy(ImVec2(0.0f, m_height * m_scale+ m_buttonSize));
 		ImGui::End();
 
 		ImGui::SetNextWindowPos(ImVec2(m_width * m_scale + windowWidth, m_initOffset));
@@ -244,11 +246,11 @@ void Prisma::ImguiDebug::drawGui()
 		ImGui::Begin("Dummy Right", &isOpen,
 		             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
 		             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMouseInputs);
-		ImGui::Dummy(ImVec2(0, m_height * m_scale));
+		ImGui::Dummy(ImVec2(0, m_height * m_scale+ m_buttonSize));
 		ImGui::End();
 
-		nextLeft(m_initOffset);
-
+		ImGui::SetNextWindowPos(ImVec2(0, m_initOffset));
+		ImGui::SetNextWindowSize(ImVec2(windowWidth, m_height* m_scale + m_buttonSize));
 		ImGui::Begin("Scene", nullptr,
 		             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 		m_plot.showFPS(m_fps);
@@ -267,10 +269,10 @@ void Prisma::ImguiDebug::drawGui()
 		ImGui::Separator();
 
 		ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 1,
-		                                   m_imguiCamera);
+m_imguiCamera);
 		// Check if the node is clicked
 		ImGui::End();
-		m_fileBrowser->show(m_width, m_height, m_initOffset, m_scale, m_translate);
+		m_fileBrowser->show(m_width, m_height, m_initOffset+m_buttonSize, m_scale, m_translate);
 		if (m_imguiCamera.currentSelect())
 		{
 			auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());

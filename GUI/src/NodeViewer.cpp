@@ -134,7 +134,7 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 		auto nextRight = [&](float pos)
 		{
 			ImGui::SetNextWindowPos(ImVec2(windowWidth + nodeData.scale * nodeData.width, pos));
-			ImGui::SetNextWindowSize(ImVec2(windowWidth, nodeData.height * nodeData.scale - pos));
+			ImGui::SetNextWindowSize(ImVec2(windowWidth, nodeData.height * nodeData.scale + 44 - pos));
 		};
 		nextRight(nodeData.initOffset);
 		ImGui::Begin(nodeData.node->name().c_str(), nullptr,
