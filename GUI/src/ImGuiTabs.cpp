@@ -5,28 +5,41 @@
 #include "imgui_internal.h"
 #include "../../Engine/include/Helpers/NodeHelper.h"
 #include "../../Engine/include/SceneObjects/Mesh.h"
+#include "../../Engine/include/GlobalData/CacheScene.h"
 
 
 Prisma::ImGuiTabs::ImGuiTabs()
 {
-	m_maxSize = m_nextSize;
+	
 }
 
-void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera)
+void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {
+	if (m_update) {
+		m_nodes.clear();
+		updateCurrentNodes(root, depth);
+		m_update = false;
+	}
+
+	if (Prisma::CacheScene::getInstance().updateSizes()) {
+		m_update = true;
+	}
+}
+
+void Prisma::ImGuiTabs::showCurrentNodes(ImGuiCamera& camera)
 {
-	if (root)
-	{
-		// Iterate through children of the current node
-		for (const auto& child : root->children())
+	ImGuiListClipper clipper;
+	clipper.Begin(m_nodes.size());
+	// Iterate through children of the current node
+	while (clipper.Step()) {
+
+		for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
 		{
-			if (m_index >= m_maxSize) {
-				break;
-			}
-			m_index++;
+			auto child = m_nodes[i].first;
+			int depth = m_nodes[i].second + 1;
 			// Add spacing based on depth
 			ImGui::Indent(depth * 20.0f); // Indent by 20 pixels per depth level
 			// Create a button without a label
-			std::string finalText = child->name() + "##" + std::to_string(m_index);
+			std::string finalText = child->name() + "##" + std::to_string(i);
 			if (ImGui::Selectable(finalText.c_str()))
 			{
 				camera.currentSelect(child.get());
@@ -59,8 +72,20 @@ void Prisma::ImGuiTabs::showCurrentNodes(std::shared_ptr<Node> root, int depth, 
 
 			// Remove the indent
 			ImGui::Unindent(depth * 20.0f);
+		}
+	}
+}
+
+void Prisma::ImGuiTabs::updateCurrentNodes(std::shared_ptr<Node> root, int depth)
+{
+	if (root)
+	{
+		// Iterate through children of the current node
+		for (const auto& child : root->children())
+		{
+			m_nodes.push_back({ child,depth });
 			// Recur for children with increased depth
-			showCurrentNodes(child, depth + 1, camera);
+			updateCurrentNodes(child, depth + 1);
 		}
 	}
 }
@@ -69,14 +94,8 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCa
 {
 	m_current = -1;
 	m_parent = nullptr;
-	showCurrentNodes(root, depth, camera);
-	if (m_index >= m_maxSize) {
-		if (ImGui::Button("Load next")) {
-			m_maxSize = m_maxSize + m_nextSize;
-		}
-	}
-	m_index = 0;
 
+	showCurrentNodes(camera);
 
 	if (m_current && m_parent && m_current == m_parent->uuid())
 	{

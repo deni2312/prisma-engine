@@ -222,6 +222,7 @@ void Prisma::ImguiDebug::drawGui()
 		}
 		else
 		{
+			Prisma::CacheScene::getInstance().updateSizes(true);
 			Engine::getInstance().setCallback(m_imguiCamera.callback());
 		}
 	}
@@ -349,6 +350,7 @@ void Prisma::ImguiDebug::close()
 		m_imguiCamera.updateCamera(m_camera);
 		m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
 		m_addingMenu.addMenu(m_imguiCamera);
+		ImGuiTabs::getInstance().updateTabs(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 0);
 	}
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

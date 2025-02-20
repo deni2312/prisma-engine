@@ -15,16 +15,16 @@ namespace Prisma
 
 		ImGuiTabs();
 
+		void updateTabs(std::shared_ptr<Node> root, int depth);
+
 	private:
-		void showCurrentNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera);
-
-		unsigned long int m_index = 0;
-
-		unsigned int m_maxSize = 0;
-
-		const int m_nextSize = 25;
+		void updateCurrentNodes(std::shared_ptr<Node> root, int depth);
+		void showCurrentNodes(ImGuiCamera& camera);
 
 		int64_t m_current = -1;
+		bool m_update = false;
 		std::shared_ptr<Prisma::Node> m_parent = nullptr;
+
+		std::vector<std::pair<std::shared_ptr<Prisma::Node>,int>> m_nodes;
 	};
 }
