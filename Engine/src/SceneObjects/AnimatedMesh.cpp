@@ -51,6 +51,11 @@ void Prisma::AnimatedMesh::finalMatrix(const glm::mat4& matrix, bool update)
 	CacheScene::getInstance().updateData(true);
 }
 
+glm::mat4 Prisma::AnimatedMesh::finalMatrix() const
+{
+	return Mesh::finalMatrix();
+}
+
 std::shared_ptr<Prisma::AnimatedMesh::AnimateVerticesData> Prisma::AnimatedMesh::animateVerticesData()
 {
 	return m_animateVertices;

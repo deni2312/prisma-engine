@@ -41,6 +41,7 @@ namespace Prisma
 
 		void loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices);
 		void finalMatrix(const glm::mat4& matrix, bool update = true) override;
+		glm::mat4 finalMatrix() const override;
 		std::shared_ptr<AnimateVerticesData> animateVerticesData();
 
 
