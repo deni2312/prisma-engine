@@ -75,7 +75,7 @@ Prisma::Engine::Engine()
 
 	data->engineSettings.ssr = false;
 
-	data->engineSettings.ssao = true;
+	data->engineSettings.ssao = false;
 
 	data->settings = SettingsLoader::getInstance().getSettings();
 
