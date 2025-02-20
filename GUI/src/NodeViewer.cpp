@@ -140,6 +140,15 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 		ImGui::Begin(nodeData.node->name().c_str(), nullptr,
 		             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
+		if (nodeData.node!=m_currentNode)
+		{
+			m_currentNode = nodeData.node;
+			if (mCurrentGizmoOperation == ImGuizmo::SCALE)
+			{
+				updateRotationScaling(nodeData.node);
+			}
+		}
+
 		if (ImGui::ImageButton((void*)m_rotateTexture->id(), ImVec2(24, 24)))
 		{
 			mCurrentGizmoOperation = ImGuizmo::ROTATE;
@@ -155,6 +164,7 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 		if (ImGui::ImageButton((void*)m_scaleTexture->id(), ImVec2(24, 24)))
 		{
 			mCurrentGizmoOperation = ImGuizmo::SCALE;
+			updateRotationScaling(nodeData.node);
 		}
 		ImGui::SameLine();
 
@@ -280,7 +290,10 @@ void Prisma::NodeViewer::drawGizmo(const NodeData& nodeData)
 
 		ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),
 			value_ptr(m_scale));
-
+		if (mCurrentGizmoOperation == ImGuizmo::SCALE) {
+			ImGuizmo::RecomposeMatrixFromComponents(value_ptr(m_translation), value_ptr(m_rotationScale),
+				value_ptr(m_scale), value_ptr(model));
+		}
 		nodeData.node->matrix(inverseParent * model);
 	}
 }
@@ -292,4 +305,17 @@ void Prisma::NodeViewer::hideChilds(Node* root, bool hide)
 		child->visible(hide);
 		hideChilds(child.get(), hide);
 	}
+}
+
+void Prisma::NodeViewer::updateRotationScaling(Prisma::Node* node)
+{
+	glm::mat4 model = node->finalMatrix();
+	auto inverseParent = glm::mat4(1.0f);
+	if (node->parent())
+	{
+		inverseParent = inverse(node->parent()->finalMatrix());
+	}
+	ImGuizmo::DecomposeMatrixToComponents(value_ptr(inverseParent * model), value_ptr(m_translation), value_ptr(m_rotation),
+		value_ptr(m_scale));
+	m_rotationScale = m_rotation;
 }
