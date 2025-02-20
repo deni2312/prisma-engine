@@ -1,5 +1,6 @@
 #include "../include/FolderView.h"
 #include "../include/TextureInfo.h"
+#include "../include/ImGuiHelper.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
 #include "../../Engine/include/Helpers/StringHelper.h"
 
@@ -29,85 +30,98 @@ void Prisma::FileBrowser::listDirectoryContents()
 	auto windowSize = ImGui::GetWindowSize();
 	int numColumn = 10;
 
-	auto itemSize = ImVec2(windowSize.x / numColumn - 20, windowSize.x / numColumn - 20);
+	auto itemSize = ImVec2(100, 100);
 	bool isDirectory = false;
 	fs::directory_entry entryPath;
-	for (const auto& entry : m_entries)
-	{
-		try
-		{
-			std::string entryName = entry.path().filename().string();
-
-			ImGui::Columns(numColumn, nullptr, false);
-			ImGui::BeginGroup();
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(-5, 0)); // Set padding to zero
-
-			if (entry.is_directory())
-			{
-				// Load your folder icon texture here
-				ImGui::ImageButton((void*)m_folder->id(), itemSize);
-				if (ImGui::IsItemClicked())
-				{
-					isDirectory = true;
-					entryPath = entry;
-				}
-			}
-			else
-			{
-				// Load your file icon texture here
-				ImGui::ImageButton((void*)m_file->id(), itemSize);
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-				{
-					auto path = windowsToString(entry.path().c_str());
-
-					if (Prisma::StringHelper::getInstance().endsWith(path, ".prisma"))
+	auto data = [&](int i) {
+		if (ImGui::BeginTable("FolderTable", numColumn)) {
+			for (int j = 0; j < numColumn; j++) {
+				if (i * numColumn + j < m_entries.size()) {
+					try
 					{
-						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+						ImGui::TableNextColumn(); // Move to the next column
+						auto entry = m_entries[i * numColumn+j];
+						std::string entryName = entry.path().filename().string();
+
+
+						ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+
+						if (entry.is_directory())
 						{
-							Prisma::LoadingHandler::getInstance().load(path, {true, nullptr, true});
+							// Load your folder icon texture here
+							ImGui::ImageButton((void*)m_folder->id(), itemSize);
+							if (ImGui::IsItemClicked())
+							{
+								isDirectory = true;
+								entryPath = entry;
+							}
 						}
 						else
 						{
-							Prisma::LoadingHandler::getInstance().load(path, {true, nullptr, false});
+							// Load your file icon texture here
+							ImGui::ImageButton((void*)m_file->id(), itemSize);
+							if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+							{
+								auto path = windowsToString(entry.path().c_str());
+
+								if (Prisma::StringHelper::getInstance().endsWith(path, ".prisma"))
+								{
+									if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+									{
+										Prisma::LoadingHandler::getInstance().load(path, { true, nullptr, true });
+									}
+									else
+									{
+										Prisma::LoadingHandler::getInstance().load(path, { true, nullptr, false });
+									}
+								}
+								else
+								{
+									Prisma::SceneLoader loader;
+									auto scene = loader.loadScene(path, { true });
+									if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+									{
+										Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
+									}
+									else
+									{
+										Prisma::GlobalData::getInstance().currentGlobalScene(scene);
+									}
+								}
+								MeshIndirect::getInstance().init();
+								CacheScene::getInstance().updateSizes(true);
+							}
 						}
+						ImGui::PopStyleColor();
+
+						bool selected = false;
+
+						auto textSize = ImGui::CalcTextSize(entryName.c_str());
+
+						m_fontSize.x = textSize.x;
+
+						ImGui::Text(entryName.c_str(), selected, 0, m_fontSize);
+
 					}
-					else
+					catch (std::exception& e)
 					{
-						Prisma::SceneLoader loader;
-						auto scene = loader.loadScene(path, {true});
-						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
-						{
-							Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
-						}
-						else
-						{
-							Prisma::GlobalData::getInstance().currentGlobalScene(scene);
-						}
 					}
-					MeshIndirect::getInstance().init();
-					CacheScene::getInstance().updateSizes(true);
 				}
+
 			}
-			ImGui::PopStyleVar(); // Restore the previous padding
-			ImGui::PopStyleColor();
-
-			bool selected = false;
-
-			auto textSize = ImGui::CalcTextSize(entryName.c_str());
-
-			m_fontSize.x = textSize.x;
-
-			ImGui::Text(entryName.c_str(), selected, 0, m_fontSize);
-			ImGui::EndGroup();
-
-			ImGui::NextColumn();
+			ImGui::EndTable();
 		}
-		catch (std::exception& e)
-		{
-		}
+		ImGui::NewLine();
+		};
+	auto size = m_entries.size();
+	if (size % numColumn > 0) {
+		size = size / numColumn + 1;
 	}
+	else {
+		size = size / numColumn;
+	}
+	Prisma::ImGuiHelper::getInstance().clipVertical(size, data);
+
 
 	if (isDirectory)
 	{
