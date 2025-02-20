@@ -91,10 +91,16 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 				Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights, uuid);
 		}
 
-		auto components = m_children[index]->components();
-		for (const auto& component : components)
+		auto componentsData = m_children[index]->components();
+
+		std::vector<std::string> keys;
+		for (const auto& component : componentsData)
 		{
-			m_children[index]->removeComponent(component.first);
+			keys.push_back(component.first);
+		}
+
+		for (const auto& k : keys) {
+			m_children[index]->removeComponent(k);
 		}
 
 		m_children[index]->parent(nullptr);
