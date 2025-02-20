@@ -190,6 +190,16 @@ void Prisma::ImguiDebug::drawGui()
 	}
 	m_initOffset = size.y;
 	bool isOpen = true;
+	if (!m_run)
+	{
+		ImGui::SetNextWindowPos(ImVec2(windowWidth, m_initOffset));
+		ImGui::SetNextWindowSize(ImVec2(m_width * m_scale, 0));
+	}
+	else
+	{
+		ImGui::SetNextWindowPos(ImVec2(0, m_initOffset));
+		ImGui::SetNextWindowSize(ImVec2(m_width, 0));
+	}
 	ImGui::Begin("Dummy Top", &isOpen,
 		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
 		ImGuiWindowFlags_NoCollapse);
@@ -218,16 +228,7 @@ void Prisma::ImguiDebug::drawGui()
 
 	ImGui::End();
 	m_model = scale(glm::mat4(1.0f), glm::vec3(m_scale))* translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate + (m_buttonSize) / static_cast<float>(m_height), 0.0f));
-	if (!m_run)
-	{
-		ImGui::SetNextWindowPos(ImVec2(windowWidth, m_initOffset));
-		ImGui::SetNextWindowSize(ImVec2(m_width * m_scale, 0));
-	}
-	else
-	{
-		ImGui::SetNextWindowPos(ImVec2(0, m_initOffset));
-		ImGui::SetNextWindowSize(ImVec2(m_width, 0));
-	}
+
 
 	if (!m_run)
 	{
