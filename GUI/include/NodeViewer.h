@@ -63,11 +63,7 @@ namespace Prisma
 		int m_componentSelect = 0;
 		std::vector<const char*> m_components;
 
-		glm::vec3 m_rotationScale;
-
 		Prisma::Node* m_currentNode = nullptr;
-
-		void updateRotationScaling(Prisma::Node* node);
 
 		ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
 		ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
