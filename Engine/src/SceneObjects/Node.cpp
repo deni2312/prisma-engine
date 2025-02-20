@@ -94,8 +94,9 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 		auto components = m_children[index]->components();
 		for (const auto& component : components)
 		{
-			component.second->destroy();
+			m_children[index]->removeComponent(component.first);
 		}
+
 		m_children[index]->parent(nullptr);
 		m_children.erase(m_children.begin() + index);
 
