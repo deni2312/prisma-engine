@@ -6,6 +6,7 @@
 #include "../../Engine/include/Helpers/NodeHelper.h"
 #include "../../Engine/include/SceneObjects/Mesh.h"
 #include "../../Engine/include/GlobalData/CacheScene.h"
+#include "../include/ImGuiHelper.h"
 
 
 Prisma::ImGuiTabs::ImGuiTabs()
@@ -27,53 +28,49 @@ void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {
 
 void Prisma::ImGuiTabs::showCurrentNodes(ImGuiCamera& camera)
 {
-	ImGuiListClipper clipper;
-	clipper.Begin(m_nodes.size());
-	// Iterate through children of the current node
-	while (clipper.Step()) {
-
-		for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+	auto data = [&](int i) {
+		auto child = m_nodes[i].first;
+		int depth = m_nodes[i].second + 1;
+		// Add spacing based on depth
+		ImGui::Indent(depth * 20.0f); // Indent by 20 pixels per depth level
+		// Create a button without a label
+		std::string finalText = child->name() + "##" + std::to_string(i);
+		if (ImGui::Selectable(finalText.c_str()))
 		{
-			auto child = m_nodes[i].first;
-			int depth = m_nodes[i].second + 1;
-			// Add spacing based on depth
-			ImGui::Indent(depth * 20.0f); // Indent by 20 pixels per depth level
-			// Create a button without a label
-			std::string finalText = child->name() + "##" + std::to_string(i);
-			if (ImGui::Selectable(finalText.c_str()))
-			{
-				camera.currentSelect(child.get());
-			}
-
-			ImGuiDragDropFlags src_flags = 0;
-			src_flags |= ImGuiDragDropFlags_SourceNoDisableHover;
-			src_flags |= ImGuiDragDropFlags_SourceNoHoldToOpenOthers;
-
-			if (ImGui::BeginDragDropSource(src_flags))
-			{
-				m_current = child->uuid();
-				ImGui::SetDragDropPayload("DATA_NAME", &m_current, sizeof(int64_t));
-				ImGui::Text(child->name().c_str());
-				ImGui::EndDragDropSource();
-			}
-
-			if (ImGui::BeginDragDropTarget())
-			{
-				ImGuiDragDropFlags target_flags = 0;
-				target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
-				target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect; // Don't display the yellow rectangle
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DATA_NAME", target_flags))
-				{
-					m_current = *(int64_t*)payload->Data;
-					m_parent = child;
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			// Remove the indent
-			ImGui::Unindent(depth * 20.0f);
+			camera.currentSelect(child.get());
 		}
-	}
+
+		ImGuiDragDropFlags src_flags = 0;
+		src_flags |= ImGuiDragDropFlags_SourceNoDisableHover;
+		src_flags |= ImGuiDragDropFlags_SourceNoHoldToOpenOthers;
+
+		if (ImGui::BeginDragDropSource(src_flags))
+		{
+			m_current = child->uuid();
+			ImGui::SetDragDropPayload("DATA_NAME", &m_current, sizeof(int64_t));
+			ImGui::Text(child->name().c_str());
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			ImGuiDragDropFlags target_flags = 0;
+			target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
+			target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect; // Don't display the yellow rectangle
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DATA_NAME", target_flags))
+			{
+				m_current = *(int64_t*)payload->Data;
+				m_parent = child;
+			}
+			ImGui::EndDragDropTarget();
+		}
+
+		// Remove the indent
+		ImGui::Unindent(depth * 20.0f);
+	};
+
+	Prisma::ImGuiHelper::getInstance().clipVertical(m_nodes.size(), data);
+	
 }
 
 void Prisma::ImGuiTabs::updateCurrentNodes(std::shared_ptr<Node> root, int depth)
