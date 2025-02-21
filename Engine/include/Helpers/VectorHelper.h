@@ -21,7 +21,9 @@ namespace Prisma
 				                         }
 				                         return false;
 			                         });
-			nodes.erase(find);
+			if (find != nodes.end()) {
+				nodes.erase(find);
+			}
 		}
 	};
 }
