@@ -28,7 +28,6 @@
 
 struct PrivateData
 {
-	Prisma::PipelineHandler pipelineHandler;
 	Prisma::Settings settings;
 	std::shared_ptr<Prisma::CallbackHandler> callbackHandler;
 	std::shared_ptr<Prisma::Camera> camera;
@@ -126,13 +125,13 @@ bool Prisma::Engine::run()
 			switch (data->engineSettings.pipeline)
 			{
 			case EngineSettings::Pipeline::FORWARD:
-				data->pipelineHandler.forward()->render();
+				PipelineHandler::getInstance().forward()->render();
 				break;
 			case EngineSettings::Pipeline::DEFERRED:
-				data->pipelineHandler.deferred()->render();
+				PipelineHandler::getInstance().deferred()->render();
 				break;
 			case EngineSettings::Pipeline::DEFERRED_FORWARD:
-				data->pipelineHandler.deferredForward()->render();
+				PipelineHandler::getInstance().deferredForward()->render();
 				break;
 			}
 
@@ -165,7 +164,7 @@ void Prisma::Engine::initScene()
 {
 	data->userData->start();
 	MeshHandler::getInstance().updateCluster();
-	if (!data->pipelineHandler.initScene(data->sceneParameters))
+	if (!PipelineHandler::getInstance().initScene(data->sceneParameters))
 	{
 		std::cerr << "Null camera or scene" << std::endl;
 		PrismaFunc::getInstance().closeWindow();

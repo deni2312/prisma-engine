@@ -11,7 +11,7 @@
 
 namespace Prisma
 {
-	class PipelineHandler
+	class PipelineHandler : public InstanceData<PipelineHandler>
 	{
 	public:
 		bool initScene(SceneLoader::SceneParameters sceneParameters);
