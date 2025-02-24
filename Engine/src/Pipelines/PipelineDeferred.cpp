@@ -58,15 +58,15 @@ Prisma::PipelineDeferred::PipelineDeferred(const unsigned int& width, const unsi
 	auto textureList = m_fboBuffer->textures();
 
 
-	m_position = textureList[0];
+	m_deferredData.position = textureList[0];
 
-	m_normal = textureList[1];
+	m_deferredData.normal = textureList[1];
 
-	m_albedo = textureList[2];
+	m_deferredData.albedo = textureList[2];
 
-	m_ambient = textureList[3];
+	m_deferredData.ambient = textureList[3];
 
-	m_depth = m_fboBuffer->depth();
+	m_deferredData.depth = m_fboBuffer->depth();
 	m_shaderD->use();
 	m_positionLocation = m_shaderD->getUniformPosition("gPosition");
 	m_normalLocation = m_shaderD->getUniformPosition("gNormal");
@@ -105,10 +105,10 @@ void Prisma::PipelineDeferred::render()
 	ComponentsHandler::getInstance().updatePreRender(m_fbo);
 
 	m_shaderD->use();
-	m_shaderD->setInt64(m_albedoLocation, m_albedo);
-	m_shaderD->setInt64(m_normalLocation, m_normal);
-	m_shaderD->setInt64(m_positionLocation, m_position);
-	m_shaderD->setInt64(m_ambientLocation, m_ambient);
+	m_shaderD->setInt64(m_albedoLocation, m_deferredData.albedo);
+	m_shaderD->setInt64(m_normalLocation, m_deferredData.normal);
+	m_shaderD->setInt64(m_positionLocation, m_deferredData.position);
+	m_shaderD->setInt64(m_ambientLocation, m_deferredData.ambient);
 	PrismaRender::getInstance().renderQuad();
 
 	//COPY DEPTH FOR SKYBOX AND SPRITES
@@ -134,7 +134,7 @@ void Prisma::PipelineDeferred::render()
 	Postprocess::getInstance().fbo(Prisma::GlobalData::getInstance().fboTarget());
 	if (Engine::getInstance().engineSettings().ssr)
 	{
-		m_ssr->update(m_albedo, m_position, m_normal, m_fbo->texture(), m_depth);
+		m_ssr->update(m_deferredData.albedo, m_deferredData.position, m_deferredData.normal, m_fbo->texture(), m_deferredData.depth);
 
 		const auto& ssrTexture = m_ssr->texture();
 

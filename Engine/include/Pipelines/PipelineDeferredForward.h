@@ -9,6 +9,8 @@
 #include "PipelineFullScreen.h"
 #include "PipelineSSR.h"
 #include <memory>
+
+#include "PipelineDeferred.h"
 #include "../Helpers/Settings.h"
 #include "PipelineSSAO.h"
 
@@ -29,11 +31,7 @@ namespace Prisma
 		std::shared_ptr<Shader> m_shaderAnimate;
 		std::shared_ptr<Shader> m_shaderCompute;
 		std::shared_ptr<Shader> m_shaderForward;
-		uint64_t m_position;
-		uint64_t m_normal;
-		uint64_t m_albedo;
-		uint64_t m_depth;
-		uint64_t m_ambient;
+		Prisma::PipelineDeferred::DeferredData m_deferredData;
 		unsigned int m_positionLocation;
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;

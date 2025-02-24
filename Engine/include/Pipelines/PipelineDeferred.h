@@ -16,6 +16,15 @@ namespace Prisma
 	class PipelineDeferred
 	{
 	public:
+		struct DeferredData
+		{
+			uint64_t position;
+			uint64_t normal;
+			uint64_t albedo;
+			uint64_t depth;
+			uint64_t ambient;
+		};
+
 		PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb);
 		void render();
 		~PipelineDeferred();
@@ -26,11 +35,9 @@ namespace Prisma
 		std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderD;
 		std::shared_ptr<Shader> m_shaderAnimate;
-		uint64_t m_position;
-		uint64_t m_normal;
-		uint64_t m_albedo;
-		uint64_t m_depth;
-		uint64_t m_ambient;
+
+		DeferredData m_deferredData;
+
 		unsigned int m_positionLocation;
 		unsigned int m_normalLocation;
 		unsigned int m_albedoLocation;
