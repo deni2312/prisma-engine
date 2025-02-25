@@ -105,6 +105,12 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 
 
 
+	auto removeColors = [&]()
+		{
+			ImGui::PopStyleVar();
+			ImGui::PopStyleColor(5);  // Reset the colors
+		};
+
 	for (const auto& component : components)
 	{
 		ImGui::Separator();
@@ -113,13 +119,13 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 			auto fields = component.second->globalVars();
 			auto dispatch = [&]()
 				{
-					ImGui::PopStyleVar();
-					ImGui::PopStyleColor(5);  // Reset the colors
+					removeColors();
 					for (auto field : fields)
 					{
-						getInstance().varsDispatcher(field, i);
+						getInstance().varsDispatcher(field.type, i);
 					}
 				};
+
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark background for window
 			ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));  // Dark background for header
 			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.00f)); // Dark hover effect for header
@@ -138,8 +144,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 					dispatch();
 				}else
 				{
-					ImGui::PopStyleVar();
-					ImGui::PopStyleColor(5);  // Reset the colors
+					removeColors();
 				}
 				if (!visible)
 				{
@@ -153,8 +158,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 				}
 				else
 				{
-					ImGui::PopStyleVar();
-					ImGui::PopStyleColor(5);  // Reset the colors
+					removeColors();
 				}
 			}
 

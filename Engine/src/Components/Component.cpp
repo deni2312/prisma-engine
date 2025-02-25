@@ -122,7 +122,7 @@ bool Prisma::Component::uiRemovable()
 	return m_uiRemovable;
 }
 
-void Prisma::Component::addGlobal(ComponentType globalVar)
+void Prisma::Component::addGlobal(Options globalVar)
 {
 	m_globalVars.push_back(globalVar);
 }

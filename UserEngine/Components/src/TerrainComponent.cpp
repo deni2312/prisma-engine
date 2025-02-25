@@ -47,10 +47,10 @@ void Prisma::TerrainComponent::ui()
 
 	for (const auto& component : components)
 	{
-		addGlobal(component);
+		addGlobal({component,false });
 	}
-	addGlobal(componentButton);
-	addGlobal(componentApply);
+	addGlobal({componentButton,false });
+	addGlobal({componentApply,false });
 }
 
 void Prisma::TerrainComponent::updateRender(std::shared_ptr<FBO> fbo)

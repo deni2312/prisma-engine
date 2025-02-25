@@ -93,31 +93,31 @@ void Prisma::MaterialComponent::ui()
 	{
 		m_diffuseName = std::make_shared<std::string>(getLast(m_diffuse[0].name()));
 		m_componentTypeDiffuse = std::make_tuple(TYPES::BUTTON, "Diffuse", &m_diffuseButton);
-		addGlobal(m_componentTypeDiffuse);
+		addGlobal({m_componentTypeDiffuse,false });
 	}
 	if (m_normal.size() > 0)
 	{
 		m_normalName = std::make_shared<std::string>(getLast(m_normal[0].name()));
 		m_componentTypeNormal = std::make_tuple(TYPES::BUTTON, "Normal", &m_normalButton);
-		addGlobal(m_componentTypeNormal);
+		addGlobal({m_componentTypeNormal,false });
 	}
 	if (m_roughnessMetalness.size() > 0)
 	{
 		m_metalness_roughnessName = std::make_shared<std::string>(getLast(m_roughnessMetalness[0].name()));
 		m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::BUTTON, "Metalness-Roughness", &m_metalnessRoughnessButton);
-		addGlobal(m_componentTypeMetalnessRoughness);
+		addGlobal({m_componentTypeMetalnessRoughness,false });
 	}
 	if (m_specular.size() > 0)
 	{
 		m_specularName = std::make_shared<std::string>(getLast(m_specular[0].name()));
 		m_componentTypeSpecular = std::make_tuple(TYPES::BUTTON, "Specular", &m_specularButton);
-		addGlobal(m_componentTypeSpecular);
+		addGlobal({m_componentTypeSpecular,false });
 	}
 	if (m_ambientOcclusion.size() > 0)
 	{
 		m_ambientOcclusionName = std::make_shared<std::string>(getLast(m_ambientOcclusion[0].name()));
 		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::BUTTON, "AmbientOcclusion", &m_ambientOcclusionButton);
-		addGlobal(m_componentTypeAmbientOcclusion);
+		addGlobal({m_componentTypeAmbientOcclusion,false });
 	}
 
 	ComponentType componentPlain;
@@ -139,10 +139,10 @@ void Prisma::MaterialComponent::ui()
 	ComponentType componentButton;
 	componentButton = std::make_tuple(TYPES::BUTTON, "Apply", &m_apply);
 
-	addGlobal(componentPlain);
-	addGlobal(componentTransparent);
-	addGlobal(componentColor);
-	addGlobal(componentButton);
+	addGlobal({componentPlain,false });
+	addGlobal({componentTransparent,false });
+	addGlobal({componentColor,false });
+	addGlobal({componentButton,false });
 
 	uiRemovable(false);
 

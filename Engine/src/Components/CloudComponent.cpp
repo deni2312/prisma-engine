@@ -96,11 +96,11 @@ void Prisma::CloudComponent::ui()
 	ComponentType updateButton = std::make_tuple(TYPES::BUTTON, "Update Clouds", &m_updateButton);
 	for (const auto& component : components)
 	{
-		addGlobal(component);
+		addGlobal({ component,false });
 	}
-	addGlobal(componentButton);
+	addGlobal({componentButton,false });
 
-	addGlobal(updateButton);
+	addGlobal({updateButton,false });
 }
 
 void Prisma::CloudComponent::updatePostRender(std::shared_ptr<FBO> fbo)

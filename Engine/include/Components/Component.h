@@ -34,7 +34,13 @@ namespace Prisma
 
 		using ComponentType = std::tuple<TYPES, std::string, void*>;
 
-		using ComponentTypeVector = std::vector<ComponentType>;
+		struct Options
+		{
+			ComponentType type;
+			bool sameline = false;
+		};
+
+		using ComponentTypeVector = std::vector<Options>;
 
 		virtual void ui();
 
@@ -64,7 +70,7 @@ namespace Prisma
 
 		bool isUi() const;
 
-		void addGlobal(ComponentType globalVar);
+		void addGlobal(Options globalVar);
 
 		ComponentTypeVector globalVars();
 

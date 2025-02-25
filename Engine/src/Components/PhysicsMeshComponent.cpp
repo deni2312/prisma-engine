@@ -52,23 +52,23 @@ void Prisma::PhysicsMeshComponent::ui()
 
 	componentButton = std::make_tuple(TYPES::BUTTON, "Apply Collider", &m_apply);
 
-	addGlobal(componentType);
+	addGlobal({componentType,false });
 
-	addGlobal(componentMass);
+	addGlobal({componentMass,false });
 
-	addGlobal(componentFriction);
+	addGlobal({componentFriction,false });
 
-	addGlobal(componentRestitution);
+	addGlobal({componentRestitution,false });
 
-	addGlobal(componentPressure);
+	addGlobal({componentPressure,false });
 
-	addGlobal(componentIteration);
+	addGlobal({componentIteration,false });
 
-	addGlobal(componentDynamic);
+	addGlobal({componentDynamic,false });
 
-	addGlobal(componentSoftBody);
+	addGlobal({componentSoftBody,false });
 
-	addGlobal(componentButton);
+	addGlobal({componentButton,false });
 
 	updateCollisionData();
 }
