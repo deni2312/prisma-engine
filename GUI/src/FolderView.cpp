@@ -136,7 +136,8 @@ void Prisma::FileBrowser::addEntries()
 {
 	for (const auto& entry : fs::directory_iterator(m_currentPath))
 	{
-		if (entry.is_directory() || Prisma::StringHelper::getInstance().endsWith(entry.path().filename().string(), ".gltf")) {
+		auto filter = Prisma::StringHelper::getInstance().endsWith(entry.path().filename().string(), ".gltf") || Prisma::StringHelper::getInstance().endsWith(entry.path().filename().string(), ".prisma");
+		if (entry.is_directory() || filter) {
 			m_entries.push_back(entry);
 		}
 	}
