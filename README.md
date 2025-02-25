@@ -73,6 +73,14 @@ cd ..
 
 ## Demos
 
+### Soft bodies
+
+An example of a Sponza scene with softbodies
+
+https://www.youtube.com/watch?v=TyS-U4R85F8
+
+[![Sponza](https://img.youtube.com/vi/TyS-U4R85F8/0.jpg)](https://www.youtube.com/watch?v=TyS-U4R85F8)
+
 
 ### Demo
 
