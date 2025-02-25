@@ -21,7 +21,7 @@ void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {
 		m_update = false;
 	}
 
-	if (Prisma::CacheScene::getInstance().updateSizes()) {
+	if (Prisma::CacheScene::getInstance().updateSizes() || Prisma::CacheScene::getInstance().updateLights() || Prisma::CacheScene::getInstance().updateData()) {
 		m_update = true;
 	}
 }

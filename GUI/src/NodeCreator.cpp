@@ -299,6 +299,15 @@ std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createArea()
 	return light;
 }
 
+std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createNode()
+{
+	auto newInstance = std::make_shared<Node>();
+	newInstance->matrix(glm::mat4(1.0));
+	newInstance->name("Node" + std::to_string(newInstance->uuid()));
+	Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(newInstance);
+	return newInstance;
+}
+
 std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,
                                                               const std::string& name)
 {

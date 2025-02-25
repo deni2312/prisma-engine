@@ -10,6 +10,10 @@ void Prisma::ImGuiAddingMenu::addMenu(Prisma::ImGuiCamera& camera) const
 	// Right-click context menu
 	if (ImGui::BeginPopup("RightClickMenu"))
 	{
+		if (ImGui::MenuItem("Add Node"))
+		{
+			Prisma::NodeCreator::createNode();
+		}
 		if (ImGui::MenuItem("Add Cube"))
 		{
 			Prisma::NodeCreator::createCube();
