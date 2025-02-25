@@ -98,31 +98,68 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 	auto components = nodeData->components();
 	int i = 0;
 	std::string indexRemove = "";
+	bool visible = true;
+
+
+
+
+
+
 	for (const auto& component : components)
 	{
 		ImGui::Separator();
 		if (component.second->isUi())
 		{
 			auto fields = component.second->globalVars();
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 30.f));
-			if (ImGui::CollapsingHeader((component.second->name()+"##").c_str()))
-			if (ImGui::TreeNodeEx(component.second->name().c_str(), ImGuiTreeNodeFlags_FramePadding)) {
-				ImGui::PopStyleVar();
-				for (auto field : fields)
+			auto dispatch = [&]()
 				{
-					getInstance().varsDispatcher(field, i);
+					ImGui::PopStyleVar();
+					ImGui::PopStyleColor(5);  // Reset the colors
+					for (auto field : fields)
+					{
+						getInstance().varsDispatcher(field, i);
+					}
+				};
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark background for window
+			ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));  // Dark background for header
+			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.00f)); // Dark hover effect for header
+			ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.35f, 0.35f, 0.35f, 1.00f)); // Dark active header
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.10f, 0.10f, 0.10f, 1.00f));  // Light gray background for frame
+
+
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 20.f));
+
+			
+
+			if (component.second->uiRemovable())
+			{
+				if (ImGui::CollapsingHeader((component.second->name()).c_str(), &visible))
+				{
+					dispatch();
+				}else
+				{
+					ImGui::PopStyleVar();
+					ImGui::PopStyleColor(5);  // Reset the colors
 				}
-				ImGui::TreePop();
+				if (!visible)
+				{
+					indexRemove = component.first;
+				}
 			}else
 			{
-				ImGui::PopStyleVar();
+				if (ImGui::CollapsingHeader((component.second->name()).c_str()))
+				{
+					dispatch();
+				}
+				else
+				{
+					ImGui::PopStyleVar();
+					ImGui::PopStyleColor(5);  // Reset the colors
+				}
 			}
+
 		}
 		std::string nameRemove = "Remove Component##" + std::to_string(i);
-		if (component.second->uiRemovable() && ImGui::Button(nameRemove.c_str()))
-		{
-			indexRemove = component.first;
-		}
 		i++;
 	}
 	if (!indexRemove.empty())
