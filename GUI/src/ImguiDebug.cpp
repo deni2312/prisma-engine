@@ -253,7 +253,7 @@ void Prisma::ImguiDebug::drawGui()
 		ImGui::SetNextWindowPos(ImVec2(0, m_initOffset));
 		ImGui::SetNextWindowSize(ImVec2(windowWidth, m_height* m_scale + m_buttonSize));
 		ImGui::Begin("Scene", nullptr,
-		             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+		             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar);
 		m_plot.showFPS(m_fps);
 
 		if (openSettings)
