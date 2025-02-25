@@ -7,7 +7,11 @@
 #include "../../Engine/include/SceneObjects/Mesh.h"
 #include "../../Engine/include/GlobalData/CacheScene.h"
 #include "../include/ImGuiHelper.h"
+#include "imgui_stdlib.h"
+#include "../../Engine/include/GlobalData/GlobalData.h"
+#include "../../Engine/include/Helpers/StringHelper.h"
 
+std::string textSearch;
 
 Prisma::ImGuiTabs::ImGuiTabs()
 {
@@ -28,7 +32,55 @@ void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {
 
 void Prisma::ImGuiTabs::showCurrentNodes(ImGuiCamera& camera)
 {
-	auto data = [&](int i) {
+	if (!textSearch.empty() && Prisma::GlobalData::getInstance().currentGlobalScene()->root)
+	{
+		std::vector<std::shared_ptr<Prisma::Node>> findings;
+		Prisma::NodeHelper nodeHelper;
+		nodeHelper.nodeIterator(Prisma::GlobalData::getInstance().currentGlobalScene()->root, [&](auto node,auto parent)
+		{
+			if (Prisma::StringHelper::getInstance().toLower(node->name()).find(Prisma::StringHelper::getInstance().toLower(textSearch))!=std::string::npos)
+			{
+				findings.push_back(node);
+			}
+		});
+
+		for (int i=0;i<findings.size();i++)
+		{
+			// Create a button without a label
+			std::string finalText = findings[i]->name() + "##" + std::to_string(i);
+			if (ImGui::Selectable(finalText.c_str()))
+			{
+				camera.currentSelect(findings[i].get());
+			}
+
+			ImGuiDragDropFlags src_flags = 0;
+			src_flags |= ImGuiDragDropFlags_SourceNoDisableHover;
+			src_flags |= ImGuiDragDropFlags_SourceNoHoldToOpenOthers;
+
+			if (ImGui::BeginDragDropSource(src_flags))
+			{
+				m_current = findings[i]->uuid();
+				ImGui::SetDragDropPayload("DATA_NAME", &m_current, sizeof(int64_t));
+				ImGui::Text(findings[i]->name().c_str());
+				ImGui::EndDragDropSource();
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				ImGuiDragDropFlags target_flags = 0;
+				target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
+				target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect; // Don't display the yellow rectangle
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DATA_NAME", target_flags))
+				{
+					m_current = *(int64_t*)payload->Data;
+					m_parent = findings[i];
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+	}else
+	{
+		auto data = [&](int i) {
 		auto child = m_nodes[i].first;
 		int depth = m_nodes[i].second + 1;
 		// Add spacing based on depth
@@ -67,9 +119,10 @@ void Prisma::ImGuiTabs::showCurrentNodes(ImGuiCamera& camera)
 
 		// Remove the indent
 		ImGui::Unindent(depth * 20.0f);
-	};
+		};
 
-	Prisma::ImGuiHelper::getInstance().clipVertical(m_nodes.size(), data);
+		Prisma::ImGuiHelper::getInstance().clipVertical(m_nodes.size(), data);
+	}
 	
 }
 
@@ -87,12 +140,12 @@ void Prisma::ImGuiTabs::updateCurrentNodes(std::shared_ptr<Node> root, int depth
 	}
 }
 
-void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera)
+void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, ImGuiCamera& camera)
 {
 	m_current = -1;
 	m_parent = nullptr;
 
-	ImGui::InputText("Search", &m_textSearch[0], 256);
+	ImGui::InputText("Search", &textSearch);
 
 	showCurrentNodes(camera);
 

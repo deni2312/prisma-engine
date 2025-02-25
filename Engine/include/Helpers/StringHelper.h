@@ -14,5 +14,7 @@ namespace Prisma
 		bool endsWith(const std::string& value, const std::string& ending);;
 
 		std::string toRelativePath(const std::string& absolutePath, const std::string& basePath);
+
+		std::string toLower(std::string s);
 	};
 }

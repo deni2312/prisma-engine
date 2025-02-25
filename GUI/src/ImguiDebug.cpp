@@ -269,7 +269,7 @@ void Prisma::ImguiDebug::drawGui()
 
 		ImGui::Separator();
 
-		ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 1,
+		ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root,
 m_imguiCamera);
 		// Check if the node is clicked
 		ImGui::End();

@@ -11,7 +11,7 @@ namespace Prisma
 	class ImGuiTabs : public InstanceData<ImGuiTabs>
 	{
 	public:
-		void showNodes(std::shared_ptr<Node> root, int depth, ImGuiCamera& camera);
+		void showNodes(std::shared_ptr<Node> root, ImGuiCamera& camera);
 
 		ImGuiTabs();
 
@@ -26,7 +26,5 @@ namespace Prisma
 		std::shared_ptr<Prisma::Node> m_parent = nullptr;
 
 		std::vector<std::pair<std::shared_ptr<Prisma::Node>,int>> m_nodes;
-
-		std::array<char,256> m_textSearch;
 	};
 }
