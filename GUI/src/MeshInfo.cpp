@@ -3,6 +3,7 @@
 #include "glm/gtx/string_cast.hpp"
 #include <tuple>
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
+#include "../../Engine/include/Helpers/WindowsHelper.h"
 #include "../include/NodeViewer.h"
 
 void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
@@ -69,6 +70,17 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 				if (ImGui::SliderFloat("Frames", &current, 0.0f, animation->duration()))
 				{
 					animator->frame(current);
+				}
+			}
+			if (ImGui::Button("Load animation"))
+			{
+				auto location = Prisma::WindowsHelper::getInstance().openFolder("All Files");
+				if (!location.empty()) {
+					auto nodeData = std::dynamic_pointer_cast<Prisma::AnimatedMesh>(Prisma::GlobalData::getInstance().sceneNodes()[isAnimate->uuid()]);
+					auto animation = std::make_shared<Prisma::Animation>(
+						location, nodeData);
+					auto animator = std::make_shared<Prisma::Animator>(animation);
+					isAnimate->animator(animator);
 				}
 			}
 		}
