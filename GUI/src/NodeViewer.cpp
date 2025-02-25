@@ -105,6 +105,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 		{
 			auto fields = component.second->globalVars();
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 30.f));
+			if (ImGui::CollapsingHeader((component.second->name()+"##").c_str()))
 			if (ImGui::TreeNodeEx(component.second->name().c_str(), ImGuiTreeNodeFlags_FramePadding)) {
 				ImGui::PopStyleVar();
 				for (auto field : fields)
