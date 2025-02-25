@@ -73,7 +73,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 			m_id = textureID;
 		}
 		Prisma::GlobalData::getInstance().addGlobalTexture({ textureID, m_parameters.texture });
-
+		m_rawId = textureID;
 		GarbageCollector::getInstance().addTexture({textureID, m_id});
 		return true;
 	}
@@ -91,6 +91,16 @@ uint64_t Prisma::Texture::id() const
 void Prisma::Texture::id(uint64_t id)
 {
 	m_id = id;
+}
+
+unsigned int Prisma::Texture::rawId() const
+{
+	return m_rawId;
+}
+
+void Prisma::Texture::rawId(unsigned int rawId)
+{
+	m_rawId = rawId;
 }
 
 std::string Prisma::Texture::name() const
@@ -137,6 +147,7 @@ bool Prisma::Texture::loadCubemap(std::vector<std::string> faces, bool srgb)
 
 	m_id = glGetTextureHandleARB(textureID);
 	glMakeTextureHandleResidentARB(m_id);
+	m_rawId = textureID;
 
 	return true;
 }
@@ -173,6 +184,7 @@ bool Prisma::Texture::loadEquirectangular(std::string texture)
 	m_id = glGetTextureHandleARB(hdrTexture);
 	glMakeTextureHandleResidentARB(m_id);
 	stbi_set_flip_vertically_on_load(false);
+	m_rawId = hdrTexture;
 	return false;
 }
 

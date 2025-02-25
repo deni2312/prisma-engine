@@ -3,13 +3,12 @@
 #include "../../Engine/include/Components/RegisterComponent.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
 
-void Prisma::NodeViewer::varsDispatcher(Component::ComponentType types, int index)
+void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index)
 {
-	ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
-	auto type = std::get<0>(types);
-	auto name = std::get<1>(types);
-	auto variable = std::get<2>(types);
+	auto type = std::get<0>(types.type);
+	auto name = std::get<1>(types.type);
+	auto variable = std::get<2>(types.type);
 	if (variable)
 	{
 		std::string label = "##dispatcherlabel" + std::to_string(index) + name;
@@ -70,9 +69,26 @@ void Prisma::NodeViewer::varsDispatcher(Component::ComponentType types, int inde
 			ImGui::ColorPicker3(label.c_str(), value_ptr(*static_cast<glm::vec3*>(variable)));
 		}
 		break;
+		case Component::TYPES::TEXTURE:
+		{
+			auto id = static_cast<Prisma::Texture*>(variable)->rawId();
+			ImGui::Image((void*)static_cast<intptr_t>(id), ImVec2(types.size.x, types.size.y ));
+		}
+		break;
+		case Component::TYPES::TEXTURE_BUTTON:
+		{
+			if (ImGui::ImageButton((void*)static_cast<intptr_t>(stoi(name)), ImVec2(types.size.x, types.size.y)))
+			{
+				(*static_cast<std::function<void()>*>(variable))();
+			}
+		}
+		break;
 		}
 	}
-	ImGui::Dummy(ImVec2(0.0f, 2.0f));
+	if (types.sameline)
+	{
+		ImGui::SameLine();
+	}
 }
 
 Prisma::NodeViewer::NodeViewer()
@@ -100,11 +116,6 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 	std::string indexRemove = "";
 	bool visible = true;
 
-
-
-
-
-
 	auto removeColors = [&]()
 		{
 			ImGui::PopStyleVar();
@@ -122,7 +133,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 					removeColors();
 					for (auto field : fields)
 					{
-						getInstance().varsDispatcher(field.type, i);
+						getInstance().varsDispatcher(field, i);
 					}
 				};
 
@@ -131,11 +142,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.00f)); // Dark hover effect for header
 			ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.35f, 0.35f, 0.35f, 1.00f)); // Dark active header
 			ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.10f, 0.10f, 0.10f, 1.00f));  // Light gray background for frame
-
-
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 20.f));
-
-			
 
 			if (component.second->uiRemovable())
 			{

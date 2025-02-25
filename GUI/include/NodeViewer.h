@@ -27,7 +27,7 @@ namespace Prisma
 			float initOffset;
 		};
 
-		void varsDispatcher(Component::ComponentType types, int index);
+		void varsDispatcher(Component::Options types, int index);
 
 		NodeViewer();
 

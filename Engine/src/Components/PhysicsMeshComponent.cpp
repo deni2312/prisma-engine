@@ -66,7 +66,7 @@ void Prisma::PhysicsMeshComponent::ui()
 
 	addGlobal({componentDynamic,false });
 
-	addGlobal({componentSoftBody,false });
+	addGlobal({componentSoftBody,true });
 
 	addGlobal({componentButton,false });
 

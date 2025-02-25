@@ -99,5 +99,7 @@ namespace Prisma
 		std::function<void()> m_metalnessRoughnessButton;
 		std::function<void()> m_specularButton;
 		std::function<void()> m_ambientOcclusionButton;
+
+		glm::vec2 m_size=glm::vec2(124,124);
 	};
 }

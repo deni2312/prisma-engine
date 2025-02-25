@@ -29,7 +29,9 @@ namespace Prisma
 			BUTTON,
 			VEC2,
 			VEC3,
-			COLOR
+			COLOR,
+			TEXTURE,
+			TEXTURE_BUTTON
 		};
 
 		using ComponentType = std::tuple<TYPES, std::string, void*>;
@@ -38,6 +40,7 @@ namespace Prisma
 		{
 			ComponentType type;
 			bool sameline = false;
+			glm::vec2 size=glm::vec2(256,256);
 		};
 
 		using ComponentTypeVector = std::vector<Options>;
@@ -91,12 +94,13 @@ namespace Prisma
 		void uiRemovable(bool uiRemovable);
 
 		bool uiRemovable();
+	protected:
+		ComponentTypeVector m_globalVars;
 
 	private:
 		Node* m_parent = nullptr;
 		bool m_start = false;
 		bool m_ui = false;
-		ComponentTypeVector m_globalVars;
 		std::string m_name;
 		uint64_t m_uuid;
 		bool m_uiRemovable = true;

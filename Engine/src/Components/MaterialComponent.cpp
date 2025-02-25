@@ -42,6 +42,8 @@ void Prisma::MaterialComponent::ui()
 				texture.name(openFolder);
 				diffuseTextures.push_back(texture);
 				diffuse(diffuseTextures);
+				auto& data=std::get<1>(m_globalVars[0].type);
+				data = std::to_string(m_diffuse[0].rawId());
 			}
 		};
 	m_normalButton = [&]() {
@@ -53,6 +55,8 @@ void Prisma::MaterialComponent::ui()
 			texture.name(openFolder);
 			normalTextures.push_back(texture);
 			normal(normalTextures);
+			auto& data = std::get<1>(m_globalVars[1].type);
+			data = std::to_string(m_normal[0].rawId());
 		}
 		};
 	m_metalnessRoughnessButton = [&]() {
@@ -64,6 +68,8 @@ void Prisma::MaterialComponent::ui()
 			texture.name(openFolder);
 			metalnessRoughnessTextures.push_back(texture);
 			roughnessMetalness(metalnessRoughnessTextures);
+			auto& data = std::get<1>(m_globalVars[2].type);
+			data = std::to_string(m_roughnessMetalness[0].rawId());
 		}
 		};
 	m_specularButton = [&]() {
@@ -75,6 +81,8 @@ void Prisma::MaterialComponent::ui()
 			texture.name(openFolder);
 			specularTextures.push_back(texture);
 			specular(specularTextures);
+			auto& data = std::get<1>(m_globalVars[3].type);
+			data = std::to_string(m_specular[0].rawId());
 		}
 		};
 	m_ambientOcclusionButton = [&]() {
@@ -86,38 +94,49 @@ void Prisma::MaterialComponent::ui()
 			texture.name(openFolder);
 			ambientOcclusionTextures.push_back(texture);
 			ambientOcclusion(ambientOcclusionTextures);
+			auto& data = std::get<1>(m_globalVars[4].type);
+			data = std::to_string(m_ambientOcclusion[0].rawId());
 		}
 		};
 
 	if (m_diffuse.size() > 0)
 	{
 		m_diffuseName = std::make_shared<std::string>(getLast(m_diffuse[0].name()));
-		m_componentTypeDiffuse = std::make_tuple(TYPES::BUTTON, "Diffuse", &m_diffuseButton);
-		addGlobal({m_componentTypeDiffuse,false });
+		m_componentTypeDiffuse = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_diffuse[0].rawId()), &m_diffuseButton);
+
+		addGlobal({ m_componentTypeDiffuse,true ,m_size});
 	}
+
 	if (m_normal.size() > 0)
 	{
 		m_normalName = std::make_shared<std::string>(getLast(m_normal[0].name()));
-		m_componentTypeNormal = std::make_tuple(TYPES::BUTTON, "Normal", &m_normalButton);
-		addGlobal({m_componentTypeNormal,false });
+
+		m_componentTypeNormal = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_normal[0].rawId()), &m_normalButton);
+		addGlobal({m_componentTypeNormal,false ,m_size });
+
 	}
+
 	if (m_roughnessMetalness.size() > 0)
 	{
 		m_metalness_roughnessName = std::make_shared<std::string>(getLast(m_roughnessMetalness[0].name()));
-		m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::BUTTON, "Metalness-Roughness", &m_metalnessRoughnessButton);
-		addGlobal({m_componentTypeMetalnessRoughness,false });
+
+		m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_roughnessMetalness[0].rawId()), &m_metalnessRoughnessButton);
+		addGlobal({m_componentTypeMetalnessRoughness,true ,m_size });
+
 	}
+
 	if (m_specular.size() > 0)
 	{
 		m_specularName = std::make_shared<std::string>(getLast(m_specular[0].name()));
-		m_componentTypeSpecular = std::make_tuple(TYPES::BUTTON, "Specular", &m_specularButton);
-		addGlobal({m_componentTypeSpecular,false });
+		m_componentTypeSpecular = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_specular[0].rawId()), &m_specularButton);
+		addGlobal({m_componentTypeSpecular,false ,m_size });
 	}
+
 	if (m_ambientOcclusion.size() > 0)
 	{
 		m_ambientOcclusionName = std::make_shared<std::string>(getLast(m_ambientOcclusion[0].name()));
-		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::BUTTON, "AmbientOcclusion", &m_ambientOcclusionButton);
-		addGlobal({m_componentTypeAmbientOcclusion,false });
+		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_ambientOcclusion[0].rawId()), &m_ambientOcclusionButton);
+		addGlobal({m_componentTypeAmbientOcclusion,false ,m_size });
 	}
 
 	ComponentType componentPlain;

@@ -28,6 +28,8 @@ namespace Prisma
 		bool loadTexture(const Parameters& parameters);
 		uint64_t id() const;
 		void id(uint64_t id);
+		unsigned int rawId() const;
+		void rawId(unsigned int rawId);
 		std::string name() const;
 		void name(std::string name);
 		bool loadCubemap(std::vector<std::string> faces, bool srgb = false);
@@ -38,6 +40,7 @@ namespace Prisma
 
 	private:
 		uint64_t m_id = 0;
+		unsigned int m_rawId = 0;
 		TextureData m_data;
 		Parameters m_parameters;
 		std::string m_name;
