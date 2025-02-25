@@ -26,5 +26,7 @@ namespace Prisma
 		std::shared_ptr<Prisma::Node> m_parent = nullptr;
 
 		std::vector<std::pair<std::shared_ptr<Prisma::Node>,int>> m_nodes;
+
+		std::array<char,256> m_textSearch;
 	};
 }

@@ -92,6 +92,8 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, int depth, ImGuiCa
 	m_current = -1;
 	m_parent = nullptr;
 
+	ImGui::InputText("Search", &m_textSearch[0], 256);
+
 	showCurrentNodes(camera);
 
 	if (m_current && m_parent && m_current == m_parent->uuid())
