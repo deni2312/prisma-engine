@@ -128,18 +128,25 @@ void Prisma::FileBrowser::listDirectoryContents()
 		m_currentPath = entryPath.path();
 		m_entries.clear();
 
-		for (const auto& entry : fs::directory_iterator(m_currentPath))
-		{
+		addEntries();
+	}
+}
+
+void Prisma::FileBrowser::addEntries()
+{
+	for (const auto& entry : fs::directory_iterator(m_currentPath))
+	{
+		if (entry.is_directory() || Prisma::StringHelper::getInstance().endsWith(entry.path().filename().string(), ".gltf")) {
 			m_entries.push_back(entry);
 		}
-
-		// Custom sort function to ensure folders come first
-		std::sort(m_entries.begin(), m_entries.end(),
-		          [](const fs::directory_entry& a, const fs::directory_entry& b)
-		          {
-			          return a.is_directory() > b.is_directory();
-		          });
 	}
+
+	// Custom sort function to ensure folders come first
+	std::sort(m_entries.begin(), m_entries.end(),
+		[](const fs::directory_entry& a, const fs::directory_entry& b)
+		{
+			return a.is_directory() > b.is_directory();
+		});
 }
 
 Prisma::FileBrowser::FileBrowser() : m_currentPath(fs::current_path().parent_path().parent_path().parent_path())
@@ -155,16 +162,7 @@ Prisma::FileBrowser::FileBrowser() : m_currentPath(fs::current_path().parent_pat
 	m_iconSize = ImVec2(24, 24);
 	m_fontSize = m_iconSize;
 
-	for (const auto& entry : fs::directory_iterator(m_currentPath))
-	{
-		m_entries.push_back(entry);
-	}
-
-	// Custom sort function to ensure folders come first
-	std::sort(m_entries.begin(), m_entries.end(), [](const fs::directory_entry& a, const fs::directory_entry& b)
-	{
-		return a.is_directory() > b.is_directory();
-	});
+	addEntries();
 }
 
 void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float offset, float scale, float translation)
@@ -201,16 +199,7 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
 
 			m_entries.clear();
 
-			for (const auto& entry : fs::directory_iterator(m_currentPath))
-			{
-				m_entries.push_back(entry);
-			}
-
-			// Custom sort function to ensure folders come first
-			std::sort(m_entries.begin(), m_entries.end(), [](const fs::directory_entry& a, const fs::directory_entry& b)
-			{
-				return a.is_directory() > b.is_directory();
-			});
+			addEntries();
 		}
 		listDirectoryContents();
 		ImGui::EndTabItem();

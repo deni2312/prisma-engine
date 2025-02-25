@@ -33,6 +33,8 @@ namespace Prisma
 
 		void listDirectoryContents();
 
+		void addEntries();
+
 	public:
 		FileBrowser();
 
