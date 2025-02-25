@@ -227,7 +227,7 @@ void Prisma::ImguiDebug::drawGui()
 	m_buttonSize = ImGui::GetWindowSize().y;
 
 	ImGui::End();
-	m_model = scale(glm::mat4(1.0f), glm::vec3(m_scale))* translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate + (m_buttonSize) / static_cast<float>(m_height), 0.0f));
+	m_model = scale(glm::mat4(1.0f), glm::vec3(m_scale))* translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate + (m_buttonSize-24) / static_cast<float>(m_height), 0.0f));
 
 
 	if (!m_run)
