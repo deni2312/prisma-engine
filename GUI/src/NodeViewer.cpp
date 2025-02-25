@@ -104,12 +104,17 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 		if (component.second->isUi())
 		{
 			auto fields = component.second->globalVars();
-			if (ImGui::TreeNode(component.second->name().c_str())) {
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 30.f));
+			if (ImGui::TreeNodeEx(component.second->name().c_str(), ImGuiTreeNodeFlags_FramePadding)) {
+				ImGui::PopStyleVar();
 				for (auto field : fields)
 				{
 					getInstance().varsDispatcher(field, i);
 				}
 				ImGui::TreePop();
+			}else
+			{
+				ImGui::PopStyleVar();
 			}
 		}
 		std::string nameRemove = "Remove Component##" + std::to_string(i);
