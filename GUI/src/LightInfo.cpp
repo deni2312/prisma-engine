@@ -24,6 +24,13 @@ void Prisma::LightInfo::showSelectedDir(Light<LightType::LightDir>* lightData, c
 		lightData->type(type);
 	}
 
+	float intensity = lightData->intensity();
+
+	if (ImGui::InputFloat("Intensity ", &intensity))
+	{
+		lightData->intensity(intensity);
+	}
+
 	bool hasShadow = lightData->hasShadow();
 
 	if (ImGui::Checkbox("Shadow ", &hasShadow))
@@ -82,6 +89,13 @@ void Prisma::LightInfo::showSelectedOmni(Light<LightType::LightOmni>* lightData,
 		lightData->type(type);
 	}
 
+	float intensity = lightData->intensity();
+
+	if (ImGui::InputFloat("Intensity ", &intensity))
+	{
+		lightData->intensity(intensity);
+	}
+
 	if (ImGui::InputFloat("Radius ", &type.radius))
 	{
 		lightData->type(type);
@@ -126,6 +140,7 @@ void Prisma::LightInfo::showSelectedArea(Light<LightType::LightArea>* lightData,
 	nextRight(meshData.initOffset);
 	ImGui::Begin(lightData->name().c_str(), nullptr,
 		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
 	if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
 	{
 		lightData->type(type);
@@ -139,6 +154,13 @@ void Prisma::LightInfo::showSelectedArea(Light<LightType::LightArea>* lightData,
 				}
 			}
 		}
+	}
+
+	float intensity = lightData->intensity();
+
+	if (ImGui::InputFloat("Intensity ", &intensity))
+	{
+		lightData->intensity(intensity);
 	}
 	bool doubleSide = type.doubleSide;
 	if (ImGui::Checkbox("Double side", &doubleSide)) 

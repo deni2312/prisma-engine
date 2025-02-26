@@ -143,9 +143,21 @@ namespace Prisma
 			}
 		}
 
+		void intensity(float intensity)
+		{
+			m_intensity = intensity;
+			CacheScene::getInstance().updateLights(true);
+		}
+
+		float intensity()
+		{
+			return m_intensity;
+		}
+
 	private:
 		T m_type;
 		std::shared_ptr<GenericShadow> m_shadow = nullptr;
 		bool m_hasShadow = false;
+		float m_intensity=1;
 	};
 }

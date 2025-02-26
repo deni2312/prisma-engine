@@ -56,8 +56,8 @@ void Prisma::LightHandler::updateDirectional()
 			m_dataDirectional->lights.push_back(scene->dirLights[i]->type());
 			const auto& dirMatrix = scene->dirLights[i]->finalMatrix();
 			auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
-
 			const auto& dirMult = glm::normalize(dirMatrix * m_dataDirectional->lights[i].direction);
+			m_dataDirectional->lights[i].diffuse = m_dataDirectional->lights[i].diffuse * light->intensity();
 			m_dataDirectional->lights[i].direction = dirMult;
 			m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
 			m_dataDirectional->lights[i].padding.y = shadow->bias();
@@ -96,6 +96,7 @@ void Prisma::LightHandler::updateArea()
 			for (int j = 0; j < 4; j++) {
 				m_dataArea->lights[i].position[j] = areaMatrix * m_dataArea->lights[i].position[j];
 			}
+			m_dataArea->lights[i].diffuse = m_dataArea->lights[i].diffuse * light->intensity();
 
 			numVisible++;
 		}
@@ -137,6 +138,7 @@ void Prisma::LightHandler::updateOmni()
 				m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
 			}
 			m_dataOmni->lights[i].padding = light->hasShadow() ? 2.0f : 0.0f;
+			m_dataOmni->lights[i].diffuse = m_dataOmni->lights[i].diffuse * light->intensity();
 			numVisible++;
 		}
 	}

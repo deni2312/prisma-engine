@@ -300,6 +300,7 @@ namespace Prisma
 			j["shadow"] = light->hasShadow();
 			j["near"] = light->shadow()->nearPlane();
 			j["far"] = light->shadow()->farPlane();
+			j["intensity"] = light->intensity();
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(n))
 		{
@@ -315,6 +316,7 @@ namespace Prisma
 			};
 			j["farPlane"] = light->type().farPlane.x;
 			j["shadow"] = light->hasShadow();
+			j["intensity"] = light->intensity();
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(n))
 		{
@@ -327,6 +329,7 @@ namespace Prisma
 			j["diffuse"] = { light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z };
 			j["doubleSide"] = light->type().doubleSide;
 			j["shadow"] = light->hasShadow();
+			j["intensity"] = light->intensity();
 		}
 
 		std::vector<std::pair<std::string, json>> componentJson;
@@ -551,6 +554,9 @@ namespace Prisma
 			float farPlane = 200;
 			j.at("near").get_to(nearPlane);
 			j.at("far").get_to(farPlane);
+			float intensity = 1;
+			j.at("intensity").get_to(intensity);
+			light->intensity(intensity);
 
 			light->hasShadow(hasShadow);
 			light->type(lightType);
@@ -582,6 +588,10 @@ namespace Prisma
 			light->hasShadow(hasShadow);
 			light->type(lightType);
 			light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI,true);
+			float intensity = 1;
+			j.at("intensity").get_to(intensity);
+			light->intensity(intensity);
+
 		}
 		else if (type == "LIGHT_AREA")
 		{
@@ -612,6 +622,10 @@ namespace Prisma
 			lightType.doubleSide = doubleSide;
 			light->hasShadow(hasShadow);
 			light->type(lightType);
+			float intensity = 1;
+			j.at("intensity").get_to(intensity);
+			light->intensity(intensity);
+
 		}
 		else if (type == "MESH_ANIMATE")
 		{

@@ -66,7 +66,6 @@ std::vector<float> Prisma::AreaHandler::readFile(std::string path)
 	float a, b, c, d;
 	while (inFile >> a >> b >> c >> d) {
 		data.push_back(a);
-		std::cout << d << std::endl;
 		data.push_back(b);
 		data.push_back(c);
 		data.push_back(d);
