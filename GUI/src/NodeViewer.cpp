@@ -272,8 +272,25 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 				ImGui::EndCombo();
 			}
 		}
-		ImGui::SameLine();
-		if (ImGui::Button("Add component"))
+
+		std::string addComponent = "Add component";
+
+		const char* label = addComponent.c_str();
+		ImVec2 text_size = ImGui::CalcTextSize(label);
+		ImVec2 widget_size = ImVec2(text_size.x + ImGui::GetStyle().FramePadding.x * 2,
+			text_size.y + ImGui::GetStyle().FramePadding.y * 2);
+		ImVec2 widget_pos = ImGui::GetCursorScreenPos();
+		ImVec2 screen_size = ImGui::GetIO().DisplaySize;
+
+		bool widget_out_of_screen =
+			(widget_pos.x + widget_size.x < 0 || widget_pos.x > screen_size.x ||
+				widget_pos.y + widget_size.y < 0 || widget_pos.y > screen_size.y);
+
+		if (!widget_out_of_screen)
+		{
+			ImGui::SameLine();
+		}
+		if (ImGui::Button(addComponent.c_str()))
 		{
 			if (componentAdding)
 			{
