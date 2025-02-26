@@ -47,6 +47,8 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_imguiCamera.mouseButtonCallback();
 	Engine::getInstance().setCallback(m_imguiCamera.callback());
 	auto settings = SettingsLoader::getInstance().getSettings();
+	m_globalSize.x = settings.width / 1920.0f;
+	m_globalSize.y = settings.height / 1080.0f;
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImPlot::CreateContext();
@@ -386,6 +388,11 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 		m_timeCounterUI.stop();
 	};
 	return m_handlers;
+}
+
+Prisma::ImguiDebug::GlobalSize Prisma::ImguiDebug::globalSize()
+{
+	return m_globalSize;
 }
 
 std::shared_ptr<Prisma::FBO> Prisma::ImguiDebug::fbo()

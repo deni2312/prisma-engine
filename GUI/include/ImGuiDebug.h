@@ -37,6 +37,12 @@ namespace Prisma
 			int currentPostprocess = 0;
 		};
 
+		struct GlobalSize
+		{
+			float x;
+			float y;
+		};
+
 		ImguiDebug();
 		void drawGui();
 		float fps();
@@ -46,6 +52,8 @@ namespace Prisma
 		std::shared_ptr<FBO> fbo();
 
 		std::shared_ptr<SceneHandler> handlers();
+
+		GlobalSize globalSize();
 
 	private:
 		double m_lastFrameTime = 0.0;
@@ -106,5 +114,7 @@ namespace Prisma
 		float m_buttonSize = 44;
 
 		std::shared_ptr<SceneHandler> m_handlers;
+
+		GlobalSize m_globalSize;
 	};
 }

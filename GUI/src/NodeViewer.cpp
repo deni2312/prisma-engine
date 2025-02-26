@@ -2,6 +2,7 @@
 #include "../../Engine/include/Components/Component.h"
 #include "../../Engine/include/Components/RegisterComponent.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
+#include "../include/ImGuiDebug.h"
 
 void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index)
 {
@@ -72,12 +73,12 @@ void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index)
 		case Component::TYPES::TEXTURE:
 		{
 			auto id = static_cast<Prisma::Texture*>(variable)->rawId();
-			ImGui::Image((void*)static_cast<intptr_t>(id), ImVec2(types.size.x, types.size.y ));
+			ImGui::Image((void*)static_cast<intptr_t>(id), ImVec2(types.size.x*Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y));
 		}
 		break;
 		case Component::TYPES::TEXTURE_BUTTON:
 		{
-			if (ImGui::ImageButton((void*)static_cast<intptr_t>(stoi(name)), ImVec2(types.size.x, types.size.y)))
+			if (ImGui::ImageButton((void*)static_cast<intptr_t>(stoi(name)), ImVec2(types.size.x * Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y)))
 			{
 				(*static_cast<std::function<void()>*>(variable))();
 			}
