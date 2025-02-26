@@ -233,11 +233,20 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 			hideChilds(nodeData.node, nodeData.node->visible());
 		}
 
-		ImGui::InputFloat3("Translation", value_ptr(m_translation), "%.3f", ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::InputFloat3("Translation", value_ptr(m_translation), "%.3f"))
+		{
+			recompose(nodeData);
+		}
 
-		ImGui::InputFloat3("Rotation", value_ptr(m_rotation), "%.3f", ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::InputFloat3("Rotation", value_ptr(m_rotation), "%.3f"))
+		{
+			recompose(nodeData);
+		}
 
-		ImGui::InputFloat3("Scale", value_ptr(m_scale), "%.3f", ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::InputFloat3("Scale", value_ptr(m_scale), "%.3f"))
+		{
+			recompose(nodeData);
+		}
 
 		drawGizmo(nodeData);
 
@@ -349,4 +358,17 @@ void Prisma::NodeViewer::hideChilds(Node* root, bool hide)
 		child->visible(hide);
 		hideChilds(child.get(), hide);
 	}
+}
+
+void Prisma::NodeViewer::recompose(const NodeData& nodeData)
+{
+	glm::mat4 model = nodeData.node->finalMatrix();
+	auto inverseParent = glm::mat4(1.0f);
+	if (nodeData.node->parent())
+	{
+		inverseParent = inverse(nodeData.node->parent()->finalMatrix());
+	}
+	ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale), glm::value_ptr(model));
+
+	nodeData.node->matrix(inverseParent * model);
 }

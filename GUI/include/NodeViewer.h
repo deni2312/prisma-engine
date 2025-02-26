@@ -67,5 +67,7 @@ namespace Prisma
 
 		ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
 		ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
+
+		void recompose(const NodeData& nodeData);
 	};
 }
