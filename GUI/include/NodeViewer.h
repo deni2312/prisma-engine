@@ -66,7 +66,7 @@ namespace Prisma
 		Prisma::Node* m_currentNode = nullptr;
 
 		ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::WORLD;
+		ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::LOCAL;
 
 		Prisma::Node* m_current = nullptr;
 
