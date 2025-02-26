@@ -3,6 +3,7 @@
 #include "../../Engine/include/Components/RegisterComponent.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../include/ImGuiDebug.h"
+#include "../include/ImGuiStyle.h"
 
 void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index)
 {
@@ -117,11 +118,6 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 	std::string indexRemove = "";
 	bool visible = true;
 
-	auto removeColors = [&]()
-		{
-			ImGui::PopStyleVar();
-			ImGui::PopStyleColor(5);  // Reset the colors
-		};
 
 	for (const auto& component : components)
 	{
@@ -131,19 +127,14 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 			auto fields = component.second->globalVars();
 			auto dispatch = [&]()
 				{
-					removeColors();
+					Prisma::ImGuiStyles::getInstance().clearTreeStyle();
 					for (auto field : fields)
 					{
 						getInstance().varsDispatcher(field, i);
 					}
 				};
 
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark background for window
-			ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));  // Dark background for header
-			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.00f)); // Dark hover effect for header
-			ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.35f, 0.35f, 0.35f, 1.00f)); // Dark active header
-			ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.10f, 0.10f, 0.10f, 1.00f));  // Light gray background for frame
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 20.f));
+			Prisma::ImGuiStyles::getInstance().treeStyle();
 
 			if (component.second->uiRemovable())
 			{
@@ -152,7 +143,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 					dispatch();
 				}else
 				{
-					removeColors();
+					Prisma::ImGuiStyles::getInstance().clearTreeStyle();
 				}
 				if (!visible)
 				{
@@ -166,7 +157,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 				}
 				else
 				{
-					removeColors();
+					Prisma::ImGuiStyles::getInstance().clearTreeStyle();
 				}
 			}
 

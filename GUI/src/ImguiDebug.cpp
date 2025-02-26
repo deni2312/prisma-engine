@@ -56,7 +56,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	//ImGui::StyleColorsDark();
-	ImGuiStyles::darkMode();
+	ImGuiStyles::getInstance().darkMode();
 	ImGui_ImplGlfw_InitForOpenGL(PrismaFunc::getInstance().window(), true);
 	ImGui_ImplOpenGL3_Init("#version 150");
 	FBO::FBOData fboData;

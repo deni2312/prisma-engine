@@ -3,6 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include "../../Engine/include/GlobalData/CacheScene.h"
+#include "../include/ImGuiStyle.h"
 
 
 void Prisma::LightInfo::showSelectedDir(Light<LightType::LightDir>* lightData, const NodeViewer::NodeData& meshData)
@@ -17,57 +18,63 @@ void Prisma::LightInfo::showSelectedDir(Light<LightType::LightDir>* lightData, c
 	nextRight(meshData.initOffset);
 	ImGui::Begin(lightData->name().c_str(), nullptr,
 	             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
-
-	if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
+	Prisma::ImGuiStyles::getInstance().treeStyle();
+	if (ImGui::CollapsingHeader("Directional data"))
 	{
-		lightData->type(type);
-	}
+		Prisma::ImGuiStyles::getInstance().clearTreeStyle();
+		if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
+		{
+			lightData->type(type);
+		}
 
-	float intensity = lightData->intensity();
+		float intensity = lightData->intensity();
 
-	if (ImGui::InputFloat("Intensity ", &intensity))
-	{
-		lightData->intensity(intensity);
-	}
+		if (ImGui::InputFloat("Intensity ", &intensity))
+		{
+			lightData->intensity(intensity);
+		}
 
-	bool hasShadow = lightData->hasShadow();
+		bool hasShadow = lightData->hasShadow();
 
-	if (ImGui::Checkbox("Shadow ", &hasShadow))
-	{
-		lightData->hasShadow(hasShadow);
-	}
+		if (ImGui::Checkbox("Shadow ", &hasShadow))
+		{
+			lightData->hasShadow(hasShadow);
+		}
 
-	auto shadow = lightData->shadow();
-
-	if (hasShadow && shadow)
-	{
 		auto shadow = lightData->shadow();
 
-		float farPlane = shadow->farPlane();
-		float nearPlane = shadow->nearPlane();
-
-		auto csmShadow = std::dynamic_pointer_cast<PipelineCSM>(shadow);
-
-		float bias = csmShadow->bias();
-
-		if (ImGui::InputFloat("Far Plane ", &farPlane))
+		if (hasShadow && shadow)
 		{
-			shadow->farPlane(farPlane);
-		}
+			auto shadow = lightData->shadow();
 
-		if (ImGui::InputFloat("Near Plane ", &nearPlane))
-		{
-			shadow->nearPlane(nearPlane);
-		}
+			float farPlane = shadow->farPlane();
+			float nearPlane = shadow->nearPlane();
 
-		if (ImGui::InputFloat("Bias ", &bias))
-		{
-			csmShadow->bias(bias);
+			auto csmShadow = std::dynamic_pointer_cast<PipelineCSM>(shadow);
+
+			float bias = csmShadow->bias();
+
+			if (ImGui::InputFloat("Far Plane ", &farPlane))
+			{
+				shadow->farPlane(farPlane);
+			}
+
+			if (ImGui::InputFloat("Near Plane ", &nearPlane))
+			{
+				shadow->nearPlane(nearPlane);
+			}
+
+			if (ImGui::InputFloat("Bias ", &bias))
+			{
+				csmShadow->bias(bias);
+			}
 		}
 	}
+	else {
+		Prisma::ImGuiStyles::getInstance().clearTreeStyle();
+	}
 
-
+	
 	ImGui::End();
 }
 
@@ -83,48 +90,56 @@ void Prisma::LightInfo::showSelectedOmni(Light<LightType::LightOmni>* lightData,
 	nextRight(meshData.initOffset);
 	ImGui::Begin(lightData->name().c_str(), nullptr,
 	             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
-	if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
+	Prisma::ImGuiStyles::getInstance().treeStyle();
+	if (ImGui::CollapsingHeader("Omnidirectional data"))
 	{
-		lightData->type(type);
-	}
-
-	float intensity = lightData->intensity();
-
-	if (ImGui::InputFloat("Intensity ", &intensity))
-	{
-		lightData->intensity(intensity);
-	}
-
-	if (ImGui::InputFloat("Radius ", &type.radius))
-	{
-		lightData->type(type);
-	}
-
-	bool hasShadow = lightData->hasShadow();
-
-	if (ImGui::Checkbox("Shadow ", &hasShadow))
-	{
-		lightData->hasShadow(hasShadow);
-	}
-
-	auto shadow = lightData->shadow();
-
-	if (hasShadow && shadow)
-	{
-		float farPlane = shadow->farPlane();
-		float nearPlane = shadow->nearPlane();
-
-		if (ImGui::InputFloat("Far Plane ", &farPlane))
+		Prisma::ImGuiStyles::getInstance().clearTreeStyle();
+		if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
 		{
-			shadow->farPlane(farPlane);
+			lightData->type(type);
 		}
 
-		if (ImGui::InputFloat("Near Plane ", &nearPlane))
+		float intensity = lightData->intensity();
+
+			if (ImGui::InputFloat("Intensity ", &intensity))
+			{
+				lightData->intensity(intensity);
+			}
+
+		if (ImGui::InputFloat("Radius ", &type.radius))
 		{
-			shadow->nearPlane(nearPlane);
+			lightData->type(type);
+		}
+
+		bool hasShadow = lightData->hasShadow();
+
+		if (ImGui::Checkbox("Shadow ", &hasShadow))
+		{
+			lightData->hasShadow(hasShadow);
+		}
+
+		auto shadow = lightData->shadow();
+
+		if (hasShadow && shadow)
+		{
+			float farPlane = shadow->farPlane();
+			float nearPlane = shadow->nearPlane();
+
+			if (ImGui::InputFloat("Far Plane ", &farPlane))
+			{
+				shadow->farPlane(farPlane);
+			}
+
+			if (ImGui::InputFloat("Near Plane ", &nearPlane))
+			{
+				shadow->nearPlane(nearPlane);
+			}
 		}
 	}
+	else {
+		Prisma::ImGuiStyles::getInstance().clearTreeStyle();
+	}
+
 	ImGui::End();
 }
 
@@ -140,33 +155,40 @@ void Prisma::LightInfo::showSelectedArea(Light<LightType::LightArea>* lightData,
 	nextRight(meshData.initOffset);
 	ImGui::Begin(lightData->name().c_str(), nullptr,
 		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
-	if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
+	Prisma::ImGuiStyles::getInstance().treeStyle();
+	if (ImGui::CollapsingHeader("Area data"))
 	{
-		lightData->type(type);
-		if (meshData.node && meshData.node->parent()) {
-			for (auto mesh : meshData.node->parent()->children()) {
-				auto isMesh = std::dynamic_pointer_cast<Mesh>(mesh);
-				if (isMesh) {
-					auto material = isMesh->material();
-					material->color(type.diffuse);
-					isMesh->material(material);
+		Prisma::ImGuiStyles::getInstance().clearTreeStyle();
+		if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse)))
+		{
+			lightData->type(type);
+			if (meshData.node && meshData.node->parent()) {
+				for (auto mesh : meshData.node->parent()->children()) {
+					auto isMesh = std::dynamic_pointer_cast<Mesh>(mesh);
+					if (isMesh) {
+						auto material = isMesh->material();
+						material->color(type.diffuse);
+						isMesh->material(material);
+					}
 				}
 			}
 		}
-	}
 
-	float intensity = lightData->intensity();
+		float intensity = lightData->intensity();
 
-	if (ImGui::InputFloat("Intensity ", &intensity))
-	{
-		lightData->intensity(intensity);
+		if (ImGui::InputFloat("Intensity ", &intensity))
+		{
+			lightData->intensity(intensity);
+		}
+		bool doubleSide = type.doubleSide;
+		if (ImGui::Checkbox("Double side", &doubleSide))
+		{
+			type.doubleSide = doubleSide;
+			lightData->type(type);
+		}
 	}
-	bool doubleSide = type.doubleSide;
-	if (ImGui::Checkbox("Double side", &doubleSide)) 
-	{
-		type.doubleSide = doubleSide;
-		lightData->type(type);
+	else {
+		Prisma::ImGuiStyles::getInstance().clearTreeStyle();
 	}
 
 	ImGui::End();

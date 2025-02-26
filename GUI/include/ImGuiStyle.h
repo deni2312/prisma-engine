@@ -4,10 +4,10 @@
 
 namespace Prisma
 {
-	class ImGuiStyles
+	class ImGuiStyles : public InstanceData<ImGuiStyles>
 	{
 	public:
-		static void darkMode()
+		void darkMode()
 		{
 			ImVec4* colors = ImGui::GetStyle().Colors;
 			colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -129,6 +129,22 @@ namespace Prisma
 			// Optional: make sure that the window doesn't overlap the buttons
 			style.WindowBorderSize = 0;
 			style.ChildBorderSize = 0;
+		}
+
+		void treeStyle()
+		{
+			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f)); // Dark background for window
+			ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.15f, 0.15f, 0.15f, 1.00f));  // Dark background for header
+			ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.25f, 0.25f, 0.25f, 1.00f)); // Dark hover effect for header
+			ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.35f, 0.35f, 0.35f, 1.00f)); // Dark active header
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.10f, 0.10f, 0.10f, 1.00f));  // Light gray background for frame
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.f, 20.f));
+		}
+
+		void clearTreeStyle()
+		{
+			ImGui::PopStyleVar();
+			ImGui::PopStyleColor(5);  // Reset the colors
 		}
 	};
 }
