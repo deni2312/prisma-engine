@@ -80,8 +80,8 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 		static_cast<float>(settings.width) / static_cast<float>(settings.height),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
-	m_model = scale(
-		glm::mat4(1.0f), glm::vec3(m_scale)) * translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f));
+	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * scale(glm::mat4(1.0f), glm::vec3(m_scale));
+
 	m_fileBrowser = std::make_shared<FileBrowser>();
 	PixelCapture::getInstance();
 
@@ -229,7 +229,7 @@ void Prisma::ImguiDebug::drawGui()
 	m_buttonSize = ImGui::GetWindowSize().y;
 
 	ImGui::End();
-	m_model = scale(glm::mat4(1.0f), glm::vec3(m_scale))* translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate + (m_buttonSize-24) / static_cast<float>(m_height), 0.0f));
+	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate - 2*(m_buttonSize+m_initOffset) / static_cast<float>(m_height), 0.0f))* scale(glm::mat4(1.0f), glm::vec3(m_scale));
 
 
 	if (!m_run)
