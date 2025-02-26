@@ -114,10 +114,10 @@ void Prisma::ImguiDebug::drawGui()
 		{
 			if (ImGui::MenuItem("New"))
 			{
-				std::string scene = Prisma::WindowsHelper::getInstance().openFolder("All Files");
-				if (scene != "")
+				auto children = Prisma::GlobalData::getInstance().currentGlobalScene()->root->children();
+				for (const auto& child : children)
 				{
-					Engine::getInstance().getScene(scene, {true});
+					Prisma::GlobalData::getInstance().currentGlobalScene()->root->removeChild(child->uuid());
 				}
 			}
 
