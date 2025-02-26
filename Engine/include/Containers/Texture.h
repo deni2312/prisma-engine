@@ -23,6 +23,7 @@ namespace Prisma
 			bool resident = true;
 			bool noRepeat = true;
 			bool mantainData = false;
+			bool anisotropic = true;
 		};
 
 		bool loadTexture(const Parameters& parameters);
