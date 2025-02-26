@@ -26,5 +26,10 @@ namespace Prisma
 		std::shared_ptr<Prisma::Node> m_parent = nullptr;
 
 		std::vector<std::pair<std::shared_ptr<Prisma::Node>,int>> m_nodes;
+		std::shared_ptr<Texture> m_meshTexture;
+		std::shared_ptr<Texture> m_lightTexture;
+		std::shared_ptr<Texture> m_nodeTexture;
+
+		void dispatch(std::shared_ptr<Prisma::Node> node,glm::vec2 size);
 	};
 }

@@ -15,7 +15,17 @@ std::string textSearch;
 
 Prisma::ImGuiTabs::ImGuiTabs()
 {
-	
+	m_meshTexture = std::make_shared<Texture>();
+	m_meshTexture->name("MeshIcon");
+	m_meshTexture->loadTexture({ "../../../GUI/icons/mesh.png", false, false, false });
+
+	m_lightTexture = std::make_shared<Texture>();
+	m_lightTexture->name("LightIcon");
+	m_lightTexture->loadTexture({ "../../../GUI/icons/light.png", false, false, false });
+
+	m_nodeTexture = std::make_shared<Texture>();
+	m_nodeTexture->name("NodeIcon");
+	m_nodeTexture->loadTexture({ "../../../GUI/icons/node.png", false, false, false });
 }
 
 void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {
@@ -27,6 +37,18 @@ void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {
 
 	if (Prisma::CacheScene::getInstance().updateSizes() || Prisma::CacheScene::getInstance().updateLights() || Prisma::CacheScene::getInstance().updateData()) {
 		m_update = true;
+	}
+}
+
+void Prisma::ImGuiTabs::dispatch(std::shared_ptr<Prisma::Node> node, glm::vec2 size)
+{
+	if (std::dynamic_pointer_cast<Prisma::Mesh>(node)) {
+		ImGui::Image((void*)m_meshTexture->id(), ImVec2(size.x, size.y));
+	}else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(node) || std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(node) || std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightArea>>(node)) {
+		ImGui::Image((void*)m_lightTexture->id(), ImVec2(size.x, size.y));
+	}else
+	{
+		ImGui::Image((void*)m_nodeTexture->id(), ImVec2(size.x, size.y));
 	}
 }
 
@@ -87,11 +109,12 @@ void Prisma::ImGuiTabs::showCurrentNodes(ImGuiCamera& camera)
 		ImGui::Indent(depth * 20.0f); // Indent by 20 pixels per depth level
 		// Create a button without a label
 		std::string finalText = child->name() + "##" + std::to_string(i);
+		dispatch(child, glm::vec2(16, 16));
+		ImGui::SameLine();
 		if (ImGui::Selectable(finalText.c_str()))
 		{
 			camera.currentSelect(child.get());
 		}
-
 		ImGuiDragDropFlags src_flags = 0;
 		src_flags |= ImGuiDragDropFlags_SourceNoDisableHover;
 		src_flags |= ImGuiDragDropFlags_SourceNoHoldToOpenOthers;
