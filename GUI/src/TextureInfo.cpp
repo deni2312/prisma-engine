@@ -6,7 +6,7 @@
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../include/ImGuiHelper.h"
 
-Prisma::TextureInfo::TextureInfo()
+Prisma::TextureInfo::TextureInfo() : m_index{-1}
 {
 }
 
@@ -24,7 +24,10 @@ void Prisma::TextureInfo::showTextures()
                     auto texture = Prisma::GlobalData::getInstance().globalTextures()[i * numColumns + j];
 
                     // Display the image
-                    ImGui::Image((void*)static_cast<intptr_t>(texture.first), ImVec2(100, 100));
+                    if (ImGui::ImageButton((void*)static_cast<intptr_t>(texture.first), ImVec2(100, 100)))
+                    {
+                        m_index = i * numColumns + j;
+                    }
 
                     // Get last part of the file path
                     auto getLast = [](std::string s) {
@@ -52,6 +55,18 @@ void Prisma::TextureInfo::showTextures()
     }
 	Prisma::ImGuiHelper::getInstance().clipVertical(size, data);
     
+    if (m_index>-1)
+    {
+        ImGui::Begin("Texture Preview", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        auto texture = Prisma::GlobalData::getInstance().globalTextures()[m_index];
+        ImGui::Text("Selected Texture:");
+        ImGui::Image((void*)static_cast<intptr_t>(texture.first), ImVec2(300, 300));
+        ImGui::TextWrapped("%s", texture.second.c_str());
+        if (ImGui::Button("Close")) {
+            m_index = -1;
+        }
+        ImGui::End();
+    }
 
-	// End the columns
+
 }

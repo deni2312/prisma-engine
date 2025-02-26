@@ -16,6 +16,8 @@ namespace Prisma
 		TextureInfo();
 
 		void showTextures();
+	private:
 
+		int m_index;
 	};
 }

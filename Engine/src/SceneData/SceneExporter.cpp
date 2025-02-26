@@ -34,13 +34,14 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 		auto mesh = std::dynamic_pointer_cast<Mesh>(node);
 		if (mesh)
 		{
+			bool anisotropic = true;
 			if (!mesh->material()->diffuse()[0].name().empty())
 			{
 				if (texturesLoaded.find(mesh->material()->diffuse()[0].name()) == texturesLoaded.end())
 				{
 					Texture texture;
 					texture.name(mesh->material()->diffuse()[0].name());
-					if (!texture.loadTexture({ mesh->material()->diffuse()[0].name(),true,true,true,false,true })) 
+					if (!texture.loadTexture({ mesh->material()->diffuse()[0].name(),true,true,true,false,anisotropic }))
 					{
 						texture = Prisma::GlobalData::getInstance().defaultBlack();
 					};
@@ -59,7 +60,7 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 				{
 					Texture texture;
 					texture.name(mesh->material()->normal()[0].name());
-					if (!texture.loadTexture({ mesh->material()->normal()[0].name(),false,true,true,false,true })) {
+					if (!texture.loadTexture({ mesh->material()->normal()[0].name(),false,true,true,false,anisotropic })) {
 						texture = Prisma::GlobalData::getInstance().defaultNormal();
 					}
 					texturesLoaded[mesh->material()->normal()[0].name()] = texture;
@@ -77,7 +78,7 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 				{
 					Texture texture;
 					texture.name(mesh->material()->roughnessMetalness()[0].name());
-					if (!texture.loadTexture({ mesh->material()->roughnessMetalness()[0].name(),false,true,true,false,true })) {
+					if (!texture.loadTexture({ mesh->material()->roughnessMetalness()[0].name(),false,true,true,false,anisotropic })) {
 						texture = Prisma::GlobalData::getInstance().defaultBlack();
 					}
 					texturesLoaded[mesh->material()->roughnessMetalness()[0].name()] = texture;
@@ -97,7 +98,7 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 				{
 					Texture texture;
 					texture.name(mesh->material()->specular()[0].name());
-					if (!texture.loadTexture({ mesh->material()->specular()[0].name(),false,true,true,false,true })) {
+					if (!texture.loadTexture({ mesh->material()->specular()[0].name(),false,true,true,false,anisotropic })) {
 						texture = Prisma::GlobalData::getInstance().defaultWhite();
 					}
 					texturesLoaded[mesh->material()->specular()[0].name()] = texture;
@@ -115,7 +116,7 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 				{
 					Texture texture;
 					texture.name(mesh->material()->ambientOcclusion()[0].name());
-					if (texture.loadTexture({ mesh->material()->ambientOcclusion()[0].name(),false,true,true,false,true })) {
+					if (texture.loadTexture({ mesh->material()->ambientOcclusion()[0].name(),false,true,true,false,anisotropic })) {
 						texture = Prisma::GlobalData::getInstance().defaultWhite();
 					}
 					texturesLoaded[mesh->material()->ambientOcclusion()[0].name()] = texture;
