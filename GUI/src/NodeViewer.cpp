@@ -4,6 +4,7 @@
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../include/ImGuiDebug.h"
 #include "../include/ImGuiStyle.h"
+#include "glm/gtx/string_cast.hpp"
 
 void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index)
 {
@@ -224,17 +225,17 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 			hideChilds(nodeData.node, nodeData.node->visible());
 		}
 
-		if (ImGui::InputFloat3("Translation", value_ptr(m_translation), "%.3f"))
+		if (ImGui::InputFloat3("Translation", value_ptr(m_translation), "%.3f", ImGuiInputTextFlags_ReadOnly))
 		{
 			recompose(nodeData);
 		}
 
-		if (ImGui::InputFloat3("Rotation", value_ptr(m_rotation), "%.3f"))
+		if (ImGui::InputFloat3("Rotation", value_ptr(m_rotation), "%.3f", ImGuiInputTextFlags_ReadOnly))
 		{
 			recompose(nodeData);
 		}
 
-		if (ImGui::InputFloat3("Scale", value_ptr(m_scale), "%.3f"))
+		if (ImGui::InputFloat3("Scale", value_ptr(m_scale), "%.3f", ImGuiInputTextFlags_ReadOnly))
 		{
 			recompose(nodeData);
 		}
@@ -359,6 +360,7 @@ void Prisma::NodeViewer::recompose(const NodeData& nodeData)
 	{
 		inverseParent = inverse(nodeData.node->parent()->finalMatrix());
 	}
+
 	ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale), glm::value_ptr(model));
 
 	nodeData.node->matrix(inverseParent * model);
