@@ -1,18 +1,18 @@
 #include "../../include/Helpers/AreaHandler.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "../../include/Helpers/AreaData.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Helpers/GarbageCollector.h"
 
 
 Prisma::AreaHandler::AreaHandler() {
+
 	unsigned int textureLut = 0;
 	glGenTextures(1, &textureLut);
 	glBindTexture(GL_TEXTURE_2D, textureLut);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64, 64,
-		0, GL_RGBA, GL_FLOAT, LTC1);
+		0, GL_RGBA, GL_FLOAT, readFile(DIR_DEFAULT_LTC1).data());
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -26,7 +26,7 @@ Prisma::AreaHandler::AreaHandler() {
 	glBindTexture(GL_TEXTURE_2D, textureMt);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64, 64,
-		0, GL_RGBA, GL_FLOAT, LTC2);
+		0, GL_RGBA, GL_FLOAT, readFile(DIR_DEFAULT_LTC2).data());
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -54,4 +54,23 @@ uint64_t Prisma::AreaHandler::idLut() {
 
 uint64_t Prisma::AreaHandler::idM() {
 	return m_idM;
+}
+
+std::vector<float> Prisma::AreaHandler::readFile(std::string path)
+{
+	// File to read data
+	std::ifstream inFile(path);
+
+	// Read data into vector
+	std::vector<float> data;
+	float a, b, c, d;
+	while (inFile >> a >> b >> c >> d) {
+		data.push_back(a);
+		std::cout << d << std::endl;
+		data.push_back(b);
+		data.push_back(c);
+		data.push_back(d);
+	}
+	inFile.close();
+	return data;
 }

@@ -2,6 +2,7 @@
 
 #include "../GlobalData/InstanceData.h"
 #include <iostream>
+#include <vector>
 
 namespace Prisma {
 	class AreaHandler : public InstanceData<AreaHandler> {
@@ -12,6 +13,8 @@ namespace Prisma {
 		uint64_t idM();
 
 	private:
+
+		std::vector<float> readFile(std::string path);
 		uint64_t m_idLut;
 		uint64_t m_idM;
 	};
