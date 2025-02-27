@@ -17,15 +17,8 @@ void UserEngine::start()
 	Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.prisma", {
 		                                       true, [&](auto scene)
 		                                       {
-			                                       Prisma::Texture texture;
-			                                       texture.loadEquirectangular(
-				                                       "../../../Resources/Skybox/cloudy.hdr");
-			                                       texture.data({4096, 4096, 3});
-			                                       Prisma::PipelineSkybox::getInstance().
-				                                       texture(texture, true);
 			                                       m_player = std::make_shared<PlayerController>(scene);
-			                                       m_player->scene(scene);
-
+												   m_player->scene(scene);
 		                                       }
 	                                       });
 }

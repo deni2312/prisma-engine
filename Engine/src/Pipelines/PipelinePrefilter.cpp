@@ -44,7 +44,7 @@ void Prisma::PipelinePrefilter::texture(Texture texture)
 	glBindFramebuffer(GL_FRAMEBUFFER, PrismaRender::getInstance().data().fbo);
 	glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
 
-	unsigned int maxMipLevels = 5;
+	unsigned int maxMipLevels = 8;
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
 	{
 		// reisze framebuffer according to mip-level size.

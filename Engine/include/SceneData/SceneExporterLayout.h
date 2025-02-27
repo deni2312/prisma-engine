@@ -44,6 +44,7 @@ namespace Prisma
 		static int counter;
 		static int percentage;
 		static std::mutex mutex;
+		static std::string skybox="";
 	}
 
 	void to_json(json& j, std::shared_ptr<Node> n)
@@ -342,7 +343,7 @@ namespace Prisma
 
 		j["components"] = componentJson;
 		j["visible"] = n->visible();
-		j["skybox"] = Prisma::PipelineSkybox::getInstance().texture().name();
+		j["skybox"] = Prisma::WindowsHelper::getInstance().relativePath(Prisma::PipelineSkybox::getInstance().texture().name());
 	}
 
 	// Deserialize NodeExport from JSON
@@ -810,13 +811,6 @@ namespace Prisma
 				}
 			}
 		}
-		std::string skybox = "";
-		j.at("skybox").get_to(skybox);
-		if (!skybox.empty()) {
-			Texture texture;
-			texture.loadEquirectangular(skybox);
-			texture.data({ 4096, 4096, 3 });
-			PipelineSkybox::getInstance().texture(texture, true);
-		}
+		j.at("skybox").get_to(Prisma::SceneExporterLayout::skybox);
 	}
 }
