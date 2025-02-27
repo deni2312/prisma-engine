@@ -21,6 +21,11 @@ Prisma::PipelineSkybox::PipelineSkybox()
 	m_bindlessPosEquirectangular = m_shaderEquirectangular->getUniformPosition("equirectangularMap");
 }
 
+const Prisma::Texture& Prisma::PipelineSkybox::texture() const
+{
+	return m_texture;
+}
+
 uint64_t Prisma::PipelineSkybox::calculateSkybox()
 {
 	unsigned int width = 512;

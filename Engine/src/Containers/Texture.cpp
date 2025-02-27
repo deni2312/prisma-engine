@@ -19,6 +19,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 	m_data.height = height;
 	m_data.width = width;
 	m_data.nrComponents = nrComponents;
+	m_name = m_parameters.texture;
 	if (m_data.dataContent)
 	{
 		GLenum internalFormat = GL_RGB;
@@ -164,6 +165,8 @@ bool Prisma::Texture::loadEquirectangular(std::string texture)
 	m_data.height = height;
 	m_data.width = width;
 	m_data.nrComponents = nrComponents;
+	m_parameters.texture = texture;
+	m_name = m_parameters.texture;
 	unsigned int hdrTexture;
 	if (data)
 	{
@@ -215,4 +218,9 @@ void Prisma::Texture::freeData()
 	{
 		delete[] m_data.dataContent;
 	}
+}
+
+const Prisma::Texture::Parameters Prisma::Texture::parameters() const
+{
+	return m_parameters;
 }

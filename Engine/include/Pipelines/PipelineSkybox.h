@@ -21,6 +21,8 @@ namespace Prisma
 		void texture(Texture texture, bool equirectangular = false);
 		PipelineSkybox();
 
+		const Prisma::Texture& texture() const;
+
 	private:
 		uint64_t calculateSkybox();
 

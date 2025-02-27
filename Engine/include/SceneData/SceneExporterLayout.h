@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../Components/RegisterComponent.h"
+#include "../Pipelines/PipelineSkybox.h"
 #include "../SceneObjects/Node.h"
 #include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Light.h"
@@ -341,6 +342,7 @@ namespace Prisma
 
 		j["components"] = componentJson;
 		j["visible"] = n->visible();
+		j["skybox"] = Prisma::PipelineSkybox::getInstance().texture().name();
 	}
 
 	// Deserialize NodeExport from JSON

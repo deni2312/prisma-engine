@@ -39,6 +39,8 @@ namespace Prisma
 		void data(TextureData data);
 		void freeData();
 
+		const Parameters parameters() const;
+
 	private:
 		uint64_t m_id = 0;
 		unsigned int m_rawId = 0;
