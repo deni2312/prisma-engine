@@ -810,5 +810,13 @@ namespace Prisma
 				}
 			}
 		}
+		std::string skybox = "";
+		j.at("skybox").get_to(skybox);
+		if (!skybox.empty()) {
+			Texture texture;
+			texture.loadEquirectangular(skybox);
+			texture.data({ 4096, 4096, 3 });
+			PipelineSkybox::getInstance().texture(texture, true);
+		}
 	}
 }
