@@ -6,9 +6,8 @@
 #include "../include/ImGuiStyle.h"
 #include "glm/gtx/string_cast.hpp"
 
-void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index)
+void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index, unsigned int componentIndex)
 {
-
 	auto type = std::get<0>(types.type);
 	auto name = std::get<1>(types.type);
 	auto variable = std::get<2>(types.type);
@@ -80,10 +79,12 @@ void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index)
 		break;
 		case Component::TYPES::TEXTURE_BUTTON:
 		{
+			ImGui::PushID(componentIndex);
 			if (ImGui::ImageButton((void*)static_cast<intptr_t>(stoi(name)), ImVec2(types.size.x * Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y)))
 			{
 				(*static_cast<std::function<void()>*>(variable))();
 			}
+			ImGui::PopID();
 		}
 		break;
 		}
@@ -129,9 +130,9 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 			auto dispatch = [&]()
 				{
 					Prisma::ImGuiStyles::getInstance().clearTreeStyle();
-					for (auto field : fields)
+					for (int j=0;j<fields.size();j++)
 					{
-						getInstance().varsDispatcher(field, i);
+						getInstance().varsDispatcher(fields[j], i,j);
 					}
 				};
 
