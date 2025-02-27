@@ -39,6 +39,7 @@ void Prisma::PipelinePrefilter::texture(Texture texture)
 	// ----------------------------------------------------------------------------------------------------
 	m_shader->use();
 	m_shader->setInt64(m_shader->getUniformPosition("environmentMap"), texture.id());
+	m_shader->setInt(m_shader->getUniformPosition("resolution"), texture.data().width);
 	m_shader->setMat4(m_shader->getUniformPosition("projection"), PrismaRender::getInstance().data().captureProjection);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, PrismaRender::getInstance().data().fbo);

@@ -11,7 +11,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-Prisma::PipelineSkybox::PipelineSkybox()
+Prisma::PipelineSkybox::PipelineSkybox() : m_height{512},m_width{512}
 {
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/SkyboxPipeline/vertex.glsl",
 	                                    "../../../Engine/Shaders/SkyboxPipeline/fragment.glsl");
@@ -28,15 +28,13 @@ const Prisma::Texture& Prisma::PipelineSkybox::texture() const
 
 uint64_t Prisma::PipelineSkybox::calculateSkybox()
 {
-	unsigned int width = 512;
-	unsigned int height = 512;
 
 	unsigned int envCubemap;
 	glGenTextures(1, &envCubemap);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, m_width, m_height, 0, GL_RGB, GL_FLOAT, nullptr);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -54,7 +52,7 @@ uint64_t Prisma::PipelineSkybox::calculateSkybox()
 
 
 	auto posView = m_shaderEquirectangular->getUniformPosition("view");
-	glViewport(0, 0, width, height); // don't forget to configure the viewport to the capture dimensions.
+	glViewport(0, 0, m_width, m_height); // don't forget to configure the viewport to the capture dimensions.
 	glBindFramebuffer(GL_FRAMEBUFFER, PrismaRender::getInstance().data().fbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, PrismaRender::getInstance().data().rbo);
 	for (unsigned int i = 0; i < 6; ++i)
@@ -97,7 +95,8 @@ void Prisma::PipelineSkybox::texture(Texture texture, bool equirectangular)
 	if (m_equirectangular)
 	{
 		PrismaRender::getInstance().createFbo(texture.data().width, texture.data().height);
-
+		m_height = texture.data().height;
+		m_width = texture.data().width;
 		m_skyboxId = calculateSkybox();
 		Texture textureIrradiance;
 		textureIrradiance.data(texture.data());

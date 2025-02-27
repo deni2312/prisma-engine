@@ -5,6 +5,7 @@ in vec3 WorldPos;
 
 layout(bindless_sampler)uniform samplerCube environmentMap;
 uniform float roughness;
+uniform int resolution;
 
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
@@ -90,7 +91,6 @@ void main()
             float HdotV = max(dot(H, V), 0.0);
             float pdf = D * NdotH / (4.0 * HdotV) + 0.0001;
 
-            float resolution = 512.0; // resolution of source cubemap (per face)
             float saTexel = 4.0 * PI / (6.0 * resolution * resolution);
             float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
 

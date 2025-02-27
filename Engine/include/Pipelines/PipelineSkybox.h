@@ -38,5 +38,8 @@ namespace Prisma
 		bool m_equirectangular = false;
 
 		uint64_t m_skyboxId;
+
+		unsigned int m_height;
+		unsigned int m_width;
 	};
 }
