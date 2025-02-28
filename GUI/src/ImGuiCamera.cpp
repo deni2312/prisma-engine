@@ -27,52 +27,53 @@ void Prisma::ImGuiCamera::updateCamera(std::shared_ptr<Camera> camera)
 void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
 {
 	auto window = static_cast<GLFWwindow*>(windowData);
+	if (!ImGui::GetIO().WantTextInput) {
 
-	if (glfwGetKey(window, KEY_DELETE) == GLFW_PRESS)
-	{
-		if (m_currentSelect)
+		if (glfwGetKey(window, KEY_DELETE) == GLFW_PRESS)
 		{
-			m_currentSelect->parent()->removeChild(m_currentSelect->uuid());
-			m_currentSelect = nullptr;
+			if (m_currentSelect)
+			{
+				m_currentSelect->parent()->removeChild(m_currentSelect->uuid());
+				m_currentSelect = nullptr;
+			}
 		}
-	}
+		if (glfwGetKey(window, KEY_W) == GLFW_PRESS)
+		{
+			m_position += m_front * m_totalVelocity;
+		}
 
-	if (glfwGetKey(window, KEY_W) == GLFW_PRESS)
-	{
-		m_position += m_front * m_totalVelocity;
-	}
+		if (glfwGetKey(window, KEY_A) == GLFW_PRESS)
+		{
+			m_position -= normalize(cross(m_front, m_up)) * m_totalVelocity;
+		}
 
-	if (glfwGetKey(window, KEY_A) == GLFW_PRESS)
-	{
-		m_position -= normalize(cross(m_front, m_up)) * m_totalVelocity;
-	}
+		if (glfwGetKey(window, KEY_S) == GLFW_PRESS && (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+			glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) && !m_save)
+		{
+			Exporter::getInstance().exportScene();
+			m_save = true;
+		}
+		else if (glfwGetKey(window, KEY_S) == GLFW_PRESS && !(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+			glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS))
+		{
+			m_position -= m_front * m_totalVelocity;
+		}
 
-	if (glfwGetKey(window, KEY_S) == GLFW_PRESS && (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
-		glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) && !m_save)
-	{
-		Exporter::getInstance().exportScene();
-		m_save = true;
-	}
-	else if (glfwGetKey(window, KEY_S) == GLFW_PRESS && !(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
-		glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS))
-	{
-		m_position -= m_front * m_totalVelocity;
-	}
+		if (glfwGetKey(window, KEY_S) == GLFW_RELEASE || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL == GLFW_RELEASE) ||
+			glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL == GLFW_RELEASE))
+		{
+			m_save = false;
+		}
 
-	if (glfwGetKey(window, KEY_S) == GLFW_RELEASE || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL == GLFW_RELEASE) ||
-		glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL == GLFW_RELEASE))
-	{
-		m_save = false;
-	}
+		if (glfwGetKey(window, KEY_D) == GLFW_PRESS)
+		{
+			m_position += normalize(cross(m_front, m_up)) * m_totalVelocity;
+		}
 
-	if (glfwGetKey(window, KEY_D) == GLFW_PRESS)
-	{
-		m_position += normalize(cross(m_front, m_up)) * m_totalVelocity;
-	}
-
-	if (glfwGetKey(window, KEY_G) == GLFW_RELEASE)
-	{
-		m_pressed = false;
+		if (glfwGetKey(window, KEY_G) == GLFW_RELEASE)
+		{
+			m_pressed = false;
+		}
 	}
 }
 
