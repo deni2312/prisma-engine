@@ -37,7 +37,8 @@ namespace Prisma
 
 		bool m_equirectangular = false;
 
-		uint64_t m_skyboxId;
+		uint64_t m_skyboxId=0;
+		unsigned int m_envCubemap;
 
 		unsigned int m_height;
 		unsigned int m_width;

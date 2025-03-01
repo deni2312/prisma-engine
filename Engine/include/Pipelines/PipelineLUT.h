@@ -21,7 +21,7 @@ namespace Prisma
 		PipelineLUT();
 
 	private:
-		uint64_t m_id;
+		uint64_t m_id=0;
 
 		unsigned int m_quadVAO = 0;
 		unsigned int m_quadVBO;

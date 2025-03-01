@@ -28,10 +28,13 @@ const Prisma::Texture& Prisma::PipelineSkybox::texture() const
 
 uint64_t Prisma::PipelineSkybox::calculateSkybox()
 {
-
-	unsigned int envCubemap;
-	glGenTextures(1, &envCubemap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+	if (m_skyboxId)
+	{
+		glMakeTextureHandleResidentARB(m_skyboxId);
+		glDeleteTextures(1, &m_envCubemap);
+	}
+	glGenTextures(1, &m_envCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, m_width, m_height, 0, GL_RGB, GL_FLOAT, nullptr);
@@ -58,7 +61,7 @@ uint64_t Prisma::PipelineSkybox::calculateSkybox()
 	for (unsigned int i = 0; i < 6; ++i)
 	{
 		m_shaderEquirectangular->setMat4(posView, PrismaRender::getInstance().data().captureViews[i]);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_envCubemap, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		PrismaRender::getInstance().renderCube();
@@ -68,10 +71,10 @@ uint64_t Prisma::PipelineSkybox::calculateSkybox()
 	           Prisma::SettingsLoader().getInstance().getSettings().height);
 	// don't forget to configure the viewport to the capture dimensions.
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-	uint64_t m_id = glGetTextureHandleARB(envCubemap);
+	uint64_t m_id = glGetTextureHandleARB(m_envCubemap);
 	glMakeTextureHandleResidentARB(m_id);
 
 	return m_id;

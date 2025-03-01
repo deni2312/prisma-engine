@@ -17,11 +17,16 @@ Prisma::PipelinePrefilter::PipelinePrefilter()
 
 void Prisma::PipelinePrefilter::texture(Texture texture)
 {
+	if (m_id)
+	{
+		glMakeTextureHandleResidentARB(m_id);
+		glDeleteTextures(1, &m_prefilterMap);
+	}
+
 	// pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
 	// --------------------------------------------------------------------------------
-	unsigned int prefilterMap;
-	glGenTextures(1, &prefilterMap);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+	glGenTextures(1, &m_prefilterMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_prefilterMap);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
@@ -61,7 +66,7 @@ void Prisma::PipelinePrefilter::texture(Texture texture)
 		{
 			m_shader->setMat4(m_shader->getUniformPosition("view"), PrismaRender::getInstance().data().captureViews[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-			                       prefilterMap, mip);
+				m_prefilterMap, mip);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			PrismaRender::getInstance().renderCube();
@@ -71,7 +76,7 @@ void Prisma::PipelinePrefilter::texture(Texture texture)
 	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
 	           Prisma::SettingsLoader().getInstance().getSettings().height);
 	// don't forget to configure the viewport to the capture dimensions.
-	m_id = glGetTextureHandleARB(prefilterMap);
+	m_id = glGetTextureHandleARB(m_prefilterMap);
 	glMakeTextureHandleResidentARB(m_id);
 }
 

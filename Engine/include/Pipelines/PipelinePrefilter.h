@@ -21,7 +21,9 @@ namespace Prisma
 		PipelinePrefilter();
 
 	private:
-		uint64_t m_id;
+		uint64_t m_id=0;
+
+		unsigned int m_prefilterMap;
 
 		std::shared_ptr<Shader> m_shader;
 	};

@@ -21,8 +21,8 @@ namespace Prisma
 		PipelineDiffuseIrradiance();
 
 	private:
-		Texture m_texture;
-		uint64_t m_id;
+		uint64_t m_id=0;
+		unsigned int m_diffuseIrradiance;
 
 		std::shared_ptr<Shader> m_shader;
 		glm::mat4 m_projection;
