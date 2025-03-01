@@ -60,7 +60,7 @@ void Prisma::TextureInfo::showTextures()
     
     if (m_index>-1)
     {
-        ImGui::Begin("Texture Preview", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Texture Preview", &m_textureTab, ImGuiWindowFlags_AlwaysAutoResize);
         auto texture = Prisma::GlobalData::getInstance().globalTextures()[m_index];
         ImGui::InputInt("Scaling", &m_scale);
         if (m_scale==0)
@@ -70,11 +70,10 @@ void Prisma::TextureInfo::showTextures()
         ImGui::Text("Selected Texture:");
         ImGui::Image((void*)static_cast<intptr_t>(texture.id), ImVec2(texture.size.x/m_scale,texture.size.y/m_scale));
         ImGui::TextWrapped("%s", texture.name.c_str());
-        if (ImGui::Button("Close")) {
-            m_index = -1;
-            m_textureTab = false;
-        }
         ImGui::End();
+        if (!m_textureTab) {
+            m_index = -1;
+        }
     }
 }
 
