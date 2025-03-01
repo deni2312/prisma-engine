@@ -67,11 +67,17 @@ void Prisma::SettingsTab::drawSettings()
 
 		ImGui::Checkbox("SORT TRANSPARENCIES", &sortTransparencies);
 
+		float scale = Prisma::ImguiDebug::getInstance().scale();
+
+		ImGui::SliderFloat("Scale##1", &scale, 0.1, 1);
+
 		Prisma::GlobalData::getInstance().transparencies(sortTransparencies);
 
 		Physics::getInstance().debug(debugPhysics);
 
 		Engine::getInstance().engineSettings(settings);
+
+		Prisma::ImguiDebug::getInstance().scale(scale);
 
 		if (!closed)
 			ImGui::CloseCurrentPopup();

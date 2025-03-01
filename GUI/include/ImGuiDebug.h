@@ -55,6 +55,10 @@ namespace Prisma
 
 		GlobalSize globalSize();
 
+		void scale(float scale);
+
+		float scale();
+
 	private:
 		double m_lastFrameTime = 0.0;
 		float m_fps;
