@@ -178,6 +178,8 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
 		{
 			m_right = true;
+			m_lastX = x;
+			m_lastY = y;
 		}
 
 		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
