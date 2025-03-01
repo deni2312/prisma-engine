@@ -1,5 +1,10 @@
 #include "../../include/GlobalData/GlobalData.h"
 
+namespace Prisma
+{
+	class TextureInfo;
+}
+
 std::shared_ptr<Prisma::Scene> Prisma::GlobalData::currentGlobalScene() const
 {
 	return m_currentGlobalScene;
@@ -88,10 +93,10 @@ bool Prisma::GlobalData::transparencies() const {
 	return m_transparencies;
 }
 
-void Prisma::GlobalData::addGlobalTexture(std::pair<unsigned int, std::string> texture) {
+void Prisma::GlobalData::addGlobalTexture(GlobalTextureInfo texture) {
 	m_textures.push_back(texture);
 }
 
-const std::vector<std::pair<unsigned int, std::string>>& Prisma::GlobalData::globalTextures() {
+const std::vector<Prisma::GlobalData::GlobalTextureInfo>& Prisma::GlobalData::globalTextures() {
 	return m_textures;
 }

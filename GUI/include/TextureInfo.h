@@ -16,8 +16,14 @@ namespace Prisma
 		TextureInfo();
 
 		void showTextures();
+
+		bool textureTab();
 	private:
 
 		int m_index;
+
+		bool m_textureTab = false;
+
+		int m_scale = 4;
 	};
 }

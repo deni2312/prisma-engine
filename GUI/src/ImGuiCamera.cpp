@@ -8,6 +8,8 @@
 #include "../../Engine/include/engine.h"
 #include <imgui.h>
 
+#include "../include/TextureInfo.h"
+
 Prisma::ImGuiCamera::ImGuiCamera()
 {
 	m_callback = std::make_shared<CallbackHandler>();
@@ -27,7 +29,7 @@ void Prisma::ImGuiCamera::updateCamera(std::shared_ptr<Camera> camera)
 void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
 {
 	auto window = static_cast<GLFWwindow*>(windowData);
-	if (!ImGui::GetIO().WantTextInput) {
+	if (!ImGui::GetIO().WantTextInput && !Prisma::TextureInfo::getInstance().textureTab()) {
 
 		if (glfwGetKey(window, KEY_DELETE) == GLFW_PRESS)
 		{
@@ -82,7 +84,7 @@ void Prisma::ImGuiCamera::mouseCallback()
 	m_callback->mouse = [this](float x, float y)
 	{
 		if (m_right && x < m_constraints.maxX && y < m_constraints.maxY && x > m_constraints.minX && y > m_constraints.
-			minY)
+			minY && !Prisma::TextureInfo::getInstance().textureTab())
 		{
 			float xpos = x;
 			float ypos = y;
@@ -154,7 +156,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 	{
 		//ISOVER BUGGED IMGUIZMO RETURN TRUE RANDOMLY
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x < m_constraints.maxX && y < m_constraints.maxY
-			&& x > m_constraints.minX && y > m_constraints.minY && !ImGuizmo::IsOver())
+			&& x > m_constraints.minX && y > m_constraints.minY && !ImGuizmo::IsOver() && !Prisma::TextureInfo::getInstance().textureTab())
 		{
 			auto settings = SettingsLoader::getInstance().getSettings();
 			y = settings.height - y;

@@ -41,10 +41,10 @@ Prisma::AreaHandler::AreaHandler() {
 	m_idM = glGetTextureHandleARB(textureMt);
 	glMakeTextureHandleResidentARB(m_idM);
 
-	Prisma::GlobalData::getInstance().addGlobalTexture({ textureLut, "TextureLut"});
+	Prisma::GlobalData::getInstance().addGlobalTexture({ textureLut, "TextureLut",{64,64}});
 	GarbageCollector::getInstance().addTexture({ textureLut, m_idLut });
 
-	Prisma::GlobalData::getInstance().addGlobalTexture({ textureMt, "TextureM" });
+	Prisma::GlobalData::getInstance().addGlobalTexture({ textureMt, "TextureM" ,{64,64}});
 	GarbageCollector::getInstance().addTexture({ textureMt, m_idM });
 }
 

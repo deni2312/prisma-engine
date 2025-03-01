@@ -16,6 +16,13 @@ namespace Prisma
 	class GlobalData : public InstanceData<GlobalData>
 	{
 	public:
+		struct GlobalTextureInfo
+		{
+			unsigned int id=0;
+			std::string name="";
+			glm::vec2 size=glm::vec2(100,100);
+		};
+
 		// Getter and Setter for m_currentGlobalScene
 		std::shared_ptr<Scene> currentGlobalScene() const;
 
@@ -60,16 +67,16 @@ namespace Prisma
 
 		bool transparencies() const;
 
-		void addGlobalTexture(std::pair<unsigned int, std::string> texture);
+		void addGlobalTexture(GlobalTextureInfo texture);
 
-		const std::vector<std::pair<unsigned int,std::string>>& globalTextures();
+		const std::vector<GlobalTextureInfo>& globalTextures();
 
 	private:
 		std::shared_ptr<Scene> m_currentGlobalScene;
 		std::shared_ptr<FBO> m_fboTarget;
 		std::unordered_map<uint64_t, Component*> m_sceneComponents;
 		std::unordered_map<uint64_t, std::shared_ptr<Node>> m_sceneNodes;
-		std::vector<std::pair<unsigned int,std::string>> m_textures;
+		std::vector<GlobalTextureInfo> m_textures;
 		glm::mat4 m_currentProjection;
 		Texture m_defaultBlack;
 		Texture m_defaultWhite;

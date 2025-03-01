@@ -77,7 +77,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 		{
 			m_id = textureID;
 		}
-		Prisma::GlobalData::getInstance().addGlobalTexture({ textureID, m_parameters.texture });
+		Prisma::GlobalData::getInstance().addGlobalTexture({ textureID, m_parameters.texture,{ m_data.width, m_data.height} });
 		m_rawId = textureID;
 		GarbageCollector::getInstance().addTexture({textureID, m_id});
 		return true;
