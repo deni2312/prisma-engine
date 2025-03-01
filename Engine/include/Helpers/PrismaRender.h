@@ -17,10 +17,10 @@ namespace Prisma
 	public:
 		struct IBLData
 		{
-			unsigned int fbo;
-			unsigned int rbo;
-			unsigned int width;
-			unsigned int height;
+			unsigned int fbo=0;
+			unsigned int rbo=0;
+			unsigned int width=0;
+			unsigned int height=0;
 			glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 			glm::mat4 captureViews[18] =
 			{

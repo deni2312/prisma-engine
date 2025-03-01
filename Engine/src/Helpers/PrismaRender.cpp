@@ -177,9 +177,14 @@ std::shared_ptr<Prisma::Texture> Prisma::PrismaRender::renderPerlin(unsigned int
 
 void Prisma::PrismaRender::createFbo(unsigned int width, unsigned int height)
 {
+	if (m_data.fbo)
+	{
+		glDeleteFramebuffers(1, &m_data.fbo);
+		glDeleteRenderbuffers(1, &m_data.rbo);
+	}
+
 	glGenFramebuffers(1, &m_data.fbo);
 	glGenRenderbuffers(1, &m_data.rbo);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, m_data.fbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_data.rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
