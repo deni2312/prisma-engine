@@ -24,7 +24,7 @@ namespace Prisma
 		const Prisma::Texture& texture() const;
 
 	private:
-		uint64_t calculateSkybox();
+		void calculateSkybox();
 
 
 		Texture m_texture;
@@ -37,7 +37,7 @@ namespace Prisma
 
 		bool m_equirectangular = false;
 
-		uint64_t m_skyboxId=0;
+		uint64_t m_id = 0;
 		unsigned int m_envCubemap;
 
 		unsigned int m_height;

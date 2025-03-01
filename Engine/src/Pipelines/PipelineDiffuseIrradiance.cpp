@@ -12,7 +12,7 @@ void Prisma::PipelineDiffuseIrradiance::texture(Texture texture)
 {
 	if (m_id)
 	{
-		glMakeTextureHandleResidentARB(m_id);
+		glMakeTextureHandleNonResidentARB(m_id);
 		glDeleteTextures(1, &m_diffuseIrradiance);
 	}
 	// pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
