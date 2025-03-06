@@ -50,7 +50,7 @@ Prisma::Engine::Engine()
 
 	PrismaFunc::getInstance();
 
-	LightHandler::getInstance();
+	/*LightHandler::getInstance();
 
 	MeshIndirect::getInstance();
 
@@ -68,9 +68,9 @@ Prisma::Engine::Engine()
 
 	Postprocess::getInstance();
 
-	AnimationHandler::getInstance();
+	AnimationHandler::getInstance();*/
 
-	data->engineSettings.pipeline = EngineSettings::Pipeline::DEFERRED_FORWARD;
+	data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 
 	data->engineSettings.ssr = false;
 
@@ -98,13 +98,15 @@ bool Prisma::Engine::run()
 	initScene();
 	while (!PrismaFunc::getInstance().shouldClose())
 	{
-		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene())
+		//if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene())
 		{
+			PrismaFunc::getInstance().swapBuffers();
+
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
 			data->lastTime = currentTime;
 			data->fps = 1.0f / deltaTime.count();
-			PrismaFunc::getInstance().clear();
+			/*PrismaFunc::getInstance().clear();
 			if (!data->debug)
 			{
 				data->userData->update();
@@ -120,7 +122,7 @@ bool Prisma::Engine::run()
 			MeshHandler::getInstance().updateCamera();
 			MeshHandler::getInstance().updateFragment();
 			MeshIndirect::getInstance().update();
-			LightHandler::getInstance().update();
+			LightHandler::getInstance().update();*/
 
 			switch (data->engineSettings.pipeline)
 			{
@@ -135,22 +137,22 @@ bool Prisma::Engine::run()
 				break;
 			}
 
-			Postprocess::getInstance().render();
+			//Postprocess::getInstance().render();
 
-			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
+			//Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
+			//
 
-			data->sceneHandler->onEndRender();
+			//data->sceneHandler->onEndRender();
 
-			PrismaFunc::getInstance().swapBuffers();
 		}
-		else
+		/*else
 		{
 			std::cerr << "Null camera or scene" << std::endl;
 			PrismaFunc::getInstance().closeWindow();
-		}
+		}*/
 	}
-	data->userData->finish();
-	GarbageCollector::getInstance().clear();
+	//data->userData->finish();
+	//GarbageCollector::getInstance().clear();
 	PrismaFunc::getInstance().destroy();
 	return true;
 }
@@ -162,8 +164,8 @@ void Prisma::Engine::setUserEngine(std::shared_ptr<UserData> userData)
 
 void Prisma::Engine::initScene()
 {
-	data->userData->start();
-	MeshHandler::getInstance().updateCluster();
+	//data->userData->start();
+	//MeshHandler::getInstance().updateCluster();
 	if (!PipelineHandler::getInstance().initScene(data->sceneParameters))
 	{
 		std::cerr << "Null camera or scene" << std::endl;

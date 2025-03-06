@@ -12,20 +12,6 @@
 #include "GlobalData/EngineSettings.h"
 #include "../../GUI/include/ImGuiDebug.h"
 
-
-#include <webgpu/webgpu.h>
-
-#ifdef WEBGPU_BACKEND_WGPU
-#  include <webgpu/wgpu.h>
-#endif // WEBGPU_BACKEND_WGPU
-
-#include <GLFW/glfw3.h>
-#include "Helpers/glfw3webgpu.h"
-
-#ifdef __EMSCRIPTEN__
-#  include <emscripten.h>
-#endif // __EMSCRIPTEN__
-
 namespace Prisma
 {
 	class Engine : public InstanceData<Engine>

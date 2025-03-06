@@ -22,7 +22,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 		width
 	}, m_height{height}
 {
-	Shader::ShaderHeaders header;
+	/*Shader::ShaderHeaders header;
 	header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n";
 
 	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/ForwardPipeline/vertex.glsl",
@@ -53,79 +53,69 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 	m_shader->use();
 	m_fullscreenPipeline = std::make_shared<PipelineFullScreen>();
 
-	m_prepass = std::make_shared<PipelinePrePass>();
+	m_prepass = std::make_shared<PipelinePrePass>();*/
 }
 
 void Prisma::PipelineForward::render()
 {
-	m_fbo->bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	/*
-		//DEPTH PREPASS
-		m_prepass->render();
-	
-		// After depth pre-pass
-		glDepthMask(GL_FALSE);          // Disable depth writing
-		glDepthFunc(GL_LEQUAL);         // Ensure correct depth testing for subsequent passes
-		*/
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	ComponentsHandler::getInstance().updatePreRender(m_fbo);
-	//COLOR PASS
-	PipelineSkybox::getInstance().render();
+	// Get the next target texture view
+	WGPUTextureView targetView = Prisma::PrismaFunc::getInstance().NextSurfaceTextureView();
+	if (!targetView) return;
 
-	m_shader->use();
-	MeshIndirect::getInstance().renderMeshes();
+	// Create a command encoder for the draw call
+	WGPUCommandEncoderDescriptor encoderDesc = {};
+	encoderDesc.nextInChain = nullptr;
+	encoderDesc.label = "My command encoder";
+	WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(Prisma::PrismaFunc::getInstance().device(), &encoderDesc);
 
-	m_shaderAnimate->use();
-	MeshIndirect::getInstance().renderAnimateMeshes();
+	// Create the render pass that clears the screen with our color
+	WGPURenderPassDescriptor renderPassDesc = {};
+	renderPassDesc.nextInChain = nullptr;
 
-	glDisable(GL_BLEND);
+	// The attachment part of the render pass descriptor describes the target texture of the pass
+	WGPURenderPassColorAttachment renderPassColorAttachment = {};
+	renderPassColorAttachment.view = targetView;
+	renderPassColorAttachment.resolveTarget = nullptr;
+	renderPassColorAttachment.loadOp = WGPULoadOp_Clear;
+	renderPassColorAttachment.storeOp = WGPUStoreOp_Store;
+	renderPassColorAttachment.clearValue = WGPUColor{ 0.9, 0.1, 0.2, 1.0 };
+#ifndef WEBGPU_BACKEND_WGPU
+	renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
+#endif // NOT WEBGPU_BACKEND_WGPU
 
-	ComponentsHandler::getInstance().updateRender(m_fbo);
+	renderPassDesc.colorAttachmentCount = 1;
+	renderPassDesc.colorAttachments = &renderPassColorAttachment;
+	renderPassDesc.depthStencilAttachment = nullptr;
+	renderPassDesc.timestampWrites = nullptr;
 
-	ComponentsHandler::getInstance().updatePostRender(m_fbo);
+	// Create the render pass and end it immediately (we only clear the screen but do not draw anything)
+	WGPURenderPassEncoder renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
+	wgpuRenderPassEncoderEnd(renderPass);
+	wgpuRenderPassEncoderRelease(renderPass);
 
-	for (auto& sprite : Prisma::GlobalData::getInstance().currentGlobalScene()->sprites)
-	{
-		sprite->render();
-	}
+	// Finally encode and submit the render pass
+	WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
+	cmdBufferDescriptor.nextInChain = nullptr;
+	cmdBufferDescriptor.label = "Command buffer";
+	WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);
+	wgpuCommandEncoderRelease(encoder);
 
+	std::cout << "Submitting command..." << std::endl;
+	wgpuQueueSubmit(Prisma::PrismaFunc::getInstance().queue(), 1, &command);
+	wgpuCommandBufferRelease(command);
+	std::cout << "Command submitted." << std::endl;
 
-	/*
-		// After rendering
-		glDepthMask(GL_TRUE);
-		glDepthFunc(GL_LESS);
-	*/
+	// At the end of the frame
+	wgpuTextureViewRelease(targetView);
+#ifndef __EMSCRIPTEN__
+	wgpuSurfacePresent(Prisma::PrismaFunc::getInstance().surface());
+#endif
 
-	Physics::getInstance().drawDebug();
-
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-	m_fbo->unbind();
-
-
-	m_fboCopy->bind();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo->frameBufferID());
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fboCopy->frameBufferID());
-	glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	m_fboCopy->unbind();
-
-	Postprocess::getInstance().fboRaw(m_fboCopy);
-	Postprocess::getInstance().fbo(Prisma::GlobalData::getInstance().fboTarget());
-	if (Prisma::GlobalData::getInstance().fboTarget())
-	{
-		Prisma::GlobalData::getInstance().fboTarget()->bind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		m_fullscreenPipeline->render(m_fboCopy->texture());
-		Prisma::GlobalData::getInstance().fboTarget()->unbind();
-	}
-	else
-	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		m_fullscreenPipeline->render(m_fboCopy->texture());
-	}
+#if defined(WEBGPU_BACKEND_DAWN)
+	wgpuDeviceTick(device);
+#elif defined(WEBGPU_BACKEND_WGPU)
+	wgpuDevicePoll(Prisma::PrismaFunc::getInstance().device(), false, nullptr);
+#endif
 }
 
 Prisma::PipelineForward::~PipelineForward()
