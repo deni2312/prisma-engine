@@ -217,6 +217,12 @@ Prisma::PrismaFunc::PrismaFunc()
 	WGPUAdapter adapter = requestAdapterSync(instance, &adapterOpts);
 	std::cout << "Got adapter: " << adapter << std::endl;
 
+	// Retrieve the adapter info (including the GPU name)
+	WGPUAdapterProperties adapterProps;
+	wgpuAdapterGetProperties(adapter, &adapterProps);
+
+	std::cout << "GPU Name: " << adapterProps.name << std::endl;
+
 	wgpuInstanceRelease(instance);
 
 	std::cout << "Requesting device..." << std::endl;
