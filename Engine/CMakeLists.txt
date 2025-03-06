@@ -17,7 +17,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JoltPhysics)
 
-set(WEBGPU_BACKEND DAWN)
+set(WEBGPU_BACKEND WGPU)
 
 FetchContent_Declare(
   webgpu
@@ -46,4 +46,4 @@ find_package(assimp CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(implot CONFIG REQUIRED)
 
-target_link_libraries(PrismaEngineDll PRIVATE Jolt GLEW::GLEW glfw glm::glm assimp::assimp imgui::imgui nlohmann_json::nlohmann_json imguizmo::imguizmo implot::implot)
+target_link_libraries(PrismaEngineDll PRIVATE Jolt GLEW::GLEW glfw glm::glm assimp::assimp imgui::imgui nlohmann_json::nlohmann_json imguizmo::imguizmo implot::implot webgpu)
