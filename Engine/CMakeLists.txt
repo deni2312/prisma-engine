@@ -28,8 +28,6 @@ add_library(PrismaEngineDll STATIC ${SOURCES} "include/SceneObjects/Node.h" "src
 
 target_include_directories(PrismaEngineDll PUBLIC ${JoltPhysics_SOURCE_DIR}/.. "../webgpu/include/")
 
-target_copy_webgpu_binaries(PrismaEngineDll)
-
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(imguizmo CONFIG REQUIRED)
 find_package(GLEW REQUIRED)
