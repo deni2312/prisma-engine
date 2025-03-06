@@ -17,6 +17,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JoltPhysics)
 
+set(WEBGPU_BACKEND DAWN)
+
+FetchContent_Declare(
+  webgpu
+  GIT_REPOSITORY https://github.com/eliemichel/WebGPU-distribution
+  GIT_TAG        main
+)
+FetchContent_MakeAvailable(webgpu)
+
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
