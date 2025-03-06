@@ -100,10 +100,8 @@ void Prisma::PipelineForward::render()
 	WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);
 	wgpuCommandEncoderRelease(encoder);
 
-	std::cout << "Submitting command..." << std::endl;
 	wgpuQueueSubmit(Prisma::PrismaFunc::getInstance().queue(), 1, &command);
 	wgpuCommandBufferRelease(command);
-	std::cout << "Command submitted." << std::endl;
 
 	// At the end of the frame
 	wgpuTextureViewRelease(targetView);
