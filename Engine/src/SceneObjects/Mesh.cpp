@@ -121,3 +121,8 @@ Prisma::Mesh::AABBData Prisma::Mesh::aabbData()
 {
 	return m_aabbData;
 }
+
+void Prisma::Mesh::uploadGPU()
+{
+			
+}

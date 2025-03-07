@@ -26,18 +26,22 @@ std::string Prisma::Exporter::getFileName(const std::string& filePath)
 
 void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 {
-	/*Prisma::NodeHelper nodeHelper;
-	std::map<std::string, Texture> texturesLoaded;
+	Prisma::NodeHelper nodeHelper;
+	/*std::map<std::string, Texture> texturesLoaded;
 	if (!Prisma::SceneExporterLayout::skybox.empty()) {
 		Texture texture;
 		texture.loadEquirectangular(Prisma::SceneExporterLayout::skybox);
 		texture.data({ 4096, 4096, 3 });
 		PipelineSkybox::getInstance().texture(texture, true);
-	}
+	}*/
 	nodeHelper.nodeIterator(node, [&](auto node, auto parent)
 	{
 		auto mesh = std::dynamic_pointer_cast<Mesh>(node);
 		if (mesh)
+		{
+			mesh->uploadGPU();
+		}
+		/*if (mesh)
 		{
 			bool anisotropic = true;
 			if (!mesh->material()->diffuse()[0].name().empty())
@@ -151,8 +155,8 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 			type.shadowMap = light->shadow()->id();
 			light->type(type);
 		}
-		node->loadComponents();
-	});*/
+		node->loadComponents();*/
+	});
 }
 
 void Prisma::Exporter::countNodes(std::shared_ptr<Node> next, int& counter)
