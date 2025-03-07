@@ -6,5 +6,3 @@ add_executable(Prisma-client "main.cpp" "UserEngine/include/UserEngine.h" "UserE
 find_package(glm CONFIG REQUIRED)
 
 target_link_libraries(Prisma-client PRIVATE PrismaEngineDll glm::glm)
-
-target_copy_webgpu_binaries(Prisma-client)

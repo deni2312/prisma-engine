@@ -8,7 +8,6 @@
 #include <iostream>
 
 #include <fstream>
-#include "../../include/Helpers/webgpu-utils.h"
 
 struct PrivatePrisma
 {
@@ -107,36 +106,6 @@ namespace Prisma
 	}*/
 }
 
-WGPUTextureView Prisma::PrismaFunc::NextSurfaceTextureView()
-{
-	// Get the surface texture
-	WGPUSurfaceTexture surfaceTexture;
-	wgpuSurfaceGetCurrentTexture(m_surface, &surfaceTexture);
-	if (surfaceTexture.status != WGPUSurfaceGetCurrentTextureStatus_Success) {
-		return nullptr;
-	}
-
-	// Create a view for this surface texture
-	WGPUTextureViewDescriptor viewDescriptor;
-	viewDescriptor.nextInChain = nullptr;
-	viewDescriptor.label = "Surface texture view";
-	viewDescriptor.format = wgpuTextureGetFormat(surfaceTexture.texture);
-	viewDescriptor.dimension = WGPUTextureViewDimension_2D;
-	viewDescriptor.baseMipLevel = 0;
-	viewDescriptor.mipLevelCount = 1;
-	viewDescriptor.baseArrayLayer = 0;
-	viewDescriptor.arrayLayerCount = 1;
-	viewDescriptor.aspect = WGPUTextureAspect_All;
-	WGPUTextureView targetView = wgpuTextureCreateView(surfaceTexture.texture, &viewDescriptor);
-
-#ifndef WEBGPU_BACKEND_WGPU
-	// We no longer need the texture, only its view
-	// (NB: with wgpu-native, surface textures must not be manually released)
-	wgpuTextureRelease(surfaceTexture.texture);
-#endif // WEBGPU_BACKEND_WGPU
-
-	return targetView;
-}
 
 Prisma::PrismaFunc::PrismaFunc()
 {
@@ -188,107 +157,12 @@ Prisma::PrismaFunc::PrismaFunc()
 	Prisma::GlobalData::getInstance().defaultWhite().loadTexture({DIR_DEFAULT_WHITE});
 	Prisma::GlobalData::getInstance().defaultNormal().loadTexture({DIR_DEFAULT_NORMAL});*/
 
-
-	glfwInit();
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // Allow resizing
-	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-
-	int x, y, width, height;
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-	glfwGetMonitorWorkarea(monitor, &x, &y, &width, &height);
-
-	// Set settings to match monitor work area
-	settings.width = width;
-	settings.height = height;
-	SettingsLoader::getInstance().settings(settings);
-
-	m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
-
-	WGPUInstance instance = wgpuCreateInstance(nullptr);
-
-	std::cout << "Requesting adapter..." << std::endl;
-	m_surface = glfwGetWGPUSurface(instance, m_window);
-	WGPURequestAdapterOptions adapterOpts = {};
-	adapterOpts.nextInChain = nullptr;
-	adapterOpts.compatibleSurface = m_surface;
-	WGPUAdapter adapter = requestAdapterSync(instance, &adapterOpts);
-	std::cout << "Got adapter: " << adapter << std::endl;
-
-	// Retrieve the adapter info (including the GPU name)
-	WGPUAdapterProperties adapterProps;
-	wgpuAdapterGetProperties(adapter, &adapterProps);
-
-	std::cout << "GPU Name: " << adapterProps.name << std::endl;
-
-	wgpuInstanceRelease(instance);
-
-	std::cout << "Requesting device..." << std::endl;
-	WGPUDeviceDescriptor deviceDesc = {};
-	deviceDesc.nextInChain = nullptr;
-	deviceDesc.label = "My Device";
-	deviceDesc.requiredFeatureCount = 0;
-	deviceDesc.requiredLimits = nullptr;
-	deviceDesc.defaultQueue.nextInChain = nullptr;
-	deviceDesc.defaultQueue.label = "The default queue";
-	deviceDesc.deviceLostCallback = [](WGPUDeviceLostReason reason, char const* message, void* /* pUserData */) {
-		std::cout << "Device lost: reason " << reason;
-		if (message) std::cout << " (" << message << ")";
-		std::cout << std::endl;
-		};
-	m_device = requestDeviceSync(adapter, &deviceDesc);
-	std::cout << "Got device: " << m_device << std::endl;
-
-	auto onDeviceError = [](WGPUErrorType type, char const* message, void* /* pUserData */) {
-		std::cout << "Uncaptured device error: type " << type;
-		if (message) std::cout << " (" << message << ")";
-		std::cout << std::endl;
-		};
-	wgpuDeviceSetUncapturedErrorCallback(m_device, onDeviceError, nullptr /* pUserData */);
-
-	m_queue = wgpuDeviceGetQueue(m_device);
-
-	// Configure the surface
-	WGPUSurfaceConfiguration config = {};
-	config.nextInChain = nullptr;
-
-	// Configuration of the textures created for the underlying swap chain
-	config.width = settings.width;
-	config.height = settings.height;
-	config.usage = WGPUTextureUsage_RenderAttachment;
-	WGPUTextureFormat surfaceFormat = wgpuSurfaceGetPreferredFormat(m_surface, adapter);
-	config.format = surfaceFormat;
-
-	// And we do not need any particular view format:
-	config.viewFormatCount = 0;
-	config.viewFormats = nullptr;
-	config.device = m_device;
-	config.presentMode = WGPUPresentMode_Fifo;
-	config.alphaMode = WGPUCompositeAlphaMode_Auto;
-
-	wgpuSurfaceConfigure(m_surface, &config);
-
-	// Release the adapter only after it has been fully utilized
-	wgpuAdapterRelease(adapter);
-
 }
 
 void Prisma::PrismaFunc::swapBuffers()
 {
 	glfwPollEvents();
 }
-
-
-// Getter for m_device
-WGPUDevice Prisma::PrismaFunc::device() const { return m_device; }
-
-// Getter for m_queue
-WGPUQueue Prisma::PrismaFunc::queue() const { return m_queue; }
-
-// Getter for m_surface
-WGPUSurface Prisma::PrismaFunc::surface() const { return m_surface; }
 
 void Prisma::PrismaFunc::clear()
 {
@@ -345,10 +219,6 @@ GLFWwindow* Prisma::PrismaFunc::window()
 
 void Prisma::PrismaFunc::destroy()
 {
-	wgpuSurfaceUnconfigure(m_surface);
-	wgpuQueueRelease(m_queue);
-	wgpuSurfaceRelease(m_surface);
-	wgpuDeviceRelease(m_device);
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
 }
