@@ -20,7 +20,9 @@ void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera,
 	if (!hasFinish && m_hasLoad)
 	{
 		m_loader.exporter().mutexData().lock();
-		loading(m_loader.exporter().status());
+		if (loading) {
+			loading(m_loader.exporter().status());
+		}
 		m_loader.exporter().mutexData().unlock();
 	}
 
@@ -33,7 +35,7 @@ void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera,
 		else
 		{
 			Prisma::GlobalData::getInstance().currentGlobalScene(hasFinish);
-			Prisma::MeshIndirect::getInstance().init();
+			//Prisma::MeshIndirect::getInstance().init();
 		}
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera = camera;
 		if (m_sceneParameters.onLoad)

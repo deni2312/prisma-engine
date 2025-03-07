@@ -139,9 +139,9 @@ bool Prisma::Engine::run()
 
 			//Postprocess::getInstance().render();
 
-			//Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
+			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
 			//
-
+			//
 			//data->sceneHandler->onEndRender();
 
 		}
@@ -164,7 +164,7 @@ void Prisma::Engine::setUserEngine(std::shared_ptr<UserData> userData)
 
 void Prisma::Engine::initScene()
 {
-	//data->userData->start();
+	data->userData->start();
 	//MeshHandler::getInstance().updateCluster();
 	if (!PipelineHandler::getInstance().initScene(data->sceneParameters))
 	{

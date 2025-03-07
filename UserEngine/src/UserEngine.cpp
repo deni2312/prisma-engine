@@ -17,15 +17,15 @@ void UserEngine::start()
 	Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.prisma", {
 		                                       true, [&](auto scene)
 		                                       {
-			                                       m_player = std::make_shared<PlayerController>(scene);
-												   m_player->scene(scene);
+			                                       //m_player = std::make_shared<PlayerController>(scene);
+												   //m_player->scene(scene);
 		                                       }
 	                                       });
 }
 
 void UserEngine::update()
 {
-	m_player->update();
+	//m_player->update();
 }
 
 void UserEngine::finish()

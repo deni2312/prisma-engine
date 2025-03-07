@@ -26,7 +26,7 @@ std::string Prisma::Exporter::getFileName(const std::string& filePath)
 
 void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 {
-	Prisma::NodeHelper nodeHelper;
+	/*Prisma::NodeHelper nodeHelper;
 	std::map<std::string, Texture> texturesLoaded;
 	if (!Prisma::SceneExporterLayout::skybox.empty()) {
 		Texture texture;
@@ -152,7 +152,7 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 			light->type(type);
 		}
 		node->loadComponents();
-	});
+	});*/
 }
 
 void Prisma::Exporter::countNodes(std::shared_ptr<Node> next, int& counter)
