@@ -7,3 +7,5 @@ find_package(glm CONFIG REQUIRED)
 
 
 target_link_libraries(Prisma-client PRIVATE PrismaEngineDll glm::glm)
+copy_required_dlls(Prisma-client)
+
