@@ -223,14 +223,14 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 
 	// Register our window class
 	WNDCLASSEX wcex = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, MessageProc,
-					   0L, 0L, *(HINSTANCE*)windowsData.hInstance, NULL, NULL, NULL, NULL, "SampleApp", NULL };
+					   0L, 0L, *(HINSTANCE*)windowsData.hInstance, NULL, NULL, NULL, NULL, settings.name.c_str(), NULL};
 	RegisterClassEx(&wcex);
 	// Create a window
 	LONG WindowWidth = settings.width;
 	LONG WindowHeight = settings.height;
 	RECT rc = { 0, 0, WindowWidth, WindowHeight };
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-	HWND hWnd = CreateWindow("SampleApp", "",
+	HWND hWnd = CreateWindow(settings.name.c_str(), settings.name.c_str(),
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 		rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, *(HINSTANCE*)windowsData.hInstance, NULL);
 	if (!hWnd)
