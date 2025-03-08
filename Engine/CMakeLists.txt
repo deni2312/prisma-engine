@@ -17,6 +17,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JoltPhysics)
 
+add_subdirectory("../DiligentCore" build)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -35,4 +37,7 @@ find_package(assimp CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(implot CONFIG REQUIRED)
 
-target_link_libraries(PrismaEngineDll PRIVATE Jolt GLEW::GLEW glfw glm::glm assimp::assimp imgui::imgui nlohmann_json::nlohmann_json imguizmo::imguizmo implot::implot)
+target_link_libraries(PrismaEngineDll PRIVATE Jolt GLEW::glew glfw glm::glm assimp::assimp imgui::imgui nlohmann_json::nlohmann_json imguizmo::imguizmo implot::implot Diligent-GraphicsEngineD3D11-static
+    Diligent-GraphicsEngineOpenGL-static
+    Diligent-GraphicsEngineD3D12-static
+    Diligent-GraphicsEngineVk-static)
