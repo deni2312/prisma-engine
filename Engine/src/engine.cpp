@@ -38,6 +38,7 @@ struct PrivateData
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
 	float fps;
 	bool debug;
+	Prisma::WindowsHelper::WindowsData windowsData;
 };
 
 std::shared_ptr<PrivateData> data;
@@ -47,8 +48,6 @@ Prisma::Engine::Engine()
 	data = std::make_shared<PrivateData>();
 
 	SettingsLoader::getInstance().load(DIR_DEFAULT_SETTINGS);
-
-	PrismaFunc::getInstance();
 
 	/*LightHandler::getInstance();
 
@@ -229,6 +228,12 @@ void Prisma::Engine::mainCamera(const std::shared_ptr<Camera>& camera)
 void Prisma::Engine::debug(bool debug)
 {
 	data->debug = debug;
+}
+
+void Prisma::Engine::windowsData(Prisma::WindowsHelper::WindowsData windowsData)
+{
+	data->windowsData = windowsData;
+	PrismaFunc::getInstance().init(data->windowsData);
 }
 
 std::shared_ptr<Prisma::UserData> Prisma::Engine::getUserEngine()

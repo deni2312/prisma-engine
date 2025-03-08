@@ -12,6 +12,7 @@
 #include "GlobalData/PrismaFunc.h"
 #include "GlobalData/EngineSettings.h"
 #include "../../GUI/include/ImGuiDebug.h"
+#include "Helpers/WindowsHelper.h"
 
 namespace Prisma
 {
@@ -33,6 +34,8 @@ namespace Prisma
 		std::shared_ptr<UserData> getUserEngine();
 		void setGuiData(std::shared_ptr<SceneHandler> guiData);
 		void debug(bool debug);
+
+		void windowsData(Prisma::WindowsHelper::WindowsData windowsData);
 
 	private:
 		void initScene();

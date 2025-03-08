@@ -7,6 +7,7 @@
 
 #include "../Helpers/Settings.h"
 #include "../GlobalData/InstanceData.h"
+#include "../Helpers/WindowsHelper.h"
 
 namespace Prisma
 {
@@ -15,6 +16,7 @@ namespace Prisma
 	class PrismaFunc : public InstanceData<PrismaFunc>
 	{
 	public:
+		void init(Prisma::WindowsHelper::WindowsData windowsData);
 		void swapBuffers();
 		void clear();
 		void setCallback(std::shared_ptr<CallbackHandler> callbackHandler);
@@ -30,5 +32,6 @@ namespace Prisma
 
 	private:
 		GLFWwindow* m_window;
+		Prisma::WindowsHelper::WindowsData m_windowsData;
 	};
 }

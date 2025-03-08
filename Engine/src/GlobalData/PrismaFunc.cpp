@@ -9,11 +9,54 @@
 
 #include <fstream>
 
+#ifndef PLATFORM_WIN32
+#    define PLATFORM_WIN32 1
+#endif
+
+#ifndef ENGINE_DLL
+#    define ENGINE_DLL 1
+#endif
+
+#ifndef D3D11_SUPPORTED
+#    define D3D11_SUPPORTED 1
+#endif
+
+#ifndef D3D12_SUPPORTED
+#    define D3D12_SUPPORTED 1
+#endif
+
+#ifndef GL_SUPPORTED
+#    define GL_SUPPORTED 1
+#endif
+
+#ifndef VULKAN_SUPPORTED
+#    define VULKAN_SUPPORTED 1
+#endif
+
+#include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
+#include "Graphics/GraphicsEngineD3D12/interface/EngineFactoryD3D12.h"
+#include "Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h"
+#include "Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h"
+
+#include "Graphics/GraphicsEngine/interface/RenderDevice.h"
+#include "Graphics/GraphicsEngine/interface/DeviceContext.h"
+#include "Graphics/GraphicsEngine/interface/SwapChain.h"
+
+#include "Common/interface/RefCntAutoPtr.hpp"
+
+using namespace Diligent;
+
+
 struct PrivatePrisma
 {
 	std::shared_ptr<Prisma::CallbackHandler> callback;
 	bool initCallback = false;
 	std::map<std::string, std::string> errorMap;
+	RefCntAutoPtr<IRenderDevice>  m_pDevice;
+	RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
+	RefCntAutoPtr<ISwapChain>     m_pSwapChain;
+	RefCntAutoPtr<IPipelineState> m_pPSO;
+	RENDER_DEVICE_TYPE            m_DeviceType = RENDER_DEVICE_TYPE_D3D11;
 };
 
 std::shared_ptr<PrivatePrisma> privatePrisma;
@@ -109,8 +152,6 @@ namespace Prisma
 
 Prisma::PrismaFunc::PrismaFunc()
 {
-	Settings settings = SettingsLoader::getInstance().getSettings();
-	privatePrisma = std::make_shared<PrivatePrisma>();
 	/*glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
@@ -156,6 +197,157 @@ Prisma::PrismaFunc::PrismaFunc()
 	Prisma::GlobalData::getInstance().defaultBlack().loadTexture({DIR_DEFAULT_BLACK});
 	Prisma::GlobalData::getInstance().defaultWhite().loadTexture({DIR_DEFAULT_WHITE});
 	Prisma::GlobalData::getInstance().defaultNormal().loadTexture({DIR_DEFAULT_NORMAL});*/
+
+}
+
+LRESULT CALLBACK MessageProc(HWND, UINT, WPARAM, LPARAM);
+// Called every time the NativeNativeAppBase receives a message
+LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+        case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            BeginPaint(wnd, &ps);
+            EndPaint(wnd, &ps);
+            return 0;
+        }
+        case WM_SIZE: // Window size has been changed
+
+            return 0;
+
+        case WM_CHAR:
+            if (wParam == VK_ESCAPE)
+                PostQuitMessage(0);
+            return 0;
+
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            return 0;
+
+        case WM_GETMINMAXINFO:
+        {
+            LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+
+            lpMMI->ptMinTrackSize.x = 320;
+            lpMMI->ptMinTrackSize.y = 240;
+            return 0;
+        }
+
+        default:
+            return DefWindowProc(wnd, message, wParam, lParam);
+    }
+}
+
+void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
+{
+	Settings settings = SettingsLoader::getInstance().getSettings();
+	privatePrisma = std::make_shared<PrivatePrisma>();
+
+
+	// Register our window class
+	WNDCLASSEX wcex = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, MessageProc,
+					   0L, 0L, *(HINSTANCE*)windowsData.hInstance, NULL, NULL, NULL, NULL, "Sample App", NULL };
+	RegisterClassEx(&wcex);
+
+	// Create a window
+	LONG WindowWidth = 1280;
+	LONG WindowHeight = 1024;
+	RECT rc = { 0, 0, WindowWidth, WindowHeight };
+	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+	HWND hWnd = CreateWindow("SampleApp", settings.name.c_str(),
+		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+		rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, *(HINSTANCE*)windowsData.hInstance, NULL);
+	ShowWindow(hWnd, windowsData.nShowCmd);
+	UpdateWindow(hWnd);
+
+
+	Diligent::SwapChainDesc SCDesc;
+
+	privatePrisma->m_DeviceType = RENDER_DEVICE_TYPE_D3D11;
+
+	switch (privatePrisma->m_DeviceType)
+	{
+#if D3D11_SUPPORTED
+	case Diligent::RENDER_DEVICE_TYPE_D3D11:
+	{
+		Diligent::EngineD3D11CreateInfo EngineCI;
+#    if ENGINE_DLL
+		// Load the dll and import GetEngineFactoryD3D11() function
+		auto* GetEngineFactoryD3D11 = LoadGraphicsEngineD3D11();
+#    endif
+		auto* pFactoryD3D11 = GetEngineFactoryD3D11();
+		pFactoryD3D11->CreateDeviceAndContextsD3D11(EngineCI, &privatePrisma->m_pDevice, &privatePrisma->m_pImmediateContext);
+		Win32NativeWindow Window{ hWnd };
+		pFactoryD3D11->CreateSwapChainD3D11(privatePrisma->m_pDevice, privatePrisma->m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &privatePrisma->m_pSwapChain);
+	}
+	break;
+#endif
+
+
+#if D3D12_SUPPORTED
+	case RENDER_DEVICE_TYPE_D3D12:
+	{
+#    if ENGINE_DLL
+		// Load the dll and import GetEngineFactoryD3D12() function
+		auto GetEngineFactoryD3D12 = LoadGraphicsEngineD3D12();
+#    endif
+		EngineD3D12CreateInfo EngineCI;
+
+		auto* pFactoryD3D12 = GetEngineFactoryD3D12();
+		pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &privatePrisma->m_pDevice, &privatePrisma->m_pImmediateContext);
+		Win32NativeWindow Window{ hWnd };
+		pFactoryD3D12->CreateSwapChainD3D12(privatePrisma->m_pDevice, privatePrisma->m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &privatePrisma->m_pSwapChain);
+	}
+	break;
+#endif
+
+
+#if GL_SUPPORTED
+	case RENDER_DEVICE_TYPE_GL:
+	{
+#    if EXPLICITLY_LOAD_ENGINE_GL_DLL
+		// Load the dll and import GetEngineFactoryOpenGL() function
+		auto GetEngineFactoryOpenGL = LoadGraphicsEngineOpenGL();
+#    endif
+		auto* pFactoryOpenGL = GetEngineFactoryOpenGL();
+
+		EngineGLCreateInfo EngineCI;
+		EngineCI.Window.hWnd = hWnd;
+
+		pFactoryOpenGL->CreateDeviceAndSwapChainGL(EngineCI, &privatePrisma->m_pDevice, &privatePrisma->m_pImmediateContext, SCDesc, &privatePrisma->m_pSwapChain);
+	}
+	break;
+#endif
+
+
+#if VULKAN_SUPPORTED
+	case RENDER_DEVICE_TYPE_VULKAN:
+	{
+#    if EXPLICITLY_LOAD_ENGINE_VK_DLL
+		// Load the dll and import GetEngineFactoryVk() function
+		auto GetEngineFactoryVk = LoadGraphicsEngineVk();
+#    endif
+		EngineVkCreateInfo EngineCI;
+
+		auto* pFactoryVk = GetEngineFactoryVk();
+		pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &privatePrisma->m_pDevice, &privatePrisma->m_pImmediateContext);
+
+		if (!privatePrisma->m_pSwapChain && hWnd != nullptr)
+		{
+			Win32NativeWindow Window{ hWnd };
+			pFactoryVk->CreateSwapChainVk(privatePrisma->m_pDevice, privatePrisma->m_pImmediateContext, SCDesc, Window, &privatePrisma->m_pSwapChain);
+		}
+	}
+	break;
+#endif
+
+
+	default:
+		std::cerr << "Unknown/unsupported device type";
+		break;
+	}
 
 }
 

@@ -1,5 +1,6 @@
 #include "../../include/Helpers/WindowsHelper.h"
 #include <filesystem>
+#include <Windows.h>
 
 Prisma::WindowsHelper::WindowsHelper() {
 
