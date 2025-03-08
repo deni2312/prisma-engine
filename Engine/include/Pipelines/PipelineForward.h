@@ -25,13 +25,18 @@ namespace Prisma
 		unsigned int m_width;
 		unsigned int m_height;
 
-		std::shared_ptr<Shader> m_shader;
+		/*std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderAnimate;
 		std::shared_ptr<Shader> m_shaderTransparent;
 		std::shared_ptr<FBO> m_fbo;
 		std::shared_ptr<FBO> m_fboCopy;
 		std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
 
-		std::shared_ptr<PipelinePrePass> m_prepass;
+		std::shared_ptr<PipelinePrePass> m_prepass;*/
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_mvpVS;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_shader;
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+
 	};
 }

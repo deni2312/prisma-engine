@@ -14,6 +14,7 @@
 
 void UserEngine::start()
 {
+	Prisma::Engine::getInstance().setCallback(std::make_shared<Prisma::CallbackHandler>());
 	Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.prisma", {
 		                                       true, [&](auto scene)
 		                                       {

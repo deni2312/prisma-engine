@@ -90,6 +90,8 @@ Prisma::Engine::Engine()
 	data->debug = true;
 
 	data->camera = std::make_shared<Camera>();
+
+	Prisma::GlobalData::getInstance().currentGlobalScene()->camera = data->camera;
 }
 
 bool Prisma::Engine::run()
@@ -198,8 +200,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 			Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
 			Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
 		auto currentProjection = Prisma::GlobalData::getInstance().currentProjection();
-		MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),
-		                                             value_ptr(currentProjection));
+		//MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),value_ptr(currentProjection));
 	};
 	Prisma::GlobalData::getInstance().currentProjection(glm::perspective(
 		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
@@ -208,8 +209,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
 	auto currentProjection = Prisma::GlobalData::getInstance().currentProjection();
-	MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),
-	                                             value_ptr(currentProjection));
+	//MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),value_ptr(currentProjection));
 	data->callbackHandler = callbackHandler;
 	PrismaFunc::getInstance().setCallback(callbackHandler);
 }

@@ -37,7 +37,6 @@ namespace Prisma
 		{
 			privatePrisma->callback->resize(width, height);
 		}
-		glViewport(0, 0, width, height);
 	}
 
 	void mouseCallback(GLFWwindow* window, double x, double y)
@@ -188,8 +187,10 @@ LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lPara
         }
         case WM_SIZE: // Window size has been changed
 			//Prisma::framebufferSizeCallback(LOWORD(lParam), HIWORD(lParam));
-			if (privatePrisma->m_pSwapChain)
+			if (privatePrisma->m_pSwapChain) {
 				privatePrisma->m_pSwapChain->Resize(LOWORD(lParam), HIWORD(lParam));
+				Prisma::framebufferSizeCallback(LOWORD(lParam), HIWORD(lParam));
+			}
             return 0;
 
         case WM_CHAR:
@@ -257,6 +258,7 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 		pFactoryD3D11->CreateDeviceAndContextsD3D11(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext);
 		Win32NativeWindow Window{ hWnd };
 		pFactoryD3D11->CreateSwapChainD3D11(m_contextData.m_pDevice, m_contextData.m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_contextData.m_pSwapChain);
+		m_contextData.m_pEngineFactory = pFactoryD3D11;
 	}
 	break;
 #endif
@@ -275,6 +277,8 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 		pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext);
 		Win32NativeWindow Window{ hWnd };
 		pFactoryD3D12->CreateSwapChainD3D12(m_contextData.m_pDevice, m_contextData.m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_contextData.m_pSwapChain);
+		m_contextData.m_pEngineFactory = pFactoryD3D12;
+
 	}
 	break;
 #endif
@@ -293,6 +297,8 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 		EngineCI.Window.hWnd = hWnd;
 
 		pFactoryOpenGL->CreateDeviceAndSwapChainGL(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext, SCDesc, &m_contextData.m_pSwapChain);
+		m_contextData.m_pEngineFactory = pFactoryOpenGL;
+
 	}
 	break;
 #endif
@@ -315,6 +321,7 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 			Win32NativeWindow Window{ hWnd };
 			pFactoryVk->CreateSwapChainVk(m_contextData.m_pDevice, m_contextData.m_pImmediateContext, SCDesc, Window, &m_contextData.m_pSwapChain);
 		}
+		m_contextData.m_pEngineFactory = pFactoryVk;
 	}
 	break;
 #endif

@@ -51,8 +51,8 @@ namespace Prisma
 			Diligent::RefCntAutoPtr<Diligent::IRenderDevice>  m_pDevice;
 			Diligent::RefCntAutoPtr<Diligent::IDeviceContext> m_pImmediateContext;
 			Diligent::RefCntAutoPtr<Diligent::ISwapChain>     m_pSwapChain;
-			Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pPSO;
-			Diligent::RENDER_DEVICE_TYPE            m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
+			Diligent::RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
+			Diligent::RefCntAutoPtr<Diligent::IEngineFactory> m_pEngineFactory;
 		};
 
 		void init(Prisma::WindowsHelper::WindowsData windowsData);
