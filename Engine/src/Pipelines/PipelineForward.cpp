@@ -228,7 +228,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Cube PS";
-        ShaderCI.FilePath = "./../../Engine/Shaders/ForwardPipeline/fragment.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.hlsl";
         Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateShader(ShaderCI, &pPS);
     }
 
