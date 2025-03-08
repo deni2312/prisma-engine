@@ -98,8 +98,8 @@ bool Prisma::Engine::run()
 	while (!PrismaFunc::getInstance().shouldClose())
 	{
 		//if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene())
+		if (PrismaFunc::getInstance().update())
 		{
-			PrismaFunc::getInstance().swapBuffers();
 
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;

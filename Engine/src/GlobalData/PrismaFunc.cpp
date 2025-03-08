@@ -9,40 +9,11 @@
 
 #include <fstream>
 
-#ifndef PLATFORM_WIN32
-#    define PLATFORM_WIN32 1
-#endif
-
-#ifndef ENGINE_DLL
-#    define ENGINE_DLL 1
-#endif
-
-#ifndef D3D11_SUPPORTED
-#    define D3D11_SUPPORTED 1
-#endif
-
-#ifndef D3D12_SUPPORTED
-#    define D3D12_SUPPORTED 1
-#endif
-
-#ifndef GL_SUPPORTED
-#    define GL_SUPPORTED 1
-#endif
-
-#ifndef VULKAN_SUPPORTED
-#    define VULKAN_SUPPORTED 1
-#endif
 
 #include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
 #include "Graphics/GraphicsEngineD3D12/interface/EngineFactoryD3D12.h"
 #include "Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h"
 #include "Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h"
-
-#include "Graphics/GraphicsEngine/interface/RenderDevice.h"
-#include "Graphics/GraphicsEngine/interface/DeviceContext.h"
-#include "Graphics/GraphicsEngine/interface/SwapChain.h"
-
-#include "Common/interface/RefCntAutoPtr.hpp"
 
 using namespace Diligent;
 
@@ -52,18 +23,15 @@ struct PrivatePrisma
 	std::shared_ptr<Prisma::CallbackHandler> callback;
 	bool initCallback = false;
 	std::map<std::string, std::string> errorMap;
-	RefCntAutoPtr<IRenderDevice>  m_pDevice;
-	RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
-	RefCntAutoPtr<ISwapChain>     m_pSwapChain;
-	RefCntAutoPtr<IPipelineState> m_pPSO;
-	RENDER_DEVICE_TYPE            m_DeviceType = RENDER_DEVICE_TYPE_D3D11;
+	Diligent::RefCntAutoPtr<Diligent::ISwapChain> m_pSwapChain;
+	MSG msg = { 0 };
 };
 
 std::shared_ptr<PrivatePrisma> privatePrisma;
 
 namespace Prisma
 {
-	void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+	void framebufferSizeCallback(int width, int height)
 	{
 		if (privatePrisma->callback->resize)
 		{
@@ -200,6 +168,11 @@ Prisma::PrismaFunc::PrismaFunc()
 
 }
 
+Prisma::PrismaFunc::ContextData& Prisma::PrismaFunc::contextData()
+{
+	return m_contextData;
+}
+
 LRESULT CALLBACK MessageProc(HWND, UINT, WPARAM, LPARAM);
 // Called every time the NativeNativeAppBase receives a message
 LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -214,7 +187,9 @@ LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lPara
             return 0;
         }
         case WM_SIZE: // Window size has been changed
-
+			//Prisma::framebufferSizeCallback(LOWORD(lParam), HIWORD(lParam));
+			if (privatePrisma->m_pSwapChain)
+				privatePrisma->m_pSwapChain->Resize(LOWORD(lParam), HIWORD(lParam));
             return 0;
 
         case WM_CHAR:
@@ -248,26 +223,27 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 
 	// Register our window class
 	WNDCLASSEX wcex = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, MessageProc,
-					   0L, 0L, *(HINSTANCE*)windowsData.hInstance, NULL, NULL, NULL, NULL, "Sample App", NULL };
+					   0L, 0L, *(HINSTANCE*)windowsData.hInstance, NULL, NULL, NULL, NULL, "SampleApp", NULL };
 	RegisterClassEx(&wcex);
-
 	// Create a window
-	LONG WindowWidth = 1280;
-	LONG WindowHeight = 1024;
+	LONG WindowWidth = settings.width;
+	LONG WindowHeight = settings.height;
 	RECT rc = { 0, 0, WindowWidth, WindowHeight };
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-	HWND hWnd = CreateWindow("SampleApp", settings.name.c_str(),
+	HWND hWnd = CreateWindow("SampleApp", "",
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
 		rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, *(HINSTANCE*)windowsData.hInstance, NULL);
-	ShowWindow(hWnd, windowsData.nShowCmd);
+	if (!hWnd)
+	{
+		MessageBox(NULL, "Cannot create window", "Error", MB_OK | MB_ICONERROR);
+	}
+	ShowWindow(hWnd, true);
 	UpdateWindow(hWnd);
 
 
 	Diligent::SwapChainDesc SCDesc;
 
-	privatePrisma->m_DeviceType = RENDER_DEVICE_TYPE_D3D11;
-
-	switch (privatePrisma->m_DeviceType)
+	switch (m_contextData.m_DeviceType)
 	{
 #if D3D11_SUPPORTED
 	case Diligent::RENDER_DEVICE_TYPE_D3D11:
@@ -278,9 +254,9 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 		auto* GetEngineFactoryD3D11 = LoadGraphicsEngineD3D11();
 #    endif
 		auto* pFactoryD3D11 = GetEngineFactoryD3D11();
-		pFactoryD3D11->CreateDeviceAndContextsD3D11(EngineCI, &privatePrisma->m_pDevice, &privatePrisma->m_pImmediateContext);
+		pFactoryD3D11->CreateDeviceAndContextsD3D11(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext);
 		Win32NativeWindow Window{ hWnd };
-		pFactoryD3D11->CreateSwapChainD3D11(privatePrisma->m_pDevice, privatePrisma->m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &privatePrisma->m_pSwapChain);
+		pFactoryD3D11->CreateSwapChainD3D11(m_contextData.m_pDevice, m_contextData.m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_contextData.m_pSwapChain);
 	}
 	break;
 #endif
@@ -296,9 +272,9 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 		EngineD3D12CreateInfo EngineCI;
 
 		auto* pFactoryD3D12 = GetEngineFactoryD3D12();
-		pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &privatePrisma->m_pDevice, &privatePrisma->m_pImmediateContext);
+		pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext);
 		Win32NativeWindow Window{ hWnd };
-		pFactoryD3D12->CreateSwapChainD3D12(privatePrisma->m_pDevice, privatePrisma->m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &privatePrisma->m_pSwapChain);
+		pFactoryD3D12->CreateSwapChainD3D12(m_contextData.m_pDevice, m_contextData.m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_contextData.m_pSwapChain);
 	}
 	break;
 #endif
@@ -316,7 +292,7 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 		EngineGLCreateInfo EngineCI;
 		EngineCI.Window.hWnd = hWnd;
 
-		pFactoryOpenGL->CreateDeviceAndSwapChainGL(EngineCI, &privatePrisma->m_pDevice, &privatePrisma->m_pImmediateContext, SCDesc, &privatePrisma->m_pSwapChain);
+		pFactoryOpenGL->CreateDeviceAndSwapChainGL(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext, SCDesc, &m_contextData.m_pSwapChain);
 	}
 	break;
 #endif
@@ -332,18 +308,18 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 		EngineVkCreateInfo EngineCI;
 
 		auto* pFactoryVk = GetEngineFactoryVk();
-		pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &privatePrisma->m_pDevice, &privatePrisma->m_pImmediateContext);
+		pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext);
 
-		if (!privatePrisma->m_pSwapChain && hWnd != nullptr)
+		if (!m_contextData.m_pSwapChain && hWnd != nullptr)
 		{
 			Win32NativeWindow Window{ hWnd };
-			pFactoryVk->CreateSwapChainVk(privatePrisma->m_pDevice, privatePrisma->m_pImmediateContext, SCDesc, Window, &privatePrisma->m_pSwapChain);
+			pFactoryVk->CreateSwapChainVk(m_contextData.m_pDevice, m_contextData.m_pImmediateContext, SCDesc, Window, &m_contextData.m_pSwapChain);
 		}
 	}
 	break;
 #endif
 
-
+	privatePrisma->m_pSwapChain = m_contextData.m_pSwapChain;
 	default:
 		std::cerr << "Unknown/unsupported device type";
 		break;
@@ -351,14 +327,21 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 
 }
 
-void Prisma::PrismaFunc::swapBuffers()
+bool Prisma::PrismaFunc::update()
 {
-	glfwPollEvents();
+	bool update = !PeekMessage(&privatePrisma->msg, NULL, 0, 0, PM_REMOVE);
+	//glfwPollEvents();
+	if (!update)
+	{
+		TranslateMessage(&privatePrisma->msg);
+		DispatchMessage(&privatePrisma->msg);
+	}
+	return update;
 }
 
 void Prisma::PrismaFunc::clear()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHandler)
@@ -366,41 +349,43 @@ void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHa
 	privatePrisma->callback = callbackHandler;
 	if (!privatePrisma->initCallback)
 	{
-		glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
+		/*glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
 		glfwSetCursorPosCallback(m_window, mouseCallback);
 		glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
 		glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GLFW_TRUE);
 		glfwSetKeyCallback(m_window, keyboardCallback);
-		glfwSetScrollCallback(m_window, rollCallback);
+		glfwSetScrollCallback(m_window, rollCallback);*/
 		privatePrisma->initCallback = true;
 	}
 }
 
 void Prisma::PrismaFunc::closeWindow()
 {
-	glfwSetWindowShouldClose(m_window, true);
+	//glfwSetWindowShouldClose(m_window, true);
+	int msgOut = (int)privatePrisma->msg.wParam;
 }
 
 bool Prisma::PrismaFunc::shouldClose()
 {
-	return glfwWindowShouldClose(m_window);
+	//return glfwWindowShouldClose(m_window);
+	return WM_QUIT == privatePrisma->msg.message;
 }
 
 void Prisma::PrismaFunc::hiddenMouse(bool hidden)
 {
-	glfwSetInputMode(m_window, GLFW_CURSOR, hidden ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(m_window, GLFW_CURSOR, hidden ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 void Prisma::PrismaFunc::msaa(bool isMsaa, int samples)
 {
 	if (isMsaa)
 	{
-		glfwWindowHint(GLFW_SAMPLES, samples);
-		glEnable(GL_MULTISAMPLE);
+		//glfwWindowHint(GLFW_SAMPLES, samples);
+		//glEnable(GL_MULTISAMPLE);
 	}
 	else
 	{
-		glDisable(GL_MULTISAMPLE);
+		//glDisable(GL_MULTISAMPLE);
 	}
 }
 
@@ -411,6 +396,6 @@ GLFWwindow* Prisma::PrismaFunc::window()
 
 void Prisma::PrismaFunc::destroy()
 {
-	glfwDestroyWindow(m_window);
-	glfwTerminate();
+	//glfwDestroyWindow(m_window);
+	//glfwTerminate();
 }
