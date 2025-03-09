@@ -280,12 +280,8 @@ void Prisma::PipelineForward::render(){
 	{
 	    // Map the buffer and write current world-view-projection matrix
 	    MapHelper<glm::mat4> CBConstants(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
-        glm::mat4 view = glm::mat4(1.0);
-        if (Prisma::GlobalData::getInstance().currentGlobalScene() && Prisma::GlobalData::getInstance().currentGlobalScene()->camera) {
-            view=Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
-            auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->front();
-        }
-	    *CBConstants = Prisma::GlobalData::getInstance().currentProjection()*view*glm::translate(glm::mat4(1.0),glm::vec3(0,0,-10)) * glm::rotate(glm::mat4(1.0), glm::radians(timeData), glm::vec3(0, 1, 0));
+        glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
+	    *CBConstants = Prisma::GlobalData::getInstance().currentProjection()*view*glm::translate(glm::mat4(1.0),glm::vec3(0,0,10)) * glm::rotate(glm::mat4(1.0), glm::radians(timeData), glm::vec3(0, 1, 0));
         timeData = timeData + 0.01;
 	}
 

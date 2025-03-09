@@ -47,7 +47,7 @@ namespace Prisma
 		}
 	}
 
-	void mouseButtonCallback(int button, Prisma::CallbackHandler::ACTION action, int mods)
+	void mouseButtonCallback(int button, Prisma::CallbackHandler::ACTION action)
 	{
 		double xpos, ypos;
 		if (privatePrisma->callback->mouseClick)
