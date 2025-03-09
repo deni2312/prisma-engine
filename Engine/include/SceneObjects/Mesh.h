@@ -7,6 +7,11 @@
 #include "../Physics/Physics.h"
 #include "../Components/Component.h"
 #include <map>
+#include "../GlobalData/Platform.h"
+
+#include "Common/interface/RefCntAutoPtr.hpp"
+#include "Graphics/GraphicsTools/interface/GraphicsUtilities.h"
+
 
 namespace Prisma
 {
@@ -73,5 +78,8 @@ namespace Prisma
 
 		int m_vectorId = -1;
 		AABBData m_aabbData;
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
 	};
 }

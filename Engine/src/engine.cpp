@@ -69,6 +69,8 @@ Prisma::Engine::Engine()
 
 	AnimationHandler::getInstance();*/
 
+	PrismaFunc::getInstance().init();
+
 	data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 
 	data->engineSettings.ssr = false;
@@ -232,7 +234,6 @@ void Prisma::Engine::debug(bool debug)
 void Prisma::Engine::windowsData(Prisma::WindowsHelper::WindowsData windowsData)
 {
 	data->windowsData = windowsData;
-	PrismaFunc::getInstance().init(data->windowsData);
 }
 
 std::shared_ptr<Prisma::UserData> Prisma::Engine::getUserEngine()

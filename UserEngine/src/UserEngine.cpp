@@ -28,7 +28,7 @@ void UserEngine::start()
 
     m_camera->center(m_camera->position() + m_camera->front());
 
-    callback->keyboard = [&](int key, Prisma::CallbackHandler::ACTION action)
+    callback->keyboard = [&](int button, int action, double x, double y)
         {
             auto camera = m_camera;
             auto position = camera->position();
@@ -36,7 +36,7 @@ void UserEngine::start()
             auto up = camera->up();
             float velocity = 0.1f;
 
-            switch (key)
+            switch (button)
             {
             case 'W':
                 position += front * velocity;

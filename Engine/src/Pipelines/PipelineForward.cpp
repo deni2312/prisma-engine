@@ -27,6 +27,7 @@
 #include "Graphics/GraphicsEngine/interface/SwapChain.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
+
 #include "Graphics/GraphicsTools/interface/GraphicsUtilities.h"
 #include <Graphics/GraphicsTools/interface/MapHelper.hpp>
 

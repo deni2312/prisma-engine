@@ -17,15 +17,10 @@ namespace Prisma
 
 	struct CallbackHandler
 	{
-		enum ACTION
-		{
-			KEY_PRESS,
-			KEY_RELEASE
-		};
 		std::function<void(int width, int height)> resize;
 		std::function<void(int x, int y)> mouse;
-		std::function<void(int button, ACTION action, double x, double y)> mouseClick;
-		std::function<void(int key, ACTION action)> keyboard;
+		std::function<void(int button, int action, double x, double y)> mouseClick;
+		std::function<void(int key, int scancode, int action, int mods)> keyboard;
 		std::function<void(double xOffset, double yOffset)> rollMouse;
 	};
 }
