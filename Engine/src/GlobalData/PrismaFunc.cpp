@@ -304,9 +304,9 @@ void Prisma::PrismaFunc::init()
 bool Prisma::PrismaFunc::update()
 {
 	//contextData().m_pImmediateContext->Flush();
-	glfwPollEvents();
-	Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->Present();
 	Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->Flush();
+	Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->Present();
+	glfwPollEvents();
 
 	return true;
 }
@@ -324,7 +324,6 @@ void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHa
 		glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
 		glfwSetCursorPosCallback(m_window, mouseCallback);
 		glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
-		glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GLFW_TRUE);
 		glfwSetKeyCallback(m_window, keyboardCallback);
 		glfwSetScrollCallback(m_window, rollCallback);
 		privatePrisma->initCallback = true;
