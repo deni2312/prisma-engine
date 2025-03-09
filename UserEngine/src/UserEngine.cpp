@@ -30,74 +30,76 @@ void UserEngine::start()
 
     callback->keyboard = [&](int button, int action, double x, double y)
         {
-            auto camera = m_camera;
-            auto position = camera->position();
-            auto front = camera->front();
-            auto up = camera->up();
+
             float velocity = 0.1f;
+
+            float rotationAngle = glm::radians(5.0f); // Rotation step in degrees
 
             switch (button)
             {
             case 'W':
-                position += front * velocity;
+                m_position += m_front * velocity;
                 break;
             case 'A':
-                position -= glm::normalize(glm::cross(front, up)) * velocity;
+                m_position -= glm::normalize(glm::cross(m_front, m_up)) * velocity;
                 break;
             case 'S':
-                position -= front * velocity;
+                m_position -= m_front * velocity;
                 break;
             case 'D':
-                position += glm::normalize(glm::cross(front, up)) * velocity;
+                m_position += glm::normalize(glm::cross(m_front, m_up)) * velocity;
+                break;
+            case 'Z': // Rotate the front vector
+            {
+                glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotationAngle, m_up);
+                m_front = glm::normalize(glm::vec3(rotationMatrix * glm::vec4(m_front, 1.0f)));
                 break;
             }
-
-            camera->position(position);
-            camera->center(position + front);
-            camera->front(front);
-            camera->up(up);
+            case 'X': // Rotate in the opposite direction
+            {
+                glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), -rotationAngle, m_up);
+                m_front = glm::normalize(glm::vec3(rotationMatrix * glm::vec4(m_front, 1.0f)));
+                break;
+            }
+            }
         };
 
     // Mouse callback to handle camera rotation based on mouse movement
     callback->mouse = [&](int x, int y)
         {
-			float xpos = x;
-			float ypos = y;
+            float xpos = x;
+            float ypos = y;
 
-			if (firstMouse)
-			{
-				lastX = xpos;
-				lastY = ypos;
-				firstMouse = false;
-			}
+            if (m_firstMouse)
+            {
+                m_lastX = xpos;
+                m_lastY = ypos;
+                m_firstMouse = false;
+            }
 
-			float xoffset = xpos - lastX;
-			float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-			lastX = xpos;
-			lastY = ypos;
+            float xoffset = xpos - m_lastX;
+            float yoffset = m_lastY - ypos; // reversed since y-coordinates go from bottom to top
+            m_lastX = xpos;
+            m_lastY = ypos;
 
-			float sensitivity = 0.1f; // change this value to your liking
-			xoffset *= sensitivity;
-			yoffset *= sensitivity;
+            float sensitivity = 0.1f; // change this value to your liking
+            xoffset *= sensitivity;
+            yoffset *= sensitivity;
 
-			yaw += xoffset;
-			pitch += yoffset;
+            m_yaw += xoffset;
+            m_pitch += yoffset;
 
-			// make sure that when pitch is out of bounds, screen doesn't get flipped
-			if (pitch > 89.0f)
-				pitch = 89.0f;
-			if (pitch < -89.0f)
-				pitch = -89.0f;
+            // make sure that when pitch is out of bounds, screen doesn't get flipped
+            if (m_pitch > 89.0f)
+                m_pitch = 89.0f;
+            if (m_pitch < -89.0f)
+                m_pitch = -89.0f;
 
-			glm::vec3 front;
-			front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-			front.y = sin(glm::radians(pitch));
-			front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-			front = normalize(front);
-			m_camera->position(m_camera->position());
-			m_camera->center(m_camera->position() + front);
-			m_camera->up(m_camera->up());
-			m_camera->front(front);
+            glm::vec3 front;
+            front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+            front.y = sin(glm::radians(m_pitch));
+            front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+            m_front = normalize(front);
         };
 	Prisma::Engine::getInstance().setCallback(callback);
 	Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.prisma", {
@@ -114,6 +116,11 @@ void UserEngine::start()
 void UserEngine::update()
 {
 	//m_player->update();
+    m_camera->position(m_position);
+    m_camera->center(m_position + m_front);
+    m_camera->up(m_up);
+    m_camera->front(m_front);
+    m_camera->right(glm::normalize(glm::cross(m_front, m_up)));
 }
 
 void UserEngine::finish()
