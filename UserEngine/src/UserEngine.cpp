@@ -11,15 +11,48 @@
 #include <random>
 #include <glm/gtc/random.hpp>
 #include "../../Engine/include/SceneData/Animation.h"
+#include <Windows.h>
 
 void UserEngine::start()
 {
-	Prisma::Engine::getInstance().setCallback(std::make_shared<Prisma::CallbackHandler>());
+	auto callback = std::make_shared<Prisma::CallbackHandler>();
+
+	callback->keyboard = [&](int key,Prisma::CallbackHandler::ACTION action)
+	{
+			auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
+			auto position = camera->position();
+			auto front = glm::vec3(0,0,-1);
+			auto up = glm::vec3(0,1,0);
+			float velocity = 0.0001;
+
+			switch (key)
+			{
+			case 'W':
+				position += front * velocity;
+				break;
+			case 'A':
+				position -= glm::normalize(glm::cross(front, up)) * velocity;
+				break;
+			case 'S':
+				position -= front * velocity;
+				break;
+			case 'D':
+				position += glm::normalize(glm::cross(front, up)) * velocity;
+				break;
+			}
+			//camera->position(position);
+			camera->front(front);
+			camera->up(up);
+
+	};
+	Prisma::Engine::getInstance().setCallback(callback);
 	Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.prisma", {
-		                                       true, [&](auto scene)
+		                                       true, [&](std::shared_ptr<Prisma::Scene> scene)
 		                                       {
 			                                       //m_player = std::make_shared<PlayerController>(scene);
 												   //m_player->scene(scene);
+												
+													
 		                                       }
 	                                       });
 }

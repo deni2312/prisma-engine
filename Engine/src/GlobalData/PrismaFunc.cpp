@@ -47,25 +47,24 @@ namespace Prisma
 		}
 	}
 
-	void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+	void mouseButtonCallback(int button, Prisma::CallbackHandler::ACTION action, int mods)
 	{
 		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
 		if (privatePrisma->callback->mouseClick)
 		{
 			privatePrisma->callback->mouseClick(button, action, xpos, ypos);
 		}
 	}
 
-	void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	void keyboardCallback(int key, Prisma::CallbackHandler::ACTION action)
 	{
 		if (privatePrisma->callback->keyboard)
 		{
-			privatePrisma->callback->keyboard(key, scancode, action, mods);
+			privatePrisma->callback->keyboard(key, action);
 		}
 	}
 
-	void rollCallback(GLFWwindow* window, double x, double y)
+	void rollCallback(double x, double y)
 	{
 		if (privatePrisma->callback->rollMouse)
 		{
@@ -178,6 +177,21 @@ LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lPara
 {
     switch (message)
     {
+		case WM_KEYDOWN:
+		{
+			// Map this key to a InputKeys enum and update the
+			// state of m_aKeys[] by adding the INPUT_KEY_STATE_FLAG_KEY_WAS_DOWN|INPUT_KEY_STATE_FLAG_KEY_IS_DOWN mask
+			// only if the key is not down
+			Prisma::keyboardCallback((UINT)wParam,Prisma::CallbackHandler::ACTION::KEY_PRESS);
+			break;
+		}
+
+		case WM_KEYUP:
+		{
+			Prisma::keyboardCallback((UINT)wParam, Prisma::CallbackHandler::ACTION::KEY_RELEASE);
+			break;
+		}
+
         case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -238,7 +252,7 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 	{
 		MessageBox(NULL, "Cannot create window", "Error", MB_OK | MB_ICONERROR);
 	}
-	ShowWindow(hWnd, true);
+	ShowWindow(hWnd, windowsData.nShowCmd);
 	UpdateWindow(hWnd);
 
 

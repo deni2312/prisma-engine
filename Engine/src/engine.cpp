@@ -91,7 +91,7 @@ Prisma::Engine::Engine()
 
 	data->camera = std::make_shared<Camera>();
 
-	Prisma::GlobalData::getInstance().currentGlobalScene()->camera = data->camera;
+	mainCamera(data->camera);
 }
 
 bool Prisma::Engine::run()

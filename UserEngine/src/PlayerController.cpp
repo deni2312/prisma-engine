@@ -287,7 +287,7 @@ void PlayerController::createCamera()
 
 void PlayerController::createKeyboard()
 {
-	m_handler->keyboard = [this](int key, int scancode, int action, int mods)
+	/*m_handler->keyboard = [this](int key, int scancode, int action, int mods)
 	{
 		if (key == Prisma::KEY_G && action == GLFW_PRESS)
 		{
@@ -313,7 +313,7 @@ void PlayerController::createKeyboard()
 			m_previousClick = Prisma::KEY_SPACE;
 			m_previousAnimations = JUMP;
 		}
-	};
+	};*/
 }
 
 void PlayerController::clearVelocity()
