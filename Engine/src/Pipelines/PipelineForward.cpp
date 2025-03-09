@@ -173,6 +173,21 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
+    const auto& ColorFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().ColorBufferFormat);
+    const auto& DepthFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().DepthBufferFormat);
+    m_SupportedSampleCounts = ColorFmtInfo.SampleCounts & DepthFmtInfo.SampleCounts;
+    if (m_SupportedSampleCounts & SAMPLE_COUNT_4)
+        m_SampleCount = 4;
+    else if (m_SupportedSampleCounts & SAMPLE_COUNT_2)
+        m_SampleCount = 2;
+    else
+    {
+        LOG_WARNING_MESSAGE(ColorFmtInfo.Name, " + ", DepthFmtInfo.Name, " pair does not allow multisampling on this device");
+        m_SampleCount = 1;
+    }
+    PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_SampleCount;
+
+
     Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
     // Since we did not explicitly specify the type for 'Constants' variable, default
@@ -182,12 +197,14 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Create a shader resource binding object and bind all static resources in it
     m_pso->CreateShaderResourceBinding(&m_shader, true);
+
+    CreateMSAARenderTarget();
 }
 
 void Prisma::PipelineForward::render(){
 
-	auto* pRTV = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetCurrentBackBufferRTV();
-	auto* pDSV = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDepthBufferDSV();
+	auto pRTV = m_pMSColorRTV;
+	auto pDSV = m_pMSDepthDSV;
 	// Clear the back buffer
 	glm::vec4 ClearColor = { 0.350f, 0.350f, 0.350f, 1.0f };
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -221,8 +238,81 @@ void Prisma::PipelineForward::render(){
         DrawAttrs.Flags = DRAW_FLAG_VERIFY_ALL;
         Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->DrawIndexed(DrawAttrs);
     }
+    // Resolve multi-sampled render target into the current swap chain back buffer.
+    auto pCurrentBackBuffer = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetCurrentBackBufferRTV()->GetTexture();
+
+    ResolveTextureSubresourceAttribs ResolveAttribs;
+    ResolveAttribs.SrcTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+    ResolveAttribs.DstTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ResolveTextureSubresource(m_pMSColorRTV->GetTexture(), pCurrentBackBuffer, ResolveAttribs);
 }
 
 Prisma::PipelineForward::~PipelineForward()
 {
+}
+
+void Prisma::PipelineForward::CreateMSAARenderTarget()
+{
+	if (m_SampleCount == 1)
+		return;
+
+	const auto& SCDesc = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc();
+	// Create window-size multi-sampled offscreen render target
+	TextureDesc ColorDesc;
+	ColorDesc.Name = "Multisampled render target";
+	ColorDesc.Type = RESOURCE_DIM_TEX_2D;
+	ColorDesc.BindFlags = BIND_RENDER_TARGET;
+	ColorDesc.Width = SCDesc.Width;
+	ColorDesc.Height = SCDesc.Height;
+	ColorDesc.MipLevels = 1;
+	ColorDesc.Format = SCDesc.ColorBufferFormat;
+	bool NeedsSRGBConversion = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetDeviceInfo().IsD3DDevice() && (ColorDesc.Format == TEX_FORMAT_RGBA8_UNORM_SRGB || ColorDesc.Format == TEX_FORMAT_BGRA8_UNORM_SRGB);
+	if (NeedsSRGBConversion)
+	{
+		// Internally Direct3D swap chain images are not SRGB, and ResolveSubresource
+		// requires source and destination formats to match exactly or be typeless.
+		// So we will have to create a typeless texture and use SRGB render target view with it.
+		ColorDesc.Format = ColorDesc.Format == TEX_FORMAT_RGBA8_UNORM_SRGB ? TEX_FORMAT_RGBA8_TYPELESS : TEX_FORMAT_BGRA8_TYPELESS;
+	}
+
+	// Set the desired number of samples
+	ColorDesc.SampleCount = m_SampleCount;
+	// Define optimal clear value
+	ColorDesc.ClearValue.Format = SCDesc.ColorBufferFormat;
+	ColorDesc.ClearValue.Color[0] = 0.125f;
+	ColorDesc.ClearValue.Color[1] = 0.125f;
+	ColorDesc.ClearValue.Color[2] = 0.125f;
+	ColorDesc.ClearValue.Color[3] = 1.f;
+	RefCntAutoPtr<ITexture> pColor;
+    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateTexture(ColorDesc, nullptr, &pColor);
+
+	// Store the render target view
+    m_pMSColorRTV.Release();
+	if (NeedsSRGBConversion)
+	{
+		TextureViewDesc RTVDesc;
+		RTVDesc.ViewType = TEXTURE_VIEW_RENDER_TARGET;
+		RTVDesc.Format = SCDesc.ColorBufferFormat;
+		pColor->CreateView(RTVDesc, &m_pMSColorRTV);
+	}
+	else
+	{
+		m_pMSColorRTV = pColor->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+	}
+
+
+	// Create window-size multi-sampled depth buffer
+	TextureDesc DepthDesc = ColorDesc;
+	DepthDesc.Name = "Multisampled depth buffer";
+	DepthDesc.Format = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().DepthBufferFormat;
+	DepthDesc.BindFlags = BIND_DEPTH_STENCIL;
+	// Define optimal clear value
+	DepthDesc.ClearValue.Format = DepthDesc.Format;
+	DepthDesc.ClearValue.DepthStencil.Depth = 1;
+	DepthDesc.ClearValue.DepthStencil.Stencil = 0;
+
+	RefCntAutoPtr<ITexture> pDepth;
+    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateTexture(DepthDesc, nullptr, &pDepth);
+	// Store the depth-stencil view
+	m_pMSDepthDSV = pDepth->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 }

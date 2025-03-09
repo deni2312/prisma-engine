@@ -38,5 +38,11 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_shader;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
+		Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
+		int m_SampleCount;
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
+
+        void CreateMSAARenderTarget();
 	};
 }
