@@ -97,58 +97,59 @@ bool Prisma::Engine::run()
 	initScene();
 	while (!PrismaFunc::getInstance().shouldClose())
 	{
-		//if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene())
-		if (PrismaFunc::getInstance().update())
-		{
-
-			auto currentTime = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
-			data->lastTime = currentTime;
-			data->fps = 1.0f / deltaTime.count();
-			/*PrismaFunc::getInstance().clear();
-			if (!data->debug)
+		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene()) {
+			if (PrismaFunc::getInstance().update())
 			{
-				data->userData->update();
-				ComponentsHandler::getInstance().updateStart();
-				ComponentsHandler::getInstance().updateComponents();
-				Physics::getInstance().update(1.0f / fps());
+
+				auto currentTime = std::chrono::high_resolution_clock::now();
+				std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
+				data->lastTime = currentTime;
+				data->fps = 1.0f / deltaTime.count();
+				/*PrismaFunc::getInstance().clear();
+				if (!data->debug)
+				{
+					data->userData->update();
+					ComponentsHandler::getInstance().updateStart();
+					ComponentsHandler::getInstance().updateComponents();
+					Physics::getInstance().update(1.0f / fps());
+				}
+				data->sceneHandler->onBeginRender();
+				if (data->debug)
+				{
+					ComponentsHandler::getInstance().updateUi();
+				}
+				MeshHandler::getInstance().updateCamera();
+				MeshHandler::getInstance().updateFragment();
+				MeshIndirect::getInstance().update();
+				LightHandler::getInstance().update();*/
+
+				switch (data->engineSettings.pipeline)
+				{
+				case EngineSettings::Pipeline::FORWARD:
+					PipelineHandler::getInstance().forward()->render();
+					break;
+				case EngineSettings::Pipeline::DEFERRED:
+					PipelineHandler::getInstance().deferred()->render();
+					break;
+				case EngineSettings::Pipeline::DEFERRED_FORWARD:
+					PipelineHandler::getInstance().deferredForward()->render();
+					break;
+				}
+
+				//Postprocess::getInstance().render();
+
+				Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
+				//
+				//
+				//data->sceneHandler->onEndRender();
+
 			}
-			data->sceneHandler->onBeginRender();
-			if (data->debug)
+			/*else
 			{
-				ComponentsHandler::getInstance().updateUi();
-			}
-			MeshHandler::getInstance().updateCamera();
-			MeshHandler::getInstance().updateFragment();
-			MeshIndirect::getInstance().update();
-			LightHandler::getInstance().update();*/
-
-			switch (data->engineSettings.pipeline)
-			{
-			case EngineSettings::Pipeline::FORWARD:
-				PipelineHandler::getInstance().forward()->render();
-				break;
-			case EngineSettings::Pipeline::DEFERRED:
-				PipelineHandler::getInstance().deferred()->render();
-				break;
-			case EngineSettings::Pipeline::DEFERRED_FORWARD:
-				PipelineHandler::getInstance().deferredForward()->render();
-				break;
-			}
-
-			//Postprocess::getInstance().render();
-
-			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
-			//
-			//
-			//data->sceneHandler->onEndRender();
-
+				std::cerr << "Null camera or scene" << std::endl;
+				PrismaFunc::getInstance().closeWindow();
+			}*/
 		}
-		/*else
-		{
-			std::cerr << "Null camera or scene" << std::endl;
-			PrismaFunc::getInstance().closeWindow();
-		}*/
 	}
 	//data->userData->finish();
 	//GarbageCollector::getInstance().clear();
