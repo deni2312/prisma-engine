@@ -8,84 +8,18 @@
 #include "../../include/GlobalData/GlobalData.h"
 
 #include "../../include/Helpers/Logger.h"
+#include "TextureLoader/interface/TextureLoader.h"
+#include "TextureLoader/interface/TextureUtilities.h"
 
 bool Prisma::Texture::loadTexture(const Parameters& parameters)
 {
 	m_parameters = parameters;
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	int width, height, nrComponents;
-	m_data.dataContent = stbi_load(m_parameters.texture.c_str(), &width, &height, &nrComponents, 0);
-	m_data.height = height;
-	m_data.width = width;
-	m_data.nrComponents = nrComponents;
-	m_name = m_parameters.texture;
-	if (m_data.dataContent)
-	{
-		GLenum internalFormat = GL_RGB;
-		GLenum dataFormat = GL_RGB;
-		if (nrComponents == 1)
-		{
-			internalFormat = dataFormat = GL_RED;
-		}
-		else if (nrComponents == 3)
-		{
-			internalFormat = m_parameters.srgb ? GL_SRGB : GL_RGB;
-			dataFormat = GL_RGB;
-		}
-		else if (nrComponents == 4)
-		{
-			internalFormat = m_parameters.srgb ? GL_SRGB_ALPHA : GL_RGBA;
-			dataFormat = GL_RGBA;
-		}
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, dataFormat, GL_UNSIGNED_BYTE,
-		             m_data.dataContent);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		if (m_parameters.noRepeat)
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		}
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		if (m_parameters.anisotropic) 
-		{
-
-			GLfloat value, max_anisotropy = 8.0f;
-			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &value);
-
-			value = (value > max_anisotropy) ? max_anisotropy : value;
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, value);
-		}
-		if (!m_parameters.mantainData)
-		{
-			stbi_image_free(m_data.dataContent);
-		}
-		if (m_parameters.resident)
-		{
-			m_id = glGetTextureHandleARB(textureID);
-			glMakeTextureHandleResidentARB(m_id);
-		}
-		else
-		{
-			m_id = textureID;
-		}
-		Prisma::GlobalData::getInstance().addGlobalTexture({ textureID, m_parameters.texture,{ m_data.width, m_data.height} });
-		m_rawId = textureID;
-		GarbageCollector::getInstance().addTexture({textureID, m_id});
-		return true;
-	}
-	Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,
-	                                  "Not found: " + m_parameters.texture);
+	Diligent::TextureLoadInfo loadInfo;
+	loadInfo.IsSRGB = parameters.srgb;
+	CreateTextureFromFile(parameters.texture.c_str(), loadInfo, Prisma::PrismaFunc::getInstance().contextData().m_pDevice, &m_texture);
+	//Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,"Not found: " + m_parameters.texture);
 	stbi_image_free(m_data.dataContent);
-	return false;
+	return true;
 }
 
 uint64_t Prisma::Texture::id() const

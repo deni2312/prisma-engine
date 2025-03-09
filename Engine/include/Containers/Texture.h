@@ -1,6 +1,10 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "../GlobalData/Platform.h"
+
+#include "Common/interface/RefCntAutoPtr.hpp"
+#include "Graphics/GraphicsEngine/interface/Texture.h"
 
 namespace Prisma
 {
@@ -47,5 +51,6 @@ namespace Prisma
 		TextureData m_data;
 		Parameters m_parameters;
 		std::string m_name;
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
 	};
 }
