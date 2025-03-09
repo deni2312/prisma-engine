@@ -222,8 +222,6 @@ void Prisma::PipelineForward::render(){
         DrawAttrs.Flags = DRAW_FLAG_VERIFY_ALL;
         Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->DrawIndexed(DrawAttrs);
     }
-    Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->Present();
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->Flush();
 }
 
 Prisma::PipelineForward::~PipelineForward()

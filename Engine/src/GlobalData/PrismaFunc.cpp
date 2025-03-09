@@ -305,7 +305,8 @@ bool Prisma::PrismaFunc::update()
 {
 	//contextData().m_pImmediateContext->Flush();
 	glfwPollEvents();
-
+	Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->Present();
+	Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->Flush();
 
 	return true;
 }
