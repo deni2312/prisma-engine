@@ -1,3 +1,6 @@
 [submodule "DiligentCore"]
 	path = DiligentCore
 	url = https://github.com/DiligentGraphics/DiligentCore.git
+[submodule "DiligentEngine"]
+	path = DiligentEngine
+	url = https://github.com/DiligentGraphics/DiligentEngine.git
