@@ -19,7 +19,7 @@ void UserEngine::start()
     float lastY = 0.0f;  // Stores the last y position of the mouse
     bool firstMouse = true; // To ensure the initial mouse position is captured
 
-	float yaw = 90;
+	float yaw = -90;
 	float pitch = 0;
 
     auto callback = std::make_shared<Prisma::CallbackHandler>();
@@ -61,7 +61,7 @@ void UserEngine::start()
     // Mouse callback to handle camera rotation based on mouse movement
     callback->mouse = [&](int x, int y)
         {
-			/*float xpos = x;
+			float xpos = x;
 			float ypos = y;
 
 			if (firstMouse)
@@ -94,11 +94,10 @@ void UserEngine::start()
 			front.y = sin(glm::radians(pitch));
 			front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 			front = normalize(front);
-			m_camera->front(front);
 			m_camera->position(m_camera->position());
 			m_camera->center(m_camera->position() + front);
+			m_camera->up(m_camera->up());
 			m_camera->front(front);
-			m_camera->up(m_camera->up());*/
         };
 	Prisma::Engine::getInstance().setCallback(callback);
 	Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.prisma", {

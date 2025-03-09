@@ -195,7 +195,11 @@ void Prisma::PipelineForward::render(){
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(ClearColor), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-
+    // Set the pipeline state
+    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetPipelineState(m_pso);
+    // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
+    // makes sure that resources are transitioned to required states.
+    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(m_shader, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
     for (auto mesh : meshes) {
         // Bind vertex and index buffers
@@ -209,11 +213,6 @@ void Prisma::PipelineForward::render(){
             glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
             *CBConstants = Prisma::GlobalData::getInstance().currentProjection() * view * mesh->parent()->finalMatrix();
         }
-        // Set the pipeline state
-        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetPipelineState(m_pso);
-        // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
-        // makes sure that resources are transitioned to required states.
-        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(m_shader, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
         DrawAttrs.IndexType = VT_UINT32; // Index type
