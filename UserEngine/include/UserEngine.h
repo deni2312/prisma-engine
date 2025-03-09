@@ -21,4 +21,5 @@ public:
 
 private:
 	std::shared_ptr<PlayerController> m_player;
+	std::shared_ptr<Prisma::Camera> m_camera;
 };

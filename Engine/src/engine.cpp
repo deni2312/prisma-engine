@@ -89,9 +89,7 @@ Prisma::Engine::Engine()
 
 	data->debug = true;
 
-	data->camera = std::make_shared<Camera>();
-
-	mainCamera(data->camera);
+	data->camera = nullptr;
 }
 
 bool Prisma::Engine::run()

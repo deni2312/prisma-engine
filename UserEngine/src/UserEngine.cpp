@@ -16,14 +16,15 @@
 void UserEngine::start()
 {
 	auto callback = std::make_shared<Prisma::CallbackHandler>();
-
+	m_camera = std::make_shared<Prisma::Camera>();
+	Prisma::Engine::getInstance().mainCamera(m_camera);
 	callback->keyboard = [&](int key,Prisma::CallbackHandler::ACTION action)
 	{
-			auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
+			auto camera = m_camera;
 			auto position = camera->position();
 			auto front = glm::vec3(0,0,-1);
 			auto up = glm::vec3(0,1,0);
-			float velocity = 0.0001;
+			float velocity = 0.1;
 
 			switch (key)
 			{
@@ -40,7 +41,8 @@ void UserEngine::start()
 				position += glm::normalize(glm::cross(front, up)) * velocity;
 				break;
 			}
-			//camera->position(position);
+			camera->position(position);
+			camera->center(position + front);
 			camera->front(front);
 			camera->up(up);
 

@@ -285,7 +285,7 @@ void Prisma::PipelineForward::render(){
             view=Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
             auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->front();
         }
-	    *CBConstants = Prisma::GlobalData::getInstance().currentProjection()*glm::translate(glm::mat4(1.0),glm::vec3(0,0,-10)) * glm::rotate(glm::mat4(1.0), glm::radians(timeData), glm::vec3(0, 1, 0));
+	    *CBConstants = Prisma::GlobalData::getInstance().currentProjection()*view*glm::translate(glm::mat4(1.0),glm::vec3(0,0,-10)) * glm::rotate(glm::mat4(1.0), glm::radians(timeData), glm::vec3(0, 1, 0));
         timeData = timeData + 0.01;
 	}
 
