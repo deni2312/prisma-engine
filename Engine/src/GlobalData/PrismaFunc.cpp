@@ -301,14 +301,15 @@ void Prisma::PrismaFunc::init()
 
 }
 
-bool Prisma::PrismaFunc::update()
+void Prisma::PrismaFunc::poll()
 {
-	//contextData().m_pImmediateContext->Flush();
+	glfwPollEvents();
+}
+
+void Prisma::PrismaFunc::update()
+{
 	Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->Flush();
 	Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->Present();
-	glfwPollEvents();
-
-	return true;
 }
 
 void Prisma::PrismaFunc::clear()

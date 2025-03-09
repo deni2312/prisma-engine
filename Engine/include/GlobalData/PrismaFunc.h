@@ -34,7 +34,8 @@ namespace Prisma
 		};
 
 		void init();
-		bool update();
+		void poll();
+		void update();
 		void clear();
 		void setCallback(std::shared_ptr<CallbackHandler> callbackHandler);
 		void closeWindow();
