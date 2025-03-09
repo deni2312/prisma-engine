@@ -171,6 +171,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     PSOCreateInfo.GraphicsPipeline.DSVFormat = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = CULL_MODE_BACK;
     // Enable depth testing
@@ -263,6 +264,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     CreateIndexBuffer();
 }
 
+float timeData = 0;
+
 void Prisma::PipelineForward::render(){
 
 	auto* pRTV = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetCurrentBackBufferRTV();
@@ -277,7 +280,8 @@ void Prisma::PipelineForward::render(){
 	{
 	    // Map the buffer and write current world-view-projection matrix
 	    MapHelper<glm::mat4> CBConstants(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
-	    *CBConstants = Prisma::GlobalData::getInstance().currentProjection()*glm::translate(glm::mat4(1.0),glm::vec3(0,0,-10));
+	    *CBConstants = Prisma::GlobalData::getInstance().currentProjection()*glm::translate(glm::mat4(1.0),glm::vec3(0,0,-10)) * glm::rotate(glm::mat4(1.0), glm::radians(timeData), glm::vec3(0, 1, 0));
+        timeData = timeData + 0.01;
 	}
 
 	// Bind vertex and index buffers

@@ -24,6 +24,6 @@ struct PSInput
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    PSIn.Pos = mul(float4(VSIn.Pos, 1.0), g_WorldViewProj);
+    PSIn.Pos = g_WorldViewProj*float4(VSIn.Pos, 1.0);
     PSIn.Color = VSIn.Color;
 }
