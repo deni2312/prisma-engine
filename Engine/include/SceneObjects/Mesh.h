@@ -71,6 +71,10 @@ namespace Prisma
 
 		int vectorId();
 
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> vBuffer();
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> iBuffer();
+
 
 	protected:
 		std::shared_ptr<VerticesData> m_vertices;

@@ -88,6 +88,16 @@ int Prisma::Mesh::vectorId()
 	return m_vectorId;
 }
 
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::Mesh::vBuffer()
+{
+	return m_vBuffer;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::Mesh::iBuffer()
+{
+	return m_iBuffer;
+}
+
 void Prisma::Mesh::computeAABB()
 {
 	auto vertices = verticesData().vertices;

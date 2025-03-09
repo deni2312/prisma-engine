@@ -33,85 +33,6 @@
 
 using namespace Diligent;
 
-RefCntAutoPtr<IBuffer> m_CubeVertexBuffer;
-RefCntAutoPtr<IBuffer> m_CubeIndexBuffer;
-
-void CreateVertexBuffer()
-{
-    // Layout of this structure matches the one we defined in the pipeline state
-    struct Vertex
-    {
-        glm::vec3 pos;
-        glm::vec4 color;
-    };
-
-    // Cube vertices
-
-    //      (-1,+1,+1)________________(+1,+1,+1)
-    //               /|              /|
-    //              / |             / |
-    //             /  |            /  |
-    //            /   |           /   |
-    //(-1,-1,+1) /____|__________/(+1,-1,+1)
-    //           |    |__________|____|
-    //           |   /(-1,+1,-1) |    /(+1,+1,-1)
-    //           |  /            |   /
-    //           | /             |  /
-    //           |/              | /
-    //           /_______________|/
-    //        (-1,-1,-1)       (+1,-1,-1)
-    //
-
-    constexpr Vertex CubeVerts[8] =
-    {
-        {{-1, -1, -1},{1, 0, 0, 1}},
-        {{-1, +1, -1}, {0, 1, 0, 1}},
-        {{+1, +1, -1}, {0, 0, 1, 1}},
-        {{+1, -1, -1}, {1, 1, 1, 1}},
-
-        {{-1, -1, +1}, {1, 1, 0, 1}},
-        {{-1, +1, +1}, {0, 1, 1, 1}},
-        {{+1, +1, +1}, {1, 0, 1, 1}},
-        {{+1, -1, +1}, {0.2f, 0.2f, 0.2f, 1.f}},
-    };
-    // Create a vertex buffer that stores cube vertices
-    BufferDesc VertBuffDesc;
-    VertBuffDesc.Name = "Cube vertex buffer";
-    VertBuffDesc.Usage = USAGE_IMMUTABLE;
-    VertBuffDesc.BindFlags = BIND_VERTEX_BUFFER;
-    VertBuffDesc.Size = sizeof(CubeVerts);
-    BufferData VBData;
-    VBData.pData = CubeVerts;
-    VBData.DataSize = sizeof(CubeVerts);
-    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_CubeVertexBuffer);
-}
-
-void CreateIndexBuffer()
-{
-    // clang-format off
-    constexpr Uint32 Indices[] =
-    {
-        2,0,1, 2,3,0,
-        4,6,5, 4,7,6,
-        0,7,4, 0,3,7,
-        1,0,4, 1,4,5,
-        1,5,2, 5,6,2,
-        3,6,7, 3,2,6
-    };
-    // clang-format on
-
-    BufferDesc IndBuffDesc;
-    IndBuffDesc.Name = "Cube index buffer";
-    IndBuffDesc.Usage = USAGE_IMMUTABLE;
-    IndBuffDesc.BindFlags = BIND_INDEX_BUFFER;
-    IndBuffDesc.Size = sizeof(Indices);
-    BufferData IBData;
-    IBData.pData = Indices;
-    IBData.DataSize = sizeof(Indices);
-    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_CubeIndexBuffer);
-}
-
-
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{
 	                                                                                                             width
                                                                                                              }, m_height{height}
@@ -261,11 +182,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Create a shader resource binding object and bind all static resources in it
     m_pso->CreateShaderResourceBinding(&m_shader, true);
-    CreateVertexBuffer();
-    CreateIndexBuffer();
 }
-
-float timeData = 0;
 
 void Prisma::PipelineForward::render(){
 
@@ -278,33 +195,35 @@ void Prisma::PipelineForward::render(){
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(ClearColor), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-	{
-	    // Map the buffer and write current world-view-projection matrix
-	    MapHelper<glm::mat4> CBConstants(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
-        glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
-	    *CBConstants = Prisma::GlobalData::getInstance().currentProjection()*view*glm::translate(glm::mat4(1.0),glm::vec3(0,0,10)) * glm::rotate(glm::mat4(1.0), glm::radians(timeData), glm::vec3(0, 1, 0));
-        timeData = timeData + 0.01;
-	}
 
-	// Bind vertex and index buffers
-	const Uint64 offset = 0;
-	IBuffer* pBuffs[] = { m_CubeVertexBuffer };
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetIndexBuffer(m_CubeIndexBuffer, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+    for (auto mesh : meshes) {
+        // Bind vertex and index buffers
+        const Uint64 offset = 0;
+        IBuffer* pBuffs[] = { mesh->vBuffer() };
+        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
+        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetIndexBuffer(mesh->iBuffer(), 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        {
+            // Map the buffer and write current world-view-projection matrix
+            MapHelper<glm::mat4> CBConstants(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
+            glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
+            *CBConstants = Prisma::GlobalData::getInstance().currentProjection() * view * mesh->parent()->finalMatrix();
+        }
+        // Set the pipeline state
+        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetPipelineState(m_pso);
+        // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
+        // makes sure that resources are transitioned to required states.
+        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(m_shader, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-	// Set the pipeline state
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetPipelineState(m_pso);
-	// Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
-	// makes sure that resources are transitioned to required states.
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(m_shader, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-	DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
-	DrawAttrs.IndexType = VT_UINT32; // Index type
-	DrawAttrs.NumIndices = 36;
-	// Verify the state of vertex and index buffers
-	DrawAttrs.Flags = DRAW_FLAG_VERIFY_ALL;
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->DrawIndexed(DrawAttrs);
+        DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+        DrawAttrs.IndexType = VT_UINT32; // Index type
+        DrawAttrs.NumIndices = mesh->verticesData().indices.size();
+        // Verify the state of vertex and index buffers
+        DrawAttrs.Flags = DRAW_FLAG_VERIFY_ALL;
+        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->DrawIndexed(DrawAttrs);
+    }
     Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->Present();
+    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->Flush();
 }
 
 Prisma::PipelineForward::~PipelineForward()
