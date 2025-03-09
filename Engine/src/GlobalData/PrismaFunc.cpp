@@ -25,6 +25,7 @@ struct PrivatePrisma
 	std::map<std::string, std::string> errorMap;
 	Diligent::RefCntAutoPtr<Diligent::ISwapChain> m_pSwapChain;
 	MSG msg = { 0 };
+	POINT mousePosition;
 };
 
 std::shared_ptr<PrivatePrisma> privatePrisma;
@@ -39,20 +40,11 @@ namespace Prisma
 		}
 	}
 
-	void mouseCallback(GLFWwindow* window, double x, double y)
+	void mouseCallback(double x, double y)
 	{
 		if (privatePrisma->callback->mouse)
 		{
 			privatePrisma->callback->mouse(x, y);
-		}
-	}
-
-	void mouseButtonCallback(int button, Prisma::CallbackHandler::ACTION action)
-	{
-		double xpos, ypos;
-		if (privatePrisma->callback->mouseClick)
-		{
-			privatePrisma->callback->mouseClick(button, action, xpos, ypos);
 		}
 	}
 
@@ -61,14 +53,6 @@ namespace Prisma
 		if (privatePrisma->callback->keyboard)
 		{
 			privatePrisma->callback->keyboard(key, action);
-		}
-	}
-
-	void rollCallback(double x, double y)
-	{
-		if (privatePrisma->callback->rollMouse)
-		{
-			privatePrisma->callback->rollMouse(x, y);
 		}
 	}
 
@@ -347,6 +331,13 @@ void Prisma::PrismaFunc::init(Prisma::WindowsHelper::WindowsData windowsData)
 	}
 
 }
+struct MOUSESTATE {
+	float PosX;
+	float PosY;
+	// Add other mouse-related information if needed
+};
+
+MOUSESTATE mouse;
 
 bool Prisma::PrismaFunc::update()
 {
@@ -357,6 +348,11 @@ bool Prisma::PrismaFunc::update()
 		TranslateMessage(&privatePrisma->msg);
 		DispatchMessage(&privatePrisma->msg);
 	}
+	
+	GetCursorPos(&privatePrisma->mousePosition);
+	ScreenToClient(GetActiveWindow(), &privatePrisma->mousePosition);
+	Prisma::mouseCallback(privatePrisma->mousePosition.x, privatePrisma->mousePosition.y);
+
 	return update;
 }
 
