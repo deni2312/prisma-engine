@@ -135,7 +135,7 @@ Prisma::Mesh::AABBData Prisma::Mesh::aabbData()
 struct VData
 {
 	glm::vec3 pos;
-	glm::vec4 color;
+	glm::vec2 uv;
 };
 
 void Prisma::Mesh::uploadGPU()
@@ -144,7 +144,7 @@ void Prisma::Mesh::uploadGPU()
 	if (m_vertices) {
 		for (auto vertex : m_vertices->vertices)
 		{
-			vData.push_back({ vertex.position,{1,1,1,1} });
+			vData.push_back({ vertex.position,vertex.texCoords });
 		}
 		// Create a vertex buffer that stores cube vertices
 		Diligent::BufferDesc VertBuffDesc;

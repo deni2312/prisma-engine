@@ -1,10 +1,16 @@
 #pragma once
 #include <string>
 #include <vector>
+
 #include "../GlobalData/Platform.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "Graphics/GraphicsEngine/interface/Texture.h"
+
+namespace Diligent
+{
+	struct IShaderResourceBinding;
+}
 
 namespace Prisma
 {
@@ -43,7 +49,11 @@ namespace Prisma
 		void data(TextureData data);
 		void freeData();
 
+		Diligent::RefCntAutoPtr<Diligent::ITexture> texture();
+
 		const Parameters parameters() const;
+
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> shader();
 
 	private:
 		uint64_t m_id = 0;
@@ -52,5 +62,6 @@ namespace Prisma
 		Parameters m_parameters;
 		std::string m_name;
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_shader;
 	};
 }

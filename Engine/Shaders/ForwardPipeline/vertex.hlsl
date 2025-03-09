@@ -3,19 +3,19 @@ cbuffer Constants
     float4x4 g_WorldViewProj;
 };
 
-// Vertex shader takes two inputs: vertex position and color.
+// Vertex shader takes two inputs: vertex position and uv coordinates.
 // By convention, Diligent Engine expects vertex shader inputs to be 
 // labeled 'ATTRIBn', where n is the attribute number.
 struct VSInput
 {
     float3 Pos : ATTRIB0;
-    float4 Color : ATTRIB1;
+    float2 UV : ATTRIB1;
 };
 
 struct PSInput
 {
     float4 Pos : SV_POSITION;
-    float4 Color : COLOR0;
+    float2 UV : TEX_COORD;
 };
 
 // Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
@@ -24,6 +24,6 @@ struct PSInput
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    PSIn.Pos = g_WorldViewProj*float4(VSIn.Pos, 1.0);
-    PSIn.Color = VSIn.Color;
+    PSIn.Pos = g_WorldViewProj * float4(VSIn.Pos, 1.0);
+    PSIn.UV = VSIn.UV;
 }

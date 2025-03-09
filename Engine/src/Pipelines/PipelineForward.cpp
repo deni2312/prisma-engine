@@ -160,8 +160,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     {
         // Attribute 0 - vertex position
         LayoutElement{0, 0, 3, VT_FLOAT32, False},
-        // Attribute 1 - vertex color
-        LayoutElement{1, 0, 4, VT_FLOAT32, False}
+        // Attribute 1 - texture coordinates
+        LayoutElement{1, 0, 2, VT_FLOAT32, False}
     };
     // clang-format on
     PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
@@ -172,6 +172,29 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+
+    ShaderResourceVariableDesc Vars[] =
+    {
+        {SHADER_TYPE_PIXEL, "g_Texture", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
+    };
+    // clang-format on
+    PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
+    PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
+
+    // clang-format off
+// Define immutable sampler for g_Texture. Immutable samplers should be used whenever possible
+    SamplerDesc SamLinearClampDesc
+    {
+        FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
+        TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP
+    };
+    ImmutableSamplerDesc ImtblSamplers[] =
+    {
+        {SHADER_TYPE_PIXEL, "g_Texture", SamLinearClampDesc}
+    };
+    // clang-format on
+    PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
+    PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
 
     const auto& ColorFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().ColorBufferFormat);
     const auto& DepthFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().DepthBufferFormat);
@@ -211,12 +234,10 @@ void Prisma::PipelineForward::render(){
 
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(ClearColor), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
     // Set the pipeline state
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetPipelineState(m_pso);
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
     // makes sure that resources are transitioned to required states.
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(m_shader, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
     for (auto mesh : meshes) {
         // Bind vertex and index buffers
@@ -230,6 +251,12 @@ void Prisma::PipelineForward::render(){
             glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
             *CBConstants = Prisma::GlobalData::getInstance().currentProjection() * view * mesh->parent()->finalMatrix();
         }
+
+        auto texture=mesh->material()->diffuse()[0].texture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
+
+        // Set texture SRV in the SRB
+        m_shader->GetVariableByName(SHADER_TYPE_PIXEL, "g_Texture")->Set(texture, SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(m_shader, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
         DrawAttrs.IndexType = VT_UINT32; // Index type
@@ -249,6 +276,11 @@ void Prisma::PipelineForward::render(){
 
 Prisma::PipelineForward::~PipelineForward()
 {
+}
+
+Diligent::RefCntAutoPtr<Diligent::IPipelineState> Prisma::PipelineForward::pso()
+{
+    return m_pso;
 }
 
 void Prisma::PipelineForward::CreateMSAARenderTarget()

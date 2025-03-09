@@ -6,6 +6,7 @@
 #include <iostream>
 #include <tuple>
 #include "../../include/GlobalData/GlobalData.h"
+#include "../../include/Pipelines/PipelineHandler.h"
 
 #include "../../include/Helpers/Logger.h"
 #include "TextureLoader/interface/TextureLoader.h"
@@ -18,7 +19,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 	loadInfo.IsSRGB = parameters.srgb;
 	CreateTextureFromFile(parameters.texture.c_str(), loadInfo, Prisma::PrismaFunc::getInstance().contextData().m_pDevice, &m_texture);
 	//Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,"Not found: " + m_parameters.texture);
-	stbi_image_free(m_data.dataContent);
+
 	return true;
 }
 
@@ -154,7 +155,17 @@ void Prisma::Texture::freeData()
 	}
 }
 
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::Texture::texture()
+{
+	return m_texture;
+}
+
 const Prisma::Texture::Parameters Prisma::Texture::parameters() const
 {
 	return m_parameters;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::Texture::shader()
+{
+	return m_shader;
 }
