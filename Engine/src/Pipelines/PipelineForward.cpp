@@ -196,7 +196,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
 
-    const auto& ColorFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().ColorBufferFormat);
+    /*const auto& ColorFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().ColorBufferFormat);
     const auto& DepthFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().DepthBufferFormat);
     m_SupportedSampleCounts = ColorFmtInfo.SampleCounts & DepthFmtInfo.SampleCounts;
     if (m_SupportedSampleCounts & SAMPLE_COUNT_4)
@@ -208,7 +208,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         LOG_WARNING_MESSAGE(ColorFmtInfo.Name, " + ", DepthFmtInfo.Name, " pair does not allow multisampling on this device");
         m_SampleCount = 1;
     }
-    PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_SampleCount;
+    PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_SampleCount;*/
 
 
     Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
@@ -220,13 +220,13 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Create a shader resource binding object and bind all static resources in it
 
-    CreateMSAARenderTarget();
+    //CreateMSAARenderTarget();
 }
 
 void Prisma::PipelineForward::render(){
 
-	auto pRTV = m_pMSColorRTV;
-	auto pDSV = m_pMSDepthDSV;
+	auto pRTV = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetCurrentBackBufferRTV();
+	auto pDSV = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDepthBufferDSV();
 	// Clear the back buffer
 	glm::vec4 ClearColor = { 0.350f, 0.350f, 0.350f, 1.0f };
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -264,12 +264,12 @@ void Prisma::PipelineForward::render(){
         Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->DrawIndexed(DrawAttrs);
     }
     // Resolve multi-sampled render target into the current swap chain back buffer.
-    auto pCurrentBackBuffer = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetCurrentBackBufferRTV()->GetTexture();
+    /*auto pCurrentBackBuffer = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetCurrentBackBufferRTV()->GetTexture();
 
     ResolveTextureSubresourceAttribs ResolveAttribs;
     ResolveAttribs.SrcTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
     ResolveAttribs.DstTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ResolveTextureSubresource(m_pMSColorRTV->GetTexture(), pCurrentBackBuffer, ResolveAttribs);
+    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ResolveTextureSubresource(m_pMSColorRTV->GetTexture(), pCurrentBackBuffer, ResolveAttribs);*/
 }
 
 Prisma::PipelineForward::~PipelineForward()
