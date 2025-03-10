@@ -219,7 +219,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
 
     // Create a shader resource binding object and bind all static resources in it
-    m_pso->CreateShaderResourceBinding(&m_shader, true);
 
     CreateMSAARenderTarget();
 }
@@ -255,8 +254,7 @@ void Prisma::PipelineForward::render(){
         auto texture=mesh->material()->diffuse()[0].texture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
 
         // Set texture SRV in the SRB
-        m_shader->GetVariableByName(SHADER_TYPE_PIXEL, "g_Texture")->Set(texture, SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(m_shader, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(mesh->material()->diffuse()[0].shader(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
         DrawAttrs.IndexType = VT_UINT32; // Index type

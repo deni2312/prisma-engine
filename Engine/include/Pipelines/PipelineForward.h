@@ -36,7 +36,6 @@ namespace Prisma
 		std::shared_ptr<PipelinePrePass> m_prepass;*/
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_mvpVS;
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_shader;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
 		Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
