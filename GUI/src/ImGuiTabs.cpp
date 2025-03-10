@@ -15,7 +15,7 @@ std::string textSearch;
 
 Prisma::ImGuiTabs::ImGuiTabs()
 {
-	m_meshTexture = std::make_shared<Texture>();
+	/*m_meshTexture = std::make_shared<Texture>();
 	m_meshTexture->name("MeshIcon");
 	m_meshTexture->loadTexture({ "../../../GUI/icons/mesh.png", false, false, false });
 
@@ -25,7 +25,7 @@ Prisma::ImGuiTabs::ImGuiTabs()
 
 	m_nodeTexture = std::make_shared<Texture>();
 	m_nodeTexture->name("NodeIcon");
-	m_nodeTexture->loadTexture({ "../../../GUI/icons/node.png", false, false, false });
+	m_nodeTexture->loadTexture({ "../../../GUI/icons/node.png", false, false, false });*/
 }
 
 void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {

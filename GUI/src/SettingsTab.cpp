@@ -12,10 +12,10 @@ Prisma::ImguiDebug::ImGuiStatus m_status;
 
 void Prisma::SettingsTab::init()
 {
-	m_effects = std::make_shared<Effects>();
+	/*m_effects = std::make_shared<Effects>();
 	m_effectsBloom = std::make_shared<Effects>();
 	Postprocess::getInstance().addPostProcess(m_effectsBloom);
-	Postprocess::getInstance().addPostProcess(m_effects);
+	Postprocess::getInstance().addPostProcess(m_effects);*/
 	m_status.currentitem = static_cast<unsigned int>(Prisma::Engine::getInstance().engineSettings().pipeline);
 	m_status.currentPostprocess = 0;
 

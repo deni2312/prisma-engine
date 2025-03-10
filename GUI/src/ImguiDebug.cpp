@@ -59,7 +59,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	ImGuiStyles::getInstance().darkMode();
 	ImGui_ImplGlfw_InitForOpenGL(PrismaFunc::getInstance().window(), true);
 	ImGui_ImplOpenGL3_Init("#version 150");
-	FBO::FBOData fboData;
+	/*FBO::FBOData fboData;
 	m_height = settings.height;
 	m_width = settings.width;
 	fboData.width = settings.width;
@@ -72,7 +72,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	                                    "../../../GUI/Shaders/Output/fragment.glsl");
 	m_shader->use();
 	m_bindlessPos = m_shader->getUniformPosition("screenTexture");
-	m_modelPos = m_shader->getUniformPosition("model");
+	m_modelPos = m_shader->getUniformPosition("model");*/
 	m_scale = 0.72f;
 	m_translate = 1.0f - m_scale;
 	m_projection = glm::perspective(
@@ -82,14 +82,14 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
 	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
 
-	m_fileBrowser = std::make_shared<FileBrowser>();
-	PixelCapture::getInstance();
+	/*m_fileBrowser = std::make_shared<FileBrowser>();
+	//PixelCapture::getInstance();
 
 	m_runButton = std::make_shared<Texture>();
 	m_runButton->loadTexture({"../../../GUI/icons/run.png", false, false, false});
 
 	m_pauseButton = std::make_shared<Texture>();
-	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png", false, false, false});
+	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png", false, false, false});*/
 
 	NodeViewer::getInstance();
 
@@ -213,7 +213,7 @@ void Prisma::ImguiDebug::drawGui()
 
 	auto currentButton = m_run ? m_pauseButton : m_runButton;
 
-	if (ImGui::ImageButton((void*)currentButton->id(), ImVec2(24, 24)))
+	/*if (ImGui::ImageButton((void*)currentButton->id(), ImVec2(24, 24)))
 	{
 		m_run = !m_run;
 		Engine::getInstance().debug(!m_run);
@@ -226,7 +226,7 @@ void Prisma::ImguiDebug::drawGui()
 			Prisma::CacheScene::getInstance().updateSizes(true);
 			Engine::getInstance().setCallback(m_imguiCamera.callback());
 		}
-	}
+	}*/
 	m_buttonSize = ImGui::GetWindowSize().y;
 
 	ImGui::End();
@@ -257,14 +257,14 @@ void Prisma::ImguiDebug::drawGui()
 		ImGui::SetNextWindowSize(ImVec2(windowWidth, m_height* m_scale + m_buttonSize));
 		ImGui::Begin("Scene", nullptr,
 		             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar);
-		m_plot.showFPS(m_fps);
+		//m_plot.showFPS(m_fps);
 
 		if (openSettings)
 		{
 			ImGui::OpenPopup("SettingsTab");
 			openSettings = false;
 		}
-		m_settingsTab.drawSettings();
+		//m_settingsTab.drawSettings();
 		ImGui::Dummy(ImVec2(0.0f, 10.0f));
 		ImGui::Text(("UI Time: " + std::to_string(m_timeCounterUI.duration_seconds())).c_str());
 		ImGui::Text(("Engine Time: " + std::to_string(m_timeCounterEngine.duration_seconds())).c_str());
@@ -272,12 +272,11 @@ void Prisma::ImguiDebug::drawGui()
 
 		ImGui::Separator();
 
-		ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root,
-m_imguiCamera);
+		//ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root,m_imguiCamera);
 		// Check if the node is clicked
 		ImGui::End();
-		m_fileBrowser->show(m_width, m_height, m_initOffset+m_buttonSize, m_scale, m_translate);
-		if (m_imguiCamera.currentSelect())
+		//m_fileBrowser->show(m_width, m_height, m_initOffset+m_buttonSize, m_scale, m_translate);
+		/*if (m_imguiCamera.currentSelect())
 		{
 			auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());
 			auto currentSelectLightDir = dynamic_cast<Light<LightType::LightDir>*>(m_imguiCamera.currentSelect());
@@ -313,12 +312,12 @@ m_imguiCamera);
 			{
 				NodeViewer::getInstance().showSelected(nodeData);
 			}
-		}
+		}*/
 
-		m_settingsTab.updateStatus();
+		//m_settingsTab.updateStatus();
 	}
-	drawScene();
-	glEnable(GL_DEPTH_TEST);
+	//drawScene();
+	//glEnable(GL_DEPTH_TEST);
 }
 
 float Prisma::ImguiDebug::fps()
@@ -337,7 +336,7 @@ void Prisma::ImguiDebug::start()
 
 void Prisma::ImguiDebug::close()
 {
-	m_imguiCamera.constraints({
+	/*m_imguiCamera.constraints({
 		m_translate * m_width / 2, m_initOffset + 50, m_translate * m_width / 2 + m_scale * m_width, m_height * m_scale,
 		ImGuizmo::IsOver(), m_scale, m_model
 	});
@@ -357,7 +356,7 @@ void Prisma::ImguiDebug::close()
 		m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
 		m_addingMenu.addMenu(m_imguiCamera);
 		ImGuiTabs::getInstance().updateTabs(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 0);
-	}
+	}*/
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -413,7 +412,7 @@ std::shared_ptr<Prisma::FBO> Prisma::ImguiDebug::fbo()
 
 void Prisma::ImguiDebug::drawScene()
 {
-	m_shader->use();
+	/*m_shader->use();
 	m_shader->setInt64(m_bindlessPos, m_fbo->texture());
 
 	auto model = glm::mat4(1.0f);
@@ -422,7 +421,7 @@ void Prisma::ImguiDebug::drawScene()
 		model = m_model;
 	}
 	m_shader->setMat4(m_modelPos, model);
-	PrismaRender::getInstance().renderQuad();
+	PrismaRender::getInstance().renderQuad();*/
 }
 
 void Prisma::ImguiDebug::initStatus()

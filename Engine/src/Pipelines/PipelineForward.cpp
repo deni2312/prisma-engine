@@ -225,14 +225,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
 void Prisma::PipelineForward::render(){
 
-	auto pRTV = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetCurrentBackBufferRTV();
-	auto pDSV = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDepthBufferDSV();
-	// Clear the back buffer
-	glm::vec4 ClearColor = { 0.350f, 0.350f, 0.350f, 1.0f };
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(ClearColor), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     // Set the pipeline state
     Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetPipelineState(m_pso);
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode

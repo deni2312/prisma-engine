@@ -101,6 +101,8 @@ bool Prisma::Engine::run()
 	{
 		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene()) {
 			PrismaFunc::getInstance().poll();
+			PrismaFunc::getInstance().bindMainRenderTarget();
+			PrismaFunc::getInstance().clear();
 
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
@@ -124,7 +126,7 @@ bool Prisma::Engine::run()
 			MeshHandler::getInstance().updateFragment();
 			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();*/
-
+			//data->sceneHandler->onBeginRender();
 			switch (data->engineSettings.pipeline)
 			{
 			case EngineSettings::Pipeline::FORWARD:
@@ -144,7 +146,7 @@ bool Prisma::Engine::run()
 			//
 			//
 			//data->sceneHandler->onEndRender();
-
+			//data->sceneHandler->onEndRender();
 			/*else
 			{
 				std::cerr << "Null camera or scene" << std::endl;

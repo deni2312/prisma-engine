@@ -308,13 +308,26 @@ void Prisma::PrismaFunc::poll()
 
 void Prisma::PrismaFunc::update()
 {
-	Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->Flush();
-	Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->Present();
+	m_contextData.m_pImmediateContext->Flush();
+	m_contextData.m_pSwapChain->Present();
+}
+
+void Prisma::PrismaFunc::bindMainRenderTarget()
+{
+	auto pRTV = m_contextData.m_pSwapChain->GetCurrentBackBufferRTV();
+	auto pDSV = m_contextData.m_pSwapChain->GetDepthBufferDSV();
+	// Clear the back buffer
+	m_contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
 }
 
 void Prisma::PrismaFunc::clear()
 {
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	auto pRTV = m_contextData.m_pSwapChain->GetCurrentBackBufferRTV();
+	auto pDSV = m_contextData.m_pSwapChain->GetDepthBufferDSV();
+	glm::vec4 ClearColor = { 0.350f, 0.350f, 0.350f, 1.0f };
+	m_contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(ClearColor), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	m_contextData.m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHandler)
