@@ -185,17 +185,28 @@ void Prisma::PrismaFunc::init()
 	glfwInit();
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // Allow resizing
+	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
 
+	int x, y, width, height;
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	glfwGetMonitorWorkarea(monitor, &x, &y, &width, &height);
+
+	// Set settings to match monitor work area
+	settings.width = width;
+	settings.height = height;
+	SettingsLoader::getInstance().settings(settings);
 
 	m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
 	if (m_window == nullptr)
 	{
 		LOG_ERROR_MESSAGE("Failed to create GLFW window");
 	}
+	glfwSetWindowPos(m_window, x, y);
+	glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
 
 	glfwSetWindowUserPointer(m_window, this);
-
-	glfwSetWindowSizeLimits(m_window, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
 
 #if PLATFORM_WIN32
