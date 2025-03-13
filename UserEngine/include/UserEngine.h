@@ -4,7 +4,6 @@
 #include "../../Engine/include/Helpers/NodeHelper.h"
 #include "../../Engine/include/Helpers/ScenePrinter.h"
 #include "../../Engine/include/GlobalData/Keys.h"
-#include "PlayerController.h"
 
 #include <memory>
 
@@ -20,7 +19,7 @@ public:
 	std::shared_ptr<Prisma::CallbackHandler> callbacks() override;
 
 private:
-	std::shared_ptr<PlayerController> m_player;
+	//std::shared_ptr<PlayerController> m_player;
 	std::shared_ptr<Prisma::Camera> m_camera;
 
 	float m_yaw = -90.0f;

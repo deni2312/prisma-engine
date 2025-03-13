@@ -130,5 +130,6 @@ void UserEngine::finish()
 
 std::shared_ptr<Prisma::CallbackHandler> UserEngine::callbacks()
 {
-	return m_player->callback();
+	//return m_player->callback();
+    return std::shared_ptr<Prisma::CallbackHandler>();
 }
