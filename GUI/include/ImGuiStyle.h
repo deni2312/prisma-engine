@@ -1,6 +1,7 @@
 ﻿#pragma once
 
-#include "imgui.h"
+
+#include <ThirdParty/imgui/imgui.h>
 
 namespace Prisma
 {

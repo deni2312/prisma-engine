@@ -47,8 +47,6 @@ struct PrivateData
 
 std::shared_ptr<PrivateData> data;
 
-std::unique_ptr<Diligent::ImGuiImplDiligent> imguiDiligent;
-
 Prisma::Engine::Engine()
 {
 	data = std::make_shared<PrivateData>();
@@ -79,7 +77,6 @@ Prisma::Engine::Engine()
 
 	Diligent::ImGuiDiligentCreateInfo desc;
 	desc.pDevice = Prisma::PrismaFunc::getInstance().contextData().m_pDevice;
-	imguiDiligent=Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() },(HWND) Prisma::PrismaFunc::getInstance().windowNative());
 	
 
 	data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
@@ -111,17 +108,17 @@ bool Prisma::Engine::run()
 	while (!PrismaFunc::getInstance().shouldClose())
 	{
 		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene()) {
-			auto contextDesc = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc();
 			PrismaFunc::getInstance().poll();
 			PrismaFunc::getInstance().bindMainRenderTarget();
 			PrismaFunc::getInstance().clear();
-			imguiDiligent->NewFrame(contextDesc.Width, contextDesc.Height, contextDesc.PreTransform);
+			
 			auto currentTime = std::chrono::high_resolution_clock::now();
 
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
 			data->lastTime = currentTime;
 			data->fps = 1.0f / deltaTime.count();
 			data->userData->update();
+			data->sceneHandler->onBeginRender();
 			/*PrismaFunc::getInstance().clear();
 			if (!data->debug)
 			{
@@ -165,8 +162,8 @@ bool Prisma::Engine::run()
 				std::cerr << "Null camera or scene" << std::endl;
 				PrismaFunc::getInstance().closeWindow();
 			}*/
+			data->sceneHandler->onEndRender();
 
-			imguiDiligent->Render(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext);
 			PrismaFunc::getInstance().update();
 		}
 	}

@@ -1,18 +1,10 @@
 #pragma once
-#include "Postprocess/Effects.h"
-#include "ImGuiCamera.h"
-#include "LightInfo.h"
-#include "ImGuiTabs.h"
-#include "MeshInfo.h"
-#include "FolderView.h"
-#include "SettingsTab.h"
 #include <memory>
 #include <vector>
 #include <string>
-#include "PlotFPS.h"
+
 #include "../../Engine/include/GlobalData/InstanceData.h"
 #include "../../Engine/include/Helpers/TimeCounter.h"
-#include "AddingMenu.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
 
 
@@ -82,15 +74,15 @@ namespace Prisma
 
 		float m_initOffset = 0.0f;
 
-		ImGuiCamera m_imguiCamera;
+		//ImGuiCamera m_imguiCamera;
 
 		std::shared_ptr<Camera> m_camera;
 
-		MeshInfo meshInfo;
+		//MeshInfo meshInfo;
 
-		LightInfo lightInfo;
+		//LightInfo lightInfo;
 
-		std::shared_ptr<FileBrowser> m_fileBrowser;
+		//std::shared_ptr<FileBrowser> m_fileBrowser;
 
 		glm::mat4 m_projection;
 
@@ -102,16 +94,16 @@ namespace Prisma
 
 		std::shared_ptr<Texture> m_pauseButton;
 
-		SettingsTab m_settingsTab;
+		//SettingsTab m_settingsTab;
 
 		bool m_settingsTabShow = false;
 
-		PlotFPS m_plot;
+		//PlotFPS m_plot;
 
 		TimeCounter m_timeCounterUI;
 		TimeCounter m_timeCounterEngine;
 
-		Prisma::ImGuiAddingMenu m_addingMenu;
+		//Prisma::ImGuiAddingMenu m_addingMenu;
 
 		Exporter m_exporter;
 
@@ -120,5 +112,6 @@ namespace Prisma
 		std::shared_ptr<SceneHandler> m_handlers;
 
 		GlobalSize m_globalSize;
+
 	};
 }
