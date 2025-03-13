@@ -18,7 +18,7 @@ std::shared_ptr<PrivateIO> data;
 
 std::unique_ptr<Diligent::ImGuiImplDiligent> imguiDiligent;
 
-Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{0.0}, m_fps{60.0f}
+Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 {
 	data = std::make_shared<PrivateIO>();
 	m_camera = std::make_shared<Prisma::Camera>();
@@ -53,6 +53,8 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{0.0}, m_fps{60.0f}
 	m_shader->use();
 	m_bindlessPos = m_shader->getUniformPosition("screenTexture");
 	m_modelPos = m_shader->getUniformPosition("model");*/
+	m_height = settings.height;
+	m_width = settings.width;
 	m_scale = 0.72f;
 	m_translate = 1.0f - m_scale;
 	/*m_projection = glm::perspective(
@@ -80,7 +82,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{0.0}, m_fps{60.0f}
 void Prisma::ImguiDebug::drawGui()
 {
 	m_translate = 1.0f - m_scale;
-	glDisable(GL_DEPTH_TEST);
 	float windowWidth = m_translate * m_width / 2;
 	ImVec2 size;
 	auto nextLeft = [&](float pos)
