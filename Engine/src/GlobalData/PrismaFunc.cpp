@@ -377,6 +377,11 @@ GLFWwindow* Prisma::PrismaFunc::window()
 	return m_window;
 }
 
+void* Prisma::PrismaFunc::windowNative()
+{
+	return glfwGetWin32Window(m_window);
+}
+
 void Prisma::PrismaFunc::destroy()
 {
 	if (m_contextData.m_pImmediateContext)

@@ -45,6 +45,8 @@ namespace Prisma
 		void msaa(bool isMsaa, int samples);
 		GLFWwindow* window();
 
+		void* windowNative();
+
 		void destroy();
 
 		PrismaFunc();

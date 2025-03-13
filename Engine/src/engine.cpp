@@ -24,6 +24,10 @@
 #include "../include/Handlers/ComponentsHandler.h"
 #include "../include/Postprocess/Postprocess.h"
 #include <glm/gtx/string_cast.hpp>
+
+#include <Windows.h>
+#include "ImGuiImplDiligent.hpp"
+#include "ImGuiImplWin32.hpp"
 #include "../include/Handlers/LoadingHandler.h"
 
 struct PrivateData
@@ -42,6 +46,8 @@ struct PrivateData
 };
 
 std::shared_ptr<PrivateData> data;
+
+std::unique_ptr<Diligent::ImGuiImplDiligent> imguiDiligent;
 
 Prisma::Engine::Engine()
 {
@@ -70,6 +76,11 @@ Prisma::Engine::Engine()
 	AnimationHandler::getInstance();*/
 
 	PrismaFunc::getInstance().init();
+
+	Diligent::ImGuiDiligentCreateInfo desc;
+	desc.pDevice = Prisma::PrismaFunc::getInstance().contextData().m_pDevice;
+	imguiDiligent=Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() },(HWND) Prisma::PrismaFunc::getInstance().windowNative());
+	
 
 	data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 
@@ -100,10 +111,11 @@ bool Prisma::Engine::run()
 	while (!PrismaFunc::getInstance().shouldClose())
 	{
 		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene()) {
+			auto contextDesc = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc();
 			PrismaFunc::getInstance().poll();
 			PrismaFunc::getInstance().bindMainRenderTarget();
 			PrismaFunc::getInstance().clear();
-
+			imguiDiligent->NewFrame(contextDesc.Width, contextDesc.Height, contextDesc.PreTransform);
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
 			data->lastTime = currentTime;
@@ -152,6 +164,8 @@ bool Prisma::Engine::run()
 				std::cerr << "Null camera or scene" << std::endl;
 				PrismaFunc::getInstance().closeWindow();
 			}*/
+
+			imguiDiligent->Render(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext);
 			PrismaFunc::getInstance().update();
 		}
 	}
