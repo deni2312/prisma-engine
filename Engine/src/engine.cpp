@@ -117,6 +117,7 @@ bool Prisma::Engine::run()
 			PrismaFunc::getInstance().clear();
 			imguiDiligent->NewFrame(contextDesc.Width, contextDesc.Height, contextDesc.PreTransform);
 			auto currentTime = std::chrono::high_resolution_clock::now();
+
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
 			data->lastTime = currentTime;
 			data->fps = 1.0f / deltaTime.count();
