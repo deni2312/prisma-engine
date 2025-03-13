@@ -6,6 +6,7 @@
 #include "../../Engine/include/SceneObjects/Camera.h"
 #include <Windows.h>
 
+#include "../../Engine/include/engine.h"
 #include "Imgui/interface/ImGuiImplWin32.hpp"
 
 struct PrivateIO
@@ -21,10 +22,10 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{0.0}, m_fps{60.0f}
 {
 	data = std::make_shared<PrivateIO>();
 	m_camera = std::make_shared<Prisma::Camera>();
-	/*Prisma::Engine::getInstance().mainCamera(m_camera);
+	Prisma::Engine::getInstance().mainCamera(m_camera);
 	m_imguiCamera.mouseCallback();
 	m_imguiCamera.mouseButtonCallback();
-	Engine::getInstance().setCallback(m_imguiCamera.callback());*/
+	Engine::getInstance().setCallback(m_imguiCamera.callback());
 	auto settings = Prisma::SettingsLoader::getInstance().getSettings();
 	m_globalSize.x = settings.width / 1920.0f;
 	m_globalSize.y = settings.height / 1080.0f;
@@ -317,9 +318,9 @@ void Prisma::ImguiDebug::start()
 
 void Prisma::ImguiDebug::close()
 {
-	/*m_imguiCamera.constraints({
+	m_imguiCamera.constraints({
 		m_translate * m_width / 2, m_initOffset + 50, m_translate * m_width / 2 + m_scale * m_width, m_height * m_scale,
-		ImGuizmo::IsOver(), m_scale, m_model
+		false, m_scale, m_model
 	});
 
 
@@ -335,9 +336,9 @@ void Prisma::ImguiDebug::close()
 
 		m_imguiCamera.updateCamera(m_camera);
 		m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
-		m_addingMenu.addMenu(m_imguiCamera);
-		ImGuiTabs::getInstance().updateTabs(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 0);
-	}*/
+		//m_addingMenu.addMenu(m_imguiCamera);
+		//ImGuiTabs::getInstance().updateTabs(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 0);
+	}
 	imguiDiligent->Render(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext);
 	//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

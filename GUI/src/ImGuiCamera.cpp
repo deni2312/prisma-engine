@@ -2,13 +2,10 @@
 #include "../../Engine/include/GlobalData/Keys.h"
 #include "../../Engine/include/SceneObjects/Mesh.h"
 #include <iostream>
-#include "../include/PixelCapture.h"
 #include "../../Engine/include/Helpers/SettingsLoader.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
 #include "../../Engine/include/engine.h"
 #include <imgui.h>
-
-#include "../include/TextureInfo.h"
 
 Prisma::ImGuiCamera::ImGuiCamera()
 {
@@ -29,7 +26,8 @@ void Prisma::ImGuiCamera::updateCamera(std::shared_ptr<Camera> camera)
 void Prisma::ImGuiCamera::keyboardUpdate(void* windowData)
 {
 	auto window = static_cast<GLFWwindow*>(windowData);
-	if (!ImGui::GetIO().WantTextInput && !Prisma::TextureInfo::getInstance().textureTab()) {
+	//auto textureInfo = !Prisma::TextureInfo::getInstance().textureTab();
+	if (!ImGui::GetIO().WantTextInput) {
 
 		if (glfwGetKey(window, KEY_DELETE) == GLFW_PRESS)
 		{
@@ -83,8 +81,9 @@ void Prisma::ImGuiCamera::mouseCallback()
 {
 	m_callback->mouse = [this](float x, float y)
 	{
+		//auto textureInfo = !Prisma::TextureInfo::getInstance().textureTab();
 		if (m_right && x < m_constraints.maxX && y < m_constraints.maxY && x > m_constraints.minX && y > m_constraints.
-			minY && !Prisma::TextureInfo::getInstance().textureTab())
+			minY)
 		{
 			float xpos = x;
 			float ypos = y;
@@ -155,7 +154,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 	m_callback->mouseClick = [this](int button, int action, float x, float y)
 	{
 		//ISOVER BUGGED IMGUIZMO RETURN TRUE RANDOMLY
-		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x < m_constraints.maxX && y < m_constraints.maxY
+		/*if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x < m_constraints.maxX && y < m_constraints.maxY
 			&& x > m_constraints.minX && y > m_constraints.minY && !ImGuizmo::IsOver() && !Prisma::TextureInfo::getInstance().textureTab())
 		{
 			auto settings = SettingsLoader::getInstance().getSettings();
@@ -172,7 +171,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 				auto model = glm::mat4(1.0f);
 				m_currentSelect = nullptr;
 			}
-		}
+		}*/
 
 
 		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)

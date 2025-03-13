@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 
+#include "ImGuiCamera.h"
 #include "../../Engine/include/GlobalData/InstanceData.h"
 #include "../../Engine/include/Helpers/TimeCounter.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
@@ -74,7 +75,7 @@ namespace Prisma
 
 		float m_initOffset = 0.0f;
 
-		//ImGuiCamera m_imguiCamera;
+		ImGuiCamera m_imguiCamera;
 
 		std::shared_ptr<Camera> m_camera;
 
