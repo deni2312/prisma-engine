@@ -185,6 +185,11 @@ Prisma::PrismaFunc::PrismaFunc()
 
 }
 
+Prisma::PrismaFunc::RenderTargetFormat Prisma::PrismaFunc::renderFormat() const
+{
+	return m_renderFormat;
+}
+
 Prisma::PrismaFunc::ContextData& Prisma::PrismaFunc::contextData()
 {
 	return m_contextData;

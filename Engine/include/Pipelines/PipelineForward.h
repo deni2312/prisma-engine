@@ -44,5 +44,7 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
 
         void CreateMSAARenderTarget();
+
+
 	};
 }

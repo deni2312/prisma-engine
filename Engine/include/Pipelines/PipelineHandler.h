@@ -14,14 +14,26 @@ namespace Prisma
 	class PipelineHandler : public InstanceData<PipelineHandler>
 	{
 	public:
+		struct TextureData
+		{
+			Diligent::RefCntAutoPtr<Diligent::ITextureView> pColorRTV;
+			Diligent::RefCntAutoPtr<Diligent::ITextureView> pDepthDSV;
+		};
+
 		bool initScene(SceneLoader::SceneParameters sceneParameters);
 		std::shared_ptr<PipelineForward> forward();
 		std::shared_ptr<PipelineDeferred> deferred();
 		std::shared_ptr<PipelineDeferredForward> deferredForward();
+		PipelineHandler();
+
+		TextureData textureData();
 
 	private:
 		std::shared_ptr<PipelineForward> m_forwardPipeline;
 		std::shared_ptr<PipelineDeferred> m_deferredPipeline;
 		std::shared_ptr<PipelineDeferredForward> m_deferredForwardPipeline;
+
+		TextureData m_textureData;
+
 	};
 }

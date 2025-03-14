@@ -322,7 +322,7 @@ void Prisma::ImguiDebug::drawGui()
 
 		//m_settingsTab.updateStatus();
 	}
-	//drawScene();
+	drawScene();
 	//glEnable(GL_DEPTH_TEST);
 }
 

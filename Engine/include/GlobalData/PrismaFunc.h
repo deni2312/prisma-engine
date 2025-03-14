@@ -40,6 +40,12 @@ namespace Prisma
 			std::function<void(int, int)> mouseRoll;
 		};
 
+		struct RenderTargetFormat
+		{
+			const Diligent::TEXTURE_FORMAT RenderFormat = Diligent::TEX_FORMAT_RGBA8_UNORM;
+			const Diligent::TEXTURE_FORMAT DepthBufferFormat = Diligent::TEX_FORMAT_D32_FLOAT;
+		};
+
 		void init();
 		void poll();
 		void update();
@@ -62,9 +68,11 @@ namespace Prisma
 
 		void inputUI(UIInput inputUi);
 
+		RenderTargetFormat renderFormat() const;
 	private:
 		GLFWwindow* m_window;
 		Prisma::WindowsHelper::WindowsData m_windowsData;
 		ContextData m_contextData;
+		RenderTargetFormat m_renderFormat;
 	};
 }
