@@ -1,4 +1,5 @@
 #include "../include/FolderView.h"
+#include "../include/ImguiHelper.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
 #include "../../Engine/include/Helpers/StringHelper.h"
 #include "ThirdParty/imgui/imgui.h"
@@ -120,7 +121,7 @@ void Prisma::FileBrowser::listDirectoryContents()
 	else {
 		size = size / numColumn;
 	}
-	//Prisma::ImGuiHelper::getInstance().clipVertical(size, data);
+	Prisma::ImGuiHelper::getInstance().clipVertical(size, data);
 
 
 	if (isDirectory)
