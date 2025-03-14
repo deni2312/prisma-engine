@@ -30,10 +30,7 @@ namespace Prisma
 		{
 			std::string texture;
 			bool srgb = false;
-			bool resident = true;
-			bool noRepeat = true;
-			bool mantainData = false;
-			bool anisotropic = true;
+			bool local = true;
 		};
 
 		bool loadTexture(const Parameters& parameters);

@@ -3,13 +3,10 @@
 #include <string>
 #include <locale>
 #include <codecvt>
-#include "../../Engine/include/Containers/Texture.h"
-#include "imgui.h"
-#include "../../Engine/include/SceneData/SceneLoader.h"
-#include "../../Engine/include/GlobalData/GlobalData.h"
-#include "../../Engine/include/GlobalData/CacheScene.h"
-#include "../../Engine/include/SceneData/MeshIndirect.h"
+
 #include "ImGuiLog.h"
+#include "../../Engine/include/Containers/Texture.h"
+#include "glm/vec2.hpp"
 
 namespace Prisma
 {
@@ -17,8 +14,8 @@ namespace Prisma
 
 	class FileBrowser
 	{
-		ImVec2 m_fontSize;
-		ImVec2 m_iconSize;
+		glm::vec2 m_fontSize;
+		glm::vec2 m_iconSize;
 
 		fs::path m_currentPath;
 		std::shared_ptr<Texture> m_folder;

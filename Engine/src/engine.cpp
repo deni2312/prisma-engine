@@ -117,8 +117,7 @@ bool Prisma::Engine::run()
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
 			data->lastTime = currentTime;
 			data->fps = 1.0f / deltaTime.count();
-			data->sceneHandler->onBeginRender();
-			/*PrismaFunc::getInstance().clear();
+			
 			if (!data->debug)
 			{
 				data->userData->update();
@@ -127,7 +126,8 @@ bool Prisma::Engine::run()
 				Physics::getInstance().update(1.0f / fps());
 			}
 			data->sceneHandler->onBeginRender();
-			if (data->debug)
+
+			/*if (data->debug)
 			{
 				ComponentsHandler::getInstance().updateUi();
 			}

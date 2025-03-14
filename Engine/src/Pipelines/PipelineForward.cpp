@@ -244,8 +244,6 @@ void Prisma::PipelineForward::render(){
             *CBConstants = Prisma::GlobalData::getInstance().currentProjection() * view * mesh->parent()->finalMatrix();
         }
 
-        auto texture=mesh->material()->diffuse()[0].texture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
-
         // Set texture SRV in the SRB
         Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(mesh->material()->diffuse()[0].shader(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 

@@ -57,21 +57,23 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_width = settings.width;
 	m_scale = 0.72f;
 	m_translate = 1.0f - m_scale;
-	/*m_projection = glm::perspective(
+	m_projection = glm::perspective(
 		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
 		static_cast<float>(settings.width) / static_cast<float>(settings.height),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
-		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane());*/
+		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
 	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
 
-	/*m_fileBrowser = std::make_shared<FileBrowser>();
+	m_fileBrowser = std::make_shared<FileBrowser>();
 	//PixelCapture::getInstance();
 
+	
+
 	m_runButton = std::make_shared<Texture>();
-	m_runButton->loadTexture({"../../../GUI/icons/run.png", false, false, false});
+	m_runButton->loadTexture({"../../../GUI/icons/run.png",false,false});
 
 	m_pauseButton = std::make_shared<Texture>();
-	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png", false, false, false});*/
+	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png",false,false});
 
 	//NodeViewer::getInstance();
 	imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());
@@ -194,8 +196,7 @@ void Prisma::ImguiDebug::drawGui()
 	ImGui::SetCursorPosX(positionRun);
 
 	auto currentButton = m_run ? m_pauseButton : m_runButton;
-
-	/*if (ImGui::ImageButton((void*)currentButton->id(), ImVec2(24, 24)))
+	if (ImGui::ImageButton((void*)currentButton->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(24, 24)))
 	{
 		m_run = !m_run;
 		Engine::getInstance().debug(!m_run);
@@ -208,7 +209,7 @@ void Prisma::ImguiDebug::drawGui()
 			Prisma::CacheScene::getInstance().updateSizes(true);
 			Engine::getInstance().setCallback(m_imguiCamera.callback());
 		}
-	}*/
+	}
 	m_buttonSize = ImGui::GetWindowSize().y;
 
 	ImGui::End();
@@ -257,7 +258,7 @@ void Prisma::ImguiDebug::drawGui()
 		//ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root,m_imguiCamera);
 		// Check if the node is clicked
 		ImGui::End();
-		//m_fileBrowser->show(m_width, m_height, m_initOffset+m_buttonSize, m_scale, m_translate);
+		m_fileBrowser->show(m_width, m_height, m_initOffset+m_buttonSize, m_scale, m_translate);
 		/*if (m_imguiCamera.currentSelect())
 		{
 			auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());

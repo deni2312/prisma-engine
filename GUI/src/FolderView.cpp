@@ -1,8 +1,8 @@
 #include "../include/FolderView.h"
-#include "../include/TextureInfo.h"
-#include "../include/ImGuiHelper.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
 #include "../../Engine/include/Helpers/StringHelper.h"
+#include "ThirdParty/imgui/imgui.h"
+
 
 std::string Prisma::FileBrowser::windowsToString(std::wstring wStr)
 {
@@ -49,7 +49,7 @@ void Prisma::FileBrowser::listDirectoryContents()
 						if (entry.is_directory())
 						{
 							// Load your folder icon texture here
-							ImGui::ImageButton((void*)m_folder->id(), itemSize);
+							ImGui::ImageButton((void*)m_folder->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), itemSize);
 							if (ImGui::IsItemClicked())
 							{
 								isDirectory = true;
@@ -59,7 +59,7 @@ void Prisma::FileBrowser::listDirectoryContents()
 						else
 						{
 							// Load your file icon texture here
-							ImGui::ImageButton((void*)m_file->id(), itemSize);
+							ImGui::ImageButton((void*)m_file->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), itemSize);
 							if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 							{
 								auto path = windowsToString(entry.path().c_str());
@@ -88,7 +88,7 @@ void Prisma::FileBrowser::listDirectoryContents()
 										Prisma::GlobalData::getInstance().currentGlobalScene(scene);
 									}
 								}
-								MeshIndirect::getInstance().init();
+								//MeshIndirect::getInstance().init();
 								CacheScene::getInstance().updateSizes(true);
 							}
 						}
@@ -120,7 +120,7 @@ void Prisma::FileBrowser::listDirectoryContents()
 	else {
 		size = size / numColumn;
 	}
-	Prisma::ImGuiHelper::getInstance().clipVertical(size, data);
+	//Prisma::ImGuiHelper::getInstance().clipVertical(size, data);
 
 
 	if (isDirectory)
@@ -153,14 +153,14 @@ void Prisma::FileBrowser::addEntries()
 Prisma::FileBrowser::FileBrowser() : m_currentPath(fs::current_path().parent_path().parent_path().parent_path())
 {
 	m_folder = std::make_shared<Texture>();
-	m_folder->loadTexture({"../../../GUI/icons/folder.png", false, false, false});
+	m_folder->loadTexture({"../../../GUI/icons/folder.png", false, false});
 
 	m_file = std::make_shared<Texture>();
-	m_file->loadTexture({"../../../GUI/icons/file.png", false, false, false});
+	m_file->loadTexture({"../../../GUI/icons/file.png", false, false});
 
 	m_back = std::make_shared<Texture>();
-	m_back->loadTexture({"../../../GUI/icons/arrow.png", false, false, false});
-	m_iconSize = ImVec2(24, 24);
+	m_back->loadTexture({"../../../GUI/icons/arrow.png", false, false});
+	m_iconSize = glm::vec2(24, 24);
 	m_fontSize = m_iconSize;
 
 	addEntries();
@@ -178,11 +178,11 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
 	ImGui::BeginTabBar("FOLDER VIEW");
 
 
-	if (ImGui::BeginTabItem("Textures"))
+	/*if (ImGui::BeginTabItem("Textures"))
 	{
-		TextureInfo::getInstance().showTextures();
+		//TextureInfo::getInstance().showTextures();
 		ImGui::EndTabItem();
-	}
+	}*/
 
 
 	if (ImGui::BeginTabItem("Logs"))
@@ -194,7 +194,7 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
 
 	if (ImGui::BeginTabItem("Folders##1"))
 	{
-		if (ImGui::ImageButton((void*)m_back->id(), m_iconSize) && m_currentPath.has_parent_path())
+		if (ImGui::ImageButton((void*)m_back->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(m_iconSize.x, m_iconSize.y)) && m_currentPath.has_parent_path())
 		{
 			m_currentPath = m_currentPath.parent_path();
 

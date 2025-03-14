@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
-
-#include "imgui.h"
+#include <glm/glm.hpp>
 
 namespace Prisma
 {
@@ -11,6 +10,6 @@ namespace Prisma
 		void render();
 
 	private:
-		void print(const ImVec4& color, const std::string& text);
+		void print(const glm::vec4& color, const std::string& text);
 	};
 }

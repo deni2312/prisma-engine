@@ -7,7 +7,7 @@
 #include "../../Engine/include/GlobalData/InstanceData.h"
 #include "../../Engine/include/Helpers/TimeCounter.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
-
+#include "FolderView.h"
 
 namespace Prisma
 {
@@ -83,7 +83,7 @@ namespace Prisma
 
 		//LightInfo lightInfo;
 
-		//std::shared_ptr<FileBrowser> m_fileBrowser;
+		std::shared_ptr<Prisma::FileBrowser> m_fileBrowser;
 
 		glm::mat4 m_projection;
 

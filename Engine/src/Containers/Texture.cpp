@@ -19,9 +19,10 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 	loadInfo.IsSRGB = parameters.srgb;
 	CreateTextureFromFile(parameters.texture.c_str(), loadInfo, Prisma::PrismaFunc::getInstance().contextData().m_pDevice, &m_texture);
 	//Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,"Not found: " + m_parameters.texture);
-	Prisma::PipelineHandler::getInstance().forward()->pso()->CreateShaderResourceBinding(&m_shader, true);
-	m_shader->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-
+	if (parameters.local) {
+		Prisma::PipelineHandler::getInstance().forward()->pso()->CreateShaderResourceBinding(&m_shader, true);
+		m_shader->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	}
 	return true;
 }
 
