@@ -163,6 +163,8 @@ void Prisma::ImGuiTabs::updateCurrentNodes(std::shared_ptr<Node> root, int depth
 	}
 }
 
+static float a = 0;
+
 void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, ImGuiCamera& camera)
 {
 	m_current = -1;

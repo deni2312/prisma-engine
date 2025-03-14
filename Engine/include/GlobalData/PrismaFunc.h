@@ -37,6 +37,7 @@ namespace Prisma
 		{
 			std::function<void(int, int)> mouseClick;
 			std::function<void(int, int, int)> keyboard;
+			std::function<void(int, int)> mouseRoll;
 		};
 
 		void init();

@@ -35,6 +35,15 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddKeyEvent(Prisma::GUI::convertImGuiGlfwKey(key,scancode), (action== GLFW_PRESS));
+		if (action == GLFW_PRESS && key >= 32 && key <= 126) {
+			io.AddInputCharacter(key);
+		}
+	};
+
+	uiInput.mouseRoll = [&](int x, int y)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMouseWheelEvent(x, y);
 	};
 	Prisma::PrismaFunc::getInstance().inputUI(uiInput);
 	m_imguiCamera.mouseCallback();
@@ -334,8 +343,6 @@ void Prisma::ImguiDebug::start()
 
 void Prisma::ImguiDebug::close()
 {
-	bool open = true;
-	ImGui::ShowDebugLogWindow(&open);
 
 	m_imguiCamera.constraints({
 		m_translate * m_width / 2, m_initOffset + 50, m_translate * m_width / 2 + m_scale * m_width, m_height * m_scale,

@@ -80,6 +80,11 @@ namespace Prisma
 
 	void rollCallback(GLFWwindow* window, double x, double y)
 	{
+		if (privatePrisma->inputUi.mouseRoll)
+		{
+			privatePrisma->inputUi.mouseRoll(x, y);
+		}
+
 		if (privatePrisma->callback->rollMouse)
 		{
 			privatePrisma->callback->rollMouse(x, y);
