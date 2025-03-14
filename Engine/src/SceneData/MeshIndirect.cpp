@@ -401,7 +401,7 @@ void Prisma::MeshIndirect::updateModels()
 
 Prisma::MeshIndirect::MeshIndirect()
 {
-	glGenBuffers(1, &m_indirectDraw);
+	/*glGenBuffers(1, &m_indirectDraw);
 	glGenBuffers(1, &m_indirectDrawCopy);
 	glGenBuffers(1, &m_indirectDrawAnimation);
 
@@ -441,7 +441,7 @@ Prisma::MeshIndirect::MeshIndirect()
 	m_indicesCopyLocation = m_shaderCopy->getUniformPosition("initIndices");
 
 	m_ssboCamera = std::make_shared<Prisma::SSBO>(28);
-	m_ssboCamera->resize(sizeof(CameraData));
+	m_ssboCamera->resize(sizeof(CameraData));*/
 }
 
 void Prisma::MeshIndirect::updateAnimation()

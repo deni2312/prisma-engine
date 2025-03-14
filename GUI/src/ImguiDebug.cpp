@@ -362,7 +362,7 @@ void Prisma::ImguiDebug::close()
 
 		m_imguiCamera.updateCamera(m_camera);
 		m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
-		//m_addingMenu.addMenu(m_imguiCamera);
+		m_addingMenu.addMenu(m_imguiCamera);
 		ImGuiTabs::getInstance().updateTabs(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 0);
 	}
 	imguiDiligent->Render(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext);
