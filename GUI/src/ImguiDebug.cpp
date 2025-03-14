@@ -23,6 +23,13 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	data = std::make_shared<PrivateIO>();
 	m_camera = std::make_shared<Prisma::Camera>();
 	Prisma::Engine::getInstance().mainCamera(m_camera);
+	Prisma::PrismaFunc::UIInput uiInput;
+	uiInput.mouseClick = [&](int button,int action)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddMouseButtonEvent(button, action);
+	};
+	Prisma::PrismaFunc::getInstance().inputUI(uiInput);
 	m_imguiCamera.mouseCallback();
 	m_imguiCamera.mouseButtonCallback();
 	Engine::getInstance().setCallback(m_imguiCamera.callback());

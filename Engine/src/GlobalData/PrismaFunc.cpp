@@ -29,6 +29,7 @@ struct PrivatePrisma
 	bool initCallback = false;
 	std::map<std::string, std::string> errorMap;
 	Diligent::RefCntAutoPtr<Diligent::ISwapChain> m_pSwapChain;
+	Prisma::PrismaFunc::UIInput inputUi;
 };
 
 std::shared_ptr<PrivatePrisma> privatePrisma;
@@ -55,6 +56,10 @@ namespace Prisma
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
+		if (privatePrisma->inputUi.mouseClick)
+		{
+			privatePrisma->inputUi.mouseClick(button, action);
+		}
 		if (privatePrisma->callback->mouseClick)
 		{
 			privatePrisma->callback->mouseClick(button, action, xpos, ypos);
@@ -174,6 +179,11 @@ Prisma::PrismaFunc::PrismaFunc()
 Prisma::PrismaFunc::ContextData& Prisma::PrismaFunc::contextData()
 {
 	return m_contextData;
+}
+
+void Prisma::PrismaFunc::inputUI(UIInput inputUi)
+{
+	privatePrisma->inputUi = inputUi;
 }
 
 void Prisma::PrismaFunc::init()

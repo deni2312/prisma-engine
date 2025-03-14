@@ -33,6 +33,11 @@ namespace Prisma
 			Diligent::RefCntAutoPtr<Diligent::IEngineFactory> m_pEngineFactory;
 		};
 
+		struct UIInput
+		{
+			std::function<void(int, int)> mouseClick;
+		};
+
 		void init();
 		void poll();
 		void update();
@@ -52,6 +57,8 @@ namespace Prisma
 		PrismaFunc();
 
 		ContextData& contextData();
+
+		void inputUI(UIInput inputUi);
 
 	private:
 		GLFWwindow* m_window;
