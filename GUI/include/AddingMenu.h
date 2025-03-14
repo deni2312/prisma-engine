@@ -1,6 +1,5 @@
 #pragma once
 #include "ImGuiCamera.h"
-#include <imgui.h>
 #include "NodeCreator.h"
 
 namespace Prisma

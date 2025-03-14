@@ -68,6 +68,10 @@ namespace Prisma
 
 	void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
+		if (privatePrisma->inputUi.keyboard)
+		{
+			privatePrisma->inputUi.keyboard(key, action,scancode);
+		}
 		if (privatePrisma->callback->keyboard)
 		{
 			privatePrisma->callback->keyboard(key, scancode, action, mods);

@@ -2,11 +2,13 @@
 #include "../../Engine/include/Helpers/SettingsLoader.h"
 #include "../include/ImGuiDebug.h"
 #include "../include/ImGuiStyle.h"
+#include "../include/ImGuiKey.h"
 #include "ThirdParty/imgui/imgui.h"
 #include "../../Engine/include/SceneObjects/Camera.h"
 #include <Windows.h>
 
 #include "../../Engine/include/engine.h"
+#include "../include/ImGuiTabs.h"
 #include "Imgui/interface/ImGuiImplWin32.hpp"
 
 struct PrivateIO
@@ -28,6 +30,11 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddMouseButtonEvent(button, action);
+	};
+	uiInput.keyboard = [&](int key, int action,int scancode)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.AddKeyEvent(Prisma::GUI::convertImGuiGlfwKey(key,scancode), (action== GLFW_PRESS));
 	};
 	Prisma::PrismaFunc::getInstance().inputUI(uiInput);
 	m_imguiCamera.mouseCallback();
@@ -262,7 +269,7 @@ void Prisma::ImguiDebug::drawGui()
 
 		ImGui::Separator();
 
-		//ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root,m_imguiCamera);
+		Prisma::ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root,m_imguiCamera);
 		// Check if the node is clicked
 		ImGui::End();
 		m_fileBrowser->show(m_width, m_height, m_initOffset+m_buttonSize, m_scale, m_translate);
@@ -327,6 +334,9 @@ void Prisma::ImguiDebug::start()
 
 void Prisma::ImguiDebug::close()
 {
+	bool open = true;
+	ImGui::ShowDebugLogWindow(&open);
+
 	m_imguiCamera.constraints({
 		m_translate * m_width / 2, m_initOffset + 50, m_translate * m_width / 2 + m_scale * m_width, m_height * m_scale,
 		false, m_scale, m_model
@@ -346,7 +356,7 @@ void Prisma::ImguiDebug::close()
 		m_imguiCamera.updateCamera(m_camera);
 		m_imguiCamera.keyboardUpdate(PrismaFunc::getInstance().window());
 		//m_addingMenu.addMenu(m_imguiCamera);
-		//ImGuiTabs::getInstance().updateTabs(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 0);
+		ImGuiTabs::getInstance().updateTabs(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 0);
 	}
 	imguiDiligent->Render(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext);
 	//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

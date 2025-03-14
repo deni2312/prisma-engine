@@ -8,6 +8,7 @@
 #include "../../Engine/include/Helpers/TimeCounter.h"
 #include "../../Engine/include/SceneData/SceneExporter.h"
 #include "FolderView.h"
+#include "AddingMenu.h"
 
 namespace Prisma
 {
@@ -104,7 +105,7 @@ namespace Prisma
 		TimeCounter m_timeCounterUI;
 		TimeCounter m_timeCounterEngine;
 
-		//Prisma::ImGuiAddingMenu m_addingMenu;
+		Prisma::ImGuiAddingMenu m_addingMenu;
 
 		Exporter m_exporter;
 

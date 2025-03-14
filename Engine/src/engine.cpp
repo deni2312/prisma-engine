@@ -136,6 +136,11 @@ bool Prisma::Engine::run()
 			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();*/
 			//data->sceneHandler->onBeginRender();
+
+			//Remove this later
+			CacheScene::getInstance().resetCaches();
+
+
 			switch (data->engineSettings.pipeline)
 			{
 			case EngineSettings::Pipeline::FORWARD:

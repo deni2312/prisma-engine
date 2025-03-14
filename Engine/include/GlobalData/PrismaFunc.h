@@ -36,6 +36,7 @@ namespace Prisma
 		struct UIInput
 		{
 			std::function<void(int, int)> mouseClick;
+			std::function<void(int, int, int)> keyboard;
 		};
 
 		void init();

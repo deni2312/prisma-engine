@@ -1,4 +1,5 @@
 #include "../include/AddingMenu.h"
+#include "ThirdParty/imgui/imgui.h"
 
 void Prisma::ImGuiAddingMenu::addMenu(Prisma::ImGuiCamera& camera) const
 {

@@ -15,17 +15,17 @@ std::string textSearch;
 
 Prisma::ImGuiTabs::ImGuiTabs()
 {
-	/*m_meshTexture = std::make_shared<Texture>();
+	m_meshTexture = std::make_shared<Texture>();
 	m_meshTexture->name("MeshIcon");
-	m_meshTexture->loadTexture({ "../../../GUI/icons/mesh.png", false, false, false });
+	m_meshTexture->loadTexture({ "../../../GUI/icons/mesh.png", false, false });
 
 	m_lightTexture = std::make_shared<Texture>();
 	m_lightTexture->name("LightIcon");
-	m_lightTexture->loadTexture({ "../../../GUI/icons/light.png", false, false, false });
+	m_lightTexture->loadTexture({ "../../../GUI/icons/light.png", false, false });
 
 	m_nodeTexture = std::make_shared<Texture>();
 	m_nodeTexture->name("NodeIcon");
-	m_nodeTexture->loadTexture({ "../../../GUI/icons/node.png", false, false, false });*/
+	m_nodeTexture->loadTexture({ "../../../GUI/icons/node.png", false, false });
 }
 
 void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {
@@ -43,12 +43,12 @@ void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {
 void Prisma::ImGuiTabs::dispatch(std::shared_ptr<Prisma::Node> node, glm::vec2 size)
 {
 	if (std::dynamic_pointer_cast<Prisma::Mesh>(node)) {
-		ImGui::Image((void*)m_meshTexture->id(), ImVec2(size.x, size.y));
+		ImGui::Image((void*)m_meshTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(size.x, size.y));
 	}else if (std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightOmni>>(node) || std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightDir>>(node) || std::dynamic_pointer_cast<Prisma::Light<Prisma::LightType::LightArea>>(node)) {
-		ImGui::Image((void*)m_lightTexture->id(), ImVec2(size.x, size.y));
+		ImGui::Image((void*)m_lightTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(size.x, size.y));
 	}else
 	{
-		ImGui::Image((void*)m_nodeTexture->id(), ImVec2(size.x, size.y));
+		ImGui::Image((void*)m_nodeTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(size.x, size.y));
 	}
 }
 
