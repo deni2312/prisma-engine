@@ -28,7 +28,6 @@ struct PrivatePrisma
 	std::shared_ptr<Prisma::CallbackHandler> callback;
 	bool initCallback = false;
 	std::map<std::string, std::string> errorMap;
-	Diligent::RefCntAutoPtr<Diligent::ISwapChain> m_pSwapChain;
 	Prisma::PrismaFunc::UIInput inputUi;
 };
 
@@ -328,11 +327,11 @@ void Prisma::PrismaFunc::init()
 	break;
 #endif
 
-	privatePrisma->m_pSwapChain = m_contextData.m_pSwapChain;
 	default:
 		std::cerr << "Unknown/unsupported device type";
 		break;
 	}
+
 
 }
 
