@@ -2,10 +2,10 @@
 #include "../../include/Physics/PhysicsData.h"
 #include <glm/gtx/string_cast.hpp>
 
-#include "../../include/SceneData/MeshIndirect.h"
 #include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
 #include "Jolt/Physics/SoftBody/SoftBodyCreationSettings.h"
 #include "../../include/SceneData/ComponentTypeLayout.h"
+#include "Jolt/Physics/Collision/Shape/HeightFieldShape.h"
 
 void Prisma::PhysicsMeshComponent::ui()
 {
@@ -426,7 +426,7 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 			                                               ? EActivation::Activate
 			                                               : EActivation::DontActivate);
 		mesh->parent()->matrix(glm::mat4(1.0));
-		Prisma::MeshIndirect::getInstance().remove(0);
+		//Prisma::MeshIndirect::getInstance().remove(0);
 		Prisma::CacheScene::getInstance().updateSizes(true);
 	}
 }

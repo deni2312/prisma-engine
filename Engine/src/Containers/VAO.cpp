@@ -3,8 +3,8 @@
 
 Prisma::VAO::VAO()
 {
-	glGenVertexArrays(1, &m_id);
-	GarbageCollector::getInstance().add({GarbageCollector::GarbageType::VAO, m_id});
+	//glGenVertexArrays(1, &m_id);
+	//GarbageCollector::getInstance().add({GarbageCollector::GarbageType::VAO, m_id});
 }
 
 void Prisma::VAO::bind()
@@ -15,7 +15,7 @@ void Prisma::VAO::bind()
 void Prisma::VAO::addAttribPointer(unsigned int id, unsigned int stride, unsigned int size, void* offset,
                                    unsigned int type)
 {
-	bind();
+	/*bind();
 	glEnableVertexAttribArray(id);
 	if (type == GL_INT)
 	{
@@ -24,12 +24,12 @@ void Prisma::VAO::addAttribPointer(unsigned int id, unsigned int stride, unsigne
 	else
 	{
 		glVertexAttribPointer(id, stride, type, GL_FALSE, size, offset);
-	}
+	}*/
 }
 
 void Prisma::VAO::resetVao()
 {
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
 }
 
 unsigned int Prisma::VAO::id() const

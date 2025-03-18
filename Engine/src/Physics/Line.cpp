@@ -5,11 +5,10 @@ Prisma::Line::Line()
 	m_lineColor = glm::vec3(1, 1, 1);
 	m_MVP = glm::mat4(1.0f);
 
-	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/LineDebugPipeline/vertex.glsl",
-	                                    "../../../Engine/Shaders/LineDebugPipeline/fragment.glsl");
+	/*m_shader = std::make_shared<Shader>("../../../Engine/Shaders/LineDebugPipeline/vertex.glsl","../../../Engine/Shaders/LineDebugPipeline/fragment.glsl");
 	m_shader->use();
 	m_colorPos = m_shader->getUniformPosition("color");
-	m_MVPPos = m_shader->getUniformPosition("MVP");
+	m_MVPPos = m_shader->getUniformPosition("MVP");*/
 }
 
 int Prisma::Line::setMVP(glm::mat4 mvp)
@@ -26,7 +25,7 @@ int Prisma::Line::setColor(glm::vec3 color)
 
 int Prisma::Line::draw(glm::vec3 start, glm::vec3 end)
 {
-	m_shader->use();
+	/*m_shader->use();
 	m_shader->setMat4(m_MVPPos, m_MVP);
 	m_shader->setVec3(m_colorPos, m_lineColor);
 	m_vertices = {
@@ -48,12 +47,12 @@ int Prisma::Line::draw(glm::vec3 start, glm::vec3 end)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glBindVertexArray(m_VAO);
-	glDrawArrays(GL_LINES, 0, 2);
+	glDrawArrays(GL_LINES, 0, 2);*/
 	return 1;
 }
 
 Prisma::Line::~Line()
 {
-	glDeleteVertexArrays(1, &m_VAO);
-	glDeleteBuffers(1, &m_VBO);
+	//glDeleteVertexArrays(1, &m_VAO);
+	//glDeleteBuffers(1, &m_VBO);
 }

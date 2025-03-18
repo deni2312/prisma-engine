@@ -25,7 +25,7 @@ void Prisma::DrawDebugger::DrawVertices(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, 
 {
 	if (m_init)
 	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		/*glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		m_shader->use();
 		m_shader->setMat4(m_modelPos, glm::mat4(1.0));
 		m_shader->setVec3(m_colorPos, glm::vec3(inColor.r, inColor.g, inColor.b));
@@ -38,7 +38,7 @@ void Prisma::DrawDebugger::DrawVertices(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, 
 		m_vao.addAttribPointer(0, 3, sizeof(glm::vec3), nullptr);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
 	}
 }
 
@@ -83,7 +83,7 @@ void Prisma::DrawDebugger::DrawGeometry(JPH::RMat44Arg inModelMatrix, const JPH:
 		case EDrawMode::Solid:
 			{
 				// Figure out which LOD to use
-				const LOD* lod = inGeometry->mLODs.data();
+				/*const LOD* lod = inGeometry->mLODs.data();
 
 				// Draw the batch
 				auto batch = static_cast<const BatchImpl*>(lod->mTriangleBatch.GetPtr());
@@ -110,7 +110,7 @@ void Prisma::DrawDebugger::DrawGeometry(JPH::RMat44Arg inModelMatrix, const JPH:
 				m_vao.addAttribPointer(0, 3, sizeof(glm::vec3), nullptr);
 				glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 				glBindVertexArray(0);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);*/
 				break;
 			}
 		}
@@ -127,10 +127,10 @@ void Prisma::DrawDebugger::init()
 	if (!m_init)
 	{
 		m_init = true;
-		m_shader = std::make_shared<Shader>("../../../Engine/Shaders/DebugPhysicsPipeline/vertex.glsl",
+		/*m_shader = std::make_shared<Shader>("../../../Engine/Shaders/DebugPhysicsPipeline/vertex.glsl",
 		                                    "../../../Engine/Shaders/DebugPhysicsPipeline/fragment.glsl");
 		m_modelPos = m_shader->getUniformPosition("model");
-		m_colorPos = m_shader->getUniformPosition("color");
+		m_colorPos = m_shader->getUniformPosition("color");*/
 	}
 }
 

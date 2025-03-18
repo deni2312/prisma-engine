@@ -6,6 +6,7 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "../../include/Components/PhysicsMeshComponent.h"
 #include "../../include/SceneData/MeshIndirect.h"
+#include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 #include "Jolt/Physics/SoftBody/SoftBodyMotionProperties.h"
 
 struct PhysicsWorldJolt

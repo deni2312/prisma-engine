@@ -73,6 +73,9 @@ Prisma::Engine::Engine()
 
 	AnimationHandler::getInstance();*/
 
+	Physics::getInstance();
+
+
 	PrismaFunc::getInstance().init();
 
 	Diligent::ImGuiDiligentCreateInfo desc;
@@ -127,11 +130,11 @@ bool Prisma::Engine::run()
 			}
 			data->sceneHandler->onBeginRender();
 			LightHandler::getInstance().update();
-			/*if (data->debug)
+			if (data->debug)
 			{
 				ComponentsHandler::getInstance().updateUi();
 			}
-			MeshHandler::getInstance().updateCamera();
+			/*MeshHandler::getInstance().updateCamera();
 			MeshHandler::getInstance().updateFragment();
 			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();*/
