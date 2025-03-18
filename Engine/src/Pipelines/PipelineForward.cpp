@@ -140,7 +140,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         // Create dynamic uniform buffer that will store our transformation matrix
         // Dynamic buffers can be frequently updated by the CPU
         BufferDesc CBDesc;
-        CBDesc.Name = "VS constants CB";
+        CBDesc.Name = "VS";
         CBDesc.Size = sizeof(glm::mat4);
         CBDesc.Usage = USAGE_DYNAMIC;
         CBDesc.BindFlags = BIND_UNIFORM_BUFFER;
@@ -153,7 +153,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Cube PS";
+        ShaderCI.Desc.Name = "PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.hlsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
     }

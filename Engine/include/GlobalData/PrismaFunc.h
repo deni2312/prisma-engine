@@ -42,7 +42,7 @@ namespace Prisma
 
 		struct RenderTargetFormat
 		{
-			const Diligent::TEXTURE_FORMAT RenderFormat = Diligent::TEX_FORMAT_RGBA8_UNORM;
+			const Diligent::TEXTURE_FORMAT RenderFormat = Diligent::TEX_FORMAT_RGBA8_UNORM_SRGB;
 			const Diligent::TEXTURE_FORMAT DepthBufferFormat = Diligent::TEX_FORMAT_D32_FLOAT;
 		};
 

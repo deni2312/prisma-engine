@@ -1,13 +1,13 @@
 #include "../include/ScenePipeline.h"
 
 #include "../../Engine/include/GlobalData/PrismaFunc.h"
+#include "../../Engine/include/Helpers/PrismaRender.h"
 #include "../../Engine/include/Pipelines/PipelineHandler.h"
 #include "Graphics/GraphicsEngine/interface/GraphicsTypes.h"
+#include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 
 Prisma::ScenePipeline::ScenePipeline()
 {
-
-// Pipeline state object encompasses configuration of all GPU stages
 
 
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
@@ -69,7 +69,7 @@ Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSource
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Cube VS";
+        ShaderCI.Desc.Name = "VS";
         ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/vertex.hlsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
         // Create dynamic uniform buffer that will store our transformation matrix
@@ -143,6 +143,42 @@ Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSource
 
 }
 
-void Prisma::ScenePipeline::render()
+void Prisma::ScenePipeline::render(glm::mat4 model)
 {
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+    auto pRTV = contextData.m_pSwapChain->GetCurrentBackBufferRTV();
+    auto pDSV = contextData.m_pSwapChain->GetDepthBufferDSV();
+    // Clear the back buffer
+    contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearDepthStencil(pDSV, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+	contextData.m_pImmediateContext->SetPipelineState(m_pso);
+
+    auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
+
+    // Bind vertex and index buffers
+    const Diligent::Uint64 offset = 0;
+    Diligent::IBuffer* pBuffs[] = { quadBuffer.vBuffer };
+    contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+    contextData.m_pImmediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    {
+        // Map the buffer and write current world-view-projection matrix
+        Diligent::MapHelper<glm::mat4> CBConstants(contextData.m_pImmediateContext, m_mvpVS, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+        glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
+        *CBConstants = model;
+    }
+
+    // Set texture SRV in the SRB
+    contextData.m_pImmediateContext->CommitShaderResources(m_shader, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+    DrawAttrs.NumIndices = quadBuffer.iBufferSize;
+    // Verify the state of vertex and index buffers
+    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+    contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
+    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }

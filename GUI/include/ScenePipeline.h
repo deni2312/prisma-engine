@@ -6,13 +6,13 @@
 #include "Graphics/GraphicsEngine/interface/Buffer.h"
 #include "Graphics/GraphicsEngine/interface/PipelineState.h"
 #include "Graphics/GraphicsEngine/interface/TextureView.h"
-
+#include <glm/glm.hpp>
 
 namespace Prisma {
 	class ScenePipeline : public Prisma::InstanceData<ScenePipeline>{
 	public:
 		ScenePipeline();
-		void render();
+		void render(glm::mat4 model);
 	private:
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_mvpVS;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;

@@ -4,10 +4,14 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "Buffer.h"
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
+
+namespace Diligent
+{
+	struct IBuffer;
+}
 
 namespace Prisma
 {
@@ -36,6 +40,7 @@ namespace Prisma
 		{
 			Diligent::RefCntAutoPtr<Diligent::IBuffer> vBuffer;
 			Diligent::RefCntAutoPtr<Diligent::IBuffer> iBuffer;
+			unsigned int iBufferSize;
 		};
 
 		void createFbo(unsigned int width, unsigned int height);

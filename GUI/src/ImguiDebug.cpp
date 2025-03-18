@@ -407,16 +407,12 @@ std::shared_ptr<Prisma::FBO> Prisma::ImguiDebug::fbo()
 
 void Prisma::ImguiDebug::drawScene()
 {
-	/*m_shader->use();
-	m_shader->setInt64(m_bindlessPos, m_fbo->texture());
-
 	auto model = glm::mat4(1.0f);
 	if (!m_run)
 	{
 		model = m_model;
 	}
-	m_shader->setMat4(m_modelPos, model);
-	PrismaRender::getInstance().renderQuad();*/
+	Prisma::ScenePipeline::getInstance().render(model);
 }
 
 void Prisma::ImguiDebug::initStatus()

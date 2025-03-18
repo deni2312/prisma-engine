@@ -177,7 +177,7 @@ Prisma::PrismaRender::BufferData Prisma::PrismaRender::quadBuffer()
 		Diligent::BufferData IBData;
 		IBData.pData = indices.data();
 		IBData.DataSize = IndBuffDesc.Size;
-
+		m_quadBufferData.iBufferSize = indices.size();
 		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_quadBufferData.iBuffer);
 		m_initQuad = true;
 	}
