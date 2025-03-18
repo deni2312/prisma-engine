@@ -31,6 +31,8 @@
 #include "Graphics/GraphicsTools/interface/GraphicsUtilities.h"
 #include <Graphics/GraphicsTools/interface/MapHelper.hpp>
 
+#include "../../include/Pipelines/PipelineHandler.h"
+
 using namespace Diligent;
 
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{
@@ -90,9 +92,9 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().ColorBufferFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Prisma::PrismaFunc::getInstance().renderFormat().RenderFormat;
     // Set depth buffer format which is the format of the swap chain's back buffer
-    PSOCreateInfo.GraphicsPipeline.DSVFormat = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().DepthBufferFormat;
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
@@ -134,7 +136,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Cube VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.hlsl";
-        Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateShader(ShaderCI, &pVS);
+        contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
         // Create dynamic uniform buffer that will store our transformation matrix
         // Dynamic buffers can be frequently updated by the CPU
         BufferDesc CBDesc;
@@ -143,7 +145,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         CBDesc.Usage = USAGE_DYNAMIC;
         CBDesc.BindFlags = BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
-        Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(CBDesc, nullptr, &m_mvpVS);
+        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_mvpVS);
     }
 
     // Create a pixel shader
@@ -153,7 +155,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Cube PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.hlsl";
-        Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateShader(ShaderCI, &pPS);
+        contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
     }
 
     // clang-format off
@@ -198,8 +200,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
 
-    /*const auto& ColorFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().ColorBufferFormat);
-    const auto& DepthFmtInfo = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetTextureFormatInfoExt(Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().DepthBufferFormat);
+    /*const auto& ColorFmtInfo = contextData.m_pDevice->GetTextureFormatInfoExt(contextData.m_pSwapChain->GetDesc().ColorBufferFormat);
+    const auto& DepthFmtInfo = contextData.m_pDevice->GetTextureFormatInfoExt(contextData.m_pSwapChain->GetDesc().DepthBufferFormat);
     m_SupportedSampleCounts = ColorFmtInfo.SampleCounts & DepthFmtInfo.SampleCounts;
     if (m_SupportedSampleCounts & SAMPLE_COUNT_4)
         m_SampleCount = 4;
@@ -213,7 +215,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_SampleCount;*/
 
 
-    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+    contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
     // Since we did not explicitly specify the type for 'Constants' variable, default
     // type (SHADER_RESOURCE_VARIABLE_TYPE_STATIC) will be used. Static variables never
@@ -228,10 +230,19 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 }
 
 void Prisma::PipelineForward::render(){
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+    auto pRTV = Prisma::PipelineHandler::getInstance().textureData().pColorRTV;
+    auto pDSV = Prisma::PipelineHandler::getInstance().textureData().pDepthDSV;
+    // Clear the back buffer
+    contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 
     // Set the pipeline state
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetPipelineState(m_pso);
+    contextData.m_pImmediateContext->SetPipelineState(m_pso);
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
     // makes sure that resources are transitioned to required states.
     auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -239,32 +250,33 @@ void Prisma::PipelineForward::render(){
         // Bind vertex and index buffers
         const Uint64 offset = 0;
         IBuffer* pBuffs[] = { mesh->vBuffer() };
-        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
-        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->SetIndexBuffer(mesh->iBuffer(), 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.m_pImmediateContext->SetIndexBuffer(mesh->iBuffer(), 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         {
             // Map the buffer and write current world-view-projection matrix
-            MapHelper<glm::mat4> CBConstants(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<glm::mat4> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
             glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
             *CBConstants = Prisma::GlobalData::getInstance().currentProjection() * view * mesh->parent()->finalMatrix();
         }
 
         // Set texture SRV in the SRB
-        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->CommitShaderResources(mesh->material()->diffuse()[0].shader(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.m_pImmediateContext->CommitShaderResources(mesh->material()->diffuse()[0].shader(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
         DrawAttrs.IndexType = VT_UINT32; // Index type
         DrawAttrs.NumIndices = mesh->verticesData().indices.size();
         // Verify the state of vertex and index buffers
         DrawAttrs.Flags = DRAW_FLAG_VERIFY_ALL;
-        Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->DrawIndexed(DrawAttrs);
+        contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
     }
     // Resolve multi-sampled render target into the current swap chain back buffer.
-    /*auto pCurrentBackBuffer = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetCurrentBackBufferRTV()->GetTexture();
+    /*auto pCurrentBackBuffer = contextData.m_pSwapChain->GetCurrentBackBufferRTV()->GetTexture();
 
     ResolveTextureSubresourceAttribs ResolveAttribs;
     ResolveAttribs.SrcTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
     ResolveAttribs.DstTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-    Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext->ResolveTextureSubresource(m_pMSColorRTV->GetTexture(), pCurrentBackBuffer, ResolveAttribs);*/
+    contextData.m_pImmediateContext->ResolveTextureSubresource(m_pMSColorRTV->GetTexture(), pCurrentBackBuffer, ResolveAttribs);*/
+    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }
 
 Prisma::PipelineForward::~PipelineForward()
@@ -280,8 +292,9 @@ void Prisma::PipelineForward::CreateMSAARenderTarget()
 {
 	if (m_SampleCount == 1)
 		return;
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-	const auto& SCDesc = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc();
+	const auto& SCDesc = contextData.m_pSwapChain->GetDesc();
 	// Create window-size multi-sampled offscreen render target
 	TextureDesc ColorDesc;
 	ColorDesc.Name = "Multisampled render target";
@@ -291,7 +304,7 @@ void Prisma::PipelineForward::CreateMSAARenderTarget()
 	ColorDesc.Height = SCDesc.Height;
 	ColorDesc.MipLevels = 1;
 	ColorDesc.Format = SCDesc.ColorBufferFormat;
-	bool NeedsSRGBConversion = Prisma::PrismaFunc::getInstance().contextData().m_pDevice->GetDeviceInfo().IsD3DDevice() && (ColorDesc.Format == TEX_FORMAT_RGBA8_UNORM_SRGB || ColorDesc.Format == TEX_FORMAT_BGRA8_UNORM_SRGB);
+	bool NeedsSRGBConversion = contextData.m_pDevice->GetDeviceInfo().IsD3DDevice() && (ColorDesc.Format == TEX_FORMAT_RGBA8_UNORM_SRGB || ColorDesc.Format == TEX_FORMAT_BGRA8_UNORM_SRGB);
 	if (NeedsSRGBConversion)
 	{
 		// Internally Direct3D swap chain images are not SRGB, and ResolveSubresource
@@ -309,7 +322,7 @@ void Prisma::PipelineForward::CreateMSAARenderTarget()
 	ColorDesc.ClearValue.Color[2] = 0.125f;
 	ColorDesc.ClearValue.Color[3] = 1.f;
 	RefCntAutoPtr<ITexture> pColor;
-    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateTexture(ColorDesc, nullptr, &pColor);
+    contextData.m_pDevice->CreateTexture(ColorDesc, nullptr, &pColor);
 
 	// Store the render target view
     m_pMSColorRTV.Release();
@@ -329,7 +342,7 @@ void Prisma::PipelineForward::CreateMSAARenderTarget()
 	// Create window-size multi-sampled depth buffer
 	TextureDesc DepthDesc = ColorDesc;
 	DepthDesc.Name = "Multisampled depth buffer";
-	DepthDesc.Format = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc().DepthBufferFormat;
+	DepthDesc.Format = contextData.m_pSwapChain->GetDesc().DepthBufferFormat;
 	DepthDesc.BindFlags = BIND_DEPTH_STENCIL;
 	// Define optimal clear value
 	DepthDesc.ClearValue.Format = DepthDesc.Format;
@@ -337,7 +350,7 @@ void Prisma::PipelineForward::CreateMSAARenderTarget()
 	DepthDesc.ClearValue.DepthStencil.Stencil = 0;
 
 	RefCntAutoPtr<ITexture> pDepth;
-    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateTexture(DepthDesc, nullptr, &pDepth);
+    contextData.m_pDevice->CreateTexture(DepthDesc, nullptr, &pDepth);
 	// Store the depth-stencil view
 	m_pMSDepthDSV = pDepth->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 }

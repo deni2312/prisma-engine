@@ -359,8 +359,7 @@ void Prisma::PrismaFunc::clear()
 {
 	auto pRTV = m_contextData.m_pSwapChain->GetCurrentBackBufferRTV();
 	auto pDSV = m_contextData.m_pSwapChain->GetDepthBufferDSV();
-	glm::vec4 ClearColor = { 0.350f, 0.350f, 0.350f, 1.0f };
-	m_contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(ClearColor), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	m_contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 	m_contextData.m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
