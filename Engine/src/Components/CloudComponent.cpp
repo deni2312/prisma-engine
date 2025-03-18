@@ -118,7 +118,7 @@ void Prisma::CloudComponent::updatePostRender(std::shared_ptr<FBO> fbo)
 
 		setVariables();
 
-		PrismaRender::getInstance().renderQuad();
+		//PrismaRender::getInstance().renderQuad();
 		m_fbo->unbind();
 		fbo->bind();
 		glDepthMask(GL_FALSE);
@@ -127,7 +127,7 @@ void Prisma::CloudComponent::updatePostRender(std::shared_ptr<FBO> fbo)
 		m_upscaleShader->setInt64(m_upscalePos, m_fbo->texture());
 		m_upscaleShader->setVec2(m_resUpscalePos, glm::vec2(m_settings.width, m_settings.height));
 		m_upscaleShader->setInt(m_factorPos, m_downscale);
-		PrismaRender::getInstance().renderQuad();
+		//PrismaRender::getInstance().renderQuad();
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 	}
@@ -188,7 +188,7 @@ void Prisma::CloudComponent::start()
 	m_fbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	m_noiseShader->use();
-	PrismaRender::getInstance().renderQuad();
+	//PrismaRender::getInstance().renderQuad();
 	m_fbo->unbind();
 
 	m_ssbo = std::make_shared<SSBO>(11);

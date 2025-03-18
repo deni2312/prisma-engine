@@ -1,14 +1,13 @@
 #pragma once
 
-#include "Shader.h"
-#include "../SceneObjects/Camera.h"
-#include "../SceneData/SceneLoader.h"
-#include "../Handlers/MeshHandler.h"
-#include "../SceneData/MeshIndirect.h"
-#include "../Containers/FBO.h"
-#include "../Pipelines/PipelineFullScreen.h"
 #include "../GlobalData/InstanceData.h"
 #include <memory>
+#include <glm/glm.hpp>
+
+#include "Buffer.h"
+#include "Common/interface/RefCntAutoPtr.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_transform.hpp"
 
 namespace Prisma
 {
@@ -33,21 +32,35 @@ namespace Prisma
 			};
 		};
 
+		struct BufferData
+		{
+			Diligent::RefCntAutoPtr<Diligent::IBuffer> vBuffer;
+			Diligent::RefCntAutoPtr<Diligent::IBuffer> iBuffer;
+		};
+
 		void createFbo(unsigned int width, unsigned int height);
 		IBLData data();
-		void renderCube();
-		void renderQuad();
-		void renderQuad(unsigned int instances);
-		std::shared_ptr<Texture> renderPerlin(unsigned int width, unsigned int height);
+
+		BufferData quadBuffer();
+
+		//void renderQuad(unsigned int instances);
+		//std::shared_ptr<Texture> renderPerlin(unsigned int width, unsigned int height);
+
+
 		PrismaRender();
 
 	private:
-		std::shared_ptr<VAO> m_vaoCube = nullptr;
-		std::shared_ptr<VBO> m_vboCube = nullptr;
-		std::shared_ptr<VAO> m_vaoQuad = nullptr;
-		std::shared_ptr<VBO> m_vboQuad = nullptr;
-		std::shared_ptr<Shader> m_noiseShader = nullptr;
-		std::shared_ptr<FBO> m_noiseFbo;
 		IBLData m_data;
+
+		Prisma::PrismaRender::BufferData m_quadBufferData;
+
+		struct VData
+		{
+			glm::vec3 pos;
+			glm::vec2 uv;
+		};
+
+		bool m_initQuad = false;
+
 	};
 }

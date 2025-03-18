@@ -98,14 +98,14 @@ void Prisma::PipelineSSAO::update(uint64_t depth, uint64_t position) {
     m_shader->setInt64(m_noisePos, m_noise);
     m_shader->setVec2(m_noiseScalePos, m_scale);
 
-    Prisma::PrismaRender::getInstance().renderQuad();
+    //Prisma::PrismaRender::getInstance().renderQuad();
     m_fbo->unbind();
 
     m_fboBlur->bind();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     m_shaderBlur->use();
     m_shaderBlur->setInt64(m_ssaoPos,m_fbo->texture());
-    Prisma::PrismaRender::getInstance().renderQuad();
+    //Prisma::PrismaRender::getInstance().renderQuad();
     m_fboBlur->unbind();
 
 }

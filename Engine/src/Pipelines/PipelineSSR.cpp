@@ -42,7 +42,7 @@ void Prisma::PipelineSSR::update(uint64_t albedo, uint64_t position, uint64_t no
 	m_shader->setMat4(m_invProjPos, glm::inverse(Prisma::GlobalData::getInstance().currentProjection()));
 
 
-	PrismaRender::getInstance().renderQuad();
+	//////PrismaRender::getInstance().renderQuad();
 	m_fboSSR->unbind();
 }
 

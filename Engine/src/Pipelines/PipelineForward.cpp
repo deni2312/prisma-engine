@@ -101,7 +101,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = CULL_MODE_BACK;
     // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = True;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
     // clang-format on
 
     ShaderCreateInfo ShaderCI;

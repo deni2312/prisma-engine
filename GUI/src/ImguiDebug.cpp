@@ -9,6 +9,7 @@
 
 #include "../../Engine/include/engine.h"
 #include "../include/ImGuiTabs.h"
+#include "../include/ScenePipeline.h"
 #include "Imgui/interface/ImGuiImplWin32.hpp"
 
 struct PrivateIO
@@ -60,22 +61,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	//ImGui::StyleColorsDark();
 	Prisma::ImGuiStyles::getInstance().darkMode();
-	//ImGui_ImplGlfw_InitForOpenGL(PrismaFunc::getInstance().window(), true);
-	//ImGui_ImplOpenGL3_Init("#version 150");
-	/*FBO::FBOData fboData;
-	m_height = settings.height;
-	m_width = settings.width;
-	fboData.width = settings.width;
-	fboData.height = settings.height;
-	fboData.enableDepth = true;
-	fboData.name = "DEBUG";
-	m_fbo = std::make_shared<FBO>(fboData);
-	Prisma::GlobalData::getInstance().fboTarget(m_fbo);
-	m_shader = std::make_shared<Shader>("../../../GUI/Shaders/Output/vertex.glsl",
-	                                    "../../../GUI/Shaders/Output/fragment.glsl");
-	m_shader->use();
-	m_bindlessPos = m_shader->getUniformPosition("screenTexture");
-	m_modelPos = m_shader->getUniformPosition("model");*/
 	m_height = settings.height;
 	m_width = settings.width;
 	m_scale = 0.72f;
@@ -100,6 +85,8 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 
 	//NodeViewer::getInstance();
 	imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());
+
+	Prisma::ScenePipeline::getInstance();
 
 	initStatus();
 }

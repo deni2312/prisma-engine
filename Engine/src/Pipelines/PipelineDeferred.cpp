@@ -109,7 +109,7 @@ void Prisma::PipelineDeferred::render()
 	m_shaderD->setInt64(m_normalLocation, m_deferredData.normal);
 	m_shaderD->setInt64(m_positionLocation, m_deferredData.position);
 	m_shaderD->setInt64(m_ambientLocation, m_deferredData.ambient);
-	PrismaRender::getInstance().renderQuad();
+	//PrismaRender::getInstance().renderQuad();
 
 	//COPY DEPTH FOR SKYBOX AND SPRITES
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fboBuffer->frameBufferID());

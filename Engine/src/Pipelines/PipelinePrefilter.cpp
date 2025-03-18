@@ -69,7 +69,7 @@ void Prisma::PipelinePrefilter::texture(Texture texture)
 				m_prefilterMap, mip);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			PrismaRender::getInstance().renderCube();
+			//PrismaRender::getInstance().renderCube();
 		}
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

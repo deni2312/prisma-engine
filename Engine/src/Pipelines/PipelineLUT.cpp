@@ -47,7 +47,7 @@ void Prisma::PipelineLUT::texture()
 		glViewport(0, 0, PrismaRender::getInstance().data().width, PrismaRender::getInstance().data().height);
 		m_shader->use();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		PrismaRender::getInstance().renderQuad();
+		//PrismaRender::getInstance().renderQuad();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		m_id = glGetTextureHandleARB(brdfLUTTexture);

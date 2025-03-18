@@ -87,7 +87,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
 	shaderData->use();
 	shaderData->setMat4(m_modelLocation, model);
 	shaderData->setInt64(m_textureLocation, m_fbo->texture());
-	Prisma::PrismaRender::getInstance().renderQuad();
+	//Prisma::PrismaRender::getInstance().renderQuad();
 
 	glFlush();
 	glFinish();

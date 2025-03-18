@@ -48,7 +48,7 @@ void Prisma::PipelineDiffuseIrradiance::texture(Texture texture)
 		                       0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		PrismaRender::getInstance().renderCube();
+		//PrismaRender::getInstance().renderCube();
 	}
 	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
 	           Prisma::SettingsLoader().getInstance().getSettings().height);

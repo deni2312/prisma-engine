@@ -58,7 +58,7 @@ void Prisma::Sprite::render()
 		glBlendFunc(GL_ONE, GL_ONE);
 		glDepthMask(GL_FALSE);
 		// Render the sprites
-		PrismaRender::getInstance().renderQuad(m_numSprites);
+		//PrismaRender::getInstance().renderQuad(m_numSprites);
 		glDepthMask(GL_TRUE);
 
 		// Deactivate blending and restore OpenGL state

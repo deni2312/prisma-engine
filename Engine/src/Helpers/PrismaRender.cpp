@@ -1,8 +1,5 @@
 #include "../../include/Helpers/PrismaRender.h"
 #include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
-#include "../../include/Pipelines/PipelinePrefilter.h"
-#include "../../include/Pipelines/PipelineLUT.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -13,7 +10,7 @@ Prisma::PrismaRender::PrismaRender()
 {
 }
 
-void Prisma::PrismaRender::renderCube()
+/*void Prisma::PrismaRender::renderCube()
 {
 	// initialize (if necessary)
 	if (m_vaoCube == nullptr)
@@ -77,67 +74,10 @@ void Prisma::PrismaRender::renderCube()
 	m_vaoCube->bind();
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	VAO::resetVao();
-}
+}*/
 
-void Prisma::PrismaRender::renderQuad()
-{
-	if (m_vaoQuad == nullptr)
-	{
-		float quadVertices[] = {
-			// vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords
-			-1.0f, 1.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f,
-			1.0f, -1.0f, 1.0f, 0.0f,
 
-			-1.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, -1.0f, 1.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f
-		};
-		// setup plane VAO
-		m_vaoQuad = std::make_shared<VAO>();
-		m_vaoQuad->bind();
-		m_vboQuad = std::make_shared<VBO>();
-		m_vboQuad->writeData(sizeof(quadVertices), quadVertices);
-		m_vaoQuad->addAttribPointer(0, 2, 4 * sizeof(float), nullptr);
-		m_vaoQuad->addAttribPointer(1, 2, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-		glEnableVertexAttribArray(0);
-	}
-	m_vaoQuad->bind();
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	VAO::resetVao();
-}
-
-void Prisma::PrismaRender::renderQuad(unsigned int instances)
-{
-	if (m_vaoQuad == nullptr)
-	{
-		float quadVertices[] = {
-			// vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords
-			-1.0f, 1.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f,
-			1.0f, -1.0f, 1.0f, 0.0f,
-
-			-1.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, -1.0f, 1.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f
-		};
-		// setup plane VAO
-		m_vaoQuad = std::make_shared<VAO>();
-		m_vaoQuad->bind();
-		m_vboQuad = std::make_shared<VBO>();
-		m_vboQuad->writeData(sizeof(quadVertices), quadVertices);
-		m_vaoQuad->addAttribPointer(0, 2, 4 * sizeof(float), nullptr);
-		m_vaoQuad->addAttribPointer(1, 2, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-		glEnableVertexAttribArray(0);
-	}
-	m_vaoQuad->bind();
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instances);
-	VAO::resetVao();
-}
-
-std::shared_ptr<Prisma::Texture> Prisma::PrismaRender::renderPerlin(unsigned int width, unsigned int height)
+/*std::shared_ptr<Prisma::Texture> Prisma::PrismaRender::renderPerlin(unsigned int width, unsigned int height)
 {
 	if (!m_noiseShader)
 	{
@@ -155,7 +95,7 @@ std::shared_ptr<Prisma::Texture> Prisma::PrismaRender::renderPerlin(unsigned int
 	m_noiseFbo->bind();
 	m_noiseShader->use();
 	m_noiseShader->setVec2(m_noiseShader->getUniformPosition("resolution"), glm::vec2(width, height));
-	renderQuad();
+	//renderQuad();
 
 	m_noiseFbo->unbind();
 	auto textureData = new char[width * height * 4];
@@ -173,9 +113,9 @@ std::shared_ptr<Prisma::Texture> Prisma::PrismaRender::renderPerlin(unsigned int
 	data.nrComponents = 4;
 	texture->data(data);
 	return texture;
-}
+}*/
 
-void Prisma::PrismaRender::createFbo(unsigned int width, unsigned int height)
+/*void Prisma::PrismaRender::createFbo(unsigned int width, unsigned int height)
 {
 	if (m_data.fbo)
 	{
@@ -194,9 +134,52 @@ void Prisma::PrismaRender::createFbo(unsigned int width, unsigned int height)
 	GarbageCollector::getInstance().add({GarbageCollector::GarbageType::RBO, m_data.rbo});
 	m_data.width = width;
 	m_data.height = height;
-}
+}*/
 
 Prisma::PrismaRender::IBLData Prisma::PrismaRender::data()
 {
 	return m_data;
+}
+
+Prisma::PrismaRender::BufferData Prisma::PrismaRender::quadBuffer()
+{
+	if (!m_initQuad)
+	{
+		// Define fullscreen quad vertices directly
+		std::vector<VData> vertices = {
+			{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}, // Bottom-left
+			{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},  // Bottom-right
+			{{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f}}, // Top-left
+			{{1.0f,  1.0f, 0.0f}, {1.0f, 0.0f}}   // Top-right
+		};
+
+		std::vector<unsigned int> indices = { 0, 1, 2, 2, 1, 3 };
+		// Create vertex buffer
+		Diligent::BufferDesc VertBuffDesc;
+		VertBuffDesc.Name = "Vertices Data";
+		VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+		VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
+		VertBuffDesc.Size = sizeof(VData) * vertices.size();
+
+		Diligent::BufferData VBData;
+		VBData.pData = vertices.data();
+		VBData.DataSize = VertBuffDesc.Size;
+
+		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_quadBufferData.vBuffer);
+
+		// Create index buffer
+		Diligent::BufferDesc IndBuffDesc;
+		IndBuffDesc.Name = "Index Data";
+		IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+		IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
+		IndBuffDesc.Size = sizeof(unsigned int) * indices.size();
+
+		Diligent::BufferData IBData;
+		IBData.pData = indices.data();
+		IBData.DataSize = IndBuffDesc.Size;
+
+		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_quadBufferData.iBuffer);
+		m_initQuad = true;
+	}
+	return m_quadBufferData;
 }

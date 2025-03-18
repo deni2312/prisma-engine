@@ -64,7 +64,7 @@ void Prisma::PipelineSkybox::calculateSkybox()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_envCubemap, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		PrismaRender::getInstance().renderCube();
+		//PrismaRender::getInstance().renderCube();
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
@@ -83,7 +83,7 @@ void Prisma::PipelineSkybox::render()
 	glDepthFunc(GL_LEQUAL);
 	m_shader->use();
 	m_shader->setInt64(m_bindlessPos, m_id);
-	PrismaRender::getInstance().renderCube();
+	//PrismaRender::getInstance().renderCube();
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS);
 }
@@ -94,7 +94,7 @@ void Prisma::PipelineSkybox::texture(Texture texture, bool equirectangular)
 	m_equirectangular = equirectangular;
 	if (m_equirectangular)
 	{
-		PrismaRender::getInstance().createFbo(texture.data().width, texture.data().height);
+		//PrismaRender::getInstance().createFbo(texture.data().width, texture.data().height);
 		m_height = texture.data().height;
 		m_width = texture.data().width;
 		calculateSkybox();

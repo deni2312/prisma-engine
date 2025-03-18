@@ -58,7 +58,7 @@ private:
 	Prisma::Mesh::VerticesData m_verticesData;
 	std::shared_ptr<Prisma::Mesh> m_grassMesh;
 
-	Prisma::DrawElementsIndirectCommand m_command;
+	//Prisma::DrawElementsIndirectCommand m_command;
 	unsigned int m_indirectId;
 
 	float m_percentValue;
