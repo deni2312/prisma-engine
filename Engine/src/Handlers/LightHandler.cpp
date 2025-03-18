@@ -7,7 +7,7 @@
 
 Prisma::LightHandler::LightHandler()
 {
-	m_dirLights = std::make_shared<SSBO>(2);
+	/*m_dirLights = std::make_shared<SSBO>(2);
 	m_dirLights->resize(MAX_DIR_LIGHTS * sizeof(LightType::LightDir) + sizeof(glm::vec4));
 
 	m_omniLights = std::make_shared<SSBO>(3);
@@ -21,7 +21,7 @@ Prisma::LightHandler::LightHandler()
 
 	glm::vec3 size = ClusterCalculation::grids();
 
-	m_clusterCalculation = std::make_shared<ClusterCalculation>(size.x * size.y * size.z);
+	m_clusterCalculation = std::make_shared<ClusterCalculation>(size.x * size.y * size.z);*/
 
 	m_init = true;
 }
@@ -42,8 +42,8 @@ void Prisma::LightHandler::updateDirectional()
 			length.x = levels.size();
 			length.y = shadow->farPlane();
 
-			m_dirCSM->modifyData(0, 16 * sizeof(float), levels.data());
-			m_dirCSM->modifyData(16 * sizeof(float), sizeof(glm::vec4), value_ptr(length));
+			//m_dirCSM->modifyData(0, 16 * sizeof(float), levels.data());
+			//m_dirCSM->modifyData(16 * sizeof(float), sizeof(glm::vec4), value_ptr(length));
 		}
 	}
 
@@ -66,10 +66,8 @@ void Prisma::LightHandler::updateDirectional()
 	}
 	glm::ivec4 dirLength;
 	dirLength.r = numVisible;
-	m_dirLights->modifyData(0, sizeof(glm::vec4),
-	                        value_ptr(dirLength));
-	m_dirLights->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(LightType::LightDir),
-	                        m_dataDirectional->lights.data());
+	//m_dirLights->modifyData(0, sizeof(glm::vec4),value_ptr(dirLength));
+	//m_dirLights->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(LightType::LightDir),m_dataDirectional->lights.data());
 }
 
 void Prisma::LightHandler::updateArea()
@@ -104,10 +102,8 @@ void Prisma::LightHandler::updateArea()
 
 	glm::ivec4 areaLength;
 	areaLength.r = numVisible;
-	m_areaLights->modifyData(0, sizeof(glm::vec4),
-		value_ptr(areaLength));
-	m_areaLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightArea),
-		m_dataArea->lights.data());
+	//m_areaLights->modifyData(0, sizeof(glm::vec4),value_ptr(areaLength));
+	//m_areaLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightArea),m_dataArea->lights.data());
 }
 
 void Prisma::LightHandler::updateOmni()
@@ -145,11 +141,8 @@ void Prisma::LightHandler::updateOmni()
 
 	glm::ivec4 omniLength;
 	omniLength.r = numVisible;
-	m_omniLights->modifyData(0, sizeof(glm::vec4),
-	                         value_ptr(omniLength));
-
-	m_omniLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightOmni),
-	                         m_dataOmni->lights.data());
+	//m_omniLights->modifyData(0, sizeof(glm::vec4), value_ptr(omniLength));
+	//m_omniLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightOmni),m_dataOmni->lights.data());
 }
 
 void Prisma::LightHandler::updateCSM()
@@ -201,15 +194,15 @@ void Prisma::LightHandler::update()
 		}
 	}
 
-	m_clusterCalculation->updateCamera();
-	m_clusterCalculation->updateLights();
+	//m_clusterCalculation->updateCamera();
+	//m_clusterCalculation->updateLights();
 	//CacheScene::getInstance().resetCaches();
 	m_init = false;
 }
 
 void Prisma::LightHandler::bind()
 {
-	m_dirLights->bind();
+	//m_dirLights->bind();
 }
 
 std::shared_ptr<Prisma::LightHandler::SSBODataDirectional> Prisma::LightHandler::dataDirectional() const
@@ -217,27 +210,15 @@ std::shared_ptr<Prisma::LightHandler::SSBODataDirectional> Prisma::LightHandler:
 	return m_dataDirectional;
 }
 
-std::shared_ptr<Prisma::SSBO> Prisma::LightHandler::ssboDirectional() const
-{
-	return m_dirLights;
-}
 
 std::shared_ptr<Prisma::LightHandler::SSBODataOmni> Prisma::LightHandler::dataOmni() const
 {
 	return m_dataOmni;
 }
 
-std::shared_ptr<Prisma::SSBO> Prisma::LightHandler::ssboOmni() const
-{
-	return m_omniLights;
-}
 
 std::shared_ptr<Prisma::LightHandler::SSBODataArea> Prisma::LightHandler::dataArea() const
 {
 	return m_dataArea;
 }
 
-std::shared_ptr<Prisma::SSBO> Prisma::LightHandler::ssboArea() const
-{
-	return m_areaLights;
-}

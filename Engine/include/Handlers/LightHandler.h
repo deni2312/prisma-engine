@@ -1,8 +1,6 @@
 #pragma once
 #include "../SceneData/SceneLoader.h"
-#include "../Containers/SSBO.h"
 #include "../GlobalData/Defines.h"
-#include "../Helpers/ClusterCalculation.h"
 #include "../GlobalData/InstanceData.h"
 #include <vector>
 
@@ -32,10 +30,10 @@ namespace Prisma
 		std::shared_ptr<SSBODataOmni> m_dataOmni;
 		std::shared_ptr<SSBODataArea> m_dataArea;
 
-		std::shared_ptr<SSBO> m_omniLights;
+		/*std::shared_ptr<SSBO> m_omniLights;
 		std::shared_ptr<SSBO> m_dirLights;
 		std::shared_ptr<SSBO> m_dirCSM;
-		std::shared_ptr<SSBO> m_areaLights;
+		std::shared_ptr<SSBO> m_areaLights;*/
 
 		void updateDirectional();
 
@@ -57,13 +55,13 @@ namespace Prisma
 		void update();
 		void bind();
 		std::shared_ptr<SSBODataDirectional> dataDirectional() const;
-		std::shared_ptr<SSBO> ssboDirectional() const;
+		//std::shared_ptr<SSBO> ssboDirectional() const;
 		std::shared_ptr<SSBODataOmni> dataOmni() const;
-		std::shared_ptr<SSBO> ssboOmni() const;
+		//std::shared_ptr<SSBO> ssboOmni() const;
 		std::shared_ptr<SSBODataArea> dataArea() const;
-		std::shared_ptr<SSBO> ssboArea() const;
+		//std::shared_ptr<SSBO> ssboArea() const;
 
-		std::shared_ptr<ClusterCalculation> m_clusterCalculation;
+		//std::shared_ptr<ClusterCalculation> m_clusterCalculation;
 
 		static constexpr unsigned int DIRECTIONAL_OFFSET = sizeof(glm::vec4);
 		static constexpr unsigned int OMNI_OFFSET = sizeof(glm::vec4);

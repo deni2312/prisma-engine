@@ -126,7 +126,7 @@ bool Prisma::Engine::run()
 				Physics::getInstance().update(1.0f / fps());
 			}
 			data->sceneHandler->onBeginRender();
-
+			LightHandler::getInstance().update();
 			/*if (data->debug)
 			{
 				ComponentsHandler::getInstance().updateUi();
@@ -135,7 +135,6 @@ bool Prisma::Engine::run()
 			MeshHandler::getInstance().updateFragment();
 			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();*/
-			//data->sceneHandler->onBeginRender();
 
 			//Remove this later
 			CacheScene::getInstance().resetCaches();
