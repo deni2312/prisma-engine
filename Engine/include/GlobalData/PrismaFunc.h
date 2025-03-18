@@ -29,7 +29,7 @@ namespace Prisma
 			Diligent::RefCntAutoPtr<Diligent::IRenderDevice>  m_pDevice;
 			Diligent::RefCntAutoPtr<Diligent::IDeviceContext> m_pImmediateContext;
 			Diligent::RefCntAutoPtr<Diligent::ISwapChain>     m_pSwapChain;
-			Diligent::RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_D3D12;
+			Diligent::RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
 			Diligent::RefCntAutoPtr<Diligent::IEngineFactory> m_pEngineFactory;
 		};
 
