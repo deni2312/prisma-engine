@@ -129,7 +129,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
     RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    Prisma::PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
     ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
     // Create a vertex shader
     RefCntAutoPtr<IShader> pVS;
@@ -182,7 +182,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     ShaderResourceVariableDesc Vars[] =
     {
         {SHADER_TYPE_PIXEL, "g_Texture", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::OMNI_DATA.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
+        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::DYNAMIC_OMNI_DATA.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
@@ -224,6 +224,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // change and are bound directly through the pipeline state object.
     m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
 
+    m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, "ViewProjection")->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
     // Create a shader resource binding object and bind all static resources in it
 
@@ -258,8 +259,7 @@ void Prisma::PipelineForward::render(){
         {
             // Map the buffer and write current world-view-projection matrix
             MapHelper<glm::mat4> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
-            glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
-            *CBConstants = Prisma::GlobalData::getInstance().currentProjection() * view * mesh->parent()->finalMatrix();
+            *CBConstants = mesh->parent()->finalMatrix();
         }
 
         Prisma::LightHandler::getInstance().updateLightBindings(mesh->material()->diffuse()[0].shader());

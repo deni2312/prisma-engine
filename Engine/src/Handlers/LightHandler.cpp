@@ -210,7 +210,7 @@ void Prisma::LightHandler::update()
 
 	//m_clusterCalculation->updateCamera();
 	//m_clusterCalculation->updateLights();
-	//CacheScene::getInstance().resetCaches();
+	CacheScene::getInstance().resetCaches();
 	m_init = false;
 }
 
@@ -232,7 +232,7 @@ std::shared_ptr<Prisma::LightHandler::SSBODataOmni> Prisma::LightHandler::dataOm
 
 void Prisma::LightHandler::updateLightBindings(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb)
 {
-	auto* pOmniVar = srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::OMNI_DATA.c_str());
+	auto* pOmniVar = srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::DYNAMIC_OMNI_DATA.c_str());
 	if (pOmniVar)
 	{
 		pOmniVar->Set(m_omniLights->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));

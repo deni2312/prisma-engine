@@ -8,10 +8,16 @@
 #include "../../include/Helpers/AreaHandler.h"
 #include <glm/gtx/string_cast.hpp>
 
+#include "Graphics/GraphicsTools/interface/MapHelper.hpp"
+
 void Prisma::MeshHandler::updateCamera()
 {
 	auto cameraMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
-	getInstance().ubo()->modifyData(0, sizeof(glm::mat4), value_ptr(cameraMatrix));
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	Diligent::MapHelper<ViewProjectionData> viewProjection(contextData.m_pImmediateContext, m_viewProjection, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+	viewProjection->view = cameraMatrix;
+	viewProjection->projection = Prisma::GlobalData::getInstance().currentProjection();
+	//getInstance().ubo()->modifyData(0, sizeof(glm::mat4), value_ptr(cameraMatrix));
 }
 
 void Prisma::MeshHandler::updateCluster()
@@ -20,7 +26,7 @@ void Prisma::MeshHandler::updateCluster()
 	m_uboClusterData.zFar = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane();
 	m_uboClusterData.gridSize = glm::vec4(ClusterCalculation::grids(), 1.0f);
 	m_uboClusterData.screenDimensions = {m_settings.width, m_settings.height, 1.0f, 1.0f};
-	m_uboCluster->modifyData(0, sizeof(UBOCluster), &m_uboClusterData);
+	//m_uboCluster->modifyData(0, sizeof(UBOCluster), &m_uboClusterData);
 }
 
 void Prisma::MeshHandler::updateFragment()
@@ -31,24 +37,24 @@ void Prisma::MeshHandler::updateFragment()
 	m_fragment.viewPos = glm::vec4(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->position(), 1.0f);
 	m_fragment.textureLut = Prisma::AreaHandler::getInstance().idLut();
 	m_fragment.textureM = Prisma::AreaHandler::getInstance().idM();
-	m_uboFragment->modifyData(0, sizeof(UBOFragment), &m_fragment);
+	//m_uboFragment->modifyData(0, sizeof(UBOFragment), &m_fragment);
 }
 
 Prisma::MeshHandler::MeshHandler()
 {
-	m_ubo = std::make_shared<Ubo>(sizeof(UBOData), 1);
-	m_uboCluster = std::make_shared<Ubo>(sizeof(UBOCluster), 2);
-	m_uboFragment = std::make_shared<Ubo>(sizeof(UBOFragment), 3);
-	m_uboData = std::make_shared<UBOData>();
 	m_settings = SettingsLoader::getInstance().getSettings();
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	Diligent::BufferDesc CBDesc;
+	CBDesc.Name = "View Projection";
+	CBDesc.Size = sizeof(ViewProjectionData);
+	CBDesc.Usage = Diligent::USAGE_DYNAMIC;
+	CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+	CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+	contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_viewProjection);
 }
 
-std::shared_ptr<Prisma::MeshHandler::UBOData> Prisma::MeshHandler::data() const
-{
-	return m_uboData;
-}
 
-std::shared_ptr<Prisma::Ubo> Prisma::MeshHandler::ubo() const
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshHandler::viewProjection() const
 {
-	return m_ubo;
+	return m_viewProjection;
 }

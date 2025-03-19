@@ -3,6 +3,12 @@ cbuffer Constants
     float4x4 g_WorldViewProj;
 };
 
+cbuffer ViewProjection
+{
+    float4x4 view;
+    float4x4 projection;
+};
+
 // Vertex shader takes two inputs: vertex position and uv coordinates.
 // By convention, Diligent Engine expects vertex shader inputs to be 
 // labeled 'ATTRIBn', where n is the attribute number.
@@ -24,6 +30,6 @@ struct PSInput
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    PSIn.Pos = mul(float4(VSIn.Pos, 1.0),g_WorldViewProj);
+    PSIn.Pos = mul(mul(mul(float4(VSIn.Pos, 1.0), g_WorldViewProj), view), projection);
     PSIn.UV = VSIn.UV;
 }

@@ -29,6 +29,7 @@
 #include "ImGuiImplDiligent.hpp"
 #include "ImGuiImplWin32.hpp"
 #include "../include/Handlers/LoadingHandler.h"
+#include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 
 struct PrivateData
 {
@@ -73,10 +74,13 @@ Prisma::Engine::Engine()
 
 	AnimationHandler::getInstance();*/
 
-	Physics::getInstance();
 
 
 	PrismaFunc::getInstance().init();
+
+	MeshHandler::getInstance();
+
+	Physics::getInstance();
 
 	Diligent::ImGuiDiligentCreateInfo desc;
 	desc.pDevice = Prisma::PrismaFunc::getInstance().contextData().m_pDevice;
@@ -129,6 +133,7 @@ bool Prisma::Engine::run()
 				Physics::getInstance().update(1.0f / fps());
 			}
 			data->sceneHandler->onBeginRender();
+			MeshHandler::getInstance().updateCamera();
 			LightHandler::getInstance().update();
 			if (data->debug)
 			{
@@ -138,9 +143,6 @@ bool Prisma::Engine::run()
 			MeshHandler::getInstance().updateFragment();
 			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();*/
-
-			//Remove this later
-			CacheScene::getInstance().resetCaches();
 
 
 			switch (data->engineSettings.pipeline)
@@ -212,6 +214,8 @@ Prisma::EngineSettings::Settings Prisma::Engine::engineSettings() const
 
 void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandler)
 {
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
 	callbackHandler->resize = [&](int width, int height)
 	{
 		Prisma::GlobalData::getInstance().currentProjection(glm::perspective(
@@ -220,8 +224,6 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 			                                                              settings.height),
 			Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
 			Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
-		auto currentProjection = Prisma::GlobalData::getInstance().currentProjection();
-		//MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),value_ptr(currentProjection));
 	};
 	Prisma::GlobalData::getInstance().currentProjection(glm::perspective(
 		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
@@ -229,8 +231,6 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 		                                                                    height),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
-	auto currentProjection = Prisma::GlobalData::getInstance().currentProjection();
-	//MeshHandler::getInstance().ubo()->modifyData(sizeof(glm::mat4), sizeof(glm::mat4),value_ptr(currentProjection));
 	data->callbackHandler = callbackHandler;
 	PrismaFunc::getInstance().setCallback(callbackHandler);
 }
