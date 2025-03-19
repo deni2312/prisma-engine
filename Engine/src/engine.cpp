@@ -80,6 +80,8 @@ Prisma::Engine::Engine()
 
 	MeshHandler::getInstance();
 
+	LightHandler::getInstance();
+
 	Physics::getInstance();
 
 	Diligent::ImGuiDiligentCreateInfo desc;

@@ -182,7 +182,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     ShaderResourceVariableDesc Vars[] =
     {
         {SHADER_TYPE_PIXEL, "g_Texture", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::DYNAMIC_OMNI_DATA.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
@@ -224,8 +223,11 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // change and are bound directly through the pipeline state object.
     m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
 
-    m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, "ViewProjection")->Set(Prisma::MeshHandler::getInstance().viewProjection());
+    m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
+    m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str())->Set(Prisma::LightHandler::getInstance().omniLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+
+    //m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(Prisma::LightHandler::getInstance().lightSizes());
     // Create a shader resource binding object and bind all static resources in it
 
     //CreateMSAARenderTarget();
@@ -261,8 +263,6 @@ void Prisma::PipelineForward::render(){
             MapHelper<glm::mat4> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
             *CBConstants = mesh->parent()->finalMatrix();
         }
-
-        Prisma::LightHandler::getInstance().updateLightBindings(mesh->material()->diffuse()[0].shader());
 
         // Set texture SRV in the SRB
         contextData.m_pImmediateContext->CommitShaderResources(mesh->material()->diffuse()[0].shader(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

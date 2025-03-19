@@ -50,8 +50,7 @@ namespace Prisma
 		MeshHandler();
 
 	private:
-		std::shared_ptr<ViewProjectionData> m_uboData;
-		ClusterData m_uboClusterData;
+		ClusterData m_clusterData;
 		FragmentData m_fragment;
 		Settings m_settings;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_viewProjection;

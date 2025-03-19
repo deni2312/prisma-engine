@@ -4,6 +4,7 @@
 #include <iostream>
 #include "../../include/GlobalData/CacheScene.h"
 #include "../../include/GlobalData/GlobalShaderNames.h"
+#include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 
 
 Prisma::LightHandler::LightHandler()
@@ -26,15 +27,22 @@ Prisma::LightHandler::LightHandler()
 
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-	Diligent::BufferDesc BuffDesc;
-	BuffDesc.Name = "Omni Light Buffer";
-	BuffDesc.Usage = Diligent::USAGE_DEFAULT;  // Allows updates
-	BuffDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
-	BuffDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-	BuffDesc.ElementByteStride = sizeof(LightType::LightOmni);
-	BuffDesc.Size = MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);
+	Diligent::BufferDesc OmniDesc;
+	OmniDesc.Name = "Omni Light Buffer";
+	OmniDesc.Usage = Diligent::USAGE_DEFAULT;
+	OmniDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+	OmniDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+	OmniDesc.ElementByteStride = sizeof(LightType::LightOmni);
+	OmniDesc.Size = MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);
+	contextData.m_pDevice->CreateBuffer(OmniDesc, nullptr, &m_omniLights);
 
-	contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_omniLights);
+	/*Diligent::BufferDesc LightSizeDesc;
+	LightSizeDesc.Name = "Light sizes";
+	LightSizeDesc.Size = sizeof(LightSizes);
+	LightSizeDesc.Usage = Diligent::USAGE_DEFAULT;
+	LightSizeDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+	contextData.m_pDevice->CreateBuffer(LightSizeDesc, nullptr, &m_lightSizes);*/
+
 
 	m_init = true;
 }
@@ -151,6 +159,8 @@ void Prisma::LightHandler::updateOmni()
 		}
 	}
 
+	m_sizes.omni = numVisible;
+
 	if (!m_dataOmni->lights.empty()) {
 		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 		contextData.m_pImmediateContext->UpdateBuffer(m_omniLights,0, numVisible * sizeof(LightType::LightOmni), m_dataOmni->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -175,6 +185,12 @@ void Prisma::LightHandler::updateCSM()
 	}
 }
 
+
+void Prisma::LightHandler::updateSizes()
+{
+	//auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	//contextData.m_pImmediateContext->UpdateBuffer(m_lightSizes, 0, sizeof(LightSizes), m_dataOmni->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+}
 
 bool Prisma::LightHandler::updateCascade()
 {
@@ -201,6 +217,7 @@ void Prisma::LightHandler::update()
 			updateDirectional();
 			updateOmni();
 			updateArea();
+			updateSizes();
 		}
 		else
 		{
@@ -230,17 +247,18 @@ std::shared_ptr<Prisma::LightHandler::SSBODataOmni> Prisma::LightHandler::dataOm
 	return m_dataOmni;
 }
 
-void Prisma::LightHandler::updateLightBindings(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb)
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::lightSizes() const
 {
-	auto* pOmniVar = srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::DYNAMIC_OMNI_DATA.c_str());
-	if (pOmniVar)
-	{
-		pOmniVar->Set(m_omniLights->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
-	}
+	return m_lightSizes;
 }
 
 std::shared_ptr<Prisma::LightHandler::SSBODataArea> Prisma::LightHandler::dataArea() const
 {
 	return m_dataArea;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::omniLights()
+{
+	return m_omniLights;
 }
 

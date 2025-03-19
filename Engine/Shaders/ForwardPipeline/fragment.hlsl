@@ -10,6 +10,14 @@ struct OmniData
     float radius;
 };
 
+/*cbuffer LightSizes
+{
+    int omniSize;
+    int dirSize;
+    int areaSize;
+    int padding;
+};*/
+
 Texture2D g_Texture;
 SamplerState g_Texture_sampler; // By convention, texture samplers must use the '_sampler' suffix
 
