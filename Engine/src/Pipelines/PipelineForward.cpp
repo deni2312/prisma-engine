@@ -31,7 +31,9 @@
 #include "Graphics/GraphicsTools/interface/GraphicsUtilities.h"
 #include <Graphics/GraphicsTools/interface/MapHelper.hpp>
 
+#include "../../include/Handlers/LightHandler.h"
 #include "../../include/Pipelines/PipelineHandler.h"
+#include "../../include/GlobalData/GlobalShaderNames.h"
 
 using namespace Diligent;
 
@@ -179,14 +181,15 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     ShaderResourceVariableDesc Vars[] =
     {
-        {SHADER_TYPE_PIXEL, "g_Texture", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
+        {SHADER_TYPE_PIXEL, "g_Texture", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::OMNI_DATA.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
 
     // clang-format off
-// Define immutable sampler for g_Texture. Immutable samplers should be used whenever possible
+	// Define immutable sampler for g_Texture. Immutable samplers should be used whenever possible
     SamplerDesc SamLinearClampDesc
     {
         FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
@@ -214,13 +217,13 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     }
     PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_SampleCount;*/
 
-
     contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
     // Since we did not explicitly specify the type for 'Constants' variable, default
     // type (SHADER_RESOURCE_VARIABLE_TYPE_STATIC) will be used. Static variables never
     // change and are bound directly through the pipeline state object.
     m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
+
 
     // Create a shader resource binding object and bind all static resources in it
 
@@ -258,6 +261,8 @@ void Prisma::PipelineForward::render(){
             glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
             *CBConstants = Prisma::GlobalData::getInstance().currentProjection() * view * mesh->parent()->finalMatrix();
         }
+
+        Prisma::LightHandler::getInstance().updateLightBindings(mesh->material()->diffuse()[0].shader());
 
         // Set texture SRV in the SRB
         contextData.m_pImmediateContext->CommitShaderResources(mesh->material()->diffuse()[0].shader(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

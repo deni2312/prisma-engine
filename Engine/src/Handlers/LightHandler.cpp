@@ -3,6 +3,7 @@
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
 #include "../../include/GlobalData/CacheScene.h"
+#include "../../include/GlobalData/GlobalShaderNames.h"
 
 
 Prisma::LightHandler::LightHandler()
@@ -22,6 +23,18 @@ Prisma::LightHandler::LightHandler()
 	glm::vec3 size = ClusterCalculation::grids();
 
 	m_clusterCalculation = std::make_shared<ClusterCalculation>(size.x * size.y * size.z);*/
+
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+	Diligent::BufferDesc BuffDesc;
+	BuffDesc.Name = "Omni Light Buffer";
+	BuffDesc.Usage = Diligent::USAGE_DEFAULT;  // Allows updates
+	BuffDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+	BuffDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+	BuffDesc.ElementByteStride = sizeof(LightType::LightOmni);
+	BuffDesc.Size = MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);
+
+	contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_omniLights);
 
 	m_init = true;
 }
@@ -109,7 +122,6 @@ void Prisma::LightHandler::updateArea()
 void Prisma::LightHandler::updateOmni()
 {
 	const auto& scene = Prisma::GlobalData::getInstance().currentGlobalScene();
-
 	m_dataOmni = std::make_shared<SSBODataOmni>();
 	int numVisible = 0;
 	for (int i = 0; i < scene->omniLights.size(); i++)
@@ -139,8 +151,10 @@ void Prisma::LightHandler::updateOmni()
 		}
 	}
 
-	glm::ivec4 omniLength;
-	omniLength.r = numVisible;
+	if (!m_dataOmni->lights.empty()) {
+		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+		contextData.m_pImmediateContext->UpdateBuffer(m_omniLights,0, numVisible * sizeof(LightType::LightOmni), m_dataOmni->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	}
 	//m_omniLights->modifyData(0, sizeof(glm::vec4), value_ptr(omniLength));
 	//m_omniLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightOmni),m_dataOmni->lights.data());
 }
@@ -216,6 +230,14 @@ std::shared_ptr<Prisma::LightHandler::SSBODataOmni> Prisma::LightHandler::dataOm
 	return m_dataOmni;
 }
 
+void Prisma::LightHandler::updateLightBindings(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb)
+{
+	auto* pOmniVar = srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::OMNI_DATA.c_str());
+	if (pOmniVar)
+	{
+		pOmniVar->Set(m_omniLights->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+	}
+}
 
 std::shared_ptr<Prisma::LightHandler::SSBODataArea> Prisma::LightHandler::dataArea() const
 {

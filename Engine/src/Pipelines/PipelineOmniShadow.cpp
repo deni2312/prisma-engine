@@ -14,13 +14,13 @@ Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int 
 {
 	if (!post)
 	{
-		init();
+		//init();
 	}
 }
 
 void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 {
-	m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(m_width) / static_cast<float>(m_height),
+	/*m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(m_width) / static_cast<float>(m_height),
 	                                m_nearPlane, m_farPlane);
 	m_shadowTransforms.clear();
 	m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
@@ -61,7 +61,7 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
-	           Prisma::SettingsLoader().getInstance().getSettings().height);
+	           Prisma::SettingsLoader().getInstance().getSettings().height);*/
 	// don't forget to configure the viewport to the capture dimensions.
 }
 
@@ -82,7 +82,7 @@ void Prisma::PipelineOmniShadow::farPlane(float farPlane)
 
 void Prisma::PipelineOmniShadow::init()
 {
-	if (!m_shader)
+	/*if (!m_shader)
 	{
 		m_shader = std::make_shared<Shader>("../../../Engine/Shaders/OmniShadowPipeline/vertex.glsl",
 			"../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl",
@@ -125,7 +125,7 @@ void Prisma::PipelineOmniShadow::init()
 		m_shadowPositionAnimation.push_back(
 			m_shaderAnimation->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
 	m_id = glGetTextureHandleARB(depthCubemap);
-	glMakeTextureHandleResidentARB(m_id);
+	glMakeTextureHandleResidentARB(m_id);*/
 }
 
 float Prisma::PipelineOmniShadow::nearPlane()
