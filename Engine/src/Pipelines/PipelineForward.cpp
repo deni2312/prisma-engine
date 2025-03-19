@@ -227,7 +227,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str())->Set(Prisma::LightHandler::getInstance().omniLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
 
-    //m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(Prisma::LightHandler::getInstance().lightSizes());
+
+    m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, "LightSizes")->Set(Prisma::LightHandler::getInstance().lightSizes());
     // Create a shader resource binding object and bind all static resources in it
 
     //CreateMSAARenderTarget();

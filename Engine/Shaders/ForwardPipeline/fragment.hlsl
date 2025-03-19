@@ -10,13 +10,13 @@ struct OmniData
     float radius;
 };
 
-/*cbuffer LightSizes
+cbuffer LightSizes
 {
     int omniSize;
     int dirSize;
     int areaSize;
     int padding;
-};*/
+};
 
 Texture2D g_Texture;
 SamplerState g_Texture_sampler; // By convention, texture samplers must use the '_sampler' suffix
@@ -42,7 +42,7 @@ void main(in PSInput PSIn,
     // Use fast approximation for gamma correction.
     Color.rgb = pow(Color.rgb, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
 #endif
-    for (uint i = 0; i < 1; i++)
+    for (uint i = 0; i < omniSize; i++)
     {
         OmniData light = omniData[i];
         

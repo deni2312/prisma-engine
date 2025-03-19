@@ -36,13 +36,12 @@ Prisma::LightHandler::LightHandler()
 	OmniDesc.Size = MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);
 	contextData.m_pDevice->CreateBuffer(OmniDesc, nullptr, &m_omniLights);
 
-	/*Diligent::BufferDesc LightSizeDesc;
+	Diligent::BufferDesc LightSizeDesc;
 	LightSizeDesc.Name = "Light sizes";
-	LightSizeDesc.Size = sizeof(LightSizes);
 	LightSizeDesc.Usage = Diligent::USAGE_DEFAULT;
 	LightSizeDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
-	contextData.m_pDevice->CreateBuffer(LightSizeDesc, nullptr, &m_lightSizes);*/
-
+	LightSizeDesc.Size = sizeof(LightSizes);
+	contextData.m_pDevice->CreateBuffer(LightSizeDesc, nullptr, &m_lightSizes);
 
 	m_init = true;
 }
@@ -154,7 +153,7 @@ void Prisma::LightHandler::updateOmni()
 				m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
 			}
 			m_dataOmni->lights[i].padding = light->hasShadow() ? 2.0f : 0.0f;
-			m_dataOmni->lights[i].diffuse = m_dataOmni->lights[i].diffuse * light->intensity();
+			m_dataOmni->lights[i].diffuse = glm::vec4(1.0);
 			numVisible++;
 		}
 	}
@@ -188,8 +187,8 @@ void Prisma::LightHandler::updateCSM()
 
 void Prisma::LightHandler::updateSizes()
 {
-	//auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-	//contextData.m_pImmediateContext->UpdateBuffer(m_lightSizes, 0, sizeof(LightSizes), m_dataOmni->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	contextData.m_pImmediateContext->UpdateBuffer(m_lightSizes, 0, sizeof(LightSizes), &m_sizes, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 bool Prisma::LightHandler::updateCascade()
