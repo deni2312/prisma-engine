@@ -46,7 +46,7 @@ void main(in PSInput PSIn,
     {
         OmniData light = omniData[i];
         
-        Color += light.diffuse;
+        Color = light.diffuse;
     }
     
     PSOut.Color = Color;
