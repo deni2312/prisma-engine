@@ -231,8 +231,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // Create a shader resource binding object and bind all static resources in it
 
     //CreateMSAARenderTarget();
-
-        // Create window-size offscreen render target
 }
 
 void Prisma::PipelineForward::render(){
