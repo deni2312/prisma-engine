@@ -177,11 +177,7 @@ Prisma::PrismaFunc::PrismaFunc()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(MessageCallback, 0);
-	Prisma::GlobalData::getInstance().defaultBlack().loadTexture({DIR_DEFAULT_BLACK});
-	Prisma::GlobalData::getInstance().defaultWhite().loadTexture({DIR_DEFAULT_WHITE});
-	Prisma::GlobalData::getInstance().defaultNormal().loadTexture({DIR_DEFAULT_NORMAL});*/
-
+	glDebugMessageCallback(MessageCallback, 0);*/
 }
 
 Prisma::PrismaFunc::RenderTargetFormat Prisma::PrismaFunc::renderFormat() const
@@ -332,6 +328,9 @@ void Prisma::PrismaFunc::init()
 		break;
 	}
 
+	Prisma::GlobalData::getInstance().defaultBlack().loadTexture({ DIR_DEFAULT_BLACK ,true});
+	Prisma::GlobalData::getInstance().defaultWhite().loadTexture({ DIR_DEFAULT_WHITE ,false});
+	Prisma::GlobalData::getInstance().defaultNormal().loadTexture({ DIR_DEFAULT_NORMAL ,false});
 
 }
 
