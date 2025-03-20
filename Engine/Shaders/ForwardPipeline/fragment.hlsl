@@ -9,14 +9,6 @@ SamplerState normalTexture_sampler; // By convention, texture samplers must use 
 Texture2D rmTexture;
 SamplerState rmTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
 
-struct PSInput
-{
-    float4 Pos : SV_POSITION;
-    float2 UV : TEX_COORD;
-    float3 FragPos : TEX_COORD; // Fragment position in world space
-    float4 NormalPS : TEX_COORD;
-};
-
 struct PSOutput
 {
     float4 Color : SV_TARGET;
@@ -37,7 +29,7 @@ void main(in PSInput PSIn,
     {
         OmniData light = omniData[i];
         
-        diffuse.a = light.diffuse.a + PSIn.FragPos.b+normal.a+rm.a;
+        diffuse.a = light.diffuse.a + PSIn.FragPos.b+normal.a+rm.a+viewPos.b;
         
     }
     
