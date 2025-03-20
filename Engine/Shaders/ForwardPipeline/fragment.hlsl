@@ -18,7 +18,7 @@ void main(in PSInput PSIn,
           out PSOutput PSOut)
 {
     float4 diffuse = diffuseTexture.Sample(diffuseTexture_sampler, PSIn.UV);
-    float4 normal = normalTexture.Sample(normalTexture_sampler, PSIn.UV);
+    float3 normal = GetNormalFromMap(normalTexture, normalTexture_sampler, PSIn.UV, PSIn.FragPos, (float3)PSIn.NormalPS);
     float4 rm = rmTexture.Sample(rmTexture_sampler, PSIn.UV);
 
 #if CONVERT_PS_OUTPUT_TO_GAMMA
@@ -29,7 +29,7 @@ void main(in PSInput PSIn,
     {
         OmniData light = omniData[i];
         
-        diffuse.a = light.diffuse.a + PSIn.FragPos.b+normal.a+rm.a+viewPos.b;
+        diffuse.a = light.diffuse.a + PSIn.FragPos.b+normal.r+rm.a+viewPos.b;
         
     }
     
@@ -37,5 +37,5 @@ void main(in PSInput PSIn,
     
     diffuse.g = rm.r;
         
-    PSOut.Color = float4(PSIn.NormalPS.rgb, diffuse.a);
+    PSOut.Color = float4(normal, diffuse.a);
 }
