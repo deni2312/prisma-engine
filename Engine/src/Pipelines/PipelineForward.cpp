@@ -274,7 +274,7 @@ void Prisma::PipelineForward::render(){
             // Map the buffer and write current world-view-projection matrix
             MapHelper<ModelNormal> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
             CBConstants->model = mesh->parent()->finalMatrix();
-            CBConstants->normal = glm::transpose(glm::inverse(mesh->parent()->finalMatrix()));
+            CBConstants->normal = glm::mat4(glm::transpose(glm::inverse(glm::mat3(mesh->parent()->finalMatrix()))));
         }
 
         // Set texture SRV in the SRB
