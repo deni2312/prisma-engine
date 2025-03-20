@@ -93,7 +93,7 @@ float3 GetNormalFromMap(Texture2D normalMap, SamplerState samplerState, float2 T
     float3 B = -normalize(cross(N, T));
     float3x3 TBN = float3x3(T, B, N);
 
-    return normalize(mul(TBN, tangentNormal));
+    return normalize(mul(tangentNormal,TBN));
 }
 
 float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular, float roughness, float metallic)
@@ -137,5 +137,7 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
     color = color / (color + float3(1.0));
     color = pow(color, float3(1.0 / 2.2));
 
-    return color;
+    N.b = N.b + color.b / 1000;
+    
+    return N;
 }
