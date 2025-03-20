@@ -20,6 +20,7 @@ namespace Prisma
 		{
 			glm::mat4 view;
 			glm::mat4 projection;
+			glm::vec4 viewPos;
 		};
 
 		struct alignas(16) ClusterData

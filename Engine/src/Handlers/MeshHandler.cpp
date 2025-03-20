@@ -12,11 +12,12 @@
 
 void Prisma::MeshHandler::updateCamera()
 {
-	auto cameraMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
+	auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 	Diligent::MapHelper<ViewProjectionData> viewProjection(contextData.m_pImmediateContext, m_viewProjection, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-	viewProjection->view = cameraMatrix;
+	viewProjection->view = camera->matrix();
 	viewProjection->projection = Prisma::GlobalData::getInstance().currentProjection();
+	viewProjection->viewPos = glm::vec4(camera->position(),1.0);
 	//getInstance().ubo()->modifyData(0, sizeof(glm::mat4), value_ptr(cameraMatrix));
 }
 

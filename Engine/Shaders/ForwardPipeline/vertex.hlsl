@@ -7,6 +7,7 @@ cbuffer ViewProjection
 {
     float4x4 view;
     float4x4 projection;
+    float4 viewPos;
 };
 
 // Vertex shader takes two inputs: vertex position and uv coordinates.

@@ -19,3 +19,5 @@ cbuffer LightSizes
 };
 
 StructuredBuffer<OmniData> omniData;
+
+
