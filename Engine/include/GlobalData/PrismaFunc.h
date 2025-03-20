@@ -56,6 +56,7 @@ namespace Prisma
 		bool shouldClose();
 		void hiddenMouse(bool hidden);
 		void msaa(bool isMsaa, int samples);
+
 		GLFWwindow* window();
 
 		void* windowNative();

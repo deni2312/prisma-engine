@@ -18,7 +18,7 @@ void main(in PSInput PSIn,
           out PSOutput PSOut)
 {
     float4 diffuse = diffuseTexture.Sample(diffuseTexture_sampler, PSIn.UV);
-    float3 normal = GetNormalFromMap(normalTexture, normalTexture_sampler, PSIn.UV, PSIn.FragPos, (float3)PSIn.NormalPS);
+    float3 normal = GetNormalFromMap(normalTexture, normalTexture_sampler, PSIn.UV, PSIn.FragPos, PSIn.NormalPS);
     float4 rm = rmTexture.Sample(rmTexture_sampler, PSIn.UV);
 
 #if CONVERT_PS_OUTPUT_TO_GAMMA
