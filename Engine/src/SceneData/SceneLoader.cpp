@@ -7,6 +7,7 @@
 #include "../../include/Components/MaterialComponent.h"
 #include "../../include/Helpers/PrismaMath.h"
 #include "../../include/Helpers/StringHelper.h"
+#include "../../include/Pipelines/PipelineHandler.h"
 
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters)
 {
@@ -460,6 +461,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 
 	currentMaterial->name(material->GetName().C_Str());
 
+
 	currentMesh->material(currentMaterial);
 
 	if (mesh->HasBones())
@@ -469,6 +471,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	else
 	{
 		currentMesh->loadModel(data);
+		currentMesh->uploadGPU();
+		currentMaterial->bindPipeline(Prisma::PipelineHandler::getInstance().forward()->pso());
 	}
 	return currentMesh;
 }

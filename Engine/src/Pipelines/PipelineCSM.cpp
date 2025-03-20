@@ -31,7 +31,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 	m_lightDir = lightPos;
 	if (ssbo)
 	{
-		auto lightMatrices = getLightSpaceMatrices();
+		/*auto lightMatrices = getLightSpaceMatrices();
 
 		ssbo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
 
@@ -52,7 +52,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
 			Prisma::SettingsLoader().getInstance().getSettings().height);
-		// don't forget to configure the viewport to the capture dimensions.
+		// don't forget to configure the viewport to the capture dimensions.*/
 	}
 }
 
@@ -200,7 +200,7 @@ void Prisma::PipelineCSM::farPlane(float farPlane)
 
 void Prisma::PipelineCSM::init()
 {
-	m_settings = SettingsLoader::getInstance().getSettings();
+	/*m_settings = SettingsLoader::getInstance().getSettings();
 
 	if (!shader)
 	{
@@ -243,7 +243,7 @@ void Prisma::PipelineCSM::init()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	m_id = glGetTextureHandleARB(lightDepthMaps);
-	glMakeTextureHandleResidentARB(m_id);
+	glMakeTextureHandleResidentARB(m_id);*/
 }
 
 float Prisma::PipelineCSM::nearPlane()

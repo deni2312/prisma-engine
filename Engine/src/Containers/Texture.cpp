@@ -18,6 +18,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 	Diligent::TextureLoadInfo loadInfo;
 	loadInfo.IsSRGB = parameters.srgb;
 	CreateTextureFromFile(parameters.texture.c_str(), loadInfo, Prisma::PrismaFunc::getInstance().contextData().m_pDevice, &m_texture);
+
 	//Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,"Not found: " + m_parameters.texture);
 	return true;
 }

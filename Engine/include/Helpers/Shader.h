@@ -31,7 +31,7 @@ namespace Prisma
 		       const char* tessEvalPath = nullptr)
 		{
 			// 1. retrieve the vertex/fragment source code from filePath
-			std::string vertexCode;
+			/*std::string vertexCode;
 			std::string fragmentCode;
 			std::string geometryCode;
 			std::string tessControlCode;
@@ -126,7 +126,7 @@ namespace Prisma
 			glDeleteShader(vertex);
 			glDeleteShader(fragment);
 			if (geometryPath != nullptr)
-				glDeleteShader(geometry);
+				glDeleteShader(geometry);*/
 		}
 
 		Shader(const char* computePath, std::string header = "")
