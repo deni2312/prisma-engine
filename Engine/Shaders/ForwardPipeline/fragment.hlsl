@@ -1,22 +1,4 @@
-struct OmniData
-{
-    float4 position;
-    float4 diffuse;
-    float4 specular;
-    float4 far_plane;
-    float4 attenuation;
-    float2 depthMap;
-    float padding;
-    float radius;
-};
-
-cbuffer LightSizes
-{
-    int omniSize;
-    int dirSize;
-    int areaSize;
-    int padding;
-};
+#include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.hlsl"
 
 Texture2D diffuseTexture;
 SamplerState diffuseTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
@@ -26,8 +8,6 @@ SamplerState normalTexture_sampler; // By convention, texture samplers must use 
 
 Texture2D rmTexture;
 SamplerState rmTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
-
-StructuredBuffer<OmniData> omniData;
 
 struct PSInput
 {
