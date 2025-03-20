@@ -93,7 +93,7 @@ float3 GetNormalFromMap(Texture2D normalMap, SamplerState samplerState, float2 T
     float3 B = -normalize(cross(N, T));
     float3x3 TBN = float3x3(T, B, N);
 
-    return normalize(mul(tangentNormal,TBN));
+    return normalize(TBN*tangentNormal);
 }
 
 float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular, float roughness, float metallic)
@@ -113,7 +113,7 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
 
         float attenuation = 1.0 / (omniData[i].attenuation.x + omniData[i].attenuation.y * totalDistance + omniData[i].attenuation.z * totalDistance * totalDistance);
         
-        float3 radiance = (float3) omniData[i].diffuse;
+        float3 radiance = (float3) omniData[i].diffuse * attenuation;
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
@@ -136,8 +136,6 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
 
     color = color / (color + float3(1.0));
     color = pow(color, float3(1.0 / 2.2));
-
-    N.b = N.b + color.b / 1000;
     
     return color;
 }

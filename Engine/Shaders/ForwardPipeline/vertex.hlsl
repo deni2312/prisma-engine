@@ -33,9 +33,9 @@ struct PSInput
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    float4 worldPos = mul(float4(VSIn.Pos, 1.0), g_WorldViewProj);
-    PSIn.NormalPS = mul(g_Normal,float4(VSIn.Normal, 1.0));
-    PSIn.Pos = mul(mul(worldPos, view), projection);
+    float4 worldPos = g_WorldViewProj*float4(VSIn.Pos, 1.0);
+    PSIn.NormalPS = g_Normal*float4(VSIn.Normal, 1.0);
+    PSIn.Pos = projection*view*worldPos;
     PSIn.UV = VSIn.UV;
     PSIn.FragPos = worldPos.xyz; // Store world position for fragment shading
 }
