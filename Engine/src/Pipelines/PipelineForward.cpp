@@ -182,6 +182,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     ShaderResourceVariableDesc Vars[] =
     {
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_NORMAL_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_ROUGHNESS_METALNESS_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
@@ -196,7 +198,9 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     };
     ImmutableSamplerDesc ImtblSamplers[] =
     {
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str(), SamLinearClampDesc}
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str(), SamLinearClampDesc},
+        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_NORMAL_TEXTURE.c_str(), SamLinearClampDesc },
+        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_ROUGHNESS_METALNESS_TEXTURE.c_str(), SamLinearClampDesc }
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
