@@ -186,6 +186,7 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 		{
 			m_current = nodeData.node;
 			glm::mat4 model = m_current->finalMatrix();
+			Prisma::decomposeTransform(model, m_translation, m_rotation, m_scale);
 			//ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),value_ptr(m_scale));
 		}
 
@@ -371,7 +372,9 @@ void Prisma::NodeViewer::recompose(const NodeData& nodeData)
 		inverseParent = inverse(m_current->parent()->finalMatrix());
 	}
 
+	model = Prisma::recomposeTransform(m_translation, m_rotation, m_scale);
+
 	//ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale), glm::value_ptr(model));
 
-	//m_current->matrix(inverseParent * model);
+	m_current->matrix(inverseParent * model);
 }

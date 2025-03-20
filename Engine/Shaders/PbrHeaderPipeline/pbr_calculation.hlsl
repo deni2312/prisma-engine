@@ -108,9 +108,12 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
         float3 position = (float3) omniData[i].position;
         float3 L = normalize(position - FragPos);
         float3 H = normalize(V + L);
-        float distance = length(position - FragPos);
-        float attenuation = 1.0 / (distance * distance);
-        float3 radiance = (float3) omniData[i].diffuse * attenuation;
+        float3 distance = (float3)omniData[i].position - FragPos;
+        float totalDistance = length(distance);
+
+        float attenuation = 1.0 / (omniData[i].attenuation.x + omniData[i].attenuation.y * totalDistance + omniData[i].attenuation.z * totalDistance * totalDistance);
+        
+        float3 radiance = (float3) omniData[i].diffuse;
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);

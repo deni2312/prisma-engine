@@ -7,6 +7,8 @@
 #include <assimp/quaternion.h>
 #include <Jolt/Jolt.h>
 
+#include "glm/gtx/euler_angles.hpp"
+
 
 namespace Prisma
 {
@@ -97,25 +99,35 @@ namespace Prisma
 		return glmMat;
 	}
 
-	static glm::mat4 createModelMatrix(const glm::vec3& translation, const glm::mat4& rotation, const glm::vec3& scale)
-	{
-		glm::mat4 modelMatrix = translate(glm::mat4(1.0f), translation) *
-			rotation *
-			glm::scale(glm::mat4(1.0f), scale);
-		return modelMatrix;
+	static glm::mat4 recomposeTransform(const glm::vec3& translation, const glm::vec3& rotationEuler, const glm::vec3& scale) {
+		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), translation);
+		glm::mat4 rotationMatrix = glm::eulerAngleYXZ(rotationEuler.y, rotationEuler.x, rotationEuler.z); // Y -> X -> Z order
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
+
+		return translationMatrix * rotationMatrix * scaleMatrix;
 	}
 
-	static glm::quat eulerToQuaternion(float roll, float pitch, float yaw)
-	{
-		// Convert Euler angles to radians
-		roll = glm::radians(roll);
-		pitch = glm::radians(pitch);
-		yaw = glm::radians(yaw);
+	static void decomposeTransform(const glm::mat4& transform, glm::vec3& translation, glm::vec3& rotationEuler, glm::vec3& scale) {
+		// Extract translation (last column of the matrix)
+		translation = glm::vec3(transform[3]);
 
-		glm::quat q;
-		q = glm::quat(glm::vec3(pitch, yaw, roll)); // GLM expects pitch, yaw, roll order
+		// Extract scale (length of basis vectors)
+		glm::vec3 right = glm::vec3(transform[0]);
+		glm::vec3 up = glm::vec3(transform[1]);
+		glm::vec3 forward = glm::vec3(transform[2]);
 
-		return q;
+		scale.x = glm::length(right);
+		scale.y = glm::length(up);
+		scale.z = glm::length(forward);
+
+		// Normalize rotation basis vectors
+		glm::mat3 rotationMatrix = glm::mat3(transform);
+		rotationMatrix[0] /= scale.x;
+		rotationMatrix[1] /= scale.y;
+		rotationMatrix[2] /= scale.z;
+
+		// Convert rotation matrix to Euler angles (YXZ order)
+		rotationEuler = glm::eulerAngles(glm::quat_cast(rotationMatrix));
 	}
 
 	static glm::mat4 getTransform(aiMatrix4x4 matrix)
