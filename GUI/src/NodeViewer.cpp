@@ -5,6 +5,8 @@
 #include "../include/ImGuiDebug.h"
 #include "../include/ImGuiStyle.h"
 #include "glm/gtx/string_cast.hpp"
+#include "ThirdParty/imgui/imgui.h"
+
 
 void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index, unsigned int componentIndex)
 {
@@ -74,16 +76,16 @@ void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index, uns
 		case Component::TYPES::TEXTURE:
 		{
 			auto id = static_cast<Prisma::Texture*>(variable)->rawId();
-			ImGui::Image((void*)static_cast<intptr_t>(id), ImVec2(types.size.x*Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y));
+			//ImGui::Image((void*)static_cast<intptr_t>(id), ImVec2(types.size.x*Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y));
 		}
 		break;
 		case Component::TYPES::TEXTURE_BUTTON:
 		{
 			ImGui::PushID(componentIndex);
-			if (ImGui::ImageButton((void*)static_cast<intptr_t>(stoi(name)), ImVec2(types.size.x * Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y)))
+			/*if (ImGui::ImageButton((void*)static_cast<intptr_t>(stoi(name)), ImVec2(types.size.x * Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y)))
 			{
 				(*static_cast<std::function<void()>*>(variable))();
-			}
+			}*/
 			ImGui::PopID();
 		}
 		break;
@@ -98,19 +100,19 @@ void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index, uns
 Prisma::NodeViewer::NodeViewer()
 {
 	m_rotateTexture = std::make_shared<Texture>();
-	m_rotateTexture->loadTexture({ "../../../GUI/icons/rotate.png", false, false, false });
+	m_rotateTexture->loadTexture({ "../../../GUI/icons/rotate.png", false });
 
 	m_translateTexture = std::make_shared<Texture>();
-	m_translateTexture->loadTexture({ "../../../GUI/icons/move.png", false, false, false });
+	m_translateTexture->loadTexture({ "../../../GUI/icons/move.png", false });
 
 	m_scaleTexture = std::make_shared<Texture>();
-	m_scaleTexture->loadTexture({ "../../../GUI/icons/scale.png", false, false, false });
+	m_scaleTexture->loadTexture({ "../../../GUI/icons/scale.png", false });
 
 	m_eyeOpen = std::make_shared<Texture>();
-	m_eyeOpen->loadTexture({ "../../../GUI/icons/eyeopen.png", false, false, false });
+	m_eyeOpen->loadTexture({ "../../../GUI/icons/eyeopen.png", false });
 
 	m_eyeClose = std::make_shared<Texture>();
-	m_eyeClose->loadTexture({ "../../../GUI/icons/eyeclose.png", false, false, false });
+	m_eyeClose->loadTexture({ "../../../GUI/icons/eyeclose.png", false });
 }
 
 void Prisma::NodeViewer::showComponents(Node* nodeData)
@@ -184,8 +186,7 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 		{
 			m_current = nodeData.node;
 			glm::mat4 model = m_current->finalMatrix();
-			ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),
-				value_ptr(m_scale));
+			//ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),value_ptr(m_scale));
 		}
 
 		float windowWidth = nodeData.translate * nodeData.width / 2.0f;
@@ -198,33 +199,33 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 		ImGui::Begin(m_current->name().c_str(), nullptr,
 			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-		if (ImGui::ImageButton((void*)m_rotateTexture->id(), ImVec2(24, 24)))
+		if (ImGui::ImageButton((void*)m_rotateTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(24, 24)))
 		{
-			mCurrentGizmoOperation = ImGuizmo::ROTATE;
+			//mCurrentGizmoOperation = ImGuizmo::ROTATE;
 		}
 		ImGui::SameLine();
 
-		if (ImGui::ImageButton((void*)m_translateTexture->id(), ImVec2(24, 24)))
+		if (ImGui::ImageButton((void*)m_translateTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(24, 24)))
 		{
-			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+			//mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
 		}
 		ImGui::SameLine();
 
-		if (ImGui::ImageButton((void*)m_scaleTexture->id(), ImVec2(24, 24)))
+		if (ImGui::ImageButton((void*)m_scaleTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(24, 24)))
 		{
-			mCurrentGizmoOperation = ImGuizmo::SCALE;
+			//mCurrentGizmoOperation = ImGuizmo::SCALE;
 		}
 		ImGui::SameLine();
 
-		auto textureId = 0;
+		auto textureId = m_eyeOpen->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
 
 		if (m_current->visible())
 		{
-			textureId = m_eyeOpen->id();
+			textureId = m_eyeOpen->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
 		}
 		else
 		{
-			textureId = m_eyeClose->id();
+			textureId = m_eyeClose->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
 		}
 
 
@@ -333,7 +334,7 @@ const std::shared_ptr<Prisma::Texture>& Prisma::NodeViewer::eyeCloseTexture() co
 void Prisma::NodeViewer::drawGizmo(const NodeData& nodeData)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+	//ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 	if (m_current) {
 		glm::mat4 model = m_current->finalMatrix();
 		auto inverseParent = glm::mat4(1.0f);
@@ -342,15 +343,13 @@ void Prisma::NodeViewer::drawGizmo(const NodeData& nodeData)
 			inverseParent = inverse(m_current->parent()->finalMatrix());
 		}
 
-		Manipulate(value_ptr(nodeData.camera->matrix()), value_ptr(nodeData.projection), mCurrentGizmoOperation,
-			mCurrentGizmoMode, value_ptr(model));
+		//Manipulate(value_ptr(nodeData.camera->matrix()), value_ptr(nodeData.projection), mCurrentGizmoOperation,mCurrentGizmoMode, value_ptr(model));
 		if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 		{
-			ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),
-				value_ptr(m_scale));
+			//ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),value_ptr(m_scale));
 		}
 
-		m_current->matrix(inverseParent * model);
+		//m_current->matrix(inverseParent * model);
 	}
 }
 
@@ -372,7 +371,7 @@ void Prisma::NodeViewer::recompose(const NodeData& nodeData)
 		inverseParent = inverse(m_current->parent()->finalMatrix());
 	}
 
-	ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale), glm::value_ptr(model));
+	//ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale), glm::value_ptr(model));
 
-	m_current->matrix(inverseParent * model);
+	//m_current->matrix(inverseParent * model);
 }

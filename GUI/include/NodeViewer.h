@@ -1,12 +1,10 @@
 #pragma once
 #include "../../Engine/include/GlobalData/InstanceData.h"
 #include "../../Engine/include/Components/Component.h"
-#include <imgui.h>
 #include <functional>
 #include <glm/gtc/type_ptr.hpp>
 #include "../../Engine/include/SceneObjects/Camera.h"
 #include "../../Engine/include/Containers/Texture.h"
-#include <ImGuizmo.h>
 #include <iostream>
 #include "../../Engine/include/Helpers/NodeHelper.h"
 
@@ -65,8 +63,8 @@ namespace Prisma
 
 		Prisma::Node* m_currentNode = nullptr;
 
-		ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::LOCAL;
+		//ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+		//ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::LOCAL;
 		Prisma::Node* m_current = nullptr;
 
 		void recompose(const NodeData& nodeData);

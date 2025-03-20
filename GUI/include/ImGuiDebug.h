@@ -9,6 +9,8 @@
 #include "../../Engine/include/SceneData/SceneExporter.h"
 #include "FolderView.h"
 #include "AddingMenu.h"
+#include "MeshInfo.h"
+#include "LightInfo.h"
 
 namespace Prisma
 {
@@ -80,9 +82,9 @@ namespace Prisma
 
 		std::shared_ptr<Camera> m_camera;
 
-		//MeshInfo meshInfo;
+		Prisma::MeshInfo meshInfo;
 
-		//LightInfo lightInfo;
+		LightInfo lightInfo;
 
 		std::shared_ptr<Prisma::FileBrowser> m_fileBrowser;
 

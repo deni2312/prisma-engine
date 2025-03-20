@@ -9,6 +9,7 @@
 
 #include "../../Engine/include/engine.h"
 #include "../include/ImGuiTabs.h"
+#include "../include/NodeViewer.h"
 #include "../include/ScenePipeline.h"
 #include "Imgui/interface/ImGuiImplWin32.hpp"
 
@@ -269,13 +270,13 @@ void Prisma::ImguiDebug::drawGui()
 		// Check if the node is clicked
 		ImGui::End();
 		m_fileBrowser->show(m_width, m_height, m_initOffset+m_buttonSize, m_scale, m_translate);
-		/*if (m_imguiCamera.currentSelect())
+		if (m_imguiCamera.currentSelect())
 		{
 			auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());
 			auto currentSelectLightDir = dynamic_cast<Light<LightType::LightDir>*>(m_imguiCamera.currentSelect());
 			auto currentSelectLightOmni = dynamic_cast<Light<LightType::LightOmni>*>(m_imguiCamera.currentSelect());
 			auto currentSelectLightArea = dynamic_cast<Light<LightType::LightArea>*>(m_imguiCamera.currentSelect());
-			NodeViewer::NodeData nodeData;
+			Prisma::NodeViewer::NodeData nodeData;
 			nodeData.camera = m_camera;
 			nodeData.projection = m_model * m_projection;
 			nodeData.translate = m_translate;
@@ -305,7 +306,7 @@ void Prisma::ImguiDebug::drawGui()
 			{
 				NodeViewer::getInstance().showSelected(nodeData);
 			}
-		}*/
+		}
 
 		//m_settingsTab.updateStatus();
 	}

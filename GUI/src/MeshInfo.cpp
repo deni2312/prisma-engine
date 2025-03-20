@@ -5,6 +5,7 @@
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
 #include "../../Engine/include/Helpers/WindowsHelper.h"
 #include "../include/NodeViewer.h"
+#include "ThirdParty/imgui/imgui.h"
 
 void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 {
