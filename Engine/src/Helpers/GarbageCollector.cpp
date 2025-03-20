@@ -17,7 +17,7 @@ void Prisma::GarbageCollector::addTexture(std::pair<unsigned int, uint64_t> text
 
 void Prisma::GarbageCollector::clear()
 {
-	for (auto garbage : m_garbage)
+	/*for (auto garbage : m_garbage)
 	{
 		switch (garbage.first)
 		{
@@ -37,7 +37,7 @@ void Prisma::GarbageCollector::clear()
 			glDeleteRenderbuffers(1, &garbage.second);
 			break;
 		}
-	}
+	}*/
 
 	/*for (auto garbage : m_garbageTexture)
 	{

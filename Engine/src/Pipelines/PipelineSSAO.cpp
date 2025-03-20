@@ -80,7 +80,7 @@ Prisma::PipelineSSAO::PipelineSSAO() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     m_noise = glGetTextureHandleARB(noiseTexture);
     glMakeTextureHandleResidentARB(m_noise);
-    Prisma::GlobalData::getInstance().addGlobalTexture({ noiseTexture, "SSAONoise",{4,4}});
+    //Prisma::GlobalData::getInstance().addGlobalTexture({ noiseTexture, "SSAONoise",{4,4}});
     Prisma::GarbageCollector::getInstance().addTexture({ noiseTexture, m_noise });
 
     m_ubo = std::make_shared<Prisma::Ubo>(sizeof(glm::vec4)* ssaoKernel.size(), 4);

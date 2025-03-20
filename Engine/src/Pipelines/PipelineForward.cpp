@@ -87,7 +87,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Cube PSO";
+    PSOCreateInfo.PSODesc.Name = "Forward Pipeline";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_GRAPHICS;
@@ -138,7 +138,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Cube VS";
+        ShaderCI.Desc.Name = "Forward VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.hlsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
         // Create dynamic uniform buffer that will store our transformation matrix

@@ -69,7 +69,7 @@ Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSource
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "VS";
+        ShaderCI.Desc.Name = "ImGui VS";
         ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/vertex.hlsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
         // Create dynamic uniform buffer that will store our transformation matrix
@@ -88,7 +88,7 @@ Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSource
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "PS";
+        ShaderCI.Desc.Name = "ImGui PS";
         ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/fragment.hlsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
     }

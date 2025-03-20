@@ -85,7 +85,7 @@ Prisma::FBO::FBO(FBOData fboData)
 	GarbageCollector::getInstance().addTexture({textureID, m_id});
 	if (!m_fboData.enableMultisample)
 	{
-		Prisma::GlobalData::getInstance().addGlobalTexture({ textureID,"FBO_" + fboData.name ,{ m_fboData.width, m_fboData.height}});
+		//Prisma::GlobalData::getInstance().addGlobalTexture({ textureID,"FBO_" + fboData.name ,{ m_fboData.width, m_fboData.height}});
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -136,7 +136,7 @@ Prisma::FBO::FBO(std::vector<FBOData> fboData)
 		GarbageCollector::getInstance().addTexture({textureID, handle});
 		if (!m_fboData.enableMultisample)
 		{
-			Prisma::GlobalData::getInstance().addGlobalTexture({ textureID,"FBO_" + currentFboData.name,{ m_fboData.width, m_fboData.height} });
+			//Prisma::GlobalData::getInstance().addGlobalTexture({ textureID,"FBO_" + currentFboData.name,{ m_fboData.width, m_fboData.height} });
 			textures.push_back(GL_COLOR_ATTACHMENT0 + i);
 		}
 	}

@@ -18,7 +18,7 @@ namespace Prisma
 	public:
 		struct GlobalTextureInfo
 		{
-			unsigned int id=0;
+			Prisma::Texture texture;
 			std::string name="";
 			glm::vec2 size=glm::vec2(100,100);
 		};
