@@ -23,7 +23,7 @@ struct PSInput
     float4 Pos : SV_POSITION;
     float2 UV : TEX_COORD;
     float3 FragPos : TEX_COORD; // Fragment position in world space
-    float4 NormalPS : TEX_COORD;
+    float4 NormalPS : NORMAL;
 };
 
 cbuffer ViewProjection
@@ -94,4 +94,45 @@ float3 GetNormalFromMap(Texture2D normalMap, SamplerState samplerState, float2 T
     float3x3 TBN = float3x3(T, B, N);
 
     return normalize(mul(TBN, tangentNormal));
+}
+
+float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular, float roughness, float metallic)
+{
+    float3 V = normalize((float3)viewPos - FragPos);
+    float3 F0 = float3(0.04);
+    F0 = lerp(F0, albedo, metallic);
+
+    float3 Lo = float3(0.0);
+    for (int i = 0; i < omniSize; ++i)
+    {
+        float3 position = (float3) omniData[i].position;
+        float3 L = normalize(position - FragPos);
+        float3 H = normalize(V + L);
+        float distance = length(position - FragPos);
+        float attenuation = 1.0 / (distance * distance);
+        float3 radiance = (float3) omniData[i].diffuse * attenuation;
+
+        float NDF = DistributionGGX(N, H, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+        float3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+
+        float3 numerator = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+        float3 specular = numerator / denominator;
+
+        float3 kS = F;
+        float3 kD = float3(1.0) - kS;
+        kD *= 1.0 - metallic;
+
+        float NdotL = max(dot(N, L), 0.0);
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+    }
+
+    float3 ambient = float3(0.03) * albedo * aoSpecular.r;
+    float3 color = ambient + Lo;
+
+    color = color / (color + float3(1.0));
+    color = pow(color, float3(1.0 / 2.2));
+
+    return color;
 }

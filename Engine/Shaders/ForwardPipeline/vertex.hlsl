@@ -27,7 +27,7 @@ struct PSInput
     float4 Pos : SV_POSITION;
     float2 UV : TEX_COORD;
     float3 FragPos : TEX_COORD; // Fragment position in world space
-    float4 NormalPS : TEX_COORD;
+    float4 NormalPS : NORMAL;
 };
 
 void main(in VSInput VSIn,

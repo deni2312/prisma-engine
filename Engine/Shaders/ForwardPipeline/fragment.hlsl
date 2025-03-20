@@ -25,17 +25,10 @@ void main(in PSInput PSIn,
     // Use fast approximation for gamma correction.
     diffuse.rgb = pow(diffuse.rgb, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
 #endif
-    for (uint i = 0; i < omniSize; i++)
-    {
-        OmniData light = omniData[i];
-        
-        diffuse.a = light.diffuse.a + PSIn.FragPos.b+normal.r+rm.a+viewPos.b;
-        
-    }
+    float metallic = rm.b;
+    float roughness = rm.g;
     
-    diffuse.r = normal.r;
-    
-    diffuse.g = rm.r;
+    float3 color = pbrCalculation(PSIn.FragPos, normal, (float3)diffuse, float4(1.0), roughness, metallic);
         
-    PSOut.Color = float4(normal, diffuse.a);
+    PSOut.Color = float4(color, 1);
 }
