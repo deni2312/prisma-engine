@@ -181,7 +181,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     ShaderResourceVariableDesc Vars[] =
     {
-        {SHADER_TYPE_PIXEL, "g_Texture", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
@@ -196,7 +196,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     };
     ImmutableSamplerDesc ImtblSamplers[] =
     {
-        {SHADER_TYPE_PIXEL, "g_Texture", SamLinearClampDesc}
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str(), SamLinearClampDesc}
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
@@ -263,7 +263,7 @@ void Prisma::PipelineForward::render(){
         }
 
         // Set texture SRV in the SRB
-        contextData.m_pImmediateContext->CommitShaderResources(mesh->material()->diffuse()[0].shader(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.m_pImmediateContext->CommitShaderResources(mesh->material()->srb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
         DrawAttrs.IndexType = VT_UINT32; // Index type

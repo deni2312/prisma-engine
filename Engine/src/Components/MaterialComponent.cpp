@@ -1,6 +1,7 @@
 #include "../../include/Components/MaterialComponent.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/GlobalData/CacheScene.h"
+#include "../../include/GlobalData/GlobalShaderNames.h"
 #include "../../include/Helpers/WindowsHelper.h"
 
 static unsigned int materialId = 0;
@@ -257,4 +258,16 @@ void Prisma::MaterialComponent::plain(bool plain)
 bool Prisma::MaterialComponent::plain()
 {
 	return m_plain;
+}
+
+void Prisma::MaterialComponent::bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso)
+{
+	m_pso = pso;
+	pso->CreateShaderResourceBinding(&m_srb, true);
+	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL,Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str())->Set(diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+}
+
+Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::MaterialComponent::srb()
+{
+	return m_srb;
 }

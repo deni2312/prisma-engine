@@ -154,13 +154,13 @@ void Prisma::FileBrowser::addEntries()
 Prisma::FileBrowser::FileBrowser() : m_currentPath(fs::current_path().parent_path().parent_path().parent_path())
 {
 	m_folder = std::make_shared<Texture>();
-	m_folder->loadTexture({"../../../GUI/icons/folder.png", false, false});
+	m_folder->loadTexture({"../../../GUI/icons/folder.png", false});
 
 	m_file = std::make_shared<Texture>();
-	m_file->loadTexture({"../../../GUI/icons/file.png", false, false});
+	m_file->loadTexture({"../../../GUI/icons/file.png", false});
 
 	m_back = std::make_shared<Texture>();
-	m_back->loadTexture({"../../../GUI/icons/arrow.png", false, false});
+	m_back->loadTexture({"../../../GUI/icons/arrow.png", false});
 	m_iconSize = glm::vec2(24, 24);
 	m_fontSize = m_iconSize;
 

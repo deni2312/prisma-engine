@@ -2,6 +2,7 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include <assimp/Exporter.hpp>
 #include "../../include/Helpers/NodeHelper.h"
+#include "../../include/Pipelines/PipelineHandler.h"
 #include "../../include/SceneData/SceneExporterLayout.h"
 
 
@@ -135,6 +136,7 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 					});
 				}
 			}
+			mesh->material()->bindPipeline(Prisma::PipelineHandler::getInstance().forward()->pso());
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(node))
 		{

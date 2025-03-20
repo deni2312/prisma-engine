@@ -18,8 +18,8 @@ cbuffer LightSizes
     int padding;
 };
 
-Texture2D g_Texture;
-SamplerState g_Texture_sampler; // By convention, texture samplers must use the '_sampler' suffix
+Texture2D diffuseTexture;
+SamplerState diffuseTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
 
 StructuredBuffer<OmniData> omniData;
 
@@ -37,7 +37,7 @@ struct PSOutput
 void main(in PSInput PSIn,
           out PSOutput PSOut)
 {
-    float4 Color = g_Texture.Sample(g_Texture_sampler, PSIn.UV);
+    float4 Color = diffuseTexture.Sample(diffuseTexture_sampler, PSIn.UV);
 #if CONVERT_PS_OUTPUT_TO_GAMMA
     // Use fast approximation for gamma correction.
     Color.rgb = pow(Color.rgb, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
@@ -46,8 +46,10 @@ void main(in PSInput PSIn,
     {
         OmniData light = omniData[i];
         
-        Color = light.diffuse;
+        Color.a = light.diffuse.a;
+        
     }
+    
     
     PSOut.Color = Color;
 }

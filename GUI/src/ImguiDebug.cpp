@@ -78,10 +78,10 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	
 
 	m_runButton = std::make_shared<Texture>();
-	m_runButton->loadTexture({"../../../GUI/icons/run.png",false,false});
+	m_runButton->loadTexture({"../../../GUI/icons/run.png",false});
 
 	m_pauseButton = std::make_shared<Texture>();
-	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png",false,false});
+	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png",false});
 
 	//NodeViewer::getInstance();
 	imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());

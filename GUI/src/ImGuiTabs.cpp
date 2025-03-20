@@ -17,15 +17,15 @@ Prisma::ImGuiTabs::ImGuiTabs()
 {
 	m_meshTexture = std::make_shared<Texture>();
 	m_meshTexture->name("MeshIcon");
-	m_meshTexture->loadTexture({ "../../../GUI/icons/mesh.png", false, false });
+	m_meshTexture->loadTexture({ "../../../GUI/icons/mesh.png", false });
 
 	m_lightTexture = std::make_shared<Texture>();
 	m_lightTexture->name("LightIcon");
-	m_lightTexture->loadTexture({ "../../../GUI/icons/light.png", false, false });
+	m_lightTexture->loadTexture({ "../../../GUI/icons/light.png", false });
 
 	m_nodeTexture = std::make_shared<Texture>();
 	m_nodeTexture->name("NodeIcon");
-	m_nodeTexture->loadTexture({ "../../../GUI/icons/node.png", false, false });
+	m_nodeTexture->loadTexture({ "../../../GUI/icons/node.png", false });
 }
 
 void Prisma::ImGuiTabs::updateTabs(std::shared_ptr<Node> root, int depth) {

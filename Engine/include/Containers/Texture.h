@@ -30,7 +30,6 @@ namespace Prisma
 		{
 			std::string texture;
 			bool srgb = false;
-			bool local = true;
 		};
 
 		bool loadTexture(const Parameters& parameters);
@@ -50,8 +49,6 @@ namespace Prisma
 
 		const Parameters parameters() const;
 
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> shader();
-
 	private:
 		uint64_t m_id = 0;
 		unsigned int m_rawId = 0;
@@ -59,6 +56,5 @@ namespace Prisma
 		Parameters m_parameters;
 		std::string m_name;
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_shader;
 	};
 }
