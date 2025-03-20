@@ -132,29 +132,18 @@ Prisma::Mesh::AABBData Prisma::Mesh::aabbData()
 	return m_aabbData;
 }
 
-struct VData
-{
-	glm::vec3 pos;
-	glm::vec2 uv;
-};
-
 void Prisma::Mesh::uploadGPU()
 {
-	std::vector<VData> vData;
 	if (m_vertices) {
-		for (auto vertex : m_vertices->vertices)
-		{
-			vData.push_back({ vertex.position,vertex.texCoords });
-		}
 		// Create a vertex buffer that stores cube vertices
 		Diligent::BufferDesc VertBuffDesc;
 		VertBuffDesc.Name = "Vertices Data";
 		VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
 		VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
-		VertBuffDesc.Size = sizeof(VData) * m_vertices->vertices.size();
+		VertBuffDesc.Size = sizeof(Prisma::Mesh::Vertex) * m_vertices->vertices.size();
 		Diligent::BufferData VBData;
-		VBData.pData = vData.data();
-		VBData.DataSize = sizeof(VData) * m_vertices->vertices.size();
+		VBData.pData = m_vertices->vertices.data();
+		VBData.DataSize = sizeof(Prisma::Mesh::Vertex) * m_vertices->vertices.size();
 		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
 
 		Diligent::BufferDesc IndBuffDesc;

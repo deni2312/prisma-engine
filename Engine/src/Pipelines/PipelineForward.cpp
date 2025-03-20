@@ -1,3 +1,5 @@
+#include "../../include/Pipelines/PipelineForward.h"
+
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Pipelines/PipelineForward.h"
 #include "../../include/Helpers/PrismaRender.h"
@@ -143,7 +145,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         // Dynamic buffers can be frequently updated by the CPU
         BufferDesc CBDesc;
         CBDesc.Name = "VS";
-        CBDesc.Size = sizeof(glm::mat4);
+        CBDesc.Size = sizeof(ModelNormal);
         CBDesc.Usage = USAGE_DYNAMIC;
         CBDesc.BindFlags = BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
@@ -167,7 +169,13 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         // Attribute 0 - vertex position
         LayoutElement{0, 0, 3, VT_FLOAT32, False},
         // Attribute 1 - texture coordinates
-        LayoutElement{1, 0, 2, VT_FLOAT32, False}
+        LayoutElement{1, 0, 3, VT_FLOAT32, False},
+
+        LayoutElement{2, 0, 2, VT_FLOAT32, False},
+
+        LayoutElement{3, 0, 3, VT_FLOAT32, False},
+
+        LayoutElement{4, 0, 3, VT_FLOAT32, False}
     };
     // clang-format on
     PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
@@ -262,8 +270,9 @@ void Prisma::PipelineForward::render(){
         contextData.m_pImmediateContext->SetIndexBuffer(mesh->iBuffer(), 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         {
             // Map the buffer and write current world-view-projection matrix
-            MapHelper<glm::mat4> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
-            *CBConstants = mesh->parent()->finalMatrix();
+            MapHelper<ModelNormal> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
+            CBConstants->model = mesh->parent()->finalMatrix();
+            CBConstants->normal = glm::transpose(glm::inverse(mesh->parent()->finalMatrix()));
         }
 
         // Set texture SRV in the SRB

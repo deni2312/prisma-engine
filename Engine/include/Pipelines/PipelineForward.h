@@ -45,6 +45,11 @@ namespace Prisma
 
         void CreateMSAARenderTarget();
 
+		struct ModelNormal
+		{
+			glm::mat4 model;
+			glm::mat4 normal;
+		};
 
 	};
 }
