@@ -264,11 +264,9 @@ void Prisma::MaterialComponent::bindPipeline(Diligent::RefCntAutoPtr<Diligent::I
 {
 	m_pso = pso;
 	pso->CreateShaderResourceBinding(&m_srb, true);
-	if (diffuse()[0].texture()) {
-		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str())->Set(diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-	}
-	//m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_NORMAL_TEXTURE.c_str())->Set(normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-	//m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_ROUGHNESS_METALNESS_TEXTURE.c_str())->Set(roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str())->Set(diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_NORMAL_TEXTURE.c_str())->Set(normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_ROUGHNESS_METALNESS_TEXTURE.c_str())->Set(roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 }
 
 Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::MaterialComponent::srb()
