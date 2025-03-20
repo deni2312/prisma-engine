@@ -139,5 +139,5 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
 
     N.b = N.b + color.b / 1000;
     
-    return N;
+    return color;
 }
