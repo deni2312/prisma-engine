@@ -13,6 +13,7 @@ struct PSInput
 {
     float4 Pos : SV_POSITION;
     float2 UV : TEX_COORD;
+    float3 FragPos : TEX_COORD1; // Fragment position in world space
 };
 
 struct PSOutput
@@ -35,13 +36,13 @@ void main(in PSInput PSIn,
     {
         OmniData light = omniData[i];
         
-        diffuse.a = light.diffuse.a;
+        diffuse.a = light.diffuse.a + PSIn.FragPos.b+normal.a+rm.a;
         
     }
     
     diffuse.r = normal.r;
     
     diffuse.g = rm.r;
-    
-    PSOut.Color = diffuse;
+        
+    PSOut.Color = float4(PSIn.FragPos,diffuse.a);
 }

@@ -10,27 +10,26 @@ cbuffer ViewProjection
     float4 viewPos;
 };
 
-// Vertex shader takes two inputs: vertex position and uv coordinates.
-// By convention, Diligent Engine expects vertex shader inputs to be 
-// labeled 'ATTRIBn', where n is the attribute number.
+// Vertex shader input
 struct VSInput
 {
     float3 Pos : ATTRIB0;
     float2 UV : ATTRIB1;
 };
 
+// Vertex shader output / Pixel shader input
 struct PSInput
 {
     float4 Pos : SV_POSITION;
     float2 UV : TEX_COORD;
+    float3 FragPos : TEX_COORD; // Fragment position in world space
 };
 
-// Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
-// shader output variable name must match exactly the name of the pixel shader input variable.
-// If the variable has structure type (like in this example), the structure declarations must also be identical.
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    PSIn.Pos = mul(mul(mul(float4(VSIn.Pos, 1.0), g_WorldViewProj), view), projection);
+    float4 worldPos = mul(float4(VSIn.Pos, 1.0), g_WorldViewProj);
+    PSIn.Pos = mul(mul(worldPos, view), projection);
     PSIn.UV = VSIn.UV;
+    PSIn.FragPos = worldPos.xyz; // Store world position for fragment shading
 }
