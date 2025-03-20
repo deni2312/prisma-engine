@@ -2,9 +2,9 @@
 
 #include <algorithm>
 
-#include "GL/glew.h"
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../include/ImGuiHelper.h"
+#include "ThirdParty/imgui/imgui.h"
 
 Prisma::TextureInfo::TextureInfo() : m_index{-1}
 {
@@ -26,7 +26,7 @@ void Prisma::TextureInfo::showTextures()
 
                     // Display the image
                     ImGui::PushID(i * numColumns + j);
-                    if (ImGui::ImageButton((void*)static_cast<intptr_t>(texture.id), ImVec2(100, 100)))
+                    if (ImGui::ImageButton((void*)texture.texture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(100, 100)))
                     {
                         m_index = i * numColumns + j;
                         m_textureTab = true;
@@ -51,7 +51,7 @@ void Prisma::TextureInfo::showTextures()
 		};
     auto size = Prisma::GlobalData::getInstance().globalTextures().size();
     if (size % numColumns > 0) {
-        size = size / numColumns +1;
+        size = size / numColumns + 1;
     }
     else {
         size=size/ numColumns;
@@ -60,15 +60,16 @@ void Prisma::TextureInfo::showTextures()
     
     if (m_index>-1)
     {
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::Begin("Texture Preview", &m_textureTab, ImGuiWindowFlags_AlwaysAutoResize);
         auto texture = Prisma::GlobalData::getInstance().globalTextures()[m_index];
-        ImGui::InputInt("Scaling", &m_scale);
+        ImGui::InputFloat("Scaling", &m_scale);
         if (m_scale==0)
         {
             m_scale = 1;
         }
         ImGui::Text("Selected Texture:");
-        ImGui::Image((void*)static_cast<intptr_t>(texture.id), ImVec2(texture.size.x/m_scale,texture.size.y/m_scale));
+        ImGui::Image((void*)texture.texture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(texture.size.x*m_scale,texture.size.y*m_scale));
         ImGui::TextWrapped("%s", texture.name.c_str());
         ImGui::End();
         if (!m_textureTab) {

@@ -2,6 +2,7 @@
 #include "../include/ImguiHelper.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
 #include "../../Engine/include/Helpers/StringHelper.h"
+#include "../include/TextureInfo.h"
 #include "ThirdParty/imgui/imgui.h"
 
 
@@ -179,11 +180,11 @@ void Prisma::FileBrowser::show(unsigned int width, unsigned int height, float of
 	ImGui::BeginTabBar("FOLDER VIEW");
 
 
-	/*if (ImGui::BeginTabItem("Textures"))
+	if (ImGui::BeginTabItem("Textures"))
 	{
-		//TextureInfo::getInstance().showTextures();
+		Prisma::TextureInfo::getInstance().showTextures();
 		ImGui::EndTabItem();
-	}*/
+	}
 
 
 	if (ImGui::BeginTabItem("Logs"))

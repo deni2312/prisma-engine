@@ -1,5 +1,6 @@
 #pragma once
 #include "PrismaFunc.h"
+#include "Platform.h"
 
 #include "../SceneData/SceneData.h"
 #include <memory>
@@ -18,7 +19,7 @@ namespace Prisma
 	public:
 		struct GlobalTextureInfo
 		{
-			Prisma::Texture texture;
+			Diligent::RefCntAutoPtr<Diligent::ITexture> texture;
 			std::string name="";
 			glm::vec2 size=glm::vec2(100,100);
 		};

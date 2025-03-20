@@ -1,6 +1,4 @@
 #pragma once
-
-#include "imgui.h"
 #include <vector>
 #include <memory>
 #include "glm/glm.hpp"
@@ -24,6 +22,6 @@ namespace Prisma
 
 		bool m_textureTab = false;
 
-		int m_scale = 4;
+		float m_scale = 1;
 	};
 }

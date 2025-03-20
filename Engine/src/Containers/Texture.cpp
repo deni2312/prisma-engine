@@ -19,7 +19,12 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 	loadInfo.IsSRGB = parameters.srgb;
 	CreateTextureFromFile(parameters.texture.c_str(), loadInfo, Prisma::PrismaFunc::getInstance().contextData().m_pDevice, &m_texture);
 
-	//Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,"Not found: " + m_parameters.texture);
+	if (!m_texture) {
+		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,"Not found: " + m_parameters.texture);
+	}else{
+		Prisma::GlobalData::getInstance().addGlobalTexture({ m_texture,parameters.texture });
+	}
+
 	return m_texture;
 }
 
