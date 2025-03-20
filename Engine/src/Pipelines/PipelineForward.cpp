@@ -118,16 +118,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Pack matrices in row-major order
     ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
-
-    // Presentation engine always expects input in gamma space. Normally, pixel shader output is
-    // converted from linear to gamma space by the GPU. However, some platforms (e.g. Android in GLES mode,
-    // or Emscripten in WebGL mode) do not support gamma-correction. In this case the application
-    // has to do the conversion manually.
-    bool convert = false;
-
-    ShaderMacro Macros[] = { {"CONVERT_PS_OUTPUT_TO_GAMMA",convert ? "1" : "0"} };
-    ShaderCI.Macros = { Macros, _countof(Macros) };
-
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
     RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
