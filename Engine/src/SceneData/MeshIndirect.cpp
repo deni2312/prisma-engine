@@ -371,7 +371,7 @@ void Prisma::MeshIndirect::updateSize()
 		glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), nullptr,
 		             GL_DYNAMIC_DRAW);
 	}
-	updateAnimation();
+	//updateAnimation();
 }
 
 void Prisma::MeshIndirect::updateModels()
