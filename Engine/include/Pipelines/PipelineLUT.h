@@ -17,15 +17,13 @@ namespace Prisma
 	public:
 		void texture();
 
-		uint64_t id() const;
 		PipelineLUT();
 
 	private:
-		uint64_t m_id=0;
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_shader;
 
-		unsigned int m_quadVAO = 0;
-		unsigned int m_quadVBO;
-
-		std::shared_ptr<Shader> m_shader;
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
 	};
 }

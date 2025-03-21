@@ -16,9 +16,5 @@ void main(in PSInput PSIn,
           out PSOutput PSOut)
 {
     float4 Color = g_Texture.Sample(g_Texture_sampler, PSIn.UV);
-#if CONVERT_PS_OUTPUT_TO_GAMMA
-    // Use fast approximation for gamma correction.
-    Color.rgb = pow(Color.rgb, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
-#endif
     PSOut.Color = Color;
 }

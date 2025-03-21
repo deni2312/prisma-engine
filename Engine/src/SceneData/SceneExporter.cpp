@@ -29,12 +29,12 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 {
 	Prisma::NodeHelper nodeHelper;
 	std::map<std::string, Texture> texturesLoaded;
-	/*if (!Prisma::SceneExporterLayout::skybox.empty()) {
+	if (!Prisma::SceneExporterLayout::skybox.empty()) {
 		Texture texture;
-		texture.loadEquirectangular(Prisma::SceneExporterLayout::skybox);
+		texture.loadTexture({ Prisma::SceneExporterLayout::skybox,true });
 		texture.data({ 4096, 4096, 3 });
 		PipelineSkybox::getInstance().texture(texture, true);
-	}*/
+	}
 	nodeHelper.nodeIterator(node, [&](auto node, auto parent)
 	{
 		auto mesh = std::dynamic_pointer_cast<Mesh>(node);

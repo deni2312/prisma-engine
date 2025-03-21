@@ -1,7 +1,5 @@
 #include "../../include/Pipelines/PipelineSkybox.h"
 #include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
-#include "../../include/Pipelines/PipelinePrefilter.h"
 #include "../../include/Pipelines/PipelineLUT.h"
 #include "../../include/Helpers/PrismaRender.h"
 #include "../../include/Helpers/SettingsLoader.h"
@@ -13,12 +11,12 @@
 
 Prisma::PipelineSkybox::PipelineSkybox() : m_height{512},m_width{512}
 {
-	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/SkyboxPipeline/vertex.glsl",
+	/*m_shader = std::make_shared<Shader>("../../../Engine/Shaders/SkyboxPipeline/vertex.glsl",
 	                                    "../../../Engine/Shaders/SkyboxPipeline/fragment.glsl");
 	m_shaderEquirectangular = std::make_shared<Shader>("../../../Engine/Shaders/EquirectangularPipeline/vertex.glsl",
 	                                                   "../../../Engine/Shaders/EquirectangularPipeline/fragment.glsl");
 	m_bindlessPos = m_shader->getUniformPosition("skybox");
-	m_bindlessPosEquirectangular = m_shaderEquirectangular->getUniformPosition("equirectangularMap");
+	m_bindlessPosEquirectangular = m_shaderEquirectangular->getUniformPosition("equirectangularMap");*/
 }
 
 const Prisma::Texture& Prisma::PipelineSkybox::texture() const
@@ -28,7 +26,7 @@ const Prisma::Texture& Prisma::PipelineSkybox::texture() const
 
 void Prisma::PipelineSkybox::calculateSkybox()
 {
-	if (m_id)
+	/*if (m_id)
 	{
 		glMakeTextureHandleNonResidentARB(m_id);
 		glDeleteTextures(1, &m_envCubemap);
@@ -75,17 +73,17 @@ void Prisma::PipelineSkybox::calculateSkybox()
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
 	m_id = glGetTextureHandleARB(m_envCubemap);
-	glMakeTextureHandleResidentARB(m_id);
+	glMakeTextureHandleResidentARB(m_id);*/
 }
 
 void Prisma::PipelineSkybox::render()
 {
-	glDepthFunc(GL_LEQUAL);
-	m_shader->use();
-	m_shader->setInt64(m_bindlessPos, m_id);
+	//glDepthFunc(GL_LEQUAL);
+	//m_shader->use();
+	//m_shader->setInt64(m_bindlessPos, m_id);
 	//PrismaRender::getInstance().renderCube();
-	glBindVertexArray(0);
-	glDepthFunc(GL_LESS);
+	//glBindVertexArray(0);
+	//glDepthFunc(GL_LESS);
 }
 
 void Prisma::PipelineSkybox::texture(Texture texture, bool equirectangular)
@@ -97,12 +95,12 @@ void Prisma::PipelineSkybox::texture(Texture texture, bool equirectangular)
 		//PrismaRender::getInstance().createFbo(texture.data().width, texture.data().height);
 		m_height = texture.data().height;
 		m_width = texture.data().width;
-		calculateSkybox();
-		Texture textureIrradiance;
-		textureIrradiance.data(texture.data());
-		textureIrradiance.id(m_id);
-		PipelineDiffuseIrradiance::getInstance().texture(textureIrradiance);
-		PipelinePrefilter::getInstance().texture(textureIrradiance);
+		//calculateSkybox();
+		//Texture textureIrradiance;
+		//textureIrradiance.data(texture.data());
+		//textureIrradiance.id(m_id);
+		//PipelineDiffuseIrradiance::getInstance().texture(textureIrradiance);
+		//PipelinePrefilter::getInstance().texture(textureIrradiance);
 		PipelineLUT::getInstance().texture();
 	}
 }

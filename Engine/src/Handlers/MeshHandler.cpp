@@ -34,7 +34,7 @@ void Prisma::MeshHandler::updateFragment()
 {
 	m_fragment.irradiancePos = PipelineDiffuseIrradiance::getInstance().id();
 	m_fragment.prefilterPos = PipelinePrefilter::getInstance().id();
-	m_fragment.lutPos = PipelineLUT::getInstance().id();
+	//m_fragment.lutPos = PipelineLUT::getInstance().id();
 	m_fragment.viewPos = glm::vec4(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->position(), 1.0f);
 	m_fragment.textureLut = Prisma::AreaHandler::getInstance().idLut();
 	m_fragment.textureM = Prisma::AreaHandler::getInstance().idM();
