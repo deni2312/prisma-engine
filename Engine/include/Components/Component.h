@@ -6,6 +6,8 @@
 #include "../Containers/FBO.h"
 #include <nlohmann/json.hpp>
 
+#include "../Containers/Texture.h"
+
 namespace Prisma
 {
 	class Node;
@@ -32,6 +34,12 @@ namespace Prisma
 			COLOR,
 			TEXTURE,
 			TEXTURE_BUTTON
+		};
+
+		struct ImageButton
+		{
+			std::function<void()> handler;
+			Prisma::Texture texture;
 		};
 
 		using ComponentType = std::tuple<TYPES, std::string, void*>;

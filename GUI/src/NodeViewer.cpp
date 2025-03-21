@@ -75,17 +75,18 @@ void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index, uns
 		break;
 		case Component::TYPES::TEXTURE:
 		{
-			auto id = static_cast<Prisma::Texture*>(variable)->rawId();
-			//ImGui::Image((void*)static_cast<intptr_t>(id), ImVec2(types.size.x*Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y));
+			auto texture = static_cast<Prisma::Texture*>(variable);
+			ImGui::Image((void*)texture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(types.size.x*Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y));
 		}
 		break;
 		case Component::TYPES::TEXTURE_BUTTON:
 		{
 			ImGui::PushID(componentIndex);
-			/*if (ImGui::ImageButton((void*)static_cast<intptr_t>(stoi(name)), ImVec2(types.size.x * Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y)))
+			auto imageButton = static_cast<Prisma::Component::ImageButton*>(variable);
+			if (ImGui::ImageButton((void*)imageButton->texture.texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(types.size.x * Prisma::ImguiDebug::getInstance().globalSize().x, types.size.y * Prisma::ImguiDebug::getInstance().globalSize().y)))
 			{
 				(*static_cast<std::function<void()>*>(variable))();
-			}*/
+			}
 			ImGui::PopID();
 		}
 		break;

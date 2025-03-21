@@ -3,6 +3,7 @@
 #include "../../include/GlobalData/CacheScene.h"
 #include "../../include/GlobalData/GlobalShaderNames.h"
 #include "../../include/Helpers/WindowsHelper.h"
+#include "../../include/Pipelines/PipelineHandler.h"
 
 static unsigned int materialId = 0;
 
@@ -43,8 +44,9 @@ void Prisma::MaterialComponent::ui()
 				texture.name(openFolder);
 				diffuseTextures.push_back(texture);
 				diffuse(diffuseTextures);
-				auto& data=std::get<1>(m_globalVars[0].type);
-				data = std::to_string(m_diffuse[0].rawId());
+				auto data= static_cast<Prisma::Component::ImageButton*>(std::get<2>(m_globalVars[0].type));
+				data->texture= m_diffuse[0];
+				bindPipeline(Prisma::PipelineHandler::getInstance().forward()->pso());
 			}
 		};
 	m_normalButton = [&]() {
@@ -100,10 +102,18 @@ void Prisma::MaterialComponent::ui()
 		}
 		};
 
+	m_diffuseImage.handler = m_diffuseButton;
+	m_normalImage.handler = m_normalButton;
+	m_metalnessRoughnessImage.handler = m_metalnessRoughnessButton;
+	m_specularImage.handler = m_specularButton;
+	m_ambientOcclusionImage.handler = m_ambientOcclusionButton;
+
+
 	if (m_diffuse.size() > 0)
 	{
 		m_diffuseName = std::make_shared<std::string>(getLast(m_diffuse[0].name()));
-		m_componentTypeDiffuse = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_diffuse[0].rawId()), &m_diffuseButton);
+		m_componentTypeDiffuse = std::make_tuple(TYPES::TEXTURE_BUTTON,"Diffuse", &m_diffuseImage);
+		m_diffuseImage.texture = m_diffuse[0];
 
 		addGlobal({ m_componentTypeDiffuse,true ,m_size});
 	}
@@ -112,7 +122,9 @@ void Prisma::MaterialComponent::ui()
 	{
 		m_normalName = std::make_shared<std::string>(getLast(m_normal[0].name()));
 
-		m_componentTypeNormal = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_normal[0].rawId()), &m_normalButton);
+		m_componentTypeNormal = std::make_tuple(TYPES::TEXTURE_BUTTON, "Normal", &m_normalImage);
+		m_normalImage.texture = m_normal[0];
+
 		addGlobal({m_componentTypeNormal,false ,m_size });
 
 	}
@@ -121,7 +133,10 @@ void Prisma::MaterialComponent::ui()
 	{
 		m_metalness_roughnessName = std::make_shared<std::string>(getLast(m_roughnessMetalness[0].name()));
 
-		m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_roughnessMetalness[0].rawId()), &m_metalnessRoughnessButton);
+		m_componentTypeMetalnessRoughness = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_roughnessMetalness[0].rawId()), &m_metalnessRoughnessImage);
+
+		m_metalnessRoughnessImage.texture = m_roughnessMetalness[0];
+
 		addGlobal({m_componentTypeMetalnessRoughness,true ,m_size });
 
 	}
@@ -129,14 +144,16 @@ void Prisma::MaterialComponent::ui()
 	if (m_specular.size() > 0)
 	{
 		m_specularName = std::make_shared<std::string>(getLast(m_specular[0].name()));
-		m_componentTypeSpecular = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_specular[0].rawId()), &m_specularButton);
+		m_componentTypeSpecular = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_specular[0].rawId()), &m_specularImage);
+		m_specularImage.texture = m_specular[0];
 		addGlobal({m_componentTypeSpecular,false ,m_size });
 	}
 
 	if (m_ambientOcclusion.size() > 0)
 	{
 		m_ambientOcclusionName = std::make_shared<std::string>(getLast(m_ambientOcclusion[0].name()));
-		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_ambientOcclusion[0].rawId()), &m_ambientOcclusionButton);
+		m_componentTypeAmbientOcclusion = std::make_tuple(TYPES::TEXTURE_BUTTON, std::to_string(m_ambientOcclusion[0].rawId()), &m_ambientOcclusionImage);
+		m_ambientOcclusionImage.texture = m_ambientOcclusion[0];
 		addGlobal({m_componentTypeAmbientOcclusion,false ,m_size });
 	}
 

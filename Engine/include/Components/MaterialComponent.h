@@ -116,6 +116,13 @@ namespace Prisma
 		std::function<void()> m_specularButton;
 		std::function<void()> m_ambientOcclusionButton;
 
+		Prisma::Component::ImageButton m_diffuseImage;
+		Prisma::Component::ImageButton m_normalImage;
+		Prisma::Component::ImageButton m_metalnessRoughnessImage;
+		Prisma::Component::ImageButton m_specularImage;
+		Prisma::Component::ImageButton m_ambientOcclusionImage;
+
+
 		glm::vec2 m_size=glm::vec2(90,90);
 	};
 }
