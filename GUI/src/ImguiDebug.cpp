@@ -325,7 +325,7 @@ void Prisma::ImguiDebug::start()
 	//ImGui_ImplGlfw_NewFrame();
 	//
 	auto contextDesc = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc();
-	imguiDiligent->NewFrame(contextDesc.Width, contextDesc.Height, contextDesc.PreTransform);
+	imguiDiligent->NewFrame(m_width,m_height, contextDesc.PreTransform);
 	//ImGuizmo::BeginFrame();
 }
 

@@ -179,7 +179,6 @@ Thank you for contributing to Prisma Engine!
 
  # Bugs
 
- - Imgui resize: putting into the bar and putting up, crash for the surface width and height
 
 
 
