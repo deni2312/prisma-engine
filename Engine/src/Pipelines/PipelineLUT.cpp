@@ -54,6 +54,7 @@ void Prisma::PipelineLUT::texture()
 		glMakeTextureHandleResidentARB(m_id);
 		glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
 			Prisma::SettingsLoader().getInstance().getSettings().height);
+		Prisma::GlobalData::getInstance().addGlobalTexture({ brdfLUTTexture });
 		// don't forget to configure the viewport to the capture dimensions.
 	}
 }
