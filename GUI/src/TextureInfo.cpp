@@ -60,7 +60,6 @@ void Prisma::TextureInfo::showTextures()
     
     if (m_index>-1)
     {
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::Begin("Texture Preview", &m_textureTab, ImGuiWindowFlags_AlwaysAutoResize);
         auto texture = Prisma::GlobalData::getInstance().globalTextures()[m_index];
         ImGui::InputFloat("Scaling", &m_scale);

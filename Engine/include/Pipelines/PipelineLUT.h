@@ -25,5 +25,7 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
+
+		const glm::vec2 m_dimensions = glm::vec2(512, 512);
 	};
 }

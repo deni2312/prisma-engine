@@ -177,6 +177,10 @@ Thank you for contributing to Prisma Engine!
 - https://github.com/KhronosGroup/glTF-Sample-Models
 - https://www.mixamo.com/
 
+ # Bugs
+
+ - Imgui resize: putting into the bar and putting up, crash for the surface width and height
+
 
 
 

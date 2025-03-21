@@ -31,17 +31,14 @@ Prisma::PipelineLUT::PipelineLUT()
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Prisma::PrismaFunc::getInstance().renderFormat().RenderFormat;
-    // Set depth buffer format which is the format of the swap chain's back buffer
-    PSOCreateInfo.GraphicsPipeline.DSVFormat = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Diligent::TEX_FORMAT_RG16_FLOAT;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
     // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
-    // clang-format on
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
 
     Diligent::ShaderCreateInfo ShaderCI;
     // Tell the system that the shader source code is in HLSL.
@@ -67,7 +64,7 @@ Prisma::PipelineLUT::PipelineLUT()
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "LUT VS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/vertex.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/LUTPipeline/vertex.hlsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
     }
 
@@ -77,7 +74,7 @@ Prisma::PipelineLUT::PipelineLUT()
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "LUT PS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/fragment.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/LUTPipeline/fragment.hlsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
     }
 
@@ -104,22 +101,20 @@ Prisma::PipelineLUT::PipelineLUT()
     Diligent::TextureDesc RTColorDesc;
     RTColorDesc.Name = "Offscreen render target";
     RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
-    RTColorDesc.Width = contextData.m_pSwapChain->GetDesc().Width;
-    RTColorDesc.Height = contextData.m_pSwapChain->GetDesc().Height;
+    RTColorDesc.Width = m_dimensions.x;
+    RTColorDesc.Height = m_dimensions.y;
     RTColorDesc.MipLevels = 1;
     RTColorDesc.Format = Diligent::TEX_FORMAT_RG16_FLOAT;
     // The render target can be bound as a shader resource and as a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
     RTColorDesc.ClearValue.Format = RTColorDesc.Format;
-    RTColorDesc.ClearValue.Color[0] = 0.350f;
-    RTColorDesc.ClearValue.Color[1] = 0.350f;
-    RTColorDesc.ClearValue.Color[2] = 0.350f;
-    RTColorDesc.ClearValue.Color[3] = 1.f;
+
     Diligent::RefCntAutoPtr<Diligent::ITexture> pRTColor;
     contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &pRTColor);
 
     m_pMSColorRTV = pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    m_pso->CreateShaderResourceBinding(&m_shader, true);
 
 
     Prisma::GlobalData::getInstance().addGlobalTexture({ pRTColor,"LUT" });
@@ -165,4 +160,32 @@ void Prisma::PipelineLUT::texture()
 			Prisma::SettingsLoader().getInstance().getSettings().height);
 		// don't forget to configure the viewport to the capture dimensions.
 	}*/
+
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+    // Clear the back buffer
+    contextData.m_pImmediateContext->SetRenderTargets(1, &m_pMSColorRTV, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.m_pImmediateContext->ClearRenderTarget(m_pMSColorRTV, glm::value_ptr(CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.m_pImmediateContext->SetPipelineState(m_pso);
+
+    auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
+
+    // Bind vertex and index buffers
+    const Diligent::Uint64 offset = 0;
+    Diligent::IBuffer* pBuffs[] = { quadBuffer.vBuffer };
+    contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+    contextData.m_pImmediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    // Set texture SRV in the SRB
+    contextData.m_pImmediateContext->CommitShaderResources(m_shader, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+    DrawAttrs.NumIndices = quadBuffer.iBufferSize;
+    // Verify the state of vertex and index buffers
+    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+    contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
+    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }
