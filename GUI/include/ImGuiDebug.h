@@ -45,7 +45,7 @@ namespace Prisma
 		void start();
 		void close();
 		void imguiData(std::shared_ptr<ImGuiData> data);
-		std::shared_ptr<FBO> fbo();
+		//std::shared_ptr<FBO> fbo();
 
 		std::shared_ptr<SceneHandler> handlers();
 
@@ -59,8 +59,8 @@ namespace Prisma
 		double m_lastFrameTime = 0.0;
 		float m_fps;
 		std::shared_ptr<ImGuiData> m_data;
-		std::shared_ptr<FBO> m_fbo;
-		std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<FBO> m_fbo;
+		//std::shared_ptr<Shader> m_shader;
 		unsigned int m_bindlessPos;
 		unsigned int m_modelPos;
 		glm::mat4 m_model;

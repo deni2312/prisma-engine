@@ -3,9 +3,6 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Renderer/DebugRenderer.h>
 #include <iostream>
-#include "../Containers/VAO.h"
-#include "../Containers/VBO.h"
-#include "../Containers/EBO.h"
 
 namespace Prisma
 {
@@ -36,12 +33,12 @@ namespace Prisma
 		                  ECastShadow inCastShadow, EDrawMode inDrawMode) override;
 
 	private:
-		std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<Shader> m_shader;
 		unsigned int m_modelPos;
 		unsigned int m_colorPos;
-		VAO m_vao;
-		VBO m_vbo;
-		EBO m_ebo;
+		//VAO m_vao;
+		//VBO m_vbo;
+		//EBO m_ebo;
 		bool m_init = false;
 
 		/// Implementation specific batch object

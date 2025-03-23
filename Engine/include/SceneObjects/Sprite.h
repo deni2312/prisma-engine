@@ -3,8 +3,7 @@
 #include <memory>
 #include "Node.h"
 #include "../Containers/Texture.h"
-#include "../Helpers/Shader.h"
-#include "../Containers/SSBO.h"
+
 
 namespace Prisma
 {
@@ -25,14 +24,14 @@ namespace Prisma
 		};
 
 		std::vector<SpriteData> m_spritesData;
-		std::shared_ptr<SSBO> m_ssbo;
-		std::shared_ptr<SSBO> m_ssboTextures;
-		std::shared_ptr<SSBO> m_ssboIds;
+		//std::shared_ptr<SSBO> m_ssbo;
+		//std::shared_ptr<SSBO> m_ssboTextures;
+		//std::shared_ptr<SSBO> m_ssboIds;
 		unsigned int m_spritePos;
 		unsigned int m_modelPos;
 		unsigned int m_numSprites = 0;
 		unsigned int m_sizePos;
 		glm::vec2 m_size = glm::vec2(1.0f, 1.0f);
-		std::shared_ptr<Shader> m_spriteShader;
+		//std::shared_ptr<Shader> m_spriteShader;
 	};
 }

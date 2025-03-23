@@ -1,9 +1,7 @@
 #pragma once
 
-#include "../Helpers/Shader.h"
 #include "../SceneObjects/Camera.h"
 #include <memory>
-#include "../Containers/FBO.h"
 
 namespace Prisma
 {
@@ -14,7 +12,7 @@ namespace Prisma
 		void render();
 
 	private:
-		std::shared_ptr<Shader> m_shader;
-		std::shared_ptr<Shader> m_shaderAnimate;
+		//std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<Shader> m_shaderAnimate;
 	};
 }

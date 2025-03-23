@@ -3,11 +3,8 @@
 #include <memory>
 #include <chrono>
 #include <functional>
-#include "../../../Engine/include/Containers/FBO.h"
 #include "../../../Engine/include/Containers/Texture.h"
 #include "../../../Engine/include/SceneObjects/Mesh.h"
-#include "../../../Engine/include/Containers/VAO.h"
-#include "../../../Engine/include/Containers/SSBO.h"
 #include "GrassRenderer.h"
 
 namespace Prisma
@@ -19,7 +16,7 @@ namespace Prisma
 
 		void ui() override;
 
-		void updateRender(std::shared_ptr<FBO> fbo = nullptr) override;
+		//void updateRender(std::shared_ptr<FBO> fbo = nullptr) override;
 
 		void generateCpu();
 
@@ -40,9 +37,9 @@ namespace Prisma
 		std::shared_ptr<Texture> m_snowRoughness = nullptr;
 
 		std::shared_ptr<Mesh> m_mesh;
-		VAO m_vao;
-		std::shared_ptr<Shader> m_shader;
-		std::shared_ptr<Shader> m_csmShader;
+		//VAO m_vao;
+		//std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<Shader> m_csmShader;
 
 		unsigned int m_modelPos;
 		unsigned int m_heightPos;

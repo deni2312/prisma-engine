@@ -6,8 +6,8 @@
 #include "../../include/Helpers/SettingsLoader.h"
 
 
-static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
-static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
+//static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
+//static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
 
 Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int height, bool post): m_width{width},
 	m_height{height}

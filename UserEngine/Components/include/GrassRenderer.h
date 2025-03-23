@@ -1,8 +1,6 @@
 #pragma once
 #include <memory>
 #include "../../../Engine/include/Containers/Texture.h"
-#include "../../../Engine/include/Helpers/Shader.h"
-#include "../../../Engine/include/Containers/SSBO.h"
 #include "../../../Engine/include/SceneObjects/Mesh.h"
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -39,10 +37,10 @@ private:
 	};
 
 	std::shared_ptr<Prisma::Texture> m_grassSprite = nullptr;
-	Prisma::VAO m_vao;
+	//Prisma::VAO m_vao;
 	Prisma::Texture m_heightMap;
-	std::shared_ptr<Prisma::Shader> m_spriteShader;
-	std::shared_ptr<Prisma::Shader> m_cullShader;
+	//std::shared_ptr<Prisma::Shader> m_spriteShader;
+	//std::shared_ptr<Prisma::Shader> m_cullShader;
 
 	unsigned int m_spritePos;
 	unsigned int m_spriteModelPos;
@@ -50,8 +48,8 @@ private:
 	unsigned int m_modelComputePos;
 	unsigned int m_percentPos;
 
-	std::shared_ptr<Prisma::SSBO> m_ssbo;
-	std::shared_ptr<Prisma::SSBO> m_ssboCull;
+	//std::shared_ptr<Prisma::SSBO> m_ssbo;
+	//std::shared_ptr<Prisma::SSBO> m_ssboCull;
 	std::vector<GrassPosition> m_grassPositions;
 
 	std::vector<Prisma::Mesh::Vertex> m_grassVertices;

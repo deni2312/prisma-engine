@@ -4,13 +4,7 @@
 #include "../SceneObjects/Mesh.h"
 #include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Camera.h"
-#include "../Helpers/Shader.h"
-#include "../Containers/SSBO.h"
 #include "../Components/MaterialComponent.h"
-#include "../Containers/VAO.h"
-#include "../Containers/VBO.h"
-#include "../Containers/EBO.h"
-#include "../Containers/Ubo.h"
 #include "../GlobalData/InstanceData.h"
 
 namespace Prisma
@@ -28,13 +22,13 @@ namespace Prisma
 	{
 		//BINDING DATA
 
-		std::shared_ptr<VAO> m_vao;
-		std::shared_ptr<VBO> m_vbo;
-		std::shared_ptr<EBO> m_ebo;
+		//std::shared_ptr<VAO> m_vao;
+		//std::shared_ptr<VBO> m_vbo;
+		//std::shared_ptr<EBO> m_ebo;
 
-		std::shared_ptr<VAO> m_vaoAnimation;
-		std::shared_ptr<VBO> m_vboAnimation;
-		std::shared_ptr<EBO> m_eboAnimation;
+		//std::shared_ptr<VAO> m_vaoAnimation;
+		//std::shared_ptr<VBO> m_vboAnimation;
+		//std::shared_ptr<EBO> m_eboAnimation;
 
 		//INDIRECT INDEX
 
@@ -62,15 +56,15 @@ namespace Prisma
 		Mesh::VerticesData m_verticesData;
 		std::vector<DrawElementsIndirectCommand> m_drawCommands;
 
-		std::shared_ptr<SSBO> m_ssboModel;
-		std::shared_ptr<SSBO> m_ssboMaterial;
-		std::shared_ptr<SSBO> m_ssboIndices;
+		//std::shared_ptr<SSBO> m_ssboModel;
+		//std::shared_ptr<SSBO> m_ssboMaterial;
+		//std::shared_ptr<SSBO> m_ssboIndices;
 
 
 		AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
 		std::vector<DrawElementsIndirectCommand> m_drawCommandsAnimation;
-		std::shared_ptr<SSBO> m_ssboModelAnimation;
-		std::shared_ptr<SSBO> m_ssboMaterialAnimation;
+		//std::shared_ptr<SSBO> m_ssboModelAnimation;
+		//std::shared_ptr<SSBO> m_ssboMaterialAnimation;
 
 		std::vector<MaterialData> m_materialData;
 		std::vector<MaterialData> m_materialDataAnimation;
@@ -88,19 +82,19 @@ namespace Prisma
 		unsigned int m_indirectAnimationSSBOId = 19;
 		unsigned int m_indirectCopySSBOId = 22;
 
-		std::shared_ptr<Shader> m_shader;
-		std::shared_ptr<Shader> m_statusShader;
-		std::shared_ptr<Shader> m_shaderCopy;
+		//std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<Shader> m_statusShader;
+		//std::shared_ptr<Shader> m_shaderCopy;
 
 		void sort() const;
 		void updateStatusShader() const;
 
-		std::shared_ptr<SSBO> m_ssboStatus;
-		std::shared_ptr<SSBO> m_ssboStatusCopy;
-		std::shared_ptr<SSBO> m_ssboAABB;
-		std::shared_ptr<SSBO> m_ssboId;
+		//std::shared_ptr<SSBO> m_ssboStatus;
+		//std::shared_ptr<SSBO> m_ssboStatusCopy;
+		//std::shared_ptr<SSBO> m_ssboAABB;
+		//std::shared_ptr<SSBO> m_ssboId;
 
-		std::shared_ptr<SSBO> m_ssboStatusAnimation;
+		//std::shared_ptr<SSBO> m_ssboStatusAnimation;
 
 		unsigned int m_sizeLocation;
 		unsigned int m_indicesCopyLocation;
@@ -122,16 +116,16 @@ namespace Prisma
 			glm::vec2 padding;
 		};
 
-		std::shared_ptr<Prisma::SSBO> m_ssboCamera;
+		//std::shared_ptr<Prisma::SSBO> m_ssboCamera;
 
 		unsigned int m_sizeAtomic;
 
 	public:
-		std::shared_ptr<VAO> vao();
+		//std::shared_ptr<VAO> vao();
 
-		std::shared_ptr<VBO> vbo();
+		//std::shared_ptr<VBO> vbo();
 
-		std::shared_ptr<EBO> ebo();
+		//std::shared_ptr<EBO> ebo();
 
 		Prisma::Mesh::VerticesData& verticesData();
 

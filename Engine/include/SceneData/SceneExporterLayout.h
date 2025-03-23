@@ -15,6 +15,8 @@
 #include "../Helpers/WindowsHelper.h"
 #include <glm/gtx/string_cast.hpp>
 
+#include "../Helpers/Logger.h"
+
 namespace Prisma
 {
 	using json = nlohmann::json;

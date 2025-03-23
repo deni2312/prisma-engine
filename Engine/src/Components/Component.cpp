@@ -17,17 +17,17 @@ void Prisma::Component::update()
 {
 }
 
-void Prisma::Component::updateRender(std::shared_ptr<FBO> fbo)
-{
-}
+//void Prisma::Component::updateRender(std::shared_ptr<FBO> fbo)
+//{
+//}
 
-void Prisma::Component::updatePreRender(std::shared_ptr<FBO> fbo)
-{
-}
+//void Prisma::Component::updatePreRender(std::shared_ptr<FBO> fbo)
+//{
+//}
 
-void Prisma::Component::updatePostRender(std::shared_ptr<FBO> fbo)
-{
-}
+//void Prisma::Component::updatePostRender(std::shared_ptr<FBO> fbo)
+//{
+//}
 
 void Prisma::Component::onParent(Node* parent)
 {

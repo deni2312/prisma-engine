@@ -1,12 +1,9 @@
 #pragma once
 
 #include <vector>
-#include "../Helpers/Shader.h"
 #include "GenericShadow.h"
 #include "glm/glm.hpp"
-#include "../Containers/Ubo.h"
 #include "../Helpers/Settings.h"
-#include "../Containers/SSBO.h"
 
 namespace Prisma
 {

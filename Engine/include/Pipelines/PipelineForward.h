@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../Helpers/Shader.h"
 #include "../SceneObjects/Camera.h"
 #include "../SceneData/SceneLoader.h"
 #include "../Handlers/MeshHandler.h"
 #include "../SceneData/MeshIndirect.h"
-#include "../Containers/FBO.h"
 #include "PipelineFullScreen.h"
 #include "../Helpers/Settings.h"
 #include "../Physics/DrawDebugger.h"

@@ -5,6 +5,7 @@
 #include "glm/gtx/string_cast.hpp"
 #include "../../include/Components/Component.h"
 #include "../../include/Components/MaterialComponent.h"
+#include "../../include/Helpers/Logger.h"
 #include "../../include/Helpers/PrismaMath.h"
 #include "../../include/Helpers/StringHelper.h"
 #include "../../include/Pipelines/PipelineHandler.h"

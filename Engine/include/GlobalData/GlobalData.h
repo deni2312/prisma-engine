@@ -30,9 +30,9 @@ namespace Prisma
 		void currentGlobalScene(const std::shared_ptr<Scene>& currentGlobalScene);
 
 		// Getter and Setter for m_fboTarget
-		std::shared_ptr<FBO> fboTarget() const;
+		//std::shared_ptr<FBO> fboTarget() const;
 
-		void fboTarget(const std::shared_ptr<FBO>& fboTarget);
+		//void fboTarget(const std::shared_ptr<FBO>& fboTarget);
 
 		// Getter and Setter for m_sceneComponents
 		std::unordered_map<uint64_t, Component*>& sceneComponents();
@@ -74,7 +74,7 @@ namespace Prisma
 
 	private:
 		std::shared_ptr<Scene> m_currentGlobalScene;
-		std::shared_ptr<FBO> m_fboTarget;
+		//std::shared_ptr<FBO> m_fboTarget;
 		std::unordered_map<uint64_t, Component*> m_sceneComponents;
 		std::unordered_map<uint64_t, std::shared_ptr<Node>> m_sceneNodes;
 		std::vector<GlobalTextureInfo> m_textures;

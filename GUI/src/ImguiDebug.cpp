@@ -400,11 +400,11 @@ float Prisma::ImguiDebug::scale()
 {
 	return m_scale;
 }
-
-std::shared_ptr<Prisma::FBO> Prisma::ImguiDebug::fbo()
-{
-	return m_fbo;
-}
+//
+//std::shared_ptr<Prisma::FBO> Prisma::ImguiDebug::fbo()
+//{
+//	return m_fbo;
+//}
 
 void Prisma::ImguiDebug::drawScene()
 {

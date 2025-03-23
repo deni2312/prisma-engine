@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include "../Helpers/Shader.h"
 #include "GenericShadow.h"
 
 namespace Prisma

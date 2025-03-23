@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "../Helpers/Shader.h"
 #include <memory>
 
 namespace Prisma
@@ -13,7 +12,7 @@ namespace Prisma
 		void render(uint64_t texture);
 
 	private:
-		std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<Shader> m_shader;
 		unsigned int m_bindlessPos;
 	};
 }

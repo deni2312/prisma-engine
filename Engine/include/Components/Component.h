@@ -3,7 +3,6 @@
 #include <memory>
 #include <tuple>
 #include "../SceneObjects/Node.h"
-#include "../Containers/FBO.h"
 #include <nlohmann/json.hpp>
 
 #include "../Containers/Texture.h"
@@ -59,11 +58,11 @@ namespace Prisma
 
 		virtual void update();
 
-		virtual void updateRender(std::shared_ptr<FBO> fbo = nullptr);
+		//virtual void updateRender(std::shared_ptr<FBO> fbo = nullptr);
 
-		virtual void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
+		//virtual void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
 
-		virtual void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
+		//virtual void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
 
 		virtual void onParent(Node* parent);
 

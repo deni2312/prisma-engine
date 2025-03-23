@@ -1,6 +1,4 @@
 #pragma once
-#include "GL/glew.h"
-#include "GLFW/glfw3.h"
 #include <string>
 #include "glm/glm.hpp"
 #include <memory>
@@ -16,6 +14,7 @@
 #include "Graphics/GraphicsEngine/interface/SwapChain.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
+#include <GLFW/glfw3.h>
 
 namespace Prisma
 {

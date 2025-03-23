@@ -21,7 +21,7 @@ namespace Prisma
 		void start() override;
 
 	private:
-		std::shared_ptr<Shader> m_shader;
-		std::shared_ptr<SSBO> m_ssbo;
+		//std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<SSBO> m_ssbo;
 	};
 }

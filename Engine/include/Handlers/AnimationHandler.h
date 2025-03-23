@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include "glm/glm.hpp"
-#include "../Containers/SSBO.h"
 #include "../GlobalData/Defines.h"
 #include "../GlobalData/InstanceData.h"
 #include <vector>
@@ -18,11 +17,11 @@ namespace Prisma
 
 		void fill();
 
-		std::shared_ptr<Prisma::SSBO> ssbo();
+		//std::shared_ptr<Prisma::SSBO> ssbo();
 
 		AnimationHandler();
 
 	private:
-		std::shared_ptr<SSBO> m_ssboAnimation;
+		//std::shared_ptr<SSBO> m_ssboAnimation;
 	};
 }

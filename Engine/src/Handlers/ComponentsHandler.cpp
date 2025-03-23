@@ -33,39 +33,39 @@ void Prisma::ComponentsHandler::updateComponents()
 		}
 	}
 }
-
-void Prisma::ComponentsHandler::updateRender(std::shared_ptr<FBO> fbo)
-{
-	for (const auto& component : m_components)
-	{
-		if (component && component->isStart())
-		{
-			component->updateRender(fbo);
-		}
-	}
-}
-
-void Prisma::ComponentsHandler::updatePreRender(std::shared_ptr<FBO> fbo)
-{
-	for (const auto& component : m_components)
-	{
-		if (component && component->isStart())
-		{
-			component->updatePreRender(fbo);
-		}
-	}
-}
-
-void Prisma::ComponentsHandler::updatePostRender(std::shared_ptr<FBO> fbo)
-{
-	for (const auto& component : m_components)
-	{
-		if (component && component->isStart())
-		{
-			component->updatePostRender(fbo);
-		}
-	}
-}
+//
+//void Prisma::ComponentsHandler::updateRender(std::shared_ptr<FBO> fbo)
+//{
+//	for (const auto& component : m_components)
+//	{
+//		if (component && component->isStart())
+//		{
+//			component->updateRender(fbo);
+//		}
+//	}
+//}
+//
+//void Prisma::ComponentsHandler::updatePreRender(std::shared_ptr<FBO> fbo)
+//{
+//	for (const auto& component : m_components)
+//	{
+//		if (component && component->isStart())
+//		{
+//			component->updatePreRender(fbo);
+//		}
+//	}
+//}
+//
+//void Prisma::ComponentsHandler::updatePostRender(std::shared_ptr<FBO> fbo)
+//{
+//	for (const auto& component : m_components)
+//	{
+//		if (component && component->isStart())
+//		{
+//			component->updatePostRender(fbo);
+//		}
+//	}
+//}
 
 void Prisma::ComponentsHandler::addComponent(std::shared_ptr<Component> component)
 {

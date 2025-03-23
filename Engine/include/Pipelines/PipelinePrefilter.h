@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../Helpers/Shader.h"
 #include "../SceneObjects/Camera.h"
 #include "../SceneData/SceneLoader.h"
 #include "../Handlers/MeshHandler.h"
 #include "../SceneData/MeshIndirect.h"
-#include "../Containers/FBO.h"
 #include "PipelineFullScreen.h"
 #include <memory>
 #include "../GlobalData/InstanceData.h"
@@ -25,6 +23,6 @@ namespace Prisma
 
 		unsigned int m_prefilterMap;
 
-		std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<Shader> m_shader;
 	};
 }

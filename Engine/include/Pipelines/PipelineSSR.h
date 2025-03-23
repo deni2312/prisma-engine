@@ -1,8 +1,6 @@
 #pragma once
 
 #include <memory>
-#include "../Helpers/Shader.h"
-#include "../Containers/FBO.h"
 
 namespace Prisma
 {
@@ -13,11 +11,11 @@ namespace Prisma
 
 		void update(uint64_t albedo, uint64_t position, uint64_t normal, uint64_t finalImage, uint64_t depth);
 
-		std::shared_ptr<FBO> texture();
+		//std::shared_ptr<FBO> texture();
 
 	private:
-		std::shared_ptr<Shader> m_shader;
-		std::shared_ptr<FBO> m_fboSSR;
+		//std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<FBO> m_fboSSR;
 		unsigned int m_albedoPos;
 		unsigned int m_normalPos;
 		unsigned int m_positionPos;

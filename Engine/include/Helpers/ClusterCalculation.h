@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include "Shader.h"
-#include "../Containers/SSBO.h"
 #include "../GlobalData/Defines.h"
 
 namespace Prisma
@@ -27,8 +26,8 @@ namespace Prisma
 		}
 
 	private:
-		std::shared_ptr<Shader> m_shader;
-		std::shared_ptr<Shader> m_shaderLights;
+		//std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<Shader> m_shaderLights;
 
 		static constexpr unsigned int m_gridSizeX = 12;
 		static constexpr unsigned int m_gridSizeY = 12;
@@ -40,6 +39,6 @@ namespace Prisma
 		unsigned int m_gridSizePos;
 		unsigned int m_screenDimensionsPos;
 
-		std::shared_ptr<SSBO> m_ssbo;
+		//std::shared_ptr<SSBO> m_ssbo;
 	};
 }

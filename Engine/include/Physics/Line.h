@@ -1,10 +1,8 @@
 #pragma once
 #include <vector>
 #include <glm/glm.hpp>
-#include <gl/glew.h>
 #include <string>
 #include <iostream>
-#include "../Helpers/Shader.h"
 
 namespace Prisma
 {
@@ -16,7 +14,7 @@ namespace Prisma
 		glm::vec3 m_endPoint;
 		glm::mat4 m_MVP;
 		glm::vec3 m_lineColor;
-		std::shared_ptr<Shader> m_shader;
+		//std::shared_ptr<Shader> m_shader;
 		unsigned int m_colorPos;
 		unsigned int m_MVPPos;
 

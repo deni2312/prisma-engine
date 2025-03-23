@@ -134,10 +134,10 @@ float Prisma::Animator::currentTime() const
 
 void Prisma::Animator::updateSSBO()
 {
-	auto ssbo = AnimationHandler::getInstance().ssbo();
-	auto uuid = findUUID();
-	ssbo->modifyData(sizeof(Prisma::AnimationHandler::SSBOAnimation) * uuid,
-	                 sizeof(Prisma::AnimationHandler::SSBOAnimation), &m_ssboAnimation);
+	//auto ssbo = AnimationHandler::getInstance().ssbo();
+	//auto uuid = findUUID();
+	//ssbo->modifyData(sizeof(Prisma::AnimationHandler::SSBOAnimation) * uuid,
+	//                 sizeof(Prisma::AnimationHandler::SSBOAnimation), &m_ssboAnimation);
 }
 
 void Prisma::Animator::automaticUpdate(bool automatic)

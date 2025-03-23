@@ -17,23 +17,23 @@ void Prisma::AnimationHandler::fill()
 }
 
 
-std::shared_ptr<Prisma::SSBO> Prisma::AnimationHandler::ssbo()
-{
-	return m_ssboAnimation;
-}
+//std::shared_ptr<Prisma::SSBO> Prisma::AnimationHandler::ssbo()
+//{
+//	return m_ssboAnimation;
+//}
 
 Prisma::AnimationHandler::AnimationHandler()
 {
 	std::vector<SSBOAnimation> animations;
 
-	m_ssboAnimation = std::make_shared<SSBO>(8);
-	m_ssboAnimation->resize(sizeof(SSBOAnimation) * MAX_ANIMATION_MESHES);
-	animations.resize(MAX_ANIMATION_MESHES);
-	for (int i = 0; i < animations.size(); i++)
-	{
-		for (int j = 0; j < MAX_BONES; j++)
-		{
-			animations[i].animations[j] = glm::mat4(1.0f);
-		}
-	}
+	//m_ssboAnimation = std::make_shared<SSBO>(8);
+	//m_ssboAnimation->resize(sizeof(SSBOAnimation) * MAX_ANIMATION_MESHES);
+	//animations.resize(MAX_ANIMATION_MESHES);
+	//for (int i = 0; i < animations.size(); i++)
+	//{
+	//	for (int j = 0; j < MAX_BONES; j++)
+	//	{
+	//		animations[i].animations[j] = glm::mat4(1.0f);
+	//	}
+	//}
 }

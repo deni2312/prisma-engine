@@ -6,7 +6,6 @@
 #include "../SceneObjects/Camera.h"
 #include <vector>
 #include <string>
-#include "../Containers/FBO.h"
 #include "../SceneObjects/Sprite.h"
 
 namespace Prisma

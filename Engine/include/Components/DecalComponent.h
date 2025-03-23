@@ -8,7 +8,7 @@ namespace Prisma {
 
 		void start() override;
 	private:
-		std::shared_ptr<Prisma::Shader> m_shader;
+		//std::shared_ptr<Prisma::Shader> m_shader;
 
 	};
 }

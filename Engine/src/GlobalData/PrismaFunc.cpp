@@ -20,6 +20,8 @@
 #define GLFW_NATIVE_INCLUDE_NONE
 #include <GLFW/glfw3native.h>
 
+#include "glm/gtc/type_ptr.inl"
+
 using namespace Diligent;
 
 

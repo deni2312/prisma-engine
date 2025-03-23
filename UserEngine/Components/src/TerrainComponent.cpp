@@ -53,31 +53,31 @@ void Prisma::TerrainComponent::ui()
 	addGlobal({componentApply,false });
 }
 
-void Prisma::TerrainComponent::updateRender(std::shared_ptr<FBO> fbo)
-{
-	glDisable(GL_CULL_FACE);
-	m_shader->use();
-	m_shader->setMat4(m_modelPos, parent()->finalMatrix());
-	m_shader->setInt64(m_heightPos, m_heightMap.id());
-	m_shader->setFloat(m_multPos, m_mult);
-	m_shader->setFloat(m_shiftPos, m_shift);
-	m_shader->setInt64(m_grassPos, m_grass->id());
-	m_shader->setInt64(m_stonePos, m_stone->id());
-	m_shader->setInt64(m_snowPos, m_snow->id());
-	m_shader->setFloat(m_scalePos, m_scale);
-	m_shader->setInt64(m_grassNormalPos, m_grassNormal->id());
-	m_shader->setInt64(m_stoneNormalPos, m_stoneNormal->id());
-	m_shader->setInt64(m_snowNormalPos, m_snowNormal->id());
-	m_shader->setInt64(m_grassRoughnessPos, m_grassRoughness->id());
-	m_shader->setInt64(m_stoneRoughnessPos, m_stoneRoughness->id());
-	m_shader->setInt64(m_snowRoughnessPos, m_snowRoughness->id());
-
-	m_vao.bind();
-	glDrawElements(GL_TRIANGLES, m_vertices->indices.size(), GL_UNSIGNED_INT, 0);
-	m_grassRenderer.renderGrass(parent()->finalMatrix());
-
-	glEnable(GL_CULL_FACE);
-}
+//void Prisma::TerrainComponent::updateRender(std::shared_ptr<FBO> fbo)
+//{
+//	glDisable(GL_CULL_FACE);
+//	m_shader->use();
+//	m_shader->setMat4(m_modelPos, parent()->finalMatrix());
+//	m_shader->setInt64(m_heightPos, m_heightMap.id());
+//	m_shader->setFloat(m_multPos, m_mult);
+//	m_shader->setFloat(m_shiftPos, m_shift);
+//	m_shader->setInt64(m_grassPos, m_grass->id());
+//	m_shader->setInt64(m_stonePos, m_stone->id());
+//	m_shader->setInt64(m_snowPos, m_snow->id());
+//	m_shader->setFloat(m_scalePos, m_scale);
+//	m_shader->setInt64(m_grassNormalPos, m_grassNormal->id());
+//	m_shader->setInt64(m_stoneNormalPos, m_stoneNormal->id());
+//	m_shader->setInt64(m_snowNormalPos, m_snowNormal->id());
+//	m_shader->setInt64(m_grassRoughnessPos, m_grassRoughness->id());
+//	m_shader->setInt64(m_stoneRoughnessPos, m_stoneRoughness->id());
+//	m_shader->setInt64(m_snowRoughnessPos, m_snowRoughness->id());
+//
+//	m_vao.bind();
+//	glDrawElements(GL_TRIANGLES, m_vertices->indices.size(), GL_UNSIGNED_INT, 0);
+//	m_grassRenderer.renderGrass(parent()->finalMatrix());
+//
+//	glEnable(GL_CULL_FACE);
+//}
 
 void Prisma::TerrainComponent::generateCpu()
 {
@@ -87,149 +87,149 @@ void Prisma::TerrainComponent::generateCpu()
 
 void Prisma::TerrainComponent::start()
 {
-	Component::start();
-	m_vertices = std::make_shared<Prisma::Mesh::VerticesData>();
-	Shader::ShaderHeaders headers;
-	m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl",
-	                                    "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl");
-	m_csmShader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainShadowPipeline/vertex.glsl",
-	                                       "../../../UserEngine/Shaders/TerrainShadowPipeline/fragment.glsl",
-	                                       "../../../UserEngine/Shaders/TerrainShadowPipeline/geometry.glsl", headers,
-	                                       "../../../UserEngine/Shaders/TerrainShadowPipeline/tcsdata.glsl",
-	                                       "../../../UserEngine/Shaders/TerrainShadowPipeline/tesdata.glsl");
+	//Component::start();
+	//m_vertices = std::make_shared<Prisma::Mesh::VerticesData>();
+	//Shader::ShaderHeaders headers;
+	//m_shader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainPipeline/vertex.glsl",
+	//                                    "../../../UserEngine/Shaders/TerrainPipeline/fragment.glsl");
+	//m_csmShader = std::make_shared<Shader>("../../../UserEngine/Shaders/TerrainShadowPipeline/vertex.glsl",
+	//                                       "../../../UserEngine/Shaders/TerrainShadowPipeline/fragment.glsl",
+	//                                       "../../../UserEngine/Shaders/TerrainShadowPipeline/geometry.glsl", headers,
+	//                                       "../../../UserEngine/Shaders/TerrainShadowPipeline/tcsdata.glsl",
+	//                                       "../../../UserEngine/Shaders/TerrainShadowPipeline/tesdata.glsl");
 
-	m_grass = std::make_shared<Texture>();
-	m_stone = std::make_shared<Texture>();
-	m_snow = std::make_shared<Texture>();
-	m_grassNormal = std::make_shared<Texture>();
-	m_stoneNormal = std::make_shared<Texture>();
-	m_snowNormal = std::make_shared<Texture>();
-	m_grassRoughness = std::make_shared<Texture>();
-	m_stoneRoughness = std::make_shared<Texture>();
-	m_snowRoughness = std::make_shared<Texture>();
-	m_grass->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/grass.jpg"});
-	m_stone->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/stone.jpg"});
-	m_snow->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/snow.jpg"});
-	m_grassNormal->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/grassNormal.jpg"});
-	m_stoneNormal->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/stoneNormal.jpg"});
-	m_snowNormal->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/snowNormal.jpg"});
-	m_grassRoughness->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/grassRoughness.jpg"});
-	m_stoneRoughness->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/stoneRoughness.jpg"});
-	m_snowRoughness->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/snowRoughness.jpg"});
+	//m_grass = std::make_shared<Texture>();
+	//m_stone = std::make_shared<Texture>();
+	//m_snow = std::make_shared<Texture>();
+	//m_grassNormal = std::make_shared<Texture>();
+	//m_stoneNormal = std::make_shared<Texture>();
+	//m_snowNormal = std::make_shared<Texture>();
+	//m_grassRoughness = std::make_shared<Texture>();
+	//m_stoneRoughness = std::make_shared<Texture>();
+	//m_snowRoughness = std::make_shared<Texture>();
+	//m_grass->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/grass.jpg"});
+	//m_stone->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/stone.jpg"});
+	//m_snow->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/snow.jpg"});
+	//m_grassNormal->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/grassNormal.jpg"});
+	//m_stoneNormal->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/stoneNormal.jpg"});
+	//m_snowNormal->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/snowNormal.jpg"});
+	//m_grassRoughness->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/grassRoughness.jpg"});
+	//m_stoneRoughness->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/stoneRoughness.jpg"});
+	//m_snowRoughness->loadTexture({"../../../Resources/DefaultScene/Heightmaps/Levels/snowRoughness.jpg"});
 
-	m_shader->use();
-	m_modelPos = m_shader->getUniformPosition("model");
-	m_heightPos = m_shader->getUniformPosition("heightMap");
-	m_multPos = m_shader->getUniformPosition("mult");
-	m_shiftPos = m_shader->getUniformPosition("shift");
-	m_grassPos = m_shader->getUniformPosition("grass");
-	m_stonePos = m_shader->getUniformPosition("stone");
-	m_snowPos = m_shader->getUniformPosition("snow");
-	m_scalePos = m_shader->getUniformPosition("textureScaling");
-	m_grassNormalPos = m_shader->getUniformPosition("grassNormal");
-	m_stoneNormalPos = m_shader->getUniformPosition("stoneNormal");
-	m_snowNormalPos = m_shader->getUniformPosition("snowNormal");
-	m_grassRoughnessPos = m_shader->getUniformPosition("grassRoughness");
-	m_stoneRoughnessPos = m_shader->getUniformPosition("stoneRoughness");
-	m_snowRoughnessPos = m_shader->getUniformPosition("snowRoughness");
-	m_grassRenderer.start(m_heightMap);
-	m_farPlane = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane();
-	auto settings = SettingsLoader::getInstance().getSettings();
-	m_grassRenderer.projection(glm::perspective(
-		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
-		static_cast<float>(settings.width) / static_cast<float>(settings.
-			height), Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(), m_farPlane));
-	generateCpu();
-	int rez = 1;
-	int width = m_heightMap.data().width;
-	int height = m_heightMap.data().height;
-	unsigned bytePerPixel = m_heightMap.data().nrComponents;
-	for (int i = 0; i < height; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
-			unsigned char* pixelOffset = m_heightMap.data().dataContent + (j + width * i) * bytePerPixel;
-			unsigned char y = pixelOffset[0];
-			Mesh::Vertex v;
-			v.position.x = -height / 2.0f + height * i / static_cast<float>(height);
-			v.position.y = static_cast<int>(y) * m_mult / 256.0 - m_shift;
-			v.position.z = -width / 2.0f + width * j / static_cast<float>(width);
-			v.texCoords.x = j / static_cast<float>(width - 1); // Normalized texture coordinate (0 to 1)
-			v.texCoords.y = i / static_cast<float>(height - 1); // Normalized texture coordinate (0 to 1)
+	//m_shader->use();
+	//m_modelPos = m_shader->getUniformPosition("model");
+	//m_heightPos = m_shader->getUniformPosition("heightMap");
+	//m_multPos = m_shader->getUniformPosition("mult");
+	//m_shiftPos = m_shader->getUniformPosition("shift");
+	//m_grassPos = m_shader->getUniformPosition("grass");
+	//m_stonePos = m_shader->getUniformPosition("stone");
+	//m_snowPos = m_shader->getUniformPosition("snow");
+	//m_scalePos = m_shader->getUniformPosition("textureScaling");
+	//m_grassNormalPos = m_shader->getUniformPosition("grassNormal");
+	//m_stoneNormalPos = m_shader->getUniformPosition("stoneNormal");
+	//m_snowNormalPos = m_shader->getUniformPosition("snowNormal");
+	//m_grassRoughnessPos = m_shader->getUniformPosition("grassRoughness");
+	//m_stoneRoughnessPos = m_shader->getUniformPosition("stoneRoughness");
+	//m_snowRoughnessPos = m_shader->getUniformPosition("snowRoughness");
+	//m_grassRenderer.start(m_heightMap);
+	//m_farPlane = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane();
+	//auto settings = SettingsLoader::getInstance().getSettings();
+	//m_grassRenderer.projection(glm::perspective(
+	//	glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+	//	static_cast<float>(settings.width) / static_cast<float>(settings.
+	//		height), Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(), m_farPlane));
+	//generateCpu();
+	//int rez = 1;
+	//int width = m_heightMap.data().width;
+	//int height = m_heightMap.data().height;
+	//unsigned bytePerPixel = m_heightMap.data().nrComponents;
+	//for (int i = 0; i < height; i++)
+	//{
+	//	for (int j = 0; j < width; j++)
+	//	{
+	//		unsigned char* pixelOffset = m_heightMap.data().dataContent + (j + width * i) * bytePerPixel;
+	//		unsigned char y = pixelOffset[0];
+	//		Mesh::Vertex v;
+	//		v.position.x = -height / 2.0f + height * i / static_cast<float>(height);
+	//		v.position.y = static_cast<int>(y) * m_mult / 256.0 - m_shift;
+	//		v.position.z = -width / 2.0f + width * j / static_cast<float>(width);
+	//		v.texCoords.x = j / static_cast<float>(width - 1); // Normalized texture coordinate (0 to 1)
+	//		v.texCoords.y = i / static_cast<float>(height - 1); // Normalized texture coordinate (0 to 1)
 
-			m_vertices->vertices.push_back(v);
-		}
-	}
+	//		m_vertices->vertices.push_back(v);
+	//	}
+	//}
 
-	// Calculate normals
-	for (int i = 0; i < height; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
-			glm::vec3 left, right, up, down;
-			glm::vec3 normal(0.0f, 0.0f, 0.0f);
+	//// Calculate normals
+	//for (int i = 0; i < height; i++)
+	//{
+	//	for (int j = 0; j < width; j++)
+	//	{
+	//		glm::vec3 left, right, up, down;
+	//		glm::vec3 normal(0.0f, 0.0f, 0.0f);
 
-			// Get current vertex
-			Mesh::Vertex& v = m_vertices->vertices[i * width + j];
+	//		// Get current vertex
+	//		Mesh::Vertex& v = m_vertices->vertices[i * width + j];
 
-			// Calculate vectors around the current vertex
-			if (j > 0) // Left
-				left = m_vertices->vertices[i * width + (j - 1)].position - v.position;
-			if (j < width - 1) // Right
-				right = m_vertices->vertices[i * width + (j + 1)].position - v.position;
-			if (i > 0) // Up
-				up = m_vertices->vertices[(i - 1) * width + j].position - v.position;
-			if (i < height - 1) // Down
-				down = m_vertices->vertices[(i + 1) * width + j].position - v.position;
+	//		// Calculate vectors around the current vertex
+	//		if (j > 0) // Left
+	//			left = m_vertices->vertices[i * width + (j - 1)].position - v.position;
+	//		if (j < width - 1) // Right
+	//			right = m_vertices->vertices[i * width + (j + 1)].position - v.position;
+	//		if (i > 0) // Up
+	//			up = m_vertices->vertices[(i - 1) * width + j].position - v.position;
+	//		if (i < height - 1) // Down
+	//			down = m_vertices->vertices[(i + 1) * width + j].position - v.position;
 
-			// Calculate normals using cross products of adjacent vectors
-			if (j > 0 && i < height - 1) // Bottom-left
-				normal += normalize(cross(down, left));
-			if (j < width - 1 && i < height - 1) // Bottom-right
-				normal += normalize(cross(right, down));
-			if (j < width - 1 && i > 0) // Top-right
-				normal += normalize(cross(up, right));
-			if (j > 0 && i > 0) // Top-left
-				normal += normalize(cross(left, up));
+	//		// Calculate normals using cross products of adjacent vectors
+	//		if (j > 0 && i < height - 1) // Bottom-left
+	//			normal += normalize(cross(down, left));
+	//		if (j < width - 1 && i < height - 1) // Bottom-right
+	//			normal += normalize(cross(right, down));
+	//		if (j < width - 1 && i > 0) // Top-right
+	//			normal += normalize(cross(up, right));
+	//		if (j > 0 && i > 0) // Top-left
+	//			normal += normalize(cross(left, up));
 
-			v.normal = normalize(normal); // Normalize the accumulated normal
-		}
-	}
+	//		v.normal = normalize(normal); // Normalize the accumulated normal
+	//	}
+	//}
 
-	for (unsigned i = 0; i < height - 1; i++)
-	{
-		for (unsigned j = 0; j < width - 1; j++)
-		{
-			unsigned int topLeft = i * width + j;
-			unsigned int topRight = topLeft + 1;
-			unsigned int bottomLeft = (i + 1) * width + j;
-			unsigned int bottomRight = bottomLeft + 1;
+	//for (unsigned i = 0; i < height - 1; i++)
+	//{
+	//	for (unsigned j = 0; j < width - 1; j++)
+	//	{
+	//		unsigned int topLeft = i * width + j;
+	//		unsigned int topRight = topLeft + 1;
+	//		unsigned int bottomLeft = (i + 1) * width + j;
+	//		unsigned int bottomRight = bottomLeft + 1;
 
-			// First triangle
-			m_vertices->indices.push_back(topLeft);
-			m_vertices->indices.push_back(bottomLeft);
-			m_vertices->indices.push_back(topRight);
+	//		// First triangle
+	//		m_vertices->indices.push_back(topLeft);
+	//		m_vertices->indices.push_back(bottomLeft);
+	//		m_vertices->indices.push_back(topRight);
 
-			// Second triangle
-			m_vertices->indices.push_back(topRight);
-			m_vertices->indices.push_back(bottomLeft);
-			m_vertices->indices.push_back(bottomRight);
-		}
-	}
+	//		// Second triangle
+	//		m_vertices->indices.push_back(topRight);
+	//		m_vertices->indices.push_back(bottomLeft);
+	//		m_vertices->indices.push_back(bottomRight);
+	//	}
+	//}
 
-	m_strips = (height - 1) / rez;
-	m_stripTris = (width / rez) * 2 - 2;
+	//m_strips = (height - 1) / rez;
+	//m_stripTris = (width / rez) * 2 - 2;
 
-	m_vao.bind();
-	VBO vbo;
-	EBO ebo;
-	vbo.writeData(m_vertices->vertices.size() * sizeof(Mesh::Vertex), &m_vertices->vertices[0]);
-	ebo.writeData(sizeof(unsigned int) * m_vertices->indices.size(), m_vertices->indices.data());
-	// link vertex attributes
-	m_vao.addAttribPointer(0, 3, sizeof(Mesh::Vertex), nullptr);
-	m_vao.addAttribPointer(1, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
-	m_vao.addAttribPointer(2, 2, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
-	m_mesh->loadModel(m_vertices);
+	//m_vao.bind();
+	//VBO vbo;
+	//EBO ebo;
+	//vbo.writeData(m_vertices->vertices.size() * sizeof(Mesh::Vertex), &m_vertices->vertices[0]);
+	//ebo.writeData(sizeof(unsigned int) * m_vertices->indices.size(), m_vertices->indices.data());
+	//// link vertex attributes
+	//m_vao.addAttribPointer(0, 3, sizeof(Mesh::Vertex), nullptr);
+	//m_vao.addAttribPointer(1, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
+	//m_vao.addAttribPointer(2, 2, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
+	//m_mesh->loadModel(m_vertices);
 }
 
 void Prisma::TerrainComponent::heightMap(Texture heightMap)

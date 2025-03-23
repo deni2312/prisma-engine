@@ -15,15 +15,15 @@ void Prisma::GlobalData::currentGlobalScene(const std::shared_ptr<Scene>& curren
 	m_currentGlobalScene = currentGlobalScene;
 }
 
-std::shared_ptr<Prisma::FBO> Prisma::GlobalData::fboTarget() const
-{
-	return m_fboTarget;
-}
+//std::shared_ptr<Prisma::FBO> Prisma::GlobalData::fboTarget() const
+//{
+//	return m_fboTarget;
+//}
 
-void Prisma::GlobalData::fboTarget(const std::shared_ptr<FBO>& fboTarget)
-{
-	m_fboTarget = fboTarget;
-}
+//void Prisma::GlobalData::fboTarget(const std::shared_ptr<FBO>& fboTarget)
+//{
+//	m_fboTarget = fboTarget;
+//}
 
 std::unordered_map<uint64_t, Prisma::Component*>& Prisma::GlobalData::sceneComponents()
 {

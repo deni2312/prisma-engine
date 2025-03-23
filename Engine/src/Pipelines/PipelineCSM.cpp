@@ -10,12 +10,12 @@
 #include <glm/gtx/string_cast.hpp>
 #include "../../../GUI/include/TextureInfo.h"
 #include "../../include/Helpers/PrismaRender.h"
-
-static std::shared_ptr<Prisma::Shader> shader = nullptr;
-
-static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
-
-static std::shared_ptr<Prisma::SSBO> ssbo = nullptr;
+//
+//static std::shared_ptr<Prisma::Shader> shader = nullptr;
+//
+//static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
+//
+//static std::shared_ptr<Prisma::SSBO> ssbo = nullptr;
 
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height, bool post) : m_width{ width }, m_height{ height }
 {
@@ -28,9 +28,9 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height, bool p
 void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 {
 
-	m_lightDir = lightPos;
-	if (ssbo)
-	{
+	//m_lightDir = lightPos;
+	//if (ssbo)
+	//{
 		/*auto lightMatrices = getLightSpaceMatrices();
 
 		ssbo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
@@ -53,7 +53,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 		glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
 			Prisma::SettingsLoader().getInstance().getSettings().height);
 		// don't forget to configure the viewport to the capture dimensions.*/
-	}
+	//}
 }
 
 std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const glm::mat4& projview)

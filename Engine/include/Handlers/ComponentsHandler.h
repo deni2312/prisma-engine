@@ -17,11 +17,11 @@ namespace Prisma
 
 		void updateComponents();
 
-		void updateRender(std::shared_ptr<FBO> fbo = nullptr);
+		//void updateRender(std::shared_ptr<FBO> fbo = nullptr);
 
-		void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
+		//void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
 
-		void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
+		//void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
 
 		void addComponent(std::shared_ptr<Component> component);
 

@@ -1,8 +1,4 @@
 ﻿#include "../../include/Containers/Texture.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "../../include/Helpers/stb_image.h"
-#include "GL/glew.h"
-#include "../../include/Helpers/GarbageCollector.h"
 #include <iostream>
 #include <tuple>
 #include "../../include/GlobalData/GlobalData.h"
@@ -60,7 +56,7 @@ void Prisma::Texture::name(std::string name)
 
 bool Prisma::Texture::loadCubemap(std::vector<std::string> faces, bool srgb)
 {
-	unsigned int textureID;
+	/*unsigned int textureID;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
@@ -93,13 +89,13 @@ bool Prisma::Texture::loadCubemap(std::vector<std::string> faces, bool srgb)
 	m_id = glGetTextureHandleARB(textureID);
 	glMakeTextureHandleResidentARB(m_id);
 	m_rawId = textureID;
-
+	*/
 	return true;
 }
 
 bool Prisma::Texture::loadEquirectangular(std::string texture)
 {
-	stbi_set_flip_vertically_on_load(true);
+	/*stbi_set_flip_vertically_on_load(true);
 	int width, height, nrComponents;
 	float* data = stbi_loadf(texture.c_str(), &width, &height, &nrComponents, 0);
 	m_data.height = height;
@@ -131,7 +127,7 @@ bool Prisma::Texture::loadEquirectangular(std::string texture)
 	m_id = glGetTextureHandleARB(hdrTexture);
 	glMakeTextureHandleResidentARB(m_id);
 	stbi_set_flip_vertically_on_load(false);
-	m_rawId = hdrTexture;
+	m_rawId = hdrTexture;*/
 	return false;
 }
 
@@ -147,17 +143,6 @@ void Prisma::Texture::data(TextureData data)
 
 void Prisma::Texture::freeData()
 {
-	if (m_data.deleteStbi)
-	{
-		if (m_data.dataContent)
-		{
-			stbi_image_free(m_data.dataContent);
-		}
-	}
-	else
-	{
-		delete[] m_data.dataContent;
-	}
 }
 
 Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::Texture::texture()
