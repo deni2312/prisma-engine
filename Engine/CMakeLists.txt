@@ -38,4 +38,4 @@ find_package(implot CONFIG REQUIRED)
 target_link_libraries(PrismaEngineDll PRIVATE Jolt GLEW::glew glfw glm::glm assimp::assimp nlohmann_json::nlohmann_json implot::implot Diligent-GraphicsEngineD3D11-static
     Diligent-GraphicsEngineOpenGL-static
     Diligent-GraphicsEngineD3D12-static
-    Diligent-GraphicsEngineVk-static Diligent-TextureLoader Diligent-Imgui)
+    Diligent-GraphicsEngineVk-static Diligent-TextureLoader Diligent-Imgui Diligent-HLSL2GLSLConverterLib)

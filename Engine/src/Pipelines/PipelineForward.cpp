@@ -117,7 +117,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     ShaderCI.Desc.UseCombinedTextureSamplers = true;
 
     // Pack matrices in row-major order
-    ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
+    ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_HLSL_TO_SPIRV_VIA_GLSL;
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
     RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
@@ -141,7 +141,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         CBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
         contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_mvpVS);
     }
-
+    ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
     // Create a pixel shader
     RefCntAutoPtr<IShader> pPS;
     {
