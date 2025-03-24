@@ -752,11 +752,15 @@ void Prisma::MeshIndirect::updateAnimation()
 
 void Prisma::MeshIndirect::updateTextureSize()
 {
-	//m_textureViews.diffuse.clear();
+	m_textureViews.diffuse.clear();
 	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-	for (auto material : meshes)
+	for (const auto& material : meshes)
 	{
-		//m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	}
+	for (int i = meshes.size();i < Define::MAX_MESHES;i++)
+	{
+		m_textureViews.diffuse.push_back(Prisma::GlobalData::getInstance().dummyTexture());
 	}
 	//m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
 	//m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
