@@ -59,7 +59,7 @@ void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation, floa
 	m_BlendFactor = 0.0f;
 	calculateCurrentTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f));
 	auto transform = m_ssboAnimation;
-	for (int i = 0; i < MAX_BONES; i++)
+	for (int i = 0; i < Define::MAX_BONES; i++)
 	{
 		m_currentTransform[i] = transform.animations[i];
 	}
@@ -165,7 +165,7 @@ int Prisma::Animator::findUUID()
 
 void Prisma::Animator::blendAnimations(float blendFactor)
 {
-	for (int i = 0; i < MAX_BONES; i++)
+	for (int i = 0; i < Define::MAX_BONES; i++)
 	{
 		m_ssboAnimation.animations[i] = decomposeAndInterpolateMat4(m_currentTransform[i], m_previousTransform[i],
 		                                                            blendFactor);

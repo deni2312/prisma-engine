@@ -13,7 +13,7 @@ namespace Prisma
 			glm::vec4 minPoint;
 			glm::vec4 maxPoint;
 			unsigned int count;
-			unsigned int lightIndices[MAX_CLUSTER_SIZE];
+			unsigned int lightIndices[Define::MAX_CLUSTER_SIZE];
 		};
 
 		ClusterCalculation(unsigned int numClusters);

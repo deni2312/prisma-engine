@@ -50,7 +50,7 @@ Prisma::Engine::Engine()
 {
 	data = std::make_shared<PrivateData>();
 
-	SettingsLoader::getInstance().load(DIR_DEFAULT_SETTINGS);
+	SettingsLoader::getInstance().load(Define::DIR_DEFAULT_SETTINGS);
 
 	/*LightHandler::getInstance();
 

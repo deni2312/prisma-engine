@@ -565,7 +565,7 @@ namespace Prisma
 
 			light->hasShadow(hasShadow);
 			light->type(lightType);
-			light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR,true);
+			light->createShadow(Define::MAX_SHADOW_DIR, Define::MAX_SHADOW_DIR,true);
 			light->shadow()->nearPlane(nearPlane);
 			light->shadow()->farPlane(farPlane);
 		}
@@ -592,7 +592,7 @@ namespace Prisma
 			j.at("shadow").get_to(hasShadow);
 			light->hasShadow(hasShadow);
 			light->type(lightType);
-			light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI,true);
+			light->createShadow(Define::MAX_SHADOW_OMNI, Define::MAX_SHADOW_OMNI,true);
 			float intensity = 1;
 			j.at("intensity").get_to(intensity);
 			light->intensity(intensity);

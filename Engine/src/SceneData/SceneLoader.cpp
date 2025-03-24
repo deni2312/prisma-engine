@@ -253,7 +253,7 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
 		nodeRoot->addChild(currentMesh, false);
 		if (isAnimate)
 		{
-			if (m_scene->animateMeshes.size() < MAX_ANIMATION_MESHES)
+			if (m_scene->animateMeshes.size() < Define::MAX_ANIMATION_MESHES)
 			{
 				m_scene->animateMeshes.push_back(isAnimate);
 			}
@@ -271,7 +271,7 @@ void Prisma::SceneLoader::nodeIteration(std::shared_ptr<Node> nodeRoot, aiNode* 
 
 void Prisma::SceneLoader::setVertexBoneDataToDefault(AnimatedMesh::AnimateVertex& vertex)
 {
-	for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+	for (int i = 0; i < Define::MAX_BONE_INFLUENCE; i++)
 	{
 		vertex.m_BoneIDs[i] = -1;
 		vertex.m_Weights[i] = 0.0f;
@@ -545,7 +545,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
 				auto lightNode = m_nodeFinder.find(root, light->name());
 				lightNode->addChild(light, false);
 				light->finalMatrix(lightNode->finalMatrix(), false);
-				light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
+				light->createShadow(Define::MAX_SHADOW_DIR, Define::MAX_SHADOW_DIR);
 
 				m_scene->dirLights.push_back(light);
 
@@ -583,7 +583,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
 				auto lightNode = m_nodeFinder.find(root, light->name());
 				lightNode->addChild(light, false);
 				light->finalMatrix(lightNode->finalMatrix(), false);
-				light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
+				light->createShadow(Define::MAX_SHADOW_OMNI, Define::MAX_SHADOW_OMNI);
 
 				m_scene->omniLights.push_back(light);
 				break;
@@ -600,7 +600,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
 
 void Prisma::SceneLoader::setVertexBoneData(AnimatedMesh::AnimateVertex& vertex, int boneID, float weight)
 {
-	for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+	for (int i = 0; i < Define::MAX_BONE_INFLUENCE; ++i)
 	{
 		if (vertex.m_BoneIDs[i] < 0)
 		{

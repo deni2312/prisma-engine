@@ -330,9 +330,25 @@ void Prisma::PrismaFunc::init()
 		break;
 	}
 
-	Prisma::GlobalData::getInstance().defaultBlack().loadTexture({ DIR_DEFAULT_BLACK ,true});
-	Prisma::GlobalData::getInstance().defaultWhite().loadTexture({ DIR_DEFAULT_WHITE ,false});
-	Prisma::GlobalData::getInstance().defaultNormal().loadTexture({ DIR_DEFAULT_NORMAL ,false});
+	Prisma::GlobalData::getInstance().defaultBlack().loadTexture({ Define::DIR_DEFAULT_BLACK ,true});
+	Prisma::GlobalData::getInstance().defaultWhite().loadTexture({ Define::DIR_DEFAULT_WHITE ,false});
+	Prisma::GlobalData::getInstance().defaultNormal().loadTexture({ Define::DIR_DEFAULT_NORMAL ,false});
+
+	RefCntAutoPtr<ITexture> pDummyTexture;
+
+	TextureDesc TexDesc;
+	TexDesc.Name = "Dummy Texture";
+	TexDesc.Type = RESOURCE_DIM_TEX_2D;
+	TexDesc.Width = 1;
+	TexDesc.Height = 1;
+	TexDesc.Format = TEX_FORMAT_RGBA8_UNORM;
+	TexDesc.Usage = USAGE_DEFAULT;
+	TexDesc.BindFlags = BIND_SHADER_RESOURCE;
+
+
+	m_contextData.m_pDevice->CreateTexture(TexDesc, nullptr, &pDummyTexture);
+
+	Prisma::GlobalData::getInstance().dummyTexture(pDummyTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
 
 }
 
@@ -360,7 +376,7 @@ void Prisma::PrismaFunc::clear()
 {
 	auto pRTV = m_contextData.m_pSwapChain->GetCurrentBackBufferRTV();
 	auto pDSV = m_contextData.m_pSwapChain->GetDepthBufferDSV();
-	m_contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	m_contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 	m_contextData.m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 

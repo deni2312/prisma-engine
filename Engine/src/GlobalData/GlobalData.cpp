@@ -100,3 +100,13 @@ void Prisma::GlobalData::addGlobalTexture(GlobalTextureInfo texture) {
 const std::vector<Prisma::GlobalData::GlobalTextureInfo>& Prisma::GlobalData::globalTextures() {
 	return m_textures;
 }
+
+Diligent::ITextureView* Prisma::GlobalData::dummyTexture()
+{
+	return m_pDummySRV;
+}
+
+void Prisma::GlobalData::dummyTexture(Diligent::ITextureView* dummy)
+{
+	m_pDummySRV = dummy;
+}

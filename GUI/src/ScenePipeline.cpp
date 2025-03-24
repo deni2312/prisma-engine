@@ -145,7 +145,7 @@ void Prisma::ScenePipeline::render(glm::mat4 model)
     // Clear the back buffer
     contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.m_pImmediateContext->ClearDepthStencil(pDSV, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 	contextData.m_pImmediateContext->SetPipelineState(m_pso);

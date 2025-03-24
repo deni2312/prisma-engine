@@ -1,6 +1,6 @@
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.hlsl"
 
-Texture2D diffuseTexture[8];
+Texture2D diffuseTexture[MAX_TEXTURES];
 SamplerState diffuseTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
 
 Texture2D normalTexture;

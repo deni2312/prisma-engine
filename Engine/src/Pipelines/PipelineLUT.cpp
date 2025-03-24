@@ -166,7 +166,7 @@ void Prisma::PipelineLUT::texture()
     // Clear the back buffer
     contextData.m_pImmediateContext->SetRenderTargets(1, &m_pMSColorRTV, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    contextData.m_pImmediateContext->ClearRenderTarget(m_pMSColorRTV, glm::value_ptr(CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearRenderTarget(m_pMSColorRTV, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     contextData.m_pImmediateContext->SetPipelineState(m_pso);
 

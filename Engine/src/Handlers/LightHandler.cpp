@@ -33,7 +33,7 @@ Prisma::LightHandler::LightHandler()
 	OmniDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
 	OmniDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
 	OmniDesc.ElementByteStride = sizeof(LightType::LightOmni);
-	OmniDesc.Size = MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);
+	OmniDesc.Size = Define::MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);
 	contextData.m_pDevice->CreateBuffer(OmniDesc, nullptr, &m_omniLights);
 
 	Diligent::BufferDesc LightSizeDesc;
@@ -211,7 +211,7 @@ void Prisma::LightHandler::update()
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
 		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus())
 	{
-		if (scene->dirLights.size() < MAX_DIR_LIGHTS && scene->omniLights.size() < MAX_OMNI_LIGHTS && scene->areaLights.size() < MAX_AREA_LIGHTS)
+		if (scene->dirLights.size() < Define::MAX_DIR_LIGHTS && scene->omniLights.size() < Define::MAX_OMNI_LIGHTS && scene->areaLights.size() < Define::MAX_AREA_LIGHTS)
 		{
 			updateDirectional();
 			updateOmni();

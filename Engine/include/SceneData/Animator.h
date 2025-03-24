@@ -60,9 +60,9 @@ namespace Prisma
 
 		glm::mat4 decomposeAndInterpolateMat4(const glm::mat4& matA, const glm::mat4& matB, float t);
 
-		glm::mat4 m_currentTransform[MAX_BONES];
+		glm::mat4 m_currentTransform[Define::MAX_BONES];
 
-		glm::mat4 m_previousTransform[MAX_BONES];
+		glm::mat4 m_previousTransform[Define::MAX_BONES];
 
 		AnimationHandler::SSBOAnimation m_ssboAnimation;
 	};

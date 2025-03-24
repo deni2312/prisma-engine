@@ -36,6 +36,7 @@
 #include "../../include/Handlers/LightHandler.h"
 #include "../../include/Pipelines/PipelineHandler.h"
 #include "../../include/GlobalData/GlobalShaderNames.h"
+#include <string>
 
 using namespace Diligent;
 
@@ -109,6 +110,11 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // clang-format on
 
     ShaderCreateInfo ShaderCI;
+
+    auto maxString = std::to_string(Define::MAX_MESHES);
+
+    ShaderMacro Macros[] = { {"MAX_TEXTURES", maxString.c_str()}};
+    ShaderCI.Macros = { Macros, _countof(Macros) };
     // Tell the system that the shader source code is in HLSL.
     // For OpenGL, the engine will convert this into GLSL under the hood.
     ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
@@ -234,7 +240,7 @@ void Prisma::PipelineForward::render(){
     // Clear the back buffer
     contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // Set the pipeline state

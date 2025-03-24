@@ -12,7 +12,7 @@ namespace Prisma
 	public:
 		struct SSBOAnimation
 		{
-			glm::mat4 animations[MAX_BONES];
+			glm::mat4 animations[Define::MAX_BONES];
 		};
 
 		void fill();

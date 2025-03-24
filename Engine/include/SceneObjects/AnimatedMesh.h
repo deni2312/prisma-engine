@@ -26,9 +26,9 @@ namespace Prisma
 			glm::vec2 texCoords = glm::vec2(0, 0);
 			glm::vec3 tangent = glm::vec3(0, 0, 0);
 			glm::vec3 bitangent = glm::vec3(0, 0, 0);
-			int m_BoneIDs[MAX_BONE_INFLUENCE];
+			int m_BoneIDs[Define::MAX_BONE_INFLUENCE];
 			//weights from each bone
-			float m_Weights[MAX_BONE_INFLUENCE];
+			float m_Weights[Define::MAX_BONE_INFLUENCE];
 		};
 
 		struct AnimateVerticesData

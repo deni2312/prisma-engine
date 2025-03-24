@@ -181,7 +181,7 @@ std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createOmnidirectional()
 	parent->name("ParentOmnidirectional_" + std::to_string(parent->uuid()));
 	auto light = std::make_shared<Light<LightType::LightOmni>>();
 	light->name("Omnidirectional_" + std::to_string(light->uuid()));
-	light->createShadow(MAX_SHADOW_OMNI, MAX_SHADOW_OMNI);
+	light->createShadow(Define::MAX_SHADOW_OMNI, Define::MAX_SHADOW_OMNI);
 	parent->addChild(light);
 	Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parent);
 	return light;
@@ -193,7 +193,7 @@ std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createDirectional()
 	parent->name("ParentDirectional_" + std::to_string(parent->uuid()));
 	auto light = std::make_shared<Light<LightType::LightDir>>();
 	light->name("Directional" + std::to_string(light->uuid()));
-	light->createShadow(MAX_SHADOW_DIR, MAX_SHADOW_DIR);
+	light->createShadow(Define::MAX_SHADOW_DIR, Define::MAX_SHADOW_DIR);
 	parent->addChild(light);
 	Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parent);
 	return light;
