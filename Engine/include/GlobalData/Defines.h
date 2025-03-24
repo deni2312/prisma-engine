@@ -11,6 +11,7 @@ constexpr int MAX_BONES = 128;
 constexpr int MAX_ANIMATION_MESHES = 1024;
 constexpr int MAX_SHADOW_OMNI = 1024;
 constexpr int MAX_SHADOW_DIR = 4096;
+constexpr int MAX_MESHES = 2048;
 const std::string DIR_DEFAULT_BLACK = "../../../Resources/res/black.png";
 const std::string DIR_DEFAULT_WHITE = "../../../Resources/res/white.jpg";
 const std::string DIR_DEFAULT_SCENE = "../../../Resources/BasicScene/BasicScene.gltf";

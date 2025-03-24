@@ -24,6 +24,7 @@ struct PSInput
     float2 UV : TEX_COORD;
     float3 FragPos : TEX_COORD1; // Fragment position in world space
     float3 NormalPS : NORMAL;
+    int drawId : TEXCOORD2;
 };
 
 cbuffer ViewProjection

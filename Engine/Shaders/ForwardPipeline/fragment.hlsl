@@ -1,6 +1,6 @@
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.hlsl"
 
-Texture2D diffuseTexture;
+Texture2D diffuseTexture[8];
 SamplerState diffuseTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
 
 Texture2D normalTexture;
@@ -17,7 +17,7 @@ struct PSOutput
 void main(in PSInput PSIn,
           out PSOutput PSOut)
 {
-    float4 diffuse = diffuseTexture.Sample(diffuseTexture_sampler, PSIn.UV);
+    float4 diffuse = diffuseTexture[PSIn.drawId].Sample(diffuseTexture_sampler, PSIn.UV);
     float3 normal = GetNormalFromMap(normalTexture, normalTexture_sampler, PSIn.UV, PSIn.FragPos, PSIn.NormalPS);
     float4 rm = rmTexture.Sample(rmTexture_sampler, PSIn.UV);
 

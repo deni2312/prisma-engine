@@ -29,6 +29,13 @@ namespace Prisma
 		//std::shared_ptr<VBO> m_vboAnimation;
 		//std::shared_ptr<EBO> m_eboAnimation;
 
+		struct MaterialView
+		{
+			std::vector<Diligent::IDeviceObject*> diffuse;
+		};
+
+		MaterialView m_textureViews;
+
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indirectBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelBuffer;
 		Diligent::DrawIndexedIndirectAttribs m_commandsBuffer;

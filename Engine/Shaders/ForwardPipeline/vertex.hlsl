@@ -24,6 +24,7 @@ struct PSInput
     float2 UV : TEX_COORD;
     float3 FragPos : TEX_COORD1; // Fragment position in world space
     float3 NormalPS : NORMAL;
+    int drawId : TEX_COORD2;
 };
 
 struct MeshData
@@ -42,4 +43,5 @@ void main(in VSInput VSIn,
     PSIn.Pos = projection*view*worldPos;
     PSIn.UV = VSIn.UV;
     PSIn.FragPos = worldPos.xyz; // Store world position for fragment shading
+    PSIn.drawId = gl_DrawIDARB;
 }

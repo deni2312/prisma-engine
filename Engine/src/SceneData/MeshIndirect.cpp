@@ -78,9 +78,9 @@ void Prisma::MeshIndirect::updatePso()
 	auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 	m_srb.Release();
 	m_pso->CreateShaderResourceBinding(&m_srb, true);
+	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(m_textureViews.diffuse.data(), 0, m_textureViews.diffuse.size());
 	if (!meshes.empty()) {
 		auto material = meshes[0]->material();
-		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->Set(material->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->Set(material->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->Set(material->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 	}
@@ -224,6 +224,7 @@ void Prisma::MeshIndirect::updateSize()
 	m_materialData.clear();
 	m_drawCommands.clear();
 	m_updateModels.clear();
+	m_textureViews.diffuse.clear();
 
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
@@ -248,15 +249,10 @@ void Prisma::MeshIndirect::updateSize()
 		//m_ssboId->resize(sizeof(unsigned int) * (models.size()));
 		//m_ssboAABB->modifyData(0, sizeof(Prisma::Mesh::AABBssbo) * models.size(), aabb.data());
 
-
 		//PUSH MATERIAL TO AN SSBO WITH ID 0
 		for (const auto& material : meshes)
 		{
-			m_materialData.push_back({
-				material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
-				material->material()->roughnessMetalness()[0].id(), material->material()->specular()[0].id(),
-				material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
-			});
+			m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 		}
 		//m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
 		//m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
@@ -438,6 +434,7 @@ void Prisma::MeshIndirect::updateSize()
 		//// Upload the draw commands to the buffer
 		//glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), nullptr,
 		//             GL_DYNAMIC_DRAW);
+		updatePso();
 	}
 	//updateAnimation();
 }
@@ -751,16 +748,12 @@ void Prisma::MeshIndirect::updateAnimation()
 
 void Prisma::MeshIndirect::updateTextureSize()
 {
-	//m_materialData.clear();
-	//auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-	//for (auto material : meshes)
-	//{
-	//	m_materialData.push_back({
-	//		material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
-	//		material->material()->roughnessMetalness()[0].id(), material->material()->specular()[0].id(),
-	//		material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
-	//	});
-	//}
+	//m_textureViews.diffuse.clear();
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+	for (auto material : meshes)
+	{
+		//m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	}
 	//m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
 	//m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
 
