@@ -40,7 +40,6 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 		auto mesh = std::dynamic_pointer_cast<Mesh>(node);
 		if (mesh)
 		{
-			mesh->uploadGPU();
 			bool anisotropic = true;
 			if (!mesh->material()->diffuse()[0].name().empty())
 			{

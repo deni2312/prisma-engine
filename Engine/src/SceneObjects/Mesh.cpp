@@ -131,29 +131,3 @@ Prisma::Mesh::AABBData Prisma::Mesh::aabbData()
 {
 	return m_aabbData;
 }
-
-void Prisma::Mesh::uploadGPU()
-{
-	if (m_vertices) {
-		// Create a vertex buffer that stores cube vertices
-		Diligent::BufferDesc VertBuffDesc;
-		VertBuffDesc.Name = "Vertices Data";
-		VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-		VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
-		VertBuffDesc.Size = sizeof(Prisma::Mesh::Vertex) * m_vertices->vertices.size();
-		Diligent::BufferData VBData;
-		VBData.pData = m_vertices->vertices.data();
-		VBData.DataSize = sizeof(Prisma::Mesh::Vertex) * m_vertices->vertices.size();
-		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
-
-		Diligent::BufferDesc IndBuffDesc;
-		IndBuffDesc.Name = "Index Data";
-		IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-		IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
-		IndBuffDesc.Size = sizeof(unsigned int) * m_vertices->indices.size();
-		Diligent::BufferData IBData;
-		IBData.pData = m_vertices->indices.data();
-		IBData.DataSize = sizeof(unsigned int) * m_vertices->indices.size();
-		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
-	}
-}

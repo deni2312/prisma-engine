@@ -472,7 +472,6 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	else
 	{
 		currentMesh->loadModel(data);
-		currentMesh->uploadGPU();
 	}
 	return currentMesh;
 }

@@ -67,8 +67,6 @@ namespace Prisma
 		virtual void computeAABB();
 		AABBData aabbData();
 
-		void uploadGPU();
-
 		int vectorId();
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> vBuffer();
