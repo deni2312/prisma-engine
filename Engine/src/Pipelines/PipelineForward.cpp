@@ -131,15 +131,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         ShaderCI.Desc.Name = "Forward VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.hlsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
-        // Create dynamic uniform buffer that will store our transformation matrix
-        // Dynamic buffers can be frequently updated by the CPU
-        BufferDesc CBDesc;
-        CBDesc.Name = "VS";
-        CBDesc.Size = sizeof(ModelNormal);
-        CBDesc.Usage = USAGE_DYNAMIC;
-        CBDesc.BindFlags = BIND_UNIFORM_BUFFER;
-        CBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
-        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_mvpVS);
     }
     ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
     // Create a pixel shader
@@ -221,11 +212,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
 
-    // Since we did not explicitly specify the type for 'Constants' variable, default
-    // type (SHADER_RESOURCE_VARIABLE_TYPE_STATIC) will be used. Static variables never
-    // change and are bound directly through the pipeline state object.
-    m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
-
     m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
     m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
@@ -259,13 +245,6 @@ void Prisma::PipelineForward::render(){
     if (!meshes.empty())
     {
         Prisma::MeshIndirect::getInstance().setupBuffers();
-        {
-            // Map the buffer and write current world-view-projection matrix
-            MapHelper<ModelNormal> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
-            CBConstants->model = glm::mat4(1.0);
-            CBConstants->normal = glm::mat4(glm::transpose(glm::inverse(glm::mat3(glm::mat4(1.0)))));
-        }
-
         // Set texture SRV in the SRB
         contextData.m_pImmediateContext->CommitShaderResources(Prisma::MeshIndirect::getInstance().srb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Prisma::MeshIndirect::getInstance().renderMeshes();

@@ -35,7 +35,7 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
 
-		void resizeModels(std::vector<glm::mat4>& models);
+		void resizeModels(std::vector<Prisma::Mesh::MeshData>& models);
 
 		//INDIRECT INDEX
 

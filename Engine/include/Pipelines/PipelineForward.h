@@ -33,7 +33,6 @@ namespace Prisma
 
 		std::shared_ptr<PipelinePrePass> m_prepass;*/
 
-		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_mvpVS;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
 		Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
@@ -42,12 +41,6 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
 
         void CreateMSAARenderTarget();
-
-		struct ModelNormal
-		{
-			glm::mat4 model;
-			glm::mat4 normal;
-		};
 
 	};
 }

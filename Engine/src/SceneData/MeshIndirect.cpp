@@ -229,11 +229,11 @@ void Prisma::MeshIndirect::updateSize()
 
 	if (!meshes.empty())
 	{
-		std::vector<glm::mat4> models;
+		std::vector<Prisma::Mesh::MeshData> models;
 		std::vector<Prisma::Mesh::AABBssbo> aabb;
 		for (int i = 0; i < meshes.size(); i++)
 		{
-			models.push_back(meshes[i]->parent()->finalMatrix());
+			models.push_back({ meshes[i]->parent()->finalMatrix() ,glm::transpose(glm::inverse(meshes[i]->parent()->finalMatrix()))});
 			aabb.push_back(
 				{glm::vec4(meshes[i]->aabbData().center, 1.0), glm::vec4(meshes[i]->aabbData().extents, 1.0)});
 			meshes[i]->vectorId(i);
@@ -450,6 +450,9 @@ void Prisma::MeshIndirect::updateModels()
 	{
 		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model.first]->parent()->
 			finalMatrix();
+		std::shared_ptr<Prisma::Mesh::MeshData> meshData=std::make_shared<Prisma::Mesh::MeshData>();
+		meshData->model = finalMatrix;
+		meshData->normal = glm::transpose(glm::inverse(finalMatrix));
 		auto ssbo = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model.first]->aabbData();
 		Prisma::Mesh::AABBssbo aabb = {glm::vec4(ssbo.center, 1.0), glm::vec4(ssbo.extents, 1.0)};
 
@@ -457,7 +460,7 @@ void Prisma::MeshIndirect::updateModels()
 		//m_ssboModel->modifyData(sizeof(glm::mat4) * model.first, sizeof(glm::mat4),
 		//                            glm::value_ptr(finalMatrix));
 		//m_ssboAABB->modifyData(sizeof(Prisma::Mesh::AABBssbo) * model.first, sizeof(Prisma::Mesh::AABBssbo), &aabb);
-		contextData.m_pImmediateContext->UpdateBuffer(m_modelBuffer, sizeof(glm::mat4) * model.first, sizeof(glm::mat4), glm::value_ptr(finalMatrix), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+		contextData.m_pImmediateContext->UpdateBuffer(m_modelBuffer, sizeof(Prisma::Mesh::MeshData) * model.first, sizeof(Prisma::Mesh::MeshData), meshData.get(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 	}
 
 
@@ -551,7 +554,7 @@ Prisma::MeshIndirect::MeshIndirect()
 	contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBuffer);
 }
 
-void Prisma::MeshIndirect::resizeModels(std::vector<glm::mat4>& models)
+void Prisma::MeshIndirect::resizeModels(std::vector<Prisma::Mesh::MeshData>& models)
 {
 	m_modelBuffer.Release();
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
@@ -561,8 +564,8 @@ void Prisma::MeshIndirect::resizeModels(std::vector<glm::mat4>& models)
 	MatBufferDesc.Usage = Diligent::USAGE_DEFAULT;
 	MatBufferDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
 	MatBufferDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-	MatBufferDesc.ElementByteStride = sizeof(glm::mat4);
-	auto size = sizeof(glm::mat4) * models.size();
+	MatBufferDesc.ElementByteStride = sizeof(Prisma::Mesh::MeshData);
+	auto size = sizeof(Prisma::Mesh::MeshData) * models.size();
 	MatBufferDesc.Size = size; // Ensure enough space
 	Diligent::BufferData InitData;
 	InitData.pData = models.data();

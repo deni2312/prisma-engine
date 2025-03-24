@@ -1,11 +1,5 @@
 #extension GL_ARB_shader_draw_parameters : enable
 
-cbuffer Constants
-{
-    float4x4 g_WorldViewProj;
-    float4x4 g_Normal;
-};
-
 cbuffer ViewProjection
 {
     float4x4 view;
@@ -32,13 +26,19 @@ struct PSInput
     float3 NormalPS : NORMAL;
 };
 
-StructuredBuffer<float4x4> models;
+struct MeshData
+{
+    float4x4 model;
+    float4x4 normal;
+};
+
+StructuredBuffer<MeshData> models;
 
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    float4 worldPos = models[gl_DrawIDARB] * float4(VSIn.Pos, 1.0);
-    PSIn.NormalPS = float3(g_Normal * float4(VSIn.Normal, 1.0));
+    float4 worldPos = models[gl_DrawIDARB].model * float4(VSIn.Pos, 1.0);
+    PSIn.NormalPS = float3(models[gl_DrawIDARB].normal * float4(VSIn.Normal, 1.0));
     PSIn.Pos = projection*view*worldPos;
     PSIn.UV = VSIn.UV;
     PSIn.FragPos = worldPos.xyz; // Store world position for fragment shading
