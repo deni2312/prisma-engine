@@ -2,6 +2,7 @@
 #include "../include/ImguiHelper.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
 #include "../../Engine/include/Helpers/StringHelper.h"
+#include "../../Engine/include/SceneData/MeshIndirect.h"
 #include "../include/TextureInfo.h"
 #include "ThirdParty/imgui/imgui.h"
 
@@ -90,7 +91,7 @@ void Prisma::FileBrowser::listDirectoryContents()
 										Prisma::GlobalData::getInstance().currentGlobalScene(scene);
 									}
 								}
-								//MeshIndirect::getInstance().init();
+								Prisma::MeshIndirect::getInstance().init();
 								CacheScene::getInstance().updateSizes(true);
 							}
 						}

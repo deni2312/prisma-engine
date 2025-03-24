@@ -39,31 +39,6 @@
 
 using namespace Diligent;
 
-struct DrawIndexedIndirectArgs
-{
-    uint32_t IndexCount;      // Number of indices to draw
-    uint32_t InstanceCount;   // Number of instances to draw
-    uint32_t FirstIndex;      // Starting index in the index buffer
-    int32_t  VertexOffset;    // Added to each index before fetching a vertex
-    uint32_t FirstInstance;   // First instance ID
-};
-
-struct VerticesDataIndex
-{
-    Prisma::Mesh::Vertex vertex;
-    unsigned int index;
-};
-
-Diligent::RefCntAutoPtr<Diligent::IBuffer> indirectBuffer;
-Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelBuffer;
-DrawIndexedIndirectAttribs commands;
-std::vector<DrawIndexedIndirectArgs> items;
-Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
-Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
-bool create = false;
-
-
-
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{
 	                                                                                                             width
                                                                                                              }, m_height{height}
@@ -204,9 +179,10 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     ShaderResourceVariableDesc Vars[] =
     {
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_NORMAL_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_ROUGHNESS_METALNESS_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
@@ -221,9 +197,9 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     };
     ImmutableSamplerDesc ImtblSamplers[] =
     {
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str(), SamLinearClampDesc},
-        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_NORMAL_TEXTURE.c_str(), SamLinearClampDesc },
-        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_ROUGHNESS_METALNESS_TEXTURE.c_str(), SamLinearClampDesc }
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), SamLinearClampDesc},
+        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), SamLinearClampDesc },
+        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(), SamLinearClampDesc }
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
@@ -242,19 +218,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         m_SampleCount = 1;
     }
     PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_SampleCount;*/
-
-    BufferDesc MatBufferDesc;
-    MatBufferDesc.Name = "Mesh Transform Buffer";
-    MatBufferDesc.Usage = Diligent::USAGE_DEFAULT;
-    MatBufferDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
-    MatBufferDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    MatBufferDesc.ElementByteStride = sizeof(glm::mat4);
-    MatBufferDesc.Size = sizeof(glm::mat4) * 100; // Ensure enough space
-    contextData.m_pDevice->CreateBuffer(MatBufferDesc, nullptr, &m_modelBuffer);
-
     contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
-    m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Models")->Set(m_modelBuffer->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
 
     // Since we did not explicitly specify the type for 'Constants' variable, default
     // type (SHADER_RESOURCE_VARIABLE_TYPE_STATIC) will be used. Static variables never
@@ -271,6 +236,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // Create a shader resource binding object and bind all static resources in it
 
     //CreateMSAARenderTarget();
+
+    Prisma::MeshIndirect::getInstance().bindPipeline(m_pso);
 }
 
 void Prisma::PipelineForward::render(){
@@ -284,7 +251,6 @@ void Prisma::PipelineForward::render(){
     contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-
     // Set the pipeline state
     contextData.m_pImmediateContext->SetPipelineState(m_pso);
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
@@ -292,99 +258,7 @@ void Prisma::PipelineForward::render(){
     auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
     if (!meshes.empty())
     {
-        if (!create)
-        {
-            int sizeV = 0;
-            int sizeI = 0;
-            std::vector<Prisma::Mesh::Vertex> vertices;
-            std::vector<unsigned int> indices;
-
-            std::vector<glm::mat4> models;
-            int i = 0;
-            std::vector<unsigned int> instanceIndices;
-            for (auto mesh : meshes)
-            {
-                sizeV += mesh->verticesData().vertices.size();
-                sizeI += mesh->verticesData().indices.size();
-                vertices.insert(
-                    vertices.end(),
-                    mesh->verticesData().vertices.begin(),
-                    mesh->verticesData().vertices.end()
-                );
-                indices.insert(
-                    indices.end(),
-                    mesh->verticesData().indices.begin(),
-                    mesh->verticesData().indices.end()
-                );
-                models.push_back(mesh->parent()->finalMatrix());
-                instanceIndices.push_back(i);
-                i++;
-            }
-            auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-            contextData.m_pImmediateContext->UpdateBuffer(m_modelBuffer, 0, models.size() * sizeof(glm::mat4), models.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-            // Create a vertex buffer that stores cube vertices
-            Diligent::BufferDesc VertBuffDesc;
-            VertBuffDesc.Name = "Vertices Data";
-            VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-            VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
-            VertBuffDesc.Size = sizeof(VerticesDataIndex) * sizeV;
-            Diligent::BufferData VBData;
-            VBData.pData = vertices.data();
-            VBData.DataSize = sizeof(VerticesDataIndex) * sizeV;
-            Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
-
-            Diligent::BufferDesc IndBuffDesc;
-            IndBuffDesc.Name = "Index Data";
-            IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-            IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
-            IndBuffDesc.Size = sizeof(unsigned int) * sizeI;
-            Diligent::BufferData IBData;
-            IBData.pData = indices.data();
-            IBData.DataSize = sizeof(unsigned int) * sizeI;
-            Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
-
-            int currentIndex = 0;
-            int currentVertex = 0;
-
-
-            for (auto& mesh : meshes)
-            {
-                DrawIndexedIndirectArgs item;
-                item.VertexOffset = currentVertex;
-                item.FirstIndex = currentIndex;
-                item.IndexCount = mesh->verticesData().indices.size();
-                item.FirstInstance = 0;
-                item.InstanceCount = 1;
-                items.push_back(item);
-                currentIndex = currentIndex + mesh->verticesData().indices.size();
-                currentVertex = currentVertex + mesh->verticesData().vertices.size();
-            }
-
-
-            BufferDesc IndirectBufferDesc;
-            IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
-            IndirectBufferDesc.Usage = USAGE_DEFAULT;
-            IndirectBufferDesc.BindFlags = BIND_INDIRECT_DRAW_ARGS;
-            IndirectBufferDesc.Size = sizeof(DrawIndexedIndirectArgs) * meshes.size();
-            IndirectBufferDesc.ElementByteStride = sizeof(DrawIndexedIndirectArgs);
-            BufferData InitData;
-            InitData.pData = items.data();
-            InitData.DataSize = sizeof(DrawIndexedIndirectArgs) * meshes.size();
-            contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, &InitData, &indirectBuffer);
-
-            commands.DrawCount = meshes.size();
-            commands.DrawArgsOffset = 0;
-            commands.Flags = DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
-            commands.IndexType = VT_UINT32;
-            commands.pAttribsBuffer = indirectBuffer;
-
-            create = true;
-        }
-        // Bind vertex and index buffers
-        const Uint64 offsets[] = { 0 };
-        IBuffer* pBuffs[] = { m_vBuffer };
-        contextData.m_pImmediateContext->SetVertexBuffers(0, _countof(pBuffs), pBuffs, offsets, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
-        contextData.m_pImmediateContext->SetIndexBuffer(m_iBuffer, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        Prisma::MeshIndirect::getInstance().setupBuffers();
         {
             // Map the buffer and write current world-view-projection matrix
             MapHelper<ModelNormal> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
@@ -393,34 +267,8 @@ void Prisma::PipelineForward::render(){
         }
 
         // Set texture SRV in the SRB
-        contextData.m_pImmediateContext->CommitShaderResources(meshes[0]->material()->srb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        contextData.m_pImmediateContext->DrawIndexedIndirect(commands);
-
-    }
-    else {
-        for (auto mesh : meshes) {
-            // Bind vertex and index buffers
-            const Uint64 offset = 0;
-            IBuffer* pBuffs[] = { mesh->vBuffer() };
-            contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
-            contextData.m_pImmediateContext->SetIndexBuffer(mesh->iBuffer(), 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-            {
-                // Map the buffer and write current world-view-projection matrix
-                MapHelper<ModelNormal> CBConstants(contextData.m_pImmediateContext, m_mvpVS, MAP_WRITE, MAP_FLAG_DISCARD);
-                CBConstants->model = mesh->parent()->finalMatrix();
-                CBConstants->normal = glm::mat4(glm::transpose(glm::inverse(glm::mat3(mesh->parent()->finalMatrix()))));
-            }
-
-            // Set texture SRV in the SRB
-            contextData.m_pImmediateContext->CommitShaderResources(mesh->material()->srb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-            DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
-            DrawAttrs.IndexType = VT_UINT32; // Index type
-            DrawAttrs.NumIndices = mesh->verticesData().indices.size();
-            // Verify the state of vertex and index buffers
-            DrawAttrs.Flags = DRAW_FLAG_VERIFY_ALL;
-            contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
-        }
+        contextData.m_pImmediateContext->CommitShaderResources(Prisma::MeshIndirect::getInstance().srb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        Prisma::MeshIndirect::getInstance().renderMeshes();
     }
     // Resolve multi-sampled render target into the current swap chain back buffer.
     /*auto pCurrentBackBuffer = contextData.m_pSwapChain->GetCurrentBackBufferRTV()->GetTexture();

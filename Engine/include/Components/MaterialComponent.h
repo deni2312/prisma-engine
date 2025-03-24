@@ -73,10 +73,6 @@ namespace Prisma
 
 		bool plain();
 
-		void bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso);
-
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb();
-
 	private:
 		std::vector<Texture> m_diffuse;
 		std::vector<Texture> m_normal;
@@ -89,10 +85,6 @@ namespace Prisma
 		std::shared_ptr<std::string> m_metalness_roughnessName;
 		std::shared_ptr<std::string> m_specularName;
 		std::shared_ptr<std::string> m_ambientOcclusionName;
-
-		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
 		glm::vec4 m_color=glm::vec4(0);
 

@@ -46,7 +46,6 @@ void Prisma::MaterialComponent::ui()
 				diffuse(diffuseTextures);
 				auto data= static_cast<Prisma::Component::ImageButton*>(std::get<2>(m_globalVars[0].type));
 				data->texture= m_diffuse[0];
-				bindPipeline(Prisma::PipelineHandler::getInstance().forward()->pso());
 			}
 		};
 	m_normalButton = [&]() {
@@ -275,18 +274,4 @@ void Prisma::MaterialComponent::plain(bool plain)
 bool Prisma::MaterialComponent::plain()
 {
 	return m_plain;
-}
-
-void Prisma::MaterialComponent::bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso)
-{
-	m_pso = pso;
-	pso->CreateShaderResourceBinding(&m_srb, true);
-	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIFFUSE_TEXTURE.c_str())->Set(diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_NORMAL_TEXTURE.c_str())->Set(normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_ROUGHNESS_METALNESS_TEXTURE.c_str())->Set(roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-}
-
-Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::MaterialComponent::srb()
-{
-	return m_srb;
 }

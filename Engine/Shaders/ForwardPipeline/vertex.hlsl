@@ -32,12 +32,12 @@ struct PSInput
     float3 NormalPS : NORMAL;
 };
 
-StructuredBuffer<float4x4> Models;
+StructuredBuffer<float4x4> models;
 
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    float4 worldPos = Models[gl_DrawIDARB] * float4(VSIn.Pos, 1.0);
+    float4 worldPos = models[gl_DrawIDARB] * float4(VSIn.Pos, 1.0);
     PSIn.NormalPS = float3(g_Normal * float4(VSIn.Normal, 1.0));
     PSIn.Pos = projection*view*worldPos;
     PSIn.UV = VSIn.UV;

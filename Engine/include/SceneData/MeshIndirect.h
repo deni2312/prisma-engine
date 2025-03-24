@@ -17,7 +17,6 @@ namespace Prisma
 		unsigned int baseVertex;
 		unsigned int baseInstance;
 	};
-
 	class MeshIndirect : public InstanceData<MeshIndirect>
 	{
 		//BINDING DATA
@@ -29,6 +28,14 @@ namespace Prisma
 		//std::shared_ptr<VAO> m_vaoAnimation;
 		//std::shared_ptr<VBO> m_vboAnimation;
 		//std::shared_ptr<EBO> m_eboAnimation;
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indirectBuffer;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelBuffer;
+		Diligent::DrawIndexedIndirectAttribs m_commandsBuffer;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
+
+		void resizeModels(std::vector<glm::mat4>& models);
 
 		//INDIRECT INDEX
 
@@ -120,6 +127,12 @@ namespace Prisma
 
 		unsigned int m_sizeAtomic;
 
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+
+		void updatePso();
+
 	public:
 		//std::shared_ptr<VAO> vao();
 
@@ -128,6 +141,8 @@ namespace Prisma
 		//std::shared_ptr<EBO> ebo();
 
 		Prisma::Mesh::VerticesData& verticesData();
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> modelsBuffer();
 
 		void load();
 
@@ -154,6 +169,12 @@ namespace Prisma
 		void updateModels();
 		void updateTextureSize();
 		void updateStatus() const;
+
+		void setupBuffers();
+
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb();
+
+		void bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso);
 
 		MeshIndirect();
 	};

@@ -473,7 +473,6 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	{
 		currentMesh->loadModel(data);
 		currentMesh->uploadGPU();
-		currentMaterial->bindPipeline(Prisma::PipelineHandler::getInstance().forward()->pso());
 	}
 	return currentMesh;
 }

@@ -10,6 +10,7 @@
 #include "../../include/GlobalData/CacheScene.h"
 #include "../../include/Helpers/SettingsLoader.h"
 #include "../../include/Helpers/FrustumCulling.h"
+#include "../../include/GlobalData/GlobalShaderNames.h"
 
 
 void Prisma::MeshIndirect::sort() const
@@ -72,9 +73,28 @@ void Prisma::MeshIndirect::updateStatusShader() const
 //	return m_ebo;
 //}
 
+void Prisma::MeshIndirect::updatePso()
+{
+	auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+	m_srb.Release();
+	m_pso->CreateShaderResourceBinding(&m_srb, true);
+	if (!meshes.empty()) {
+		auto material = meshes[0]->material();
+		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->Set(material->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->Set(material->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->Set(material->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	}
+	m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(m_modelBuffer->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+}
+
 Prisma::Mesh::VerticesData& Prisma::MeshIndirect::verticesData()
 {
 	return m_verticesData;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::modelsBuffer()
+{
+	return m_modelBuffer;
 }
 
 void Prisma::MeshIndirect::load()
@@ -142,6 +162,8 @@ void Prisma::MeshIndirect::renderMeshes() const
 		//glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, 0, m_drawCommands.size(), 0);
 		//glBindBuffer(GL_PARAMETER_BUFFER_ARB, 0);
 		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+		contextData.m_pImmediateContext->DrawIndexedIndirect(m_commandsBuffer);
 	}
 }
 
@@ -203,19 +225,23 @@ void Prisma::MeshIndirect::updateSize()
 	m_drawCommands.clear();
 	m_updateModels.clear();
 
-	//if (!meshes.empty())
-	//{
-		//std::vector<glm::mat4> models;
-		//std::vector<Prisma::Mesh::AABBssbo> aabb;
-		//for (int i = 0; i < meshes.size(); i++)
-		//{
-		//	models.push_back(meshes[i]->parent()->finalMatrix());
-		//	aabb.push_back(
-		//		{glm::vec4(meshes[i]->aabbData().center, 1.0), glm::vec4(meshes[i]->aabbData().extents, 1.0)});
-		//	meshes[i]->vectorId(i);
-		//}
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-		////PUSH MODEL MATRICES TO AN SSBO WITH ID 1
+	if (!meshes.empty())
+	{
+		std::vector<glm::mat4> models;
+		std::vector<Prisma::Mesh::AABBssbo> aabb;
+		for (int i = 0; i < meshes.size(); i++)
+		{
+			models.push_back(meshes[i]->parent()->finalMatrix());
+			aabb.push_back(
+				{glm::vec4(meshes[i]->aabbData().center, 1.0), glm::vec4(meshes[i]->aabbData().extents, 1.0)});
+			meshes[i]->vectorId(i);
+		}
+
+		resizeModels(models);
+
+		//PUSH MODEL MATRICES TO AN SSBO WITH ID 1
 		//m_ssboAABB->resize(sizeof(Prisma::Mesh::AABBssbo) * models.size());
 		//m_ssboModel->resize(sizeof(glm::mat4) * (models.size()));
 		//m_ssboModel->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
@@ -224,166 +250,216 @@ void Prisma::MeshIndirect::updateSize()
 
 
 		//PUSH MATERIAL TO AN SSBO WITH ID 0
-		//for (const auto& material : meshes)
-		//{
-		//	m_materialData.push_back({
-		//		material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
-		//		material->material()->roughnessMetalness()[0].id(), material->material()->specular()[0].id(),
-		//		material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
-		//	});
-		//}
-	//	m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
-	//	m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
+		for (const auto& material : meshes)
+		{
+			m_materialData.push_back({
+				material->material()->diffuse()[0].id(), material->material()->normal()[0].id(),
+				material->material()->roughnessMetalness()[0].id(), material->material()->specular()[0].id(),
+				material->material()->ambientOcclusion()[0].id(), material->material()->transparent(), 0.0,material->material()->color()
+			});
+		}
+		//m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
+		//m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
 
-	//	m_ssboIndices->resize(sizeof(glm::ivec4) * meshes.size());
+		//m_ssboIndices->resize(sizeof(glm::ivec4) * meshes.size());
 
-	//	std::vector<StatusData> status;
-	//	for (const auto& mesh : meshes)
-	//	{
-	//		status.push_back({ mesh->visible(),mesh->material()->plain(),glm::vec2(0) });
-	//	}
-	//	m_ssboStatusCopy->resize(sizeof(StatusData) * status.size());
-	//	m_ssboStatusCopy->modifyData(0, sizeof(StatusData) * status.size(), status.data());
-	//	m_ssboStatus->resize(sizeof(StatusData) * status.size());
+		std::vector<StatusData> status;
+		for (const auto& mesh : meshes)
+		{
+			status.push_back({ mesh->visible(),mesh->material()->plain(),glm::vec2(0) });
+		}
+		//m_ssboStatusCopy->resize(sizeof(StatusData) * status.size());
+		//m_ssboStatusCopy->modifyData(0, sizeof(StatusData) * status.size(), status.data());
+		//m_ssboStatus->resize(sizeof(StatusData) * status.size());
 
-	//	//GENERATE DATA TO SEND INDIRECT
-	//	m_vao->bind();
+		////GENERATE DATA TO SEND INDIRECT
+		//m_vao->bind();
 
-	//	if (!m_cacheRemove.empty())
-	//	{
-	//		m_verticesData.vertices.clear();
-	//		m_verticesData.indices.clear();
-	//		m_cacheAdd.clear();
-	//		for (int i = 0; i < Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size(); i++)
-	//		{
-	//			getInstance().add(i);
-	//		}
-	//		m_currentVertexMax = 0;
-	//	}
+		if (!m_cacheRemove.empty())
+		{
+			m_verticesData.vertices.clear();
+			m_verticesData.indices.clear();
+			m_cacheAdd.clear();
+			for (int i = 0; i < Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size(); i++)
+			{
+				getInstance().add(i);
+			}
+			m_currentVertexMax = 0;
+		}
 
-	//	uint64_t sizeVbo = 0;
-	//	uint64_t sizeEbo = 0;
+		uint64_t sizeVbo = 0;
+		uint64_t sizeEbo = 0;
 
-	//	uint64_t vboCache = 0;
-	//	uint64_t eboCache = 0;
+		uint64_t vboCache = 0;
+		uint64_t eboCache = 0;
 
-	//	// Calculate the initial cache sizes
-	//	for (int i = 0; i < meshes.size() - m_cacheAdd.size(); i++)
-	//	{
-	//		vboCache += meshes[i]->verticesData().vertices.size();
-	//		eboCache += meshes[i]->verticesData().indices.size();
-	//	}
+		// Calculate the initial cache sizes
+		for (int i = 0; i < meshes.size() - m_cacheAdd.size(); i++)
+		{
+			vboCache += meshes[i]->verticesData().vertices.size();
+			eboCache += meshes[i]->verticesData().indices.size();
+		}
 
-	//	// Keep track of the current position in the cache
-	//	uint64_t currentVboCache = vboCache;
-	//	uint64_t currentEboCache = eboCache;
-	//	// PUSH VERTICES
-	//	for (unsigned int i : m_cacheAdd)
-	//	{
-	//		sizeVbo += meshes[i]->verticesData().vertices.size();
-	//		m_verticesData.vertices.insert(
-	//			m_verticesData.vertices.begin() + currentVboCache,
-	//			meshes[i]->verticesData().vertices.begin(),
-	//			meshes[i]->verticesData().vertices.end()
-	//		);
-	//		// Update the current position in the VBO cache
-	//		currentVboCache += meshes[i]->verticesData().vertices.size();
-	//	}
+		// Keep track of the current position in the cache
+		uint64_t currentVboCache = vboCache;
+		uint64_t currentEboCache = eboCache;
+		// PUSH VERTICES
+		for (unsigned int i : m_cacheAdd)
+		{
+			sizeVbo += meshes[i]->verticesData().vertices.size();
+			m_verticesData.vertices.insert(
+				m_verticesData.vertices.begin() + currentVboCache,
+				meshes[i]->verticesData().vertices.begin(),
+				meshes[i]->verticesData().vertices.end()
+			);
+			// Update the current position in the VBO cache
+			currentVboCache += meshes[i]->verticesData().vertices.size();
+		}
 
-	//	// PUSH INDICES
-	//	for (unsigned int i : m_cacheAdd)
-	//	{
-	//		sizeEbo += meshes[i]->verticesData().indices.size();
-	//		m_verticesData.indices.insert(
-	//			m_verticesData.indices.begin() + currentEboCache,
-	//			meshes[i]->verticesData().indices.begin(),
-	//			meshes[i]->verticesData().indices.end()
-	//		);
-	//		// Update the current position in the EBO cache
-	//		currentEboCache += meshes[i]->verticesData().indices.size();
-	//	}
+		// PUSH INDICES
+		for (unsigned int i : m_cacheAdd)
+		{
+			sizeEbo += meshes[i]->verticesData().indices.size();
+			m_verticesData.indices.insert(
+				m_verticesData.indices.begin() + currentEboCache,
+				meshes[i]->verticesData().indices.begin(),
+				meshes[i]->verticesData().indices.end()
+			);
+			// Update the current position in the EBO cache
+			currentEboCache += meshes[i]->verticesData().indices.size();
+		}
 
-	//	if (!m_cacheAdd.empty())
-	//	{
-	//		//GENERATE CACHE DATA 
+		if (!m_cacheAdd.empty())
+		{
+			//GENERATE CACHE DATA 
 
-	//		if (currentVboCache > m_currentVertexMax || currentEboCache > m_currentIndexMax || m_currentVertexMax == 0)
-	//		{
-	//			m_currentVertexMax = m_verticesData.vertices.size() + m_cacheSize;
-	//			m_currentIndexMax = m_verticesData.indices.size() + m_cacheSize;
-	//			m_verticesData.vertices.resize(m_currentVertexMax);
-	//			m_verticesData.indices.resize(m_currentIndexMax);
+			if (currentVboCache > m_currentVertexMax || currentEboCache > m_currentIndexMax || m_currentVertexMax == 0)
+			{
+				m_currentVertexMax = m_verticesData.vertices.size() + m_cacheSize;
+				m_currentIndexMax = m_verticesData.indices.size() + m_cacheSize;
+				m_verticesData.vertices.resize(m_currentVertexMax);
+				m_verticesData.indices.resize(m_currentIndexMax);
 
-	//			m_vbo->writeData(m_currentVertexMax * sizeof(Mesh::Vertex), &m_verticesData.vertices[0],
-	//			                 GL_DYNAMIC_DRAW);
-	//			m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
+				m_vBuffer.Release();
+				m_iBuffer.Release();
 
-	//			m_vao->addAttribPointer(0, 3, sizeof(Mesh::Vertex), nullptr);
-	//			m_vao->addAttribPointer(1, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
-	//			m_vao->addAttribPointer(2, 2, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
-	//			m_vao->addAttribPointer(3, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, tangent));
-	//			m_vao->addAttribPointer(4, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, bitangent));
-	//		}
-	//		else
-	//		{
-	//			m_vbo->writeSubData(sizeVbo * sizeof(Mesh::Vertex), vboCache * sizeof(Mesh::Vertex),
-	//			                    &m_verticesData.vertices[vboCache]);
-	//			m_ebo->writeSubData(sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int),
-	//			                    &m_verticesData.indices[eboCache]);
-	//		}
-	//	}
+				Diligent::BufferDesc VertBuffDesc;
+				VertBuffDesc.Name = "Vertices Data";
+				VertBuffDesc.Usage = Diligent::USAGE_DEFAULT;
+				VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
+				VertBuffDesc.Size = m_currentVertexMax * sizeof(Mesh::Vertex);
+				Diligent::BufferData VBData;
+				VBData.pData = m_verticesData.vertices.data();
+				VBData.DataSize = m_currentVertexMax * sizeof(Mesh::Vertex);
+				contextData.m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
 
-	//	m_cacheAdd.clear();
-	//	m_cacheRemove.clear();
+				Diligent::BufferDesc IndBuffDesc;
+				IndBuffDesc.Name = "Index Data";
+				IndBuffDesc.Usage = Diligent::USAGE_DEFAULT;
+				IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
+				IndBuffDesc.Size = sizeof(unsigned int) * m_currentIndexMax;
+				Diligent::BufferData IBData;
+				IBData.pData = m_verticesData.indices.data();
+				IBData.DataSize = sizeof(unsigned int) * m_currentIndexMax;
+				contextData.m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
 
-	//	//BIND INDIRECT DRAW BUFFER AND SET OFFSETS
-	//	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
+				//m_vbo->writeData(m_currentVertexMax * sizeof(Mesh::Vertex), &m_verticesData.vertices[0],
+				//                 GL_DYNAMIC_DRAW);
+				//m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
 
-	//	m_currentIndex = 0;
-	//	m_currentVertex = 0;
-	//	for (const auto& mesh : meshes)
-	//	{
-	//		const auto& indices = mesh->verticesData().indices;
-	//		const auto& vertices = mesh->verticesData().vertices;
-	//		DrawElementsIndirectCommand command{};
-	//		command.count = static_cast<GLuint>(indices.size());
-	//		command.instanceCount = mesh->visible();
-	//		command.firstIndex = m_currentIndex;
-	//		command.baseVertex = m_currentVertex;
-	//		command.baseInstance = 0;
+				//m_vao->addAttribPointer(0, 3, sizeof(Mesh::Vertex), nullptr);
+				//m_vao->addAttribPointer(1, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
+				//m_vao->addAttribPointer(2, 2, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
+				//m_vao->addAttribPointer(3, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, tangent));
+				//m_vao->addAttribPointer(4, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, bitangent));
+			}
+			else
+			{
+				contextData.m_pImmediateContext->UpdateBuffer(m_vBuffer, sizeVbo * sizeof(Mesh::Vertex), vboCache * sizeof(Mesh::Vertex), &m_verticesData.vertices[vboCache], Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+				contextData.m_pImmediateContext->UpdateBuffer(m_iBuffer, sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int), &m_verticesData.indices[eboCache], Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+				//m_vbo->writeSubData(sizeVbo * sizeof(Mesh::Vertex), vboCache * sizeof(Mesh::Vertex),
+				//                    &m_verticesData.vertices[vboCache]);
+				//m_ebo->writeSubData(sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int),
+				//                    &m_verticesData.indices[eboCache]);
+			}
+		}
 
-	//		m_drawCommands.push_back(command);
-	//		m_currentIndex = m_currentIndex + indices.size();
-	//		m_currentVertex = m_currentVertex + vertices.size();
-	//	}
-	//	glBindBuffer(GL_ARRAY_BUFFER, m_indirectDrawCopy);
-	//	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectCopySSBOId, m_indirectDrawCopy);
-	//	// Upload the draw commands to the buffer
-	//	glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand),
-	//	             m_drawCommands.data(), GL_DYNAMIC_DRAW);
+		m_cacheAdd.clear();
+		m_cacheRemove.clear();
 
-	//	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
-	//	glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
-	//	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
-	//	// Upload the draw commands to the buffer
-	//	glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), nullptr,
-	//	             GL_DYNAMIC_DRAW);
-	//}
-	updateAnimation();
+		//BIND INDIRECT DRAW BUFFER AND SET OFFSETS
+		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
+
+		m_currentIndex = 0;
+		m_currentVertex = 0;
+		for (const auto& mesh : meshes)
+		{
+			const auto& indices = mesh->verticesData().indices;
+			const auto& vertices = mesh->verticesData().vertices;
+			DrawElementsIndirectCommand command{};
+			command.count = static_cast<GLuint>(indices.size());
+			command.instanceCount = mesh->visible();
+			command.firstIndex = m_currentIndex;
+			command.baseVertex = m_currentVertex;
+			command.baseInstance = 0;
+
+			m_drawCommands.push_back(command);
+			m_currentIndex = m_currentIndex + indices.size();
+			m_currentVertex = m_currentVertex + vertices.size();
+		}
+		m_indirectBuffer.Release();
+
+		Diligent::BufferDesc IndirectBufferDesc;
+		IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
+		IndirectBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+		IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+		IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * meshes.size();
+		IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+		Diligent::BufferData InitData;
+		InitData.pData = m_drawCommands.data();
+		InitData.DataSize = sizeof(DrawElementsIndirectCommand) * meshes.size();
+		contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBuffer);
+
+		m_commandsBuffer.DrawCount = meshes.size();
+		m_commandsBuffer.DrawArgsOffset = 0;
+		m_commandsBuffer.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
+		m_commandsBuffer.IndexType = Diligent::VT_UINT32;
+		m_commandsBuffer.pAttribsBuffer = m_indirectBuffer;
+
+		//glBindBuffer(GL_ARRAY_BUFFER, m_indirectDrawCopy);
+		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectCopySSBOId, m_indirectDrawCopy);
+		//// Upload the draw commands to the buffer
+		//glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand),
+		//             m_drawCommands.data(), GL_DYNAMIC_DRAW);
+
+		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
+		//glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
+		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
+		//// Upload the draw commands to the buffer
+		//glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), nullptr,
+		//             GL_DYNAMIC_DRAW);
+	}
+	//updateAnimation();
 }
 
 void Prisma::MeshIndirect::updateModels()
 {
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
 	for (const auto& model : m_updateModels)
 	{
 		auto finalMatrix = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model.first]->parent()->
 			finalMatrix();
 		auto ssbo = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[model.first]->aabbData();
 		Prisma::Mesh::AABBssbo aabb = {glm::vec4(ssbo.center, 1.0), glm::vec4(ssbo.extents, 1.0)};
+
+
 		//m_ssboModel->modifyData(sizeof(glm::mat4) * model.first, sizeof(glm::mat4),
 		//                            glm::value_ptr(finalMatrix));
 		//m_ssboAABB->modifyData(sizeof(Prisma::Mesh::AABBssbo) * model.first, sizeof(Prisma::Mesh::AABBssbo), &aabb);
+		contextData.m_pImmediateContext->UpdateBuffer(m_modelBuffer, sizeof(glm::mat4) * model.first, sizeof(glm::mat4), glm::value_ptr(finalMatrix), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 	}
+
 
 	for (const auto& model : m_updateModelsAnimate)
 	{
@@ -440,6 +516,60 @@ Prisma::MeshIndirect::MeshIndirect()
 
 	m_ssboCamera = std::make_shared<Prisma::SSBO>(28);
 	m_ssboCamera->resize(sizeof(CameraData));*/
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+	Diligent::BufferDesc MatBufferDesc;
+
+	MatBufferDesc.Name = "Mesh Transform Buffer";
+	MatBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+	MatBufferDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+	MatBufferDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+	MatBufferDesc.ElementByteStride = sizeof(glm::mat4);
+	MatBufferDesc.Size = sizeof(glm::mat4); // Ensure enough space
+	contextData.m_pDevice->CreateBuffer(MatBufferDesc, nullptr, &m_modelBuffer);
+
+	Diligent::BufferDesc VertBuffDesc;
+	VertBuffDesc.Name = "Vertices Data";
+	VertBuffDesc.Usage = Diligent::USAGE_DEFAULT;
+	VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
+	VertBuffDesc.Size = 1;
+	contextData.m_pDevice->CreateBuffer(VertBuffDesc, nullptr, &m_vBuffer);
+
+	Diligent::BufferDesc IndBuffDesc;
+	IndBuffDesc.Name = "Index Data";
+	IndBuffDesc.Usage = Diligent::USAGE_DEFAULT;
+	IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
+	IndBuffDesc.Size = 1;
+	contextData.m_pDevice->CreateBuffer(IndBuffDesc, nullptr, &m_iBuffer);
+
+	Diligent::BufferDesc IndirectBufferDesc;
+	IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
+	IndirectBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+	IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+	IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
+	IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+	contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBuffer);
+}
+
+void Prisma::MeshIndirect::resizeModels(std::vector<glm::mat4>& models)
+{
+	m_modelBuffer.Release();
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	Diligent::BufferDesc MatBufferDesc;
+
+	MatBufferDesc.Name = "Mesh Transform Buffer";
+	MatBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+	MatBufferDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+	MatBufferDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+	MatBufferDesc.ElementByteStride = sizeof(glm::mat4);
+	auto size = sizeof(glm::mat4) * models.size();
+	MatBufferDesc.Size = size; // Ensure enough space
+	Diligent::BufferData InitData;
+	InitData.pData = models.data();
+	InitData.DataSize = size;
+	contextData.m_pDevice->CreateBuffer(MatBufferDesc, &InitData, &m_modelBuffer);
+
+	updatePso();
 }
 
 void Prisma::MeshIndirect::updateAnimation()
@@ -675,4 +805,24 @@ void Prisma::MeshIndirect::updateStatus() const
 	//	m_ssboStatusAnimation->modifyData(0, sizeof(StatusData) * status.size(), status.data());
 	//	updateStatusShader();
 	//}
+}
+
+void Prisma::MeshIndirect::setupBuffers()
+{
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	const Diligent::Uint64 offsets[] = { 0 };
+	Diligent::IBuffer* pBuffs[] = { m_vBuffer };
+	contextData.m_pImmediateContext->SetVertexBuffers(0, _countof(pBuffs), pBuffs, offsets, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+	contextData.m_pImmediateContext->SetIndexBuffer(m_iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+}
+
+Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::MeshIndirect::srb()
+{
+	return m_srb;
+}
+
+void Prisma::MeshIndirect::bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso)
+{
+	m_pso = pso;
+	m_pso->CreateShaderResourceBinding(&m_srb, true);
 }

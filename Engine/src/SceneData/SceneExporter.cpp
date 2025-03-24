@@ -136,7 +136,6 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 					});
 				}
 			}
-			mesh->material()->bindPipeline(Prisma::PipelineHandler::getInstance().forward()->pso());
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(node))
 		{

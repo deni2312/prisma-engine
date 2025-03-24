@@ -8,6 +8,7 @@
 #include <Windows.h>
 
 #include "../../Engine/include/engine.h"
+#include "../../Engine/include/SceneData/MeshIndirect.h"
 #include "../include/ImGuiTabs.h"
 #include "../include/NodeViewer.h"
 #include "../include/ScenePipeline.h"
@@ -154,7 +155,7 @@ void Prisma::ImguiDebug::drawGui()
 					}
 
 					MeshIndirect::getInstance().init();*/
-
+					Prisma::MeshIndirect::getInstance().init();
 					CacheScene::getInstance().updateSizes(true);
 				}
 			}

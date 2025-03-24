@@ -35,7 +35,7 @@ void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera,
 		else
 		{
 			Prisma::GlobalData::getInstance().currentGlobalScene(hasFinish);
-			//Prisma::MeshIndirect::getInstance().init();
+			Prisma::MeshIndirect::getInstance().init();
 		}
 
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera = camera;

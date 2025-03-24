@@ -73,8 +73,9 @@ Prisma::Engine::Engine()
 	AnimationHandler::getInstance();*/
 
 
-
 	PrismaFunc::getInstance().init();
+
+	MeshIndirect::getInstance();
 
 	MeshHandler::getInstance();
 
@@ -134,6 +135,7 @@ bool Prisma::Engine::run()
 			}
 			data->sceneHandler->onBeginRender();
 			MeshHandler::getInstance().updateCamera();
+			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();
 			if (data->debug)
 			{
