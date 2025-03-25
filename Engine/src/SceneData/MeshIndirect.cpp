@@ -829,4 +829,5 @@ void Prisma::MeshIndirect::bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipel
 {
 	m_pso = pso;
 	m_pso->CreateShaderResourceBinding(&m_srb, true);
+	updatePso();
 }
