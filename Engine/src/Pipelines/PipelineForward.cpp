@@ -249,8 +249,3 @@ void Prisma::PipelineForward::render(){
 Prisma::PipelineForward::~PipelineForward()
 {
 }
-
-Diligent::RefCntAutoPtr<Diligent::IPipelineState> Prisma::PipelineForward::pso()
-{
-    return m_pso;
-}

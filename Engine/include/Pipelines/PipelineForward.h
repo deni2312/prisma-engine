@@ -18,7 +18,6 @@ namespace Prisma
 		PipelineForward(const unsigned int& width = 1920, const unsigned int& height = 1080, bool srgb = true);
 		void render();
 		~PipelineForward();
-		Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso();
 
 	private:
 		unsigned int m_width;
