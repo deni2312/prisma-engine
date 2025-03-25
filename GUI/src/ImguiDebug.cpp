@@ -8,6 +8,8 @@
 #include <Windows.h>
 
 #include "../../Engine/include/engine.h"
+#include "../../Engine/include/Handlers/LoadingHandler.h"
+#include "../../Engine/include/Helpers/StringHelper.h"
 #include "../../Engine/include/SceneData/MeshIndirect.h"
 #include "../include/ImGuiTabs.h"
 #include "../include/NodeViewer.h"
@@ -129,21 +131,22 @@ void Prisma::ImguiDebug::drawGui()
 				std::string model = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 				if (model != "")
 				{
-					/*if (Prisma::StringHelper::getInstance().endsWith(model, ".prisma"))
+
+					if (Prisma::StringHelper::getInstance().endsWith(model, ".prisma"))
 					{
 						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
 						{
-							Prisma::LoadingHandler::getInstance().load(model, {true, nullptr, true});
+							Prisma::LoadingHandler::getInstance().load(model, { true, nullptr, true });
 						}
 						else
 						{
-							Engine::getInstance().getScene(model, {true});
+							Prisma::LoadingHandler::getInstance().load(model, { true, nullptr, false });
 						}
 					}
 					else
 					{
 						Prisma::SceneLoader loader;
-						auto scene = loader.loadScene(model, {true});
+						auto scene = loader.loadScene(model, { true });
 						if (Prisma::GlobalData::getInstance().currentGlobalScene()->root)
 						{
 							Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
@@ -153,8 +156,6 @@ void Prisma::ImguiDebug::drawGui()
 							Prisma::GlobalData::getInstance().currentGlobalScene(scene);
 						}
 					}
-
-					MeshIndirect::getInstance().init();*/
 					Prisma::MeshIndirect::getInstance().init();
 					CacheScene::getInstance().updateSizes(true);
 				}
