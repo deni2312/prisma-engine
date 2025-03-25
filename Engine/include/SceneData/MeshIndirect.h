@@ -36,6 +36,8 @@ namespace Prisma
 
 		MaterialView m_textureViews;
 
+		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
+
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indirectBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelBuffer;
 		Diligent::DrawIndexedIndirectAttribs m_commandsBuffer;
@@ -181,7 +183,7 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb();
 
-		void bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso);
+		void bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso, Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> pResourceSignature);
 
 		MeshIndirect();
 	};

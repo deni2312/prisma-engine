@@ -3,12 +3,12 @@
 Texture2D diffuseTexture[MAX_TEXTURES];
 SamplerState diffuseTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
 
-Texture2D normalTexture;
+/*Texture2D normalTexture;
 SamplerState normalTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
 
 Texture2D rmTexture;
 SamplerState rmTexture_sampler; // By convention, texture samplers must use the '_sampler' suffix
-
+*/
 struct PSOutput
 {
     float4 Color : SV_TARGET;
@@ -18,8 +18,11 @@ void main(in PSInput PSIn,
           out PSOutput PSOut)
 {
     float4 diffuse = diffuseTexture[PSIn.drawId].Sample(diffuseTexture_sampler, PSIn.UV);
-    float3 normal = GetNormalFromMap(normalTexture, normalTexture_sampler, PSIn.UV, PSIn.FragPos, PSIn.NormalPS);
-    float4 rm = rmTexture.Sample(rmTexture_sampler, PSIn.UV);
+    //float3 normal = GetNormalFromMap(normalTexture, normalTexture_sampler, PSIn.UV, PSIn.FragPos, PSIn.NormalPS);
+    float3 normal = float3(1);
+
+    //float4 rm = rmTexture.Sample(rmTexture_sampler, PSIn.UV);
+    float4 rm = float4(1);
 
     float metallic = rm.b;
     float roughness = rm.g;

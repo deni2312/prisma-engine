@@ -173,17 +173,34 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-
-    ShaderResourceVariableDesc Vars[] =
+    
+    /*ShaderResourceVariableDesc Vars[] =
     {
         {SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-    };
+    };*/
+
     // clang-format on
-    PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
-    PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
+    //PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
+    //PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
+    // Create the resource layout
+    PipelineResourceDesc Resources[] =
+    { {SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(),Prisma::Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL,"diffuseTexture_sampler",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+    };
+
+    PipelineResourceSignatureDesc ResourceSignDesc;
+    ResourceSignDesc.NumResources = _countof(Resources);
+
+    ResourceSignDesc.Resources = Resources;
+
 
     // clang-format off
 	// Define immutable sampler for g_Texture. Immutable samplers should be used whenever possible
@@ -192,15 +209,23 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
         TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP
     };
-    ImmutableSamplerDesc ImtblSamplers[] =
+    /*ImmutableSamplerDesc ImtblSamplers[] =
     {
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), SamLinearClampDesc},
         { SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), SamLinearClampDesc },
         { SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(), SamLinearClampDesc }
+    };*/
+    RefCntAutoPtr<ISampler> sampler;
+
+    ImmutableSamplerDesc ImtblSamplersResource[] =
+    {
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), SamLinearClampDesc},
     };
-    // clang-format on
-    PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
-    PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
+
+
+    //PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplersResource;
+    //PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplersResource);
+
+
 
     /*const auto& ColorFmtInfo = contextData.m_pDevice->GetTextureFormatInfoExt(contextData.m_pSwapChain->GetDesc().ColorBufferFormat);
     const auto& DepthFmtInfo = contextData.m_pDevice->GetTextureFormatInfoExt(contextData.m_pSwapChain->GetDesc().DepthBufferFormat);
@@ -215,21 +240,35 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         m_SampleCount = 1;
     }
     PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_SampleCount;*/
-    contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+
+    contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
+
+    IPipelineResourceSignature* ppSignatures[]{ m_pResourceSignature };
+
+    PSOCreateInfo.ppResourceSignatures = ppSignatures;
+    PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
+
+    contextData.m_pDevice->CreatePipelineState(PSOCreateInfo, &m_pso);
+    contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &sampler);
 
 
-    m_pso->GetStaticVariableByName(SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
-    m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
-    m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str())->Set(Prisma::LightHandler::getInstance().omniLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str())->Set(Prisma::LightHandler::getInstance().omniLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
 
-    m_pso->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(Prisma::LightHandler::getInstance().lightSizes());
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(Prisma::LightHandler::getInstance().lightSizes());
+
+    IDeviceObject* samplerDevice = sampler;
+
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, "diffuseTexture_sampler")->Set(samplerDevice);
+
     // Create a shader resource binding object and bind all static resources in it
 
     //CreateMSAARenderTarget();
 
-    Prisma::MeshIndirect::getInstance().bindPipeline(m_pso);
+    Prisma::MeshIndirect::getInstance().bindPipeline(m_pso, m_pResourceSignature);
 }
 
 void Prisma::PipelineForward::render(){

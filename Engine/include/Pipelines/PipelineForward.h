@@ -40,6 +40,9 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
 
+		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
+
+
         void CreateMSAARenderTarget();
 
 	};

@@ -77,12 +77,12 @@ void Prisma::MeshIndirect::updatePso()
 {
 	auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 	m_srb.Release();
-	m_pso->CreateShaderResourceBinding(&m_srb, true);
+	m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
 	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(m_textureViews.diffuse.data(), 0, m_textureViews.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
 	if (!meshes.empty()) {
 		auto material = meshes[0]->material();
-		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->Set(material->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-		m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->Set(material->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		//m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->Set(material->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		//m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->Set(material->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 	}
 	m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(m_modelBuffer->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
 }
@@ -825,9 +825,10 @@ Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::MeshIndirect::
 	return m_srb;
 }
 
-void Prisma::MeshIndirect::bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso)
+void Prisma::MeshIndirect::bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso,Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> pResourceSignature)
 {
 	m_pso = pso;
-	m_pso->CreateShaderResourceBinding(&m_srb, true);
+	m_pResourceSignature = pResourceSignature;
+	m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
 	updatePso();
 }
