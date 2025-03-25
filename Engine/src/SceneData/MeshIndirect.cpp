@@ -75,14 +75,10 @@ void Prisma::MeshIndirect::updateStatusShader() const
 
 void Prisma::MeshIndirect::updatePso()
 {
-	auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-	m_srb.Release();
-	m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
-	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(m_textureViews.diffuse.data(), 0, m_textureViews.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(m_textureViews.normal.data(), 0, m_textureViews.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(m_textureViews.rm.data(), 0, m_textureViews.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-
-	m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(m_modelBuffer->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+	for (auto resizeHandler : m_resizeHandler)
+	{
+		resizeHandler(m_modelBuffer,m_textureViews);
+	}
 }
 
 Prisma::Mesh::VerticesData& Prisma::MeshIndirect::verticesData()
@@ -242,13 +238,6 @@ void Prisma::MeshIndirect::updateSize()
 
 		resizeModels(models);
 
-		//PUSH MODEL MATRICES TO AN SSBO WITH ID 1
-		//m_ssboAABB->resize(sizeof(Prisma::Mesh::AABBssbo) * models.size());
-		//m_ssboModel->resize(sizeof(glm::mat4) * (models.size()));
-		//m_ssboModel->modifyData(0, sizeof(glm::mat4) * models.size(), models.data());
-		//m_ssboId->resize(sizeof(unsigned int) * (models.size()));
-		//m_ssboAABB->modifyData(0, sizeof(Prisma::Mesh::AABBssbo) * models.size(), aabb.data());
-
 		//PUSH MATERIAL TO AN SSBO WITH ID 0
 		for (const auto& material : meshes)
 		{
@@ -256,22 +245,12 @@ void Prisma::MeshIndirect::updateSize()
 			m_textureViews.normal.push_back(material->material()->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 			m_textureViews.rm.push_back(material->material()->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 		}
-		//m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
-		//m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
-
-		//m_ssboIndices->resize(sizeof(glm::ivec4) * meshes.size());
 
 		std::vector<StatusData> status;
 		for (const auto& mesh : meshes)
 		{
 			status.push_back({ mesh->visible(),mesh->material()->plain(),glm::vec2(0) });
 		}
-		//m_ssboStatusCopy->resize(sizeof(StatusData) * status.size());
-		//m_ssboStatusCopy->modifyData(0, sizeof(StatusData) * status.size(), status.data());
-		//m_ssboStatus->resize(sizeof(StatusData) * status.size());
-
-		////GENERATE DATA TO SEND INDIRECT
-		//m_vao->bind();
 
 		if (!m_cacheRemove.empty())
 		{
@@ -360,33 +339,16 @@ void Prisma::MeshIndirect::updateSize()
 				IBData.pData = m_verticesData.indices.data();
 				IBData.DataSize = sizeof(unsigned int) * m_currentIndexMax;
 				contextData.m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
-
-				//m_vbo->writeData(m_currentVertexMax * sizeof(Mesh::Vertex), &m_verticesData.vertices[0],
-				//                 GL_DYNAMIC_DRAW);
-				//m_ebo->writeData(m_currentIndexMax * sizeof(unsigned int), &m_verticesData.indices[0], GL_DYNAMIC_DRAW);
-
-				//m_vao->addAttribPointer(0, 3, sizeof(Mesh::Vertex), nullptr);
-				//m_vao->addAttribPointer(1, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, normal));
-				//m_vao->addAttribPointer(2, 2, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, texCoords));
-				//m_vao->addAttribPointer(3, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, tangent));
-				//m_vao->addAttribPointer(4, 3, sizeof(Mesh::Vertex), (void*)offsetof(Prisma::Mesh::Vertex, bitangent));
 			}
 			else
 			{
 				contextData.m_pImmediateContext->UpdateBuffer(m_vBuffer, sizeVbo * sizeof(Mesh::Vertex), vboCache * sizeof(Mesh::Vertex), &m_verticesData.vertices[vboCache], Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 				contextData.m_pImmediateContext->UpdateBuffer(m_iBuffer, sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int), &m_verticesData.indices[eboCache], Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-				//m_vbo->writeSubData(sizeVbo * sizeof(Mesh::Vertex), vboCache * sizeof(Mesh::Vertex),
-				//                    &m_verticesData.vertices[vboCache]);
-				//m_ebo->writeSubData(sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int),
-				//                    &m_verticesData.indices[eboCache]);
 			}
 		}
 
 		m_cacheAdd.clear();
 		m_cacheRemove.clear();
-
-		//BIND INDIRECT DRAW BUFFER AND SET OFFSETS
-		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawCopy);
 
 		m_currentIndex = 0;
 		m_currentVertex = 0;
@@ -424,18 +386,6 @@ void Prisma::MeshIndirect::updateSize()
 		m_commandsBuffer.IndexType = Diligent::VT_UINT32;
 		m_commandsBuffer.pAttribsBuffer = m_indirectBuffer;
 
-		//glBindBuffer(GL_ARRAY_BUFFER, m_indirectDrawCopy);
-		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectCopySSBOId, m_indirectDrawCopy);
-		//// Upload the draw commands to the buffer
-		//glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand),
-		//             m_drawCommands.data(), GL_DYNAMIC_DRAW);
-
-		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
-		//glBindBuffer(GL_ARRAY_BUFFER, m_indirectDraw);
-		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
-		//// Upload the draw commands to the buffer
-		//glBufferData(GL_DRAW_INDIRECT_BUFFER, m_drawCommands.size() * sizeof(DrawElementsIndirectCommand), nullptr,
-		//             GL_DYNAMIC_DRAW);
 		updatePso();
 	}
 	//updateAnimation();
@@ -816,15 +766,10 @@ void Prisma::MeshIndirect::setupBuffers()
 	contextData.m_pImmediateContext->SetIndexBuffer(m_iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
-Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::MeshIndirect::srb()
+void Prisma::MeshIndirect::addResizeHandler(
+	std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)> resizeHandler)
 {
-	return m_srb;
+	m_resizeHandler.push_back(resizeHandler);
 }
 
-void Prisma::MeshIndirect::bindPipeline(Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso,Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> pResourceSignature)
-{
-	m_pso = pso;
-	m_pResourceSignature = pResourceSignature;
-	m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
-	updatePso();
-}
+

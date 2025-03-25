@@ -42,8 +42,7 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 
-
-        void CreateMSAARenderTarget();
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
 	};
 }

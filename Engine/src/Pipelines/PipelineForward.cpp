@@ -44,38 +44,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 	                                                                                                             width
                                                                                                              }, m_height{height}
 {
-	/*Shader::ShaderHeaders header;
-	header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n";
-
-	m_shader = std::make_shared<Shader>("../../../Engine/Shaders/ForwardPipeline/vertex.glsl",
-	                                    "../../../Engine/Shaders/ForwardPipeline/fragment.glsl", nullptr, header);
-
-	header.fragment = "#version 460 core\n#extension GL_ARB_bindless_texture : enable\n#define ANIMATE 1\n";
-
-	m_shaderAnimate = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_forward.glsl",
-	                                           "../../../Engine/Shaders/ForwardPipeline/fragment.glsl", nullptr,
-	                                           header);
-
-	m_shaderTransparent = std::make_shared<Shader>("../../../Engine/Shaders/TransparentPipeline/compute.glsl");
-	FBO::FBOData fboData;
-	fboData.width = m_width;
-	fboData.height = m_height;
-	fboData.enableDepth = true;
-	fboData.internalFormat = GL_RGBA16F;
-	fboData.internalType = GL_FLOAT;
-	fboData.enableMultisample = true;
-
-	fboData.name = "FORWARD";
-	m_fbo = std::make_shared<FBO>(fboData);
-	fboData.enableMultisample = false;
-	fboData.rbo = false;
-
-	fboData.name = "FORWARD_COPY";
-	m_fboCopy = std::make_shared<FBO>(fboData);
-	m_shader->use();
-	m_fullscreenPipeline = std::make_shared<PipelineFullScreen>();
-
-	m_prepass = std::make_shared<PipelinePrePass>();*/
 
     // Pipeline state object encompasses configuration of all GPU stages
 
@@ -173,17 +141,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-    
-    /*ShaderResourceVariableDesc Vars[] =
-    {
-        {SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-    };*/
-    // clang-format on
-    //PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
-    //PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
-    // Create the resource layout
+
 
     std::string samplerName = "texture_sampler";
 
@@ -200,8 +158,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
 
         {SHADER_TYPE_PIXEL,samplerName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-
-
     };
 
     PipelineResourceSignatureDesc ResourceSignDesc;
@@ -216,37 +172,13 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
         TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP
     };
-    /*ImmutableSamplerDesc ImtblSamplers[] =
-    {
-        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), SamLinearClampDesc },
-        { SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(), SamLinearClampDesc }
-    };*/
+
     RefCntAutoPtr<ISampler> sampler;
 
     ImmutableSamplerDesc ImtblSamplersResource[] =
     {
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), SamLinearClampDesc},
     };
-
-
-    //PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplersResource;
-    //PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplersResource);
-
-
-
-    /*const auto& ColorFmtInfo = contextData.m_pDevice->GetTextureFormatInfoExt(contextData.m_pSwapChain->GetDesc().ColorBufferFormat);
-    const auto& DepthFmtInfo = contextData.m_pDevice->GetTextureFormatInfoExt(contextData.m_pSwapChain->GetDesc().DepthBufferFormat);
-    m_SupportedSampleCounts = ColorFmtInfo.SampleCounts & DepthFmtInfo.SampleCounts;
-    if (m_SupportedSampleCounts & SAMPLE_COUNT_4)
-        m_SampleCount = 4;
-    else if (m_SupportedSampleCounts & SAMPLE_COUNT_2)
-        m_SampleCount = 2;
-    else
-    {
-        LOG_WARNING_MESSAGE(ColorFmtInfo.Name, " + ", DepthFmtInfo.Name, " pair does not allow multisampling on this device");
-        m_SampleCount = 1;
-    }
-    PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_SampleCount;*/
 
     contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
 
@@ -273,10 +205,18 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerName.c_str())->Set(samplerDevice);
 
     // Create a shader resource binding object and bind all static resources in it
+    m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
 
     //CreateMSAARenderTarget();
-
-    Prisma::MeshIndirect::getInstance().bindPipeline(m_pso, m_pResourceSignature);
+    Prisma::MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, Prisma::MeshIndirect::MaterialView& materials)
+        {
+            m_srb.Release();
+            m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+        });
 }
 
 void Prisma::PipelineForward::render(){
@@ -299,16 +239,10 @@ void Prisma::PipelineForward::render(){
     {
         Prisma::MeshIndirect::getInstance().setupBuffers();
         // Set texture SRV in the SRB
-        contextData.m_pImmediateContext->CommitShaderResources(Prisma::MeshIndirect::getInstance().srb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.m_pImmediateContext->CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Prisma::MeshIndirect::getInstance().renderMeshes();
     }
-    // Resolve multi-sampled render target into the current swap chain back buffer.
-    /*auto pCurrentBackBuffer = contextData.m_pSwapChain->GetCurrentBackBufferRTV()->GetTexture();
 
-    ResolveTextureSubresourceAttribs ResolveAttribs;
-    ResolveAttribs.SrcTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-    ResolveAttribs.DstTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-    contextData.m_pImmediateContext->ResolveTextureSubresource(m_pMSColorRTV->GetTexture(), pCurrentBackBuffer, ResolveAttribs);*/
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }
 
@@ -319,71 +253,4 @@ Prisma::PipelineForward::~PipelineForward()
 Diligent::RefCntAutoPtr<Diligent::IPipelineState> Prisma::PipelineForward::pso()
 {
     return m_pso;
-}
-
-void Prisma::PipelineForward::CreateMSAARenderTarget()
-{
-	if (m_SampleCount == 1)
-		return;
-    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-
-	const auto& SCDesc = contextData.m_pSwapChain->GetDesc();
-	// Create window-size multi-sampled offscreen render target
-	TextureDesc ColorDesc;
-	ColorDesc.Name = "Multisampled render target";
-	ColorDesc.Type = RESOURCE_DIM_TEX_2D;
-	ColorDesc.BindFlags = BIND_RENDER_TARGET;
-	ColorDesc.Width = SCDesc.Width;
-	ColorDesc.Height = SCDesc.Height;
-	ColorDesc.MipLevels = 1;
-	ColorDesc.Format = SCDesc.ColorBufferFormat;
-	bool NeedsSRGBConversion = contextData.m_pDevice->GetDeviceInfo().IsD3DDevice() && (ColorDesc.Format == TEX_FORMAT_RGBA8_UNORM_SRGB || ColorDesc.Format == TEX_FORMAT_BGRA8_UNORM_SRGB);
-	if (NeedsSRGBConversion)
-	{
-		// Internally Direct3D swap chain images are not SRGB, and ResolveSubresource
-		// requires source and destination formats to match exactly or be typeless.
-		// So we will have to create a typeless texture and use SRGB render target view with it.
-		ColorDesc.Format = ColorDesc.Format == TEX_FORMAT_RGBA8_UNORM_SRGB ? TEX_FORMAT_RGBA8_TYPELESS : TEX_FORMAT_BGRA8_TYPELESS;
-	}
-
-	// Set the desired number of samples
-	ColorDesc.SampleCount = m_SampleCount;
-	// Define optimal clear value
-	ColorDesc.ClearValue.Format = SCDesc.ColorBufferFormat;
-	ColorDesc.ClearValue.Color[0] = 0.125f;
-	ColorDesc.ClearValue.Color[1] = 0.125f;
-	ColorDesc.ClearValue.Color[2] = 0.125f;
-	ColorDesc.ClearValue.Color[3] = 1.f;
-	RefCntAutoPtr<ITexture> pColor;
-    contextData.m_pDevice->CreateTexture(ColorDesc, nullptr, &pColor);
-
-	// Store the render target view
-    m_pMSColorRTV.Release();
-	if (NeedsSRGBConversion)
-	{
-		TextureViewDesc RTVDesc;
-		RTVDesc.ViewType = TEXTURE_VIEW_RENDER_TARGET;
-		RTVDesc.Format = SCDesc.ColorBufferFormat;
-		pColor->CreateView(RTVDesc, &m_pMSColorRTV);
-	}
-	else
-	{
-		m_pMSColorRTV = pColor->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
-	}
-
-
-	// Create window-size multi-sampled depth buffer
-	TextureDesc DepthDesc = ColorDesc;
-	DepthDesc.Name = "Multisampled depth buffer";
-	DepthDesc.Format = contextData.m_pSwapChain->GetDesc().DepthBufferFormat;
-	DepthDesc.BindFlags = BIND_DEPTH_STENCIL;
-	// Define optimal clear value
-	DepthDesc.ClearValue.Format = DepthDesc.Format;
-	DepthDesc.ClearValue.DepthStencil.Depth = 1;
-	DepthDesc.ClearValue.DepthStencil.Stencil = 0;
-
-	RefCntAutoPtr<ITexture> pDepth;
-    contextData.m_pDevice->CreateTexture(DepthDesc, nullptr, &pDepth);
-	// Store the depth-stencil view
-	m_pMSDepthDSV = pDepth->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 }
