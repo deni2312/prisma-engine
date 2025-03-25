@@ -79,11 +79,9 @@ void Prisma::MeshIndirect::updatePso()
 	m_srb.Release();
 	m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
 	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(m_textureViews.diffuse.data(), 0, m_textureViews.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-	if (!meshes.empty()) {
-		auto material = meshes[0]->material();
-		//m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->Set(material->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-		//m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->Set(material->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-	}
+	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(m_textureViews.normal.data(), 0, m_textureViews.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+	m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(m_textureViews.rm.data(), 0, m_textureViews.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+
 	m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(m_modelBuffer->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
 }
 
@@ -225,6 +223,8 @@ void Prisma::MeshIndirect::updateSize()
 	m_drawCommands.clear();
 	m_updateModels.clear();
 	m_textureViews.diffuse.clear();
+	m_textureViews.normal.clear();
+	m_textureViews.rm.clear();
 
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
@@ -253,10 +253,8 @@ void Prisma::MeshIndirect::updateSize()
 		for (const auto& material : meshes)
 		{
 			m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-		}
-		for (int i = meshes.size();i<Define::MAX_MESHES;i++)
-		{
-			m_textureViews.diffuse.push_back(Prisma::GlobalData::getInstance().dummyTexture());
+			m_textureViews.normal.push_back(material->material()->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+			m_textureViews.rm.push_back(material->material()->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 		}
 		//m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
 		//m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
@@ -757,10 +755,8 @@ void Prisma::MeshIndirect::updateTextureSize()
 	for (const auto& material : meshes)
 	{
 		m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-	}
-	for (int i = meshes.size();i < Define::MAX_MESHES;i++)
-	{
-		m_textureViews.diffuse.push_back(Prisma::GlobalData::getInstance().dummyTexture());
+		m_textureViews.normal.push_back(material->material()->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		m_textureViews.rm.push_back(material->material()->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 	}
 	//m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
 	//m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());

@@ -111,10 +111,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     ShaderCreateInfo ShaderCI;
 
-    auto maxString = std::to_string(Define::MAX_MESHES);
-
-    ShaderMacro Macros[] = { {"MAX_TEXTURES", maxString.c_str()}};
-    ShaderCI.Macros = { Macros, _countof(Macros) };
     // Tell the system that the shader source code is in HLSL.
     // For OpenGL, the engine will convert this into GLSL under the hood.
     ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
@@ -124,6 +120,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Pack matrices in row-major order
     ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_HLSL_TO_SPIRV_VIA_GLSL;
+    ShaderCI.CompileFlags |= SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
+
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
     RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
@@ -139,6 +137,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
     }
     ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
+    ShaderCI.CompileFlags |= SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
+
     // Create a pixel shader
     RefCntAutoPtr<IShader> pPS;
     {
@@ -180,25 +180,32 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(), SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
     };*/
-
     // clang-format on
     //PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     //PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
     // Create the resource layout
+
+    std::string samplerName = "texture_sampler";
+
     PipelineResourceDesc Resources[] =
-    { {SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+    { 
+        {SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 
-        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(),Prisma::Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL,"diffuseTexture_sampler",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+
+        {SHADER_TYPE_PIXEL,samplerName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+
+
     };
 
     PipelineResourceSignatureDesc ResourceSignDesc;
     ResourceSignDesc.NumResources = _countof(Resources);
-
     ResourceSignDesc.Resources = Resources;
 
 
@@ -248,6 +255,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     PSOCreateInfo.ppResourceSignatures = ppSignatures;
     PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
 
+
     contextData.m_pDevice->CreatePipelineState(PSOCreateInfo, &m_pso);
     contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &sampler);
 
@@ -262,7 +270,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     IDeviceObject* samplerDevice = sampler;
 
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, "diffuseTexture_sampler")->Set(samplerDevice);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerName.c_str())->Set(samplerDevice);
 
     // Create a shader resource binding object and bind all static resources in it
 

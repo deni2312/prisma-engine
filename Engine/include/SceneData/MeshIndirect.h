@@ -32,6 +32,8 @@ namespace Prisma
 		struct MaterialView
 		{
 			std::vector<Diligent::IDeviceObject*> diffuse;
+			std::vector<Diligent::IDeviceObject*> normal;
+			std::vector<Diligent::IDeviceObject*> rm;
 		};
 
 		MaterialView m_textureViews;
