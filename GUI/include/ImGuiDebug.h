@@ -11,6 +11,7 @@
 #include "AddingMenu.h"
 #include "MeshInfo.h"
 #include "LightInfo.h"
+#include "SettingsTab.h"
 
 namespace Prisma
 {
@@ -98,7 +99,7 @@ namespace Prisma
 
 		std::shared_ptr<Texture> m_pauseButton;
 
-		//SettingsTab m_settingsTab;
+		SettingsTab m_settingsTab;
 
 		bool m_settingsTabShow = false;
 

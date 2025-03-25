@@ -259,7 +259,7 @@ void Prisma::ImguiDebug::drawGui()
 			ImGui::OpenPopup("SettingsTab");
 			openSettings = false;
 		}
-		//m_settingsTab.drawSettings();
+		m_settingsTab.drawSettings();
 		ImGui::Dummy(ImVec2(0.0f, 10.0f));
 		ImGui::Text(("UI Time: " + std::to_string(m_timeCounterUI.duration_seconds())).c_str());
 		ImGui::Text(("Engine Time: " + std::to_string(m_timeCounterEngine.duration_seconds())).c_str());
@@ -309,7 +309,7 @@ void Prisma::ImguiDebug::drawGui()
 			}
 		}
 
-		//m_settingsTab.updateStatus();
+		m_settingsTab.updateStatus();
 	}
 	drawScene();
 	//glEnable(GL_DEPTH_TEST);
@@ -419,7 +419,7 @@ void Prisma::ImguiDebug::drawScene()
 
 void Prisma::ImguiDebug::initStatus()
 {
-	//m_settingsTab.init();
+	m_settingsTab.init();
 }
 
 std::string Prisma::ImguiDebug::saveFile()

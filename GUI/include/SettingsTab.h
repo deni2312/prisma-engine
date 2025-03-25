@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include "Postprocess/Effects.h"
 
 namespace Prisma
 {
@@ -20,8 +19,8 @@ namespace Prisma
 	private:
 		SettingsData m_settings;
 		bool m_position = false;
-		std::shared_ptr<Effects> m_effects;
-		std::shared_ptr<Effects> m_effectsBloom;
+		//std::shared_ptr<Effects> m_effects;
+		//std::shared_ptr<Effects> m_effectsBloom;
 		bool m_bloom = false;
 	};
 }

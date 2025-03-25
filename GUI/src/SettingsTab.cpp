@@ -1,12 +1,12 @@
 #include <iostream>
 #include "../include/SettingsTab.h"
-#include "imgui.h"
 #include "../../Engine/include/GlobalData/PrismaFunc.h"
 #include "../../Engine/include/GlobalData/CacheScene.h"
 #include "../../Engine/include/engine.h"
 #include "../../Engine/include/Postprocess/Postprocess.h"
 #include "../include/ImGuiDebug.h"
 #include "../include/TextureInfo.h"
+#include <ThirdParty/imgui/imgui.h>
 
 Prisma::ImguiDebug::ImGuiStatus m_status;
 
@@ -91,7 +91,7 @@ void Prisma::SettingsTab::updateStatus()
 	engineSettings.pipeline = static_cast<EngineSettings::Pipeline>(m_status.currentitem);
 	Engine::getInstance().engineSettings(engineSettings);
 
-	m_effects->effect(static_cast<Effects::EFFECTS>(m_status.currentPostprocess));
+	/*m_effects->effect(static_cast<Effects::EFFECTS>(m_status.currentPostprocess));
 
 	if (m_bloom)
 	{
@@ -100,5 +100,5 @@ void Prisma::SettingsTab::updateStatus()
 	else
 	{
 		m_effectsBloom->effect(Effects::EFFECTS::NORMAL);
-	}
+	}*/
 }
