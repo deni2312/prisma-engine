@@ -180,6 +180,7 @@ bool Prisma::Engine::run()
 	//data->userData->finish();
 	//GarbageCollector::getInstance().clear();
 	PrismaFunc::getInstance().destroy();
+	Physics::getInstance().destroy();
 	return true;
 }
 

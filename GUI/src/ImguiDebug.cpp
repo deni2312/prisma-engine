@@ -23,8 +23,6 @@ struct PrivateIO
 
 std::shared_ptr<PrivateIO> data;
 
-std::unique_ptr<Diligent::ImGuiImplDiligent> imguiDiligent;
-
 Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 {
 	data = std::make_shared<PrivateIO>();
@@ -88,7 +86,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png",false});
 
 	NodeViewer::getInstance();
-	imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());
+	m_imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());
 
 	Prisma::ScenePipeline::getInstance();
 
@@ -327,7 +325,7 @@ void Prisma::ImguiDebug::start()
 	//ImGui_ImplGlfw_NewFrame();
 	//
 	auto contextDesc = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc();
-	imguiDiligent->NewFrame(m_width,m_height, contextDesc.PreTransform);
+	m_imguiDiligent->NewFrame(m_width,m_height, contextDesc.PreTransform);
 	//ImGuizmo::BeginFrame();
 }
 
@@ -355,7 +353,7 @@ void Prisma::ImguiDebug::close()
 		m_addingMenu.addMenu(m_imguiCamera);
 		ImGuiTabs::getInstance().updateTabs(Prisma::GlobalData::getInstance().currentGlobalScene()->root, 0);
 	}
-	imguiDiligent->Render(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext);
+	m_imguiDiligent->Render(Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext);
 	//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 

@@ -12,6 +12,7 @@
 #include "MeshInfo.h"
 #include "LightInfo.h"
 #include "SettingsTab.h"
+#include "Imgui/interface/ImGuiImplDiligent.hpp"
 
 namespace Prisma
 {
@@ -117,6 +118,9 @@ namespace Prisma
 		std::shared_ptr<SceneHandler> m_handlers;
 
 		GlobalSize m_globalSize;
+
+		std::unique_ptr<Diligent::ImGuiImplDiligent> m_imguiDiligent;
+
 
 	};
 }

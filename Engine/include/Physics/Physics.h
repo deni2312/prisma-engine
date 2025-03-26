@@ -66,9 +66,11 @@ namespace Prisma
 
 		bool debug();
 
+		void destroy();
+
 	private:
 		void softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> physics);
-		DrawDebugger* m_drawDebugger;
+		std::shared_ptr<DrawDebugger> m_drawDebugger;
 		JPH::BodyManager::DrawSettings m_settings;
 		bool m_debug;
 		unsigned int m_indexVbo = 0;
