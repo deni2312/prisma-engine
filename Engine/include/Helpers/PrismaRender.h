@@ -18,23 +18,6 @@ namespace Prisma
 	class PrismaRender : public InstanceData<PrismaRender>
 	{
 	public:
-		struct IBLData
-		{
-			unsigned int fbo=0;
-			unsigned int rbo=0;
-			unsigned int width=0;
-			unsigned int height=0;
-			glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-			glm::mat4 captureViews[18] =
-			{
-				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
-				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
-			};
-		};
 
 		struct BufferData
 		{
@@ -44,9 +27,10 @@ namespace Prisma
 		};
 
 		void createFbo(unsigned int width, unsigned int height);
-		IBLData data();
 
 		BufferData quadBuffer();
+
+		BufferData cubeBuffer();
 
 		//void renderQuad(unsigned int instances);
 		//std::shared_ptr<Texture> renderPerlin(unsigned int width, unsigned int height);
@@ -55,9 +39,9 @@ namespace Prisma
 		PrismaRender();
 
 	private:
-		IBLData m_data;
 
 		Prisma::PrismaRender::BufferData m_quadBufferData;
+		Prisma::PrismaRender::BufferData m_cubeBufferData;
 
 		struct VData
 		{
@@ -66,6 +50,7 @@ namespace Prisma
 		};
 
 		bool m_initQuad = false;
+		bool m_initCube = false;
 
 	};
 }

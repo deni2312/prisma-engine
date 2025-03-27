@@ -22,7 +22,7 @@ Prisma::PipelineLUT::PipelineLUT()
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "ImGui Render";
+    PSOCreateInfo.PSODesc.Name = "LUT Render";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
@@ -50,8 +50,6 @@ Prisma::PipelineLUT::PipelineLUT()
 
     // Pack matrices in row-major order
     ShaderCI.CompileFlags = Diligent::SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
-
-
 
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
@@ -114,7 +112,7 @@ Prisma::PipelineLUT::PipelineLUT()
     contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &pRTColor);
 
     m_pMSColorRTV = pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
-    m_pso->CreateShaderResourceBinding(&m_shader, true);
+    m_pso->CreateShaderResourceBinding(&m_srb, true);
 
 
     Prisma::GlobalData::getInstance().addGlobalTexture({ pRTColor,"LUT" });
@@ -122,44 +120,6 @@ Prisma::PipelineLUT::PipelineLUT()
 
 void Prisma::PipelineLUT::texture()
 {
-	/*if (!m_id) {
-		// pbr: setup framebuffer
-		// ----------------------
-		unsigned int width = PrismaRender::getInstance().data().width;
-		unsigned int height = PrismaRender::getInstance().data().height;
-
-		// pbr: generate a 2D LUT from the BRDF equations used.
-		// ----------------------------------------------------
-		unsigned int brdfLUTTexture;
-		glGenTextures(1, &brdfLUTTexture);
-
-		// pre-allocate enough memory for the LUT texture.
-		glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, nullptr);
-		// be sure to set wrapping mode to GL_CLAMP_TO_EDGE
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		// then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
-		glBindFramebuffer(GL_FRAMEBUFFER, PrismaRender::getInstance().data().fbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, PrismaRender::getInstance().data().rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
-
-		glViewport(0, 0, PrismaRender::getInstance().data().width, PrismaRender::getInstance().data().height);
-		m_shader->use();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//PrismaRender::getInstance().renderQuad();
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		m_id = glGetTextureHandleARB(brdfLUTTexture);
-		glMakeTextureHandleResidentARB(m_id);
-		glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
-			Prisma::SettingsLoader().getInstance().getSettings().height);
-		// don't forget to configure the viewport to the capture dimensions.
-	}*/
 
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
@@ -179,7 +139,7 @@ void Prisma::PipelineLUT::texture()
     contextData.m_pImmediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // Set texture SRV in the SRB
-    contextData.m_pImmediateContext->CommitShaderResources(m_shader, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
     DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type

@@ -1,23 +1,20 @@
-#version 460 core
-#extension GL_ARB_bindless_texture : enable
-out vec4 FragColor;
-in vec3 WorldPos;
-
-layout(bindless_sampler) uniform sampler2D equirectangularMap;
-
-const vec2 invAtan = vec2(0.1591, 0.3183);
-vec2 SampleSphericalMap(vec3 v)
+// Input and output structures
+struct PSInput
 {
-    vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
-    uv *= invAtan;
-    uv += 0.5;
-    return uv;
-}
+    float4 Pos : SV_POSITION; // Pixel position
+    float2 UV : TEX_COORD; // Texture coordinates for lookup
+};
 
-void main()
+struct PSOutput
 {
-    vec2 uv = SampleSphericalMap(normalize(WorldPos));
-    vec3 color = texture(equirectangularMap, uv).rgb;
+    float4 Color : SV_TARGET; // Output color (BRDF integration result)
+};
 
-    FragColor = vec4(color, 1.0);
+Texture2D equirectangularMap;
+SamplerState equirectangularMap_sampler;
+
+// Main Pixel Shader function
+void main(in PSInput PSIn, out PSOutput PSOut)
+{
+    PSOut.Color = equirectangularMap.Sample(equirectangularMap_sampler, PSIn.UV);
 }

@@ -19,10 +19,9 @@ namespace Prisma
 
 	private:
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_shader;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
-		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
 
 		const glm::vec2 m_dimensions = glm::vec2(512, 512);
 	};

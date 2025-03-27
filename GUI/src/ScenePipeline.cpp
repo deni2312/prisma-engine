@@ -131,8 +131,8 @@ Prisma::ScenePipeline::ScenePipeline()
 
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
 
-    m_pso->CreateShaderResourceBinding(&m_shader, true);
-    m_shader->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(Prisma::PipelineHandler::getInstance().textureData().pColorRTV->GetTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_pso->CreateShaderResourceBinding(&m_srb, true);
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(Prisma::PipelineHandler::getInstance().textureData().pColorRTV->GetTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 
 }
 
@@ -165,7 +165,7 @@ void Prisma::ScenePipeline::render(glm::mat4 model)
     }
 
     // Set texture SRV in the SRB
-    contextData.m_pImmediateContext->CommitShaderResources(m_shader, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
     DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type

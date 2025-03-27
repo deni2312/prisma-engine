@@ -57,8 +57,8 @@ void Prisma::MaterialComponent::ui()
 			texture.name(openFolder);
 			normalTextures.push_back(texture);
 			normal(normalTextures);
-			auto& data = std::get<1>(m_globalVars[1].type);
-			data = std::to_string(m_normal[0].rawId());
+			auto data = static_cast<Prisma::Component::ImageButton*>(std::get<2>(m_globalVars[1].type));
+			data->texture = m_normal[0];
 		}
 		};
 	m_metalnessRoughnessButton = [&]() {
@@ -70,8 +70,8 @@ void Prisma::MaterialComponent::ui()
 			texture.name(openFolder);
 			metalnessRoughnessTextures.push_back(texture);
 			roughnessMetalness(metalnessRoughnessTextures);
-			auto& data = std::get<1>(m_globalVars[2].type);
-			data = std::to_string(m_roughnessMetalness[0].rawId());
+			auto data = static_cast<Prisma::Component::ImageButton*>(std::get<2>(m_globalVars[2].type));
+			data->texture = m_roughnessMetalness[0];
 		}
 		};
 	m_specularButton = [&]() {
@@ -83,8 +83,8 @@ void Prisma::MaterialComponent::ui()
 			texture.name(openFolder);
 			specularTextures.push_back(texture);
 			specular(specularTextures);
-			auto& data = std::get<1>(m_globalVars[3].type);
-			data = std::to_string(m_specular[0].rawId());
+			auto data = static_cast<Prisma::Component::ImageButton*>(std::get<2>(m_globalVars[3].type));
+			data->texture = m_specular[0];
 		}
 		};
 	m_ambientOcclusionButton = [&]() {
@@ -96,8 +96,8 @@ void Prisma::MaterialComponent::ui()
 			texture.name(openFolder);
 			ambientOcclusionTextures.push_back(texture);
 			ambientOcclusion(ambientOcclusionTextures);
-			auto& data = std::get<1>(m_globalVars[4].type);
-			data = std::to_string(m_ambientOcclusion[0].rawId());
+			auto data = static_cast<Prisma::Component::ImageButton*>(std::get<2>(m_globalVars[4].type));
+			data->texture = m_ambientOcclusion[0];
 		}
 		};
 

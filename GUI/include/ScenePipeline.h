@@ -16,7 +16,7 @@ namespace Prisma {
 	private:
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_mvpVS;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_shader;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 	};
 
 }
