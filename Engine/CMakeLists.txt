@@ -4,8 +4,8 @@ project(PrismaEngineDll VERSION 0.1.0)
 
 include("..\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake")
 
-#set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MD")
 
 include(FetchContent)
 
@@ -17,8 +17,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JoltPhysics)
 
-set(DILIGENT_BUILD_SAMPLES false)
-set(DILIGENT_INSTALL_SAMPLES false)
+#set(DILIGENT_BUILD_SAMPLES false)
+#set(DILIGENT_INSTALL_SAMPLES false)
 
 
 add_subdirectory("../DiligentEngine" build)
