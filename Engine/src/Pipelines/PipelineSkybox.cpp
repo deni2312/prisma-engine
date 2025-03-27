@@ -108,7 +108,7 @@ Prisma::PipelineSkybox::PipelineSkybox()
     Diligent::SamplerDesc SamLinearClampDesc
     {
         Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
-        Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
+        Diligent::TEXTURE_ADDRESS_CLAMP, Diligent::TEXTURE_ADDRESS_CLAMP, Diligent::TEXTURE_ADDRESS_CLAMP
     };
     Diligent::ImmutableSamplerDesc ImtblSamplers[] =
     {

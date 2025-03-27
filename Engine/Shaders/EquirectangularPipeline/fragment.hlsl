@@ -7,7 +7,7 @@ struct PSInput
 
 struct PSOutput
 {
-    float4 Color : SV_TARGET; // Output color (BRDF integration result)
+    float4 Color : SV_TARGET;
 };
 
 static const float2 invAtan = float2(0.1591, 0.3183);
