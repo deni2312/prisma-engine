@@ -163,6 +163,8 @@ Prisma::PipelineSkybox::PipelineSkybox()
         m_pMSColorRTV->CreateView(RTVDesc,&m_pRTColor[i]);
     }
 
+
+    m_skyboxRenderer = std::make_shared<Prisma::PipelineSkyboxRenderer>();
 }
 
 const Prisma::Texture& Prisma::PipelineSkybox::texture() const
@@ -259,6 +261,7 @@ void Prisma::PipelineSkybox::calculateSkybox()
         DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
         contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
     }
+    m_skyboxRenderer->texture(m_pMSColorRTV);
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 
 }

@@ -139,14 +139,9 @@ Prisma::ScenePipeline::ScenePipeline()
 void Prisma::ScenePipeline::render(glm::mat4 model)
 {
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
+    Prisma::PrismaFunc::getInstance().clear();
 
-    auto pRTV = contextData.m_pSwapChain->GetCurrentBackBufferRTV();
-    auto pDSV = contextData.m_pSwapChain->GetDepthBufferDSV();
-    // Clear the back buffer
-    contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    contextData.m_pImmediateContext->ClearRenderTarget(pRTV, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.m_pImmediateContext->ClearDepthStencil(pDSV, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 	contextData.m_pImmediateContext->SetPipelineState(m_pso);
 
@@ -173,5 +168,4 @@ void Prisma::ScenePipeline::render(glm::mat4 model)
     // Verify the state of vertex and index buffers
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
-    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }

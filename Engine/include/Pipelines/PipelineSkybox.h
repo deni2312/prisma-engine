@@ -4,6 +4,8 @@
 #include "../SceneData/SceneLoader.h"
 #include "../Handlers/MeshHandler.h"
 #include <memory>
+
+#include "PipelineSkyboxRenderer.h"
 #include "../GlobalData/InstanceData.h"
 
 namespace Prisma
@@ -44,12 +46,12 @@ namespace Prisma
 
 		void calculateSkybox();
 
-
 		Texture m_texture;
 
 		bool m_equirectangular = false;
 
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pMSColorRTV;
@@ -57,5 +59,7 @@ namespace Prisma
 		const glm::vec2 m_dimensions = glm::vec2(512, 512);
 
 		const IBLData m_iblTransform;
+
+		std::shared_ptr<Prisma::PipelineSkyboxRenderer> m_skyboxRenderer;
 	};
 }
