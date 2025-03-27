@@ -27,6 +27,6 @@ SamplerState equirectangularMap_sampler;
 void main(in PSInput PSIn, out PSOutput PSOut)
 {
     float2 uv = SampleSphericalMap(normalize(PSIn.WorldPos));
-    float3 color = equirectangularMap.Sample(equirectangularMap_sampler, uv);
+    float3 color = equirectangularMap.SampleLevel(equirectangularMap_sampler, uv,0);
     PSOut.Color = float4(color,1);
 }
