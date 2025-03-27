@@ -107,7 +107,7 @@ Prisma::ScenePipeline::ScenePipeline()
 
 	Diligent::ShaderResourceVariableDesc Vars[] =
     {
-        {Diligent::SHADER_TYPE_PIXEL, "g_Texture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
+        {Diligent::SHADER_TYPE_PIXEL, "g_Texture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
@@ -130,9 +130,9 @@ Prisma::ScenePipeline::ScenePipeline()
     contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(Prisma::PipelineHandler::getInstance().textureData().pColorRTV->GetTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
-    m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(Prisma::PipelineHandler::getInstance().textureData().pColorRTV->GetTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 
 }
 

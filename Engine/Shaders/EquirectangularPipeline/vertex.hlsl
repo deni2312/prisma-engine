@@ -10,7 +10,7 @@ struct VSInput
 struct PSInput
 {
     float4 Pos : SV_POSITION;
-    float2 UV : TEX_COORD;
+    float3 WorldPos : TEX_COORD1;
 };
 
 cbuffer IBLData
@@ -25,6 +25,6 @@ cbuffer IBLData
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    PSIn.Pos = float4(VSIn.Pos, 1.0);
-    PSIn.UV = VSIn.UV;
+    PSIn.Pos = projection*view*float4(VSIn.Pos, 1.0);
+    PSIn.WorldPos = VSIn.Pos;
 }

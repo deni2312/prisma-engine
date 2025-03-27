@@ -13,7 +13,6 @@ namespace Prisma
 	public:
 		void render();
 
-
 		void texture(Texture texture, bool equirectangular = false);
 		PipelineSkybox();
 
@@ -23,7 +22,7 @@ namespace Prisma
 		struct IBLData
 		{
 			glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-			glm::mat4 captureViews[18] =
+			glm::mat4 captureViews[6] =
 			{
 				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
 				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
@@ -48,19 +47,7 @@ namespace Prisma
 
 		Texture m_texture;
 
-		//std::shared_ptr<Shader> m_shader;
-		//std::shared_ptr<Shader> m_shaderEquirectangular;
-
-		unsigned int m_bindlessPos;
-		unsigned int m_bindlessPosEquirectangular;
-
 		bool m_equirectangular = false;
-
-		uint64_t m_id = 0;
-		unsigned int m_envCubemap;
-
-		unsigned int m_height;
-		unsigned int m_width;
 
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
@@ -68,5 +55,7 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pMSColorRTV;
 
 		const glm::vec2 m_dimensions = glm::vec2(512, 512);
+
+		const IBLData m_iblTransform;
 	};
 }

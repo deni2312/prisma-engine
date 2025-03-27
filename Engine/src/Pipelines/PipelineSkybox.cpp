@@ -1,11 +1,7 @@
 #include "../../include/Pipelines/PipelineSkybox.h"
-#include "../../include/Pipelines/PipelineSkybox.h"
-#include "../../include/Pipelines/PipelineSkybox.h"
-#include "../../include/Pipelines/PipelineSkybox.h"
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Pipelines/PipelineLUT.h"
 #include "../../include/Helpers/PrismaRender.h"
-#include "../../include/Helpers/SettingsLoader.h"
 
 
 #include "glm/glm.hpp"
@@ -13,7 +9,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 
-Prisma::PipelineSkybox::PipelineSkybox() : m_height{512},m_width{512}
+Prisma::PipelineSkybox::PipelineSkybox()
 {
     //m_shader = std::make_shared<Shader>("../../../Engine/Shaders/LUTPipeline/vertex.glsl","../../../Engine/Shaders/LUTPipeline/fragment.glsl");
 
@@ -132,6 +128,8 @@ Prisma::PipelineSkybox::PipelineSkybox() : m_height{512},m_width{512}
 
     contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_iblData);
 
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "IBLData")->Set(m_iblData);
+
     m_pso->CreateShaderResourceBinding(&m_srb, true);
 
     Diligent::TextureDesc RTColorDesc;
@@ -227,41 +225,40 @@ void Prisma::PipelineSkybox::calculateSkybox()
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "equirectangularMap")->Set(m_texture.texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    for (unsigned int i = 0; i < 6; ++i) {
+        Diligent::MapHelper<IBLViewProjection> viewProjection(contextData.m_pImmediateContext, m_iblData, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+        viewProjection->view = m_iblTransform.captureViews[i];
+        viewProjection->projection = m_iblTransform.captureProjection;
 
 
-    Diligent::MapHelper<IBLViewProjection> viewProjection(contextData.m_pImmediateContext, m_iblData, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-    viewProjection->view = glm::mat4(1);
-    viewProjection->projection = glm::mat4(1);
+        Diligent::TextureViewDesc   RTVDesc{ "Skybox", Diligent::TEXTURE_VIEW_RENDER_TARGET, Diligent::RESOURCE_DIM_TEX_2D_ARRAY };
 
+        Diligent::ITextureView* ppRTVs[] = { m_pRTColor[i] };
 
-	Diligent::TextureViewDesc   RTVDesc{ "Skybox", Diligent::TEXTURE_VIEW_RENDER_TARGET, Diligent::RESOURCE_DIM_TEX_2D_ARRAY };
+        contextData.m_pImmediateContext->SetRenderTargets(1, ppRTVs, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-	Diligent::ITextureView* ppRTVs[] = { m_pRTColor[0]};
+        contextData.m_pImmediateContext->ClearRenderTarget(m_pRTColor[i], glm::value_ptr(glm::vec4(0)), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    contextData.m_pImmediateContext->SetRenderTargets(1, ppRTVs, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.m_pImmediateContext->SetPipelineState(m_pso);
 
-    contextData.m_pImmediateContext->ClearRenderTarget(m_pRTColor[0], glm::value_ptr(glm::vec4(0)), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        auto cubeBuffer = Prisma::PrismaRender::getInstance().cubeBuffer();
 
-    contextData.m_pImmediateContext->SetPipelineState(m_pso);
+        // Bind vertex and index buffers
+        const Diligent::Uint64 offset = 0;
+        Diligent::IBuffer* pBuffs[] = { cubeBuffer.vBuffer };
+        contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.m_pImmediateContext->SetIndexBuffer(cubeBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    auto cubeBuffer = Prisma::PrismaRender::getInstance().cubeBuffer();
+        // Set texture SRV in the SRB
+        contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    // Bind vertex and index buffers
-    const Diligent::Uint64 offset = 0;
-    Diligent::IBuffer* pBuffs[] = { cubeBuffer.vBuffer };
-    contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-    contextData.m_pImmediateContext->SetIndexBuffer(cubeBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    // Set texture SRV in the SRB
-    contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
-    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
-    DrawAttrs.NumIndices = cubeBuffer.iBufferSize;
-    // Verify the state of vertex and index buffers
-    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
-    contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
-
+        Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+        DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+        DrawAttrs.NumIndices = cubeBuffer.iBufferSize;
+        // Verify the state of vertex and index buffers
+        DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+        contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
+    }
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 
 }
@@ -283,8 +280,6 @@ void Prisma::PipelineSkybox::texture(Texture texture, bool equirectangular)
 	if (m_equirectangular)
 	{
 		//PrismaRender::getInstance().createFbo(texture.data().width, texture.data().height);
-		m_height = texture.data().height;
-		m_width = texture.data().width;
 
 		calculateSkybox();
 		//Texture textureIrradiance;
