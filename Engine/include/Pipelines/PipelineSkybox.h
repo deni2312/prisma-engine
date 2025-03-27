@@ -56,7 +56,7 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pMSColorRTV;
 
-		const glm::vec2 m_dimensions = glm::vec2(512, 512);
+		const glm::vec2 m_dimensions = glm::vec2(4096, 4096);
 
 		const IBLData m_iblTransform;
 
