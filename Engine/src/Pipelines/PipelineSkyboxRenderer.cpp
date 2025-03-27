@@ -147,8 +147,9 @@ Prisma::PipelineSkyboxRenderer::PipelineSkyboxRenderer()
     Diligent::SamplerDesc SamLinearClampDesc
     {
         Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
-        Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
+        Diligent::TEXTURE_ADDRESS_CLAMP, Diligent::TEXTURE_ADDRESS_CLAMP, Diligent::TEXTURE_ADDRESS_CLAMP
     };
+    SamLinearClampDesc.MaxAnisotropy = 16;
     Diligent::ImmutableSamplerDesc ImtblSamplers[] =
     {
         {Diligent::SHADER_TYPE_PIXEL, "g_Texture", SamLinearClampDesc}

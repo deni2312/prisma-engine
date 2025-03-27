@@ -110,6 +110,7 @@ Prisma::PipelineSkybox::PipelineSkybox()
         Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
         Diligent::TEXTURE_ADDRESS_CLAMP, Diligent::TEXTURE_ADDRESS_CLAMP, Diligent::TEXTURE_ADDRESS_CLAMP
     };
+    SamLinearClampDesc.MaxAnisotropy = 16;
     Diligent::ImmutableSamplerDesc ImtblSamplers[] =
     {
         {Diligent::SHADER_TYPE_PIXEL, "equirectangularMap", SamLinearClampDesc}
@@ -137,7 +138,7 @@ Prisma::PipelineSkybox::PipelineSkybox()
     RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_CUBE;  // Set cubemap type
     RTColorDesc.Width = m_dimensions.x;
     RTColorDesc.Height = m_dimensions.y;
-    RTColorDesc.MipLevels = 1;
+    RTColorDesc.MipLevels = 8;
     RTColorDesc.Format = Diligent::TEX_FORMAT_RGBA16_FLOAT;
     // Specify 6 faces for cubemap
     RTColorDesc.ArraySize = 6;
@@ -145,7 +146,7 @@ Prisma::PipelineSkybox::PipelineSkybox()
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
     RTColorDesc.ClearValue.Format = RTColorDesc.Format;
-
+    RTColorDesc.MiscFlags = Diligent::MISC_TEXTURE_FLAG_GENERATE_MIPS;
     // Create the cubemap texture
     contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pMSColorRTV);
 
@@ -266,6 +267,7 @@ void Prisma::PipelineSkybox::calculateSkybox()
         DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
         contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
     }
+    contextData.m_pImmediateContext->GenerateMips(m_pMSColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
     m_skyboxRenderer->texture(m_pMSColorRTV);
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 
