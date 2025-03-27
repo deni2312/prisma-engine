@@ -242,6 +242,9 @@ void Prisma::PipelineForward::render(){
         contextData.m_pImmediateContext->CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Prisma::MeshIndirect::getInstance().renderMeshes();
     }
+    if (Prisma::PipelineSkybox::getInstance().isInit()) {
+        Prisma::PipelineSkybox::getInstance().render();
+    }
 
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }

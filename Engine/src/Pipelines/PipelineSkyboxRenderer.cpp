@@ -1,9 +1,31 @@
 #include "../../include/Pipelines/PipelineSkyboxRenderer.h"
 
 #include "../../include/GlobalData/GlobalShaderNames.h"
+#include "../../include/Helpers/PrismaRender.h"
 
 void Prisma::PipelineSkyboxRenderer::render()
 {
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+    contextData.m_pImmediateContext->SetPipelineState(m_pso);
+
+    auto cubeBuffer = Prisma::PrismaRender::getInstance().cubeBuffer();
+
+    // Bind vertex and index buffers
+    const Diligent::Uint64 offset = 0;
+    Diligent::IBuffer* pBuffs[] = { cubeBuffer.vBuffer };
+    contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+    contextData.m_pImmediateContext->SetIndexBuffer(cubeBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    // Set texture SRV in the SRB
+    contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+    DrawAttrs.NumIndices = cubeBuffer.iBufferSize;
+    // Verify the state of vertex and index buffers
+    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+    contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
 }
 
 void Prisma::PipelineSkyboxRenderer::texture(Diligent::RefCntAutoPtr<Diligent::ITexture> texture)
@@ -41,11 +63,11 @@ Prisma::PipelineSkyboxRenderer::PipelineSkyboxRenderer()
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
-    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
     // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
     // clang-format on
-
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthFunc = Diligent::COMPARISON_FUNC_LESS_EQUAL;  // Set depth function to LEQUAL
     Diligent::ShaderCreateInfo ShaderCI;
     // Tell the system that the shader source code is in HLSL.
     // For OpenGL, the engine will convert this into GLSL under the hood.

@@ -15,10 +15,12 @@ namespace Prisma
 	public:
 		void render();
 
-		void texture(Texture texture, bool equirectangular = false);
+		void texture(Texture texture);
 		PipelineSkybox();
 
 		const Prisma::Texture& texture() const;
+
+		bool isInit();
 
 	private:
 		struct IBLData
@@ -28,8 +30,8 @@ namespace Prisma
 			{
 				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
 				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
 				lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 			};
@@ -48,8 +50,6 @@ namespace Prisma
 
 		Texture m_texture;
 
-		bool m_equirectangular = false;
-
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
@@ -61,5 +61,7 @@ namespace Prisma
 		const IBLData m_iblTransform;
 
 		std::shared_ptr<Prisma::PipelineSkyboxRenderer> m_skyboxRenderer;
+
+		bool m_init = false;
 	};
 }

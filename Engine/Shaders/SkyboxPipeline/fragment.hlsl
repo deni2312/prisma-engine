@@ -1,4 +1,4 @@
-Texture3D g_Texture;
+TextureCube g_Texture;
 SamplerState g_Texture_sampler; // By convention, texture samplers must use the '_sampler' suffix
 
 struct PSInput

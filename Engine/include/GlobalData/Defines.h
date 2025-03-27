@@ -22,6 +22,6 @@ namespace Prisma {
 		const std::string DIR_DEFAULT_SETTINGS = "../../../Resources/configuration/settings.json";
 		const std::string DIR_DEFAULT_LTC1 = "../../../Resources/res/ltc1.txt";
 		const std::string DIR_DEFAULT_LTC2 = "../../../Resources/res/ltc2.txt";
-		constexpr auto CLEAR_COLOR = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		constexpr auto CLEAR_COLOR = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 }

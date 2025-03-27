@@ -172,6 +172,11 @@ const Prisma::Texture& Prisma::PipelineSkybox::texture() const
 	return m_texture;
 }
 
+bool Prisma::PipelineSkybox::isInit()
+{
+    return m_init;
+}
+
 void Prisma::PipelineSkybox::calculateSkybox()
 {
 	/*if (m_id)
@@ -274,22 +279,21 @@ void Prisma::PipelineSkybox::render()
 	//PrismaRender::getInstance().renderCube();
 	//glBindVertexArray(0);
 	//glDepthFunc(GL_LESS);
+    m_skyboxRenderer->render();
 }
 
-void Prisma::PipelineSkybox::texture(Texture texture, bool equirectangular)
+void Prisma::PipelineSkybox::texture(Texture texture)
 {
 	m_texture = texture;
-	m_equirectangular = equirectangular;
-	if (m_equirectangular)
-	{
-		//PrismaRender::getInstance().createFbo(texture.data().width, texture.data().height);
 
-		calculateSkybox();
-		//Texture textureIrradiance;
-		//textureIrradiance.data(texture.data());
-		//textureIrradiance.id(m_id);
-		//PipelineDiffuseIrradiance::getInstance().texture(textureIrradiance);
-		//PipelinePrefilter::getInstance().texture(textureIrradiance);
-		PipelineLUT::getInstance().texture();
-	}
+	//PrismaRender::getInstance().createFbo(texture.data().width, texture.data().height);
+
+	calculateSkybox();
+	//Texture textureIrradiance;
+	//textureIrradiance.data(texture.data());
+	//textureIrradiance.id(m_id);
+	//PipelineDiffuseIrradiance::getInstance().texture(textureIrradiance);
+	//PipelinePrefilter::getInstance().texture(textureIrradiance);
+	PipelineLUT::getInstance().texture();
+    m_init = true;
 }

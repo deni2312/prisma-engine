@@ -142,7 +142,6 @@ void Prisma::ScenePipeline::render(glm::mat4 model)
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
     Prisma::PrismaFunc::getInstance().clear();
 
-
 	contextData.m_pImmediateContext->SetPipelineState(m_pso);
 
     auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
