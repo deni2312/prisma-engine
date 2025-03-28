@@ -13,16 +13,6 @@ namespace Prisma
 	class PipelineSkybox : public InstanceData<PipelineSkybox>
 	{
 	public:
-		void render();
-
-		void texture(Texture texture);
-		PipelineSkybox();
-
-		const Prisma::Texture& texture() const;
-
-		bool isInit();
-
-	private:
 		struct IBLData
 		{
 			glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -42,6 +32,17 @@ namespace Prisma
 			glm::mat4 view;
 			glm::mat4 projection;
 		};
+
+		void render();
+
+		void texture(Texture texture);
+		PipelineSkybox();
+
+		const Prisma::Texture& texture() const;
+
+		bool isInit();
+
+	private:
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iblData;
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTColor[6];

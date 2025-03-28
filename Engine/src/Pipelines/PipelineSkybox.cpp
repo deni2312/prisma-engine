@@ -2,6 +2,7 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Pipelines/PipelineLUT.h"
 #include "../../include/Helpers/PrismaRender.h"
+#include "../../include/Pipelines/PipelinePrefilter.h"
 
 
 #include "glm/glm.hpp"
@@ -11,8 +12,6 @@
 
 Prisma::PipelineSkybox::PipelineSkybox()
 {
-    //m_shader = std::make_shared<Shader>("../../../Engine/Shaders/LUTPipeline/vertex.glsl","../../../Engine/Shaders/LUTPipeline/fragment.glsl");
-
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
@@ -197,7 +196,7 @@ void Prisma::PipelineSkybox::calculateSkybox()
 
         contextData.m_pImmediateContext->SetRenderTargets(1, ppRTVs, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-        contextData.m_pImmediateContext->ClearRenderTarget(m_pRTColor[i], glm::value_ptr(glm::vec4(0)), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.m_pImmediateContext->ClearRenderTarget(m_pRTColor[i], glm::value_ptr(Prisma::Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         contextData.m_pImmediateContext->SetPipelineState(m_pso);
 
@@ -220,7 +219,7 @@ void Prisma::PipelineSkybox::calculateSkybox()
         contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
     }
     contextData.m_pImmediateContext->GenerateMips(m_pMSColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-    m_skyboxRenderer->texture(m_pMSColorRTV);
+    //m_skyboxRenderer->texture(m_pMSColorRTV);
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 
 }
@@ -237,5 +236,7 @@ void Prisma::PipelineSkybox::texture(Texture texture)
 	m_texture = texture;
 	calculateSkybox();
 	PipelineLUT::getInstance().texture();
+    PipelinePrefilter::getInstance().texture(m_pMSColorRTV);
+    m_skyboxRenderer->texture(PipelinePrefilter::getInstance().prefilterTexture());
     m_init = true;
 }

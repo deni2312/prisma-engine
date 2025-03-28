@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec3 WorldPos;
 
 layout(bindless_sampler)uniform samplerCube environmentMap;
+
 uniform float roughness;
 uniform int resolution;
 
