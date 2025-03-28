@@ -262,6 +262,11 @@ void Prisma::ImguiDebug::drawGui()
 		ImGui::Dummy(ImVec2(0.0f, 10.0f));
 		ImGui::Text(("UI Time: " + std::to_string(m_timeCounterUI.duration_seconds())).c_str());
 		ImGui::Text(("Engine Time: " + std::to_string(m_timeCounterEngine.duration_seconds())).c_str());
+		ImGui::Text(("Meshes: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size())).c_str());
+		ImGui::Text(("Animate Meshes: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size())).c_str());
+		ImGui::Text(("Omni Lights: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.size())).c_str());
+		ImGui::Text(("Dir Lights: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.size())).c_str());
+		ImGui::Text(("Area Lights: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights.size())).c_str());
 		ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
 		ImGui::Separator();
