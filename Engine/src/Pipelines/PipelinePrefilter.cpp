@@ -173,8 +173,6 @@ void Prisma::PipelinePrefilter::texture(Diligent::RefCntAutoPtr<Diligent::ITextu
 
     for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
     {
-        //unsigned int mipWidth = static_cast<unsigned int>(128 * std::pow(0.5, mip));
-        //unsigned int mipHeight = static_cast<unsigned int>(128 * std::pow(0.5, mip));
 
         float roughness = static_cast<float>(mip) / static_cast<float>(maxMipLevels - 1);
 
@@ -191,7 +189,7 @@ void Prisma::PipelinePrefilter::texture(Diligent::RefCntAutoPtr<Diligent::ITextu
 
             Diligent::MapHelper<RoughnessResolution> roughnessResolution(contextData.m_pImmediateContext, m_iblResolution, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
             roughnessResolution->roughness = roughness;
-            roughnessResolution->resolution = 4096;
+            roughnessResolution->resolution = texture->GetDesc().GetWidth();
             RTVDesc.FirstArraySlice = i;  // Select the specific face
             RTVDesc.NumArraySlices = 1;
 

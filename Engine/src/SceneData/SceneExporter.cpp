@@ -32,7 +32,6 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCub
 	if (loadCubemap && !Prisma::SceneExporterLayout::skybox.empty()) {
 		Texture texture;
 		texture.loadTexture({ Prisma::SceneExporterLayout::skybox,true });
-		texture.data({ 4096, 4096, 3 });
 		PipelineSkybox::getInstance().texture(texture);
 	}
 	nodeHelper.nodeIterator(node, [&](auto node, auto parent)

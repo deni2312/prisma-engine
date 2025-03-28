@@ -28,5 +28,6 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pRTColor;
 
 		const glm::vec2 m_dimensions = glm::vec2(512, 512);
+		bool m_init = false;
 	};
 }

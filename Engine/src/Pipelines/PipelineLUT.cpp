@@ -119,34 +119,37 @@ Prisma::PipelineLUT::PipelineLUT()
 
 void Prisma::PipelineLUT::texture()
 {
+    if (!m_init) 
+    {
+        auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+        // Clear the back buffer
+        contextData.m_pImmediateContext->SetRenderTargets(1, &m_pMSColorRTV, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    // Clear the back buffer
-    contextData.m_pImmediateContext->SetRenderTargets(1, &m_pMSColorRTV, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.m_pImmediateContext->ClearRenderTarget(m_pMSColorRTV, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    contextData.m_pImmediateContext->ClearRenderTarget(m_pMSColorRTV, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.m_pImmediateContext->SetPipelineState(m_pso);
 
-    contextData.m_pImmediateContext->SetPipelineState(m_pso);
+        auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
 
-    auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
+        // Bind vertex and index buffers
+        const Diligent::Uint64 offset = 0;
+        Diligent::IBuffer* pBuffs[] = { quadBuffer.vBuffer };
+        contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.m_pImmediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    // Bind vertex and index buffers
-    const Diligent::Uint64 offset = 0;
-    Diligent::IBuffer* pBuffs[] = { quadBuffer.vBuffer };
-    contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-    contextData.m_pImmediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        // Set texture SRV in the SRB
+        contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    // Set texture SRV in the SRB
-    contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
-    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
-    DrawAttrs.NumIndices = quadBuffer.iBufferSize;
-    // Verify the state of vertex and index buffers
-    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
-    contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
-    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
+        Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+        DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+        DrawAttrs.NumIndices = quadBuffer.iBufferSize;
+        // Verify the state of vertex and index buffers
+        DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+        contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
+        Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
+        m_init = true;
+    }
 }
 
 Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineLUT::lutTexture()

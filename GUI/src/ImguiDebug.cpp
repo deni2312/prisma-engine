@@ -10,6 +10,7 @@
 #include "../../Engine/include/engine.h"
 #include "../../Engine/include/Handlers/LoadingHandler.h"
 #include "../../Engine/include/Helpers/StringHelper.h"
+#include "../../Engine/include/Pipelines/PipelineSkybox.h"
 #include "../../Engine/include/SceneData/MeshIndirect.h"
 #include "../include/ImGuiTabs.h"
 #include "../include/NodeViewer.h"
@@ -165,9 +166,8 @@ void Prisma::ImguiDebug::drawGui()
 				if (scene != "")
 				{
 					Texture texture;
-					texture.loadEquirectangular(scene);
-					texture.data({4096, 4096, 3});
-					//PipelineSkybox::getInstance().texture(texture, true);
+					texture.loadTexture({ scene,true });
+					Prisma::PipelineSkybox::getInstance().texture(texture);
 				}
 			}
 
