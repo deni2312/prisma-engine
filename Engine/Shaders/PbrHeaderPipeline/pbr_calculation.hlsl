@@ -1,3 +1,6 @@
+SamplerState texture_sampler;
+
+
 struct OmniData
 {
     float4 position;
@@ -34,11 +37,14 @@ cbuffer ViewProjection
     float4 viewPos;
 };
 
+Texture2D lut;
+TextureCube irradiance;
+TextureCube prefilter;
+
 StructuredBuffer<OmniData> omniData;
 
 static const float PI = 3.14159265359;
 
-// ----------------------------------------------------------------------------
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
     float a = roughness * roughness;
@@ -48,11 +54,11 @@ float DistributionGGX(float3 N, float3 H, float roughness)
 
     float nom = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
+    denom = 3.14159265359 * denom * denom;
 
     return nom / denom;
 }
-// ----------------------------------------------------------------------------
+
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
@@ -63,7 +69,7 @@ float GeometrySchlickGGX(float NdotV, float roughness)
 
     return nom / denom;
 }
-// ----------------------------------------------------------------------------
+
 float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 {
     float NdotV = max(dot(N, V), 0.0);
@@ -73,11 +79,17 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 
     return ggx1 * ggx2;
 }
-// ----------------------------------------------------------------------------
-float3 FresnelSchlick(float cosTheta, float3 F0)
+
+float3 fresnelSchlick(float cosTheta, float3 F0)
 {
     return F0 + (1.0 - F0) * pow(saturate(1.0 - cosTheta), 5.0);
 }
+
+float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
+{
+    return F0 + (max(float3(1.0 - roughness, 1.0 - roughness, 1.0 - roughness), F0) - F0) * pow(saturate(1.0 - cosTheta), 5.0);
+}
+
 // ----------------------------------------------------------------------------
 // Converts tangent-space normal to world-space
 float3 GetNormalFromMap(Texture2D normalMap, SamplerState samplerState, float2 TexCoords, float3 WorldPos, float3 Normal)
@@ -118,7 +130,7 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
-        float3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+        float3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         float3 numerator = NDF * G * F;
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
@@ -131,8 +143,23 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
+    float3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
-    float3 ambient = float3(0.03) * albedo * aoSpecular.r;
+    float3 kS = F;
+    float3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+    float3 irradianceMap = irradiance.Sample(texture_sampler, N);    
+    
+    float3 diffuse = irradianceMap * albedo;
+    float3 R = reflect(-V, N);
+
+    const float MAX_REFLECTION_LOD = 4.0;
+    float3 prefilteredColor = prefilter.SampleLevel(texture_sampler, R, roughness * MAX_REFLECTION_LOD);
+
+    float2 brdf = lut.Sample(texture_sampler, float2(max(dot(N, V), 0.0), roughness)).rg;
+    float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    
+    float3 ambient = (kD * diffuse + specular);
     float3 color = ambient + Lo;
 
     color = color / (color + float3(1.0));

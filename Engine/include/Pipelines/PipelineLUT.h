@@ -15,6 +15,8 @@ namespace Prisma
 	public:
 		void texture();
 
+		Diligent::RefCntAutoPtr<Diligent::ITexture> lutTexture();
+
 		PipelineLUT();
 
 	private:
@@ -22,6 +24,8 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
+
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pRTColor;
 
 		const glm::vec2 m_dimensions = glm::vec2(512, 512);
 	};

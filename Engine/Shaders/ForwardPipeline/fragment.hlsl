@@ -1,7 +1,6 @@
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.hlsl"
 
 Texture2D diffuseTexture[];
-SamplerState texture_sampler;
 
 Texture2D normalTexture[];
 

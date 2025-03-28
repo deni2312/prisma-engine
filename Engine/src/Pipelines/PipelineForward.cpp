@@ -153,6 +153,11 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
 
         {SHADER_TYPE_PIXEL,samplerName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_LUT.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_PREFILTER.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_IRRADIANCE.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+
     };
 
     PipelineResourceSignatureDesc ResourceSignDesc;
@@ -211,11 +216,26 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+            if (Prisma::PipelineSkybox::getInstance().isInit()) {
+                m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_LUT.c_str())->Set(Prisma::PipelineLUT::getInstance().lutTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+                m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_PREFILTER.c_str())->Set(Prisma::PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+                m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(Prisma::PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+            }
         });
-    Prisma::PipelineSkybox::getInstance().addUpdate([&]()
-        {
-
-        });
+		Prisma::PipelineSkybox::getInstance().addUpdate([&]()
+		{
+            m_srb.Release();
+            m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
+            auto buffers = Prisma::MeshIndirect::getInstance().modelBuffer();
+            auto materials = Prisma::MeshIndirect::getInstance().textureViews();
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_LUT.c_str())->Set(Prisma::PipelineLUT::getInstance().lutTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_PREFILTER.c_str())->Set(Prisma::PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(Prisma::PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+		});
 }
 
 void Prisma::PipelineForward::render(){

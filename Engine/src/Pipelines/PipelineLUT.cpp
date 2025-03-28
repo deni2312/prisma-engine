@@ -108,14 +108,13 @@ Prisma::PipelineLUT::PipelineLUT()
     // Define optimal clear value
     RTColorDesc.ClearValue.Format = RTColorDesc.Format;
 
-    Diligent::RefCntAutoPtr<Diligent::ITexture> pRTColor;
-    contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &pRTColor);
+    contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pRTColor);
 
-    m_pMSColorRTV = pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    m_pMSColorRTV = m_pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
     m_pso->CreateShaderResourceBinding(&m_srb, true);
 
 
-    Prisma::GlobalData::getInstance().addGlobalTexture({ pRTColor,"LUT" });
+    Prisma::GlobalData::getInstance().addGlobalTexture({ m_pRTColor,"LUT" });
 }
 
 void Prisma::PipelineLUT::texture()
@@ -148,4 +147,9 @@ void Prisma::PipelineLUT::texture()
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
+}
+
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineLUT::lutTexture()
+{
+    return m_pRTColor;
 }

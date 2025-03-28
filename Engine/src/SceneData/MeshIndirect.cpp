@@ -503,6 +503,16 @@ Prisma::MeshIndirect::MeshIndirect()
 	contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBuffer);
 }
 
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::modelBuffer()
+{
+	return m_modelBuffer;
+}
+
+Prisma::MeshIndirect::MaterialView& Prisma::MeshIndirect::textureViews()
+{
+	return m_textureViews;
+}
+
 void Prisma::MeshIndirect::resizeModels(std::vector<Prisma::Mesh::MeshData>& models)
 {
 	m_modelBuffer.Release();

@@ -12,6 +12,9 @@ namespace Prisma {
 		const std::string MUTABLE_SPECULAR_TEXTURE = "specularTexture";
 		const std::string MUTABLE_AMBIENT_OCCLUSION_TEXTURE = "aoTexture";
 		const std::string MUTABLE_MODELS = "models";
+		const std::string MUTABLE_LUT = "lut";
+		const std::string MUTABLE_IRRADIANCE = "irradiance";
+		const std::string MUTABLE_PREFILTER = "prefilter";
 
 	}
 }

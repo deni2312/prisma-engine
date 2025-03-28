@@ -69,6 +69,9 @@ namespace Prisma
 
 		MeshIndirect();
 
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> modelBuffer();
+
+		MaterialView& textureViews();
 
 	private:
 
