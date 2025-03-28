@@ -45,12 +45,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
                                                                                                              }, m_height{height}
 {
 
-    // Pipeline state object encompasses configuration of all GPU stages
-
-
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-
-    // Pipeline state object encompasses configuration of all GPU stages
 
     GraphicsPipelineStateCreateInfo PSOCreateInfo;
 
