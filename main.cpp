@@ -1,6 +1,5 @@
-#include <iostream>
 #include "UserEngine/include/UserEngine.h"
-#include <Windows.h>
+#include "GUI/include/ImGuiDebug.h"
 
 int main(int argc, const char* const* argv)
 {

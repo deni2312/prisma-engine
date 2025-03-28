@@ -3,9 +3,11 @@
 #include <vector>
 
 #include "../GlobalData/Platform.h"
+#include "../GlobalData/Defines.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "Graphics/GraphicsEngine/interface/Texture.h"
+
 
 namespace Diligent
 {
@@ -30,6 +32,7 @@ namespace Prisma
 		{
 			std::string texture;
 			bool srgb = false;
+			int mips = Prisma::Define::DEFAULT_MIPS;
 		};
 
 		bool loadTexture(const Parameters& parameters);

@@ -17,8 +17,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(JoltPhysics)
 
-#set(DILIGENT_BUILD_SAMPLES false)
-#set(DILIGENT_INSTALL_SAMPLES false)
+set(DILIGENT_BUILD_SAMPLES false)
+set(DILIGENT_INSTALL_SAMPLES false)
 
 
 add_subdirectory("../DiligentEngine" build)

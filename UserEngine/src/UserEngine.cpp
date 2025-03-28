@@ -1,17 +1,9 @@
 #include "../include/UserEngine.h"
 #include "../../Engine/include/Pipelines/PipelineSkybox.h"
 #include "../../Engine/include/Components/PhysicsMeshComponent.h"
-
+#include "../../Engine/include/SceneData/SceneLoader.h"
 
 #include <memory>
-#include <string>
-#include <iostream>
-#include <glm/gtx/string_cast.hpp>
-
-#include <random>
-#include <glm/gtc/random.hpp>
-#include "../../Engine/include/SceneData/Animation.h"
-#include <Windows.h>
 
 void UserEngine::start()
 {
