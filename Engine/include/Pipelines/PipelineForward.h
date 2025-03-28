@@ -43,5 +43,7 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
+		std::function<void()> m_updateData;
+
 	};
 }

@@ -244,9 +244,10 @@ void Prisma::PipelineSkybox::texture(Texture texture)
 	PipelineLUT::getInstance().texture();
     PipelinePrefilter::getInstance().texture(m_pMSColorRTV);
     PipelineDiffuseIrradiance::getInstance().texture(m_pMSColorRTV);
+    m_init = true;
+
     for (auto& update:m_update)
     {
         update();
     }
-    m_init = true;
 }
