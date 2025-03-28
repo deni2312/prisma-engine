@@ -40,7 +40,7 @@ void Prisma::MaterialComponent::ui()
 			Texture texture;
 			auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 			if (!openFolder.empty()) {
-				texture.loadTexture({openFolder,true});
+				texture.loadTexture({openFolder,true,Prisma::Define::DEFAULT_MIPS,true});
 				texture.name(openFolder);
 				diffuseTextures.push_back(texture);
 				diffuse(diffuseTextures);
@@ -53,7 +53,7 @@ void Prisma::MaterialComponent::ui()
 		Texture texture;
 		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
-			texture.loadTexture({ openFolder });
+			texture.loadTexture({ openFolder ,false,Prisma::Define::DEFAULT_MIPS,true });
 			texture.name(openFolder);
 			normalTextures.push_back(texture);
 			normal(normalTextures);
@@ -66,7 +66,7 @@ void Prisma::MaterialComponent::ui()
 		Texture texture;
 		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
-			texture.loadTexture({ openFolder });
+			texture.loadTexture({ openFolder ,false,Prisma::Define::DEFAULT_MIPS,true });
 			texture.name(openFolder);
 			metalnessRoughnessTextures.push_back(texture);
 			roughnessMetalness(metalnessRoughnessTextures);
@@ -79,7 +79,7 @@ void Prisma::MaterialComponent::ui()
 		Texture texture;
 		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
-			texture.loadTexture({ openFolder });
+			texture.loadTexture({ openFolder ,false,Prisma::Define::DEFAULT_MIPS,true });
 			texture.name(openFolder);
 			specularTextures.push_back(texture);
 			specular(specularTextures);
@@ -92,7 +92,7 @@ void Prisma::MaterialComponent::ui()
 		Texture texture;
 		auto openFolder = Prisma::WindowsHelper::getInstance().openFolder("All Files");
 		if (!openFolder.empty()) {
-			texture.loadTexture({ openFolder });
+			texture.loadTexture({ openFolder ,false,Prisma::Define::DEFAULT_MIPS,true });
 			texture.name(openFolder);
 			ambientOcclusionTextures.push_back(texture);
 			ambientOcclusion(ambientOcclusionTextures);

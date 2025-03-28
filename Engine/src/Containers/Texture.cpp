@@ -12,13 +12,18 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 {
 	m_parameters = parameters;
 	Diligent::TextureLoadInfo loadInfo;
-	loadInfo.IsSRGB = parameters.srgb;
-	CreateTextureFromFile(parameters.texture.c_str(), loadInfo, Prisma::PrismaFunc::getInstance().contextData().m_pDevice, &m_texture);
+	loadInfo.IsSRGB = m_parameters.srgb;
+	if (m_parameters.compress)
+	{
+		loadInfo.CompressMode = Diligent::TEXTURE_LOAD_COMPRESS_MODE_BC;
+	}
+	loadInfo.MipLevels = m_parameters.mips;
+	CreateTextureFromFile(m_parameters.texture.c_str(), loadInfo, Prisma::PrismaFunc::getInstance().contextData().m_pDevice, &m_texture);
 
 	if (!m_texture) {
 		Prisma::Logger::getInstance().log(Prisma::LogLevel::WARN,"Not found: " + m_parameters.texture);
 	}else{
-		Prisma::GlobalData::getInstance().addGlobalTexture({ m_texture,parameters.texture });
+		Prisma::GlobalData::getInstance().addGlobalTexture({ m_texture,m_parameters.texture });
 	}
 
 	m_data.width = m_texture->GetDesc().GetWidth();

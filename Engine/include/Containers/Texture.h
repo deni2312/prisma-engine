@@ -33,6 +33,7 @@ namespace Prisma
 			std::string texture;
 			bool srgb = false;
 			int mips = Prisma::Define::DEFAULT_MIPS;
+			bool compress = false;
 		};
 
 		bool loadTexture(const Parameters& parameters);

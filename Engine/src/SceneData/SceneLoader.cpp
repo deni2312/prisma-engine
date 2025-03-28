@@ -496,7 +496,7 @@ std::vector<Prisma::Texture> Prisma::SceneLoader::loadMaterialTextures(aiMateria
 			Texture texture;
 			std::string name = str.C_Str();
 			name = m_folder + name;
-			if (!texture.loadTexture({name, srgb}))
+			if (!texture.loadTexture({name, srgb,Prisma::Define::DEFAULT_MIPS,true}))
 			{
 				std::cerr << "Texture " + name + " not found" << std::endl;
 			}
