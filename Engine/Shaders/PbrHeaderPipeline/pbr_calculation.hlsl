@@ -112,6 +112,8 @@ float3 GetNormalFromMap(Texture2D normalMap, SamplerState samplerState, float2 T
 float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular, float roughness, float metallic)
 {
     float3 V = normalize((float3)viewPos - FragPos);
+    float specularMap = aoSpecular.r;
+    float ao = aoSpecular.g;
     float3 F0 = float3(0.04);
     F0 = lerp(F0, albedo, metallic);
 
@@ -126,7 +128,7 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
 
         float attenuation = 1.0 / (omniData[i].attenuation.x + omniData[i].attenuation.y * totalDistance + omniData[i].attenuation.z * totalDistance * totalDistance);
         
-        float3 radiance = (float3) omniData[i].diffuse * attenuation;
+        float3 radiance = (float3) omniData[i].diffuse;
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
@@ -136,16 +138,16 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
         float3 specular = numerator / denominator;
 
-        float3 kS = F;
+        float3 kS = F * specularMap;
         float3 kD = float3(1.0) - kS;
         kD *= 1.0 - metallic;
 
         float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
     }
     float3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
-    float3 kS = F;
+    float3 kS = F * specularMap;
     float3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
     float3 irradianceMap = irradiance.Sample(texture_sampler, N);    
@@ -159,9 +161,8 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
     float2 brdf = lut.Sample(texture_sampler, float2(max(dot(N, V), 0.0), roughness)).rg;
     float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     
-    float3 ambient = (kD * diffuse + specular);
+    float3 ambient = (kD * diffuse + specular)*ao;
     float3 color = ambient + Lo;
-
     
     return color;
 }
