@@ -162,8 +162,6 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
     float3 ambient = (kD * diffuse + specular);
     float3 color = ambient + Lo;
 
-    color = color / (color + float3(1.0));
-    color = pow(color, float3(1.0 / 2.2));
     
     return color;
 }
