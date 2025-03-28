@@ -32,7 +32,7 @@ void Prisma::MeshHandler::updateCluster()
 
 void Prisma::MeshHandler::updateFragment()
 {
-	m_fragment.irradiancePos = PipelineDiffuseIrradiance::getInstance().id();
+	//m_fragment.irradiancePos = PipelineDiffuseIrradiance::getInstance().id();
 	//m_fragment.prefilterPos = PipelinePrefilter::getInstance().id();
 	//m_fragment.lutPos = PipelineLUT::getInstance().id();
 	m_fragment.viewPos = glm::vec4(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->position(), 1.0f);

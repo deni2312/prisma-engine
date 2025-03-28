@@ -212,6 +212,10 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
         });
+    Prisma::PipelineSkybox::getInstance().addUpdate([&]()
+        {
+
+        });
 }
 
 void Prisma::PipelineForward::render(){

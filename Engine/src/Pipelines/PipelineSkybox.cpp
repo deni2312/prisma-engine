@@ -2,6 +2,7 @@
 #include "../../include/GlobalData/GlobalData.h"
 #include "../../include/Pipelines/PipelineLUT.h"
 #include "../../include/Helpers/PrismaRender.h"
+#include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
 #include "../../include/Pipelines/PipelinePrefilter.h"
 
 
@@ -177,6 +178,11 @@ bool Prisma::PipelineSkybox::isInit()
     return m_init;
 }
 
+void Prisma::PipelineSkybox::addUpdate(std::function<void()> update)
+{
+    m_update.push_back(update);
+}
+
 void Prisma::PipelineSkybox::calculateSkybox()
 {
     m_srb.Release();
@@ -237,5 +243,10 @@ void Prisma::PipelineSkybox::texture(Texture texture)
 	calculateSkybox();
 	PipelineLUT::getInstance().texture();
     PipelinePrefilter::getInstance().texture(m_pMSColorRTV);
+    PipelineDiffuseIrradiance::getInstance().texture(m_pMSColorRTV);
+    for (auto& update:m_update)
+    {
+        update();
+    }
     m_init = true;
 }

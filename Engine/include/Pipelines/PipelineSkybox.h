@@ -42,10 +42,14 @@ namespace Prisma
 
 		bool isInit();
 
+		void addUpdate(std::function<void()> update);
+
 	private:
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iblData;
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTColor[6];
+
+		std::vector<std::function<void()>> m_update;
 
 		void calculateSkybox();
 
