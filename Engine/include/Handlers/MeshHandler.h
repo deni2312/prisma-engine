@@ -32,27 +32,14 @@ namespace Prisma
 			float padding[2];
 		};
 
-		struct alignas(16) FragmentData
-		{
-			glm::vec4 viewPos;
-			uint64_t irradiancePos;
-			uint64_t prefilterPos;
-			uint64_t lutPos;
-			glm::vec2 padding;
-			uint64_t textureLut;
-			uint64_t textureM;
-		};
-
 		std::shared_ptr<ViewProjectionData> data() const;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> viewProjection() const;
 		void updateCamera();
 		void updateCluster();
-		void updateFragment();
 		MeshHandler();
 
 	private:
 		ClusterData m_clusterData;
-		FragmentData m_fragment;
 		Settings m_settings;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_viewProjection;
 

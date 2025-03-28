@@ -18,7 +18,6 @@ void Prisma::MeshHandler::updateCamera()
 	viewProjection->view = camera->matrix();
 	viewProjection->projection = Prisma::GlobalData::getInstance().currentProjection();
 	viewProjection->viewPos = glm::vec4(camera->position(),1.0);
-	//getInstance().ubo()->modifyData(0, sizeof(glm::mat4), value_ptr(cameraMatrix));
 }
 
 void Prisma::MeshHandler::updateCluster()
@@ -28,17 +27,6 @@ void Prisma::MeshHandler::updateCluster()
 	m_clusterData.gridSize = glm::vec4(ClusterCalculation::grids(), 1.0f);
 	m_clusterData.screenDimensions = {m_settings.width, m_settings.height, 1.0f, 1.0f};
 	//m_uboCluster->modifyData(0, sizeof(UBOCluster), &m_uboClusterData);
-}
-
-void Prisma::MeshHandler::updateFragment()
-{
-	//m_fragment.irradiancePos = PipelineDiffuseIrradiance::getInstance().id();
-	//m_fragment.prefilterPos = PipelinePrefilter::getInstance().id();
-	//m_fragment.lutPos = PipelineLUT::getInstance().id();
-	m_fragment.viewPos = glm::vec4(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->position(), 1.0f);
-	m_fragment.textureLut = Prisma::AreaHandler::getInstance().idLut();
-	m_fragment.textureM = Prisma::AreaHandler::getInstance().idM();
-	//m_uboFragment->modifyData(0, sizeof(UBOFragment), &m_fragment);
 }
 
 Prisma::MeshHandler::MeshHandler()
