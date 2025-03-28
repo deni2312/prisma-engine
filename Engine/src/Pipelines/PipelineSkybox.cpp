@@ -219,7 +219,7 @@ void Prisma::PipelineSkybox::calculateSkybox()
         contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
     }
     contextData.m_pImmediateContext->GenerateMips(m_pMSColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-    //m_skyboxRenderer->texture(m_pMSColorRTV);
+    m_skyboxRenderer->texture(m_pMSColorRTV);
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 
 }
@@ -237,6 +237,5 @@ void Prisma::PipelineSkybox::texture(Texture texture)
 	calculateSkybox();
 	PipelineLUT::getInstance().texture();
     PipelinePrefilter::getInstance().texture(m_pMSColorRTV);
-    m_skyboxRenderer->texture(PipelinePrefilter::getInstance().prefilterTexture());
     m_init = true;
 }

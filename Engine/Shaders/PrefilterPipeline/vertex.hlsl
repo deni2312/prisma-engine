@@ -25,7 +25,7 @@ cbuffer IBLData
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
-    float3 pos = float3(VSIn.Pos.x, VSIn.Pos.y, VSIn.Pos.z);
-    PSIn.Pos = projection * view * float4(pos, 1.0);
+    PSIn.Pos = projection * view * float4(VSIn.Pos, 1.0);
+    float3 pos = float3(VSIn.Pos.x, -VSIn.Pos.y, VSIn.Pos.z);
     PSIn.WorldPos = pos;
 }

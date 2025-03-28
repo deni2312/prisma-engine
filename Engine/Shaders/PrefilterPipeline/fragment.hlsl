@@ -74,8 +74,6 @@ float3 ImportanceSampleGGX(float2 Xi, float3 N, float roughness)
 void main(in PSInput PSIn, out PSOutput PSOut)
 {
     float3 N = normalize(PSIn.WorldPos);
-
-    N.y = -N.y;
     
     float3 R = N;
     float3 V = R;
