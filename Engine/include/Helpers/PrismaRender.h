@@ -26,14 +26,10 @@ namespace Prisma
 			unsigned int iBufferSize;
 		};
 
-		void createFbo(unsigned int width, unsigned int height);
-
 		BufferData quadBuffer();
 
 		BufferData cubeBuffer();
 
-		//void renderQuad(unsigned int instances);
-		//std::shared_ptr<Texture> renderPerlin(unsigned int width, unsigned int height);
 
 
 		PrismaRender();

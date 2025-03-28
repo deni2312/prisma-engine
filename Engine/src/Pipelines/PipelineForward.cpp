@@ -235,16 +235,14 @@ void Prisma::PipelineForward::render(){
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
     // makes sure that resources are transitioned to required states.
     auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-    if (!meshes.empty())
+    if (!meshes.empty() && Prisma::PipelineSkybox::getInstance().isInit())
     {
         Prisma::MeshIndirect::getInstance().setupBuffers();
         // Set texture SRV in the SRB
         contextData.m_pImmediateContext->CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Prisma::MeshIndirect::getInstance().renderMeshes();
     }
-    if (Prisma::PipelineSkybox::getInstance().isInit()) {
-        Prisma::PipelineSkybox::getInstance().render();
-    }
+    Prisma::PipelineSkybox::getInstance().render();
 
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }
