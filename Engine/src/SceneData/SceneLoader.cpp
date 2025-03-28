@@ -38,9 +38,10 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
 	auto prismaScene = Prisma::StringHelper::getInstance().endsWith(scene, ".prisma");
 	m_scene = std::make_shared<Scene>();
 	m_scene->name = scene;
+	Prisma::Exporter exporter;
+
 	if (prismaScene)
 	{
-		Prisma::Exporter exporter;
 		auto newRootNode = exporter.importScene(scene);
 		newRootNode->parent(nullptr);
 		m_scene->root = newRootNode;
@@ -95,7 +96,7 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
 		m_scene->root = root;
 		nodeIteration(root, m_aScene->mRootNode, m_aScene);
 		loadLights(m_aScene, root);
-
+		exporter.postLoad(root,false);
 		return m_scene;
 	}
 	std::cerr << "Could not find the directory" << std::endl;
@@ -406,7 +407,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 	currentMaterial->specular(loadMaterialTextures(material, aiTextureType_SPECULAR));
 	currentMaterial->ambientOcclusion(loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION));
 
-	std::vector<Texture> emptyVector;
+	/*std::vector<Texture> emptyVector;
 	if (currentMaterial->diffuse().empty())
 	{
 		emptyVector.clear();
@@ -458,7 +459,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
 		                                  " MaterialComponent name: " +
 		                                  material->GetName().
 		                                            C_Str());
-	}
+	}*/
 
 	currentMaterial->name(material->GetName().C_Str());
 
@@ -484,29 +485,10 @@ std::vector<Prisma::Texture> Prisma::SceneLoader::loadMaterialTextures(aiMateria
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		bool skip = false;
-
-		if (m_texturesLoaded.find(m_folder + str.C_Str()) != m_texturesLoaded.end())
-		{
-			textures.push_back(m_texturesLoaded[m_folder + str.C_Str()]);
-			skip = true;
-			break;
-		}
-		if (!skip)
-		{
-			Texture texture;
-			std::string name = str.C_Str();
-			name = m_folder + name;
-			if (!texture.loadTexture({name, srgb,Prisma::Define::DEFAULT_MIPS,true}))
-			{
-				std::cerr << "Texture " + name + " not found" << std::endl;
-			}
-			else
-			{
-				texture.name(name);
-				textures.push_back(texture);
-				m_texturesLoaded[m_folder + str.C_Str()] = texture;
-			}
-		}
+		Texture texture;
+		std::string name = m_folder+str.C_Str();
+		texture.name(name);
+		textures.push_back(texture);
 	}
 	return textures;
 }

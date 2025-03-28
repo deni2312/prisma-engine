@@ -25,11 +25,11 @@ std::string Prisma::Exporter::getFileName(const std::string& filePath)
 	return filePath;
 }
 
-void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
+void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCubemap)
 {
 	Prisma::NodeHelper nodeHelper;
 	std::map<std::string, Texture> texturesLoaded;
-	if (!Prisma::SceneExporterLayout::skybox.empty()) {
+	if (loadCubemap && !Prisma::SceneExporterLayout::skybox.empty()) {
 		Texture texture;
 		texture.loadTexture({ Prisma::SceneExporterLayout::skybox,true });
 		texture.data({ 4096, 4096, 3 });
@@ -40,8 +40,7 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 		auto mesh = std::dynamic_pointer_cast<Mesh>(node);
 		if (mesh)
 		{
-			bool anisotropic = true;
-			if (!mesh->material()->diffuse()[0].name().empty())
+			if (!mesh->material()->diffuse().empty() && !mesh->material()->diffuse()[0].name().empty())
 			{
 				if (texturesLoaded.find(mesh->material()->diffuse()[0].name()) == texturesLoaded.end())
 				{
@@ -50,7 +49,8 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 					if (!texture.loadTexture({ mesh->material()->diffuse()[0].name(),true,Prisma::Define::DEFAULT_MIPS,true }))
 					{
 						texture = Prisma::GlobalData::getInstance().defaultBlack();
-					};
+						std::cout << mesh->material()->diffuse()[0].name() << std::endl;
+					}
 					texturesLoaded[mesh->material()->diffuse()[0].name()] = texture;
 					mesh->material()->diffuse({ texture });
 				}
@@ -59,8 +59,12 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 					mesh->material()->diffuse({ texturesLoaded[mesh->material()->diffuse()[0].name()] });
 				}
 			}
+			else
+			{
+				mesh->material()->diffuse({ Prisma::GlobalData::getInstance().defaultBlack() });
+			}
 
-			if (!mesh->material()->normal()[0].name().empty())
+			if (!mesh->material()->normal().empty() && !mesh->material()->normal()[0].name().empty())
 			{
 				if (texturesLoaded.find(mesh->material()->normal()[0].name()) == texturesLoaded.end())
 				{
@@ -77,8 +81,12 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 					mesh->material()->normal({ texturesLoaded[mesh->material()->normal()[0].name()] });
 				}
 			}
+			else
+			{
+				mesh->material()->normal({ Prisma::GlobalData::getInstance().defaultNormal() });
+			}
 
-			if (!mesh->material()->roughnessMetalness()[0].name().empty())
+			if (!mesh->material()->roughnessMetalness().empty() && !mesh->material()->roughnessMetalness()[0].name().empty())
 			{
 				if (texturesLoaded.find(mesh->material()->roughnessMetalness()[0].name()) == texturesLoaded.end())
 				{
@@ -97,8 +105,12 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 					});
 				}
 			}
+			else
+			{
+				mesh->material()->roughnessMetalness({ Prisma::GlobalData::getInstance().defaultBlack() });
+			}
 
-			if (!mesh->material()->specular()[0].name().empty())
+			if (!mesh->material()->specular().empty() && !mesh->material()->specular()[0].name().empty())
 			{
 				if (texturesLoaded.find(mesh->material()->specular()[0].name()) == texturesLoaded.end())
 				{
@@ -115,8 +127,12 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 					mesh->material()->specular({ texturesLoaded[mesh->material()->specular()[0].name()] });
 				}
 			}
+			else
+			{
+				mesh->material()->specular({ Prisma::GlobalData::getInstance().defaultWhite() });
+			}
 
-			if (!mesh->material()->ambientOcclusion()[0].name().empty())
+			if (!mesh->material()->ambientOcclusion().empty() && !mesh->material()->ambientOcclusion()[0].name().empty())
 			{
 				if (texturesLoaded.find(mesh->material()->ambientOcclusion()[0].name()) == texturesLoaded.end())
 				{
@@ -134,6 +150,10 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node)
 						texturesLoaded[mesh->material()->ambientOcclusion()[0].name()]
 					});
 				}
+			}
+			else
+			{
+				mesh->material()->ambientOcclusion({ Prisma::GlobalData::getInstance().defaultWhite() });
 			}
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(node))

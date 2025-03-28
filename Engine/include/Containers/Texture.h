@@ -21,9 +21,9 @@ namespace Prisma
 	public:
 		struct TextureData
 		{
-			int width;
-			int height;
-			int nrComponents;
+			int width=0;
+			int height=0;
+			int nrComponents=0;
 			unsigned char* dataContent = nullptr;
 			bool deleteStbi = true;
 		};

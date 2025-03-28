@@ -25,9 +25,11 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 	}else{
 		Prisma::GlobalData::getInstance().addGlobalTexture({ m_texture,m_parameters.texture });
 	}
-
-	m_data.width = m_texture->GetDesc().GetWidth();
-	m_data.height = m_texture->GetDesc().GetHeight();
+	if (m_texture) 
+	{
+		m_data.width = m_texture->GetDesc().GetWidth();
+		m_data.height = m_texture->GetDesc().GetHeight();
+	}
 
 	return m_texture;
 }

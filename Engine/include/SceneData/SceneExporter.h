@@ -25,10 +25,10 @@ namespace Prisma
 		std::mutex& mutexData();
 
 		std::pair<std::string, int> status();
+		void postLoad(std::shared_ptr<Prisma::Node> node,bool loadCubemap=true);
 
 	private:
 		std::string getFileName(const std::string& filePath);
-		void postLoad(std::shared_ptr<Prisma::Node> node);
 		std::atomic_bool m_finish;
 		std::shared_ptr<Node> m_newRootNode = nullptr;
 
