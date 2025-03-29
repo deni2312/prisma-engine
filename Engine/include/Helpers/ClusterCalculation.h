@@ -24,7 +24,7 @@ namespace Prisma
 			unsigned int lightIndices[Define::MAX_CLUSTER_SIZE];
 		};
 
-		ClusterCalculation();
+		ClusterCalculation(Diligent::RefCntAutoPtr<Diligent::IBuffer> omniLights,Diligent::RefCntAutoPtr<Diligent::IBuffer> lightSizes);
 		void updateCamera();
 		void updateLights();
 
@@ -37,6 +37,9 @@ namespace Prisma
 		static constexpr unsigned int m_gridSizeY = 12;
 		static constexpr unsigned int m_gridSizeZ = 24;
 
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_omniLights;
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_lightSizes;
 
 		struct  ClusterData
 		{

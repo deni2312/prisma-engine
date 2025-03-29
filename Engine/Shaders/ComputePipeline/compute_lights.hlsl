@@ -21,15 +21,15 @@ struct OmniData
     float radius;
 };
 
-/*cbuffer LightSizes
+cbuffer LightSizes
 {
     int omniSize;
     int dirSize;
     int areaSize;
     int padding;
-};*/
+};
 
-//StructuredBuffer<OmniData> omniData;
+StructuredBuffer<OmniData> omniData;
 RWStructuredBuffer<Cluster> clusters;
 
 cbuffer ViewProjection
@@ -45,7 +45,7 @@ bool testSphereAABB(uint i, Cluster c);
 void main(uint3 Gid : SV_GroupID,
           uint3 GTid : SV_GroupThreadID)
 {
-    uint lightCount = (uint) 1; // Assuming first element stores light count
+    uint lightCount = (uint) omniSize; // Assuming first element stores light count
     uint tileIndex = Gid.x * LOCAL_SIZE + GTid;
 
     Cluster cluster = clusters[tileIndex];
@@ -80,8 +80,8 @@ bool sphereAABBIntersection(float3 center, float radius, float3 aabbMin, float3 
 
 bool testSphereAABB(uint i, Cluster cluster)
 {
-    float3 center = mul(float4(float3(1), 1.0), view).xyz;
-    float radius = 1;
+    float3 center = mul(float4(omniData[i].position.xyz, 1.0), view).xyz;
+    float radius = omniData[i].radius;
 
     float3 aabbMin = cluster.minPoint.xyz;
     float3 aabbMax = cluster.maxPoint.xyz;

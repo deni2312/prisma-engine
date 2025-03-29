@@ -39,8 +39,7 @@ Prisma::LightHandler::LightHandler()
 	LightSizeDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
 	LightSizeDesc.Size = sizeof(LightSizes);
 	contextData.m_pDevice->CreateBuffer(LightSizeDesc, nullptr, &m_lightSizes);
-
-	m_clusterCalculation = std::make_shared<ClusterCalculation>();
+	m_clusterCalculation = std::make_shared<ClusterCalculation>(m_omniLights,m_lightSizes);
 
 	m_init = true;
 }

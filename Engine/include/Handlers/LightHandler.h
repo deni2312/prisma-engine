@@ -9,6 +9,7 @@ namespace Prisma
 {
 	class LightHandler : public InstanceData<LightHandler>
 	{
+	private:
 		struct SSBODataDirectional
 		{
 			std::vector<LightType::LightDir> lights;
