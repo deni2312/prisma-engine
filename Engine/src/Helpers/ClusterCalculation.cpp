@@ -72,7 +72,7 @@ Prisma::ClusterCalculation::ClusterCalculation()
 	Diligent::ShaderResourceVariableDesc Vars[] =
 	{
 		{Diligent::SHADER_TYPE_COMPUTE, "Constants", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-		{ Diligent::SHADER_TYPE_COMPUTE, "clusters", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
+		{ Diligent::SHADER_TYPE_COMPUTE, "clusters", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}
 	};
 	// clang-format on
 	PSODesc.ResourceLayout.Variables = Vars;
@@ -82,8 +82,8 @@ Prisma::ClusterCalculation::ClusterCalculation()
 	PSOCreateInfo.pCS = pResetParticleListsCS;
 	contextData.m_pDevice->CreateComputePipelineState(PSOCreateInfo, &m_pso);
 	m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "Constants")->Set(m_clusterData);
+	m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "clusters")->Set(m_cluster->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
 	m_pso->CreateShaderResourceBinding(&m_srb, true);
-	m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "clusters")->Set(m_cluster->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
 }
 
 void Prisma::ClusterCalculation::updateCamera()
