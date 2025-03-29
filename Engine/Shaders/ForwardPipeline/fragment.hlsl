@@ -22,7 +22,7 @@ void main(in PSInput PSIn,
     float metallic = rm.b;
     float roughness = rm.g;
     
-    float3 color = pbrCalculation(PSIn.FragPos, normal, (float3)diffuse, float4(1.0), roughness, metallic);
+    float3 color = pbrCalculation(PSIn.FragPos, normal, (float3)diffuse,PSIn.Pos, float4(1.0), roughness, metallic);
         
     PSOut.Color = float4(color, 1);
 }

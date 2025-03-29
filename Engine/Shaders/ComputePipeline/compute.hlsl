@@ -10,7 +10,7 @@ struct Cluster
 
 RWStructuredBuffer<Cluster> clusters;
 
-cbuffer Constants
+cbuffer ConstantsClusters
 {
     float zNear;
     float zFar;

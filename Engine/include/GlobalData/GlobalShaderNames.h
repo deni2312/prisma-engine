@@ -15,6 +15,8 @@ namespace Prisma {
 		const std::string CONSTANT_LUT = "lut";
 		const std::string MUTABLE_IRRADIANCE = "irradiance";
 		const std::string MUTABLE_PREFILTER = "prefilter";
+		const std::string CONSTANT_CLUSTERS = "clusters";
+		const std::string CONSTANT_CLUSTERS_DATA = "ConstantsClusters";
 
 	}
 }

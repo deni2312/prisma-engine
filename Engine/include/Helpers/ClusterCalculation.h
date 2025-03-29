@@ -16,6 +16,16 @@ namespace Prisma
 	class ClusterCalculation
 	{
 	public:
+
+		ClusterCalculation(Diligent::RefCntAutoPtr<Diligent::IBuffer> omniLights,Diligent::RefCntAutoPtr<Diligent::IBuffer> lightSizes);
+		void updateCamera();
+		void updateLights();
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> clusters();
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> clusterData();
+
+	private:
 		struct alignas(16) Cluster
 		{
 			glm::vec4 minPoint;
@@ -23,14 +33,6 @@ namespace Prisma
 			unsigned int count;
 			unsigned int lightIndices[Define::MAX_CLUSTER_SIZE];
 		};
-
-		ClusterCalculation(Diligent::RefCntAutoPtr<Diligent::IBuffer> omniLights,Diligent::RefCntAutoPtr<Diligent::IBuffer> lightSizes);
-		void updateCamera();
-		void updateLights();
-
-
-	private:
-
 		void createCamera();
 		void createLight();
 		static constexpr unsigned int m_gridSizeX = 12;

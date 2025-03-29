@@ -59,6 +59,12 @@ namespace Prisma
 		void updateSizes();
 
 	public:
+		struct ClusterData
+		{
+			Diligent::RefCntAutoPtr<Diligent::IBuffer> clusters;
+			Diligent::RefCntAutoPtr<Diligent::IBuffer> clustersData;
+		};
+
 		bool updateCascade();
 
 		void updateCascade(bool updateCascade);
@@ -71,6 +77,8 @@ namespace Prisma
 		std::shared_ptr<SSBODataArea> dataArea() const;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> omniLights();
+
+		ClusterData clusters();
 
 		std::shared_ptr<ClusterCalculation> m_clusterCalculation;
 

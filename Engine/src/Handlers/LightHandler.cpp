@@ -259,3 +259,8 @@ Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::omniLights()
 	return m_omniLights;
 }
 
+Prisma::LightHandler::ClusterData Prisma::LightHandler::clusters()
+{
+	return { m_clusterCalculation->clusters(),m_clusterCalculation->clusterData() };
+}
+

@@ -36,12 +36,31 @@ cbuffer ViewProjection
     float4x4 projection;
     float4 viewPos;
 };
+struct Cluster
+{
+    float4 minPoint;
+    float4 maxPoint;
+    uint count;
+    uint lightIndices[100];
+};
+
+cbuffer ConstantsClusters
+{
+    float zNear;
+    float zFar;
+    float2 padding2;
+    float4x4 inverseProjection;
+    uint4 gridSize;
+    uint4 screenDimensions;
+};
+
 
 Texture2D lut;
 TextureCube irradiance;
 TextureCube prefilter;
 
 StructuredBuffer<OmniData> omniData;
+RWStructuredBuffer<Cluster> clusters;
 
 static const float PI = 3.14159265359;
 
@@ -109,7 +128,7 @@ float3 GetNormalFromMap(Texture2D normalMap, SamplerState samplerState, float2 T
     return normalize(TBN*tangentNormal);
 }
 
-float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular, float roughness, float metallic)
+float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo,float3 positionFragment, float4 aoSpecular, float roughness, float metallic)
 {
     float3 V = normalize((float3)viewPos - FragPos);
     float specularMap = aoSpecular.r;
@@ -118,17 +137,28 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
     F0 = lerp(F0, albedo, metallic);
 
     float3 Lo = float3(0.0);
-    for (int i = 0; i < omniSize; ++i)
+    
+    // Locating which cluster this fragment is part of
+    uint zTile = uint((log(abs(float3(view * float4(FragPos, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
+    float2 tileSize = screenDimensions.xy / gridSize.xy;
+    float3 tile = float3(positionFragment.xy / tileSize, zTile);
+    uint tileIndex =
+        tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);
+
+    uint lightCount = clusters[tileIndex].count;
+    for (int i = 0; i < lightCount; ++i)
     {
-        float3 position = (float3) omniData[i].position;
+        uint lightIndex = clusters[tileIndex].lightIndices[i];
+
+        float3 position = (float3) omniData[lightIndex].position;
         float3 L = normalize(position - FragPos);
         float3 H = normalize(V + L);
-        float3 distance = (float3)omniData[i].position - FragPos;
+        float3 distance = (float3) omniData[lightIndex].position - FragPos;
         float totalDistance = length(distance);
 
-        float attenuation = 1.0 / (omniData[i].attenuation.x + omniData[i].attenuation.y * totalDistance + omniData[i].attenuation.z * totalDistance * totalDistance);
+        float attenuation = 1.0 / (omniData[lightIndex].attenuation.x + omniData[lightIndex].attenuation.y * totalDistance + omniData[lightIndex].attenuation.z * totalDistance * totalDistance);
         
-        float3 radiance = (float3) omniData[i].diffuse;
+        float3 radiance = (float3) omniData[lightIndex].diffuse;
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
@@ -163,6 +193,8 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo, float4 aoSpecular
     
     float3 ambient = (kD * diffuse + specular)*ao;
     float3 color = ambient + Lo;
+    
+    color.r = lightCount;
     
     return color;
 }
