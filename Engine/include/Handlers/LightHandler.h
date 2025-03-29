@@ -3,6 +3,7 @@
 #include "../GlobalData/Defines.h"
 #include "../GlobalData/InstanceData.h"
 #include <vector>
+#include "../Helpers/ClusterCalculation.h"
 
 namespace Prisma
 {
@@ -70,7 +71,7 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> omniLights();
 
-		//std::shared_ptr<ClusterCalculation> m_clusterCalculation;
+		std::shared_ptr<ClusterCalculation> m_clusterCalculation;
 
 		static constexpr unsigned int DIRECTIONAL_OFFSET = sizeof(glm::vec4);
 		static constexpr unsigned int OMNI_OFFSET = sizeof(glm::vec4);

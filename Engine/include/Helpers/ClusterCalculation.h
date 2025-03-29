@@ -2,6 +2,14 @@
 #include <memory>
 #include "Shader.h"
 #include "../GlobalData/Defines.h"
+#include "Common/interface/RefCntAutoPtr.hpp"
+
+namespace Diligent
+{
+	struct IShaderResourceBinding;
+	struct IPipelineState;
+	struct IBuffer;
+}
 
 namespace Prisma
 {
@@ -16,18 +24,12 @@ namespace Prisma
 			unsigned int lightIndices[Define::MAX_CLUSTER_SIZE];
 		};
 
-		ClusterCalculation(unsigned int numClusters);
+		ClusterCalculation();
 		void updateCamera();
 		void updateLights();
 
-		static glm::vec3 grids()
-		{
-			return {m_gridSizeX, m_gridSizeY, m_gridSizeZ};
-		}
 
 	private:
-		//std::shared_ptr<Shader> m_shader;
-		//std::shared_ptr<Shader> m_shaderLights;
 
 		static constexpr unsigned int m_gridSizeX = 12;
 		static constexpr unsigned int m_gridSizeY = 12;
@@ -39,6 +41,19 @@ namespace Prisma
 		unsigned int m_gridSizePos;
 		unsigned int m_screenDimensionsPos;
 
-		//std::shared_ptr<SSBO> m_ssbo;
+		struct  ClusterData
+		{
+			glm::vec4 nearFar;
+			glm::mat4 inverseProjection;
+			glm::ivec4 gridSize;
+			glm::ivec4 screenDimensions;
+		};
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_clusterData;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cluster;
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+		ClusterData m_data;
+
 	};
 }

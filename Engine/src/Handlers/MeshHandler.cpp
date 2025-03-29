@@ -22,10 +22,10 @@ void Prisma::MeshHandler::updateCamera()
 
 void Prisma::MeshHandler::updateCluster()
 {
-	m_clusterData.zNear = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane();
+	/*m_clusterData.zNear = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane();
 	m_clusterData.zFar = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane();
 	m_clusterData.gridSize = glm::vec4(ClusterCalculation::grids(), 1.0f);
-	m_clusterData.screenDimensions = {m_settings.width, m_settings.height, 1.0f, 1.0f};
+	m_clusterData.screenDimensions = {m_settings.width, m_settings.height, 1.0f, 1.0f};*/
 	//m_uboCluster->modifyData(0, sizeof(UBOCluster), &m_uboClusterData);
 }
 

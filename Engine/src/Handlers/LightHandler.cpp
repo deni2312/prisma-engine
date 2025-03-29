@@ -20,10 +20,8 @@ Prisma::LightHandler::LightHandler()
 
 	m_areaLights = std::make_shared<SSBO>(31);
 	m_areaLights->resize(MAX_AREA_LIGHTS * sizeof(LightType::LightArea) + sizeof(glm::vec4));
-
-	glm::vec3 size = ClusterCalculation::grids();
-
-	m_clusterCalculation = std::make_shared<ClusterCalculation>(size.x * size.y * size.z);*/
+	*/
+	m_clusterCalculation = std::make_shared<ClusterCalculation>();
 
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
@@ -224,8 +222,8 @@ void Prisma::LightHandler::update()
 		}
 	}
 
-	//m_clusterCalculation->updateCamera();
-	//m_clusterCalculation->updateLights();
+	m_clusterCalculation->updateCamera();
+	m_clusterCalculation->updateLights();
 	CacheScene::getInstance().resetCaches();
 	m_init = false;
 }
