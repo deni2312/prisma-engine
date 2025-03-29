@@ -21,7 +21,6 @@ Prisma::LightHandler::LightHandler()
 	m_areaLights = std::make_shared<SSBO>(31);
 	m_areaLights->resize(MAX_AREA_LIGHTS * sizeof(LightType::LightArea) + sizeof(glm::vec4));
 	*/
-	m_clusterCalculation = std::make_shared<ClusterCalculation>();
 
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
@@ -40,6 +39,8 @@ Prisma::LightHandler::LightHandler()
 	LightSizeDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
 	LightSizeDesc.Size = sizeof(LightSizes);
 	contextData.m_pDevice->CreateBuffer(LightSizeDesc, nullptr, &m_lightSizes);
+
+	m_clusterCalculation = std::make_shared<ClusterCalculation>();
 
 	m_init = true;
 }

@@ -31,15 +31,12 @@ namespace Prisma
 
 	private:
 
+		void createCamera();
+		void createLight();
 		static constexpr unsigned int m_gridSizeX = 12;
 		static constexpr unsigned int m_gridSizeY = 12;
 		static constexpr unsigned int m_gridSizeZ = 24;
 
-		unsigned int m_nearPos;
-		unsigned int m_farPos;
-		unsigned int m_inverseProjectionPos;
-		unsigned int m_gridSizePos;
-		unsigned int m_screenDimensionsPos;
 
 		struct  ClusterData
 		{
@@ -53,6 +50,9 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cluster;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoLight;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbLight;
 		ClusterData m_data;
 
 	};
