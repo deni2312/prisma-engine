@@ -76,12 +76,13 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     // Tell the system that the shader source code is in HLSL.
     // For OpenGL, the engine will convert this into GLSL under the hood.
-    ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_GLSL;
+    ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
 
     // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
     ShaderCI.Desc.UseCombinedTextureSamplers = true;
 
     // Pack matrices in row-major order
+    ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_HLSL_TO_SPIRV_VIA_GLSL;
 
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
@@ -97,7 +98,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.glsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
     }
-    ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
 
     ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
     ShaderCI.CompileFlags |= SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;

@@ -138,13 +138,14 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo,float3 positionFra
 
     float3 Lo = float3(0.0);
     
+    float3 FragPos1 = float3(FragPos.x, FragPos.y, FragPos.z);
     // Locating which cluster this fragment is part of
-    uint zTile = uint((log(abs(float3(view * float4(FragPos, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
+    uint zTile = uint((log(abs(float3(view * float4(FragPos1, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
     float2 tileSize = screenDimensions.xy / gridSize.xy;
     
-    float2 positionFragment1 = float2(positionFragment.x, -positionFragment.y);
+    float2 positionFragment1 = float2(positionFragment.x, screenDimensions.y - positionFragment.y);
     
-    float3 tile = float3(positionFragment1 / tileSize, zTile);
+    uint3 tile = uint3(positionFragment1 / tileSize, zTile);
     uint tileIndex =
         tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);
 
