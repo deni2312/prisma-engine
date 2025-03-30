@@ -94,7 +94,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Forward VS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.glsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
     }
     ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;

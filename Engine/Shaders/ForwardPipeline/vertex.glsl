@@ -1,40 +1,39 @@
-#version 460 core
-layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 aNormal;
-layout(location = 2) in vec2 aTexCoords;
-layout(location = 3) in vec3 aTangent;
-layout(location = 4) in vec3 aBitangent;
+#extension GL_ARB_shader_draw_parameters : enable
 
-out vec3 FragPos;
-
-out vec2 TexCoords;
-
-out vec3 Normal;
-
-flat out uint drawId;
-
-layout(std140, binding = 1) uniform MeshData
+uniform ViewProjection
 {
     mat4 view;
     mat4 projection;
+    vec4 viewPos;
 };
 
-layout(std430, binding = 1) buffer Matrices
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec2 inUV;
+layout(location = 3) in vec3 inTangent;
+layout(location = 4) in vec3 inBiTangent;
+
+layout(location = 0) out vec2 outUv;
+layout(location = 1) out vec3 outFragPos;
+layout(location = 2) out vec3 outNormal;
+layout(location = 3) flat out int outDrawId;
+
+struct MeshData
 {
-    mat4 modelMatrices[];
+    mat4 model;
+    mat4 normal;
 };
 
-
-layout(std430, binding = 29) buffer Ids {
-    uint ids[];
+readonly buffer models{
+    MeshData modelsData[];
 };
 
 void main()
 {
-    drawId = ids[gl_DrawID];
-    FragPos = vec3(modelMatrices[drawId] * vec4(aPos, 1.0));
-    TexCoords = aTexCoords;
-    mat3 normalMatrix = mat3(transpose(inverse(mat3(modelMatrices[drawId]))));
-    Normal = normalMatrix * aNormal;
-    gl_Position = projection * view * vec4(FragPos, 1.0);
+    vec4 worldPos = modelsData[gl_DrawIDARB].model * vec4(inPos, 1.0);
+    outNormal = vec3(modelsData[gl_DrawIDARB].normal * vec4(inNormal, 1.0));
+    gl_Position = projection*view*worldPos;
+    outUv = inUV;
+    outFragPos = worldPos.xyz; // Store world position for fragment shading
+    outDrawId = gl_DrawIDARB;
 }
