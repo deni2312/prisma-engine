@@ -160,6 +160,7 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
     vec2 tileSize = screenDimensions.xy / gridSize.xy;
 
     vec2 fragCoord=gl_FragCoord.xy;
+    fragCoord.y=screenDimensions.y-fragCoord.y;
     uvec3 tile = uvec3(fragCoord / tileSize, zTile);
     uint tileIndex =
         tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);
