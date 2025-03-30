@@ -138,9 +138,8 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo,float3 positionFra
 
     float3 Lo = float3(0.0);
     
-    float3 FragPos1 = float3(FragPos.x, FragPos.y, FragPos.z);
     // Locating which cluster this fragment is part of
-    uint zTile = uint((log(abs(float3(view * float4(FragPos1, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
+    uint zTile = uint((log(abs(float3(view * float4(FragPos, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
     float2 tileSize = screenDimensions.xy / gridSize.xy;
     
     float2 positionFragment1 = float2(positionFragment.x, screenDimensions.y - positionFragment.y);
@@ -160,24 +159,27 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo,float3 positionFra
         float3 distance = (float3) omniData[lightIndex].position - FragPos;
         float totalDistance = length(distance);
 
-        float attenuation = 1.0 / (omniData[lightIndex].attenuation.x + omniData[lightIndex].attenuation.y * totalDistance + omniData[lightIndex].attenuation.z * totalDistance * totalDistance);
+        if (totalDistance <= omniData[lightIndex].radius)
+        {
+            float attenuation = 1.0 / (omniData[lightIndex].attenuation.x + omniData[lightIndex].attenuation.y * totalDistance + omniData[lightIndex].attenuation.z * totalDistance * totalDistance);
         
-        float3 radiance = (float3) omniData[lightIndex].diffuse;
+            float3 radiance = (float3) omniData[lightIndex].diffuse;
 
-        float NDF = DistributionGGX(N, H, roughness);
-        float G = GeometrySmith(N, V, L, roughness);
-        float3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+            float NDF = DistributionGGX(N, H, roughness);
+            float G = GeometrySmith(N, V, L, roughness);
+            float3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-        float3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-        float3 specular = numerator / denominator;
+            float3 numerator = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+            float3 specular = numerator / denominator;
 
-        float3 kS = F * specularMap;
-        float3 kD = float3(1.0) - kS;
-        kD *= 1.0 - metallic;
+            float3 kS = F * specularMap;
+            float3 kD = float3(1.0) - kS;
+            kD *= 1.0 - metallic;
 
-        float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
+            float NdotL = max(dot(N, L), 0.0);
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
+        }
     }
     float3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
@@ -197,8 +199,6 @@ float3 pbrCalculation(float3 FragPos, float3 N, float3 albedo,float3 positionFra
     
     float3 ambient = (kD * diffuse + specular)*ao;
     float3 color = ambient + Lo;
-    
-    color.r = lightCount;
-    
+        
     return color;
 }
