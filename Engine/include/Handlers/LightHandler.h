@@ -40,6 +40,8 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_omniLights;
 
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_dirLights;
+
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_lightSizes;
 
 		LightSizes m_sizes;
@@ -70,21 +72,15 @@ namespace Prisma
 		void updateCascade(bool updateCascade);
 
 		void update();
-		void bind();
-		std::shared_ptr<SSBODataDirectional> dataDirectional() const;
-		std::shared_ptr<SSBODataOmni> dataOmni() const;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> lightSizes() const;
 		std::shared_ptr<SSBODataArea> dataArea() const;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> omniLights();
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> dirLights() const;
 
 		ClusterData clusters();
 
 		std::shared_ptr<ClusterCalculation> m_clusterCalculation;
-
-		static constexpr unsigned int DIRECTIONAL_OFFSET = sizeof(glm::vec4);
-		static constexpr unsigned int OMNI_OFFSET = sizeof(glm::vec4);
-
 		LightHandler();
 	};
 }

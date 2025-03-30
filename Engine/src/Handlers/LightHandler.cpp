@@ -33,6 +33,15 @@ Prisma::LightHandler::LightHandler()
 	OmniDesc.Size = Define::MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);
 	contextData.m_pDevice->CreateBuffer(OmniDesc, nullptr, &m_omniLights);
 
+	Diligent::BufferDesc DirDesc;
+	DirDesc.Name = "Dir Light Buffer";
+	DirDesc.Usage = Diligent::USAGE_DEFAULT;
+	DirDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+	DirDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+	DirDesc.ElementByteStride = sizeof(LightType::LightDir);
+	DirDesc.Size = Define::MAX_DIR_LIGHTS * sizeof(LightType::LightDir);
+	contextData.m_pDevice->CreateBuffer(DirDesc, nullptr, &m_dirLights);
+
 	Diligent::BufferDesc LightSizeDesc;
 	LightSizeDesc.Name = "Light sizes";
 	LightSizeDesc.Usage = Diligent::USAGE_DEFAULT;
@@ -82,10 +91,13 @@ void Prisma::LightHandler::updateDirectional()
 			numVisible++;
 		}
 	}
-	glm::ivec4 dirLength;
-	dirLength.r = numVisible;
-	//m_dirLights->modifyData(0, sizeof(glm::vec4),value_ptr(dirLength));
-	//m_dirLights->modifyData(sizeof(glm::vec4), scene->dirLights.size() * sizeof(LightType::LightDir),m_dataDirectional->lights.data());
+
+	m_sizes.dir = numVisible;
+
+	if (!m_dataDirectional->lights.empty()) {
+		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+		contextData.m_pImmediateContext->UpdateBuffer(m_dirLights, 0, numVisible * sizeof(LightType::LightDir), m_dataDirectional->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	}
 }
 
 void Prisma::LightHandler::updateArea()
@@ -228,25 +240,14 @@ void Prisma::LightHandler::update()
 	m_init = false;
 }
 
-void Prisma::LightHandler::bind()
-{
-	//m_dirLights->bind();
-}
-
-std::shared_ptr<Prisma::LightHandler::SSBODataDirectional> Prisma::LightHandler::dataDirectional() const
-{
-	return m_dataDirectional;
-}
-
-
-std::shared_ptr<Prisma::LightHandler::SSBODataOmni> Prisma::LightHandler::dataOmni() const
-{
-	return m_dataOmni;
-}
-
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::lightSizes() const
 {
 	return m_lightSizes;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::dirLights() const
+{
+	return m_dirLights;
 }
 
 std::shared_ptr<Prisma::LightHandler::SSBODataArea> Prisma::LightHandler::dataArea() const

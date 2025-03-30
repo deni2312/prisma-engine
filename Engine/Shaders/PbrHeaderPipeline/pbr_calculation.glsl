@@ -46,6 +46,16 @@ struct OmniData
     float radius;
 };
 
+struct DirectionalData
+{
+    vec4 direction;
+    vec4 diffuse;
+    vec4 specular;
+    vec2 depthMap;
+    vec2 padding;
+};
+
+
 uniform ViewProjection
 {
     mat4 view;
@@ -71,6 +81,10 @@ struct Cluster
 
 readonly buffer omniData{
     OmniData omniData_data[];
+};
+
+readonly buffer dirData{
+    DirectionalData dirData_data[];
 };
 
 layout(binding=0) buffer clusters{
@@ -154,6 +168,39 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
     vec3 Lo = vec3(0.0);
 
     vec3 R = reflect(-V, N);
+
+    for (int i = 0; i < dirSize; i++) {
+
+        vec3 L = normalize(vec3(dirData_data[i].direction));
+        vec3 H = normalize(V + L);
+
+
+        vec3 radiance = vec3(dirData_data[i].diffuse);
+
+
+        float NDF = DistributionGGX(N, H, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+        vec3 numerator = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+        vec3 specular = numerator / denominator;
+
+        vec3 kS = F * specularMap;
+
+        vec3 kD = vec3(1.0) - kS;
+
+        kD *= 1.0 - metallic;
+
+        float NdotL = max(dot(N, L), 0.0);
+
+        if (dirData_data[i].padding.x < 1.0) {
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        }
+        else {
+            //Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, L, N, i));
+        }
+    }
 
     // Locating which cluster this fragment is part of
     uint zTile = uint((log(abs(vec3(view * vec4(FragPos, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));

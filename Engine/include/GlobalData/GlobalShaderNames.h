@@ -4,6 +4,7 @@
 namespace Prisma {
 	namespace ShaderNames {
 		const std::string CONSTANT_OMNI_DATA = "omniData";
+		const std::string CONSTANT_DIR_DATA = "dirData";
 		const std::string CONSTANT_VIEW_PROJECTION = "ViewProjection";
 		const std::string CONSTANT_LIGHT_SIZES = "LightSizes";
 		const std::string MUTABLE_DIFFUSE_TEXTURE = "diffuseTexture";
