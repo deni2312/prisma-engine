@@ -77,6 +77,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     // Tell the system that the shader source code is in HLSL.
     // For OpenGL, the engine will convert this into GLSL under the hood.
     ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_GLSL;
+    ShaderCI.CompileFlags |= SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
 
     // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
     ShaderCI.Desc.UseCombinedTextureSamplers = true;
@@ -98,7 +99,6 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
     }
 
-    ShaderCI.CompileFlags |= SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
 
     // Create a pixel shader
     RefCntAutoPtr<IShader> pPS;
@@ -106,7 +106,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "PS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.glsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
     }
 
@@ -152,7 +152,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         //{SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         //{SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
 
-        {SHADER_TYPE_PIXEL,"diffuseTexture_Sampler",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL,samplerName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 
         //{SHADER_TYPE_PIXEL,Prisma::ShaderNames::CONSTANT_LUT.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         //{SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_PREFILTER.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
@@ -203,7 +203,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     IDeviceObject* samplerDevice = sampler;
 
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, "diffuseTexture_Sampler")->Set(samplerDevice);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerName.c_str())->Set(samplerDevice);
 
     // Create a shader resource binding object and bind all static resources in it
     m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);

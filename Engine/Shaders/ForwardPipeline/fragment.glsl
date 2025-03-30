@@ -1,52 +1,37 @@
+//#include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.hlsl"
+#extension GL_EXT_nonuniform_qualifier : require
 
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
 
-in vec3 FragPos;
-in vec2 TexCoords;
-in vec3 Normal;
-flat in uint drawId;
 
-layout(std140, binding = 1) uniform MeshData
-{
-    mat4 view;
-    mat4 projection;
-};
+layout(location = 0) in vec2 outUv;
+layout(location = 1) in vec3 outFragPos; // Fragment position in world space
+layout(location = 2) in vec3 outNormal;
+layout(location = 3) in flat int outDrawId;
 
-#include ../HelperHeaderPipeline/light_func.glsl
-#include ../PbrHeaderPipeline/pbr_func.glsl
-#include ../HelperHeaderPipeline/helper_func.glsl
-#include ../ShadowHeaderPipeline/shadow_func.glsl
-#include ../PbrHeaderPipeline/pbr_calculation.glsl
+
+uniform texture2D diffuseTexture[];
+
+uniform sampler texture_sampler;
+
+//sampler2D normalTexture[];
+
+//sampler2D rmTexture[];
 
 void main()
 {
-    #if defined(ANIMATE)
-    currentMaterial = materialDataAnimation[drawId];
-    #else
-    currentMaterial = materialData[drawId];
-    #endif
-    if(statusCopy[drawId].plainColor>0){
-        FragColor=vec4(currentMaterial.materialColor.rgb,1);
-    }else{
+    vec4 diffuse = texture(
+
+    sampler2D( diffuseTexture[nonuniformEXT(outDrawId)], texture_sampler),
+    outUv);
+    //vec3 normal = GetNormalFromMap(normalTexture[PSIn.drawId], texture_sampler, PSIn.UV, PSIn.FragPos, PSIn.NormalPS);
+
+    //vec4 rm = rmTexture[PSIn.drawId].Sample(texture_sampler, PSIn.UV);
+
+    //float metallic = rm.b;
+    //float roughness = rm.g;
     
-        vec4 diffuseTexture = texture(currentMaterial.diffuse, TexCoords)+currentMaterial.materialColor;
-
-        vec3 albedo = diffuseTexture.rgb;
-        if (diffuseTexture.a < 0.1) {
-            discard;
-        }
-        vec4 roughnessMetalnessTexture = texture(currentMaterial.roughness_metalness, TexCoords);
-        float metallic = roughnessMetalnessTexture.b;
-        float roughness = roughnessMetalnessTexture.g;
-        float specularMap = texture(currentMaterial.specularMap, TexCoords).r;
-        float ao = texture(currentMaterial.ambient_occlusion, TexCoords).r;
-
-        vec4 aoSpecular=vec4(specularMap, ao, 0, 0);
-
-        vec3 N = getNormalFromMap();
-
-        vec3 pbrColor = pbrCalculation(FragPos, N, albedo, aoSpecular,roughness,metallic);
-        FragColor = vec4(pbrColor, diffuseTexture.a);
-    }
-
+    //vec3 color = pbrCalculation(PSIn.FragPos, normal, (vec3)diffuse,PSIn.Pos, vec4(1.0), roughness, metallic);
+        
+    FragColor = diffuse;
 }
