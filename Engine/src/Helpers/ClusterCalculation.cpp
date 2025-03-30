@@ -100,7 +100,7 @@ void Prisma::ClusterCalculation::createCamera()
 		ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_COMPUTE;
 		ShaderCI.EntryPoint = "main";
 		ShaderCI.Desc.Name = "Cluster CS";
-		ShaderCI.FilePath = "../../../Engine/Shaders/ComputePipeline/compute.hlsl";
+		ShaderCI.FilePath = "../../../Engine/Shaders/ComputePipeline/compute.glsl";
 		contextData.m_pDevice->CreateShader(ShaderCI, &pResetParticleListsCS);
 	}
 
@@ -150,7 +150,7 @@ void Prisma::ClusterCalculation::createLight()
 		ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_COMPUTE;
 		ShaderCI.EntryPoint = "main";
 		ShaderCI.Desc.Name = "Cluster Light CS";
-		ShaderCI.FilePath = "../../../Engine/Shaders/ComputePipeline/compute_lights.hlsl";
+		ShaderCI.FilePath = "../../../Engine/Shaders/ComputePipeline/compute_lights.glsl";
 		contextData.m_pDevice->CreateShader(ShaderCI, &pResetParticleListsCS);
 	}
 
