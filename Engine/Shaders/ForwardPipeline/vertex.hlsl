@@ -1,47 +1,39 @@
 #extension GL_ARB_shader_draw_parameters : enable
 
-cbuffer ViewProjection
+uniform ViewProjection
 {
-    float4x4 view;
-    float4x4 projection;
-    float4 viewPos;
+    mat4 view;
+    mat4 projection;
+    vec4 viewPos;
 };
 
-// Vertex shader input
-struct VSInput
-{
-    float3 Pos : ATTRIB0;
-    float3 Normal : ATTRIB1;
-    float2 UV : ATTRIB2;
-    float3 Tangent : ATTRIB3;
-    float3 Bitangent : ATTRIB4;
-};
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec2 inUV;
+layout(location = 3) in vec3 inTangent;
+layout(location = 4) in vec3 inBiTangent;
 
-// Vertex shader output / Pixel shader input
-struct PSInput
-{
-    float4 Pos : SV_POSITION;
-    float2 UV : TEX_COORD;
-    float3 FragPos : TEX_COORD1; // Fragment position in world space
-    float3 NormalPS : NORMAL;
-    int drawId : TEX_COORD2;
-};
+layout(location = 0) out vec2 outUv;
+layout(location = 1) out vec3 outFragPos;
+layout(location = 2) out vec3 outNormal;
+layout(location = 3) flat out int outDrawId;
 
 struct MeshData
 {
-    float4x4 model;
-    float4x4 normal;
+    mat4 model;
+    mat4 normal;
 };
 
-StructuredBuffer<MeshData> models;
+readonly buffer models{
+    MeshData modelsData[];
+};
 
-void main(in VSInput VSIn,
-          out PSInput PSIn)
+void main()
 {
-    float4 worldPos = models[gl_DrawIDARB].model * float4(VSIn.Pos, 1.0);
-    PSIn.NormalPS = float3(models[gl_DrawIDARB].normal * float4(VSIn.Normal, 1.0));
-    PSIn.Pos = projection*view*worldPos;
-    PSIn.UV = VSIn.UV;
-    PSIn.FragPos = worldPos.xyz; // Store world position for fragment shading
-    PSIn.drawId = gl_DrawIDARB;
+    vec4 worldPos = modelsData[gl_DrawIDARB].model * vec4(inPos, 1.0);
+    outNormal = vec3(modelsData[gl_DrawIDARB].normal * vec4(inNormal, 1.0));
+    gl_Position = projection*view*worldPos;
+    outUv = inUV;
+    outFragPos = worldPos.xyz; // Store world position for fragment shading
+    outDrawId = gl_DrawIDARB;
 }
