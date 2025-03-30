@@ -87,7 +87,7 @@ void Prisma::ClusterCalculation::createCamera()
 	Diligent::ShaderCreateInfo ShaderCI;
 	// Tell the system that the shader source code is in HLSL.
 	// For OpenGL, the engine will convert this into GLSL under the hood.
-	ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_HLSL;
+	ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
 
 	// Create a shader source stream factory to load shaders from files.
 	Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
@@ -137,7 +137,7 @@ void Prisma::ClusterCalculation::createLight()
 	Diligent::ShaderCreateInfo ShaderCI;
 	// Tell the system that the shader source code is in HLSL.
 	// For OpenGL, the engine will convert this into GLSL under the hood.
-	ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_HLSL;
+	ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
 
 	// Create a shader source stream factory to load shaders from files.
 	Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
