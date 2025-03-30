@@ -136,7 +136,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
 
-    std::string samplerName = "texture_sampler";
+    std::string samplerClampName = "textureClamp_sampler";
+    std::string samplerRepeatName = "textureRepeat_sampler";
 
     PipelineResourceDesc Resources[] =
     { 
@@ -152,7 +153,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
 
-        {SHADER_TYPE_PIXEL,samplerName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL,samplerClampName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL,samplerRepeatName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::CONSTANT_LUT.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_PREFILTER.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
@@ -170,10 +172,17 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     SamplerDesc SamLinearClampDesc
     {
         FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
+        TEXTURE_ADDRESS_CLAMP, TEXTURE_ADDRESS_CLAMP, TEXTURE_ADDRESS_CLAMP
+    };
+
+    SamplerDesc SamLinearRepeatDesc
+    {
+        FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
         TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP
     };
 
-    RefCntAutoPtr<ISampler> sampler;
+    RefCntAutoPtr<ISampler> samplerClamp;
+    RefCntAutoPtr<ISampler> samplerRepeat;
 
     contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
 
@@ -184,7 +193,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
 
     contextData.m_pDevice->CreatePipelineState(PSOCreateInfo, &m_pso);
-    contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &sampler);
+    contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &samplerClamp);
+    contextData.m_pDevice->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
 
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
@@ -201,9 +211,11 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_LUT.c_str())->Set(Prisma::PipelineLUT::getInstance().lutTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
 
-    IDeviceObject* samplerDevice = sampler;
+    IDeviceObject* samplerDeviceClamp = samplerClamp;
+    IDeviceObject* samplerDeviceRepeat = samplerRepeat;
 
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerName.c_str())->Set(samplerDevice);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerClampName.c_str())->Set(samplerDeviceClamp);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerRepeatName.c_str())->Set(samplerDeviceRepeat);
 
     // Create a shader resource binding object and bind all static resources in it
     m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);

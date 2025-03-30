@@ -24,7 +24,8 @@ layout(location = 3) in flat int outDrawId;
 
 uniform texture2D diffuseTexture[];
 
-uniform sampler texture_sampler;
+uniform sampler textureClamp_sampler;
+uniform sampler textureRepeat_sampler;
 
 uniform texture2D normalTexture[];
 
@@ -126,7 +127,7 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],texture_sampler),outUv).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).xyz * 2.0 - 1.0;
 
     vec3 Q1 = dFdx(outFragPos);
     vec3 Q2 = dFdy(outFragPos);
@@ -158,7 +159,9 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
     // Locating which cluster this fragment is part of
     uint zTile = uint((log(abs(vec3(view * vec4(FragPos, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
     vec2 tileSize = screenDimensions.xy / gridSize.xy;
-    uvec3 tile = uvec3(gl_FragCoord.xy / tileSize, zTile);
+
+    vec2 fragCoord=gl_FragCoord.xy;
+    uvec3 tile = uvec3(fragCoord / tileSize, zTile);
     uint tileIndex =
         tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);
 
@@ -212,12 +215,12 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
 
-    vec3 irradiance = texture(samplerCube(irradiance,texture_sampler), N).rgb;
+    vec3 irradiance = texture(samplerCube(irradiance,textureClamp_sampler), N).rgb;
     vec3 diffuse = irradiance * albedo;
 
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(samplerCube(prefilter,texture_sampler), R, roughness * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(sampler2D(lut,texture_sampler), vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 prefilteredColor = textureLod(samplerCube(prefilter,textureClamp_sampler), R, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(sampler2D(lut,textureClamp_sampler), vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
     vec3 ambient = (kD * diffuse + specular) * ao;
@@ -227,10 +230,10 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
 
 void main()
 {
-    vec4 diffuse = texture(sampler2D(diffuseTexture[nonuniformEXT(outDrawId)],texture_sampler),outUv);
+    vec4 diffuse = texture(sampler2D(diffuseTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
     vec3 normal = getNormalFromMap();
 
-    vec4 rm = texture(sampler2D(rmTexture[nonuniformEXT(outDrawId)],texture_sampler),outUv);
+    vec4 rm = texture(sampler2D(rmTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
 
     float metallic = rm.b;
     float roughness = rm.g;
