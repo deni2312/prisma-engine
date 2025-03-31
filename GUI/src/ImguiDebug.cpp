@@ -16,6 +16,7 @@
 #include "../include/NodeViewer.h"
 #include "../include/ScenePipeline.h"
 #include "Imgui/interface/ImGuiImplWin32.hpp"
+#include "../imguizmo/imguizmo.h"
 
 struct PrivateIO
 {
@@ -331,7 +332,7 @@ void Prisma::ImguiDebug::start()
 	//
 	auto contextDesc = Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc();
 	m_imguiDiligent->NewFrame(m_width,m_height, contextDesc.PreTransform);
-	//ImGuizmo::BeginFrame();
+	ImGuizmo::BeginFrame();
 }
 
 void Prisma::ImguiDebug::close()

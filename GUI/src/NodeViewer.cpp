@@ -6,6 +6,16 @@
 #include "../include/ImGuiStyle.h"
 #include "glm/gtx/string_cast.hpp"
 #include "ThirdParty/imgui/imgui.h"
+#include "../imguizmo/imguizmo.h"
+
+
+struct PrivateImguizmo
+{
+	ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE;
+	ImGuizmo::MODE currentGizmoMode = ImGuizmo::LOCAL;
+};
+
+static std::unique_ptr<PrivateImguizmo> privateImguizmo;
 
 
 void Prisma::NodeViewer::varsDispatcher(Component::Options types, int index, unsigned int componentIndex)
@@ -114,6 +124,8 @@ Prisma::NodeViewer::NodeViewer()
 
 	m_eyeClose = std::make_shared<Texture>();
 	m_eyeClose->loadTexture({ "../../../GUI/icons/eyeclose.png", false });
+
+	privateImguizmo = std::make_unique<PrivateImguizmo>();
 }
 
 void Prisma::NodeViewer::showComponents(Node* nodeData)
@@ -188,7 +200,7 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 			m_current = nodeData.node;
 			glm::mat4 model = m_current->finalMatrix();
 			Prisma::decomposeTransform(model, m_translation, m_rotation, m_scale);
-			//ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),value_ptr(m_scale));
+			ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),value_ptr(m_scale));
 		}
 
 		float windowWidth = nodeData.translate * nodeData.width / 2.0f;
@@ -203,19 +215,19 @@ void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool s
 
 		if (ImGui::ImageButton((void*)m_rotateTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(24, 24)))
 		{
-			//mCurrentGizmoOperation = ImGuizmo::ROTATE;
+			privateImguizmo->currentGizmoOperation = ImGuizmo::ROTATE;
 		}
 		ImGui::SameLine();
 
 		if (ImGui::ImageButton((void*)m_translateTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(24, 24)))
 		{
-			//mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+			privateImguizmo->currentGizmoOperation = ImGuizmo::TRANSLATE;
 		}
 		ImGui::SameLine();
 
 		if (ImGui::ImageButton((void*)m_scaleTexture->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(24, 24)))
 		{
-			//mCurrentGizmoOperation = ImGuizmo::SCALE;
+			privateImguizmo->currentGizmoOperation = ImGuizmo::SCALE;
 		}
 		ImGui::SameLine();
 
@@ -336,7 +348,7 @@ const std::shared_ptr<Prisma::Texture>& Prisma::NodeViewer::eyeCloseTexture() co
 void Prisma::NodeViewer::drawGizmo(const NodeData& nodeData)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	//ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 	if (m_current) {
 		glm::mat4 model = m_current->finalMatrix();
 		auto inverseParent = glm::mat4(1.0f);
@@ -345,13 +357,13 @@ void Prisma::NodeViewer::drawGizmo(const NodeData& nodeData)
 			inverseParent = inverse(m_current->parent()->finalMatrix());
 		}
 
-		//Manipulate(value_ptr(nodeData.camera->matrix()), value_ptr(nodeData.projection), mCurrentGizmoOperation,mCurrentGizmoMode, value_ptr(model));
+		Manipulate(value_ptr(nodeData.camera->matrix()), value_ptr(nodeData.projection), privateImguizmo->currentGizmoOperation, privateImguizmo->currentGizmoMode, value_ptr(model));
 		if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 		{
-			//ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),value_ptr(m_scale));
+			ImGuizmo::DecomposeMatrixToComponents(value_ptr(model), value_ptr(m_translation), value_ptr(m_rotation),value_ptr(m_scale));
 		}
 
-		//m_current->matrix(inverseParent * model);
+		m_current->matrix(inverseParent * model);
 	}
 }
 
@@ -375,7 +387,7 @@ void Prisma::NodeViewer::recompose(const NodeData& nodeData)
 
 	model = Prisma::recomposeTransform(m_translation, m_rotation, m_scale);
 
-	//ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale), glm::value_ptr(model));
+	ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(m_translation), glm::value_ptr(m_rotation), glm::value_ptr(m_scale), glm::value_ptr(model));
 
 	m_current->matrix(inverseParent * model);
 }

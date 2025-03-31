@@ -8,6 +8,7 @@
 #include <iostream>
 #include "../../Engine/include/Helpers/NodeHelper.h"
 
+
 namespace Prisma
 {
 	class NodeViewer : public InstanceData<NodeViewer>
@@ -63,8 +64,6 @@ namespace Prisma
 
 		Prisma::Node* m_currentNode = nullptr;
 
-		//ImGuizmo::OPERATION mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		//ImGuizmo::MODE mCurrentGizmoMode = ImGuizmo::LOCAL;
 		Prisma::Node* m_current = nullptr;
 
 		void recompose(const NodeData& nodeData);
