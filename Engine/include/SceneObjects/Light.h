@@ -17,8 +17,7 @@ namespace Prisma
 			glm::vec4 direction = glm::vec4(0,0.9,0,0);
 			glm::vec4 diffuse = glm::vec4(1, 1, 1, 0);
 			glm::vec4 specular = glm::vec4(1, 1, 1, 0);
-			uint64_t shadowMap = 0;
-			glm::vec2 padding;
+			glm::vec4 padding;
 		};
 
 		struct LightOmni
@@ -28,8 +27,8 @@ namespace Prisma
 			glm::vec4 specular = glm::vec4(1.0f);
 			glm::vec4 farPlane = glm::vec4(100.0f, 0.0f, 0.0f, 0.0f);
 			glm::vec4 attenuation = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-			uint64_t shadowMap = 0;
-			float padding = 0;
+			glm::vec2 padding;
+			float hasShadow = 0;
 			float radius = 1;
 		};
 
@@ -109,7 +108,6 @@ namespace Prisma
 			{
 				m_shadow = std::make_shared<PipelineCSM>(width, height,post);
 			}
-			m_type.shadowMap = m_shadow->id();
 			CacheScene::getInstance().updateLights(true);
 		}
 

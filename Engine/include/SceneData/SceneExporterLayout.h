@@ -550,8 +550,8 @@ namespace Prisma
 			lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0),
 				j.at("specular").get<std::vector<float>>().at(1),
 				j.at("specular").get<std::vector<float>>().at(2), 1.0);
-			lightType.padding = glm::vec2(j.at("padding").get<std::vector<float>>().at(0),
-				j.at("padding").get<std::vector<float>>().at(1));
+			lightType.padding = glm::vec4(glm::vec2(j.at("padding").get<std::vector<float>>().at(0),
+				j.at("padding").get<std::vector<float>>().at(1)),0,0);
 			bool hasShadow = false;
 			j.at("shadow").get_to(hasShadow);
 
@@ -565,7 +565,7 @@ namespace Prisma
 
 			light->hasShadow(hasShadow);
 			light->type(lightType);
-			light->createShadow(Define::MAX_SHADOW_DIR, Define::MAX_SHADOW_DIR,true);
+			light->createShadow(Define::MAX_SHADOW_DIR_TEXTURE_SIZE, Define::MAX_SHADOW_DIR_TEXTURE_SIZE,true);
 			light->shadow()->nearPlane(nearPlane);
 			light->shadow()->farPlane(farPlane);
 		}
@@ -592,7 +592,7 @@ namespace Prisma
 			j.at("shadow").get_to(hasShadow);
 			light->hasShadow(hasShadow);
 			light->type(lightType);
-			light->createShadow(Define::MAX_SHADOW_OMNI, Define::MAX_SHADOW_OMNI,true);
+			light->createShadow(Define::MAX_SHADOW_OMNI_TEXTURE_SIZE, Define::MAX_SHADOW_OMNI_TEXTURE_SIZE,true);
 			float intensity = 1;
 			j.at("intensity").get_to(intensity);
 			light->intensity(intensity);

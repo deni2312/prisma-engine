@@ -12,8 +12,8 @@ namespace Prisma {
 		constexpr int MAX_BONE_INFLUENCE = 4;
 		constexpr int MAX_BONES = 128;
 		constexpr int MAX_ANIMATION_MESHES = 1024;
-		constexpr int MAX_SHADOW_OMNI = 1024;
-		constexpr int MAX_SHADOW_DIR = 4096;
+		constexpr int MAX_SHADOW_OMNI_TEXTURE_SIZE = 1024;
+		constexpr int MAX_SHADOW_DIR_TEXTURE_SIZE = 4096;
 		constexpr int MAX_MESHES = 2048;
 		constexpr int DEFAULT_MIPS = 4;
 		const std::string DIR_DEFAULT_BLACK = "../../../Resources/res/black.png";

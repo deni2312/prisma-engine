@@ -527,7 +527,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
 				auto lightNode = m_nodeFinder.find(root, light->name());
 				lightNode->addChild(light, false);
 				light->finalMatrix(lightNode->finalMatrix(), false);
-				light->createShadow(Define::MAX_SHADOW_DIR, Define::MAX_SHADOW_DIR);
+				light->createShadow(Define::MAX_SHADOW_DIR_TEXTURE_SIZE, Define::MAX_SHADOW_DIR_TEXTURE_SIZE);
 
 				m_scene->dirLights.push_back(light);
 
@@ -554,7 +554,6 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
 				color.b = assimpLight->mPosition.z;
 				lightOmni.position = glm::vec4(color, 1.0f);
 				lightOmni.farPlane.x = 100.0f;
-				lightOmni.shadowMap = 0;
 				lightOmni.radius = 5;
 
 				lightOmni.attenuation = glm::vec4(assimpLight->mAttenuationConstant, assimpLight->mAttenuationLinear,
@@ -565,7 +564,7 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
 				auto lightNode = m_nodeFinder.find(root, light->name());
 				lightNode->addChild(light, false);
 				light->finalMatrix(lightNode->finalMatrix(), false);
-				light->createShadow(Define::MAX_SHADOW_OMNI, Define::MAX_SHADOW_OMNI);
+				light->createShadow(Define::MAX_SHADOW_OMNI_TEXTURE_SIZE, Define::MAX_SHADOW_OMNI_TEXTURE_SIZE);
 
 				m_scene->omniLights.push_back(light);
 				break;

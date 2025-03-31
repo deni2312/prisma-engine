@@ -162,7 +162,7 @@ void Prisma::LightHandler::updateOmni()
 				light->shadow()->update(m_dataOmni->lights[i].position);
 				m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
 			}
-			m_dataOmni->lights[i].padding = light->hasShadow() ? 2.0f : 0.0f;
+			m_dataOmni->lights[i].hasShadow = light->hasShadow() ? 2.0f : 0.0f;
 			m_dataOmni->lights[i].diffuse = m_dataOmni->lights[i].diffuse * light->intensity();
 			numVisible++;
 		}
