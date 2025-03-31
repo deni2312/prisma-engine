@@ -133,6 +133,7 @@ bool Prisma::Engine::run()
 				Physics::getInstance().update(1.0f / fps());
 			}
 			data->sceneHandler->onBeginRender();
+			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
 			MeshHandler::getInstance().updateCamera();
 			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();
@@ -161,7 +162,6 @@ bool Prisma::Engine::run()
 
 			//Postprocess::getInstance().render();
 
-			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
 			//
 			//
 			//data->sceneHandler->onEndRender();

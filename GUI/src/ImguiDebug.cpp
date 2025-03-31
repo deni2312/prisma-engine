@@ -383,7 +383,6 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 	};
 	m_handlers->onEndRender = [&]()
 	{
-		Prisma::PixelCapture::getInstance().capture(glm::vec2(0), glm::mat4(0));
 		m_timeCounterEngine.stop();
 		m_timeCounterUI.start();
 		getInstance().drawGui();
