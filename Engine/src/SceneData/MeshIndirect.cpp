@@ -142,7 +142,7 @@ void Prisma::MeshIndirect::updateModelsAnimate(int model)
 
 void Prisma::MeshIndirect::renderMeshes() const
 {
-	if (!Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.empty())
+	if (!Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.empty() && m_commandsBuffer.pAttribsBuffer)
 	{
 		//m_vao->bind();
 		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);

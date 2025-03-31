@@ -17,6 +17,7 @@
 #include "../include/ScenePipeline.h"
 #include "Imgui/interface/ImGuiImplWin32.hpp"
 #include "../imguizmo/imguizmo.h"
+#include "../include/PixelCapture.h"
 
 struct PrivateIO
 {
@@ -91,7 +92,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());
 
 	Prisma::ScenePipeline::getInstance();
-
+	Prisma::PixelCapture::getInstance();
 	initStatus();
 }
 
@@ -382,6 +383,7 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 	};
 	m_handlers->onEndRender = [&]()
 	{
+		Prisma::PixelCapture::getInstance().capture(glm::vec2(0), glm::mat4(0));
 		m_timeCounterEngine.stop();
 		m_timeCounterUI.start();
 		getInstance().drawGui();

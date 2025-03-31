@@ -1,4 +1,4 @@
-layout(location = 3) in flat int outDrawId;
+layout(location = 0) in flat int outDrawId;
 
 layout(location = 0) out vec4 FragColor;
 
@@ -9,6 +9,6 @@ void main(){
     float b = float(outDrawId & 0xFF) / 255.0;
 
     // Assign the RGB components to the fragment color, alpha is set to 1.0
-    FragColor = vec4(r, g, b, 0.0);
+    FragColor = vec4(r, g, b, 1.0);
 
 }

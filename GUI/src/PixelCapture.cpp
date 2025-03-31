@@ -6,6 +6,7 @@
 #include "../../Engine/include/GlobalData/GlobalData.h"
 #include "../../Engine/include/Handlers/MeshHandler.h"
 #include "../../Engine/include/GlobalData/GlobalShaderNames.h"
+#include "glm/gtc/type_ptr.hpp"
 
 //static std::shared_ptr<Prisma::Shader> shader = nullptr;
 //static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
@@ -39,7 +40,7 @@ Prisma::PixelCapture::PixelCapture()
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
-    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
     // clang-format on
@@ -130,11 +131,30 @@ Prisma::PixelCapture::PixelCapture()
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
     RTColorDesc.ClearValue.Format = RTColorDesc.Format;
-    RTColorDesc.ClearValue.Color[0] = 0.350f;
-    RTColorDesc.ClearValue.Color[1] = 0.350f;
-    RTColorDesc.ClearValue.Color[2] = 0.350f;
-    RTColorDesc.ClearValue.Color[3] = 1.f;
-    contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pRTColor);
+    RTColorDesc.ClearValue.Color[0] = 0;
+    RTColorDesc.ClearValue.Color[1] = 0;
+    RTColorDesc.ClearValue.Color[2] = 0;
+    RTColorDesc.ClearValue.Color[3] = 1;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> pRTColor;
+    contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &pRTColor);
+
+    m_pRTColor = pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+
+    // Create window-size depth buffer
+    Diligent::TextureDesc RTDepthDesc = RTColorDesc;
+    RTDepthDesc.Name = "Offscreen depth buffer";
+    RTDepthDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+    RTDepthDesc.BindFlags = Diligent::BIND_DEPTH_STENCIL;
+    // Define optimal clear value
+    RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
+    RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
+    RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> pRTDepth;
+    contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &pRTDepth);
+
+    m_pRTDepth = pRTDepth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
+
+    // Store the depth-stencil view
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
@@ -145,6 +165,7 @@ Prisma::PixelCapture::PixelCapture()
             m_pso->CreateShaderResourceBinding(&m_srb, true);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(Prisma::MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
         });
+    Prisma::GlobalData::getInstance().addGlobalTexture({ pRTColor ,"PixelCapture" });
 }
 
 std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, const glm::mat4& model)
@@ -230,5 +251,27 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
 		}
 	}
 	return nullptr;*/
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+    // Clear the back buffer
+    contextData.m_pImmediateContext->SetRenderTargets(1, &m_pRTColor, m_pRTDepth, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    const glm::vec4 clear_color(0.0,0,0,1);
+    contextData.m_pImmediateContext->ClearRenderTarget(m_pRTColor, glm::value_ptr(clear_color), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearDepthStencil(m_pRTDepth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    // Set the pipeline state
+    contextData.m_pImmediateContext->SetPipelineState(m_pso);
+    // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
+    // makes sure that resources are transitioned to required states.
+    auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+    if (!meshes.empty())
+    {
+        Prisma::MeshIndirect::getInstance().setupBuffers();
+        // Set texture SRV in the SRB
+        contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        Prisma::MeshIndirect::getInstance().renderMeshes();
+    }
+
+    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
+
     return nullptr;
 }

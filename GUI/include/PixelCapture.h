@@ -1,6 +1,5 @@
 #pragma once
 
-#include "imgui.h"
 #include <vector>
 #include <memory>
 #include "glm/glm.hpp"
@@ -19,7 +18,8 @@ namespace Prisma
 	private:
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
-		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pRTColor;
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTColor;
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTDepth;
 
 	};
 }

@@ -116,7 +116,6 @@ bool Prisma::Engine::run()
 	while (!PrismaFunc::getInstance().shouldClose())
 	{
 		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene()) {
-			PrismaFunc::getInstance().poll();
 			PrismaFunc::getInstance().bindMainRenderTarget();
 			PrismaFunc::getInstance().clear();
 			
@@ -173,6 +172,7 @@ bool Prisma::Engine::run()
 				PrismaFunc::getInstance().closeWindow();
 			}*/
 			data->sceneHandler->onEndRender();
+			PrismaFunc::getInstance().poll();
 
 			PrismaFunc::getInstance().update();
 		}
