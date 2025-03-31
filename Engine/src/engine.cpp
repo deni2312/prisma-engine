@@ -172,6 +172,8 @@ bool Prisma::Engine::run()
 				PrismaFunc::getInstance().closeWindow();
 			}*/
 			data->sceneHandler->onEndRender();
+			CacheScene::getInstance().resetCaches();
+
 			PrismaFunc::getInstance().poll();
 
 			PrismaFunc::getInstance().update();
