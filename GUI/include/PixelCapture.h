@@ -14,12 +14,15 @@ namespace Prisma
 	public:
 		PixelCapture();
 		std::shared_ptr<Mesh> capture(glm::vec2 position, const glm::mat4& model);
-
 	private:
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTColor;
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTDepth;
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pStagingTexture;
+
+
+		void createDrawPipeline();
 
 	};
 }
