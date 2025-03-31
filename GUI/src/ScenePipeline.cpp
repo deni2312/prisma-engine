@@ -132,11 +132,12 @@ Prisma::ScenePipeline::ScenePipeline()
 
 }
 
-void Prisma::ScenePipeline::render(glm::mat4 model)
+void Prisma::ScenePipeline::render(glm::mat4 model, Diligent::ITextureView* color, Diligent::ITextureView* depth)
 {
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
-    Prisma::PrismaFunc::getInstance().clear();
+    contextData.m_pImmediateContext->SetRenderTargets(1, &color, depth, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearRenderTarget(color, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 	contextData.m_pImmediateContext->SetPipelineState(m_pso);
 

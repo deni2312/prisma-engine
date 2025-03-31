@@ -28,6 +28,7 @@ std::shared_ptr<PrivateIO> data;
 
 Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 {
+
 	data = std::make_shared<PrivateIO>();
 	m_camera = std::make_shared<Prisma::Camera>();
 	Prisma::Engine::getInstance().mainCamera(m_camera);
@@ -51,6 +52,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 		ImGuiIO& io = ImGui::GetIO();
 		io.AddMouseWheelEvent(x, y);
 	};
+
 	Prisma::PrismaFunc::getInstance().inputUI(uiInput);
 	m_imguiCamera.mouseCallback();
 	m_imguiCamera.mouseButtonCallback();
@@ -75,6 +77,8 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 		static_cast<float>(settings.width) / static_cast<float>(settings.height),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
 	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
 
 	m_fileBrowser = std::make_shared<FileBrowser>();
@@ -89,7 +93,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_pauseButton->loadTexture({"../../../GUI/icons/pause.png",false});
 
 	NodeViewer::getInstance();
-	m_imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ Prisma::PrismaFunc::getInstance().contextData().m_pDevice ,Prisma::PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());
+	m_imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ contextData.m_pDevice ,contextData.m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());
 
 	Prisma::ScenePipeline::getInstance();
 	Prisma::PixelCapture::getInstance();
@@ -420,7 +424,11 @@ void Prisma::ImguiDebug::drawScene()
 	{
 		model = m_model;
 	}
-	Prisma::ScenePipeline::getInstance().render(model);
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+	auto pRTV = contextData.m_pSwapChain->GetCurrentBackBufferRTV();
+	auto pDSV = contextData.m_pSwapChain->GetDepthBufferDSV();
+	Prisma::ScenePipeline::getInstance().render(model,pRTV,pDSV);
 }
 
 void Prisma::ImguiDebug::initStatus()

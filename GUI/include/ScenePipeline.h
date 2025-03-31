@@ -12,7 +12,7 @@ namespace Prisma {
 	class ScenePipeline : public Prisma::InstanceData<ScenePipeline>{
 	public:
 		ScenePipeline();
-		void render(glm::mat4 model);
+		void render(glm::mat4 model, Diligent::ITextureView* color, Diligent::ITextureView* depth);
 	private:
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_mvpVS;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
