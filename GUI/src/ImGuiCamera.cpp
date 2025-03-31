@@ -7,6 +7,10 @@
 #include "../../Engine/include/engine.h"
 #include <imgui.h>
 
+#include "../imguizmo/imguizmo.h"
+#include "../include/PixelCapture.h"
+#include "../include/TextureInfo.h"
+
 Prisma::ImGuiCamera::ImGuiCamera()
 {
 	m_callback = std::make_shared<CallbackHandler>();
@@ -154,12 +158,12 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 	m_callback->mouseClick = [this](int button, int action, float x, float y)
 	{
 		//ISOVER BUGGED IMGUIZMO RETURN TRUE RANDOMLY
-		/*if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x < m_constraints.maxX && y < m_constraints.maxY
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && x < m_constraints.maxX && y < m_constraints.maxY
 			&& x > m_constraints.minX && y > m_constraints.minY && !ImGuizmo::IsOver() && !Prisma::TextureInfo::getInstance().textureTab())
 		{
 			auto settings = SettingsLoader::getInstance().getSettings();
 			y = settings.height - y;
-			auto result = PixelCapture::getInstance().capture(glm::vec2(x, y), m_constraints.model);
+			auto result = Prisma::PixelCapture::getInstance().capture(glm::vec2(x, y), m_constraints.model);
 
 			if (result)
 			{
@@ -171,7 +175,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 				auto model = glm::mat4(1.0f);
 				m_currentSelect = nullptr;
 			}
-		}*/
+		}
 
 
 		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)

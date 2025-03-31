@@ -86,11 +86,6 @@ Prisma::Mesh::VerticesData& Prisma::MeshIndirect::verticesData()
 	return m_verticesData;
 }
 
-Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::modelsBuffer()
-{
-	return m_modelBuffer;
-}
-
 void Prisma::MeshIndirect::load()
 {
 	updateSize();

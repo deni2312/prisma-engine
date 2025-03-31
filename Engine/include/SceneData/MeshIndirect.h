@@ -35,8 +35,6 @@ namespace Prisma
 
 		Prisma::Mesh::VerticesData& verticesData();
 
-		Diligent::RefCntAutoPtr<Diligent::IBuffer> modelsBuffer();
-
 		void load();
 
 		void init();

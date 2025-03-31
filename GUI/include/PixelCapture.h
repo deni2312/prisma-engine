@@ -5,8 +5,6 @@
 #include <memory>
 #include "glm/glm.hpp"
 #include <string>
-#include "../../Engine/include/Containers/FBO.h"
-#include "../../Engine/include/Containers/SSBO.h"
 #include "../../Engine/include/SceneObjects/Mesh.h"
 #include "../../Engine/include/GlobalData/InstanceData.h"
 
@@ -19,9 +17,9 @@ namespace Prisma
 		std::shared_ptr<Mesh> capture(glm::vec2 position, const glm::mat4& model);
 
 	private:
-		std::shared_ptr<FBO> m_fbo;
-		std::shared_ptr<FBO> m_fboData;
-		unsigned int m_modelLocation;
-		unsigned int m_textureLocation;
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pRTColor;
+
 	};
 }

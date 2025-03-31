@@ -8,8 +8,6 @@
 
 Prisma::ScenePipeline::ScenePipeline()
 {
-
-
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
