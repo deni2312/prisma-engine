@@ -57,12 +57,6 @@ namespace Prisma {
 			processTexture(mat->roughnessMetalness(), Prisma::GlobalData::getInstance().defaultBlack(), false);
 			processTexture(mat->specular(), Prisma::GlobalData::getInstance().defaultWhite(), false);
 			processTexture(mat->ambientOcclusion(), Prisma::GlobalData::getInstance().defaultWhite(), false);
-			Prisma::SceneExporterLayout::mutex.lock();
-			SceneExporterLayout::status = std::make_pair(
-				"Material "+mesh->name(), (static_cast<float>(SceneExporterLayout::percentage) / static_cast<float>(
-					SceneExporterLayout::counter)) * 100);
-			SceneExporterLayout::percentage++;
-			Prisma::SceneExporterLayout::mutex.unlock();
 		}
 	}
 }
@@ -150,8 +144,6 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCub
 		node->loadComponents();
 	});
 
-	Prisma::SceneExporterLayout::counter = meshes.size();
-	Prisma::SceneExporterLayout::percentage = 0;
 
 	int numThreads = std::thread::hardware_concurrency();
 	loadTexturesMultithreaded(meshes, texturesLoaded, numThreads);
