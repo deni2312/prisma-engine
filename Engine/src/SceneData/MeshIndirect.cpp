@@ -337,8 +337,8 @@ void Prisma::MeshIndirect::updateSize()
 			}
 			else
 			{
-				contextData.m_pImmediateContext->UpdateBuffer(m_vBuffer, sizeVbo * sizeof(Mesh::Vertex), vboCache * sizeof(Mesh::Vertex), &m_verticesData.vertices[vboCache], Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-				contextData.m_pImmediateContext->UpdateBuffer(m_iBuffer, sizeEbo * sizeof(unsigned int), eboCache * sizeof(unsigned int), &m_verticesData.indices[eboCache], Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+				contextData.m_pImmediateContext->UpdateBuffer(m_vBuffer,  vboCache * sizeof(Mesh::Vertex),sizeVbo * sizeof(Mesh::Vertex), &m_verticesData.vertices[vboCache], Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+				contextData.m_pImmediateContext->UpdateBuffer(m_iBuffer,  eboCache * sizeof(unsigned int), sizeEbo * sizeof(unsigned int), &m_verticesData.indices[eboCache], Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 			}
 		}
 
