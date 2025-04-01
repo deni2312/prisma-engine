@@ -126,6 +126,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     contextData.m_pImmediateContext->SetRenderTargets(0, nullptr, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_NONE);
 
     drawModel(model);
+    auto settings = SettingsLoader::getInstance().getSettings();
 
 
     Diligent::CopyTextureAttribs CopyAttribs;
@@ -143,7 +144,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     uint8_t* pData = static_cast<uint8_t*>(MappedData.pData);
     uint32_t rowPitch = MappedData.Stride;
 
-    uint32_t pixelOffset = (position.y * rowPitch) + (position.x * 4); // Assuming 4 bytes per pixel (RGBA8)
+    uint32_t pixelOffset = ((settings.height-position.y) * rowPitch) + (position.x * 4); // Assuming 4 bytes per pixel (RGBA8)
     uint8_t r = pData[pixelOffset + 0];
     uint8_t g = pData[pixelOffset + 1];
     uint8_t b = pData[pixelOffset + 2];
@@ -156,6 +157,13 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     contextData.m_pImmediateContext->UnmapTextureSubresource(m_pStagingTexture, 0, 0);
 	
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
+
+    uint32_t encodedUUID = (r << 16) | (g << 8) | b;
+    std::cout << encodedUUID << std::endl;
+    if (encodedUUID < Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size())
+    {
+        return Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[encodedUUID];
+    }
 
     return nullptr;
 }
@@ -443,7 +451,7 @@ void Prisma::PixelCapture::createScalePipeline()
     RTColorDesc.MipLevels = 1;
     RTColorDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().RenderFormat;
     // The render target can be bound as a shader resource and as a render target
-    RTColorDesc.BindFlags = Diligent::BIND_RENDER_TARGET;
+    RTColorDesc.BindFlags = Diligent::BIND_RENDER_TARGET | Diligent::BIND_SHADER_RESOURCE;
     // Define optimal clear value
     RTColorDesc.ClearValue.Format = RTColorDesc.Format;
     RTColorDesc.ClearValue.Color[0] = 0;
@@ -455,6 +463,7 @@ void Prisma::PixelCapture::createScalePipeline()
 
     m_scalePso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
     m_scalePso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(m_pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    Prisma::GlobalData::getInstance().addGlobalTexture({ m_pRTColorOutput ,"PixelCapture Resize" });
 
     m_scalePso->CreateShaderResourceBinding(&m_scaleSrb, true);
 }
