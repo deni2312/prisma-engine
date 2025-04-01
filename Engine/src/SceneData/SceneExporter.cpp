@@ -24,28 +24,27 @@ namespace Prisma {
 	std::mutex textureMutex;
 
 	void processMeshChunk(std::vector<std::shared_ptr<Prisma::Mesh>>::iterator start, std::vector<std::shared_ptr<Prisma::Mesh>>::iterator end, std::unordered_map<std::string, Prisma::Texture>& texturesLoaded) {
+		auto processTexture = [&](std::vector<Prisma::Texture>& textureList, Prisma::Texture defaultTexture, bool srgb) {
+			if (!textureList.empty() && !textureList[0].name().empty()) {
+				std::string textureName = textureList[0].name();
+				std::lock_guard<std::mutex> lock(textureMutex);
+				if (texturesLoaded.find(textureName) == texturesLoaded.end()) {
+					Prisma::Texture texture;
+					texture.name(textureName);
+					if (!texture.loadTexture({ textureName, srgb, Prisma::Define::DEFAULT_MIPS, true })) {
+						texture = defaultTexture;
+					}
+					texturesLoaded[textureName] = texture;
+				}
+				textureList = { texturesLoaded[textureName] };
+			}
+			else {
+				textureList = { defaultTexture };
+			}
+			};
 		for (auto it = start; it != end; ++it) {
 			std::shared_ptr<Prisma::Mesh> mesh = *it;
 			auto mat = mesh->material();
-
-			auto processTexture = [&](std::vector<Prisma::Texture>& textureList, Prisma::Texture defaultTexture, bool srgb) {
-				if (!textureList.empty() && !textureList[0].name().empty()) {
-					std::string textureName = textureList[0].name();
-					std::lock_guard<std::mutex> lock(textureMutex);
-					if (texturesLoaded.find(textureName) == texturesLoaded.end()) {
-						Prisma::Texture texture;
-						texture.name(textureName);
-						if (!texture.loadTexture({ textureName, srgb, Prisma::Define::DEFAULT_MIPS, true })) {
-							texture = defaultTexture;
-						}
-						texturesLoaded[textureName] = texture;
-					}
-					textureList = { texturesLoaded[textureName] };
-				}
-				else {
-					textureList = { defaultTexture };
-				}
-				};
 
 			processTexture(mat->diffuse(), Prisma::GlobalData::getInstance().defaultBlack(), true);
 			processTexture(mat->normal(), Prisma::GlobalData::getInstance().defaultNormal(), false);
