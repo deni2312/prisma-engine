@@ -27,14 +27,20 @@ namespace Prisma {
 		auto processTexture = [&](std::vector<Prisma::Texture>& textureList, Prisma::Texture defaultTexture, bool srgb) {
 			if (!textureList.empty() && !textureList[0].name().empty()) {
 				std::string textureName = textureList[0].name();
-				std::lock_guard<std::mutex> lock(textureMutex);
-				if (texturesLoaded.find(textureName) == texturesLoaded.end()) {
+
+				textureMutex.lock();
+				auto notFind = texturesLoaded.find(textureName) == texturesLoaded.end();
+				textureMutex.unlock();
+
+				if (notFind) {
 					Prisma::Texture texture;
 					texture.name(textureName);
 					if (!texture.loadTexture({ textureName, srgb, Prisma::Define::DEFAULT_MIPS, true })) {
 						texture = defaultTexture;
 					}
+					textureMutex.lock();
 					texturesLoaded[textureName] = texture;
+					textureMutex.unlock();
 				}
 				textureList = { texturesLoaded[textureName] };
 			}
@@ -69,6 +75,38 @@ void Prisma::Exporter::loadTexturesMultithreaded(std::vector<std::shared_ptr<Pri
 
 	for (auto& fut : futures) {
 		fut.get();
+	}
+
+	for (auto mesh : meshes)
+	{
+		auto material = mesh->material();
+		if (material) {
+			auto diffuse = material->diffuse()[0];
+			auto normal = material->normal()[0];
+			auto rm = material->roughnessMetalness()[0];
+			auto specular = material->specular()[0];
+			auto ao = material->ambientOcclusion()[0];
+
+			if (diffuse.texture()) {
+				Prisma::GlobalData::getInstance().addGlobalTexture({ diffuse.texture(),diffuse.name() });
+			}
+
+			if (normal.texture()) {
+				Prisma::GlobalData::getInstance().addGlobalTexture({ normal.texture(),normal.name() });
+			}
+
+			if (rm.texture()) {
+				Prisma::GlobalData::getInstance().addGlobalTexture({ rm.texture(),rm.name() });
+			}
+
+			if (specular.texture()) {
+				Prisma::GlobalData::getInstance().addGlobalTexture({ specular.texture(),specular.name() });
+			}
+
+			if (ao.texture()) {
+				Prisma::GlobalData::getInstance().addGlobalTexture({ ao.texture(),ao.name() });
+			}
+		}
 	}
 }
 
