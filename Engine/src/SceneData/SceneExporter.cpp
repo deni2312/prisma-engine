@@ -4,11 +4,7 @@
 #include "../../include/Helpers/NodeHelper.h"
 #include "../../include/Pipelines/PipelineHandler.h"
 #include "../../include/SceneData/SceneExporterLayout.h"
-
-
-Assimp::Importer importer;
-Assimp::Exporter exporter;
-std::map<unsigned int, std::shared_ptr<Prisma::MaterialComponent>> materials;
+#include <future>
 
 
 Prisma::Exporter::Exporter()
@@ -24,136 +20,76 @@ std::string Prisma::Exporter::getFileName(const std::string& filePath)
 	}
 	return filePath;
 }
+namespace Prisma {
+	std::mutex textureMutex;
+
+	void processMeshChunk(std::vector<std::shared_ptr<Prisma::Mesh>>::iterator start, std::vector<std::shared_ptr<Prisma::Mesh>>::iterator end, std::unordered_map<std::string, Prisma::Texture>& texturesLoaded) {
+		for (auto it = start; it != end; ++it) {
+			std::shared_ptr<Prisma::Mesh> mesh = *it;
+			auto mat = mesh->material();
+
+			auto processTexture = [&](std::vector<Prisma::Texture>& textureList, Prisma::Texture defaultTexture, bool srgb) {
+				if (!textureList.empty() && !textureList[0].name().empty()) {
+					std::string textureName = textureList[0].name();
+					std::lock_guard<std::mutex> lock(textureMutex);
+					if (texturesLoaded.find(textureName) == texturesLoaded.end()) {
+						Prisma::Texture texture;
+						texture.name(textureName);
+						if (!texture.loadTexture({ textureName, srgb, Prisma::Define::DEFAULT_MIPS, true })) {
+							texture = defaultTexture;
+						}
+						texturesLoaded[textureName] = texture;
+					}
+					textureList = { texturesLoaded[textureName] };
+				}
+				else {
+					textureList = { defaultTexture };
+				}
+				};
+
+			processTexture(mat->diffuse(), Prisma::GlobalData::getInstance().defaultBlack(), true);
+			processTexture(mat->normal(), Prisma::GlobalData::getInstance().defaultNormal(), false);
+			processTexture(mat->roughnessMetalness(), Prisma::GlobalData::getInstance().defaultBlack(), false);
+			processTexture(mat->specular(), Prisma::GlobalData::getInstance().defaultWhite(), false);
+			processTexture(mat->ambientOcclusion(), Prisma::GlobalData::getInstance().defaultWhite(), false);
+		}
+	}
+}
+
+void Prisma::Exporter::loadTexturesMultithreaded(std::vector<std::shared_ptr<Prisma::Mesh>>& meshes, std::unordered_map<std::string, Prisma::Texture>& texturesLoaded, int numThreads) {
+	std::vector<std::future<void>> futures;
+	size_t chunkSize = meshes.size() / numThreads;
+	auto it = meshes.begin();
+
+	for (int i = 0; i < numThreads; ++i) {
+		auto start = it;
+		auto end = (i == numThreads - 1) ? meshes.end() : it + chunkSize;
+		futures.push_back(std::async(std::launch::async, processMeshChunk, start, end, std::ref(texturesLoaded)));
+		it = end;
+	}
+
+	for (auto& fut : futures) {
+		fut.get();
+	}
+}
 
 void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCubemap)
 {
 	Prisma::NodeHelper nodeHelper;
-	std::map<std::string, Texture> texturesLoaded;
+	std::unordered_map<std::string, Texture> texturesLoaded;
 	if (loadCubemap && !Prisma::SceneExporterLayout::skybox.empty()) {
 		Texture texture;
 		texture.loadTexture({ Prisma::SceneExporterLayout::skybox,true });
 		PipelineSkybox::getInstance().texture(texture);
 	}
+	std::vector<std::shared_ptr<Mesh>> meshes;
 	nodeHelper.nodeIterator(node, [&](auto node, auto parent)
 	{
 		auto mesh = std::dynamic_pointer_cast<Mesh>(node);
+
 		if (mesh)
 		{
-			if (!mesh->material()->diffuse().empty() && !mesh->material()->diffuse()[0].name().empty())
-			{
-				if (texturesLoaded.find(mesh->material()->diffuse()[0].name()) == texturesLoaded.end())
-				{
-					Texture texture;
-					texture.name(mesh->material()->diffuse()[0].name());
-					if (!texture.loadTexture({ mesh->material()->diffuse()[0].name(),true,Prisma::Define::DEFAULT_MIPS,true }))
-					{
-						texture = Prisma::GlobalData::getInstance().defaultBlack();
-						std::cout << mesh->material()->diffuse()[0].name() << std::endl;
-					}
-					texturesLoaded[mesh->material()->diffuse()[0].name()] = texture;
-					mesh->material()->diffuse({ texture });
-				}
-				else
-				{
-					mesh->material()->diffuse({ texturesLoaded[mesh->material()->diffuse()[0].name()] });
-				}
-			}
-			else
-			{
-				mesh->material()->diffuse({ Prisma::GlobalData::getInstance().defaultBlack() });
-			}
-
-			if (!mesh->material()->normal().empty() && !mesh->material()->normal()[0].name().empty())
-			{
-				if (texturesLoaded.find(mesh->material()->normal()[0].name()) == texturesLoaded.end())
-				{
-					Texture texture;
-					texture.name(mesh->material()->normal()[0].name());
-					if (!texture.loadTexture({ mesh->material()->normal()[0].name(),false ,Prisma::Define::DEFAULT_MIPS,true })) {
-						texture = Prisma::GlobalData::getInstance().defaultNormal();
-					}
-					texturesLoaded[mesh->material()->normal()[0].name()] = texture;
-					mesh->material()->normal({ texture });
-				}
-				else
-				{
-					mesh->material()->normal({ texturesLoaded[mesh->material()->normal()[0].name()] });
-				}
-			}
-			else
-			{
-				mesh->material()->normal({ Prisma::GlobalData::getInstance().defaultNormal() });
-			}
-
-			if (!mesh->material()->roughnessMetalness().empty() && !mesh->material()->roughnessMetalness()[0].name().empty())
-			{
-				if (texturesLoaded.find(mesh->material()->roughnessMetalness()[0].name()) == texturesLoaded.end())
-				{
-					Texture texture;
-					texture.name(mesh->material()->roughnessMetalness()[0].name());
-					if (!texture.loadTexture({ mesh->material()->roughnessMetalness()[0].name(),false ,Prisma::Define::DEFAULT_MIPS,true })) {
-						texture = Prisma::GlobalData::getInstance().defaultBlack();
-					}
-					texturesLoaded[mesh->material()->roughnessMetalness()[0].name()] = texture;
-					mesh->material()->roughnessMetalness({ texture });
-				}
-				else
-				{
-					mesh->material()->roughnessMetalness({
-						texturesLoaded[mesh->material()->roughnessMetalness()[0].name()]
-					});
-				}
-			}
-			else
-			{
-				mesh->material()->roughnessMetalness({ Prisma::GlobalData::getInstance().defaultBlack() });
-			}
-
-			if (!mesh->material()->specular().empty() && !mesh->material()->specular()[0].name().empty())
-			{
-				if (texturesLoaded.find(mesh->material()->specular()[0].name()) == texturesLoaded.end())
-				{
-					Texture texture;
-					texture.name(mesh->material()->specular()[0].name());
-					if (!texture.loadTexture({ mesh->material()->specular()[0].name(),false ,Prisma::Define::DEFAULT_MIPS,true })) {
-						texture = Prisma::GlobalData::getInstance().defaultWhite();
-					}
-					texturesLoaded[mesh->material()->specular()[0].name()] = texture;
-					mesh->material()->specular({ texture });
-				}
-				else
-				{
-					mesh->material()->specular({ texturesLoaded[mesh->material()->specular()[0].name()] });
-				}
-			}
-			else
-			{
-				mesh->material()->specular({ Prisma::GlobalData::getInstance().defaultWhite() });
-			}
-
-			if (!mesh->material()->ambientOcclusion().empty() && !mesh->material()->ambientOcclusion()[0].name().empty())
-			{
-				if (texturesLoaded.find(mesh->material()->ambientOcclusion()[0].name()) == texturesLoaded.end())
-				{
-					Texture texture;
-					texture.name(mesh->material()->ambientOcclusion()[0].name());
-					if (texture.loadTexture({ mesh->material()->ambientOcclusion()[0].name(),false ,Prisma::Define::DEFAULT_MIPS,true })) {
-						texture = Prisma::GlobalData::getInstance().defaultWhite();
-					}
-					texturesLoaded[mesh->material()->ambientOcclusion()[0].name()] = texture;
-					mesh->material()->ambientOcclusion({ texture });
-				}
-				else
-				{
-					mesh->material()->ambientOcclusion({
-						texturesLoaded[mesh->material()->ambientOcclusion()[0].name()]
-					});
-				}
-			}
-			else
-			{
-				mesh->material()->ambientOcclusion({ Prisma::GlobalData::getInstance().defaultWhite() });
-			}
+			meshes.push_back(mesh);
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(node))
 		{
@@ -170,6 +106,10 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCub
 		}
 		node->loadComponents();
 	});
+
+	int numThreads = std::thread::hardware_concurrency();
+	loadTexturesMultithreaded(meshes, texturesLoaded, numThreads);
+
 }
 
 void Prisma::Exporter::countNodes(std::shared_ptr<Node> next, int& counter)
@@ -267,6 +207,7 @@ std::shared_ptr<Prisma::Node> Prisma::Exporter::importScene(const std::string& s
 
 	return newRootNode;
 }
+
 bool Prisma::Exporter::hasFinish()
 {
 	if (m_finish)

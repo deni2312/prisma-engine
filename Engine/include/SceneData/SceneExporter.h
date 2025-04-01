@@ -4,6 +4,7 @@
 #include "../SceneObjects/Mesh.h"
 #include "../SceneObjects/Light.h"
 #include "../GlobalData/InstanceData.h"
+#include "assimp/Exporter.hpp"
 
 namespace Prisma
 {
@@ -33,5 +34,6 @@ namespace Prisma
 		std::shared_ptr<Node> m_newRootNode = nullptr;
 
 		void countNodes(std::shared_ptr<Node> next, int& counter);
+		void loadTexturesMultithreaded(std::vector<std::shared_ptr<Prisma::Mesh>>& meshes, std::unordered_map<std::string, Prisma::Texture>& texturesLoaded, int numThreads);
 	};
 }
