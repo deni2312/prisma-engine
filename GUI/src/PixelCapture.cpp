@@ -294,13 +294,6 @@ void Prisma::PixelCapture::createDrawPipeline()
     contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pRTColor);
 
 
-    Diligent::TextureDesc StagingTexDesc = RTColorDesc;
-    StagingTexDesc.Usage = Diligent::USAGE_STAGING;
-    StagingTexDesc.BindFlags = Diligent::BIND_NONE;
-    StagingTexDesc.CPUAccessFlags = Diligent::CPU_ACCESS_READ;
-
-    contextData.m_pDevice->CreateTexture(StagingTexDesc, nullptr, &m_pStagingTexture);
-
     // Create window-size depth buffer
     Diligent::TextureDesc RTDepthDesc = RTColorDesc;
     RTDepthDesc.Name = "Offscreen depth buffer";
@@ -449,7 +442,7 @@ void Prisma::PixelCapture::createScalePipeline()
     RTColorDesc.Width = contextData.m_pSwapChain->GetDesc().Width;
     RTColorDesc.Height = contextData.m_pSwapChain->GetDesc().Height;
     RTColorDesc.MipLevels = 1;
-    RTColorDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().RenderFormat;
+    RTColorDesc.Format = PSOCreateInfo.GraphicsPipeline.RTVFormats[0];
     // The render target can be bound as a shader resource and as a render target
     RTColorDesc.BindFlags = Diligent::BIND_RENDER_TARGET | Diligent::BIND_SHADER_RESOURCE;
     // Define optimal clear value
@@ -458,6 +451,14 @@ void Prisma::PixelCapture::createScalePipeline()
     RTColorDesc.ClearValue.Color[1] = 0;
     RTColorDesc.ClearValue.Color[2] = 0;
     RTColorDesc.ClearValue.Color[3] = 1;
+
+
+    Diligent::TextureDesc StagingTexDesc = RTColorDesc;
+    StagingTexDesc.Usage = Diligent::USAGE_STAGING;
+    StagingTexDesc.BindFlags = Diligent::BIND_NONE;
+    StagingTexDesc.CPUAccessFlags = Diligent::CPU_ACCESS_READ;
+
+    contextData.m_pDevice->CreateTexture(StagingTexDesc, nullptr, &m_pStagingTexture);
 
     contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pRTColorOutput);
 
