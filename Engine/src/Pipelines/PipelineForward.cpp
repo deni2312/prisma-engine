@@ -253,8 +253,8 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 void Prisma::PipelineForward::render(){
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-    auto pRTV = Prisma::PipelineHandler::getInstance().textureData().pColorRTV;
-    auto pDSV = Prisma::PipelineHandler::getInstance().textureData().pDepthDSV;
+    auto pRTV = Prisma::PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+    auto pDSV = Prisma::PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
     // Clear the back buffer
     contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 

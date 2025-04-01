@@ -50,10 +50,7 @@ Prisma::PipelineHandler::PipelineHandler()
     RTColorDesc.ClearValue.Color[1] = 0.350f;
     RTColorDesc.ClearValue.Color[2] = 0.350f;
     RTColorDesc.ClearValue.Color[3] = 1.f;
-	Diligent::RefCntAutoPtr<Diligent::ITexture> pRTColor;
-    contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &pRTColor);
-
-    m_textureData.pColorRTV = pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_textureData.pColorRTV);
 
     // Create window-size depth buffer
     Diligent::TextureDesc RTDepthDesc = RTColorDesc;
@@ -64,10 +61,8 @@ Prisma::PipelineHandler::PipelineHandler()
     RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
     RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
     RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> pRTDepth;
-    contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &pRTDepth);
+    contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &m_textureData.pDepthDSV);
     // Store the depth-stencil view
-    m_textureData.pDepthDSV = pRTDepth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
 }
 
 Prisma::PipelineHandler::TextureData Prisma::PipelineHandler::textureData()

@@ -16,8 +16,8 @@ namespace Prisma
 	public:
 		struct TextureData
 		{
-			Diligent::RefCntAutoPtr<Diligent::ITextureView> pColorRTV;
-			Diligent::RefCntAutoPtr<Diligent::ITextureView> pDepthDSV;
+			Diligent::RefCntAutoPtr<Diligent::ITexture> pColorRTV;
+			Diligent::RefCntAutoPtr<Diligent::ITexture> pDepthDSV;
 		};
 
 		bool initScene(SceneLoader::SceneParameters sceneParameters);

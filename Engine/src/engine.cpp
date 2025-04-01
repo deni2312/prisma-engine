@@ -132,8 +132,8 @@ bool Prisma::Engine::run()
 				ComponentsHandler::getInstance().updateComponents();
 				Physics::getInstance().update(1.0f / fps());
 			}
-			data->sceneHandler->onBeginRender();
 			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
+			data->sceneHandler->onBeginRender();
 			MeshHandler::getInstance().updateCamera();
 			MeshIndirect::getInstance().update();
 			LightHandler::getInstance().update();
@@ -172,7 +172,6 @@ bool Prisma::Engine::run()
 				PrismaFunc::getInstance().closeWindow();
 			}*/
 			data->sceneHandler->onEndRender();
-			CacheScene::getInstance().resetCaches();
 
 			PrismaFunc::getInstance().poll();
 

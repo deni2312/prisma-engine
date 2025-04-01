@@ -126,7 +126,7 @@ Prisma::ScenePipeline::ScenePipeline()
     contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(Prisma::PipelineHandler::getInstance().textureData().pColorRTV->GetTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(Prisma::PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
 
@@ -138,7 +138,6 @@ void Prisma::ScenePipeline::render(glm::mat4 model, Diligent::ITextureView* colo
     contextData.m_pImmediateContext->SetRenderTargets(1, &color, depth, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.m_pImmediateContext->ClearRenderTarget(color, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.m_pImmediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
 	contextData.m_pImmediateContext->SetPipelineState(m_pso);
 
     auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
@@ -151,7 +150,6 @@ void Prisma::ScenePipeline::render(glm::mat4 model, Diligent::ITextureView* colo
     {
         // Map the buffer and write current world-view-projection matrix
         Diligent::MapHelper<glm::mat4> CBConstants(contextData.m_pImmediateContext, m_mvpVS, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-        glm::mat4 view = Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix();
         *CBConstants = model;
     }
 
