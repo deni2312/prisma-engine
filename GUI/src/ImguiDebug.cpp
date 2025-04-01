@@ -95,7 +95,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_imguiDiligent = Diligent::ImGuiImplWin32::Create(Diligent::ImGuiDiligentCreateInfo{ contextData.m_pDevice ,contextData.m_pSwapChain->GetDesc() }, (HWND)Prisma::PrismaFunc::getInstance().windowNative());
 
 	Prisma::ScenePipeline::getInstance();
-	//Prisma::PixelCapture::getInstance();
+	Prisma::PixelCapture::getInstance();
 	initStatus();
 }
 

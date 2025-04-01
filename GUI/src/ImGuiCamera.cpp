@@ -163,7 +163,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 		{
 			auto settings = SettingsLoader::getInstance().getSettings();
 			y = settings.height - y;
-			/*auto result = Prisma::PixelCapture::getInstance().capture(glm::vec2(x, y), m_constraints.model);
+			auto result = Prisma::PixelCapture::getInstance().capture(glm::vec2(x, y), m_constraints.model);
 
 			if (result)
 			{
@@ -174,7 +174,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 			{
 				auto model = glm::mat4(1.0f);
 				m_currentSelect = nullptr;
-			}*/
+			}
 		}
 
 

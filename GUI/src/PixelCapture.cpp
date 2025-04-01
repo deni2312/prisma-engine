@@ -18,6 +18,9 @@ Prisma::PixelCapture::PixelCapture()
 {
     createDrawPipeline();
     createScalePipeline();
+    Diligent::FenceDesc fenceDesc;
+    fenceDesc.Name = "Screen capture fence";
+    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateFence(fenceDesc, &m_pFence);
 }
 
 std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, const glm::mat4& model)
@@ -129,13 +132,16 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     auto settings = SettingsLoader::getInstance().getSettings();
 
 
-    Diligent::CopyTextureAttribs CopyAttribs;
-    CopyAttribs.pSrcTexture = m_pRTColorOutput;
-    CopyAttribs.pDstTexture = m_pStagingTexture;
-    CopyAttribs.SrcMipLevel = 0;
-    CopyAttribs.DstMipLevel = 0;
+	Diligent::CopyTextureAttribs CopyAttribs(m_pRTColorOutput, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, m_pStagingTexture, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
     contextData.m_pImmediateContext->CopyTexture(CopyAttribs);
 
+    contextData.m_pImmediateContext->EnqueueSignal(m_pFence, m_CurrentFenceValue);
+    ++m_CurrentFenceValue;
+    while (m_pFence->GetCompletedValue()!= m_CurrentFenceValue-1)
+    {
+        contextData.m_pImmediateContext->Flush();
+    }
     Diligent::MappedTextureSubresource MappedData;
     contextData.m_pImmediateContext->MapTextureSubresource(
         m_pStagingTexture, 0, 0, Diligent::MAP_READ, Diligent::MAP_FLAG_DO_NOT_WAIT, nullptr, MappedData
