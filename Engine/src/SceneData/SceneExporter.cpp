@@ -35,7 +35,7 @@ namespace Prisma {
 				if (notFind) {
 					Prisma::Texture texture;
 					texture.name(textureName);
-					if (!texture.loadTexture({ textureName, srgb, Prisma::Define::DEFAULT_MIPS, true })) {
+					if (!texture.loadTexture({ textureName, srgb, Prisma::Define::DEFAULT_MIPS, true ,false})) {
 						texture = defaultTexture;
 					}
 					textureMutex.lock();
@@ -68,7 +68,9 @@ void Prisma::Exporter::loadTexturesMultithreaded(std::vector<std::shared_ptr<Pri
 
 	for (int i = 0; i < numThreads; ++i) {
 		auto start = it;
-		auto end = (i == numThreads - 1) ? meshes.end() : it + chunkSize;
+		auto remaining = std::distance(it, meshes.end());
+		auto safeChunkSize = std::min<size_t>(chunkSize, static_cast<size_t>(remaining));
+		auto end = (i == numThreads - 1) ? meshes.end() : std::next(it, safeChunkSize);
 		futures.push_back(std::async(std::launch::async, processMeshChunk, start, end, std::ref(texturesLoaded)));
 		it = end;
 	}
@@ -77,35 +79,11 @@ void Prisma::Exporter::loadTexturesMultithreaded(std::vector<std::shared_ptr<Pri
 		fut.get();
 	}
 
-	for (auto mesh : meshes)
+	for (auto texture : texturesLoaded)
 	{
-		auto material = mesh->material();
-		if (material) {
-			auto diffuse = material->diffuse()[0];
-			auto normal = material->normal()[0];
-			auto rm = material->roughnessMetalness()[0];
-			auto specular = material->specular()[0];
-			auto ao = material->ambientOcclusion()[0];
-
-			if (diffuse.texture()) {
-				Prisma::GlobalData::getInstance().addGlobalTexture({ diffuse.texture(),diffuse.name() });
-			}
-
-			if (normal.texture()) {
-				Prisma::GlobalData::getInstance().addGlobalTexture({ normal.texture(),normal.name() });
-			}
-
-			if (rm.texture()) {
-				Prisma::GlobalData::getInstance().addGlobalTexture({ rm.texture(),rm.name() });
-			}
-
-			if (specular.texture()) {
-				Prisma::GlobalData::getInstance().addGlobalTexture({ specular.texture(),specular.name() });
-			}
-
-			if (ao.texture()) {
-				Prisma::GlobalData::getInstance().addGlobalTexture({ ao.texture(),ao.name() });
-			}
+		auto t=texture.second.texture();
+		if (t) {
+			Prisma::GlobalData::getInstance().addGlobalTexture({ t,texture.first });
 		}
 	}
 }

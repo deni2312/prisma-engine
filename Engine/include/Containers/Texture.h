@@ -34,6 +34,7 @@ namespace Prisma
 			bool srgb = false;
 			int mips = Prisma::Define::DEFAULT_MIPS;
 			bool compress = false;
+			bool addGlobalList = true;
 		};
 
 		bool loadTexture(const Parameters& parameters);
