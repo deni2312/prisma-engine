@@ -57,6 +57,12 @@ namespace Prisma {
 			processTexture(mat->roughnessMetalness(), Prisma::GlobalData::getInstance().defaultBlack(), false);
 			processTexture(mat->specular(), Prisma::GlobalData::getInstance().defaultWhite(), false);
 			processTexture(mat->ambientOcclusion(), Prisma::GlobalData::getInstance().defaultWhite(), false);
+			Prisma::SceneExporterLayout::mutex.lock();
+			SceneExporterLayout::status = std::make_pair(
+				"Material "+mesh->name(), (static_cast<float>(SceneExporterLayout::percentage) / static_cast<float>(
+					SceneExporterLayout::counter)) * 100);
+			SceneExporterLayout::percentage++;
+			Prisma::SceneExporterLayout::mutex.unlock();
 		}
 	}
 }
@@ -144,6 +150,9 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCub
 		node->loadComponents();
 	});
 
+	Prisma::SceneExporterLayout::counter = meshes.size();
+	Prisma::SceneExporterLayout::percentage = 0;
+
 	int numThreads = std::thread::hardware_concurrency();
 	loadTexturesMultithreaded(meshes, texturesLoaded, numThreads);
 
@@ -155,28 +164,6 @@ void Prisma::Exporter::countNodes(std::shared_ptr<Node> next, int& counter)
 	for (auto child : next->children())
 	{
 		countNodes(child, counter);
-	}
-}
-
-void printScene(std::shared_ptr<Prisma::Node> nodeNext, int depth = 0)
-{
-	if (!nodeNext)
-	{
-		return;
-	}
-
-	// Print the current node's name with indentation based on the depth
-	for (int i = 0; i < depth; ++i)
-	{
-		std::cout << " "; // Print a tab for each level of depth
-	}
-	std::cout << nodeNext->name() << std::endl;
-
-	// Recursively print each child node, increasing the depth
-	unsigned int childrenSize = nodeNext->children().size();
-	for (unsigned int i = 0; i < childrenSize; i++)
-	{
-		printScene(nodeNext->children()[i], depth + 1);
 	}
 }
 
