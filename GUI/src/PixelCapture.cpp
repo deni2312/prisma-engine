@@ -128,8 +128,8 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     drawModel(model);
 
 
-    /*Diligent::CopyTextureAttribs CopyAttribs;
-    CopyAttribs.pSrcTexture = m_pRTColorOutput->GetTexture();
+    Diligent::CopyTextureAttribs CopyAttribs;
+    CopyAttribs.pSrcTexture = m_pRTColorOutput;
     CopyAttribs.pDstTexture = m_pStagingTexture;
     CopyAttribs.SrcMipLevel = 0;
     CopyAttribs.DstMipLevel = 0;
@@ -154,7 +154,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
 
     // 5. Unmap the texture
     contextData.m_pImmediateContext->UnmapTextureSubresource(m_pStagingTexture, 0, 0);
-	*/
+	
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 
     return nullptr;
