@@ -85,7 +85,7 @@ Prisma::Engine::Engine()
 
 	Diligent::ImGuiDiligentCreateInfo desc;
 	desc.pDevice = Prisma::PrismaFunc::getInstance().contextData().m_pDevice;
-	
+
 
 	data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 
@@ -118,13 +118,13 @@ bool Prisma::Engine::run()
 		if (data->camera && Prisma::GlobalData::getInstance().currentGlobalScene()) {
 			PrismaFunc::getInstance().bindMainRenderTarget();
 			PrismaFunc::getInstance().clear();
-			
+
 			auto currentTime = std::chrono::high_resolution_clock::now();
 
 			std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
 			data->lastTime = currentTime;
 			data->fps = 1.0f / deltaTime.count();
-			
+
 			if (!data->debug)
 			{
 				data->userData->update();
@@ -132,7 +132,7 @@ bool Prisma::Engine::run()
 				ComponentsHandler::getInstance().updateComponents();
 				Physics::getInstance().update(1.0f / fps());
 			}
-			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
+
 			data->sceneHandler->onBeginRender();
 			MeshHandler::getInstance().updateCamera();
 			MeshIndirect::getInstance().update();
@@ -171,6 +171,8 @@ bool Prisma::Engine::run()
 				std::cerr << "Null camera or scene" << std::endl;
 				PrismaFunc::getInstance().closeWindow();
 			}*/
+			Prisma::LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
+
 			data->sceneHandler->onEndRender();
 
 			PrismaFunc::getInstance().poll();
@@ -220,18 +222,18 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
 	callbackHandler->resize = [&](int width, int height)
-	{
-		Prisma::GlobalData::getInstance().currentProjection(glm::perspective(
-			glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
-			static_cast<float>(data->settings.width) / static_cast<float>(data->
-			                                                              settings.height),
-			Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
-			Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
-	};
+		{
+			Prisma::GlobalData::getInstance().currentProjection(glm::perspective(
+				glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+				static_cast<float>(data->settings.width) / static_cast<float>(data->
+					settings.height),
+				Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
+				Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
+		};
 	Prisma::GlobalData::getInstance().currentProjection(glm::perspective(
 		glm::radians(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->angle()),
 		static_cast<float>(data->settings.width) / static_cast<float>(data->settings.
-		                                                                    height),
+			height),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
 		Prisma::GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
 	data->callbackHandler = callbackHandler;
@@ -265,7 +267,7 @@ std::shared_ptr<Prisma::UserData> Prisma::Engine::getUserEngine()
 }
 
 void Prisma::Engine::getScene(const std::string& scene,
-                              SceneLoader::SceneParameters sceneParameters)
+	SceneLoader::SceneParameters sceneParameters)
 {
 	Prisma::LoadingHandler::getInstance().load(scene, sceneParameters);
 }

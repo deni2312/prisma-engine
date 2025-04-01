@@ -116,7 +116,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
     // makes sure that resources are transitioned to required states.
     auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-    if (!meshes.empty())
+    if (!meshes.empty() && Prisma::MeshIndirect::getInstance().commandsBuffer().pAttribsBuffer)
     {
         Prisma::MeshIndirect::getInstance().setupBuffers();
         // Set texture SRV in the SRB

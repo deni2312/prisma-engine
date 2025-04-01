@@ -508,6 +508,11 @@ Prisma::MeshIndirect::MaterialView& Prisma::MeshIndirect::textureViews()
 	return m_textureViews;
 }
 
+Diligent::DrawIndexedIndirectAttribs Prisma::MeshIndirect::commandsBuffer()
+{
+	return m_commandsBuffer;
+}
+
 void Prisma::MeshIndirect::resizeModels(std::vector<Prisma::Mesh::MeshData>& models)
 {
 	m_modelBuffer.Release();

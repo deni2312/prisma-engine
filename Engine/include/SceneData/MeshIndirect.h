@@ -71,6 +71,8 @@ namespace Prisma
 
 		MaterialView& textureViews();
 
+		Diligent::DrawIndexedIndirectAttribs commandsBuffer();
+
 	private:
 
 		//BINDING DATA
