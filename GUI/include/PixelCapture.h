@@ -33,14 +33,7 @@ namespace Prisma
 		void createDrawPipeline();
 		void createScalePipeline();
 
-
-		Diligent::RefCntAutoPtr<Diligent::IFence>	m_pFence;
-
-		std::mutex	m_AvailableTexturesMtx;
-
-		std::mutex m_PendingTexturesMtx;
-
-		Diligent::Uint64 m_CurrentFenceValue = 1;
+		glm::vec4 m_clearColor = glm::vec4(0, 0, 0, 1);
 
 	};
 }

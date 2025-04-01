@@ -18,9 +18,6 @@ Prisma::PixelCapture::PixelCapture()
 {
     createDrawPipeline();
     createScalePipeline();
-    Diligent::FenceDesc fenceDesc;
-    fenceDesc.Name = "Screen capture fence";
-    Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateFence(fenceDesc, &m_pFence);
 }
 
 std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, const glm::mat4& model)
@@ -111,7 +108,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     auto rtDepth = m_pRTDepth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
     // Clear the back buffer
     contextData.m_pImmediateContext->SetRenderTargets(1, &rt, rtDepth, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.m_pImmediateContext->ClearRenderTarget(rt, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearRenderTarget(rt, glm::value_ptr(m_clearColor), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.m_pImmediateContext->ClearDepthStencil(rtDepth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // Set the pipeline state
@@ -136,28 +133,21 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
 
     contextData.m_pImmediateContext->CopyTexture(CopyAttribs);
 
-    contextData.m_pImmediateContext->EnqueueSignal(m_pFence, m_CurrentFenceValue);
-    ++m_CurrentFenceValue;
-    while (m_pFence->GetCompletedValue()!= m_CurrentFenceValue-1)
-    {
-        contextData.m_pImmediateContext->Flush();
-    }
+    contextData.m_pImmediateContext->WaitForIdle();
     Diligent::MappedTextureSubresource MappedData;
     contextData.m_pImmediateContext->MapTextureSubresource(
         m_pStagingTexture, 0, 0, Diligent::MAP_READ, Diligent::MAP_FLAG_DO_NOT_WAIT, nullptr, MappedData
     );
-
     uint8_t* pData = static_cast<uint8_t*>(MappedData.pData);
-    uint32_t rowPitch = MappedData.Stride;
+    auto rowPitch = MappedData.Stride;
 
-    uint32_t pixelOffset = ((settings.height-position.y) * rowPitch) + (position.x * 4); // Assuming 4 bytes per pixel (RGBA8)
+    uint32_t pixelOffset = (settings.height - position.y) * (rowPitch) + (position.x * 4);
     uint8_t r = pData[pixelOffset + 0];
     uint8_t g = pData[pixelOffset + 1];
     uint8_t b = pData[pixelOffset + 2];
     uint8_t a = pData[pixelOffset + 3];
 
-    std::cout << "Pixel (" << position.x << ", " << position.y << ") RGBA: ("
-        << (int)r << ", " << (int)g << ", " << (int)b << ", " << (int)a << ")\n";
+
 
     // 5. Unmap the texture
     contextData.m_pImmediateContext->UnmapTextureSubresource(m_pStagingTexture, 0, 0);
@@ -165,10 +155,11 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 
     uint32_t encodedUUID = (r << 16) | (g << 8) | b;
-    std::cout << encodedUUID << std::endl;
-    if (encodedUUID < Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size())
-    {
-        return Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[encodedUUID];
+    if (a < 128) {
+        if (encodedUUID < Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size() && encodedUUID >= 0)
+        {
+            return Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[encodedUUID];
+        }
     }
 
     return nullptr;
@@ -195,7 +186,7 @@ void Prisma::PixelCapture::createDrawPipeline()
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Prisma::PrismaFunc::getInstance().renderFormat().RenderFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Diligent::TEX_FORMAT_RGBA8_UNORM;
     // Set depth buffer format which is the format of the swap chain's back buffer
     PSOCreateInfo.GraphicsPipeline.DSVFormat = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
@@ -288,7 +279,7 @@ void Prisma::PixelCapture::createDrawPipeline()
     RTColorDesc.Width = contextData.m_pSwapChain->GetDesc().Width;
     RTColorDesc.Height = contextData.m_pSwapChain->GetDesc().Height;
     RTColorDesc.MipLevels = 1;
-    RTColorDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().RenderFormat;
+    RTColorDesc.Format = Diligent::TEX_FORMAT_RGBA8_UNORM;
     // The render target can be bound as a shader resource and as a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
@@ -344,7 +335,7 @@ void Prisma::PixelCapture::createScalePipeline()
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Prisma::PrismaFunc::getInstance().renderFormat().RenderFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Diligent::TEX_FORMAT_RGBA8_UNORM;
     // Set depth buffer format which is the format of the swap chain's back buffer
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -483,8 +474,9 @@ void Prisma::PixelCapture::drawModel(const glm::mat4& model)
 
     auto rt = m_pRTColorOutput->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
 
+
     contextData.m_pImmediateContext->SetRenderTargets(1, &rt, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.m_pImmediateContext->ClearRenderTarget(rt, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearRenderTarget(rt, glm::value_ptr(m_clearColor), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
 
