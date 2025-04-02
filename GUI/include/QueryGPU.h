@@ -20,7 +20,9 @@ namespace Prisma {
 		QueryGPU();
 
 		void start();
-		const QueryData& end();
+		void end();
+
+		QueryData& queryData();
 
 	private:
 		std::unique_ptr<Diligent::ScopedQueryHelper>   m_pPipelineStatsQuery;

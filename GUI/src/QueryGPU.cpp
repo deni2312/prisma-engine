@@ -54,7 +54,7 @@ void Prisma::QueryGPU::start()
         m_pDurationQuery->Begin(immediateContext);
 }
 
-const Prisma::QueryGPU::QueryData& Prisma::QueryGPU::end()
+void Prisma::QueryGPU::end()
 {
     auto immediateContext = Prisma::PrismaFunc::getInstance().contextData().m_pImmediateContext;
 
@@ -67,5 +67,9 @@ const Prisma::QueryGPU::QueryData& Prisma::QueryGPU::end()
     if (m_pPipelineStatsQuery)
         m_pPipelineStatsQuery->End(immediateContext, &m_QueryData.PipelineStats, sizeof(m_QueryData.PipelineStats));
 
+}
+
+Prisma::QueryGPU::QueryData& Prisma::QueryGPU::queryData()
+{
     return m_QueryData;
 }

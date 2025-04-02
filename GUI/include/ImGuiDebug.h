@@ -13,6 +13,8 @@
 #include "LightInfo.h"
 #include "SettingsTab.h"
 #include "Imgui/interface/ImGuiImplDiligent.hpp"
+#include "QueryGPU.h"
+
 
 namespace Prisma
 {

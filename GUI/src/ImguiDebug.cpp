@@ -19,6 +19,7 @@
 #include "../imguizmo/imguizmo.h"
 #include "../include/PixelCapture.h"
 
+
 struct PrivateIO
 {
 	ImGuiIO io;
@@ -82,8 +83,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f}
 	m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
 
 	m_fileBrowser = std::make_shared<FileBrowser>();
-
-	
 
 	m_runButton = std::make_shared<Texture>();
 	m_runButton->loadTexture({"../../../GUI/icons/run.png",false});
@@ -209,6 +208,42 @@ void Prisma::ImguiDebug::drawGui()
 
 	auto positionRun = m_run ? m_width / 2 : m_width * m_scale / 2;
 
+	auto& query = Prisma::QueryGPU::getInstance().queryData();
+
+	if (ImGui::Button("Show Stats",ImVec2(0,36))) {
+		// Button logic if needed
+	}
+	ImGui::SameLine();
+	if (ImGui::IsItemHovered()) {
+		ImGui::BeginTooltip(); // Start tooltip when hovering
+
+		if (ImGui::BeginTable("StatsTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+			ImGui::TableSetupColumn("Metric", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableHeadersRow();
+
+			// Add each row manually
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("UI Time:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%.9f", m_timeCounterUI.duration_seconds());
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Engine Time:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%.9f", m_timeCounterEngine.duration_seconds());
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Meshes:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%zu", Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size());
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Animate Meshes:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%zu", Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size());
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Omni Lights:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%zu", Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.size());
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Dir Lights:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%zu", Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.size());
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Area Lights:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%zu", Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights.size());
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Input Vertices:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.InputVertices);
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Input Primitives:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.InputPrimitives);
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("VS Invocations:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.VSInvocations);
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Clipping Invocations:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.ClippingInvocations);
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Clipping Primitives:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.ClippingPrimitives);
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("PS Invocations:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.PSInvocations);
+
+			ImGui::EndTable();
+		}
+
+		ImGui::EndTooltip(); // End tooltip
+	}
+
+
 	ImGui::SetCursorPosX(positionRun);
 
 	auto currentButton = m_run ? m_pauseButton : m_runButton;
@@ -264,18 +299,6 @@ void Prisma::ImguiDebug::drawGui()
 			openSettings = false;
 		}
 		m_settingsTab.drawSettings();
-		ImGui::Dummy(ImVec2(0.0f, 10.0f));
-		ImGui::Text(("UI Time: " + std::to_string(m_timeCounterUI.duration_seconds())).c_str());
-		ImGui::Text(("Engine Time: " + std::to_string(m_timeCounterEngine.duration_seconds())).c_str());
-		ImGui::Text(("Meshes: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size())).c_str());
-		ImGui::Text(("Animate Meshes: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size())).c_str());
-		ImGui::Text(("Omni Lights: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.size())).c_str());
-		ImGui::Text(("Dir Lights: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.size())).c_str());
-		ImGui::Text(("Area Lights: " + std::to_string(Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights.size())).c_str());
-		ImGui::Dummy(ImVec2(0.0f, 10.0f));
-
-		ImGui::Separator();
-
 		Prisma::ImGuiTabs::getInstance().showNodes(Prisma::GlobalData::getInstance().currentGlobalScene()->root,m_imguiCamera);
 		// Check if the node is clicked
 		ImGui::End();
@@ -379,6 +402,7 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 	{
 		m_timeCounterEngine.start();
 		getInstance().start();
+		Prisma::QueryGPU::getInstance().start();
 	};
 	m_handlers->onLoading = [&](auto data)
 	{
@@ -386,6 +410,7 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 	};
 	m_handlers->onEndRender = [&]()
 	{
+		Prisma::QueryGPU::getInstance().end();
 		m_timeCounterEngine.stop();
 		m_timeCounterUI.start();
 		getInstance().drawGui();
