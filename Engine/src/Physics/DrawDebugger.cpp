@@ -1,3 +1,5 @@
+#ifdef JPH_DEBUG_RENDERER
+
 #include "Physics/DrawDebugger.h"
 #include "Helpers/PrismaMath.h"
 #include <glm/gtx/string_cast.hpp>
@@ -138,3 +140,4 @@ Prisma::DrawDebugger::DrawDebugger()
 {
 	Initialize();
 }
+#endif

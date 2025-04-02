@@ -1,12 +1,13 @@
 #pragma once
-#define JPH_DEBUG_RENDERER
 
 #include "glm/glm.hpp"
 #include <memory>
 #include "../GlobalData/InstanceData.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
+#ifdef JPH_DEBUG_RENDERER
 #include "DrawDebugger.h"
+#endif
 #include "Jolt/Physics/SoftBody/SoftBodySharedSettings.h"
 
 
@@ -70,8 +71,11 @@ namespace Prisma
 
 	private:
 		void softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> physics);
+#ifdef JPH_DEBUG_RENDERER
+
 		std::shared_ptr<DrawDebugger> m_drawDebugger;
 		JPH::BodyManager::DrawSettings m_settings;
+#endif
 		bool m_debug;
 		unsigned int m_indexVbo = 0;
 	};

@@ -6,7 +6,6 @@
 #include "../SceneData/MeshIndirect.h"
 #include "PipelineFullScreen.h"
 #include "../Helpers/Settings.h"
-#include "../Physics/DrawDebugger.h"
 #include <memory>
 #include "PipelinePrePass.h"
 

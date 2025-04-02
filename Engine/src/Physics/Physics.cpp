@@ -2,7 +2,6 @@
 #include "Physics/PhysicsData.h"
 #include "GlobalData/GlobalData.h"
 #include "glm/gtx/string_cast.hpp"
-#include "Physics/DrawDebugger.h"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "Components/PhysicsMeshComponent.h"
 #include "SceneData/MeshIndirect.h"
@@ -43,7 +42,9 @@ Prisma::Physics::Physics()
 	physicsWorldJolt->physics_system.SetBodyActivationListener(&physicsWorldJolt->body_activation_listener);
 	physicsWorldJolt->physics_system.SetContactListener(&physicsWorldJolt->contact_listener);
 	physicsWorldJolt->physics_system.OptimizeBroadPhase();
+#ifdef JPH_DEBUG_RENDERER
 	m_drawDebugger = std::make_shared<Prisma::DrawDebugger>();
+#endif
 }
 
 void Prisma::Physics::update(float delta)
@@ -101,6 +102,8 @@ PhysicsSystem& Prisma::Physics::physicsSystem()
 
 void Prisma::Physics::drawDebug()
 {
+#ifdef JPH_DEBUG_RENDERER
+
 	if (m_debug)
 	{
 		m_drawDebugger->line.setMVP(
@@ -126,6 +129,7 @@ void Prisma::Physics::drawDebug()
 			}
 		}
 	}
+#endif
 }
 
 void Prisma::Physics::debug(bool debug)
@@ -137,7 +141,9 @@ bool Prisma::Physics::debug()
 {
 	if (m_debug)
 	{
+#ifdef JPH_DEBUG_RENDERER
 		m_drawDebugger->init();
+#endif
 	}
 	return m_debug;
 }

@@ -18,7 +18,6 @@
 #include "../include/Pipelines/PipelinePrefilter.h"
 #include "../include/Helpers/PrismaRender.h"
 #include "../include/Physics/Physics.h"
-#include "../include/Physics/DrawDebugger.h"
 #include "../include/Handlers/ComponentsHandler.h"
 #include "../include/Postprocess/Postprocess.h"
 #include <glm/gtx/string_cast.hpp>

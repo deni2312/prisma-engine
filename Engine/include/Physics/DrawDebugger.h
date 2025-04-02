@@ -1,4 +1,6 @@
 #pragma once
+#ifdef JPH_DEBUG_RENDERER
+
 #include "Line.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Renderer/DebugRenderer.h>
@@ -57,3 +59,4 @@ namespace Prisma
 		};
 	};
 }
+#endif
