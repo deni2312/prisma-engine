@@ -313,7 +313,7 @@ void Prisma::PixelCapture::createDrawPipeline()
             m_pso->CreateShaderResourceBinding(&m_srb, true);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(Prisma::MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
         });
-    Prisma::GlobalData::getInstance().addGlobalTexture({ m_pRTColor ,"PixelCapture" });
+    Prisma::GlobalData::getInstance().addGlobalTexture({ m_pRTColor ,"PixelCapture",{contextData.m_pSwapChain->GetDesc().Width,contextData.m_pSwapChain->GetDesc().Height} });
 }
 
 void Prisma::PixelCapture::createScalePipeline()
@@ -461,7 +461,7 @@ void Prisma::PixelCapture::createScalePipeline()
 
     m_scalePso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
     m_scalePso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(m_pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-    Prisma::GlobalData::getInstance().addGlobalTexture({ m_pRTColorOutput ,"PixelCapture Resize" });
+    Prisma::GlobalData::getInstance().addGlobalTexture({ m_pRTColorOutput ,"PixelCapture Resize" ,{contextData.m_pSwapChain->GetDesc().Width,contextData.m_pSwapChain->GetDesc().Height} });
 
     m_scalePso->CreateShaderResourceBinding(&m_scaleSrb, true);
 }
