@@ -1,5 +1,4 @@
 #pragma once
-#define JPH_DEBUG_RENDERER
 
 #include "glm/glm.hpp"
 #include <memory>
@@ -68,8 +67,11 @@ namespace Prisma
 
 	private:
 		void softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> physics);
+#ifdef JPH_DEBUG_RENDERER
+
 		DrawDebugger* m_drawDebugger;
 		JPH::BodyManager::DrawSettings m_settings;
+#endif
 		bool m_debug;
 		unsigned int m_indexVbo = 0;
 	};

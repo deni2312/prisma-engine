@@ -42,7 +42,9 @@ Prisma::Physics::Physics()
 	physicsWorldJolt->physics_system.SetBodyActivationListener(&physicsWorldJolt->body_activation_listener);
 	physicsWorldJolt->physics_system.SetContactListener(&physicsWorldJolt->contact_listener);
 	physicsWorldJolt->physics_system.OptimizeBroadPhase();
+#ifdef JPH_DEBUG_RENDERER
 	m_drawDebugger = new DrawDebugger();
+#endif
 }
 
 void Prisma::Physics::update(float delta)
@@ -102,6 +104,8 @@ void Prisma::Physics::drawDebug()
 {
 	if (m_debug)
 	{
+#ifdef JPH_DEBUG_RENDERER
+
 		m_drawDebugger->line.setMVP(
 			Prisma::GlobalData::getInstance().currentProjection() * Prisma::GlobalData::getInstance().
 			                                                        currentGlobalScene()->camera->matrix());
@@ -124,6 +128,7 @@ void Prisma::Physics::drawDebug()
 				}
 			}
 		}
+#endif
 	}
 }
 
@@ -136,7 +141,9 @@ bool Prisma::Physics::debug()
 {
 	if (m_debug)
 	{
+#ifdef JPH_DEBUG_RENDERER
 		m_drawDebugger->init();
+#endif
 	}
 	return m_debug;
 }
