@@ -1,4 +1,4 @@
-#include "../include/QueryGPU.h"
+#include "QueryGPU.h"
 
 #include "GlobalData/PrismaFunc.h"
 #include "Graphics/GraphicsEngine/interface/Query.h"

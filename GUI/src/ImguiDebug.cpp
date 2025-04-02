@@ -1,8 +1,8 @@
 #include "GlobalData/GlobalData.h"
 #include "Helpers/SettingsLoader.h"
-#include "../include/ImGuiDebug.h"
-#include "../include/ImGuiStyle.h"
-#include "../include/ImGuiKey.h"
+#include "ImGuiDebug.h"
+#include "ImGuiStyle.h"
+#include "ImGuiKey.h"
 #include "ThirdParty/imgui/imgui.h"
 #include "SceneObjects/Camera.h"
 #include <Windows.h>
@@ -12,12 +12,12 @@
 #include "Helpers/StringHelper.h"
 #include "Pipelines/PipelineSkybox.h"
 #include "SceneData/MeshIndirect.h"
-#include "../include/ImGuiTabs.h"
-#include "../include/NodeViewer.h"
-#include "../include/ScenePipeline.h"
+#include "ImGuiTabs.h"
+#include "NodeViewer.h"
+#include "ScenePipeline.h"
 #include "Imgui/interface/ImGuiImplWin32.hpp"
 #include "../imguizmo/imguizmo.h"
-#include "../include/PixelCapture.h"
+#include "PixelCapture.h"
 
 
 struct PrivateIO
