@@ -1,4 +1,4 @@
-#include "../../include/Helpers/TimeCounter.h"
+#include "Helpers/TimeCounter.h"
 
 Prisma::TimeCounter::TimeCounter() : running(false)
 {

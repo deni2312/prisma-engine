@@ -1,13 +1,13 @@
-#include "../../include/SceneObjects/Node.h"
+#include "SceneObjects/Node.h"
 #include <iostream>
-#include "../../include/GlobalData/GlobalData.h"
+#include "GlobalData/GlobalData.h"
 #include "glm/ext.hpp"
-#include "../../include/Helpers/PrismaMath.h"
-#include "../../include/SceneData/MeshIndirect.h"
-#include "../../include/GlobalData/CacheScene.h"
-#include "../../include/Helpers/NodeHelper.h"
-#include "../../include/Helpers/VectorHelper.h"
-#include "../../include/Handlers/ComponentsHandler.h"
+#include "Helpers/PrismaMath.h"
+#include "SceneData/MeshIndirect.h"
+#include "GlobalData/CacheScene.h"
+#include "Helpers/NodeHelper.h"
+#include "Helpers/VectorHelper.h"
+#include "Handlers/ComponentsHandler.h"
 
 static uint64_t uuidNode = 0;
 

@@ -1,4 +1,4 @@
-#include "../../include/GlobalData/GlobalData.h"
+#include "GlobalData/GlobalData.h"
 
 namespace Prisma
 {

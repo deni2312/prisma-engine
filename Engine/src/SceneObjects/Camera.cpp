@@ -1,4 +1,4 @@
-#include "../../include/SceneObjects/Camera.h"
+#include "SceneObjects/Camera.h"
 #include "glm/ext/matrix_transform.hpp"
 
 void Prisma::Camera::position(const glm::vec3& position)

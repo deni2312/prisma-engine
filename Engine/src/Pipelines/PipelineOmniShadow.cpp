@@ -1,9 +1,9 @@
-#include "../../include/Pipelines/PipelineOmniShadow.h"
+#include "Pipelines/PipelineOmniShadow.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
-#include "../../include/SceneData/MeshIndirect.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Helpers/SettingsLoader.h"
+#include "SceneData/MeshIndirect.h"
+#include "GlobalData/GlobalData.h"
+#include "Helpers/SettingsLoader.h"
 
 
 //static std::shared_ptr<Prisma::Shader> m_shader = nullptr;

@@ -1,6 +1,6 @@
-#include "../../include/Pipelines/PipelinePrePass.h"
-#include "../../include/SceneData/MeshIndirect.h"
-#include "../../include/Helpers/SettingsLoader.h"
+#include "Pipelines/PipelinePrePass.h"
+#include "SceneData/MeshIndirect.h"
+#include "Helpers/SettingsLoader.h"
 
 Prisma::PipelinePrePass::PipelinePrePass()
 {

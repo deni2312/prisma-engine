@@ -1,6 +1,6 @@
-#include "../../include/Components/Component.h"
+#include "Components/Component.h"
 #include <iostream>
-#include "../../include/GlobalData/GlobalData.h"
+#include "GlobalData/GlobalData.h"
 
 static uint64_t uuidComponent = 0;
 

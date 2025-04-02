@@ -1,4 +1,4 @@
-#include "../../include/Helpers/StringHelper.h"
+#include "Helpers/StringHelper.h"
 
 bool Prisma::StringHelper::endsWith(const std::string& value, const std::string& ending)
 {

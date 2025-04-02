@@ -1,5 +1,5 @@
-#include "../../include/Pipelines/PipelineHandler.h"
-#include "../../include/Helpers/SettingsLoader.h"
+#include "Pipelines/PipelineHandler.h"
+#include "Helpers/SettingsLoader.h"
 
 bool Prisma::PipelineHandler::initScene(SceneLoader::SceneParameters sceneParameters)
 {

@@ -1,5 +1,5 @@
-#include "../../include/Helpers/PrismaRender.h"
-#include "../../include/GlobalData/GlobalData.h"
+#include "Helpers/PrismaRender.h"
+#include "GlobalData/GlobalData.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"

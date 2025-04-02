@@ -1,6 +1,6 @@
-#include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
-#include "../../include/Helpers/PrismaRender.h"
-#include "../../include/Helpers/SettingsLoader.h"
+#include "Pipelines/PipelineDIffuseIrradiance.h"
+#include "Helpers/PrismaRender.h"
+#include "Helpers/SettingsLoader.h"
 #include "glm/gtc/type_ptr.inl"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 

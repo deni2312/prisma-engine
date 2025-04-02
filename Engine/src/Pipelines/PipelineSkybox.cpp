@@ -1,9 +1,9 @@
-#include "../../include/Pipelines/PipelineSkybox.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Pipelines/PipelineLUT.h"
-#include "../../include/Helpers/PrismaRender.h"
-#include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
-#include "../../include/Pipelines/PipelinePrefilter.h"
+#include "Pipelines/PipelineSkybox.h"
+#include "GlobalData/GlobalData.h"
+#include "Pipelines/PipelineLUT.h"
+#include "Helpers/PrismaRender.h"
+#include "Pipelines/PipelineDIffuseIrradiance.h"
+#include "Pipelines/PipelinePrefilter.h"
 
 
 #include "glm/glm.hpp"

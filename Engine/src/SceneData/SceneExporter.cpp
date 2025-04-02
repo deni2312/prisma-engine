@@ -1,9 +1,9 @@
-#include "../../include/SceneData/SceneExporter.h"
-#include "../../include/GlobalData/GlobalData.h"
+#include "SceneData/SceneExporter.h"
+#include "GlobalData/GlobalData.h"
 #include <assimp/Exporter.hpp>
-#include "../../include/Helpers/NodeHelper.h"
-#include "../../include/Pipelines/PipelineHandler.h"
-#include "../../include/SceneData/SceneExporterLayout.h"
+#include "Helpers/NodeHelper.h"
+#include "Pipelines/PipelineHandler.h"
+#include "SceneData/SceneExporterLayout.h"
 #include <future>
 
 

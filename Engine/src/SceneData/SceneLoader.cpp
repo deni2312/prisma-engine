@@ -1,14 +1,14 @@
-#include "../../include/SceneData/SceneLoader.h"
-#include "../../include/GlobalData/Defines.h"
+#include "SceneData/SceneLoader.h"
+#include "GlobalData/Defines.h"
 #include <iostream>
 #include <memory>
 #include "glm/gtx/string_cast.hpp"
-#include "../../include/Components/Component.h"
-#include "../../include/Components/MaterialComponent.h"
-#include "../../include/Helpers/Logger.h"
-#include "../../include/Helpers/PrismaMath.h"
-#include "../../include/Helpers/StringHelper.h"
-#include "../../include/Pipelines/PipelineHandler.h"
+#include "Components/Component.h"
+#include "Components/MaterialComponent.h"
+#include "Helpers/Logger.h"
+#include "Helpers/PrismaMath.h"
+#include "Helpers/StringHelper.h"
+#include "Pipelines/PipelineHandler.h"
 
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters)
 {

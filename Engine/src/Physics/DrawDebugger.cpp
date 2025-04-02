@@ -1,7 +1,7 @@
-#include "../../include/Physics/DrawDebugger.h"
-#include "../../include/Helpers/PrismaMath.h"
+#include "Physics/DrawDebugger.h"
+#include "Helpers/PrismaMath.h"
 #include <glm/gtx/string_cast.hpp>
-#include "../../include/SceneObjects/Mesh.h"
+#include "SceneObjects/Mesh.h"
 
 void Prisma::DrawDebugger::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor)
 {

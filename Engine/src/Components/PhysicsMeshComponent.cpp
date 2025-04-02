@@ -1,11 +1,11 @@
-#include "../../include/Components/PhysicsMeshComponent.h"
-#include "../../include/Physics/PhysicsData.h"
+#include "Components/PhysicsMeshComponent.h"
+#include "Physics/PhysicsData.h"
 #include <glm/gtx/string_cast.hpp>
 
 #include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
 #include "Jolt/Physics/SoftBody/SoftBodyCreationSettings.h"
-#include "../../include/SceneData/ComponentTypeLayout.h"
-#include "../../include/SceneData/MeshIndirect.h"
+#include "SceneData/ComponentTypeLayout.h"
+#include "SceneData/MeshIndirect.h"
 #include "Jolt/Physics/Collision/Shape/HeightFieldShape.h"
 
 void Prisma::PhysicsMeshComponent::ui()

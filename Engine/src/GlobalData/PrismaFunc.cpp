@@ -1,9 +1,9 @@
-#include "../../include/GlobalData/PrismaFunc.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/GlobalData/Defines.h"
-#include "../../include/Helpers/Settings.h"
-#include "../../include/Helpers/SettingsLoader.h"
-#include "../../include/Helpers/Logger.h"
+#include "GlobalData/PrismaFunc.h"
+#include "GlobalData/GlobalData.h"
+#include "GlobalData/Defines.h"
+#include "Helpers/Settings.h"
+#include "Helpers/SettingsLoader.h"
+#include "Helpers/Logger.h"
 
 #include <iostream>
 

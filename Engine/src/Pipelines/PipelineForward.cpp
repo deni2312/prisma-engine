@@ -1,23 +1,23 @@
-#include "../../include/Pipelines/PipelineForward.h"
+#include "Pipelines/PipelineForward.h"
 
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Pipelines/PipelineForward.h"
-#include "../../include/Helpers/PrismaRender.h"
-#include "../../include/SceneData/MeshIndirect.h"
-#include "../../include/SceneObjects/Mesh.h"
-#include "../../include/Pipelines/PipelineSkybox.h"
-#include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
-#include "../../include/Pipelines/PipelinePrefilter.h"
-#include "../../include/Pipelines/PipelineLUT.h"
+#include "GlobalData/GlobalData.h"
+#include "Pipelines/PipelineForward.h"
+#include "Helpers/PrismaRender.h"
+#include "SceneData/MeshIndirect.h"
+#include "SceneObjects/Mesh.h"
+#include "Pipelines/PipelineSkybox.h"
+#include "Pipelines/PipelineDIffuseIrradiance.h"
+#include "Pipelines/PipelinePrefilter.h"
+#include "Pipelines/PipelineLUT.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include <memory>
 #include <iostream>
-#include "../../include/Helpers/SettingsLoader.h"
-#include "../../include/Helpers/ClusterCalculation.h"
+#include "Helpers/SettingsLoader.h"
+#include "Helpers/ClusterCalculation.h"
 #include <random>
-#include "../../include/Postprocess/Postprocess.h"
-#include "../../include/Handlers/ComponentsHandler.h"
+#include "Postprocess/Postprocess.h"
+#include "Handlers/ComponentsHandler.h"
 
 #include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
 #include "Graphics/GraphicsEngineD3D12/interface/EngineFactoryD3D12.h"
@@ -33,9 +33,9 @@
 #include "Graphics/GraphicsTools/interface/GraphicsUtilities.h"
 #include <Graphics/GraphicsTools/interface/MapHelper.hpp>
 
-#include "../../include/Handlers/LightHandler.h"
-#include "../../include/Pipelines/PipelineHandler.h"
-#include "../../include/GlobalData/GlobalShaderNames.h"
+#include "Handlers/LightHandler.h"
+#include "Pipelines/PipelineHandler.h"
+#include "GlobalData/GlobalShaderNames.h"
 #include <string>
 
 using namespace Diligent;

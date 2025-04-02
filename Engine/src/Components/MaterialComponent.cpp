@@ -1,9 +1,9 @@
-#include "../../include/Components/MaterialComponent.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/GlobalData/CacheScene.h"
-#include "../../include/GlobalData/GlobalShaderNames.h"
-#include "../../include/Helpers/WindowsHelper.h"
-#include "../../include/Pipelines/PipelineHandler.h"
+#include "Components/MaterialComponent.h"
+#include "GlobalData/GlobalData.h"
+#include "GlobalData/CacheScene.h"
+#include "GlobalData/GlobalShaderNames.h"
+#include "Helpers/WindowsHelper.h"
+#include "Pipelines/PipelineHandler.h"
 
 static unsigned int materialId = 0;
 

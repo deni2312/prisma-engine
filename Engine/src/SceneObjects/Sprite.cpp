@@ -1,5 +1,5 @@
-#include "../../include/SceneObjects/Sprite.h"
-#include "../../include/Helpers/PrismaRender.h"
+#include "SceneObjects/Sprite.h"
+#include "Helpers/PrismaRender.h"
 #include <glm/gtx/string_cast.hpp>
 
 Prisma::Sprite::Sprite()

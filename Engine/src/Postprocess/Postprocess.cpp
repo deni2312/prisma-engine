@@ -1,4 +1,4 @@
-#include "../../include/Postprocess/Postprocess.h"
+#include "Postprocess/Postprocess.h"
 
 Prisma::Postprocess::Postprocess()
 {

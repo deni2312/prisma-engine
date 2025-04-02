@@ -1,7 +1,7 @@
-#include "../../include/Pipelines/PipelineSSR.h"
-#include "../../include/Helpers/PrismaRender.h"
-#include "../../include/Helpers/SettingsLoader.h"
-#include "../../include/engine.h"
+#include "Pipelines/PipelineSSR.h"
+#include "Helpers/PrismaRender.h"
+#include "Helpers/SettingsLoader.h"
+#include "engine.h"
 
 Prisma::PipelineSSR::PipelineSSR()
 {

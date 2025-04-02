@@ -1,6 +1,6 @@
-#include "../../include/Handlers/LoadingHandler.h"
-#include "../../include/SceneData/MeshIndirect.h"
-#include "../../include/Helpers/StringHelper.h"
+#include "Handlers/LoadingHandler.h"
+#include "SceneData/MeshIndirect.h"
+#include "Helpers/StringHelper.h"
 
 void Prisma::LoadingHandler::load(std::string scene, Prisma::SceneLoader::SceneParameters sceneParameters)
 {

@@ -1,4 +1,4 @@
-#include "../../include/Helpers/Logger.h"
+#include "Helpers/Logger.h"
 
 Prisma::Logger::Logger()
 {

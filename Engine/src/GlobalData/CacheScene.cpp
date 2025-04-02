@@ -1,4 +1,4 @@
-#include "../../include/GlobalData/CacheScene.h"
+#include "GlobalData/CacheScene.h"
 
 bool Prisma::CacheScene::updateLights()
 {

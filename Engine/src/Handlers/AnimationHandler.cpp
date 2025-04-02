@@ -1,8 +1,8 @@
-#include "../../include/Handlers/AnimationHandler.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/GlobalData/Defines.h"
-#include "../../include/Helpers/TimeCounter.h"
-#include "../../include/SceneData/MeshIndirect.h"
+#include "Handlers/AnimationHandler.h"
+#include "GlobalData/GlobalData.h"
+#include "GlobalData/Defines.h"
+#include "Helpers/TimeCounter.h"
+#include "SceneData/MeshIndirect.h"
 
 
 void Prisma::AnimationHandler::fill()

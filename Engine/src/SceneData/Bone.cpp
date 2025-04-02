@@ -1,4 +1,4 @@
-#include "../../include/SceneData/Bone.h"
+#include "SceneData/Bone.h"
 
 Prisma::Bone::Bone(const std::string& name, int ID, const aiNodeAnim* channel)
 	:

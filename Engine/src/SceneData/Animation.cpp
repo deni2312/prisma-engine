@@ -1,4 +1,4 @@
-#include "../../include/SceneData/Animation.h"
+#include "SceneData/Animation.h"
 
 static unsigned int uid = 0;
 

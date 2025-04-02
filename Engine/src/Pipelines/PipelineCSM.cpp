@@ -1,15 +1,15 @@
-#include "../../include/Pipelines/PipelineCSM.h"
+#include "Pipelines/PipelineCSM.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
-#include "../../include/SceneData/MeshIndirect.h"
-#include "../../include/GlobalData/GlobalData.h"
+#include "SceneData/MeshIndirect.h"
+#include "GlobalData/GlobalData.h"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Helpers/SettingsLoader.h"
+#include "GlobalData/GlobalData.h"
+#include "Helpers/SettingsLoader.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../../../GUI/include/TextureInfo.h"
-#include "../../include/Helpers/PrismaRender.h"
+#include "Helpers/PrismaRender.h"
 //
 //static std::shared_ptr<Prisma::Shader> shader = nullptr;
 //

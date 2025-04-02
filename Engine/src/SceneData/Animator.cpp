@@ -1,6 +1,6 @@
-#include "../../include/SceneData/Animator.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/GlobalData/CacheScene.h"
+#include "SceneData/Animator.h"
+#include "GlobalData/GlobalData.h"
+#include "GlobalData/CacheScene.h"
 #include <glm/gtx/string_cast.hpp>
 
 

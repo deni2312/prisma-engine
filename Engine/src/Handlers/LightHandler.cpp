@@ -1,9 +1,9 @@
-#include "../../include/Handlers/LightHandler.h"
-#include "../../include/GlobalData/GlobalData.h"
+#include "Handlers/LightHandler.h"
+#include "GlobalData/GlobalData.h"
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
-#include "../../include/GlobalData/CacheScene.h"
-#include "../../include/GlobalData/GlobalShaderNames.h"
+#include "GlobalData/CacheScene.h"
+#include "GlobalData/GlobalShaderNames.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 
 

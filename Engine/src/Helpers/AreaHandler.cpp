@@ -1,6 +1,6 @@
-#include "../../include/Helpers/AreaHandler.h"
+#include "Helpers/AreaHandler.h"
 #include <GLFW/glfw3.h>
-#include "../../include/GlobalData/GlobalData.h"
+#include "GlobalData/GlobalData.h"
 #include <fstream>
 
 

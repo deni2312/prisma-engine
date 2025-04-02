@@ -1,10 +1,10 @@
-﻿#include "../../include/Containers/Texture.h"
+﻿#include "Containers/Texture.h"
 #include <iostream>
 #include <tuple>
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Pipelines/PipelineHandler.h"
+#include "GlobalData/GlobalData.h"
+#include "Pipelines/PipelineHandler.h"
 
-#include "../../include/Helpers/Logger.h"
+#include "Helpers/Logger.h"
 #include "TextureLoader/interface/TextureLoader.h"
 #include "TextureLoader/interface/TextureUtilities.h"
 

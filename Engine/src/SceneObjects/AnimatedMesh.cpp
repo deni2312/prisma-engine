@@ -1,6 +1,6 @@
-#include "../../include/SceneObjects/AnimatedMesh.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/SceneData/MeshIndirect.h"
+#include "SceneObjects/AnimatedMesh.h"
+#include "GlobalData/GlobalData.h"
+#include "SceneData/MeshIndirect.h"
 
 void Prisma::AnimatedMesh::computeAABB()
 {

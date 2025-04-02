@@ -1,4 +1,4 @@
-#include "../../include/Components/CullingComponent.h"
+#include "Components/CullingComponent.h"
 
 Prisma::CullingComponent::CullingComponent()
 {

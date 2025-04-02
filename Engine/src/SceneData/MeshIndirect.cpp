@@ -1,16 +1,16 @@
-#include "../../include/SceneData/MeshIndirect.h"
-#include "../../include/GlobalData/GlobalData.h"
+#include "SceneData/MeshIndirect.h"
+#include "GlobalData/GlobalData.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include <iostream>
 
-#include "../../include/GlobalData/GlobalData.h"
+#include "GlobalData/GlobalData.h"
 #include <glm/gtx/string_cast.hpp>
-#include "../../include/GlobalData/CacheScene.h"
-#include "../../include/Helpers/SettingsLoader.h"
-#include "../../include/Helpers/FrustumCulling.h"
-#include "../../include/GlobalData/GlobalShaderNames.h"
+#include "GlobalData/CacheScene.h"
+#include "Helpers/SettingsLoader.h"
+#include "Helpers/FrustumCulling.h"
+#include "GlobalData/GlobalShaderNames.h"
 
 
 void Prisma::MeshIndirect::sort() const

@@ -1,4 +1,4 @@
-#include "../../include/Components/DecalComponent.h"
+#include "Components/DecalComponent.h"
 
 Prisma::DecalComponent::DecalComponent() {
 	name("Decal");

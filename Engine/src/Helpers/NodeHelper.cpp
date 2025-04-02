@@ -1,5 +1,5 @@
-#include "../../include/Helpers/NodeHelper.h"
-#include "../../include/GlobalData/GlobalData.h"
+#include "Helpers/NodeHelper.h"
+#include "GlobalData/GlobalData.h"
 
 std::shared_ptr<Prisma::Node> Prisma::NodeHelper::find(std::shared_ptr<Node> root, const std::string& name)
 {

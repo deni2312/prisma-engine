@@ -1,11 +1,11 @@
-#include "../../include/Helpers/ClusterCalculation.h"
-#include "../../include/Helpers/SettingsLoader.h"
-#include "../../include/GlobalData/GlobalData.h"
+#include "Helpers/ClusterCalculation.h"
+#include "Helpers/SettingsLoader.h"
+#include "GlobalData/GlobalData.h"
 #include <glm/gtx/string_cast.hpp>
 
 #include "Graphics/GraphicsTools/interface/ShaderMacroHelper.hpp"
-#include "../../include/GlobalData/GlobalShaderNames.h"
-#include "../../include/Handlers/MeshHandler.h"
+#include "GlobalData/GlobalShaderNames.h"
+#include "Handlers/MeshHandler.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 
 Prisma::ClusterCalculation::ClusterCalculation(Diligent::RefCntAutoPtr<Diligent::IBuffer> omniLights, Diligent::RefCntAutoPtr<Diligent::IBuffer> lightSizes)

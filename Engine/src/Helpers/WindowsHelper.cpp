@@ -1,4 +1,4 @@
-#include "../../include/Helpers/WindowsHelper.h"
+#include "Helpers/WindowsHelper.h"
 #include <filesystem>
 #include <Windows.h>
 

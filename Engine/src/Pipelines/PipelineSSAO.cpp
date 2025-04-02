@@ -1,7 +1,7 @@
-#include "../../include/Pipelines/PipelineSSAO.h"
-#include "../../include/Helpers/SettingsLoader.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Helpers/PrismaRender.h"
+#include "Pipelines/PipelineSSAO.h"
+#include "Helpers/SettingsLoader.h"
+#include "GlobalData/GlobalData.h"
+#include "Helpers/PrismaRender.h"
 
 #include <random>
 #include <glm/gtx/string_cast.hpp>

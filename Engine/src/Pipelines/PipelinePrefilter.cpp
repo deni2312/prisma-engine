@@ -1,12 +1,12 @@
-#include "../../include/Pipelines/PipelinePrefilter.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/Pipelines/PipelineDIffuseIrradiance.h"
-#include "../../include/Helpers/PrismaRender.h"
+#include "Pipelines/PipelinePrefilter.h"
+#include "GlobalData/GlobalData.h"
+#include "Pipelines/PipelineDIffuseIrradiance.h"
+#include "Helpers/PrismaRender.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "../../include/Helpers/SettingsLoader.h"
+#include "Helpers/SettingsLoader.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 
 

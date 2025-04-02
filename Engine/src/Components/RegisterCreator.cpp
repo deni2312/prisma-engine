@@ -1,8 +1,8 @@
-#include "../../include/Components/RegisterCreator.h"
-#include "../../include/Components/PhysicsMeshComponent.h"
-#include "../../include/Components/CloudComponent.h"
-#include "../../include/Components/CullingComponent.h"
-#include "../../include/Components/DecalComponent.h"
+#include "Components/RegisterCreator.h"
+#include "Components/PhysicsMeshComponent.h"
+#include "Components/CloudComponent.h"
+#include "Components/CullingComponent.h"
+#include "Components/DecalComponent.h"
 
 
 void Prisma::RegisterData::init()

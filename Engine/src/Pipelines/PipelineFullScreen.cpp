@@ -1,5 +1,5 @@
-#include "../../include/Pipelines/PipelineFullScreen.h"
-#include "../../include/Helpers/PrismaRender.h"
+#include "Pipelines/PipelineFullScreen.h"
+#include "Helpers/PrismaRender.h"
 
 Prisma::PipelineFullScreen::PipelineFullScreen()
 {

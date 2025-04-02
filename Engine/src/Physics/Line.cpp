@@ -1,4 +1,4 @@
-#include "../../include/Physics/Line.h"
+#include "Physics/Line.h"
 
 Prisma::Line::Line()
 {

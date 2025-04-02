@@ -1,4 +1,4 @@
-#include "../../include/Helpers/ScenePrinter.h"
+#include "Helpers/ScenePrinter.h"
 
 void Prisma::ScenePrinter::printScene(std::shared_ptr<Node> nodeRoot, int depth)
 {

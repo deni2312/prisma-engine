@@ -1,8 +1,8 @@
-#include "../../include/Components/CloudComponent.h"
+#include "Components/CloudComponent.h"
 #include <chrono>
 #include <glm/gtx/string_cast.hpp>
-#include "../../include/Helpers/SettingsLoader.h"
-#include "../../include/Helpers/PrismaRender.h"
+#include "Helpers/SettingsLoader.h"
+#include "Helpers/PrismaRender.h"
 
 Prisma::CloudComponent::CloudComponent() : Component{}
 {

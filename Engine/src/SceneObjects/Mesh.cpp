@@ -1,11 +1,11 @@
-#include "../../include/SceneObjects/Mesh.h"
-#include "../../include/GlobalData/GlobalData.h"
-#include "../../include/SceneData/MeshIndirect.h"
+#include "SceneObjects/Mesh.h"
+#include "GlobalData/GlobalData.h"
+#include "SceneData/MeshIndirect.h"
 #include "glm/glm.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include <string>
-#include "../../include/GlobalData/CacheScene.h"
+#include "GlobalData/CacheScene.h"
 
 void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices, bool compute)
 {

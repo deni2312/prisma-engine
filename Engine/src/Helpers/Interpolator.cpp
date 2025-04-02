@@ -1,4 +1,4 @@
-#include "../../include/Helpers/Interpolator.h"
+#include "Helpers/Interpolator.h"
 #include <glm/gtc/quaternion.hpp>
 
 Prisma::Interpolator::Interpolator() : m_currentIndex(0), m_elapsedTime(0.0f) {}
