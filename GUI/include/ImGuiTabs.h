@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include "../../Engine/include/SceneObjects/Node.h"
+#include "SceneObjects/Node.h"
 #include "ImGuiCamera.h"
-#include "../../Engine/include/Containers/Texture.h"
-#include "../../Engine/include/GlobalData/InstanceData.h"
+#include "Containers/Texture.h"
+#include "GlobalData/InstanceData.h"
 
 namespace Prisma
 {

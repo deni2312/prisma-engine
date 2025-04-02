@@ -1,6 +1,6 @@
 #pragma once
-#include "../../Engine/include/GlobalData/InstanceData.h"
-#include "../../Engine/include/GlobalData/Platform.h"
+#include "GlobalData/InstanceData.h"
+#include "GlobalData/Platform.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "Graphics/GraphicsEngine/interface/Buffer.h"

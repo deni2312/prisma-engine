@@ -1,6 +1,6 @@
 #include "../include/ImGuiLog.h"
 
-#include "../../Engine/include/Helpers/Logger.h"
+#include "Helpers/Logger.h"
 #include "ThirdParty/imgui/imgui.h"
 
 

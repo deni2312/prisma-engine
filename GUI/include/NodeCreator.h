@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include "../../Engine/include/SceneObjects/Mesh.h"
-#include "../../Engine/include/GlobalData/GlobalData.h"
+#include "SceneObjects/Mesh.h"
+#include "GlobalData/GlobalData.h"
 
 
 namespace Prisma

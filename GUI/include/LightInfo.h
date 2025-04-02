@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../Engine/include/SceneObjects/Light.h"
-#include "../../Engine/include/GlobalData/GlobalData.h"
-#include "../../Engine/include/Helpers/PrismaMath.h"
+#include "SceneObjects/Light.h"
+#include "GlobalData/GlobalData.h"
+#include "Helpers/PrismaMath.h"
 #include "glm/gtx/matrix_decompose.hpp"
 #include <functional>
 #include "NodeViewer.h"

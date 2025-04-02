@@ -1,9 +1,9 @@
 #include <iostream>
 #include "../include/SettingsTab.h"
-#include "../../Engine/include/GlobalData/PrismaFunc.h"
-#include "../../Engine/include/GlobalData/CacheScene.h"
-#include "../../Engine/include/engine.h"
-#include "../../Engine/include/Postprocess/Postprocess.h"
+#include "GlobalData/PrismaFunc.h"
+#include "GlobalData/CacheScene.h"
+#include "engine.h"
+#include "Postprocess/Postprocess.h"
 #include "../include/ImGuiDebug.h"
 #include "../include/TextureInfo.h"
 #include <ThirdParty/imgui/imgui.h>

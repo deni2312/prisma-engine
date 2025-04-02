@@ -4,9 +4,9 @@
 #include <string>
 
 #include "ImGuiCamera.h"
-#include "../../Engine/include/GlobalData/InstanceData.h"
-#include "../../Engine/include/Helpers/TimeCounter.h"
-#include "../../Engine/include/SceneData/SceneExporter.h"
+#include "GlobalData/InstanceData.h"
+#include "Helpers/TimeCounter.h"
+#include "SceneData/SceneExporter.h"
 #include "FolderView.h"
 #include "AddingMenu.h"
 #include "MeshInfo.h"

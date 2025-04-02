@@ -5,7 +5,7 @@
 #include <codecvt>
 
 #include "ImGuiLog.h"
-#include "../../Engine/include/Containers/Texture.h"
+#include "Containers/Texture.h"
 #include "glm/vec2.hpp"
 
 namespace Prisma

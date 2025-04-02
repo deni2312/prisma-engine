@@ -1,5 +1,5 @@
 #pragma once
-#include "../../Engine/include/GlobalData/InstanceData.h"
+#include "GlobalData/InstanceData.h"
 #include <functional>
 
 

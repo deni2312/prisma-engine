@@ -1,6 +1,6 @@
 #pragma once
-#include "../../../../Engine/include/Helpers/TimeCounter.h"
-#include "../../../../Engine/include/Postprocess/PostprocessEffect.h"
+#include "../../Helpers/TimeCounter.h"
+#include "../../Postprocess/PostprocessEffect.h"
 
 class Shockwave : public Prisma::PostprocessEffect
 {

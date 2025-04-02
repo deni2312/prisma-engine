@@ -1,8 +1,8 @@
 #include "../include/PlayerController.h"
-#include "../../Engine/include/Components/PhysicsMeshComponent.h"
-#include "../../Engine/include/Components/CullingComponent.h"
+#include "Components/PhysicsMeshComponent.h"
+#include "Components/CullingComponent.h"
 #include <glm/gtx/string_cast.hpp>
-#include "../../Engine/include/Components/CloudComponent.h"
+#include "Components/CloudComponent.h"
 #include "../Components/include/TerrainComponent.h"
 #include "../Components/include/ShockwaveComponent.h"
 

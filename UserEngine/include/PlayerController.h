@@ -1,13 +1,13 @@
-#include "../../Engine/include/engine.h"
-#include "../../Engine/include/SceneObjects/Node.h"
-#include "../../Engine/include/SceneObjects/Camera.h"
-#include "../../Engine/include/Helpers/NodeHelper.h"
-#include "../../Engine/include/Helpers/ScenePrinter.h"
-#include "../../Engine/include/GlobalData/Keys.h"
-#include "../../Engine/include/GlobalData/GlobalData.h"
-#include "../../Engine/include/Components/PhysicsMeshComponent.h"
+#include "engine.h"
+#include "SceneObjects/Node.h"
+#include "SceneObjects/Camera.h"
+#include "Helpers/NodeHelper.h"
+#include "Helpers/ScenePrinter.h"
+#include "GlobalData/Keys.h"
+#include "GlobalData/GlobalData.h"
+#include "Components/PhysicsMeshComponent.h"
 #include "ParticleController.h"
-#include "../../Engine/include/Helpers/Interpolator.h"
+#include "Helpers/Interpolator.h"
 
 class PlayerController
 {

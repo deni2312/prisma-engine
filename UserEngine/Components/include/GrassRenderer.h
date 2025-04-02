@@ -1,10 +1,10 @@
 #pragma once
 #include <memory>
-#include "../../../Engine/include/Containers/Texture.h"
-#include "../../../Engine/include/SceneObjects/Mesh.h"
+#include "Containers/Texture.h"
+#include "SceneObjects/Mesh.h"
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
-#include "../../../Engine/include/Helpers/PrismaRender.h"
+#include "Helpers/PrismaRender.h"
 #include <chrono>
 
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "../../../Engine/include/Postprocess/PostprocessEffect.h"
-#include "../../../Engine/include/Helpers/PrismaRender.h"
+#include "../Postprocess/PostprocessEffect.h"
+#include "../Helpers/PrismaRender.h"
 
 namespace Prisma
 {

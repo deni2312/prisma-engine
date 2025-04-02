@@ -3,13 +3,13 @@
 #include <iostream> // For std::cout
 
 #include "imgui_internal.h"
-#include "../../Engine/include/Helpers/NodeHelper.h"
-#include "../../Engine/include/SceneObjects/Mesh.h"
-#include "../../Engine/include/GlobalData/CacheScene.h"
+#include "Helpers/NodeHelper.h"
+#include "SceneObjects/Mesh.h"
+#include "GlobalData/CacheScene.h"
 #include "../include/ImGuiHelper.h"
 #include "imgui_stdlib.h"
-#include "../../Engine/include/GlobalData/GlobalData.h"
-#include "../../Engine/include/Helpers/StringHelper.h"
+#include "GlobalData/GlobalData.h"
+#include "Helpers/StringHelper.h"
 
 std::string textSearch;
 

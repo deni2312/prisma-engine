@@ -2,8 +2,8 @@
 #include "../include/ImGuiDebug.h"
 #include "glm/gtx/string_cast.hpp"
 #include <tuple>
-#include "../../Engine/include/Components/PhysicsMeshComponent.h"
-#include "../../Engine/include/Helpers/WindowsHelper.h"
+#include "Components/PhysicsMeshComponent.h"
+#include "Helpers/WindowsHelper.h"
 #include "../include/NodeViewer.h"
 #include "ThirdParty/imgui/imgui.h"
 

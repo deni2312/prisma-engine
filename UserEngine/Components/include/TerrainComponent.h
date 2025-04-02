@@ -3,8 +3,8 @@
 #include <memory>
 #include <chrono>
 #include <functional>
-#include "../../../Engine/include/Containers/Texture.h"
-#include "../../../Engine/include/SceneObjects/Mesh.h"
+#include "Containers/Texture.h"
+#include "SceneObjects/Mesh.h"
 #include "GrassRenderer.h"
 
 namespace Prisma

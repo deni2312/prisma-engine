@@ -1,8 +1,8 @@
 #include "../include/ScenePipeline.h"
 
-#include "../../Engine/include/GlobalData/PrismaFunc.h"
-#include "../../Engine/include/Helpers/PrismaRender.h"
-#include "../../Engine/include/Pipelines/PipelineHandler.h"
+#include "GlobalData/PrismaFunc.h"
+#include "Helpers/PrismaRender.h"
+#include "Pipelines/PipelineHandler.h"
 #include "Graphics/GraphicsEngine/interface/GraphicsTypes.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 

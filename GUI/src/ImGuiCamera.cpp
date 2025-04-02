@@ -1,10 +1,10 @@
 #include "../include/ImGuiCamera.h"
-#include "../../Engine/include/GlobalData/Keys.h"
-#include "../../Engine/include/SceneObjects/Mesh.h"
+#include "GlobalData/Keys.h"
+#include "SceneObjects/Mesh.h"
 #include <iostream>
-#include "../../Engine/include/Helpers/SettingsLoader.h"
-#include "../../Engine/include/SceneData/SceneExporter.h"
-#include "../../Engine/include/engine.h"
+#include "Helpers/SettingsLoader.h"
+#include "SceneData/SceneExporter.h"
+#include "engine.h"
 #include <imgui.h>
 
 #include "../imguizmo/imguizmo.h"

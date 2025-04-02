@@ -3,8 +3,8 @@
 #include <memory>
 #include "glm/glm.hpp"
 #include <string>
-#include "../../Engine/include/GlobalData/InstanceData.h"
-#include "../../Engine/include/Containers/Texture.h"
+#include "GlobalData/InstanceData.h"
+#include "Containers/Texture.h"
 
 namespace Prisma
 {

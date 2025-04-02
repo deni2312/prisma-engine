@@ -1,7 +1,7 @@
 #include "../include/UserEngine.h"
-#include "../../Engine/include/Pipelines/PipelineSkybox.h"
-#include "../../Engine/include/Components/PhysicsMeshComponent.h"
-#include "../../Engine/include/SceneData/SceneLoader.h"
+#include "Pipelines/PipelineSkybox.h"
+#include "Components/PhysicsMeshComponent.h"
+#include "SceneData/SceneLoader.h"
 
 #include <memory>
 

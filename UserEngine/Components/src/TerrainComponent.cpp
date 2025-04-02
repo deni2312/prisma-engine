@@ -1,11 +1,11 @@
 #include "../include/TerrainComponent.h"
-#include "../../../Engine/include/Components/Component.h"
+#include "Components/Component.h"
 #include <glm/glm.hpp>
-#include "../../../Engine/include/Helpers/PrismaRender.h"
-#include "../../../Engine/include/Components/PhysicsMeshComponent.h"
+#include "Helpers/PrismaRender.h"
+#include "Components/PhysicsMeshComponent.h"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include "../../../Engine/include/Helpers/SettingsLoader.h"
+#include "Helpers/SettingsLoader.h"
 
 Prisma::TerrainComponent::TerrainComponent() : Component{}
 {

@@ -1,8 +1,8 @@
 #include "../include/FolderView.h"
 #include "../include/ImguiHelper.h"
-#include "../../Engine/include/Handlers/LoadingHandler.h"
-#include "../../Engine/include/Helpers/StringHelper.h"
-#include "../../Engine/include/SceneData/MeshIndirect.h"
+#include "Handlers/LoadingHandler.h"
+#include "Helpers/StringHelper.h"
+#include "SceneData/MeshIndirect.h"
 #include "../include/TextureInfo.h"
 #include "ThirdParty/imgui/imgui.h"
 

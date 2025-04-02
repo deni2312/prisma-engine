@@ -1,5 +1,5 @@
 #include "../include/ShockwaveComponent.h"
-#include "../../../Engine/include/Postprocess/Postprocess.h"
+#include "../Postprocess/Postprocess.h"
 
 ShockwaveComponent::ShockwaveComponent()
 {

@@ -1,12 +1,12 @@
 #pragma once
-#include "../../Engine/include/GlobalData/InstanceData.h"
-#include "../../Engine/include/Components/Component.h"
+#include "GlobalData/InstanceData.h"
+#include "Components/Component.h"
 #include <functional>
 #include <glm/gtc/type_ptr.hpp>
-#include "../../Engine/include/SceneObjects/Camera.h"
-#include "../../Engine/include/Containers/Texture.h"
+#include "SceneObjects/Camera.h"
+#include "Containers/Texture.h"
 #include <iostream>
-#include "../../Engine/include/Helpers/NodeHelper.h"
+#include "Helpers/NodeHelper.h"
 
 
 namespace Prisma

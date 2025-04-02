@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "../../Engine/include/GlobalData/GlobalData.h"
+#include "GlobalData/GlobalData.h"
 #include "../include/ImGuiHelper.h"
 #include "ThirdParty/imgui/imgui.h"
 

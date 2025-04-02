@@ -1,5 +1,5 @@
 #include "../include/Shockwave.h"
-#include "../../../../Engine/include/Helpers/PrismaRender.h"
+#include "../../Helpers/PrismaRender.h"
 
 static std::shared_ptr<Prisma::Shader> shader=nullptr;
 

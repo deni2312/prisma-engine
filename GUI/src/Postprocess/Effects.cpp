@@ -1,5 +1,5 @@
 #include "../../include/Postprocess/Effects.h"
-#include "../../../Engine/include/Helpers/SettingsLoader.h"
+#include "../Helpers/SettingsLoader.h"
 #include "../../include/TextureInfo.h"
 
 Prisma::Effects::Effects()

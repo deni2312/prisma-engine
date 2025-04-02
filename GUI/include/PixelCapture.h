@@ -4,8 +4,8 @@
 #include <memory>
 #include "glm/glm.hpp"
 #include <string>
-#include "../../Engine/include/SceneObjects/Mesh.h"
-#include "../../Engine/include/GlobalData/InstanceData.h"
+#include "SceneObjects/Mesh.h"
+#include "GlobalData/InstanceData.h"
 
 namespace Prisma
 {

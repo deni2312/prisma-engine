@@ -1,6 +1,6 @@
 #pragma once
-#include "../../Engine/include/SceneObjects/Camera.h"
-#include "../../Engine/include/Helpers/Settings.h"
+#include "SceneObjects/Camera.h"
+#include "Helpers/Settings.h"
 #include <memory>
 
 namespace Prisma
