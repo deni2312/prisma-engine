@@ -236,6 +236,9 @@ void Prisma::ImguiDebug::drawGui()
 			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Clipping Invocations:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.ClippingInvocations);
 			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Clipping Primitives:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.ClippingPrimitives);
 			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("PS Invocations:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.PSInvocations);
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Input Vertices:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.PipelineStats.InputVertices);
+			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Text("Occlusion:"); ImGui::TableSetColumnIndex(1); ImGui::Text("%d", query.Occlusion.NumSamples);
+
 
 			ImGui::EndTable();
 		}
