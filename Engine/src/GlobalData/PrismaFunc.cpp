@@ -318,6 +318,11 @@ void Prisma::PrismaFunc::init()
 		auto* pFactoryVk = GetEngineFactoryVk();
 
 		EngineVkCreateInfo EngineCI;
+		EngineCI.Features.OcclusionQueries = DEVICE_FEATURE_STATE_OPTIONAL;
+		EngineCI.Features.BinaryOcclusionQueries = DEVICE_FEATURE_STATE_OPTIONAL;
+		EngineCI.Features.TimestampQueries = DEVICE_FEATURE_STATE_OPTIONAL;
+		EngineCI.Features.PipelineStatisticsQueries = DEVICE_FEATURE_STATE_OPTIONAL;
+		EngineCI.Features.DurationQueries = DEVICE_FEATURE_STATE_OPTIONAL;
 		EngineCI.Features.ShaderResourceRuntimeArrays = DEVICE_FEATURE_STATE_ENABLED;
 		pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext);
 		pFactoryVk->CreateSwapChainVk(m_contextData.m_pDevice, m_contextData.m_pImmediateContext, SCDesc, Window, &m_contextData.m_pSwapChain);
