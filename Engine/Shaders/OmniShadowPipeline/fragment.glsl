@@ -1,8 +1,11 @@
-#version 460 core
-in vec4 FragPos;
 
-uniform vec3 lightPos;
-uniform float far_plane;
+layout(location = 0) in vec4 FragPos;
+
+uniform LightPlane{
+    vec3 lightPos;
+    float far_plane;
+};
+
 
 void main()
 {

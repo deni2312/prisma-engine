@@ -3,11 +3,17 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "SceneData/MeshIndirect.h"
 #include "GlobalData/GlobalData.h"
+#include "GlobalData/GlobalShaderNames.h"
 #include "Helpers/SettingsLoader.h"
 
 
 //static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
 //static std::shared_ptr<Prisma::Shader> m_shaderAnimation = nullptr;
+
+
+Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+
+static bool initShadow = false;
 
 Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int height, bool post): m_width{width},
 	m_height{height}
@@ -20,6 +26,7 @@ Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int 
 
 void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 {
+    std::cout << "a" << std::endl;
 	/*m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(m_width) / static_cast<float>(m_height),
 	                                m_nearPlane, m_farPlane);
 	m_shadowTransforms.clear();
@@ -126,6 +133,188 @@ void Prisma::PipelineOmniShadow::init()
 			m_shaderAnimation->getUniformPosition("shadowMatrices[" + std::to_string(i) + "]"));
 	m_id = glGetTextureHandleARB(depthCubemap);
 	glMakeTextureHandleResidentARB(m_id);*/
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+    if (!initShadow) {
+
+        // Pipeline state object encompasses configuration of all GPU stages
+
+        Diligent::GraphicsPipelineStateCreateInfo PSOCreateInfo;
+
+        // Pipeline state name is used by the engine to report issues.
+        // It is always a good idea to give objects descriptive names.
+        PSOCreateInfo.PSODesc.Name = "Omni Shadow Render";
+
+        // This is a graphics pipeline
+        PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
+
+        // clang-format off
+        // This tutorial will render to a single render target
+        PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
+        // Set render target format which is the format of the swap chain's color buffer
+        PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Diligent::TEX_FORMAT_RGBA16_FLOAT;
+        // Primitive topology defines what kind of primitives will be rendered by this pipeline state
+        PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
+        // Cull back faces
+        PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
+        // Enable depth testing
+        PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+
+        Diligent::ShaderCreateInfo ShaderCI;
+        // Tell the system that the shader source code is in HLSL.
+        // For OpenGL, the engine will convert this into GLSL under the hood.
+        ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
+
+
+        // In this tutorial, we will load shaders from file. To be able to do that,
+        // we need to create a shader source stream factory
+        Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
+        Prisma::PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
+        // Create a vertex shader
+        Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
+        {
+            ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
+            ShaderCI.EntryPoint = "main";
+            ShaderCI.Desc.Name = "Omni Shadow VS";
+            ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/vertex.glsl";
+            contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+        }
+
+        Diligent::RefCntAutoPtr<Diligent::IShader> pGS;
+        {
+            ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_GEOMETRY;
+            ShaderCI.EntryPoint = "main";
+            ShaderCI.Desc.Name = "Omni Shadow GS";
+            ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl";
+            contextData.m_pDevice->CreateShader(ShaderCI, &pGS);
+        }
+
+        // Create a pixel shader
+        Diligent::RefCntAutoPtr<Diligent::IShader> pPS;
+        {
+            ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
+            ShaderCI.EntryPoint = "main";
+            ShaderCI.Desc.Name = "Omni Shadow PS";
+            ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl";
+            contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+        }
+
+        // clang-format off
+        // Define vertex shader input layout
+        Diligent::LayoutElement LayoutElems[] =
+        {
+            // Attribute 0 - vertex position
+            Diligent::LayoutElement{0, 0, 3, Diligent::VT_FLOAT32, Diligent::False},
+            // Attribute 1 - texture coordinates
+            Diligent::LayoutElement{1, 0, 3, Diligent::VT_FLOAT32, Diligent::False},
+
+            Diligent::LayoutElement{2, 0, 2, Diligent::VT_FLOAT32, Diligent::False},
+
+            Diligent::LayoutElement{3, 0, 3, Diligent::VT_FLOAT32, Diligent::False},
+
+            Diligent::LayoutElement{4, 0, 3, Diligent::VT_FLOAT32, Diligent::False}
+        };
+        // clang-format on
+        PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
+        PSOCreateInfo.GraphicsPipeline.InputLayout.NumElements = _countof(LayoutElems);
+
+        PSOCreateInfo.pVS = pVS;
+        PSOCreateInfo.pGS = pGS;
+        PSOCreateInfo.pPS = pPS;
+
+        // Define variable type that will be used by default
+        PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+
+
+        std::string lightPlane = "LightPlane";
+        std::string shadowMatrices = "ShadowMatrices";
+
+        Diligent::ShaderResourceVariableDesc Vars[] =
+        {
+            {Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+            {Diligent::SHADER_TYPE_GEOMETRY, shadowMatrices.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+            {Diligent::SHADER_TYPE_PIXEL, lightPlane.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        };
+        // clang-format on
+        PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
+        PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
+
+
+        Diligent::BufferDesc LightBuffer;
+        LightBuffer.Name = "LightBuffer";
+        LightBuffer.Usage = Diligent::USAGE_DEFAULT;
+        LightBuffer.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+        LightBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+        LightBuffer.ElementByteStride = sizeof(LightPlane);
+        LightBuffer.Size = sizeof(LightPlane);
+        contextData.m_pDevice->CreateBuffer(LightBuffer, nullptr, &m_lightBuffer);
+        
+        Diligent::BufferDesc ShadowBuffer;
+        ShadowBuffer.Name = "ShadowBuffer";
+        ShadowBuffer.Usage = Diligent::USAGE_DEFAULT;
+        ShadowBuffer.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+        ShadowBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+        ShadowBuffer.Size = sizeof(OmniShadow);
+        ShadowBuffer.ElementByteStride = sizeof(OmniShadow);
+        contextData.m_pDevice->CreateBuffer(ShadowBuffer, nullptr, &m_shadowBuffer);
+
+        contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+        m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY, shadowMatrices.c_str())->Set(m_shadowBuffer);
+        m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, lightPlane.c_str())->Set(m_lightBuffer);
+
+        initShadow = true;
+    }
+
+    m_pso->CreateShaderResourceBinding(&m_srb, true);
+
+    Prisma::MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, Prisma::MeshIndirect::MaterialView& materials)
+        {
+            m_srb.Release();
+            m_pso->CreateShaderResourceBinding(&m_srb, true);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+        });
+
+    Diligent::TextureDesc RTColorDesc;
+    RTColorDesc.Name = "Offscreen render target";
+    RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_CUBE;  // Set cubemap type
+    RTColorDesc.Width = m_width;
+    RTColorDesc.Height = m_height;
+    RTColorDesc.MipLevels = 1;
+    RTColorDesc.Format = Diligent::TEX_FORMAT_RGBA16_FLOAT;
+    // Specify 6 faces for cubemap
+    RTColorDesc.ArraySize = 6;
+    // Allow it to be used as both a shader resource and a render target
+    RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
+    // Define optimal clear value
+    RTColorDesc.ClearValue.Format = RTColorDesc.Format;
+    // Create the cubemap texture
+    contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pMSColorRTV);
+
+    // Create window-size depth buffer
+    Diligent::TextureDesc RTDepthDesc = RTColorDesc;
+    RTDepthDesc.Name = "Offscreen depth buffer";
+    RTDepthDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+    // Define optimal clear value
+    RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
+    RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
+    RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
+    contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &m_depth);
+
+    // Create render target views for each face
+    for (int i = 0; i < 6; ++i)
+    {
+        Diligent::TextureViewDesc RTVDesc;
+        RTVDesc.ViewType = Diligent::TEXTURE_VIEW_RENDER_TARGET;
+        RTVDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+        RTVDesc.MostDetailedMip = 0;
+        RTVDesc.NumMipLevels = 1;
+        RTVDesc.FirstArraySlice = i;  // Select the specific face
+        RTVDesc.NumArraySlices = 1;
+        m_depth->CreateView(RTVDesc, &m_depthView[i]);
+        m_pMSColorRTV->CreateView(RTVDesc, &m_pRTColor[i]);
+    }
 }
 
 float Prisma::PipelineOmniShadow::nearPlane()

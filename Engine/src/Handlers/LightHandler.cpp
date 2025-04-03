@@ -218,6 +218,15 @@ void Prisma::LightHandler::update()
 	{
 		updateCSM();
 	}
+	for (int i = 0; i < scene->omniLights.size(); i++)
+	{
+		const auto& light = scene->omniLights[i];
+		if (light->shadow() && light->hasShadow())
+		{
+			light->shadow()->update(m_dataOmni->lights[i].position);
+		}
+	}
+
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
 		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus())
 	{

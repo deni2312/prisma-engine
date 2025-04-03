@@ -2,6 +2,16 @@
 
 #include <vector>
 #include "GenericShadow.h"
+#include "GlobalData/Platform.h"
+#include "Common/interface/RefCntAutoPtr.hpp"
+
+namespace Diligent
+{
+	struct ITexture;
+	struct IBuffer;
+	struct ITextureView;
+	struct IShaderResourceBinding;
+}
 
 namespace Prisma
 {
@@ -19,6 +29,16 @@ namespace Prisma
 		void update(glm::vec3 lightPos) override;
 
 	private:
+		struct LightPlane{
+			glm::vec3 lightPos;
+			float far_plane;
+		};
+
+		struct OmniShadow
+		{
+			glm::mat4 shadows[6];
+		};
+
 		unsigned int m_width;
 		unsigned int m_height;
 		float m_nearPlane = 0.1f;
@@ -37,5 +57,18 @@ namespace Prisma
 
 		glm::mat4 m_shadowProj;
 		std::vector<glm::mat4> m_shadowTransforms;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pMSColorRTV;
+
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTColor[6];
+
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_depth;
+
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_depthView[6];
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_lightBuffer;
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_shadowBuffer;
 	};
 }
