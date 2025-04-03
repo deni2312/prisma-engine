@@ -19,7 +19,6 @@ namespace Prisma
 	{
 	public:
 		PipelineOmniShadow(unsigned int width, unsigned int height,bool post=false);
-		uint64_t id() override;
 		float farPlane() override;
 		void farPlane(float farPlane) override;
 		void init() override;
@@ -27,6 +26,8 @@ namespace Prisma
 		void nearPlane(float nearPlane) override;
 
 		void update(glm::vec3 lightPos) override;
+
+		Diligent::RefCntAutoPtr<Diligent::ITexture> shadowTexture() override;
 
 	private:
 		struct LightPlane{

@@ -30,6 +30,8 @@ uniform texture2D normalTexture[];
 
 uniform texture2D rmTexture[];
 
+uniform textureCube omniShadow[];
+
 uniform texture2D lut;
 uniform textureCube irradiance;
 uniform textureCube prefilter;
@@ -272,5 +274,9 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
 
     vec3 ambient = (kD * diffuse + specular) * ao;
     Lo = ambient + Lo;
+    vec4 shadow= texture(samplerCube(omniShadow[0],textureClamp_sampler), N);
+    
+    Lo.r=shadow.r;
+
     return Lo;
 }

@@ -150,6 +150,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_CLUSTERS.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_UAV,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_CLUSTERS_DATA.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::CONSTANT_OMNI_DATA_SHADOW.c_str(),Define::MAX_OMNI_LIGHTS,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
@@ -229,6 +230,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
             auto materials = Prisma::MeshIndirect::getInstance().textureViews();
             m_srb.Release();
             m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_OMNI_DATA_SHADOW.c_str())->SetArray(Prisma::LightHandler::getInstance().omniData().data(), 0, Prisma::LightHandler::getInstance().omniData().size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
@@ -248,6 +250,10 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 		{
                 m_updateData();
 		});
+        Prisma::LightHandler::getInstance().addLightHandler([&]()
+            {
+                m_updateData();
+            });
 }
 
 void Prisma::PipelineForward::render(){

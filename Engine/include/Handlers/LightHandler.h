@@ -60,12 +60,20 @@ namespace Prisma
 
 		void updateSizes();
 
+		std::vector<Diligent::IDeviceObject*> m_omniData;
+
+		std::vector<std::function<void()>> m_updates;
+
 	public:
 		struct ClusterData
 		{
 			Diligent::RefCntAutoPtr<Diligent::IBuffer> clusters;
 			Diligent::RefCntAutoPtr<Diligent::IBuffer> clustersData;
 		};
+
+		std::vector<Diligent::IDeviceObject*> &omniData();
+
+		void addLightHandler(std::function<void()> update);
 
 		bool updateCascade();
 

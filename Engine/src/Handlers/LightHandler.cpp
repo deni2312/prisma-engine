@@ -201,6 +201,16 @@ void Prisma::LightHandler::updateSizes()
 	contextData.m_pImmediateContext->UpdateBuffer(m_lightSizes, 0, sizeof(LightSizes), &m_sizes, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
+std::vector<Diligent::IDeviceObject*>& Prisma::LightHandler::omniData()
+{
+	return m_omniData;
+}
+
+void Prisma::LightHandler::addLightHandler(std::function<void()> update)
+{
+	m_updates.push_back(update);
+}
+
 bool Prisma::LightHandler::updateCascade()
 {
 	return m_updateCascade;
@@ -218,6 +228,8 @@ void Prisma::LightHandler::update()
 	{
 		updateCSM();
 	}
+
+	m_omniData.clear();
 	for (int i = 0; i < scene->omniLights.size(); i++)
 	{
 		const auto& light = scene->omniLights[i];
@@ -225,8 +237,17 @@ void Prisma::LightHandler::update()
 		{
 			light->shadow()->update(m_dataOmni->lights[i].position);
 		}
+		m_omniData.push_back(light->shadow()->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 	}
 
+	for (auto update: m_updates)
+	{
+		update();
+	}
+	/*if (m_omniData.empty())
+	{
+		m_omniData.push_back(Prisma::GlobalData::getInstance().dummyTexture());
+	}*/
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
 		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus())
 	{

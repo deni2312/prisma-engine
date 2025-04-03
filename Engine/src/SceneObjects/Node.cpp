@@ -63,12 +63,14 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 			Prisma::VectorHelper::getInstance().remove<AnimatedMesh>(
 				Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes, uuid);
 			Prisma::AnimationHandler::getInstance().fill();
+			CacheScene::getInstance().updateSizes(true);
 		}
 		else if (std::dynamic_pointer_cast<Mesh>(m_children[index]))
 		{
 			MeshIndirect::getInstance().remove(index);
 			Prisma::VectorHelper::getInstance().remove<Mesh>(
 				Prisma::GlobalData::getInstance().currentGlobalScene()->meshes, uuid);
+			CacheScene::getInstance().updateSizes(true);
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(m_children[index]))
 		{
@@ -105,8 +107,6 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 
 		m_children[index]->parent(nullptr);
 		m_children.erase(m_children.begin() + index);
-
-		CacheScene::getInstance().updateSizes(true);
 	}
 }
 

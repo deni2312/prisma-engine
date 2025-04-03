@@ -16,75 +16,78 @@ Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
 static bool initShadow = false;
 
+static int numOmni = 0;
+
 Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int height, bool post): m_width{width},
 	m_height{height}
 {
 	if (!post)
 	{
-		//init();
+		init();
 	}
+    numOmni++;
 }
 
 void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 {
-	/*m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(m_width) / static_cast<float>(m_height),
-	                                m_nearPlane, m_farPlane);
-	m_shadowTransforms.clear();
-	m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
-	                                                   glm::vec3(0.0f, -1.0f, 0.0f)));
-	m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
-	                                                   glm::vec3(0.0f, -1.0f, 0.0f)));
-	m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
-	                                                   glm::vec3(0.0f, 0.0f, 1.0f)));
-	m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
-	                                                   glm::vec3(0.0f, 0.0f, -1.0f)));
-	m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
-	                                                   glm::vec3(0.0f, -1.0f, 0.0f)));
-	m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
-	                                                   glm::vec3(0.0f, -1.0f, 0.0f)));
-	glViewport(0, 0, m_width, m_height);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	m_shader->use();
-	for (unsigned int i = 0; i < 6; ++i)
-	{
-		m_shader->setMat4(m_shadowPosition[i], m_shadowTransforms[i]);
-	}
-	m_shader->setFloat(m_farPlanePos, m_farPlane);
-	m_shader->setVec3(m_lightPos, lightPos);
+    /*m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(m_width) / static_cast<float>(m_height),
+                                    m_nearPlane, m_farPlane);
+    m_shadowTransforms.clear();
+    m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
+                                                       glm::vec3(0.0f, -1.0f, 0.0f)));
+    m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
+                                                       glm::vec3(0.0f, -1.0f, 0.0f)));
+    m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
+                                                       glm::vec3(0.0f, 0.0f, 1.0f)));
+    m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
+                                                       glm::vec3(0.0f, 0.0f, -1.0f)));
+    m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
+                                                       glm::vec3(0.0f, -1.0f, 0.0f)));
+    m_shadowTransforms.push_back(m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
+                                                       glm::vec3(0.0f, -1.0f, 0.0f)));
+    glViewport(0, 0, m_width, m_height);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    m_shader->use();
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        m_shader->setMat4(m_shadowPosition[i], m_shadowTransforms[i]);
+    }
+    m_shader->setFloat(m_farPlanePos, m_farPlane);
+    m_shader->setVec3(m_lightPos, lightPos);
 
-	MeshIndirect::getInstance().renderMeshesCopy();
+    MeshIndirect::getInstance().renderMeshesCopy();
 
-	m_shaderAnimation->use();
+    m_shaderAnimation->use();
 
-	for (unsigned int i = 0; i < 6; ++i)
-	{
-		m_shaderAnimation->setMat4(m_shadowPositionAnimation[i], m_shadowTransforms[i]);
-	}
-	m_shaderAnimation->setFloat(m_farPlanePosAnimation, m_farPlane);
-	m_shaderAnimation->setVec3(m_lightPosAnimation, lightPos);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        m_shaderAnimation->setMat4(m_shadowPositionAnimation[i], m_shadowTransforms[i]);
+    }
+    m_shaderAnimation->setFloat(m_farPlanePosAnimation, m_farPlane);
+    m_shaderAnimation->setVec3(m_lightPosAnimation, lightPos);
 
-	MeshIndirect::getInstance().renderAnimateMeshes();
+    MeshIndirect::getInstance().renderAnimateMeshes();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
-	           Prisma::SettingsLoader().getInstance().getSettings().height);*/
-	// don't forget to configure the viewport to the capture dimensions.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
+               Prisma::SettingsLoader().getInstance().getSettings().height);*/
+               // don't forget to configure the viewport to the capture dimensions.
 
     m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(m_width) / static_cast<float>(m_height),
         m_nearPlane, m_farPlane);
     m_shadowTransforms.clear();
-    m_shadows.shadows[0]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
+    m_shadows.shadows[0] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, -1.0f, 0.0f));
-    m_shadows.shadows[1]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
+    m_shadows.shadows[1] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, -1.0f, 0.0f));
-    m_shadows.shadows[2]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
+    m_shadows.shadows[2] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, 1.0f));
-    m_shadows.shadows[3]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
+    m_shadows.shadows[3] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, -1.0f));
-    m_shadows.shadows[4]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
+    m_shadows.shadows[4] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
         glm::vec3(0.0f, -1.0f, 0.0f));
-    m_shadows.shadows[5]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
+    m_shadows.shadows[5] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, -1.0f, 0.0f));
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
@@ -119,9 +122,9 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }
 
-uint64_t Prisma::PipelineOmniShadow::id()
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineOmniShadow::shadowTexture()
 {
-	return m_id;
+    return m_depth;
 }
 
 float Prisma::PipelineOmniShadow::farPlane()
@@ -314,9 +317,10 @@ void Prisma::PipelineOmniShadow::init()
 
         initShadow = true;
     }
-
     m_pso->CreateShaderResourceBinding(&m_srb, true);
-
+    if (Prisma::MeshIndirect::getInstance().modelBuffer()) {
+        m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(Prisma::MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+    }
     Prisma::MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, Prisma::MeshIndirect::MaterialView& materials)
         {
             m_srb.Release();

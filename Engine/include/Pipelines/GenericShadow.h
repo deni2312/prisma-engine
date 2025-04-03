@@ -1,12 +1,21 @@
 #pragma once
 #include "glm/glm.hpp"
+#include "Common/interface/RefCntAutoPtr.hpp"
+
+namespace Diligent
+{
+	struct ITexture;
+
+}
+
 
 namespace Prisma
 {
 	class GenericShadow
 	{
 	public:
-		virtual uint64_t id() =0;
+
+		virtual Diligent::RefCntAutoPtr<Diligent::ITexture> shadowTexture()=0;
 
 		virtual float farPlane() = 0;
 		virtual void farPlane(float farPlane) = 0;

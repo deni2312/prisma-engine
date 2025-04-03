@@ -75,6 +75,12 @@ std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const gl
 
 	return frustumCorners;
 }
+
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture()
+{
+	return Diligent::RefCntAutoPtr<Diligent::ITexture>();
+}
+
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
 	const auto proj = glm::perspective(
@@ -180,11 +186,6 @@ void Prisma::PipelineCSM::bias(float bias)
 float Prisma::PipelineCSM::bias()
 {
 	return m_bias;
-}
-
-uint64_t Prisma::PipelineCSM::id()
-{
-	return m_id;
 }
 
 float Prisma::PipelineCSM::farPlane()

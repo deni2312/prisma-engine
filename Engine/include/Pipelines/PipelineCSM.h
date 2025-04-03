@@ -4,6 +4,12 @@
 #include "GenericShadow.h"
 #include "glm/glm.hpp"
 #include "../Helpers/Settings.h"
+#include "Common/interface/RefCntAutoPtr.hpp"
+
+namespace Diligent
+{
+	struct ITexture;
+}
 
 namespace Prisma
 {
@@ -11,7 +17,6 @@ namespace Prisma
 	{
 	public:
 		PipelineCSM(unsigned int width, unsigned int height,bool post=false);
-		uint64_t id() override;
 		float farPlane() override;
 		void farPlane(float farPlane) override;
 		void init() override;
@@ -25,6 +30,7 @@ namespace Prisma
 		void update(glm::vec3 lightPos) override;
 
 		std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
+		Diligent::RefCntAutoPtr<Diligent::ITexture> shadowTexture() override;
 
 		glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane);
 
