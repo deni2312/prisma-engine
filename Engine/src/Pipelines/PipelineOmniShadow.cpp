@@ -81,9 +81,9 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
         glm::vec3(0.0f, -1.0f, 0.0f));
     m_shadows.shadows[1] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, -1.0f, 0.0f));
-    m_shadows.shadows[2] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
+    m_shadows.shadows[3] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, 1.0f));
-    m_shadows.shadows[3] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
+    m_shadows.shadows[2] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
         glm::vec3(0.0f, 0.0f, -1.0f));
     m_shadows.shadows[4] = m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
         glm::vec3(0.0f, -1.0f, 0.0f));
