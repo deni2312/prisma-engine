@@ -14,8 +14,7 @@ void main()
         gl_Layer = face; // built-in variable that specifies to which face we render.
         for(int i = 0; i < 3; ++i) // for each triangle's vertices
         {
-            vec3 pos = vec3(gl_in[i].gl_Position.x, -gl_in[i].gl_Position.y, gl_in[i].gl_Position.z);
-            FragPos = vec4(pos,1);
+            FragPos = gl_in[i].gl_Position;
             gl_Position = shadowMatrices[face] * gl_in[i].gl_Position;
             EmitVertex();
         }
