@@ -318,8 +318,8 @@ void Prisma::PipelineOmniShadow::init()
         initShadow = true;
     }
     m_pso->CreateShaderResourceBinding(&m_srb, true);
-    if (Prisma::MeshIndirect::getInstance().modelBuffer()) {
-        m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(Prisma::MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+    if (Prisma::MeshIndirect::getInstance().modelBuffer()){
+		m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(Prisma::MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     }
     Prisma::MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, Prisma::MeshIndirect::MaterialView& materials)
         {
