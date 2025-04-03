@@ -5,6 +5,7 @@
 #include "GlobalData/GlobalData.h"
 #include "GlobalData/GlobalShaderNames.h"
 #include "Helpers/SettingsLoader.h"
+#include <glm/gtc/type_ptr.hpp>
 
 
 //static std::shared_ptr<Prisma::Shader> m_shader = nullptr;
@@ -26,7 +27,6 @@ Prisma::PipelineOmniShadow::PipelineOmniShadow(unsigned int width, unsigned int 
 
 void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 {
-    std::cout << "a" << std::endl;
 	/*m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(m_width) / static_cast<float>(m_height),
 	                                m_nearPlane, m_farPlane);
 	m_shadowTransforms.clear();
@@ -70,6 +70,53 @@ void Prisma::PipelineOmniShadow::update(glm::vec3 lightPos)
 	glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
 	           Prisma::SettingsLoader().getInstance().getSettings().height);*/
 	// don't forget to configure the viewport to the capture dimensions.
+
+    m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(m_width) / static_cast<float>(m_height),
+        m_nearPlane, m_farPlane);
+    m_shadowTransforms.clear();
+    m_shadows.shadows[0]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f));
+    m_shadows.shadows[1]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f));
+    m_shadows.shadows[2]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f));
+    m_shadows.shadows[3]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f));
+    m_shadows.shadows[4]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f));
+    m_shadows.shadows[5]=m_shadowProj * lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f));
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+    contextData.m_pImmediateContext->UpdateBuffer(m_shadowBuffer, 0, sizeof(OmniShadow), &m_shadows, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    m_lightPlane.far_plane = m_farPlane;
+    m_lightPlane.lightPos = lightPos;
+
+    contextData.m_pImmediateContext->UpdateBuffer(m_lightBuffer, 0, sizeof(LightPlane), &m_lightPlane, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    auto color = m_pMSColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto depth = m_depth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
+    // Clear the back buffer
+    contextData.m_pImmediateContext->SetRenderTargets(1, &color, depth, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.m_pImmediateContext->ClearRenderTarget(color, glm::value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    // Set the pipeline state
+    contextData.m_pImmediateContext->SetPipelineState(m_pso);
+    // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
+    // makes sure that resources are transitioned to required states.
+    auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+    if (!meshes.empty())
+    {
+        Prisma::MeshIndirect::getInstance().setupBuffers();
+        // Set texture SRV in the SRB
+        contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        Prisma::MeshIndirect::getInstance().renderMeshes();
+    }
+
+    Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }
 
 uint64_t Prisma::PipelineOmniShadow::id()
@@ -153,6 +200,7 @@ void Prisma::PipelineOmniShadow::init()
         PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
         // Set render target format which is the format of the swap chain's color buffer
         PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Diligent::TEX_FORMAT_RGBA16_FLOAT;
+        PSOCreateInfo.GraphicsPipeline.DSVFormat = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
         // Primitive topology defines what kind of primitives will be rendered by this pipeline state
         PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
@@ -296,6 +344,7 @@ void Prisma::PipelineOmniShadow::init()
     Diligent::TextureDesc RTDepthDesc = RTColorDesc;
     RTDepthDesc.Name = "Offscreen depth buffer";
     RTDepthDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+    RTDepthDesc.BindFlags |= Diligent::BIND_DEPTH_STENCIL;
     // Define optimal clear value
     RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
     RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
@@ -312,7 +361,16 @@ void Prisma::PipelineOmniShadow::init()
         RTVDesc.NumMipLevels = 1;
         RTVDesc.FirstArraySlice = i;  // Select the specific face
         RTVDesc.NumArraySlices = 1;
-        m_depth->CreateView(RTVDesc, &m_depthView[i]);
+
+        Diligent::TextureViewDesc DepthDesc;
+        DepthDesc.ViewType = Diligent::TEXTURE_VIEW_DEPTH_STENCIL;
+        DepthDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+        DepthDesc.MostDetailedMip = 0;
+        DepthDesc.NumMipLevels = 1;
+        DepthDesc.FirstArraySlice = i;  // Select the specific face
+        DepthDesc.NumArraySlices = 1;
+        m_depth->CreateView(DepthDesc, &m_depthView[i]);
+
         m_pMSColorRTV->CreateView(RTVDesc, &m_pRTColor[i]);
     }
 }

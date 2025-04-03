@@ -39,6 +39,10 @@ namespace Prisma
 			glm::mat4 shadows[6];
 		};
 
+		OmniShadow m_shadows;
+
+		LightPlane m_lightPlane;
+
 		unsigned int m_width;
 		unsigned int m_height;
 		float m_nearPlane = 0.1f;
