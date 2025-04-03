@@ -516,7 +516,6 @@ Diligent::DrawIndexedIndirectAttribs Prisma::MeshIndirect::commandsBuffer()
 void Prisma::MeshIndirect::resizeModels(std::vector<Prisma::Mesh::MeshData>& models)
 {
 	m_modelBuffer.Release();
-	std::cout << m_modelBuffer<<"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 	Diligent::BufferDesc MatBufferDesc;
 
