@@ -213,13 +213,9 @@ void Prisma::PipelineOmniShadow::init()
         PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
 
         Diligent::ShaderCreateInfo ShaderCI;
-        // Tell the system that the shader source code is in HLSL.
-        // For OpenGL, the engine will convert this into GLSL under the hood.
         ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
 
 
-        // In this tutorial, we will load shaders from file. To be able to do that,
-        // we need to create a shader source stream factory
         Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
         Prisma::PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
