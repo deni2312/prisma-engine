@@ -157,6 +157,39 @@ vec3 getNormalFromMap()
     return normalize(TBN * tangentNormal);
 }
 
+const vec3 gridSamplingDisk[20] = vec3[20](
+    vec3(1, 1, 1), vec3(1, -1, 1), vec3(-1, -1, 1), vec3(-1, 1, 1),
+    vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+    vec3(1, 1, 0), vec3(1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
+    vec3(1, 0, 1), vec3(-1, 0, 1), vec3(1, 0, -1), vec3(-1, 0, -1),
+    vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1)
+);
+
+float ShadowCalculation(vec3 fragPos, vec3 lightPos, int depthMapId)
+{
+    vec3 fragToLight = fragPos - lightPos;
+
+    float currentDepth = length(fragToLight);
+
+    float shadow = 0.0;
+    float bias = 0.15;
+    int samples = 20;
+    float viewDistance = length(viewPos.xyz - fragPos);
+    float diskRadius = (1.0 + (viewDistance / omniData_data[depthMapId].far_plane.r)) / 25.0;
+    for (int i = 0; i < samples; ++i)
+    {
+        float closestDepth = texture(samplerCube(omniShadow[depthMapId],textureClamp_sampler), fragToLight + gridSamplingDisk[depthMapId] * diskRadius).r;
+        closestDepth *= omniData_data[depthMapId].far_plane.r;   // undo mapping [0;1]
+        if (currentDepth - bias > closestDepth)
+            shadow += 1.0;
+    }
+    shadow /= float(samples);
+
+
+    return shadow;
+
+}
+
 vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float roughness,float metallic) {
 
     float specularMap = aoSpecular.r;
@@ -200,7 +233,7 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
         else {
-            //Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, L, N, i));
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculation(FragPos, L,i));
         }
     }
 
@@ -274,9 +307,6 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
 
     vec3 ambient = (kD * diffuse + specular) * ao;
     Lo = ambient + Lo;
-    vec4 shadow= texture(samplerCube(omniShadow[0],textureClamp_sampler), N);
     
-    Lo.r=shadow.r;
-
     return Lo;
 }
