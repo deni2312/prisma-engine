@@ -176,10 +176,9 @@ float ShadowCalculation(vec3 fragPos, vec3 lightPos, int depthMapId)
     int samples = 20;
     float viewDistance = length(viewPos.xyz - fragPos);
     float diskRadius = (1.0 + (viewDistance / omniData_data[depthMapId].far_plane.r)) / 25.0;
-    vec3 flippedFragToLight = vec3(fragToLight.x, -fragToLight.y, fragToLight.z);
     for (int i = 0; i < samples; ++i)
     {
-        float closestDepth = texture(samplerCube(omniShadow[depthMapId],textureClamp_sampler), flippedFragToLight + gridSamplingDisk[depthMapId] * diskRadius).r;
+        float closestDepth = texture(samplerCube(omniShadow[depthMapId],textureClamp_sampler), fragToLight + gridSamplingDisk[depthMapId] * diskRadius).r;
         closestDepth *= omniData_data[depthMapId].far_plane.r;   // undo mapping [0;1]
         if (currentDepth - bias > closestDepth)
             shadow += 1.0;
