@@ -138,6 +138,8 @@ void Prisma::LightHandler::updateArea()
 
 void Prisma::LightHandler::updateOmni()
 {
+	m_omniData.clear();
+
 	const auto& scene = Prisma::GlobalData::getInstance().currentGlobalScene();
 	m_dataOmni = std::make_shared<SSBODataOmni>();
 	int numVisible = 0;
@@ -164,6 +166,7 @@ void Prisma::LightHandler::updateOmni()
 			}
 			m_dataOmni->lights[i].hasShadow = light->hasShadow() ? 2.0f : 0.0f;
 			m_dataOmni->lights[i].diffuse = m_dataOmni->lights[i].diffuse * light->intensity();
+			m_omniData.push_back(light->shadow()->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 			numVisible++;
 		}
 	}
@@ -174,6 +177,7 @@ void Prisma::LightHandler::updateOmni()
 		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 		contextData.m_pImmediateContext->UpdateBuffer(m_omniLights,0, numVisible * sizeof(LightType::LightOmni), m_dataOmni->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 	}
+
 	//m_omniLights->modifyData(0, sizeof(glm::vec4), value_ptr(omniLength));
 	//m_omniLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightOmni),m_dataOmni->lights.data());
 }
@@ -199,6 +203,10 @@ void Prisma::LightHandler::updateSizes()
 {
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 	contextData.m_pImmediateContext->UpdateBuffer(m_lightSizes, 0, sizeof(LightSizes), &m_sizes, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	for (auto update : m_updates)
+	{
+		update();
+	}
 }
 
 std::vector<Diligent::IDeviceObject*>& Prisma::LightHandler::omniData()
@@ -229,25 +237,6 @@ void Prisma::LightHandler::update()
 		updateCSM();
 	}
 
-	m_omniData.clear();
-	for (int i = 0; i < scene->omniLights.size(); i++)
-	{
-		const auto& light = scene->omniLights[i];
-		if (light->shadow() && light->hasShadow())
-		{
-			light->shadow()->update(m_dataOmni->lights[i].position);
-		}
-		m_omniData.push_back(light->shadow()->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-	}
-
-	for (auto update: m_updates)
-	{
-		update();
-	}
-	/*if (m_omniData.empty())
-	{
-		m_omniData.push_back(Prisma::GlobalData::getInstance().dummyTexture());
-	}*/
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
 		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus())
 	{
