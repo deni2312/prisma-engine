@@ -230,9 +230,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
             auto materials = Prisma::MeshIndirect::getInstance().textureViews();
             m_srb.Release();
             m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
-            if (Prisma::LightHandler::getInstance().omniData().size() > 0) {
-                m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str())->SetArray(Prisma::LightHandler::getInstance().omniData().data(),0, Prisma::LightHandler::getInstance().omniData().size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            }
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str())->SetArray(Prisma::LightHandler::getInstance().omniData().data(),0, Prisma::LightHandler::getInstance().omniData().size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
@@ -248,14 +246,14 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
         {
             m_updateData();
         });
-		Prisma::PipelineSkybox::getInstance().addUpdate([&]()
+	Prisma::PipelineSkybox::getInstance().addUpdate([&]()
 		{
-                m_updateData();
+	            m_updateData();
 		});
-        Prisma::LightHandler::getInstance().addLightHandler([&]()
-            {
-                m_updateData();
-            });
+    Prisma::LightHandler::getInstance().addLightHandler([&]()
+        {
+            m_updateData();
+        });
 }
 
 void Prisma::PipelineForward::render(){

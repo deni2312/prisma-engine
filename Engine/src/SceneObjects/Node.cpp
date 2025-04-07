@@ -76,11 +76,13 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 		{
 			Prisma::VectorHelper::getInstance().remove<Light<LightType::LightDir>>(
 				Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights, uuid);
+			CacheScene::getInstance().updateSizeLights(true);
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(m_children[index]))
 		{
 			Prisma::VectorHelper::getInstance().remove<Light<LightType::LightOmni>>(
 				Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights, uuid);
+			CacheScene::getInstance().updateSizeLights(true);
 		}
 		else if (std::dynamic_pointer_cast<Sprite>(m_children[index]))
 		{
@@ -91,6 +93,7 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 		{
 			Prisma::VectorHelper::getInstance().remove<Light<LightType::LightArea>>(
 				Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights, uuid);
+			CacheScene::getInstance().updateSizeLights(true);
 		}
 
 		auto componentsData = m_children[index]->components();
@@ -241,6 +244,7 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 			Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.push_back(
 				std::dynamic_pointer_cast<Light<LightType::LightOmni>>(child));
 			CacheScene::getInstance().updateLights(true);
+			CacheScene::getInstance().updateSizeLights(true);
 		}
 	}
 
@@ -264,6 +268,7 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 			Prisma::GlobalData::getInstance().currentGlobalScene()->areaLights.push_back(
 				std::dynamic_pointer_cast<Light<LightType::LightArea>>(child));
 			CacheScene::getInstance().updateLights(true);
+			CacheScene::getInstance().updateSizeLights(true);
 		}
 	}
 
@@ -280,6 +285,7 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 				Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.push_back(
 					std::dynamic_pointer_cast<AnimatedMesh>(child));
 				CacheScene::getInstance().updateSizes(true);
+				CacheScene::getInstance().updateSizeLights(true);
 			}
 		}
 	}

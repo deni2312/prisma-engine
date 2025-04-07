@@ -13,6 +13,10 @@ namespace Prisma
 
 		void updateLights(bool value);
 
+		bool updateSizeLights();
+
+		void updateSizeLights(bool value);
+
 		bool updateSizes() const;
 
 		void updateSizes(bool value);
@@ -34,8 +38,8 @@ namespace Prisma
 		CacheScene() = default;
 
 	private:
-		// Variables
-		bool m_updateLights;
+		bool m_updateLights=false;
+		bool m_updateSizeLights = false;
 		bool m_updateSizes = false;
 		bool m_updateData = false;
 		bool m_updateTextures = false;

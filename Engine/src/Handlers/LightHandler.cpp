@@ -203,10 +203,6 @@ void Prisma::LightHandler::updateSizes()
 {
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 	contextData.m_pImmediateContext->UpdateBuffer(m_lightSizes, 0, sizeof(LightSizes), &m_sizes, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-	for (auto update : m_updates)
-	{
-		update();
-	}
 }
 
 std::vector<Diligent::IDeviceObject*>& Prisma::LightHandler::omniData()
@@ -238,7 +234,7 @@ void Prisma::LightHandler::update()
 	}
 
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
-		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus())
+		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus() || CacheScene::getInstance().updateSizeLights())
 	{
 		if (scene->dirLights.size() < Define::MAX_DIR_LIGHTS && scene->omniLights.size() < Define::MAX_OMNI_LIGHTS && scene->areaLights.size() < Define::MAX_AREA_LIGHTS)
 		{
@@ -250,6 +246,14 @@ void Prisma::LightHandler::update()
 		else
 		{
 			std::cerr << "Too many lights" << std::endl;
+		}
+	}
+
+	if (m_init || CacheScene::getInstance().updateSizeLights())
+	{
+		for (auto update : m_updates)
+		{
+			update();
 		}
 	}
 
