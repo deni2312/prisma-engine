@@ -39,6 +39,7 @@ void Prisma::LightInfo::showSelectedDir(Light<LightType::LightDir>* lightData, c
 		if (ImGui::Checkbox("Shadow ", &hasShadow))
 		{
 			lightData->hasShadow(hasShadow);
+			CacheScene::getInstance().updateSizeLights(true);
 		}
 
 		auto shadow = lightData->shadow();
