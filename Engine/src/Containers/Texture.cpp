@@ -13,6 +13,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters)
 	m_parameters = parameters;
 	Diligent::TextureLoadInfo loadInfo;
 	loadInfo.IsSRGB = m_parameters.srgb;
+	m_name = m_parameters.texture;
 	if (m_parameters.compress)
 	{
 		loadInfo.CompressMode = Diligent::TEXTURE_LOAD_COMPRESS_MODE_BC;
