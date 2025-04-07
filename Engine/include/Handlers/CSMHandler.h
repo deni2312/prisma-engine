@@ -19,16 +19,9 @@ namespace Diligent
 namespace Prisma {
 
 	class CSMHandler : public InstanceData<CSMHandler> {
-	private:
-
-		struct CSMShadow
-		{
-			glm::mat4 shadows[16];
-		};
 
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
-		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_lightBuffer;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_shadowBuffer;
 
@@ -36,11 +29,22 @@ namespace Prisma {
 	public:
 		CSMHandler();
 
+		struct CSMShadow
+		{
+			glm::mat4 shadows[16];
+			float cascadePlanes[16];
+			float sizeCSM;
+			float farPlaneCSM;
+			glm::vec2 paddingCSM;
+		};
+
 		struct CSMData {
 			Diligent::RefCntAutoPtr<Diligent::ITexture> depth;
 			CSMShadow shadows;
 		};
 
-		void render(CSMData& data);
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> shadowBuffer();
+
+		void render(const CSMData& data);
 	};
 }

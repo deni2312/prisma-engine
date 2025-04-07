@@ -5,6 +5,7 @@
 #include "glm/glm.hpp"
 #include "../Helpers/Settings.h"
 #include "Common/interface/RefCntAutoPtr.hpp"
+#include "Handlers/CSMHandler.h"
 
 namespace Diligent
 {
@@ -34,9 +35,7 @@ namespace Prisma
 
 		glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane);
 
-		std::vector<glm::mat4> getLightSpaceMatrices();
-
-		std::vector<float>& cascadeLevels();
+		void createLightSpaceMatrices();
 
 		void bias(float bias);
 
@@ -59,13 +58,13 @@ namespace Prisma
 
 		float m_bias = 0.5f;
 
-		std::vector<float> m_shadowCascadeLevels;
-
 		Settings m_settings;
 
 		bool m_init = false;
 
-		std::vector<glm::mat4> m_lightMatrices;
+		unsigned int m_size = 5;
+
+		Prisma::CSMHandler::CSMShadow m_lightMatrices;
 
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_depth;
 	};

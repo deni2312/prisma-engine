@@ -356,7 +356,24 @@ void Prisma::PrismaFunc::init()
 
 	m_contextData.m_pDevice->CreateTexture(TexDesc, nullptr, &pDummyTexture);
 
-	Prisma::GlobalData::getInstance().dummyTexture(pDummyTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+	RefCntAutoPtr<ITexture> pDummyTextureArray;
+
+	TextureDesc TexDescArray;
+	TexDescArray.Name = "Dummy Texture";
+	TexDescArray.Type = RESOURCE_DIM_TEX_2D_ARRAY;
+	TexDescArray.Width = 1;
+	TexDescArray.Height = 1;
+	TexDescArray.Format = TEX_FORMAT_RGBA8_UNORM;
+	TexDescArray.Usage = USAGE_DEFAULT;
+	TexDescArray.BindFlags = BIND_SHADER_RESOURCE;
+
+	TexDescArray.ArraySize = 5;
+
+	m_contextData.m_pDevice->CreateTexture(TexDescArray, nullptr, &pDummyTextureArray);
+
+	Prisma::GlobalData::getInstance().dummyTexture(pDummyTexture);
+
+	Prisma::GlobalData::getInstance().dummyTextureArray(pDummyTextureArray);
 
 }
 

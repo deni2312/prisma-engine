@@ -73,6 +73,8 @@ namespace Prisma
 
 		std::vector<Diligent::IDeviceObject*> &omniData();
 
+		Diligent::IDeviceObject* dirShadowData();
+
 		void addLightHandler(std::function<void()> update);
 
 		bool updateCascade();

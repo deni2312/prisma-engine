@@ -108,11 +108,8 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCub
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(node))
 		{
-			/*auto light = std::dynamic_pointer_cast<Light<LightType::LightDir>>(node);
+			auto light = std::dynamic_pointer_cast<Light<LightType::LightDir>>(node);
 			light->shadow()->init();
-			auto type = light->type();
-			type.shadowMap = light->shadow()->id();
-			light->type(type);*/
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(node))
 		{

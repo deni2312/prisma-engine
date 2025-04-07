@@ -64,10 +64,10 @@ void Prisma::LightHandler::updateDirectional()
 
 		if (shadow && Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights[0]->hasShadow())
 		{
-			auto& levels = std::dynamic_pointer_cast<PipelineCSM>(shadow)->cascadeLevels();
+			/*auto& levels = std::dynamic_pointer_cast<PipelineCSM>(shadow)->cascadeLevels();
 			glm::vec4 length;
 			length.x = levels.size();
-			length.y = shadow->farPlane();
+			length.y = shadow->farPlane();*/
 
 			//m_dirCSM->modifyData(0, 16 * sizeof(float), levels.data());
 			//m_dirCSM->modifyData(16 * sizeof(float), sizeof(glm::vec4), value_ptr(length));
@@ -208,6 +208,23 @@ void Prisma::LightHandler::updateSizes()
 std::vector<Diligent::IDeviceObject*>& Prisma::LightHandler::omniData()
 {
 	return m_omniData;
+}
+
+Diligent::IDeviceObject* Prisma::LightHandler::dirShadowData()
+{
+	const auto& dirLights = Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights;
+
+	if (dirLights.size() > 0 && dirLights[0]->shadow() && dirLights[0]->hasShadow())
+	{
+		auto shadow = dirLights[0]->shadow();
+
+		const auto& dirMatrix = dirLights[0]->finalMatrix();
+
+		const auto& dirMult = normalize(dirMatrix * dirLights[0]->type().direction);
+
+		return shadow->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
+	}
+	return Prisma::GlobalData::getInstance().dummyTextureArray()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
 void Prisma::LightHandler::addLightHandler(std::function<void()> update)

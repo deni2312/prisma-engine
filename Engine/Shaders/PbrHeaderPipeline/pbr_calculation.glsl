@@ -1,5 +1,5 @@
 #extension GL_EXT_nonuniform_qualifier : require
-
+#extension GL_EXT_samplerless_texture_functions : require
 uniform ConstantsClusters
 {
     float zNear;
@@ -35,6 +35,17 @@ uniform textureCube omniShadow[];
 uniform texture2D lut;
 uniform textureCube irradiance;
 uniform textureCube prefilter;
+
+uniform texture2DArray csmShadow;
+
+layout(set=0, binding=0, std430) uniform LightSpaceMatrices
+{
+    mat4 lightSpaceMatrices[16];
+    float cascadePlanes[16];
+    float sizeCSM;
+    float farPlaneCSM;
+    vec2 paddingCSM;
+};
 
 struct OmniData
 {
@@ -190,6 +201,67 @@ float ShadowCalculation(vec3 fragPos, vec3 lightPos, int depthMapId)
 
 }
 
+float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N,int i)
+{
+    // select cascade layer
+    vec4 fragPosViewSpace = view * vec4(fragPosWorldSpace, 1.0);
+    float depthValue = abs(fragPosViewSpace.z);
+
+    int layer = -1;
+    for (int i = 0; i < sizeCSM; ++i)
+    {
+        if (depthValue < cascadePlanes[i])
+        {
+            layer = i;
+            break;
+        }
+    }
+    if (layer == -1)
+    {
+        layer = int(sizeCSM);
+    }
+
+    vec4 fragPosLightSpace = lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if (currentDepth > 1.0)
+    {
+        return 0.0;
+    }
+    // calculate bias (based on depth map resolution and slope)
+    vec3 normal = normalize(N);
+    float bias = max(0.05 * (1.0 - dot(normal, lightPos)), 0.005);
+    if (layer == int(sizeCSM))
+    {
+        bias *= 1 / (farPlaneCSM * dirData_data[i].padding.y);
+    }
+    else
+    {
+        bias *= 1 / (cascadePlanes[layer] * dirData_data[i].padding.y);
+    }
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / vec2(textureSize(csmShadow, 0));
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(sampler2DArray(csmShadow,textureClamp_sampler), vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+            shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
+
+    return shadow;
+}
+
 vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float roughness,float metallic) {
 
     float specularMap = aoSpecular.r;
@@ -233,7 +305,7 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
         else {
-            Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculation(FragPos, L,i));
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, L, N, i));
         }
     }
 

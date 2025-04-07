@@ -101,12 +101,22 @@ const std::vector<Prisma::GlobalData::GlobalTextureInfo>& Prisma::GlobalData::gl
 	return m_textures;
 }
 
-Diligent::ITextureView* Prisma::GlobalData::dummyTexture()
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::GlobalData::dummyTexture()
 {
 	return m_pDummySRV;
 }
 
-void Prisma::GlobalData::dummyTexture(Diligent::ITextureView* dummy)
+void Prisma::GlobalData::dummyTexture(Diligent::RefCntAutoPtr<Diligent::ITexture> dummy)
 {
 	m_pDummySRV = dummy;
+}
+
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::GlobalData::dummyTextureArray()
+{
+	return m_pDummyArraySRV;
+}
+
+void Prisma::GlobalData::dummyTextureArray(Diligent::RefCntAutoPtr<Diligent::ITexture> dummy)
+{
+	m_pDummyArraySRV = dummy;
 }

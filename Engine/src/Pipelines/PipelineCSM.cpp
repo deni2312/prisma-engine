@@ -9,6 +9,7 @@
 #include "Helpers/SettingsLoader.h"
 #include <glm/gtx/string_cast.hpp>
 #include "../../../GUI/include/TextureInfo.h"
+#include "Handlers/CSMHandler.h"
 #include "Helpers/PrismaRender.h"
 //
 //static std::shared_ptr<Prisma::Shader> shader = nullptr;
@@ -29,8 +30,10 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 {
 
 	m_lightDir = lightPos;
-	auto lightMatrices = getLightSpaceMatrices();
-
+	createLightSpaceMatrices();
+	m_lightMatrices.farPlaneCSM = m_farPlane;
+	m_lightMatrices.sizeCSM = m_size;
+	Prisma::CSMHandler::getInstance().render({ m_depth,m_lightMatrices });
 	//if (ssbo)
 	//{
 		/*auto lightMatrices = getLightSpaceMatrices();
@@ -80,7 +83,7 @@ std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const gl
 
 Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture()
 {
-	return Diligent::RefCntAutoPtr<Diligent::ITexture>();
+	return m_depth;
 }
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane)
@@ -154,30 +157,23 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 	return lightOrthoMatrix * lightViewMatrix;
 }
 
-std::vector<glm::mat4> Prisma::PipelineCSM::getLightSpaceMatrices()
+void Prisma::PipelineCSM::createLightSpaceMatrices()
 {
-	std::vector<glm::mat4> ret;
-	for (size_t i = 0; i < m_shadowCascadeLevels.size() + 1; ++i)
+	for (size_t i = 0; i < m_size; ++i)
 	{
 		if (i == 0)
 		{
-			ret.push_back(getLightSpaceMatrix(m_nearPlane, m_shadowCascadeLevels[i]));
+			m_lightMatrices.shadows[i]=getLightSpaceMatrix(m_nearPlane, m_lightMatrices.cascadePlanes[i]);
 		}
-		else if (i < m_shadowCascadeLevels.size())
+		else if (i < m_size-1)
 		{
-			ret.push_back(getLightSpaceMatrix(m_shadowCascadeLevels[i - 1], m_shadowCascadeLevels[i]));
+			m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1], m_lightMatrices.cascadePlanes[i]);
 		}
 		else
 		{
-			ret.push_back(getLightSpaceMatrix(m_shadowCascadeLevels[i - 1], m_farPlane));
+			m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1], m_farPlane);
 		}
 	}
-	return ret;
-}
-
-std::vector<float>& Prisma::PipelineCSM::cascadeLevels()
-{
-	return m_shadowCascadeLevels;
 }
 
 void Prisma::PipelineCSM::bias(float bias)
@@ -198,7 +194,10 @@ float Prisma::PipelineCSM::farPlane()
 void Prisma::PipelineCSM::farPlane(float farPlane)
 {
 	m_farPlane = farPlane;
-	m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
+	m_lightMatrices.cascadePlanes[0] = m_farPlane / 50.0f;
+	m_lightMatrices.cascadePlanes[1] = m_farPlane / 25.0f;
+	m_lightMatrices.cascadePlanes[2] = m_farPlane / 10.0f;
+	m_lightMatrices.cascadePlanes[3] = m_farPlane / 2.0f;
 }
 
 void Prisma::PipelineCSM::init()
@@ -249,9 +248,7 @@ void Prisma::PipelineCSM::init()
 	glMakeTextureHandleResidentARB(m_id);*/
 
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-	m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
-
-	unsigned int size = static_cast<int>(m_shadowCascadeLevels.size()) + 1;
+	farPlane(m_farPlane);
 
 	// Create window-size depth buffer
 	Diligent::TextureDesc RTDepthDesc;
@@ -259,7 +256,7 @@ void Prisma::PipelineCSM::init()
 	RTDepthDesc.Width = m_width;
 	RTDepthDesc.Height = m_height;
 	RTDepthDesc.MipLevels = 1;
-	RTDepthDesc.ArraySize = size;
+	RTDepthDesc.ArraySize = m_size;
 	RTDepthDesc.Name = "Offscreen depth buffer";
 	RTDepthDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
 	RTDepthDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET | Diligent::BIND_DEPTH_STENCIL;
@@ -270,11 +267,11 @@ void Prisma::PipelineCSM::init()
 	contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &m_depth);
 
 	// Create render target views for each face
-	for (int i = 0; i < size; ++i)
+	for (int i = 0; i < m_size; ++i)
 	{
 		Diligent::TextureViewDesc DepthDesc;
 		DepthDesc.ViewType = Diligent::TEXTURE_VIEW_DEPTH_STENCIL;
-		DepthDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+		DepthDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D;
 		DepthDesc.MostDetailedMip = 0;
 		DepthDesc.NumMipLevels = 1;
 		DepthDesc.FirstArraySlice = i;  // Select the specific face

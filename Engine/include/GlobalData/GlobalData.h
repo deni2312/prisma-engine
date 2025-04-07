@@ -73,9 +73,14 @@ namespace Prisma
 		const std::vector<GlobalTextureInfo>& globalTextures();
 
 		// Getter and Setter for m_defaultBlack
-		Diligent::ITextureView* dummyTexture();
+		Diligent::RefCntAutoPtr<Diligent::ITexture> dummyTexture();
 
-		void dummyTexture(Diligent::ITextureView* dummy);
+		void dummyTexture(Diligent::RefCntAutoPtr<Diligent::ITexture> dummy);
+
+		// Getter and Setter for m_defaultBlack
+		Diligent::RefCntAutoPtr<Diligent::ITexture> dummyTextureArray();
+
+		void dummyTextureArray(Diligent::RefCntAutoPtr<Diligent::ITexture> dummy);
 
 	private:
 		std::shared_ptr<Scene> m_currentGlobalScene;
@@ -88,6 +93,7 @@ namespace Prisma
 		Texture m_defaultWhite;
 		Texture m_defaultNormal;
 		bool m_transparencies = true;
-		Diligent::ITextureView* m_pDummySRV;
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pDummySRV;
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pDummyArraySRV;
 	};
 }

@@ -98,13 +98,11 @@ Prisma::CSMHandler::CSMHandler()
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
 
-    std::string lightPlane = "LightPlane";
-    std::string shadowMatrices = "ShadowMatrices";
 
     Diligent::ShaderResourceVariableDesc Vars[] =
     {
         {Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {Diligent::SHADER_TYPE_GEOMETRY, shadowMatrices.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_GEOMETRY, ShaderNames::CONSTANT_DIR_DATA_SHADOW.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
@@ -118,10 +116,14 @@ Prisma::CSMHandler::CSMHandler()
     ShadowBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
     ShadowBuffer.Size = sizeof(CSMShadow);
     ShadowBuffer.ElementByteStride = sizeof(CSMShadow);
-    contextData.m_pDevice->CreateBuffer(ShadowBuffer, nullptr, &m_shadowBuffer);
+    CSMShadow shadow;
+    Diligent::BufferData data;
+    data.DataSize = sizeof(CSMShadow);
+    data.pData = &shadow;
+    contextData.m_pDevice->CreateBuffer(ShadowBuffer, &data, &m_shadowBuffer);
 
     contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY, shadowMatrices.c_str())->Set(m_shadowBuffer);
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY, ShaderNames::CONSTANT_DIR_DATA_SHADOW.c_str())->Set(m_shadowBuffer);
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
     if (Prisma::MeshIndirect::getInstance().modelBuffer()) {
@@ -135,10 +137,9 @@ Prisma::CSMHandler::CSMHandler()
         });
 }
 
-void Prisma::CSMHandler::render(CSMData& data)
+void Prisma::CSMHandler::render(const CSMData& data)
 {
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-
     contextData.m_pImmediateContext->UpdateBuffer(m_shadowBuffer, 0, sizeof(CSMShadow), &data.shadows, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     auto depth = data.depth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
@@ -161,4 +162,10 @@ void Prisma::CSMHandler::render(CSMData& data)
     }
 
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
+}
+
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::CSMHandler::shadowBuffer()
+{
+    return m_shadowBuffer;
 }
