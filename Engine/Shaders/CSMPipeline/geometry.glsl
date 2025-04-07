@@ -1,10 +1,10 @@
 layout(triangles, invocations = 5) in;
 layout(triangle_strip, max_vertices = 3) out;
 
-layout(set=0, binding=0, std430) uniform LightSpaceMatrices
+uniform LightSpaceMatrices
 {
 	mat4 lightSpaceMatrices[16];
-	float cascadePlanes[16];
+	vec4 cascadePlanes[16];
     float sizeCSM;
     float farPlaneCSM;
     vec2 paddingCSM;

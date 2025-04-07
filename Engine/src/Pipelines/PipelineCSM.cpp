@@ -163,15 +163,15 @@ void Prisma::PipelineCSM::createLightSpaceMatrices()
 	{
 		if (i == 0)
 		{
-			m_lightMatrices.shadows[i]=getLightSpaceMatrix(m_nearPlane, m_lightMatrices.cascadePlanes[i]);
+			m_lightMatrices.shadows[i]=getLightSpaceMatrix(m_nearPlane, m_lightMatrices.cascadePlanes[i].x);
 		}
 		else if (i < m_size-1)
 		{
-			m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1], m_lightMatrices.cascadePlanes[i]);
+			m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_lightMatrices.cascadePlanes[i].x);
 		}
 		else
 		{
-			m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1], m_farPlane);
+			m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_farPlane);
 		}
 	}
 }
@@ -194,10 +194,10 @@ float Prisma::PipelineCSM::farPlane()
 void Prisma::PipelineCSM::farPlane(float farPlane)
 {
 	m_farPlane = farPlane;
-	m_lightMatrices.cascadePlanes[0] = m_farPlane / 50.0f;
-	m_lightMatrices.cascadePlanes[1] = m_farPlane / 25.0f;
-	m_lightMatrices.cascadePlanes[2] = m_farPlane / 10.0f;
-	m_lightMatrices.cascadePlanes[3] = m_farPlane / 2.0f;
+	m_lightMatrices.cascadePlanes[0].x = m_farPlane / 50.0f;
+	m_lightMatrices.cascadePlanes[1].x = m_farPlane / 25.0f;
+	m_lightMatrices.cascadePlanes[2].x = m_farPlane / 10.0f;
+	m_lightMatrices.cascadePlanes[3].x = m_farPlane / 2.0f;
 }
 
 void Prisma::PipelineCSM::init()

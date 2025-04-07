@@ -38,10 +38,10 @@ uniform textureCube prefilter;
 
 uniform texture2DArray csmShadow;
 
-layout(set=0, binding=0, std430) uniform LightSpaceMatrices
+uniform LightSpaceMatrices
 {
     mat4 lightSpaceMatrices[16];
-    float cascadePlanes[16];
+    vec4 cascadePlanes[16];
     float sizeCSM;
     float farPlaneCSM;
     vec2 paddingCSM;
@@ -210,7 +210,7 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
     int layer = -1;
     for (int i = 0; i < sizeCSM; ++i)
     {
-        if (depthValue < cascadePlanes[i])
+        if (depthValue < cascadePlanes[i].x)
         {
             layer = i;
             break;
@@ -244,7 +244,7 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
     }
     else
     {
-        bias *= 1 / (cascadePlanes[layer] * dirData_data[i].padding.y);
+        bias *= 1 / (cascadePlanes[layer].x * dirData_data[i].padding.y);
     }
     // PCF
     float shadow = 0.0;

@@ -32,7 +32,7 @@ namespace Prisma {
 		struct CSMShadow
 		{
 			glm::mat4 shadows[16];
-			float cascadePlanes[16];
+			glm::vec4 cascadePlanes[16];
 			float sizeCSM;
 			float farPlaneCSM;
 			glm::vec2 paddingCSM;
