@@ -66,14 +66,13 @@ void Prisma::PipelineOmniShadow::init()
 
         Diligent::TextureViewDesc DepthDesc;
         DepthDesc.ViewType = Diligent::TEXTURE_VIEW_DEPTH_STENCIL;
-        DepthDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+        DepthDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D;
         DepthDesc.MostDetailedMip = 0;
         DepthDesc.NumMipLevels = 1;
         DepthDesc.FirstArraySlice = i;  // Select the specific face
         DepthDesc.NumArraySlices = 1;
         Diligent::RefCntAutoPtr<Diligent::ITextureView> depth;
         m_depth->CreateView(DepthDesc, &depth);
-        Diligent::RefCntAutoPtr<Diligent::ITextureView> color;
     }
 }
 

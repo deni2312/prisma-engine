@@ -28,7 +28,9 @@ Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height, bool p
 void Prisma::PipelineCSM::update(glm::vec3 lightPos)
 {
 
-	//m_lightDir = lightPos;
+	m_lightDir = lightPos;
+	auto lightMatrices = getLightSpaceMatrices();
+
 	//if (ssbo)
 	//{
 		/*auto lightMatrices = getLightSpaceMatrices();
@@ -245,6 +247,42 @@ void Prisma::PipelineCSM::init()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	m_id = glGetTextureHandleARB(lightDepthMaps);
 	glMakeTextureHandleResidentARB(m_id);*/
+
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
+
+	unsigned int size = static_cast<int>(m_shadowCascadeLevels.size()) + 1;
+
+	// Create window-size depth buffer
+	Diligent::TextureDesc RTDepthDesc;
+	RTDepthDesc.Type = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+	RTDepthDesc.Width = m_width;
+	RTDepthDesc.Height = m_height;
+	RTDepthDesc.MipLevels = 1;
+	RTDepthDesc.ArraySize = size;
+	RTDepthDesc.Name = "Offscreen depth buffer";
+	RTDepthDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+	RTDepthDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET | Diligent::BIND_DEPTH_STENCIL;
+	// Define optimal clear value
+	RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
+	RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
+	RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
+	contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &m_depth);
+
+	// Create render target views for each face
+	for (int i = 0; i < size; ++i)
+	{
+		Diligent::TextureViewDesc DepthDesc;
+		DepthDesc.ViewType = Diligent::TEXTURE_VIEW_DEPTH_STENCIL;
+		DepthDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+		DepthDesc.MostDetailedMip = 0;
+		DepthDesc.NumMipLevels = 1;
+		DepthDesc.FirstArraySlice = i;  // Select the specific face
+		DepthDesc.NumArraySlices = 1;
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> depth;
+		m_depth->CreateView(DepthDesc, &depth);
+		Diligent::RefCntAutoPtr<Diligent::ITextureView> color;
+	}
 }
 
 float Prisma::PipelineCSM::nearPlane()

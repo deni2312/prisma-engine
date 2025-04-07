@@ -65,10 +65,8 @@ namespace Prisma
 
 		bool m_init = false;
 
-		glm::vec3 m_boundingBoxMin;
-
-		glm::vec3 m_boundingBoxMax;
-
 		std::vector<glm::mat4> m_lightMatrices;
+
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_depth;
 	};
 }

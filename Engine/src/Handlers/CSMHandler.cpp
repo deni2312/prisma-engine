@@ -1,4 +1,4 @@
-#include "Handlers/OmniShadowHandler.h"
+#include "Handlers/CSMHandler.h"
 
 #include "PipelineState.h"
 #include "GlobalData/PrismaFunc.h"
@@ -8,17 +8,17 @@
 #include "GlobalData/GlobalData.h"
 #include "SceneData/MeshIndirect.h"
 
-Prisma::OmniShadowHandler::OmniShadowHandler()
+Prisma::CSMHandler::CSMHandler()
 {
 
     // Pipeline state object encompasses configuration of all GPU stages
-	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
     Diligent::GraphicsPipelineStateCreateInfo PSOCreateInfo;
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Omni Shadow Render";
+    PSOCreateInfo.PSODesc.Name = "CSM Render";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
@@ -47,8 +47,8 @@ Prisma::OmniShadowHandler::OmniShadowHandler()
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Omni Shadow VS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/vertex.glsl";
+        ShaderCI.Desc.Name = "CSM Shadow VS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/vertex.glsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
     }
 
@@ -56,8 +56,8 @@ Prisma::OmniShadowHandler::OmniShadowHandler()
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_GEOMETRY;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Omni Shadow GS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl";
+        ShaderCI.Desc.Name = "CSM Shadow GS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/geometry.glsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pGS);
     }
 
@@ -66,8 +66,8 @@ Prisma::OmniShadowHandler::OmniShadowHandler()
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Omni Shadow PS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl";
+        ShaderCI.Desc.Name = "CSM Shadow PS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/fragment.glsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
     }
 
@@ -105,35 +105,23 @@ Prisma::OmniShadowHandler::OmniShadowHandler()
     {
         {Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_GEOMETRY, shadowMatrices.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {Diligent::SHADER_TYPE_PIXEL, lightPlane.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.DepthClipEnable = Diligent::False;
 
-
-    Diligent::BufferDesc LightBuffer;
-    LightBuffer.Name = "LightBuffer";
-    LightBuffer.Usage = Diligent::USAGE_DEFAULT;
-    LightBuffer.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
-    LightBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    LightBuffer.ElementByteStride = sizeof(LightPlane);
-    LightBuffer.Size = sizeof(LightPlane);
-    contextData.m_pDevice->CreateBuffer(LightBuffer, nullptr, &m_lightBuffer);
-
     Diligent::BufferDesc ShadowBuffer;
     ShadowBuffer.Name = "ShadowBuffer";
     ShadowBuffer.Usage = Diligent::USAGE_DEFAULT;
     ShadowBuffer.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
     ShadowBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    ShadowBuffer.Size = sizeof(OmniShadow);
-    ShadowBuffer.ElementByteStride = sizeof(OmniShadow);
+    ShadowBuffer.Size = sizeof(CSMShadow);
+    ShadowBuffer.ElementByteStride = sizeof(CSMShadow);
     contextData.m_pDevice->CreateBuffer(ShadowBuffer, nullptr, &m_shadowBuffer);
 
     contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY, shadowMatrices.c_str())->Set(m_shadowBuffer);
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, lightPlane.c_str())->Set(m_lightBuffer);
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
     if (Prisma::MeshIndirect::getInstance().modelBuffer()) {
@@ -147,39 +135,16 @@ Prisma::OmniShadowHandler::OmniShadowHandler()
         });
 }
 
-void Prisma::OmniShadowHandler::render(OmniShadowData data)
+void Prisma::CSMHandler::render(CSMData& data)
 {
-
-    m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(data.width) / static_cast<float>(data.height),
-        data.nearPlane, data.farPlane);
-    m_shadowProj[1][1] *= -1;  // Flip Y-axis
-
-    m_shadowTransforms.clear();
-    m_shadows.shadows[0] = m_shadowProj * lookAt(data.lightPos, data.lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f));
-    m_shadows.shadows[1] = m_shadowProj * lookAt(data.lightPos, data.lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f));
-    m_shadows.shadows[2] = m_shadowProj * lookAt(data.lightPos, data.lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f));
-    m_shadows.shadows[3] = m_shadowProj * lookAt(data.lightPos, data.lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, -1.0f));
-    m_shadows.shadows[4] = m_shadowProj * lookAt(data.lightPos, data.lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f));
-    m_shadows.shadows[5] = m_shadowProj * lookAt(data.lightPos, data.lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f));
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-    contextData.m_pImmediateContext->UpdateBuffer(m_shadowBuffer, 0, sizeof(OmniShadow), &m_shadows, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    m_lightPlane.far_plane = data.farPlane;
-    m_lightPlane.lightPos = data.lightPos;
-
-    contextData.m_pImmediateContext->UpdateBuffer(m_lightBuffer, 0, sizeof(LightPlane), &m_lightPlane, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.m_pImmediateContext->UpdateBuffer(m_shadowBuffer, 0, sizeof(CSMShadow), &data.shadows, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     auto depth = data.depth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
     // Clear the back buffer
     contextData.m_pImmediateContext->SetRenderTargets(0, nullptr, depth, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    
+
     contextData.m_pImmediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // Set the pipeline state
