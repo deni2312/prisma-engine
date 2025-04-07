@@ -50,7 +50,6 @@ namespace Prisma {
 		OmniShadowHandler();
 
 		struct OmniShadowData {
-			Diligent::RefCntAutoPtr<Diligent::ITexture> color;
 			Diligent::RefCntAutoPtr<Diligent::ITexture> depth;
 			float nearPlane;
 			float farPlane;

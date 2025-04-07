@@ -47,8 +47,6 @@ namespace Prisma
 		uint64_t m_id;
 		float m_farPlane = 100.0f;
 
-		Diligent::RefCntAutoPtr<Diligent::ITexture> m_color;
-
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_depth;
 	};
 }
