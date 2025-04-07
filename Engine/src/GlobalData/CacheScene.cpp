@@ -69,3 +69,13 @@ void Prisma::CacheScene::resetCaches()
 	m_updateTextures = false;
 	m_updateStatus = false;
 }
+
+void Prisma::CacheScene::updateAllCaches()
+{
+	m_updateLights = true;
+	m_updateSizeLights = true;
+	m_updateSizes = true;
+	m_updateData = true;
+	m_updateTextures = true;
+	m_updateStatus = true;
+}

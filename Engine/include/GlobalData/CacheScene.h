@@ -35,6 +35,8 @@ namespace Prisma
 
 		void resetCaches();
 
+		void updateAllCaches();
+
 		CacheScene() = default;
 
 	private:

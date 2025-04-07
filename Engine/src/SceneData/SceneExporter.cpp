@@ -208,6 +208,7 @@ bool Prisma::Exporter::hasFinish()
 	{
 		postLoad(m_newRootNode);
 		m_finish = false;
+		CacheScene::getInstance().updateAllCaches();
 		return true;
 	}
 	return false;

@@ -99,6 +99,7 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
 		exporter.postLoad(root,false);
 		return m_scene;
 	}
+	Prisma::CacheScene::getInstance().updateAllCaches();
 	std::cerr << "Could not find the directory" << std::endl;
 	return nullptr;
 }

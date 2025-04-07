@@ -80,6 +80,7 @@ float Prisma::PipelineOmniShadow::farPlane()
 void Prisma::PipelineOmniShadow::farPlane(float farPlane)
 {
 	m_farPlane = farPlane;
+    CacheScene::getInstance().updateStatus(true);
 }
 
 void Prisma::PipelineOmniShadow::init()
@@ -191,4 +192,5 @@ float Prisma::PipelineOmniShadow::nearPlane()
 void Prisma::PipelineOmniShadow::nearPlane(float nearPlane)
 {
 	m_nearPlane = nearPlane;
+    CacheScene::getInstance().updateStatus(true);
 }
