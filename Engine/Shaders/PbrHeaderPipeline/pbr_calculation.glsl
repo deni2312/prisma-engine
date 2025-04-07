@@ -64,8 +64,7 @@ struct DirectionalData
     vec4 direction;
     vec4 diffuse;
     vec4 specular;
-    vec2 depthMap;
-    vec2 padding;
+    vec4 padding;
 };
 
 

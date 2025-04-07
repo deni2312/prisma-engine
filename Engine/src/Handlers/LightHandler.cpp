@@ -91,7 +91,6 @@ void Prisma::LightHandler::updateDirectional()
 			numVisible++;
 		}
 	}
-
 	m_sizes.dir = numVisible;
 
 	if (!m_dataDirectional->lights.empty()) {

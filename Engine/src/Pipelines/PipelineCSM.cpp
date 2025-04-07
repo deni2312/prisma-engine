@@ -88,7 +88,7 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture()
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
-	const auto proj = glm::perspective(
+	auto proj = glm::perspective(
 		glm::radians(90.0f), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane,
 		farPlane);
 
