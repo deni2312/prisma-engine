@@ -86,8 +86,8 @@ void Prisma::LightHandler::updateDirectional()
 			const auto& dirMult = glm::normalize(dirMatrix * m_dataDirectional->lights[i].direction);
 			m_dataDirectional->lights[i].diffuse = m_dataDirectional->lights[i].diffuse * light->intensity();
 			m_dataDirectional->lights[i].direction = dirMult;
-			m_dataDirectional->lights[i].padding.x = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
-			m_dataDirectional->lights[i].padding.y = shadow->bias();
+			m_dataDirectional->lights[i].hasShadow = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
+			m_dataDirectional->lights[i].bias = shadow->bias();
 			numVisible++;
 		}
 	}
