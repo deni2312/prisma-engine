@@ -150,9 +150,8 @@ Prisma::OmniShadowHandler::OmniShadowHandler()
 void Prisma::OmniShadowHandler::render(OmniShadowData data)
 {
 
-    m_shadowProj = glm::perspective(glm::radians(90.0f), static_cast<float>(data.width) / static_cast<float>(data.height),
+    m_shadowProj = oglToDxProjection * glm::perspective(glm::radians(90.0f), static_cast<float>(data.width) / static_cast<float>(data.height),
         data.nearPlane, data.farPlane);
-    m_shadowProj[1][1] *= -1;  // Flip Y-axis
 
     m_shadowTransforms.clear();
     m_shadows.shadows[0] = m_shadowProj * lookAt(data.lightPos, data.lightPos + glm::vec3(1.0f, 0.0f, 0.0f),

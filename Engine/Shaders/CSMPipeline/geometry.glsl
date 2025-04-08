@@ -4,7 +4,6 @@ layout(triangle_strip, max_vertices = 3) out;
 uniform LightSpaceMatrices
 {
 	mat4 lightSpaceMatrices[16];
-	mat4 lightSpaceMatricesOld[16];
 	vec4 cascadePlanes[16];
     float sizeCSM;
     float farPlaneCSM;
