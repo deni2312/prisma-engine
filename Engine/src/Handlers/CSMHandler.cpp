@@ -34,7 +34,7 @@ Prisma::CSMHandler::CSMHandler()
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
-
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.DepthClipEnable = Diligent::False;
     Diligent::ShaderCreateInfo ShaderCI;
     ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
 
