@@ -107,7 +107,6 @@ Prisma::CSMHandler::CSMHandler()
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
-    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.DepthClipEnable = Diligent::False;
 
     Diligent::BufferDesc ShadowBuffer;
     ShadowBuffer.Name = "ShadowBuffer";
