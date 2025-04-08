@@ -284,12 +284,6 @@ vec3 ShadowCalculationDirectionalDebug(vec3 fragPosWorldSpace, vec3 lightPos, ve
     {
         layer = int(sizeCSM);
     }
-    // Define debug colors for each layer (you can customize these)
-    vec3 debugColors[4];
-    debugColors[0] = vec3(1.0, 0.0, 0.0); // Red
-    debugColors[1] = vec3(0.0, 1.0, 0.0); // Green
-    debugColors[2] = vec3(0.0, 0.0, 1.0); // Blue
-    debugColors[3] = vec3(1.0, 1.0, 0.0); // Yellow (fallback layer)
 
     vec4 fragPosLightSpace = lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
     // perform perspective divide
@@ -299,8 +293,19 @@ vec3 ShadowCalculationDirectionalDebug(vec3 fragPosWorldSpace, vec3 lightPos, ve
 
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
+    // calculate bias (based on depth map resolution and slope)
+    vec3 normal = normalize(N);
+    float bias = max(0.05 * (1.0 - dot(normal, lightPos)), 0.005);
+    if (layer == int(sizeCSM))
+    {
+        bias *= 1 / (farPlaneCSM * dirData_data[i].bias);
+    }
+    else
+    {
+        bias *= 1 / (cascadePlanes[layer].x * dirData_data[i].bias);
+    }
 
-    return vec3(currentDepth);
+    return vec3(bias);
 
 }
 
@@ -424,5 +429,5 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
 
     vec3 L = normalize(vec3(dirData_data[0].direction));
 
-    return Lo;
+    return ShadowCalculationDirectionalDebug(FragPos, L, N, 0);
 }
