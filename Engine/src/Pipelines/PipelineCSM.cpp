@@ -154,7 +154,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 	shadowProj[3] += roundOffset;
 	lightOrthoMatrix = shadowProj;
 	//glm::scale(glm::mat4(1.0),glm::vec3(1,-1,1))*
-	return lightOrthoMatrix * lightViewMatrix;
+	return glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * lightOrthoMatrix * lightViewMatrix;
 }
 
 void Prisma::PipelineCSM::createLightSpaceMatrices()
@@ -175,6 +175,29 @@ void Prisma::PipelineCSM::createLightSpaceMatrices()
 		}
 	}
 }
+
+/*void Prisma::PipelineCSM::createLightSpaceMatrices()
+{
+	for (size_t i = 0; i < m_size; ++i)
+	{
+		if (i == 0)
+		{
+			m_lightMatrices.shadowsOld[i] = getLightSpaceMatrix(m_nearPlane, m_lightMatrices.cascadePlanes[i].x);
+			m_lightMatrices.shadows[i] = glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * m_lightMatrices.shadowsOld[i];
+		}
+		else if (i < m_size - 1)
+		{
+			m_lightMatrices.shadowsOld[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_lightMatrices.cascadePlanes[i].x);
+			m_lightMatrices.shadows[i] = glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * m_lightMatrices.shadowsOld[i];
+
+		}
+		else
+		{
+			m_lightMatrices.shadowsOld[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_farPlane);
+			m_lightMatrices.shadows[i] = glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * m_lightMatrices.shadowsOld[i];
+		}
+	}
+}*/
 
 void Prisma::PipelineCSM::bias(float bias)
 {
