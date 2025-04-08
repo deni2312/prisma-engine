@@ -218,10 +218,6 @@ Diligent::IDeviceObject* Prisma::LightHandler::dirShadowData()
 	{
 		auto shadow = dirLights[0]->shadow();
 
-		const auto& dirMatrix = dirLights[0]->finalMatrix();
-
-		const auto& dirMult = normalize(dirMatrix * dirLights[0]->type().direction);
-
 		return shadow->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
 	}
 	return Prisma::GlobalData::getInstance().dummyTextureArray()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
