@@ -15,7 +15,7 @@ void main()
 {
 	for (int i = 0; i < 3; ++i)
 	{
-		gl_Position = lightSpaceMatricesOld[gl_InvocationID] * gl_in[i].gl_Position;
+		gl_Position = lightSpaceMatrices[gl_InvocationID] * gl_in[i].gl_Position;
 		gl_Layer = gl_InvocationID;
 		EmitVertex();
 	}

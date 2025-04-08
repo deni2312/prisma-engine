@@ -223,7 +223,7 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
         layer = int(sizeCSM);
     }
 
-    vec4 fragPosLightSpace = lightSpaceMatricesOld[layer] * vec4(fragPosWorldSpace, 1.0);
+    vec4 fragPosLightSpace = lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range

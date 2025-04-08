@@ -154,7 +154,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 	shadowProj[3] += roundOffset;
 	lightOrthoMatrix = shadowProj;
 	//glm::scale(glm::mat4(1.0),glm::vec3(1,-1,1))*
-	return glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * lightOrthoMatrix * lightViewMatrix;
+	return lightOrthoMatrix * lightViewMatrix;
 }
 
 void Prisma::PipelineCSM::createLightSpaceMatrices()
