@@ -163,25 +163,6 @@ void Prisma::PipelineCSM::createLightSpaceMatrices()
 	{
 		if (i == 0)
 		{
-			m_lightMatrices.shadows[i]=getLightSpaceMatrix(m_nearPlane, m_lightMatrices.cascadePlanes[i].x);
-		}
-		else if (i < m_size-1)
-		{
-			m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_lightMatrices.cascadePlanes[i].x);
-		}
-		else
-		{
-			m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_farPlane);
-		}
-	}
-}
-
-/*void Prisma::PipelineCSM::createLightSpaceMatrices()
-{
-	for (size_t i = 0; i < m_size; ++i)
-	{
-		if (i == 0)
-		{
 			m_lightMatrices.shadowsOld[i] = getLightSpaceMatrix(m_nearPlane, m_lightMatrices.cascadePlanes[i].x);
 			m_lightMatrices.shadows[i] = glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * m_lightMatrices.shadowsOld[i];
 		}
@@ -197,7 +178,7 @@ void Prisma::PipelineCSM::createLightSpaceMatrices()
 			m_lightMatrices.shadows[i] = glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * m_lightMatrices.shadowsOld[i];
 		}
 	}
-}*/
+}
 
 void Prisma::PipelineCSM::bias(float bias)
 {
