@@ -88,7 +88,13 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture()
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
-	auto proj = glm::perspective(
+	glm::mat4 oglToDx = glm::mat4(
+		1, 0, 0, 0,
+		0, -1, 0, 0,  // Flip Y
+		0, 0, 0.5f, 0,
+		0, 0, 0.5f, 1
+	);
+	auto proj = oglToDx * glm::perspective(
 		glm::radians(90.0f), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane,
 		farPlane);
 
@@ -137,7 +143,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 	float far = maxOrtho.z;
 	float near = minOrtho.z;
 
-	auto lightOrthoMatrix = glm::ortho(minOrtho.x, maxOrtho.x, minOrtho.y, maxOrtho.y, near, far);
+	auto lightOrthoMatrix = oglToDx * glm::ortho(minOrtho.x, maxOrtho.x, minOrtho.y, maxOrtho.y, near, far);
 
 	glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
 	auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -164,18 +170,18 @@ void Prisma::PipelineCSM::createLightSpaceMatrices()
 		if (i == 0)
 		{
 			m_lightMatrices.shadowsOld[i] = getLightSpaceMatrix(m_nearPlane, m_lightMatrices.cascadePlanes[i].x);
-			m_lightMatrices.shadows[i] = glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * m_lightMatrices.shadowsOld[i];
+			m_lightMatrices.shadows[i] = m_lightMatrices.shadowsOld[i];
 		}
 		else if (i < m_size - 1)
 		{
 			m_lightMatrices.shadowsOld[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_lightMatrices.cascadePlanes[i].x);
-			m_lightMatrices.shadows[i] = glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * m_lightMatrices.shadowsOld[i];
+			m_lightMatrices.shadows[i] =m_lightMatrices.shadowsOld[i];
 
 		}
 		else
 		{
 			m_lightMatrices.shadowsOld[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_farPlane);
-			m_lightMatrices.shadows[i] = glm::scale(glm::mat4(1.0), glm::vec3(1, -1, 1)) * m_lightMatrices.shadowsOld[i];
+			m_lightMatrices.shadows[i] = m_lightMatrices.shadowsOld[i];
 		}
 	}
 }
