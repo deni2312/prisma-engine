@@ -254,13 +254,53 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
     {
         for (int y = -1; y <= 1; ++y)
         {
-            float pcfDepth = texture(sampler2DArray(csmShadow,textureClamp_sampler), vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+            vec3 textureLayer=vec3(projCoords.xy + vec2(x, y) * texelSize, layer);
+            float pcfDepth = texture(sampler2DArray(csmShadow,textureClamp_sampler), textureLayer).r;
             shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
         }
     }
     shadow /= 9.0;
 
     return shadow;
+}
+
+vec3 ShadowCalculationDirectionalDebug(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N,int i)
+{
+    // select cascade layer
+    vec4 fragPosViewSpace = view * vec4(fragPosWorldSpace, 1.0);
+    float depthValue = abs(fragPosViewSpace.z);
+
+    int layer = -1;
+    for (int i = 0; i < sizeCSM; ++i)
+    {
+        if (depthValue < cascadePlanes[i].x)
+        {
+            layer = i;
+            break;
+        }
+    }
+    if (layer == -1)
+    {
+        layer = int(sizeCSM);
+    }
+    // Define debug colors for each layer (you can customize these)
+    vec3 debugColors[4];
+    debugColors[0] = vec3(1.0, 0.0, 0.0); // Red
+    debugColors[1] = vec3(0.0, 1.0, 0.0); // Green
+    debugColors[2] = vec3(0.0, 0.0, 1.0); // Blue
+    debugColors[3] = vec3(1.0, 1.0, 0.0); // Yellow (fallback layer)
+
+    vec4 fragPosLightSpace = lightSpaceMatrices[layer] * vec4(fragPosWorldSpace, 1.0);
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+    return vec3(currentDepth);
+
 }
 
 vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float roughness,float metallic) {
@@ -380,6 +420,8 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
 
     vec3 ambient = (kD * diffuse + specular) * ao;
     Lo = ambient + Lo;
-    
-    return Lo;
+
+    vec3 L = normalize(vec3(dirData_data[0].direction));
+
+    return ShadowCalculationDirectionalDebug(FragPos, L, N, 0);
 }
