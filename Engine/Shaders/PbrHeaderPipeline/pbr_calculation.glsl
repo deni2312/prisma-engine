@@ -227,7 +227,8 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
-    projCoords = projCoords * 0.5 + 0.5;
+    projCoords.xy = projCoords.xy * 0.5 + 0.5;
+    projCoords.y = 1.0 - projCoords.y;
 
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
