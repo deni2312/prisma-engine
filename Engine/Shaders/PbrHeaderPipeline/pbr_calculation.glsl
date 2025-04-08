@@ -250,7 +250,7 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
     // PCF
     float shadow = 0.0;
     vec2 texelSize = 1.0 / vec2(4096,4096);
-    projCoords.y=1-projCoords.y;
+    //projCoords.y=1-projCoords.y;
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)
@@ -428,6 +428,6 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
     Lo = ambient + Lo;
 
     vec3 L = normalize(vec3(dirData_data[0].direction));
-
-    return ShadowCalculationDirectionalDebug(FragPos, L, N, 0);
+    vec3 shadows=ShadowCalculationDirectionalDebug(FragPos, L, N, 0);
+    return Lo;
 }
