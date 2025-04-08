@@ -5,6 +5,7 @@
 #include "GlobalData/CacheScene.h"
 #include "GlobalData/GlobalShaderNames.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
+#include "Helpers/Logger.h"
 
 
 Prisma::LightHandler::LightHandler()
@@ -261,7 +262,7 @@ void Prisma::LightHandler::update()
 		}
 		else
 		{
-			std::cerr << "Too many lights" << std::endl;
+			Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,"Too many lights");
 		}
 	}
 
