@@ -64,7 +64,9 @@ struct DirectionalData
     vec4 direction;
     vec4 diffuse;
     vec4 specular;
-    vec4 padding;
+    float hasShadow;
+    float bias;
+    vec2 padding;
 };
 
 
@@ -239,11 +241,11 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
     float bias = max(0.05 * (1.0 - dot(normal, lightPos)), 0.005);
     if (layer == int(sizeCSM))
     {
-        bias *= 1 / (farPlaneCSM * dirData_data[i].padding.y);
+        bias *= 1 / (farPlaneCSM * dirData_data[i].bias);
     }
     else
     {
-        bias *= 1 / (cascadePlanes[layer].x * dirData_data[i].padding.y);
+        bias *= 1 / (cascadePlanes[layer].x * dirData_data[i].bias);
     }
     // PCF
     float shadow = 0.0;
@@ -300,7 +302,7 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
 
         float NdotL = max(dot(N, L), 0.0);
 
-        if (dirData_data[i].padding.x < 1.0) {
+        if (dirData_data[i].hasShadow < 1.0) {
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
         else {
