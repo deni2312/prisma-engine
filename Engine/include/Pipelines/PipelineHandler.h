@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PipelineForward.h"
+#include "PipelineRayTracing.h"
 #include "../SceneObjects/Camera.h"
 #include "PipelineDeferred.h"
 #include "../Helpers/Settings.h"
@@ -24,6 +25,7 @@ namespace Prisma
 		std::shared_ptr<PipelineForward> forward();
 		std::shared_ptr<PipelineDeferred> deferred();
 		std::shared_ptr<PipelineDeferredForward> deferredForward();
+		std::shared_ptr<PipelineRayTracing> raytracing();
 		PipelineHandler();
 
 		TextureData textureData();
@@ -32,6 +34,7 @@ namespace Prisma
 		std::shared_ptr<PipelineForward> m_forwardPipeline;
 		std::shared_ptr<PipelineDeferred> m_deferredPipeline;
 		std::shared_ptr<PipelineDeferredForward> m_deferredForwardPipeline;
+		std::shared_ptr<PipelineRayTracing> m_raytracingPipeline;
 
 		TextureData m_textureData;
 

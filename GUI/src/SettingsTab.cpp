@@ -22,6 +22,7 @@ void Prisma::SettingsTab::init()
 	m_status.items.push_back("FORWARD");
 	m_status.items.push_back("DEFERRED");
 	m_status.items.push_back("DEFERRED_FORWARD");
+	m_status.items.push_back("RAYTRACING");
 
 	m_status.postprocess.push_back("NORMAL");
 	m_status.postprocess.push_back("SEPPIA");

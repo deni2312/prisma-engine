@@ -7,6 +7,7 @@ bool Prisma::PipelineHandler::initScene(SceneLoader::SceneParameters sceneParame
 	{
 		auto settings = SettingsLoader::getInstance().getSettings();
 		m_forwardPipeline = std::make_shared<PipelineForward>(settings.width, settings.height, sceneParameters.srgb);
+        m_raytracingPipeline = std::make_shared<PipelineRayTracing>(settings.width, settings.height, sceneParameters.srgb);
 
 		//m_deferredPipeline = std::make_shared<PipelineDeferred>(settings.width, settings.height, sceneParameters.srgb);
 
@@ -29,6 +30,11 @@ std::shared_ptr<Prisma::PipelineDeferred> Prisma::PipelineHandler::deferred()
 std::shared_ptr<Prisma::PipelineDeferredForward> Prisma::PipelineHandler::deferredForward()
 {
 	return m_deferredForwardPipeline;
+}
+
+std::shared_ptr<Prisma::PipelineRayTracing> Prisma::PipelineHandler::raytracing()
+{
+    return m_raytracingPipeline;
 }
 
 Prisma::PipelineHandler::PipelineHandler()

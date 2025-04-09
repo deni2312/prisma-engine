@@ -157,6 +157,9 @@ bool Prisma::Engine::run()
 			case EngineSettings::Pipeline::DEFERRED_FORWARD:
 				PipelineHandler::getInstance().deferredForward()->render();
 				break;
+			case EngineSettings::Pipeline::RAYTRACING:
+				PipelineHandler::getInstance().raytracing()->render();
+				break;
 			}
 
 			//Postprocess::getInstance().render();

@@ -6,7 +6,8 @@ namespace Prisma::EngineSettings
 	{
 		FORWARD,
 		DEFERRED,
-		DEFERRED_FORWARD
+		DEFERRED_FORWARD,
+		RAYTRACING
 	};
 
 	struct Settings
