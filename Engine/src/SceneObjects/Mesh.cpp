@@ -1,4 +1,5 @@
 #include "SceneObjects/Mesh.h"
+#include "SceneObjects/Mesh.h"
 #include "GlobalData/GlobalData.h"
 #include "SceneData/MeshIndirect.h"
 #include "glm/glm.hpp"
@@ -8,8 +9,6 @@
 
 #include "../../../DiligentEngine/DiligentFX/Shaders/Common/public/ShaderDefinitions.fxh"
 #include "GlobalData/CacheScene.h"
-
-static bool isFirst = true;
 
 void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices, bool compute)
 {
@@ -104,12 +103,12 @@ Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::Mesh::iBuffer()
 
 void Prisma::Mesh::uploadBLAS()
 {
-	if (!m_blasGPU && isFirst)
+	if (!m_blasGPU)
 	{
 		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
 		Diligent::BufferDesc BuffDesc;
-		BuffDesc.Name = "Cube Attribs";
+		BuffDesc.Name = "Cube";
 		BuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
 		BuffDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
 		BuffDesc.Size = sizeof(Prisma::Mesh::Vertex);
@@ -118,10 +117,92 @@ void Prisma::Mesh::uploadBLAS()
 
 		contextData.m_pDevice->CreateBuffer(BuffDesc, &BufData, &m_CubeAttribsCB);
 
-		//m_pRayTracingSRB->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_CubeAttribsCB")->Set(m_CubeAttribsCB);
+		//srb->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_CubeAttribsCB")->Set(m_CubeAttribsCB);
+
+
+		Diligent::BufferDesc VertBuffDesc;
+		VertBuffDesc.Name = "Cube vertex buffer";
+		VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+		VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER | Diligent::BIND_RAY_TRACING;
+		VertBuffDesc.Size = sizeof(Prisma::Mesh::Vertex) * m_vertices->vertices.size();
+		Diligent::BufferData VBData;
+		VBData.pData = m_vertices->vertices.data();
+		VBData.DataSize = sizeof(Prisma::Mesh::Vertex)* m_vertices->vertices.size();
+		contextData.m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
+
+		Diligent::BufferDesc IndBuffDesc;
+		IndBuffDesc.Name = "Cube index buffer";
+		IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+		IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER | Diligent::BIND_RAY_TRACING;
+		IndBuffDesc.Size = sizeof(unsigned int)* m_vertices->indices.size();
+		Diligent::BufferData IBData;
+		IBData.pData = m_vertices->indices.data();
+		IBData.DataSize = sizeof(unsigned int) * m_vertices->indices.size();
+		contextData.m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
+
+		// Create & build bottom level acceleration structure
+		// Create BLAS
+		Diligent::BLASTriangleDesc Triangles;
+		{
+			Triangles.GeometryName = "Cube";
+			Triangles.MaxVertexCount = m_vertices->vertices.size();
+			Triangles.VertexValueType = Diligent::VT_FLOAT32;
+			Triangles.VertexComponentCount = 3;
+			Triangles.MaxPrimitiveCount = m_vertices->indices.size() / 3;
+			Triangles.IndexType = Diligent::VT_UINT32;
+
+			Diligent::BottomLevelASDesc ASDesc;
+			ASDesc.Name = "Cube BLAS";
+			ASDesc.Flags = Diligent::RAYTRACING_BUILD_AS_PREFER_FAST_TRACE;
+			ASDesc.pTriangles = &Triangles;
+			ASDesc.TriangleCount = 1;
+
+			contextData.m_pDevice->CreateBLAS(ASDesc, &m_pCubeBLAS);
+			VERIFY_EXPR(m_pCubeBLAS != nullptr);
+		}
+
+		// Create scratch buffer
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> pScratchBuffer;
+		{
+			Diligent::BufferDesc BuffDesc;
+			BuffDesc.Name = "BLAS Scratch Buffer";
+			BuffDesc.Usage = Diligent::USAGE_DEFAULT;
+			BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
+			BuffDesc.Size = m_pCubeBLAS->GetScratchBufferSizes().Build;
+
+			contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &pScratchBuffer);
+			VERIFY_EXPR(pScratchBuffer != nullptr);
+		}
+
+		// Build BLAS
+		Diligent::BLASBuildTriangleData TriangleData;
+		TriangleData.GeometryName = Triangles.GeometryName;
+		TriangleData.pVertexBuffer = m_vBuffer;
+		TriangleData.VertexStride = sizeof(Prisma::Mesh::Vertex);
+		TriangleData.VertexCount = Triangles.MaxVertexCount;
+		TriangleData.VertexValueType = Triangles.VertexValueType;
+		TriangleData.VertexComponentCount = Triangles.VertexComponentCount;
+		TriangleData.pIndexBuffer = m_iBuffer;
+		TriangleData.PrimitiveCount = Triangles.MaxPrimitiveCount;
+		TriangleData.IndexType = Triangles.IndexType;
+		TriangleData.Flags = Diligent::RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+
+		Diligent::BuildBLASAttribs Attribs;
+		Attribs.pBLAS = m_pCubeBLAS;
+		Attribs.pTriangleData = &TriangleData;
+		Attribs.TriangleDataCount = 1;
+
+		// Scratch buffer will be used to store temporary data during BLAS build.
+		// Previous content in the scratch buffer will be discarded.
+		Attribs.pScratchBuffer = pScratchBuffer;
+
+		// Allow engine to change resource states.
+		Attribs.BLASTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+		Attribs.GeometryTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+		Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+
+		contextData.m_pImmediateContext->BuildBLAS(Attribs);
 		m_blasGPU = true;
-		isFirst = false;
-		
 	}
 }
 

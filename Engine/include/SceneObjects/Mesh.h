@@ -12,6 +12,11 @@
 #include "Common/interface/RefCntAutoPtr.hpp"
 
 
+namespace Diligent
+{
+	struct IBottomLevelAS;
+}
+
 namespace Prisma
 {
 	class Mesh : public Node
@@ -89,6 +94,7 @@ namespace Prisma
 
 		bool m_blasGPU = false;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_CubeAttribsCB;
+		Diligent::RefCntAutoPtr<Diligent::IBottomLevelAS> m_pCubeBLAS;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
