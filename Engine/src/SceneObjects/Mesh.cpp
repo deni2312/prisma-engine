@@ -106,21 +106,41 @@ void createTLAS()
 	
 }
 
+struct VertexBlas
+{
+	glm::vec3 pos;
+	glm::vec3 norm;
+	glm::vec2 uv;
+};
+
 void Prisma::Mesh::uploadBLAS()
 {
 	if (!m_blasGPU)
 	{
 		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
+
+		std::vector<glm::vec3> vertices;
+
+		std::vector<VertexBlas> verticesBlas;
+
+		for (const auto& v : m_vertices->vertices)
+		{
+			vertices.push_back(v.position);
+
+			verticesBlas.push_back({ v.position ,v.normal,v.texCoords });
+		}
+
 		Diligent::BufferDesc BuffDesc;
 		BuffDesc.Name = "Cube";
 		BuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
 		BuffDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
-		BuffDesc.Size = sizeof(Prisma::Mesh::Vertex);
+		BuffDesc.Size = sizeof(VertexBlas) * verticesBlas.size();
 
-		Diligent::BufferData BufData = { m_vertices->vertices.data(), BuffDesc.Size};
+		Diligent::BufferData BufData = { verticesBlas.data(), BuffDesc.Size};
 
 		contextData.m_pDevice->CreateBuffer(BuffDesc, &BufData, &m_CubeAttribsCB);
+		VERIFY_EXPR(m_CubeAttribsCB != nullptr);
 
 		//srb->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_CubeAttribsCB")->Set(m_CubeAttribsCB);
 
@@ -129,10 +149,10 @@ void Prisma::Mesh::uploadBLAS()
 		VertBuffDesc.Name = "Cube vertex buffer";
 		VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
 		VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER | Diligent::BIND_RAY_TRACING;
-		VertBuffDesc.Size = sizeof(Prisma::Mesh::Vertex) * m_vertices->vertices.size();
+		VertBuffDesc.Size = sizeof(glm::vec3) * vertices.size();
 		Diligent::BufferData VBData;
-		VBData.pData = m_vertices->vertices.data();
-		VBData.DataSize = sizeof(Prisma::Mesh::Vertex)* m_vertices->vertices.size();
+		VBData.pData = vertices.data();
+		VBData.DataSize = sizeof(glm::vec3)* vertices.size();
 		contextData.m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
 
 		Diligent::BufferDesc IndBuffDesc;
@@ -150,7 +170,7 @@ void Prisma::Mesh::uploadBLAS()
 		Diligent::BLASTriangleDesc Triangles;
 		{
 			Triangles.GeometryName = "Cube";
-			Triangles.MaxVertexCount = m_vertices->vertices.size();
+			Triangles.MaxVertexCount = vertices.size();
 			Triangles.VertexValueType = Diligent::VT_FLOAT32;
 			Triangles.VertexComponentCount = 3;
 			Triangles.MaxPrimitiveCount = m_vertices->indices.size() / 3;
@@ -183,7 +203,7 @@ void Prisma::Mesh::uploadBLAS()
 		Diligent::BLASBuildTriangleData TriangleData;
 		TriangleData.GeometryName = Triangles.GeometryName;
 		TriangleData.pVertexBuffer = m_vBuffer;
-		TriangleData.VertexStride = sizeof(Prisma::Mesh::Vertex);
+		TriangleData.VertexStride = sizeof(glm::vec3);
 		TriangleData.VertexCount = Triangles.MaxVertexCount;
 		TriangleData.VertexValueType = Triangles.VertexValueType;
 		TriangleData.VertexComponentCount = Triangles.VertexComponentCount;
