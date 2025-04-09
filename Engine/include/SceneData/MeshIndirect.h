@@ -1,11 +1,12 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "../SceneObjects/Mesh.h"
 #include "../SceneObjects/AnimatedMesh.h"
 #include "../SceneObjects/Camera.h"
 #include "../Components/MaterialComponent.h"
 #include "../GlobalData/InstanceData.h"
+#include "Graphics/GraphicsTools/interface/GraphicsUtilities.h"
+
 
 namespace Prisma
 {

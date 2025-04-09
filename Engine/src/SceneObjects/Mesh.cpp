@@ -5,7 +5,11 @@
 #include "glm/gtx/string_cast.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include <string>
+
+#include "../../../DiligentEngine/DiligentFX/Shaders/Common/public/ShaderDefinitions.fxh"
 #include "GlobalData/CacheScene.h"
+
+static bool isFirst = true;
 
 void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices, bool compute)
 {
@@ -96,6 +100,29 @@ Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::Mesh::vBuffer()
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::Mesh::iBuffer()
 {
 	return m_iBuffer;
+}
+
+void Prisma::Mesh::uploadBLAS()
+{
+	if (!m_blasGPU && isFirst)
+	{
+		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+
+		Diligent::BufferDesc BuffDesc;
+		BuffDesc.Name = "Cube Attribs";
+		BuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+		BuffDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+		BuffDesc.Size = sizeof(Prisma::Mesh::Vertex);
+
+		Diligent::BufferData BufData = { m_vertices->vertices.data(), BuffDesc.Size};
+
+		contextData.m_pDevice->CreateBuffer(BuffDesc, &BufData, &m_CubeAttribsCB);
+
+		//m_pRayTracingSRB->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_CubeAttribsCB")->Set(m_CubeAttribsCB);
+		m_blasGPU = true;
+		isFirst = false;
+		
+	}
 }
 
 void Prisma::Mesh::computeAABB()

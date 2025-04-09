@@ -10,7 +10,6 @@
 #include "../GlobalData/Platform.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
-#include "Graphics/GraphicsTools/interface/GraphicsUtilities.h"
 
 
 namespace Prisma
@@ -79,6 +78,7 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> iBuffer();
 
+		void uploadBLAS();
 
 	protected:
 		std::shared_ptr<VerticesData> m_vertices;
@@ -86,6 +86,9 @@ namespace Prisma
 
 		int m_vectorId = -1;
 		AABBData m_aabbData;
+
+		bool m_blasGPU = false;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_CubeAttribsCB;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
