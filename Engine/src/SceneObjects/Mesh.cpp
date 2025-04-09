@@ -101,6 +101,11 @@ Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::Mesh::iBuffer()
 	return m_iBuffer;
 }
 
+void createTLAS()
+{
+	
+}
+
 void Prisma::Mesh::uploadBLAS()
 {
 	if (!m_blasGPU)
@@ -202,8 +207,15 @@ void Prisma::Mesh::uploadBLAS()
 		Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
 		contextData.m_pImmediateContext->BuildBLAS(Attribs);
+
+
 		m_blasGPU = true;
 	}
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBottomLevelAS> Prisma::Mesh::blas()
+{
+	return m_pCubeBLAS;
 }
 
 void Prisma::Mesh::computeAABB()

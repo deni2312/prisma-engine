@@ -85,6 +85,8 @@ namespace Prisma
 
 		void uploadBLAS();
 
+		Diligent::RefCntAutoPtr<Diligent::IBottomLevelAS> blas();
+
 	protected:
 		std::shared_ptr<VerticesData> m_vertices;
 		std::shared_ptr<MaterialComponent> m_material;

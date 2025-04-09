@@ -27,6 +27,7 @@
 #include "ImGuiImplWin32.hpp"
 #include "../include/Handlers/LoadingHandler.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
+#include "Helpers/UpdateTLAS.h"
 
 struct PrivateData
 {
@@ -135,6 +136,7 @@ bool Prisma::Engine::run()
 			data->sceneHandler->onBeginRender();
 			MeshHandler::getInstance().updateCamera();
 			MeshIndirect::getInstance().update();
+			UpdateTLAS::getInstance().update();
 			LightHandler::getInstance().update();
 			if (data->debug)
 			{
