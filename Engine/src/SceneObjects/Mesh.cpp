@@ -9,6 +9,7 @@
 
 #include "../../../DiligentEngine/DiligentFX/Shaders/Common/public/ShaderDefinitions.fxh"
 #include "GlobalData/CacheScene.h"
+#include "Pipelines/PipelineHandler.h"
 
 void Prisma::Mesh::loadModel(std::shared_ptr<VerticesData> vertices, bool compute)
 {
@@ -228,6 +229,7 @@ void Prisma::Mesh::uploadBLAS()
 
 		contextData.m_pImmediateContext->BuildBLAS(Attribs);
 
+		Prisma::PipelineHandler::getInstance().raytracing()->pso()->CreateShaderResourceBinding(&m_srb, true);
 
 		m_blasGPU = true;
 	}
@@ -236,6 +238,11 @@ void Prisma::Mesh::uploadBLAS()
 Diligent::RefCntAutoPtr<Diligent::IBottomLevelAS> Prisma::Mesh::blas()
 {
 	return m_pCubeBLAS;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::Mesh::raytracingSrb()
+{
+	return m_srb;
 }
 
 void Prisma::Mesh::computeAABB()

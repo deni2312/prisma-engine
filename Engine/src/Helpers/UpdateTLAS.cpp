@@ -17,6 +17,8 @@ Prisma::UpdateTLAS::UpdateTLAS()
 {
 }
 
+bool updateTLAS = false;
+
 void Prisma::UpdateTLAS::update()
 {
     // Create or update top-level acceleration structure
@@ -46,8 +48,6 @@ void Prisma::UpdateTLAS::update()
             contextData.m_pDevice->CreateTLAS(TLASDesc, &m_pTLAS);
             VERIFY_EXPR(m_pTLAS != nullptr);
 
-            //m_pRayTracingSRB->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(m_pTLAS);
-            //m_pRayTracingSRB->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(m_pTLAS);
         }
 
         // Create scratch buffer
@@ -79,7 +79,7 @@ void Prisma::UpdateTLAS::update()
         // Setup instances
         Diligent::TLASBuildInstanceData Instances[NumInstances] = {};
 
-        Instances[0].InstanceName = "Ground Instance";
+        Instances[0].InstanceName = "Cube Instance 1";
         Instances[0].pBLAS = mesh->blas();
         Instances[0].Mask = OPAQUE_GEOM_MASK;
         Instances[0].Transform.SetTranslation(0.0f, 0.0f, 0.0f);
@@ -88,7 +88,7 @@ void Prisma::UpdateTLAS::update()
         // Build or update TLAS
         Diligent::BuildTLASAttribs Attribs;
         Attribs.pTLAS = m_pTLAS;
-        Attribs.Update = false;
+        Attribs.Update = updateTLAS;
 
         // Scratch buffer will be used to store temporary data during TLAS build or update.
         // Previous content in the scratch buffer will be discarded.
@@ -113,5 +113,11 @@ void Prisma::UpdateTLAS::update()
         Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         contextData.m_pImmediateContext->BuildTLAS(Attribs);
+        updateTLAS = true;
     }
+}
+
+Diligent::RefCntAutoPtr<Diligent::ITopLevelAS> Prisma::UpdateTLAS::TLAS()
+{
+    return m_pTLAS;
 }

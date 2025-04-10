@@ -16,11 +16,24 @@ namespace Prisma
 	public:
 		PipelineRayTracing(const unsigned int& width = 1920, const unsigned int& height = 1080, bool srgb = true);
 		void render();
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso();
+
+
 		~PipelineRayTracing();
 
 	private:
 		unsigned int m_width;
 		unsigned int m_height;
+
+		struct RayTracingData
+		{
+			glm::vec4   CameraPos;
+			glm::mat4 InvViewProj;
+
+			// Near and far clip plane distances
+			glm::vec2   ClipPlanes;
+			glm::vec2   Padding0;
+		};
 
 		/*std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderAnimate;
@@ -31,6 +44,8 @@ namespace Prisma
 
 		std::shared_ptr<PipelinePrePass> m_prepass;*/
 
+		Diligent::Uint32 m_MaxRecursionDepth = 8;
+
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
 		Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
@@ -38,11 +53,17 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
 
-		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
-
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
 		std::function<void()> m_updateData;
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_raytracingData;
+
+		Diligent::RefCntAutoPtr<Diligent::ITexture> m_colorBuffer;
+
+		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> m_pSBT;
+
+		Prisma::Settings m_settings;
 
 	};
 }

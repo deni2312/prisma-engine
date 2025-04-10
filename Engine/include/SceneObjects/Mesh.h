@@ -87,6 +87,8 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IBottomLevelAS> blas();
 
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> raytracingSrb();
+
 	protected:
 		std::shared_ptr<VerticesData> m_vertices;
 		std::shared_ptr<MaterialComponent> m_material;
@@ -100,5 +102,7 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
+
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 	};
 }

@@ -17,6 +17,9 @@ namespace Prisma{
 	public:
 		UpdateTLAS();
 		void update();
+
+		Diligent::RefCntAutoPtr<Diligent::ITopLevelAS> TLAS();
+
 	private:
 		bool m_init=false;
 

@@ -1,0 +1,23 @@
+#include "constants.hlsl"
+#include "rayutils.hlsl"
+
+VK_IMAGE_FORMAT("rgba8") RWTexture2D<float4> g_ColorBuffer;
+
+[shader("raygeneration")]
+void main()
+{
+    // Calculate view ray direction from the inverse view-projection matrix
+    float2 uv       = (float2(DispatchRaysIndex().xy) + float2(0.5, 0.5)) / float2(DispatchRaysDimensions().xy);
+    float4 worldPos = mul(float4(uv * 2.0 - 1.0, 1.0, 1.0), g_ConstantsCB.InvViewProj);
+    float3 rayDir   = normalize(worldPos.xyz/worldPos.w - g_ConstantsCB.CameraPos.xyz);
+
+    RayDesc ray;
+    ray.Origin    = g_ConstantsCB.CameraPos.xyz;
+    ray.Direction = rayDir;
+    ray.TMin      = g_ConstantsCB.ClipPlanes.x;
+    ray.TMax      = g_ConstantsCB.ClipPlanes.y;
+
+    PrimaryRayPayload payload = CastPrimaryRay(ray, /*recursion*/0);
+
+    g_ColorBuffer[DispatchRaysIndex().xy] = float4(payload.Color, 1.0);
+}
