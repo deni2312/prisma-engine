@@ -88,12 +88,14 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
     auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
     std::vector<Diligent::TLASBuildInstanceData> instances;
+    m_nameBLAS.clear();
     for (int i = 0;i < meshes.size();i++)
     {
         // Setup instances
         Diligent::TLASBuildInstanceData instance;
         std::string index = std::to_string(i);
-        instance.InstanceName = "1";
+        m_nameBLAS.push_back(index);
+        instance.InstanceName = m_nameBLAS[i].c_str();
         instance.CustomId = i; // texture index
         instance.pBLAS = meshes[i]->blas();
         instance.Mask = OPAQUE_GEOM_MASK;
@@ -152,7 +154,7 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
         for (int i = 0;i < meshes.size();i++)
         {
             std::string index = std::to_string(i);
-            m_pSBT->BindHitGroupForInstance(m_pTLAS, "1", PRIMARY_RAY_INDEX, "CubePrimaryHit");
+            m_pSBT->BindHitGroupForInstance(m_pTLAS, m_nameBLAS[i].c_str(), PRIMARY_RAY_INDEX, "CubePrimaryHit");
 
         }
         // Hit groups for primary ray

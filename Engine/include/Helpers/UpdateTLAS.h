@@ -2,6 +2,8 @@
 #include "GlobalData/InstanceData.h"
 #include "GlobalData/Platform.h"
 #include "Common/interface/RefCntAutoPtr.hpp"
+#include <vector>
+#include <string>
 
 
 namespace Diligent
@@ -31,6 +33,8 @@ namespace Prisma{
 		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> m_pSBT;
 
 		void updateTLAS(bool update);
+
+		std::vector<std::string> m_nameBLAS;
 
 	};
 }
