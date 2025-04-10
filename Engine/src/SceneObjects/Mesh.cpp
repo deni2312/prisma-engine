@@ -116,7 +116,7 @@ struct VertexBlas
 
 void Prisma::Mesh::uploadBLAS()
 {
-	if (!m_blasGPU)
+	if (!m_blasGPU && m_vertices && !m_vertices->vertices.empty())
 	{
 		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 

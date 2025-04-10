@@ -91,19 +91,22 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
     m_nameBLAS.clear();
     for (int i = 0;i < meshes.size();i++)
     {
-        // Setup instances
-        Diligent::TLASBuildInstanceData instance;
-        std::string index = std::to_string(i);
-        m_nameBLAS.push_back(index);
-        instance.InstanceName = m_nameBLAS[i].c_str();
-        instance.CustomId = i; // texture index
-        instance.pBLAS = meshes[i]->blas();
-        instance.Mask = OPAQUE_GEOM_MASK;
+        if (meshes[i]->blas())
+        {
+            // Setup instances
+            Diligent::TLASBuildInstanceData instance;
+            std::string index = std::to_string(i);
+            m_nameBLAS.push_back(index);
+            instance.InstanceName = m_nameBLAS[i].c_str();
+            instance.CustomId = i; // texture index
+            instance.pBLAS = meshes[i]->blas();
+            instance.Mask = OPAQUE_GEOM_MASK;
 
-        glm::vec3 translation = meshes[i]->parent()->finalMatrix()[3];
+            glm::vec3 translation = meshes[i]->parent()->finalMatrix()[3];
 
-        instance.Transform.SetTranslation(translation.x, translation.y, translation.z);
-        instances.push_back(instance);
+            instance.Transform.SetTranslation(translation.x, translation.y, translation.z);
+            instances.push_back(instance);
+        }
     }
     // Build or update TLAS
     Diligent::BuildTLASAttribs Attribs;
@@ -153,9 +156,11 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
         m_pSBT->BindMissShader("PrimaryMiss", PRIMARY_RAY_INDEX);
         for (int i = 0;i < meshes.size();i++)
         {
-            std::string index = std::to_string(i);
-            m_pSBT->BindHitGroupForInstance(m_pTLAS, m_nameBLAS[i].c_str(), PRIMARY_RAY_INDEX, "CubePrimaryHit");
-
+            if (meshes[i]->blas())
+            {
+                std::string index = std::to_string(i);
+                m_pSBT->BindHitGroupForInstance(m_pTLAS, m_nameBLAS[i].c_str(), PRIMARY_RAY_INDEX, "CubePrimaryHit");
+            }
         }
         // Hit groups for primary ray
         // clang-format off
