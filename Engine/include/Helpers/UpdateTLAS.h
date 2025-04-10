@@ -30,5 +30,7 @@ namespace Prisma{
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_ScratchBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> m_pSBT;
 
+		void updateTLAS(bool update);
+
 	};
 }
