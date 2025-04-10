@@ -88,7 +88,7 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture()
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
-	auto proj = oglToDxProjection * glm::perspective(
+	auto proj = oglToVkProjection * glm::perspective(
 		glm::radians(90.0f), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane,
 		farPlane);
 
@@ -137,7 +137,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 	float far = maxOrtho.z;
 	float near = minOrtho.z;
 
-	auto lightOrthoMatrix = oglToDxProjection * glm::ortho(minOrtho.x, maxOrtho.x, minOrtho.y, maxOrtho.y, near, far);
+	auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minOrtho.x, maxOrtho.x, minOrtho.y, maxOrtho.y, near, far);
 
 	glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
 	auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);

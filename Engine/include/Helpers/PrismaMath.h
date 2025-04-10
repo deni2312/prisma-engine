@@ -18,11 +18,11 @@ namespace Prisma
 		glm::vec3 point;
 	};
 
-	const glm::mat4 oglToDxProjection = glm::mat4(
+	const glm::mat4 oglToVkProjection = glm::mat4(
 		1, 0, 0, 0,
 		0, -1, 0, 0,  // Flip Y
-		0, 0, 0.5f, 0,
-		0, 0, 0.5f, 1
+		0, 0, 1, 0,
+		0, 0, 0, 1
 	);
 
 	static bool mat4Equals(const glm::mat4& a, const glm::mat4& b, float epsilon = 0.0001f)
