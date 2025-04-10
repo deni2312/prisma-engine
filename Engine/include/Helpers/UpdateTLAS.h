@@ -20,6 +20,8 @@ namespace Prisma{
 
 		Diligent::RefCntAutoPtr<Diligent::ITopLevelAS> TLAS();
 
+		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> SBT();
+
 	private:
 		bool m_init=false;
 
@@ -27,5 +29,6 @@ namespace Prisma{
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_InstanceBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_ScratchBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> m_pSBT;
+
 	};
 }

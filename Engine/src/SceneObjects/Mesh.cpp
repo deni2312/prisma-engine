@@ -170,7 +170,7 @@ void Prisma::Mesh::uploadBLAS()
 		// Create BLAS
 		Diligent::BLASTriangleDesc Triangles;
 		{
-			Triangles.GeometryName = "Cube";
+			Triangles.GeometryName = "Cube Instance 1";
 			Triangles.MaxVertexCount = vertices.size();
 			Triangles.VertexValueType = Diligent::VT_FLOAT32;
 			Triangles.VertexComponentCount = 3;
@@ -178,7 +178,7 @@ void Prisma::Mesh::uploadBLAS()
 			Triangles.IndexType = Diligent::VT_UINT32;
 
 			Diligent::BottomLevelASDesc ASDesc;
-			ASDesc.Name = "Cube BLAS";
+			ASDesc.Name = "Cube Instance 1";
 			ASDesc.Flags = Diligent::RAYTRACING_BUILD_AS_PREFER_FAST_TRACE;
 			ASDesc.pTriangles = &Triangles;
 			ASDesc.TriangleCount = 1;
@@ -230,7 +230,6 @@ void Prisma::Mesh::uploadBLAS()
 		contextData.m_pImmediateContext->BuildBLAS(Attribs);
 
 		Prisma::PipelineHandler::getInstance().raytracing()->pso()->CreateShaderResourceBinding(&m_srb, true);
-
 		m_blasGPU = true;
 	}
 }

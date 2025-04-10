@@ -32,7 +32,8 @@ namespace Prisma
 
 			// Near and far clip plane distances
 			glm::vec2   ClipPlanes;
-			glm::vec2   Padding0;
+			float MaxRecursion;
+			float   Padding0;
 		};
 
 		/*std::shared_ptr<Shader> m_shader;
@@ -60,8 +61,6 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_raytracingData;
 
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_colorBuffer;
-
-		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> m_pSBT;
 
 		Prisma::Settings m_settings;
 

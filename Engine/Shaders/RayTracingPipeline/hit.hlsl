@@ -1,5 +1,5 @@
-#include "constants.hlsl"
-#include "rayutils.hlsl"
+#include "../../../Engine/Shaders/RayTracingPipeline/constants.hlsl"
+//#include "../../../Engine/Shaders/RayTracingPipeline/rayutils.hlsl"
 
 //ConstantBuffer<MeshAttribs> g_CubeAttribsCB;
 

@@ -99,29 +99,29 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_GEN;
         ShaderCI.Desc.Name = "Ray tracing RG";
-        ShaderCI.FilePath = "raytrace.rgen";
+        ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/raytrace.hlsl";
         ShaderCI.EntryPoint = "main";
         contextData.m_pDevice->CreateShader(ShaderCI, &pRayGen);
         VERIFY_EXPR(pRayGen != nullptr);
     }
 
     // Create miss shaders.
-    RefCntAutoPtr<IShader> pPrimaryMiss, pShadowMiss;
+    RefCntAutoPtr<IShader> pPrimaryMiss;
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_MISS;
         ShaderCI.Desc.Name = "Primary ray miss shader";
-        ShaderCI.FilePath = "miss.rmiss";
+        ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/miss.hlsl";
         ShaderCI.EntryPoint = "main";
         contextData.m_pDevice->CreateShader(ShaderCI, &pPrimaryMiss);
         VERIFY_EXPR(pPrimaryMiss != nullptr);
     }
 
     // Create closest hit shaders.
-    RefCntAutoPtr<IShader> pCubePrimaryHit, pGroundHit, pGlassPrimaryHit, pSpherePrimaryHit;
+    RefCntAutoPtr<IShader> pCubePrimaryHit;
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_CLOSEST_HIT;
         ShaderCI.Desc.Name = "Cube primary ray closest hit shader";
-        ShaderCI.FilePath = "hit.rchit";
+        ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/hit.hlsl";
         ShaderCI.EntryPoint = "main";
         contextData.m_pDevice->CreateShader(ShaderCI, &pCubePrimaryHit);
         VERIFY_EXPR(pCubePrimaryHit != nullptr);
@@ -185,7 +185,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     contextData.m_pDevice->CreateTexture(RTDesc, nullptr, &m_colorBuffer);
 
 
-
+    Prisma::GlobalData::getInstance().addGlobalTexture({ m_colorBuffer,"RayTracing Color"});
 }
 
 bool isFirst = false;
@@ -193,44 +193,24 @@ bool isFirst = false;
 void Prisma::PipelineRayTracing::render() {
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-    if (Prisma::CacheScene::getInstance().updateSizes() && Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size() > 0) {
-        auto tlas = Prisma::UpdateTLAS::getInstance().TLAS();
-        if (!isFirst)
-        {
-            // Create shader binding table.
+    if (auto mesh = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size() > 0) {
+        isFirst = true;
+    }
 
-            ShaderBindingTableDesc SBTDesc;
-            SBTDesc.Name = "SBT";
-            SBTDesc.pPSO = m_pso;
-
-            contextData.m_pDevice->CreateSBT(SBTDesc, &m_pSBT);
-            VERIFY_EXPR(m_pSBT != nullptr);
-
-            m_pSBT->BindRayGenShader("Main");
-
-            m_pSBT->BindMissShader("PrimaryMiss", PRIMARY_RAY_INDEX);
-
-            // Hit groups for primary ray
-            // clang-format off
-            m_pSBT->BindHitGroupForInstance(tlas, "Cube Instance 1", PRIMARY_RAY_INDEX, "CubePrimaryHit");
-
-            // Update SBT with the shader groups we bound
-            contextData.m_pImmediateContext->UpdateSBT(m_pSBT);
-        }
-
-
+    if (isFirst) {
         auto mesh = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[0];
-        mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
-        mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
+        //mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
         auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
         Diligent::MapHelper<RayTracingData> rayTracingData(contextData.m_pImmediateContext, m_raytracingData, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
         rayTracingData->CameraPos = glm::vec4(camera->position(), 1.0);
         rayTracingData->InvViewProj = Prisma::GlobalData::getInstance().currentProjection();
-        rayTracingData->InvViewProj = glm::inverse(Prisma::GlobalData::getInstance().currentProjection()*camera->matrix());
-        rayTracingData->ClipPlanes = {camera->nearPlane(),camera->farPlane()};
+        rayTracingData->InvViewProj = glm::inverse(Prisma::GlobalData::getInstance().currentProjection() * camera->matrix());
+        rayTracingData->ClipPlanes = { camera->nearPlane(),camera->farPlane() };
+        rayTracingData->MaxRecursion = m_MaxRecursionDepth;
         // Trace rays
         {
             mesh->raytracingSrb()->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
+            mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
 
             contextData.m_pImmediateContext->SetPipelineState(m_pso);
             contextData.m_pImmediateContext->CommitShaderResources(mesh->raytracingSrb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -238,7 +218,7 @@ void Prisma::PipelineRayTracing::render() {
             TraceRaysAttribs Attribs;
             Attribs.DimensionX = m_colorBuffer->GetDesc().Width;
             Attribs.DimensionY = m_colorBuffer->GetDesc().Height;
-            Attribs.pSBT = m_pSBT;
+            Attribs.pSBT = Prisma::UpdateTLAS::getInstance().SBT();;
 
             contextData.m_pImmediateContext->TraceRays(Attribs);
         }

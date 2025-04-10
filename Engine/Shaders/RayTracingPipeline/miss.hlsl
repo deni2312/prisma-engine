@@ -1,4 +1,4 @@
-#include "constants.hlsl"
+#include "../../../Engine/Shaders/RayTracingPipeline/constants.hlsl"
 ConstantBuffer<Constants> g_ConstantsCB;
 
 [shader("miss")]

@@ -1,5 +1,5 @@
-#include "constants.hlsl"
-#include "rayutils.hlsl"
+#include "../../../Engine/Shaders/RayTracingPipeline/constants.hlsl"
+#include "../../../Engine/Shaders/RayTracingPipeline/rayutils.hlsl"
 
 VK_IMAGE_FORMAT("rgba8") RWTexture2D<float4> g_ColorBuffer;
 
