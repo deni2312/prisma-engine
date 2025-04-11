@@ -20,4 +20,5 @@ void main(in VSInput VSIn,
 {
     PSIn.Pos = float4(VSIn.Pos, 1.0);
     PSIn.UV = VSIn.UV;
+    PSIn.UV.y = 1 - PSIn.UV.y;
 }

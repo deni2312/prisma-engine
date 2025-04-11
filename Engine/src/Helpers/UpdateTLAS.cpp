@@ -115,10 +115,13 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
         instance.CustomId = i;
         instance.pBLAS = meshes[i]->blas();
         instance.Mask = OPAQUE_GEOM_MASK;
-
-        glm::vec3 translation = meshes[i]->parent()->finalMatrix()[3];
-        instance.Transform.SetTranslation(translation.x, translation.y, translation.z);
-
+        glm::mat4 modelMatrix = meshes[i]->parent()->finalMatrix(); // This should include scale, rotation, and translation
+        // Assign to the instance transform as a 3x4 row-major matrix
+        for (int row = 0; row < 3; ++row) {
+            for (int col = 0; col < 4; ++col) {
+                instance.Transform.data[row][col] = modelMatrix[col][row]; // glm is column-major, Diligent expects row-major
+            }
+        }
         instances.push_back(instance);
     }
     // Build or update TLAS
