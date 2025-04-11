@@ -1,8 +1,3 @@
-cbuffer Constants
-{
-    float4x4 g_WorldViewProj;
-};
-
 struct VSInput
 {
     float3 Pos : ATTRIB0;
