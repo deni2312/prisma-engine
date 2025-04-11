@@ -51,9 +51,9 @@ void Prisma::PipelineOmniShadow::init()
     RTDepthDesc.Height = m_height;
     RTDepthDesc.MipLevels = 1;
     RTDepthDesc.ArraySize = 6;
-    RTDepthDesc.Name = "Offscreen depth buffer";
+    RTDepthDesc.Name = "Offscreen depth buffer OmniShadow";
     RTDepthDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
-    RTDepthDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET | Diligent::BIND_DEPTH_STENCIL;
+    RTDepthDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_DEPTH_STENCIL;
     // Define optimal clear value
     RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
     RTDepthDesc.ClearValue.DepthStencil.Depth = 1;

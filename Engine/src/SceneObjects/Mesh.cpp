@@ -228,8 +228,6 @@ void Prisma::Mesh::uploadBLAS()
 		Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
 		contextData.m_pImmediateContext->BuildBLAS(Attribs);
-
-		Prisma::PipelineHandler::getInstance().raytracing()->pso()->CreateShaderResourceBinding(&m_srb, true);
 		m_blasGPU = true;
 	}
 }
@@ -237,11 +235,6 @@ void Prisma::Mesh::uploadBLAS()
 Diligent::RefCntAutoPtr<Diligent::IBottomLevelAS> Prisma::Mesh::blas()
 {
 	return m_pCubeBLAS;
-}
-
-Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::Mesh::raytracingSrb()
-{
-	return m_srb;
 }
 
 void Prisma::Mesh::computeAABB()

@@ -327,6 +327,8 @@ void Prisma::PrismaFunc::init()
 		EngineCI.Features.GeometryShaders = DEVICE_FEATURE_STATE_ENABLED;
 		EngineCI.Features.DepthClamp = DEVICE_FEATURE_STATE_ENABLED;
 		EngineCI.Features.RayTracing = DEVICE_FEATURE_STATE_ENABLED;
+		EngineCI.Features.PixelUAVWritesAndAtomics = DEVICE_FEATURE_STATE_ENABLED;
+
 		pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.m_pDevice, &m_contextData.m_pImmediateContext);
 		pFactoryVk->CreateSwapChainVk(m_contextData.m_pDevice, m_contextData.m_pImmediateContext, SCDesc, Window, &m_contextData.m_pSwapChain);
 		m_contextData.m_pEngineFactory = pFactoryVk;

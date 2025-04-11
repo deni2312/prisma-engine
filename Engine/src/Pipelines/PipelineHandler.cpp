@@ -60,7 +60,7 @@ Prisma::PipelineHandler::PipelineHandler()
 
     // Create window-size depth buffer
     Diligent::TextureDesc RTDepthDesc = RTColorDesc;
-    RTDepthDesc.Name = "Offscreen depth buffer";
+    RTDepthDesc.Name = "Offscreen depth buffer MAIN";
     RTDepthDesc.Format = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     RTDepthDesc.BindFlags = Diligent::BIND_DEPTH_STENCIL;
     // Define optimal clear value

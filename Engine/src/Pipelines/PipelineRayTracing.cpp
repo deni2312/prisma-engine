@@ -191,14 +191,9 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 bool isFirst = false;
 
 void Prisma::PipelineRayTracing::render() {
-    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+    if (Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size()) {
+        auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-    if (auto mesh = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size() > 0) {
-        isFirst = true;
-    }
-
-    if (isFirst) {
-        auto mesh = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[0];
         //mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
         auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
         Diligent::MapHelper<RayTracingData> rayTracingData(contextData.m_pImmediateContext, m_raytracingData, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
@@ -207,21 +202,19 @@ void Prisma::PipelineRayTracing::render() {
         rayTracingData->InvViewProj = glm::inverse(Prisma::GlobalData::getInstance().currentProjection() * camera->matrix());
         rayTracingData->ClipPlanes = { camera->nearPlane(),camera->farPlane() };
         rayTracingData->MaxRecursion = m_MaxRecursionDepth;
-        // Trace rays
-        {
-            mesh->raytracingSrb()->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
-            mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS(),SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
 
-            contextData.m_pImmediateContext->SetPipelineState(m_pso);
-            contextData.m_pImmediateContext->CommitShaderResources(mesh->raytracingSrb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
+        m_srb->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
 
-            TraceRaysAttribs Attribs;
-            Attribs.DimensionX = m_colorBuffer->GetDesc().Width;
-            Attribs.DimensionY = m_colorBuffer->GetDesc().Height;
-            Attribs.pSBT = Prisma::UpdateTLAS::getInstance().SBT();;
+        contextData.m_pImmediateContext->SetPipelineState(m_pso);
+        contextData.m_pImmediateContext->CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-            contextData.m_pImmediateContext->TraceRays(Attribs);
-        }
+        TraceRaysAttribs Attribs;
+        Attribs.DimensionX = m_colorBuffer->GetDesc().Width;
+        Attribs.DimensionY = m_colorBuffer->GetDesc().Height;
+        Attribs.pSBT = Prisma::UpdateTLAS::getInstance().SBT();
+
+        contextData.m_pImmediateContext->TraceRays(Attribs);
     }
 }
 

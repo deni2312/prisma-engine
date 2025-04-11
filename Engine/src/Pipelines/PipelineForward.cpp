@@ -105,7 +105,7 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "PS";
+        ShaderCI.Desc.Name = "Forward PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.glsl";
         contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
     }
