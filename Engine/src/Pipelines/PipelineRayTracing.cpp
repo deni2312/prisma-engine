@@ -221,14 +221,6 @@ Diligent::RefCntAutoPtr<Diligent::IPipelineState> Prisma::PipelineRayTracing::ps
     return m_pso;
 }
 
-void Prisma::PipelineRayTracing::uploadMeshes()
-{
-    auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-    for (auto mesh : meshes) {
-        mesh->uploadBLAS();
-    }
-}
-
 Prisma::PipelineRayTracing::~PipelineRayTracing()
 {
 }

@@ -1,9 +1,11 @@
 #include "Helpers/UpdateTLAS.h"
 
 #include "GlobalData/CacheScene.h"
+#include "GlobalData/EngineSettings.h"
 #include "GlobalData/GlobalData.h"
 #include "GlobalData/PrismaFunc.h"
 #include "Pipelines/PipelineHandler.h"
+#include "engine.h"
 
 // Instance mask.
 #define OPAQUE_GEOM_MASK      0x01
@@ -20,67 +22,75 @@ Prisma::UpdateTLAS::UpdateTLAS()
 void Prisma::UpdateTLAS::update()
 {
     // Create or update top-level acceleration structure
+    if (Prisma::Engine::getInstance().engineSettings().pipeline == EngineSettings::Pipeline::RAYTRACING) {
+        auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 
-    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-    auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-
-    if (Prisma::CacheScene::getInstance().updateSizes() && !meshes.empty()) {
-        Prisma::PipelineHandler::getInstance().raytracing()->uploadMeshes();
-        if (m_pTLAS)
-        {
-            m_pTLAS.Release();
-            m_ScratchBuffer.Release();
-            m_InstanceBuffer.Release();
+        if (Prisma::CacheScene::getInstance().updateSizes() && !meshes.empty()) {
+            updateSizeTLAS();
         }
 
-        // Create TLAS
-        if (!m_pTLAS)
-        {
-            Diligent::TopLevelASDesc TLASDesc;
-            TLASDesc.Name = "TLAS";
-            TLASDesc.MaxInstanceCount = meshes.size();
-            TLASDesc.Flags = Diligent::RAYTRACING_BUILD_AS_ALLOW_UPDATE | Diligent::RAYTRACING_BUILD_AS_PREFER_FAST_TRACE;
-
-            contextData.m_pDevice->CreateTLAS(TLASDesc, &m_pTLAS);
-            VERIFY_EXPR(m_pTLAS != nullptr);
-
+        if (Prisma::CacheScene::getInstance().updateData() && !meshes.empty()) {
+            updateTLAS(true);
         }
-
-        // Create scratch buffer
-        if (!m_ScratchBuffer)
-        {
-            Diligent::BufferDesc BuffDesc;
-            BuffDesc.Name = "TLAS Scratch Buffer";
-            BuffDesc.Usage = Diligent::USAGE_DEFAULT;
-            BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
-            BuffDesc.Size = std::max(m_pTLAS->GetScratchBufferSizes().Build, m_pTLAS->GetScratchBufferSizes().Update);
-
-            contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_ScratchBuffer);
-            VERIFY_EXPR(m_ScratchBuffer != nullptr);
-        }
-
-        // Create instance buffer
-        if (!m_InstanceBuffer)
-        {
-            Diligent::BufferDesc BuffDesc;
-            BuffDesc.Name = "TLAS Instance Buffer";
-            BuffDesc.Usage = Diligent::USAGE_DEFAULT;
-            BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
-            BuffDesc.Size = Diligent::TLAS_INSTANCE_DATA_SIZE * meshes.size();
-
-            contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_InstanceBuffer);
-            VERIFY_EXPR(m_InstanceBuffer != nullptr);
-        }
-        updateTLAS(false);
-    }
-
-    if (Prisma::CacheScene::getInstance().updateData() && !meshes.empty()) {
-        updateTLAS(true);
     }
 }
 
 Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> Prisma::UpdateTLAS::SBT() {
     return m_pSBT;
+}
+
+void Prisma::UpdateTLAS::updateSizeTLAS() {
+    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+    auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+    for (auto mesh : meshes) {
+        mesh->uploadBLAS();
+    }
+    if (m_pTLAS)
+    {
+        m_pTLAS.Release();
+        m_ScratchBuffer.Release();
+        m_InstanceBuffer.Release();
+    }
+
+    // Create TLAS
+    if (!m_pTLAS)
+    {
+        Diligent::TopLevelASDesc TLASDesc;
+        TLASDesc.Name = "TLAS";
+        TLASDesc.MaxInstanceCount = meshes.size();
+        TLASDesc.Flags = Diligent::RAYTRACING_BUILD_AS_ALLOW_UPDATE | Diligent::RAYTRACING_BUILD_AS_PREFER_FAST_TRACE;
+
+        contextData.m_pDevice->CreateTLAS(TLASDesc, &m_pTLAS);
+        VERIFY_EXPR(m_pTLAS != nullptr);
+
+    }
+
+    // Create scratch buffer
+    if (!m_ScratchBuffer)
+    {
+        Diligent::BufferDesc BuffDesc;
+        BuffDesc.Name = "TLAS Scratch Buffer";
+        BuffDesc.Usage = Diligent::USAGE_DEFAULT;
+        BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
+        BuffDesc.Size = std::max(m_pTLAS->GetScratchBufferSizes().Build, m_pTLAS->GetScratchBufferSizes().Update);
+
+        contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_ScratchBuffer);
+        VERIFY_EXPR(m_ScratchBuffer != nullptr);
+    }
+
+    // Create instance buffer
+    if (!m_InstanceBuffer)
+    {
+        Diligent::BufferDesc BuffDesc;
+        BuffDesc.Name = "TLAS Instance Buffer";
+        BuffDesc.Usage = Diligent::USAGE_DEFAULT;
+        BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
+        BuffDesc.Size = Diligent::TLAS_INSTANCE_DATA_SIZE * meshes.size();
+
+        contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_InstanceBuffer);
+        VERIFY_EXPR(m_InstanceBuffer != nullptr);
+    }
+    updateTLAS(false);
 }
 
 void Prisma::UpdateTLAS::updateTLAS(bool update)

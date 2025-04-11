@@ -8,6 +8,9 @@
 #include "../include/TextureInfo.h"
 #include <ThirdParty/imgui/imgui.h>
 
+#include "Helpers/UpdateTLAS.h"
+#include "Pipelines/PipelineHandler.h"
+
 Prisma::ImguiDebug::ImGuiStatus m_status;
 
 void Prisma::SettingsTab::init()
@@ -49,7 +52,21 @@ void Prisma::SettingsTab::drawSettings()
 		ImGui::Text(("    TEXTURE: " + stringBool(CacheScene::getInstance().updateTextures())).c_str());
 		ImGui::Text(("    STATUS: " + stringBool(CacheScene::getInstance().updateStatus())).c_str());
 
-		ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size());
+		if (ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size()))
+		{
+			switch (m_status.currentitem)
+			{
+			case EngineSettings::Pipeline::FORWARD:
+				break;
+			case EngineSettings::Pipeline::DEFERRED:
+				break;
+			case EngineSettings::Pipeline::DEFERRED_FORWARD:
+				break;
+			case EngineSettings::Pipeline::RAYTRACING:
+				Prisma::UpdateTLAS::getInstance().updateSizeTLAS();
+				break;
+			}
+		}
 		ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(),
 		             m_status.postprocess.size());
 		ImGui::Checkbox("BLOOM", &m_bloom);

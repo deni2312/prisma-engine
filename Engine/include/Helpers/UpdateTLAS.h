@@ -21,6 +21,8 @@ namespace Prisma{
 		UpdateTLAS();
 		void update();
 
+		void updateSizeTLAS();
+
 		Diligent::RefCntAutoPtr<Diligent::ITopLevelAS> TLAS();
 
 		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> SBT();

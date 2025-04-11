@@ -18,7 +18,6 @@ namespace Prisma
 		void render();
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso();
 		~PipelineRayTracing();
-		void uploadMeshes();
 
 	private:
 		unsigned int m_width;
