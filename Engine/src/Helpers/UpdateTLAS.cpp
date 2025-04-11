@@ -25,6 +25,7 @@ void Prisma::UpdateTLAS::update()
     auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
 
     if (Prisma::CacheScene::getInstance().updateSizes() && !meshes.empty()) {
+        Prisma::PipelineHandler::getInstance().raytracing()->uploadMeshes();
         if (m_pTLAS)
         {
             m_pTLAS.Release();

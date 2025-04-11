@@ -17,9 +17,8 @@ namespace Prisma
 		PipelineRayTracing(const unsigned int& width = 1920, const unsigned int& height = 1080, bool srgb = true);
 		void render();
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso();
-
-
 		~PipelineRayTracing();
+		void uploadMeshes();
 
 	private:
 		unsigned int m_width;
@@ -30,20 +29,10 @@ namespace Prisma
 			glm::vec4   CameraPos;
 			glm::mat4 InvViewProj;
 
-			// Near and far clip plane distances
 			glm::vec2   ClipPlanes;
 			float MaxRecursion;
 			float   Padding0;
 		};
-
-		/*std::shared_ptr<Shader> m_shader;
-		std::shared_ptr<Shader> m_shaderAnimate;
-		std::shared_ptr<Shader> m_shaderTransparent;
-		std::shared_ptr<FBO> m_fbo;
-		std::shared_ptr<FBO> m_fboCopy;
-		std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
-
-		std::shared_ptr<PipelinePrePass> m_prepass;*/
 
 		Diligent::Uint32 m_MaxRecursionDepth = 8;
 

@@ -188,8 +188,6 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     Prisma::GlobalData::getInstance().addGlobalTexture({ m_colorBuffer,"RayTracing Color"});
 }
 
-bool isFirst = false;
-
 void Prisma::PipelineRayTracing::render() {
     if (Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size()) {
         auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
@@ -221,6 +219,14 @@ void Prisma::PipelineRayTracing::render() {
 Diligent::RefCntAutoPtr<Diligent::IPipelineState> Prisma::PipelineRayTracing::pso()
 {
     return m_pso;
+}
+
+void Prisma::PipelineRayTracing::uploadMeshes()
+{
+    auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+    for (auto mesh : meshes) {
+        mesh->uploadBLAS();
+    }
 }
 
 Prisma::PipelineRayTracing::~PipelineRayTracing()

@@ -313,7 +313,6 @@ std::shared_ptr<Prisma::Node> Prisma::NodeCreator::createMesh(std::shared_ptr<Pr
 {
 	auto newInstance = std::make_shared<Mesh>();
 	newInstance->loadModel(verticesData);
-	newInstance->uploadBLAS();
 	auto currentMaterial = getEmptyMaterial();
 	newInstance->material(currentMaterial);
 	newInstance->matrix(glm::mat4(1.0));

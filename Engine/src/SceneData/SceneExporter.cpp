@@ -105,7 +105,6 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCub
 		if (mesh && !std::dynamic_pointer_cast<AnimatedMesh>(node))
 		{
 			meshes.push_back(mesh);
-			mesh->uploadBLAS();
 		}
 		else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(node))
 		{
