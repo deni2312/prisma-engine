@@ -45,6 +45,8 @@ namespace Prisma
 		void addGlobalList(bool globalList);
 		bool addGlobalList() const;
 
+		const char* strUUID();
+
 		~Node();
 
 	private:
@@ -63,5 +65,7 @@ namespace Prisma
 		bool m_visible = true;
 		bool m_loadingComponent = true;
 		bool m_addGlobal = true;
+		const char* m_strUUID;
+		std::string m_strrUUID;
 	};
 }

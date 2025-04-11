@@ -11,6 +11,7 @@ namespace Diligent
 	struct IShaderBindingTable;
 	struct IBuffer;
 	struct ITopLevelAS;
+	struct TLASBuildInstanceData;
 }
 
 namespace Prisma{
@@ -25,16 +26,12 @@ namespace Prisma{
 		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> SBT();
 
 	private:
-		bool m_init=false;
-
 		Diligent::RefCntAutoPtr<Diligent::ITopLevelAS> m_pTLAS;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_InstanceBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_ScratchBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> m_pSBT;
 
 		void updateTLAS(bool update);
-
-		std::vector<std::string> m_nameBLAS;
 
 	};
 }

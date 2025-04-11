@@ -87,26 +87,22 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
 
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
     auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+
     std::vector<Diligent::TLASBuildInstanceData> instances;
-    m_nameBLAS.clear();
-    for (int i = 0;i < meshes.size();i++)
+
+    for (int i = 0; i < meshes.size(); i++)
     {
-        if (meshes[i]->blas())
-        {
-            // Setup instances
-            Diligent::TLASBuildInstanceData instance;
-            std::string index = std::to_string(i);
-            m_nameBLAS.push_back(index);
-            instance.InstanceName = m_nameBLAS[i].c_str();
-            instance.CustomId = i; // texture index
-            instance.pBLAS = meshes[i]->blas();
-            instance.Mask = OPAQUE_GEOM_MASK;
+        Diligent::TLASBuildInstanceData instance;
 
-            glm::vec3 translation = meshes[i]->parent()->finalMatrix()[3];
+        instance.InstanceName = meshes[i]->strUUID();
+        instance.CustomId = i;
+        instance.pBLAS = meshes[i]->blas();
+        instance.Mask = OPAQUE_GEOM_MASK;
 
-            instance.Transform.SetTranslation(translation.x, translation.y, translation.z);
-            instances.push_back(instance);
-        }
+        glm::vec3 translation = meshes[i]->parent()->finalMatrix()[3];
+        instance.Transform.SetTranslation(translation.x, translation.y, translation.z);
+
+        instances.push_back(instance);
     }
     // Build or update TLAS
     Diligent::BuildTLASAttribs Attribs;
@@ -134,7 +130,6 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
     Attribs.BLASTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
     Attribs.InstanceBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
     Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-
     contextData.m_pImmediateContext->BuildTLAS(Attribs);
 
     // Create shader binding table.
@@ -142,7 +137,7 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
     Diligent::ShaderBindingTableDesc SBTDesc;
     SBTDesc.Name = "SBT";
     SBTDesc.pPSO = Prisma::PipelineHandler::getInstance().raytracing()->pso();
-
+ 
     if (!update) {
 
         if (m_pSBT)
@@ -152,19 +147,13 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
         contextData.m_pDevice->CreateSBT(SBTDesc, &m_pSBT);
         VERIFY_EXPR(m_pSBT != nullptr);
         m_pSBT->BindRayGenShader("Main");
-
         m_pSBT->BindMissShader("PrimaryMiss", PRIMARY_RAY_INDEX);
+
         for (int i = 0;i < meshes.size();i++)
         {
-            if (meshes[i]->blas())
-            {
-                std::string index = std::to_string(i);
-                m_pSBT->BindHitGroupForInstance(m_pTLAS, m_nameBLAS[i].c_str(), PRIMARY_RAY_INDEX, "CubePrimaryHit");
-            }
+            m_pSBT->BindHitGroupForInstance(m_pTLAS, meshes[i]->strUUID(), PRIMARY_RAY_INDEX, "CubePrimaryHit");
         }
-        // Hit groups for primary ray
-        // clang-format off
-
+        
         // Update SBT with the shader groups we bound
         contextData.m_pImmediateContext->UpdateSBT(m_pSBT);
     }

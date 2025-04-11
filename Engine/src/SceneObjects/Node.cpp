@@ -14,6 +14,8 @@ static uint64_t uuidNode = 0;
 Prisma::Node::Node() : m_matrix{glm::mat4(1.0f)}, m_finalMatrix{glm::mat4(1.0f)}
 {
 	m_uuid = uuidNode;
+	m_strrUUID = std::to_string(m_uuid);
+	m_strUUID = m_strrUUID.c_str();
 	uuidNode = uuidNode + 1;
 }
 
@@ -350,6 +352,11 @@ void Prisma::Node::addGlobalList(bool globalList)
 bool Prisma::Node::addGlobalList() const
 {
 	return m_addGlobal;
+}
+
+const char* Prisma::Node::strUUID()
+{
+	return m_strUUID;
 }
 
 void Prisma::Node::removeComponent(const std::string& name)
