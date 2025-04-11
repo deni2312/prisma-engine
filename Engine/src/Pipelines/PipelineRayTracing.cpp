@@ -210,7 +210,7 @@ void Prisma::PipelineRayTracing::render() {
         // Trace rays
         {
             mesh->raytracingSrb()->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
-            mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
+            mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS(),SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
 
             contextData.m_pImmediateContext->SetPipelineState(m_pso);
             contextData.m_pImmediateContext->CommitShaderResources(mesh->raytracingSrb(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
