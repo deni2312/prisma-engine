@@ -15,6 +15,7 @@ namespace Prisma {
 		constexpr int MAX_SHADOW_OMNI_TEXTURE_SIZE = 1024;
 		constexpr int MAX_SHADOW_DIR_TEXTURE_SIZE = 4096;
 		constexpr int MAX_MESHES = 2048;
+		constexpr int MAX_RAYTRACING_MESHES = 1024;
 		constexpr int DEFAULT_MIPS = 4;
 		const std::string DIR_DEFAULT_BLACK = "../../../Resources/res/black.png";
 		const std::string DIR_DEFAULT_WHITE = "../../../Resources/res/white.jpg";

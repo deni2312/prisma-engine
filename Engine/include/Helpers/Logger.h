@@ -14,7 +14,7 @@ namespace Prisma
 	enum class LogLevel
 	{
 		INFO,
-		ERROR,
+		ERRORS,
 		WARN,
 		GENERIC
 	};

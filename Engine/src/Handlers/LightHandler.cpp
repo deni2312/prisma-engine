@@ -258,7 +258,7 @@ void Prisma::LightHandler::update()
 		}
 		else
 		{
-			Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,"Too many lights");
+			Prisma::Logger::getInstance().log(Prisma::LogLevel::ERRORS,"Too many lights");
 		}
 	}
 

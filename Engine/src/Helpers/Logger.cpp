@@ -4,7 +4,7 @@ Prisma::Logger::Logger()
 {
 	// Initialize the map with empty log vectors for each log level
 	logMap[LogLevel::INFO] = {""};
-	logMap[LogLevel::ERROR] = {""};
+	logMap[LogLevel::ERRORS] = {""};
 	logMap[LogLevel::WARN] = {""};
 	logMap[LogLevel::GENERIC] = {""};
 }
@@ -26,7 +26,7 @@ std::string Prisma::Logger::toString(LogLevel level) const
 	switch (level)
 	{
 	case LogLevel::INFO: return "INFO";
-	case LogLevel::ERROR: return "ERROR";
+	case LogLevel::ERRORS: return "ERROR";
 	case LogLevel::WARN: return "WARN";
 	case LogLevel::GENERIC: return "GENERIC";
 	default: return "UNKNOWN";

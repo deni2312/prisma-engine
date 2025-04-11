@@ -6,6 +6,7 @@
 #include "GlobalData/PrismaFunc.h"
 #include "Pipelines/PipelineHandler.h"
 #include "engine.h"
+#include "Helpers/Logger.h"
 
 // Instance mask.
 #define OPAQUE_GEOM_MASK      0x01
@@ -42,12 +43,16 @@ Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> Prisma::UpdateTLAS::SBT()
 void Prisma::UpdateTLAS::updateSizeTLAS() {
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
     auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-    for (auto mesh : meshes) {
-        mesh->uploadBLAS();
+    if (meshes.size()>= Define::MAX_RAYTRACING_MESHES)
+    {
+        Prisma::Logger::getInstance().log(Prisma::LogLevel::ERRORS,"Limit meshes in raytracing pipeline exceeded("+std::to_string(Define::MAX_RAYTRACING_MESHES)+")");
+    }
+
+    for (int i = 0;i < meshes.size() && i < Define::MAX_RAYTRACING_MESHES;i++) {
+        meshes[i]->uploadBLAS();
     }
     if (m_pTLAS)
     {
-        m_pTLAS.Release();
         m_ScratchBuffer.Release();
         m_InstanceBuffer.Release();
     }
@@ -57,12 +62,12 @@ void Prisma::UpdateTLAS::updateSizeTLAS() {
     {
         Diligent::TopLevelASDesc TLASDesc;
         TLASDesc.Name = "TLAS";
-        TLASDesc.MaxInstanceCount = meshes.size();
+        TLASDesc.MaxInstanceCount = Define::MAX_RAYTRACING_MESHES;
         TLASDesc.Flags = Diligent::RAYTRACING_BUILD_AS_ALLOW_UPDATE | Diligent::RAYTRACING_BUILD_AS_PREFER_FAST_TRACE;
 
         contextData.m_pDevice->CreateTLAS(TLASDesc, &m_pTLAS);
         VERIFY_EXPR(m_pTLAS != nullptr);
-
+        Prisma::PipelineHandler::getInstance().raytracing()->srb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
     }
 
     // Create scratch buffer
@@ -90,6 +95,7 @@ void Prisma::UpdateTLAS::updateSizeTLAS() {
         contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_InstanceBuffer);
         VERIFY_EXPR(m_InstanceBuffer != nullptr);
     }
+
     updateTLAS(false);
 }
 

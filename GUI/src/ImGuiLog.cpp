@@ -10,7 +10,7 @@ void Prisma::ImGuiLog::render()
 	Prisma::Logger& logger = Prisma::Logger::getInstance();
 	print(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), logger.getLogs(Prisma::LogLevel::INFO));
 
-	print(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), logger.getLogs(Prisma::LogLevel::ERROR));
+	print(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), logger.getLogs(Prisma::LogLevel::ERRORS));
 
 	print(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), logger.getLogs(Prisma::LogLevel::WARN));
 

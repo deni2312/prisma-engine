@@ -7,6 +7,8 @@
 #include "PipelineFullScreen.h"
 #include "../Helpers/Settings.h"
 #include <memory>
+
+#include "PipelineBlitRT.h"
 #include "PipelinePrePass.h"
 
 namespace Prisma
@@ -17,6 +19,8 @@ namespace Prisma
 		PipelineRayTracing(const unsigned int& width = 1920, const unsigned int& height = 1080, bool srgb = true);
 		void render();
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso();
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb();
+		Diligent::RefCntAutoPtr<Diligent::ITexture> colorBuffer();
 		~PipelineRayTracing();
 
 	private:
@@ -51,6 +55,8 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::ITexture> m_colorBuffer;
 
 		Prisma::Settings m_settings;
+
+		std::shared_ptr<PipelineBlitRT> m_blitRT;
 
 	};
 }
