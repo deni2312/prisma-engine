@@ -107,44 +107,21 @@ void createTLAS()
 	
 }
 
-struct VertexBlas
-{
-	glm::vec3 pos;
-	glm::vec3 norm;
-	glm::vec2 uv;
-};
-
 void Prisma::Mesh::uploadBLAS()
 {
 	if (!m_blasGPU && m_vertices && !m_vertices->vertices.empty())
 	{
 		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
-
 		std::vector<glm::vec3> vertices;
-
-		std::vector<VertexBlas> verticesBlas;
 
 		for (const auto& v : m_vertices->vertices)
 		{
 			vertices.push_back(v.position);
 
-			verticesBlas.push_back({ v.position ,v.normal,v.texCoords });
 		}
 
-		Diligent::BufferDesc BuffDesc;
-		BuffDesc.Name = "Cube";
-		BuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-		BuffDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
-		BuffDesc.Size = sizeof(VertexBlas) * verticesBlas.size();
-
-		Diligent::BufferData BufData = { verticesBlas.data(), BuffDesc.Size};
-
-		contextData.m_pDevice->CreateBuffer(BuffDesc, &BufData, &m_CubeAttribsCB);
-		VERIFY_EXPR(m_CubeAttribsCB != nullptr);
-
 		//srb->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_CubeAttribsCB")->Set(m_CubeAttribsCB);
-
 
 		Diligent::BufferDesc VertBuffDesc;
 		VertBuffDesc.Name = "Cube vertex buffer";

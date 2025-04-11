@@ -95,7 +95,6 @@ namespace Prisma
 		AABBData m_aabbData;
 
 		bool m_blasGPU = false;
-		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_CubeAttribsCB;
 		Diligent::RefCntAutoPtr<Diligent::IBottomLevelAS> m_pCubeBLAS;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
