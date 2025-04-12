@@ -83,6 +83,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
     // Use row-major matrices.
     ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
+    ShaderCI.CompileFlags |= SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
 
     // Shader model 6.3 is required for DXR 1.0, shader model 6.5 is required for DXR 1.1 and enables additional features.
     // Use 6.3 for compatibility with DXR 1.0 and VK_NV_ray_tracing.
@@ -152,23 +153,44 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP //
     };
 
-    PipelineResourceLayoutDescX ResourceLayout;
-    ResourceLayout.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE;
-    ResourceLayout.AddImmutableSampler(SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap", SamLinearWrapDesc);
-    ResourceLayout
-        .AddVariable(SHADER_TYPE_RAY_GEN | SHADER_TYPE_RAY_MISS | SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB", SHADER_RESOURCE_VARIABLE_TYPE_STATIC)
-        .AddVariable(SHADER_TYPE_RAY_GEN, "g_ColorBuffer", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC);
 
-    PSOCreateInfo.PSODesc.ResourceLayout = ResourceLayout;
+    PipelineResourceDesc Resources[] =
+    {
+        {SHADER_TYPE_RAY_GEN, "g_TLAS", 1,SHADER_RESOURCE_TYPE_ACCEL_STRUCT,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_RAY_GEN | SHADER_TYPE_RAY_MISS | SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB", 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_RAY_GEN, "g_ColorBuffer", 1,SHADER_RESOURCE_TYPE_TEXTURE_UAV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+    };
+
+    PipelineResourceSignatureDesc ResourceSignDesc;
+    ResourceSignDesc.NumResources = _countof(Resources);
+    ResourceSignDesc.Resources = Resources;
+
+    contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
+    RefCntAutoPtr<ISampler> samplerClamp;
+
+    IPipelineResourceSignature* ppSignatures[]{ m_pResourceSignature };
+
+    PSOCreateInfo.ppResourceSignatures = ppSignatures;
+    PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
+
 
     contextData.m_pDevice->CreateRayTracingPipelineState(PSOCreateInfo, &m_pso);
+	contextData.m_pDevice->CreateSampler(SamLinearWrapDesc, &samplerClamp);
+    IDeviceObject* samplerDeviceClamp = samplerClamp;
+
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap")->Set(samplerDeviceClamp);
+
     VERIFY_EXPR(m_pso != nullptr);
 
-    m_pso->GetStaticVariableByName(SHADER_TYPE_RAY_GEN, "g_ConstantsCB")->Set(m_raytracingData);
-    m_pso->GetStaticVariableByName(SHADER_TYPE_RAY_MISS, "g_ConstantsCB")->Set(m_raytracingData);
-    m_pso->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB")->Set(m_raytracingData);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_GEN, "g_ConstantsCB")->Set(m_raytracingData);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_MISS, "g_ConstantsCB")->Set(m_raytracingData);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB")->Set(m_raytracingData);
 
-    m_pso->CreateShaderResourceBinding(&m_srb, true);
+    m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
     VERIFY_EXPR(m_srb != nullptr);
 
 
@@ -194,7 +216,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     Prisma::UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index)
         {
             m_srb.Release();
-            m_pso->CreateShaderResourceBinding(&m_srb, true);
+            m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
             m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(vertex->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));

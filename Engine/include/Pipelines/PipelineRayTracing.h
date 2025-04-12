@@ -58,5 +58,7 @@ namespace Prisma
 
 		std::shared_ptr<PipelineBlitRT> m_blitRT;
 
+		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
+
 	};
 }
