@@ -30,14 +30,6 @@ struct DirectionalData
     float2 padding;
 };
 
-cbuffer LightSizes
-{
-    int omniSize;
-    int dirSize;
-    int areaSize;
-    int padding;
-};
-
 struct ShadowRayPayload
 {
     float Shading; // 0 - fully shadowed, 1 - fully in light, 0..1 - for semi-transparent objects
@@ -82,14 +74,14 @@ struct ProceduralGeomIntersectionAttribs
     float3 Normal;
 };
 
-
 // Instance mask.
 #define OPAQUE_GEOM_MASK      0x01
 #define TRANSPARENT_GEOM_MASK 0x02
 
 // Ray types
-#define HIT_GROUP_STRIDE  1
+#define HIT_GROUP_STRIDE  2
 #define PRIMARY_RAY_INDEX 0
+#define SHADOW_RAY_INDEX  1
 
 
 #ifndef __cplusplus

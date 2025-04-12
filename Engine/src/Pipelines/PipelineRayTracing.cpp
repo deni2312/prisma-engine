@@ -106,6 +106,15 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         VERIFY_EXPR(pRayGen != nullptr);
     }
 
+    RefCntAutoPtr<IShader> pShadowMiss;
+    ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_MISS;
+    ShaderCI.Desc.Name = "Shadow ray miss shader";
+    ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/shadow_miss.hlsl";
+    ShaderCI.EntryPoint = "main";
+    contextData.m_pDevice->CreateShader(ShaderCI, &pShadowMiss);
+    VERIFY_EXPR(pShadowMiss != nullptr);
+
+
     // Create miss shaders.
     RefCntAutoPtr<IShader> pPrimaryMiss;
     {
@@ -137,6 +146,8 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     // Primary ray hit group for the textured cube.
     PSOCreateInfo.AddTriangleHitShader("CubePrimaryHit", pCubePrimaryHit);
 
+    PSOCreateInfo.AddGeneralShader("ShadowMiss", pShadowMiss);
+
     // Specify the maximum ray recursion depth.
     // WARNING: the driver does not track the recursion depth and it is the
     //          application's responsibility to not exceed the specified limit.
@@ -162,6 +173,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     PipelineResourceDesc Resources[] =
     {
         {SHADER_TYPE_RAY_GEN, "g_TLAS", 1,SHADER_RESOURCE_TYPE_ACCEL_STRUCT,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS", 1,SHADER_RESOURCE_TYPE_ACCEL_STRUCT,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -223,26 +235,14 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
     m_blitRT = std::make_shared<Prisma::PipelineBlitRT>(m_colorBuffer);
 
-    auto updateData = [&](auto vertex, auto primitive, auto index)
-        {
-            m_srb.Release();
-            auto materials = Prisma::MeshIndirect::getInstance().textureViews();
-            m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
-            m_srb->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(vertex->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(primitive->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(index->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-        };
-
     Prisma::UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index)
         {
             m_srb.Release();
             auto materials = Prisma::MeshIndirect::getInstance().textureViews();
             m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
             m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
-            m_srb->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(vertex->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(primitive->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(index->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));

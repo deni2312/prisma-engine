@@ -13,8 +13,9 @@
 #define TRANSPARENT_GEOM_MASK 0x02
 
 // Ray types
-#define HIT_GROUP_STRIDE  1
+#define HIT_GROUP_STRIDE  2
 #define PRIMARY_RAY_INDEX 0
+#define SHADOW_RAY_INDEX  1
 
 Prisma::UpdateTLAS::UpdateTLAS()
 {
@@ -179,6 +180,7 @@ void Prisma::UpdateTLAS::updateSizeTLAS() {
         contextData.m_pDevice->CreateTLAS(TLASDesc, &m_pTLAS);
         VERIFY_EXPR(m_pTLAS != nullptr);
         Prisma::PipelineHandler::getInstance().raytracing()->srb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
+        Prisma::PipelineHandler::getInstance().raytracing()->srb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
     }
 
     // Create scratch buffer
@@ -279,12 +281,14 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
         VERIFY_EXPR(m_pSBT != nullptr);
         m_pSBT->BindRayGenShader("Main");
         m_pSBT->BindMissShader("PrimaryMiss", PRIMARY_RAY_INDEX);
+        m_pSBT->BindMissShader("ShadowMiss", SHADOW_RAY_INDEX);
 
         for (int i = 0;i < meshes.size();i++)
         {
             m_pSBT->BindHitGroupForInstance(m_pTLAS, meshes[i]->strUUID(), PRIMARY_RAY_INDEX, "CubePrimaryHit");
         }
-        
+        m_pSBT->BindHitGroupForTLAS(m_pTLAS, SHADOW_RAY_INDEX, nullptr);
+
         // Update SBT with the shader groups we bound
         contextData.m_pImmediateContext->UpdateSBT(m_pSBT);
     }
