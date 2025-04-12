@@ -404,7 +404,7 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 	{
 		m_timeCounterEngine.start();
 		getInstance().start();
-		Prisma::QueryGPU::getInstance().start();
+		//Prisma::QueryGPU::getInstance().start();
 	};
 	m_handlers->onLoading = [&](auto data)
 	{
@@ -412,7 +412,7 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 	};
 	m_handlers->onEndRender = [&]()
 	{
-		Prisma::QueryGPU::getInstance().end();
+		//Prisma::QueryGPU::getInstance().end();
 		m_timeCounterEngine.stop();
 		m_timeCounterUI.start();
 		getInstance().drawGui();
