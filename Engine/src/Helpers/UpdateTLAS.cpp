@@ -145,6 +145,21 @@ Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> Prisma::UpdateTLAS::SBT()
     return m_pSBT;
 }
 
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::UpdateTLAS::vertexData()
+{
+    return m_vertexData;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::UpdateTLAS::primitiveData()
+{
+    return m_primitiveData;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::UpdateTLAS::vertexLocation()
+{
+    return m_vertexLocation;
+}
+
 void Prisma::UpdateTLAS::addUpdates(
 	std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, Diligent::RefCntAutoPtr<Diligent::IBuffer>, Diligent::RefCntAutoPtr<Diligent::IBuffer>)> update)
 {

@@ -29,6 +29,10 @@ namespace Prisma{
 
 		Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> SBT();
 
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> vertexData();
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> primitiveData();
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> vertexLocation();
+
 		void addUpdates(std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, Diligent::RefCntAutoPtr<Diligent::IBuffer>, Diligent::RefCntAutoPtr<Diligent::IBuffer>)> update);
 
 	private:

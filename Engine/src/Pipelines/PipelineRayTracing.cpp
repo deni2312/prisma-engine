@@ -235,7 +235,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
     m_blitRT = std::make_shared<Prisma::PipelineBlitRT>(m_colorBuffer);
 
-    Prisma::UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index)
+    m_updateData = [&]()
         {
             m_srb.Release();
             auto materials = Prisma::MeshIndirect::getInstance().textureViews();
@@ -243,11 +243,15 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
             m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(vertex->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(primitive->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(index->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(Prisma::UpdateTLAS::getInstance().vertexData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(Prisma::UpdateTLAS::getInstance().primitiveData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(Prisma::UpdateTLAS::getInstance().vertexLocation()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+        };
 
+    Prisma::UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index)
+        {
+            m_updateData();
         });
 
 }
