@@ -26,13 +26,23 @@ void Prisma::UpdateTLAS::update()
     // Create or update top-level acceleration structure
     if (Prisma::Engine::getInstance().engineSettings().pipeline == EngineSettings::Pipeline::RAYTRACING) {
         auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+        if (!meshes.empty())
+        {
+            if (Prisma::CacheScene::getInstance().updateSizes()) {
+                updateSizeTLAS();
+            }
 
-        if (Prisma::CacheScene::getInstance().updateSizes() && !meshes.empty()) {
-            updateSizeTLAS();
-        }
+            if (Prisma::CacheScene::getInstance().updateData()) {
+                updateTLAS(true);
+            }
 
-        if (Prisma::CacheScene::getInstance().updateData() && !meshes.empty()) {
-            updateTLAS(true);
+            if (Prisma::CacheScene::getInstance().updateTextures())
+            {
+                for (auto update : m_updates)
+                {
+                    update(m_vertexData, m_primitiveData, m_vertexLocation);
+                }
+            }
         }
     }
 }
