@@ -17,7 +17,7 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
 	float3 barycentrics = float3(1.0 - attr.barycentrics.x - attr.barycentrics.y, attr.barycentrics.x, attr.barycentrics.y);
 
     // Get vertex indices for primitive.
-    int3 primitive = primitiveBlas[locationBlas[PrimitiveIndex()].locationPrimitive].xyz;
+    int3 primitive = primitiveBlas[locationBlas[InstanceID()].locationPrimitive + PrimitiveIndex()].xyz;
 
     // Calculate texture coordinates.
 	/*float2 uv = g_CubeAttribsCB.UVs[primitive.x].xy * barycentrics.x +
@@ -25,10 +25,10 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
                 g_CubeAttribsCB.UVs[primitive.z].xy * barycentrics.z;*/
 
     // Calculate and transform triangle normal.
-    float3 normal = vertexBlas[locationBlas[PrimitiveIndex()].location + primitive.x].norm.xyz * barycentrics.x +
-                    vertexBlas[locationBlas[PrimitiveIndex()].location + primitive.y].norm.xyz * barycentrics.y +
-                    vertexBlas[locationBlas[PrimitiveIndex()].location + primitive.z].norm.xyz * barycentrics.z;
-	//normal = normalize(mul((float3x3) ObjectToWorld3x4(), normal));
+    float3 normal = vertexBlas[locationBlas[InstanceID()].location+primitive.x].norm.xyz * barycentrics.x +
+                    vertexBlas[locationBlas[InstanceID()].location+primitive.y].norm.xyz * barycentrics.y +
+                    vertexBlas[locationBlas[InstanceID()].location+primitive.z].norm.xyz * barycentrics.z;
+	normal = normalize(mul((float3x3) ObjectToWorld3x4(), normal));
 
     // Sample texturing. Ray tracing shaders don't support LOD calculation, so we must specify LOD and apply filtering.
     payload.Color = normal;

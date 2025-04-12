@@ -43,9 +43,16 @@ void Prisma::UpdateTLAS::resizeTLAS()
     auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
     auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
     if (!meshes.empty()) {
+        if (m_vertexData)
+        {
+            m_vertexData.Release();
+            m_primitiveData.Release();
+            m_vertexLocation.Release();
+        }
+
         int sizeVertices = 0;
         int sizePrimitives = 0;
-
+        
         std::vector<UpdateTLAS::VertexBlas> verticesBlas;
         std::vector<glm::ivec4> primitivesBlas;
         std::vector<UpdateTLAS::LocationBlas> locationBlas;
@@ -65,7 +72,7 @@ void Prisma::UpdateTLAS::resizeTLAS()
                 verticesBlas.push_back({ glm::vec4(v.normal,0),glm::vec4(v.texCoords,0,0) });
             }
 
-            for (int i = 0;i < indicesData.size() / 3;i += 3)
+            for (int i = 0;i < indicesData.size();i += 3)
             {
                 primitivesBlas.push_back({ indicesData[i],indicesData[i + 1] ,indicesData[i + 2],0 });
             }
