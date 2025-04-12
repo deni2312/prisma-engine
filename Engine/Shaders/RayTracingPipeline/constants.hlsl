@@ -6,6 +6,21 @@ struct MeshAttribs
     uint4 Primitives;
 };
 
+
+struct VertexBlas
+{
+    float4 norm;
+    float4 uv;
+};
+
+struct LocationBlas
+{
+    int location;
+    int size;
+    int locationPrimitive;
+    float padding;
+};
+
 struct PrimaryRayPayload
 {
     float3 Color;

@@ -7,7 +7,7 @@
 
 void UserEngine::start()
 {
-	Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/default.prisma", {
+	Prisma::Engine::getInstance().getScene("../../../Resources/DefaultScene/cube.prisma", {
 		                                       true, [&](std::shared_ptr<Prisma::Scene> scene)
 		                                       {
 			                                       //m_player = std::make_shared<PlayerController>(scene);

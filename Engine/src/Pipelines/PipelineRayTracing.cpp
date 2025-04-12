@@ -191,6 +191,17 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
     m_blitRT = std::make_shared<Prisma::PipelineBlitRT>(m_colorBuffer);
 
+    Prisma::UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index)
+        {
+            m_srb.Release();
+            m_pso->CreateShaderResourceBinding(&m_srb, true);
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(vertex->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(primitive->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(index->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+        });
+
 }
 
 void Prisma::PipelineRayTracing::render() {
