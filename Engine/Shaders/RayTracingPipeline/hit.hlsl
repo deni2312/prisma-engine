@@ -1,4 +1,5 @@
-#include "../../../Engine/Shaders/RayTracingPipeline/constants.hlsl"
+#include "../../../Engine/Shaders/RayTracingPipeline/lighting.hlsl"
+
 //#include "../../../Engine/Shaders/RayTracingPipeline/rayutils.hlsl"
 
 //ConstantBuffer<MeshAttribs> g_CubeAttribsCB;
@@ -37,6 +38,6 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
 	payload.Depth = RayTCurrent();
 
     // Apply lighting.
-	//float3 rayOrigin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-	//LightingPass(payload.Color, rayOrigin, normal, payload.Recursion + 1);
+	float3 rayOrigin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+	LightingPass(payload.Color, rayOrigin, normal, payload.Recursion + 1);
 }

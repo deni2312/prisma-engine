@@ -1,12 +1,4 @@
 
-struct MeshAttribs
-{
-    float4 UVs;
-    float4 Normals;
-    uint4 Primitives;
-};
-
-
 struct VertexBlas
 {
     float4 norm;
@@ -26,6 +18,24 @@ struct PrimaryRayPayload
     float3 Color;
     float Depth;
     uint Recursion;
+};
+
+struct DirectionalData
+{
+    float4 direction;
+    float4 diffuse;
+    float4 specular;
+    float hasShadow;
+    float bias;
+    float2 padding;
+};
+
+cbuffer LightSizes
+{
+    int omniSize;
+    int dirSize;
+    int areaSize;
+    int padding;
 };
 
 struct ShadowRayPayload
