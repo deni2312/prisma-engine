@@ -196,6 +196,8 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         {SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_RAY_MISS, "skybox_sampler",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+        {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+        {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
     };
 
     PipelineResourceSignatureDesc ResourceSignDesc;
@@ -265,10 +267,11 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(Prisma::UpdateTLAS::getInstance().primitiveData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(Prisma::UpdateTLAS::getInstance().vertexLocation()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_STATUS.c_str())->Set(Prisma::MeshIndirect::getInstance().statusBuffer()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_MISS, "skybox")->Set(Prisma::PipelineSkybox::getInstance().skybox()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
             }
-
         };
 
     Prisma::UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index)

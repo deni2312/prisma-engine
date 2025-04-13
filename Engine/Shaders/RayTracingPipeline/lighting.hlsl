@@ -56,11 +56,10 @@ ShadowRayPayload CastShadow(RayDesc ray, uint Recursion)
     return payload;
 }
 
-void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion)
+void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion,float metalness,float roughness)
 {
     RayDesc ray;
     float3 col = float3(0.0, 0.0, 0.0);
-
     ray.Origin = Pos + Norm * SMALL_OFFSET;
     ray.TMin = 0.0;
     ray.TMax = 1000.0;
