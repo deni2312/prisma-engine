@@ -44,6 +44,8 @@ namespace Prisma
 
 		void addUpdate(std::function<void()> update);
 
+		Diligent::RefCntAutoPtr<Diligent::ITexture> skybox();
+
 	private:
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iblData;

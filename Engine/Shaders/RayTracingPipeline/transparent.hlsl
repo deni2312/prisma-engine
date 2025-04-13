@@ -6,14 +6,17 @@ StructuredBuffer<VertexBlas> vertexBlas;
 StructuredBuffer<LocationBlas> locationBlas;
 StructuredBuffer<int4> primitiveBlas;
 StructuredBuffer<StatusData> statusData;
+Texture2D diffuseTexture[];
+SamplerState g_SamLinearWrap;
 
 // Simulate light absorption inside glass.
-float3 LightAbsorption(float3 color1, float depth)
+float3 LightAbsorption(float3 color1,float3 materialColor, float depth)
 {
     float factor1 = depth * 0.25;
     float factor2 = pow(depth * statusData[InstanceID()].GlassAbsorption, 2.2) * 0.25;
     float factor = clamp(factor1 + factor2 + 0.05, 0.0, 1.0);
-    float3 color2 = color1 * statusData[InstanceID()].GlassMaterialColor.rgb;
+    //float3 color2 =color1 * materialColor * statusData[InstanceID()].GlassMaterialColor.rgb;
+    float3 color2 = materialColor * statusData[InstanceID()].GlassMaterialColor.rgb;
     return lerp(color1, color2, factor);
 }
 
@@ -52,6 +55,11 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
     // Get vertex indices for primitive.
     int3 primitive = primitiveBlas[locationBlas[InstanceID()].locationPrimitive + PrimitiveIndex()].xyz;
     
+        // Calculate and transform triangle normal.
+    float2 uv = vertexBlas[locationBlas[InstanceID()].location + primitive.x].uv.xy * barycentrics.x +
+                    vertexBlas[locationBlas[InstanceID()].location + primitive.y].uv.xy * barycentrics.y +
+                    vertexBlas[locationBlas[InstanceID()].location + primitive.z].uv.xy * barycentrics.z;
+    
     // Calculate and transform triangle normal.
     float3 normal = vertexBlas[locationBlas[InstanceID()].location + primitive.x].norm.xyz * barycentrics.x +
                     vertexBlas[locationBlas[InstanceID()].location + primitive.y].norm.xyz * barycentrics.y +
@@ -62,6 +70,8 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
     const float AirIOR = 1.0;
     float3 resultColor = float3(0.0, 0.0, 0.0);
 
+    float3 diffuseColor = diffuseTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).rgb;
+    
     // Enable dispersion - simulate rays with different wavelengths.
     // For optimization, disable dispersion after several reflections/refractions.
     if (statusData[InstanceID()].GlassEnableDispersion && payload.Recursion == 0)
@@ -114,7 +124,7 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
 
                 if (HitKind() == HIT_KIND_TRIANGLE_BACK_FACE)
                 {
-                    reflColor = LightAbsorption(reflColor, reflPayload.Depth);
+                    reflColor = LightAbsorption(reflColor, diffuseColor,reflPayload.Depth);
                 }
             }
 
@@ -129,7 +139,7 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
                 
                 if (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE || payload.Recursion == 0)
                 {
-                    curColor = LightAbsorption(curColor, nextPayload.Depth);
+                    curColor = LightAbsorption(curColor, diffuseColor,nextPayload.Depth);
                 }
             }
             
@@ -178,7 +188,7 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
             
             if (HitKind() == HIT_KIND_TRIANGLE_BACK_FACE)
             {
-                reflColor = LightAbsorption(reflColor, reflPayload.Depth);
+                reflColor = LightAbsorption(reflColor,diffuseColor,reflPayload.Depth);
             }
         }
         
@@ -193,7 +203,7 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
             
             if (HitKind() == HIT_KIND_TRIANGLE_FRONT_FACE || payload.Recursion == 0)
             {
-                resultColor = LightAbsorption(resultColor, nextPayload.Depth);
+                resultColor = LightAbsorption(resultColor, diffuseColor,nextPayload.Depth);
             }
         }
         

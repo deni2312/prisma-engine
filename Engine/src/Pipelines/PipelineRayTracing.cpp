@@ -192,7 +192,9 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         {SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_RAY_GEN | SHADER_TYPE_RAY_MISS | SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB", 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_RAY_GEN, "g_ColorBuffer", 1,SHADER_RESOURCE_TYPE_TEXTURE_UAV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_RAY_MISS, "skybox", 1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_RAY_MISS, "skybox_sampler",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
     };
 
@@ -202,6 +204,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
     contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
     RefCntAutoPtr<ISampler> samplerWrap;
+    RefCntAutoPtr<ISampler> samplerClamp;
 
     IPipelineResourceSignature* ppSignatures[]{ m_pResourceSignature };
 
@@ -211,9 +214,12 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
     contextData.m_pDevice->CreateRayTracingPipelineState(PSOCreateInfo, &m_pso);
 	contextData.m_pDevice->CreateSampler(SamLinearWrapDesc, &samplerWrap);
-    IDeviceObject* samplerDeviceClamp = samplerWrap;
+    contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &samplerClamp);
+    IDeviceObject* samplerDeviceWrap = samplerWrap;
+    IDeviceObject* samplerDeviceClamp = samplerClamp;
 
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap")->Set(samplerDeviceClamp);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap")->Set(samplerDeviceWrap);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_MISS, "skybox_sampler")->Set(samplerDeviceClamp);
 
     VERIFY_EXPR(m_pso != nullptr);
 
@@ -249,7 +255,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     m_updateData = [&]()
         {
             m_srb.Release();
-            if (Prisma::UpdateTLAS::getInstance().vertexData() && Prisma::MeshIndirect::getInstance().statusBuffer()) {
+            if (Prisma::UpdateTLAS::getInstance().vertexData() && Prisma::MeshIndirect::getInstance().statusBuffer() && Prisma::PipelineSkybox::getInstance().isInit()) {
                 auto materials = Prisma::MeshIndirect::getInstance().textureViews();
                 m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
@@ -260,6 +266,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(Prisma::UpdateTLAS::getInstance().vertexLocation()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
                 m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_STATUS.c_str())->Set(Prisma::MeshIndirect::getInstance().statusBuffer()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+                m_srb->GetVariableByName(SHADER_TYPE_RAY_MISS, "skybox")->Set(Prisma::PipelineSkybox::getInstance().skybox()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
             }
 
         };
@@ -269,6 +276,10 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
             m_updateData();
         });
     Prisma::MeshIndirect::getInstance().addResizeHandler([&](auto vBuffer,auto iBuffer)
+        {
+            m_updateData();
+        });
+    Prisma::PipelineSkybox::getInstance().addUpdate([&]()
         {
             m_updateData();
         });

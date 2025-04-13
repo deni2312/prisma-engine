@@ -183,6 +183,11 @@ void Prisma::PipelineSkybox::addUpdate(std::function<void()> update)
     m_update.push_back(update);
 }
 
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineSkybox::skybox()
+{
+    return m_pMSColorRTV;
+}
+
 void Prisma::PipelineSkybox::calculateSkybox()
 {
     m_srb.Release();
