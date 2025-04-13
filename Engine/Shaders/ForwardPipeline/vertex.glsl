@@ -10,11 +10,14 @@ uniform ViewProjection
 layout(location = 0) in vec3 inPos;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
+layout(location = 3) in vec3 inTangent;
+layout(location = 4) in vec3 inBitangent;
 
 layout(location = 0) out vec2 outUv;
 layout(location = 1) out vec3 outFragPos;
 layout(location = 2) out vec3 outNormal;
 layout(location = 3) flat out int outDrawId;
+layout(location = 4) out mat3 outTBN;
 
 struct MeshData
 {
@@ -28,10 +31,21 @@ readonly buffer models{
 
 void main()
 {
-    vec4 worldPos = modelsData[gl_DrawIDARB].model * vec4(inPos, 1.0);
-    outNormal = vec3(modelsData[gl_DrawIDARB].normal * vec4(inNormal, 1.0));
-    gl_Position = projection*view*worldPos;
+    mat4 modelMatrix = modelsData[gl_DrawIDARB].model;
+    mat4 normalMatrix = modelsData[gl_DrawIDARB].normal;
+
+    vec4 worldPos = modelMatrix * vec4(inPos, 1.0);
+    vec3 worldNormal = normalize(vec3(normalMatrix * vec4(inNormal, 0.0)));
+    vec3 worldTangent = normalize(vec3(normalMatrix * vec4(inTangent, 0.0)));
+    vec3 worldBitangent = normalize(vec3(normalMatrix * vec4(inBitangent, 0.0)));
+
     outUv = inUV;
-    outFragPos = worldPos.xyz; // Store world position for fragment shading
+    outFragPos = worldPos.xyz;
+    outNormal = worldNormal;
     outDrawId = gl_DrawIDARB;
+
+    // Construct TBN matrix
+    outTBN = mat3(worldTangent, worldBitangent, worldNormal);
+
+    gl_Position = projection * view * worldPos;
 }

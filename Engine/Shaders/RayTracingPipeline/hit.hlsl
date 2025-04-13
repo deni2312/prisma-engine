@@ -61,9 +61,6 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
     float3 normalMap = normalTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz;
     normalMap = normalMap * 2.0 - 1.0;
 
-    // Flip if needed
-    normalMap.xy *= -1.0;
-
     // Transform to world space
     float3 worldNormal = normalize(mul(normalMap, TBN));
 
@@ -74,7 +71,7 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
     float roughness = rm.g;
 
     // Sample texturing. Ray tracing shaders don't support LOD calculation, so we must specify LOD and apply filtering.
-    payload.Color = diffuseTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).rgb;
+    payload.Color = diffuseTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz;
 
 	payload.Depth = RayTCurrent();
 
