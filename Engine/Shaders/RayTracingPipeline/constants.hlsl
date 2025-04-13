@@ -1,3 +1,4 @@
+#define PI 3.14159265359
 
 struct VertexBlas
 {

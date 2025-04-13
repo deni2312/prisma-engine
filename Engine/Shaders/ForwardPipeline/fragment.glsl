@@ -15,5 +15,5 @@ void main()
     
     vec3 color = pbrCalculation(outFragPos, normal, vec3(diffuse), vec4(1.0), roughness, metallic);
         
-    FragColor = vec4(normal,1);
+    FragColor = vec4(color,1);
 }

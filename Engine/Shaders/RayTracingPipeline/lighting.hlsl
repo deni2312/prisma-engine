@@ -10,6 +10,8 @@ cbuffer LightSizes
 StructuredBuffer<DirectionalData> dirData;
 ConstantBuffer<Constants> g_ConstantsCB;
 RaytracingAccelerationStructure g_TLAS;
+TextureCube skybox;
+SamplerState skybox_sampler;
 
 void GetRayPerpendicular(float3 dir, out float3 outLeft, out float3 outUp)
 {
@@ -56,10 +58,19 @@ ShadowRayPayload CastShadow(RayDesc ray, uint Recursion)
     return payload;
 }
 
-void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion,float metalness,float roughness)
+void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float metalness,float roughness)
 {
     RayDesc ray;
-    float3 col = float3(0.0, 0.0, 0.0);
+    float3 finalColor = float3(0.0, 0.0, 0.0);
+    float3 viewDir = normalize(g_ConstantsCB.CameraPos.xyz - Pos);
+    float3 albedo = Color;
+
+    // Remap roughness to perceptual
+    float alpha = roughness * roughness;
+
+    // Compute base reflectivity
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metalness);
+
     ray.Origin = Pos + Norm * SMALL_OFFSET;
     ray.TMin = 0.0;
     ray.TMax = 1000.0;
@@ -67,20 +78,53 @@ void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion,fl
     for (int i = 0; i < dirSize; ++i)
     {
         float3 lightDir = normalize(dirData[i].direction.xyz);
-        float NdotL = max(0.0, dot(Norm, lightDir)); // Negative because light "comes from" the direction
+        float3 halfVec = normalize(viewDir + lightDir);
+
+        float NdotL = max(dot(Norm, lightDir), 0.0);
+        float NdotV = max(dot(Norm, viewDir), 0.0);
+        float NdotH = max(dot(Norm, halfVec), 0.0);
+        float VdotH = max(dot(viewDir, halfVec), 0.0);
 
         if (NdotL > 0.0)
         {
-            float shadowed = 1;
+            float shadowFactor = 1.0;
             if (dirData[i].hasShadow)
             {
                 ray.Direction = lightDir;
-                shadowed = CastShadow(ray, Recursion).Shading;
+                shadowFactor = CastShadow(ray, Recursion).Shading;
             }
-            
-            col += Color * dirData[i].diffuse.rgb * NdotL * shadowed;
+
+            // === Cook-Torrance Specular ===
+            // Normal Distribution Function (GGX)
+            float alpha2 = alpha * alpha;
+            float denom = (NdotH * NdotH) * (alpha2 - 1.0) + 1.0;
+            float D = alpha2 / (PI * denom * denom + 1e-6);
+
+            // Geometry Function (Smith)
+            float k = (alpha + 1.0) * (alpha + 1.0) / 8.0;
+            float G1V = NdotV / (NdotV * (1.0 - k) + k);
+            float G1L = NdotL / (NdotL * (1.0 - k) + k);
+            float G = G1V * G1L;
+
+            // Fresnel (Schlick)
+            float3 F = F0 + (1.0 - F0) * pow(1.0 - VdotH, 5.0);
+
+            float3 specular = (D * G * F) / (4.0 * NdotL * NdotV + 1e-6);
+
+            // === Lambertian Diffuse ===
+            float3 diffuseColor = (1.0 - F) * (1.0 - metalness); // metals have no diffuse
+            float3 diffuse = (diffuseColor * albedo) / PI;
+
+            float3 lightColor = dirData[i].diffuse.rgb;
+
+            float3 lighting = (diffuse + specular) * lightColor * NdotL * shadowFactor;
+
+            finalColor += lighting;
         }
-        col += Color * 0.125; // Fake indirect bounce or ambient approximation
+
     }
-    Color = col;
+
+    finalColor += albedo * 0.02;
+    
+    Color = finalColor;
 }
