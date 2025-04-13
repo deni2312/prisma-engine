@@ -86,8 +86,7 @@ Prisma::Engine::Engine()
 	Diligent::ImGuiDiligentCreateInfo desc;
 	desc.pDevice = Prisma::PrismaFunc::getInstance().contextData().m_pDevice;
 
-
-	data->engineSettings.pipeline = EngineSettings::Pipeline::RAYTRACING;
+	data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 
 	data->engineSettings.ssr = false;
 
@@ -199,11 +198,7 @@ void Prisma::Engine::initScene()
 {
 	data->userData->start();
 	//MeshHandler::getInstance().updateCluster();
-	if (!PipelineHandler::getInstance().initScene(data->sceneParameters))
-	{
-		std::cerr << "Null camera or scene" << std::endl;
-		PrismaFunc::getInstance().closeWindow();
-	}
+	PipelineHandler::getInstance().initScene();
 }
 
 void Prisma::Engine::setGuiData(std::shared_ptr<SceneHandler> guiData)

@@ -1,24 +1,18 @@
 #include "Pipelines/PipelineHandler.h"
 #include "Helpers/SettingsLoader.h"
 
-bool Prisma::PipelineHandler::initScene(SceneLoader::SceneParameters sceneParameters)
+void Prisma::PipelineHandler::initScene()
 {
-	//if (Prisma::GlobalData::getInstance().currentGlobalScene() && Prisma::GlobalData::getInstance().currentGlobalScene()->camera)
-	{
-		auto settings = SettingsLoader::getInstance().getSettings();
-		m_forwardPipeline = std::make_shared<PipelineForward>(settings.width, settings.height, sceneParameters.srgb);
-        m_raytracingPipeline = std::make_shared<PipelineRayTracing>(settings.width, settings.height, sceneParameters.srgb);
 
-		//m_deferredPipeline = std::make_shared<PipelineDeferred>(settings.width, settings.height, sceneParameters.srgb);
-
-		//m_deferredForwardPipeline = std::make_shared<PipelineDeferredForward>(settings.width, settings.height, sceneParameters.srgb);
-		return true;
-	}
-	return false;
 }
 
 std::shared_ptr<Prisma::PipelineForward> Prisma::PipelineHandler::forward()
 {
+    if (!m_forwardPipeline)
+    {
+        auto settings = SettingsLoader::getInstance().getSettings();
+        m_forwardPipeline = std::make_shared<PipelineForward>(settings.width, settings.height);
+    }
 	return m_forwardPipeline;
 }
 
@@ -34,6 +28,11 @@ std::shared_ptr<Prisma::PipelineDeferredForward> Prisma::PipelineHandler::deferr
 
 std::shared_ptr<Prisma::PipelineRayTracing> Prisma::PipelineHandler::raytracing()
 {
+    if (!m_raytracingPipeline)
+    {
+        auto settings = SettingsLoader::getInstance().getSettings();
+        m_raytracingPipeline = std::make_shared<PipelineRayTracing>(settings.width, settings.height);
+    }
     return m_raytracingPipeline;
 }
 

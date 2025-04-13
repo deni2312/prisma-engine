@@ -50,93 +50,94 @@ void Prisma::UpdateTLAS::update()
 
 void Prisma::UpdateTLAS::resizeTLAS()
 {
-
-    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-    auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-    if (!meshes.empty()) {
-        if (m_vertexData)
-        {
-            m_vertexData.Release();
-            m_primitiveData.Release();
-            m_vertexLocation.Release();
-        }
-
-        int sizeVertices = 0;
-        int sizePrimitives = 0;
-        
-        std::vector<UpdateTLAS::VertexBlas> verticesBlas;
-        std::vector<glm::ivec4> primitivesBlas;
-        std::vector<UpdateTLAS::LocationBlas> locationBlas;
-
-        for (auto mesh : meshes)
-        {
-            auto& verticesData = mesh->verticesData().vertices;
-            auto& indicesData = mesh->verticesData().indices;
-            UpdateTLAS::LocationBlas currentLocation;
-            currentLocation.location = sizeVertices;
-            currentLocation.size = mesh->verticesData().vertices.size();
-            currentLocation.locationPrimitive = sizePrimitives;
-
-            locationBlas.push_back(currentLocation);
-            for (auto v : verticesData)
+    if (Prisma::Engine::getInstance().engineSettings().pipeline == EngineSettings::Pipeline::RAYTRACING) {
+        auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+        auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+        if (!meshes.empty()) {
+            if (m_vertexData)
             {
-                verticesBlas.push_back({ glm::vec4(v.normal,0),glm::vec4(v.texCoords,0,0) });
+                m_vertexData.Release();
+                m_primitiveData.Release();
+                m_vertexLocation.Release();
             }
 
-            for (int i = 0;i < indicesData.size();i += 3)
+            int sizeVertices = 0;
+            int sizePrimitives = 0;
+
+            std::vector<UpdateTLAS::VertexBlas> verticesBlas;
+            std::vector<glm::ivec4> primitivesBlas;
+            std::vector<UpdateTLAS::LocationBlas> locationBlas;
+
+            for (auto mesh : meshes)
             {
-                primitivesBlas.push_back({ indicesData[i],indicesData[i + 1] ,indicesData[i + 2],0 });
+                auto& verticesData = mesh->verticesData().vertices;
+                auto& indicesData = mesh->verticesData().indices;
+                UpdateTLAS::LocationBlas currentLocation;
+                currentLocation.location = sizeVertices;
+                currentLocation.size = mesh->verticesData().vertices.size();
+                currentLocation.locationPrimitive = sizePrimitives;
+
+                locationBlas.push_back(currentLocation);
+                for (auto v : verticesData)
+                {
+                    verticesBlas.push_back({ glm::vec4(v.normal,0),glm::vec4(v.texCoords,0,0) });
+                }
+
+                for (int i = 0;i < indicesData.size();i += 3)
+                {
+                    primitivesBlas.push_back({ indicesData[i],indicesData[i + 1] ,indicesData[i + 2],0 });
+                }
+
+                sizeVertices += verticesData.size();
+                sizePrimitives += indicesData.size() / 3;
             }
 
-            sizeVertices += verticesData.size();
-            sizePrimitives += indicesData.size() / 3;
-        }
 
+            Diligent::BufferDesc vertexDataDesc;
 
-        Diligent::BufferDesc vertexDataDesc;
+            vertexDataDesc.Name = "Vertex Data Buffer";
+            vertexDataDesc.Usage = Diligent::USAGE_DEFAULT;
+            vertexDataDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+            vertexDataDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+            vertexDataDesc.ElementByteStride = sizeof(UpdateTLAS::VertexBlas);
+            vertexDataDesc.Size = verticesBlas.size() * sizeof(UpdateTLAS::VertexBlas);
+            Diligent::BufferData vertexData;
+            vertexData.DataSize = vertexDataDesc.Size;
+            vertexData.pData = verticesBlas.data();
 
-        vertexDataDesc.Name = "Vertex Data Buffer";
-        vertexDataDesc.Usage = Diligent::USAGE_DEFAULT;
-        vertexDataDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
-        vertexDataDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-        vertexDataDesc.ElementByteStride = sizeof(UpdateTLAS::VertexBlas);
-        vertexDataDesc.Size = verticesBlas.size() * sizeof(UpdateTLAS::VertexBlas);
-        Diligent::BufferData vertexData;
-        vertexData.DataSize = vertexDataDesc.Size;
-        vertexData.pData = verticesBlas.data();
+            contextData.m_pDevice->CreateBuffer(vertexDataDesc, &vertexData, &m_vertexData);
 
-        contextData.m_pDevice->CreateBuffer(vertexDataDesc, &vertexData, &m_vertexData);
+            Diligent::BufferDesc primitiveDesc;
 
-        Diligent::BufferDesc primitiveDesc;
+            primitiveDesc.Name = "Primitive Data Buffer";
+            primitiveDesc.Usage = Diligent::USAGE_DEFAULT;
+            primitiveDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+            primitiveDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+            primitiveDesc.ElementByteStride = sizeof(glm::ivec4);
+            primitiveDesc.Size = primitivesBlas.size() * sizeof(glm::ivec4);
+            Diligent::BufferData indexData;
+            indexData.DataSize = primitiveDesc.Size;
+            indexData.pData = primitivesBlas.data();
 
-        primitiveDesc.Name = "Primitive Data Buffer";
-        primitiveDesc.Usage = Diligent::USAGE_DEFAULT;
-        primitiveDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
-        primitiveDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-        primitiveDesc.ElementByteStride = sizeof(glm::ivec4);
-        primitiveDesc.Size = primitivesBlas.size() * sizeof(glm::ivec4);
-        Diligent::BufferData indexData;
-        indexData.DataSize = primitiveDesc.Size;
-        indexData.pData = primitivesBlas.data();
+            contextData.m_pDevice->CreateBuffer(primitiveDesc, &indexData, &m_primitiveData);
 
-        contextData.m_pDevice->CreateBuffer(primitiveDesc, &indexData, &m_primitiveData);
+            Diligent::BufferDesc vertexLocationDesc;
 
-        Diligent::BufferDesc vertexLocationDesc;
+            vertexLocationDesc.Name = "Vertex Location Buffer";
+            vertexLocationDesc.Usage = Diligent::USAGE_DEFAULT;
+            vertexLocationDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+            vertexLocationDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+            vertexLocationDesc.ElementByteStride = sizeof(UpdateTLAS::LocationBlas);
+            vertexLocationDesc.Size = meshes.size() * sizeof(UpdateTLAS::LocationBlas);
+            Diligent::BufferData locationData;
+            locationData.DataSize = vertexLocationDesc.Size;
+            locationData.pData = locationBlas.data();
+            contextData.m_pDevice->CreateBuffer(vertexLocationDesc, &locationData, &m_vertexLocation);
 
-        vertexLocationDesc.Name = "Vertex Location Buffer";
-        vertexLocationDesc.Usage = Diligent::USAGE_DEFAULT;
-        vertexLocationDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
-        vertexLocationDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-        vertexLocationDesc.ElementByteStride = sizeof(UpdateTLAS::LocationBlas);
-        vertexLocationDesc.Size = meshes.size() * sizeof(UpdateTLAS::LocationBlas);
-        Diligent::BufferData locationData;
-        locationData.DataSize = vertexLocationDesc.Size;
-        locationData.pData = locationBlas.data();
-        contextData.m_pDevice->CreateBuffer(vertexLocationDesc, &locationData, &m_vertexLocation);
-
-        for (auto update : m_updates)
-        {
-            update(m_vertexData, m_primitiveData, m_vertexLocation);
+            for (auto update : m_updates)
+            {
+                update(m_vertexData, m_primitiveData, m_vertexLocation);
+            }
         }
     }
 }

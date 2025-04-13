@@ -16,7 +16,7 @@ namespace Prisma
 	class PipelineRayTracing
 	{
 	public:
-		PipelineRayTracing(const unsigned int& width = 1920, const unsigned int& height = 1080, bool srgb = true);
+		PipelineRayTracing(const unsigned int& width = 1920, const unsigned int& height = 1080);
 		void render();
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso();
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb();

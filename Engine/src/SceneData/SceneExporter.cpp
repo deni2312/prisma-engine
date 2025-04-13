@@ -42,7 +42,9 @@ namespace Prisma {
 					texturesLoaded[textureName] = texture;
 					textureMutex.unlock();
 				}
+				textureMutex.lock();
 				textureList = { texturesLoaded[textureName] };
+				textureMutex.unlock();
 			}
 			else {
 				textureList = { defaultTexture };

@@ -45,7 +45,7 @@
 
 using namespace Diligent;
 
-Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{
+Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const unsigned int& height) : m_width{
                                                                                                                  width
 }, m_height{ height }
 {

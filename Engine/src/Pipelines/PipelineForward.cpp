@@ -40,7 +40,7 @@
 
 using namespace Diligent;
 
-Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height, bool srgb) : m_width{
+Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height) : m_width{
 	                                                                                                             width
                                                                                                              }, m_height{height}
 {

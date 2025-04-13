@@ -14,7 +14,7 @@ namespace Prisma
 	class PipelineForward
 	{
 	public:
-		PipelineForward(const unsigned int& width = 1920, const unsigned int& height = 1080, bool srgb = true);
+		PipelineForward(const unsigned int& width = 1920, const unsigned int& height = 1080);
 		void render();
 		~PipelineForward();
 

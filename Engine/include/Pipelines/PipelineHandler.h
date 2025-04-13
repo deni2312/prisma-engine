@@ -21,7 +21,7 @@ namespace Prisma
 			Diligent::RefCntAutoPtr<Diligent::ITexture> pDepthDSV;
 		};
 
-		bool initScene(SceneLoader::SceneParameters sceneParameters);
+		void initScene();
 		std::shared_ptr<PipelineForward> forward();
 		std::shared_ptr<PipelineDeferred> deferred();
 		std::shared_ptr<PipelineDeferredForward> deferredForward();
@@ -35,6 +35,7 @@ namespace Prisma
 		std::shared_ptr<PipelineDeferred> m_deferredPipeline;
 		std::shared_ptr<PipelineDeferredForward> m_deferredForwardPipeline;
 		std::shared_ptr<PipelineRayTracing> m_raytracingPipeline;
+		SceneLoader::SceneParameters m_sceneParameters;
 
 		TextureData m_textureData;
 

@@ -57,15 +57,18 @@ void Prisma::SettingsTab::drawSettings()
 			switch (m_status.currentitem)
 			{
 			case EngineSettings::Pipeline::FORWARD:
+				Prisma::PipelineHandler::getInstance().forward();
 				break;
 			case EngineSettings::Pipeline::DEFERRED:
 				break;
 			case EngineSettings::Pipeline::DEFERRED_FORWARD:
 				break;
 			case EngineSettings::Pipeline::RAYTRACING:
+				Prisma::PipelineHandler::getInstance().raytracing();
 				Prisma::UpdateTLAS::getInstance().updateSizeTLAS();
 				break;
 			}
+			Prisma::CacheScene::getInstance().updateSizes(true);
 		}
 		ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(),
 		             m_status.postprocess.size());
