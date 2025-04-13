@@ -60,89 +60,110 @@ ShadowRayPayload CastShadow(RayDesc ray, uint Recursion)
              payload);
     return payload;
 }
+// === PBR Utility Functions ===
+
+float DistributionGGX(float NdotH, float roughness)
+{
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float denom = (NdotH * NdotH) * (a2 - 1.0) + 1.0;
+    return a2 / (PI * denom * denom + 1e-6);
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+    return NdotV / (NdotV * (1.0 - k) + k + 1e-6);
+}
+
+float GeometrySmith(float NdotV, float NdotL, float roughness)
+{
+    float ggx1 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx2 = GeometrySchlickGGX(NdotL, roughness);
+    return ggx1 * ggx2;
+}
+
+float3 fresnelSchlick(float cosTheta, float3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
+{
+    float currentRoughness = 1.0 - roughness;
+    return F0 + (max(float3(currentRoughness, currentRoughness, currentRoughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
 
 void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float metalness,float roughness)
 {
-    RayDesc ray;
-    float3 finalColor = float3(0.0, 0.0, 0.0);
-    float3 viewDir = normalize(g_ConstantsCB.CameraPos.xyz - Pos);
+    float3 V = normalize(g_ConstantsCB.CameraPos.xyz - Pos);
     float3 albedo = Color;
-
     float alpha = roughness * roughness;
+
     float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metalness);
 
-    ray.Origin = Pos + Norm * SMALL_OFFSET;
-    ray.TMin = 0.0;
-    ray.TMax = 1000.0;
+    float3 Lo = float3(0.0, 0.0, 0.0);
 
-    // === Direct Lighting ===
+    // === Direct Lighting Loop ===
     for (int i = 0; i < dirSize; ++i)
     {
-        float3 lightDir = normalize(dirData[i].direction.xyz);
-        float3 halfVec = normalize(viewDir + lightDir);
+        float3 L = normalize(dirData[i].direction.xyz);
+        float3 H = normalize(V + L);
 
-        float NdotL = max(dot(Norm, lightDir), 0.0);
-        float NdotV = max(dot(Norm, viewDir), 0.0);
-        float NdotH = max(dot(Norm, halfVec), 0.0);
-        float VdotH = max(dot(viewDir, halfVec), 0.0);
+        float NdotL = max(dot(Norm, L), 0.0);
+        float NdotV = max(dot(Norm, V), 0.0);
+        float NdotH = max(dot(Norm, H), 0.0);
+        float VdotH = max(dot(V, H), 0.0);
 
-        if (NdotL > 0.0)
+        float shadow = 1.0;
+        if (dirData[i].hasShadow)
         {
-            float shadowFactor = 1.0;
-            if (dirData[i].hasShadow)
-            {
-                ray.Direction = lightDir;
-                shadowFactor = CastShadow(ray, Recursion).Shading;
-            }
-
-            float alpha2 = alpha * alpha;
-            float denom = (NdotH * NdotH) * (alpha2 - 1.0) + 1.0;
-            float D = alpha2 / (PI * denom * denom + 1e-6);
-
-            float k = (alpha + 1.0) * (alpha + 1.0) / 8.0;
-            float G1V = NdotV / (NdotV * (1.0 - k) + k);
-            float G1L = NdotL / (NdotL * (1.0 - k) + k);
-            float G = G1V * G1L;
-
-            float3 F = F0 + (1.0 - F0) * pow(1.0 - VdotH, 5.0);
-
-            float3 specular = (D * G * F) / (4.0 * NdotL * NdotV + 1e-6);
-
-            float3 diffuseColor = (1.0 - F) * (1.0 - metalness);
-            float3 diffuse = (diffuseColor * albedo) / PI;
-
-            float3 lightColor = dirData[i].diffuse.rgb;
-            float3 lighting = (diffuse + specular) * lightColor * NdotL * shadowFactor;
-
-            finalColor += lighting;
+            RayDesc ray;
+            ray.Origin = Pos + Norm * SMALL_OFFSET;
+            ray.Direction = L;
+            ray.TMin = 0.0;
+            ray.TMax = 1000.0;
+            shadow = CastShadow(ray, Recursion).Shading;
         }
+
+        float D = DistributionGGX(NdotH, roughness);
+        float G = GeometrySmith(NdotV, NdotL, roughness);
+        float3 F = fresnelSchlick(VdotH, F0);
+
+        float3 numerator = D * G * F;
+        float denominator = 4.0 * NdotV * NdotL + 1e-6;
+        float3 specular = numerator / denominator;
+
+        float3 kS = F;
+        float3 kD = 1.0 - kS;
+        kD *= 1.0 - metalness;
+
+        float3 irradianceData = dirData[i].diffuse.rgb;
+        float3 diffuse = (albedo / PI) * irradianceData;
+
+        float3 light = (kD * diffuse + specular) * NdotL * shadow;
+        Lo += light;
     }
 
-    // === Image-Based Lighting (IBL) ===
-    float3 F = F0 + (1.0 - F0) * pow(1.0 - max(dot(viewDir, Norm), 0.0), 5.0);
+    // === IBL Lighting ===
+    float3 F = fresnelSchlickRoughness(max(dot(Norm, V), 0.0), F0, roughness);
     float3 kS = F;
     float3 kD = 1.0 - kS;
     kD *= 1.0 - metalness;
 
-    // Irradiance (Diffuse)
-    float3 irradianceColor = irradiance.SampleLevel(skybox_sampler, Norm,0).rgb;
-    float3 diffuseIBL = irradianceColor * albedo;
+    float3 irradianceData = irradiance.SampleLevel(skybox_sampler, Norm,0).rgb;
+    float3 diffuseIBL = irradianceData * albedo;
 
-    // Specular (Prefilter + BRDF LUT)
-    float3 R = reflect(-viewDir, Norm);
+    float3 R = reflect(-V, Norm);
     R = normalize(R);
+    const float MAX_REFLECTION_LOD = 9.0;
+    float3 prefilteredColor = prefilter.SampleLevel(skybox_sampler, R, roughness * MAX_REFLECTION_LOD).rgb;
 
-    const uint MAX_MIP_LEVEL = 5;
-    float mipLevel = roughness * MAX_MIP_LEVEL;
-    float3 prefilteredColor = prefilter.SampleLevel(skybox_sampler, R, mipLevel).rgb;
+    float2 brdf = lut.SampleLevel(skybox_sampler, float2(max(dot(Norm, V), 0.0), roughness),0).rg;
+    float3 specularIBL = prefilteredColor * (F * brdf.x + brdf.y);
 
-    float2 brdfSample = lut.SampleLevel(skybox_sampler, float2(max(dot(Norm, viewDir), 0.0), roughness),0).rg;
-    float3 specularIBL = prefilteredColor * (F * brdfSample.x + brdfSample.y);
-
-    float3 ibl = (kD * diffuseIBL + specularIBL);
-    finalColor += ibl;
-
-    finalColor += albedo * 0.02;
+    float3 ambient = (kD * diffuseIBL + specularIBL);
     
-    Color = finalColor;
+    Color = Lo + ambient;
 }
