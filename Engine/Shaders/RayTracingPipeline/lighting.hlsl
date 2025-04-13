@@ -10,7 +10,10 @@ cbuffer LightSizes
 StructuredBuffer<DirectionalData> dirData;
 ConstantBuffer<Constants> g_ConstantsCB;
 RaytracingAccelerationStructure g_TLAS;
-TextureCube skybox;
+
+Texture2D lut;
+TextureCube irradiance;
+TextureCube prefilter;
 SamplerState skybox_sampler;
 
 void GetRayPerpendicular(float3 dir, out float3 outLeft, out float3 outUp)
@@ -65,16 +68,14 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
     float3 viewDir = normalize(g_ConstantsCB.CameraPos.xyz - Pos);
     float3 albedo = Color;
 
-    // Remap roughness to perceptual
     float alpha = roughness * roughness;
-
-    // Compute base reflectivity
     float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metalness);
 
     ray.Origin = Pos + Norm * SMALL_OFFSET;
     ray.TMin = 0.0;
     ray.TMax = 1000.0;
 
+    // === Direct Lighting ===
     for (int i = 0; i < dirSize; ++i)
     {
         float3 lightDir = normalize(dirData[i].direction.xyz);
@@ -98,29 +99,48 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
             float denom = (NdotH * NdotH) * (alpha2 - 1.0) + 1.0;
             float D = alpha2 / (PI * denom * denom + 1e-6);
 
-            // Geometry Function (Smith)
             float k = (alpha + 1.0) * (alpha + 1.0) / 8.0;
             float G1V = NdotV / (NdotV * (1.0 - k) + k);
             float G1L = NdotL / (NdotL * (1.0 - k) + k);
             float G = G1V * G1L;
 
-            // Fresnel (Schlick)
             float3 F = F0 + (1.0 - F0) * pow(1.0 - VdotH, 5.0);
 
             float3 specular = (D * G * F) / (4.0 * NdotL * NdotV + 1e-6);
 
-            // === Lambertian Diffuse ===
-            float3 diffuseColor = (1.0 - F) * (1.0 - metalness); // metals have no diffuse
+            float3 diffuseColor = (1.0 - F) * (1.0 - metalness);
             float3 diffuse = (diffuseColor * albedo) / PI;
 
             float3 lightColor = dirData[i].diffuse.rgb;
-
             float3 lighting = (diffuse + specular) * lightColor * NdotL * shadowFactor;
 
             finalColor += lighting;
         }
-
     }
+
+    // === Image-Based Lighting (IBL) ===
+    float3 F = F0 + (1.0 - F0) * pow(1.0 - max(dot(viewDir, Norm), 0.0), 5.0);
+    float3 kS = F;
+    float3 kD = 1.0 - kS;
+    kD *= 1.0 - metalness;
+
+    // Irradiance (Diffuse)
+    float3 irradianceColor = irradiance.SampleLevel(skybox_sampler, Norm,0).rgb;
+    float3 diffuseIBL = irradianceColor * albedo;
+
+    // Specular (Prefilter + BRDF LUT)
+    float3 R = reflect(-viewDir, Norm);
+    R = normalize(R);
+
+    const uint MAX_MIP_LEVEL = 5;
+    float mipLevel = roughness * MAX_MIP_LEVEL;
+    float3 prefilteredColor = prefilter.SampleLevel(skybox_sampler, R, mipLevel).rgb;
+
+    float2 brdfSample = lut.SampleLevel(skybox_sampler, float2(max(dot(Norm, viewDir), 0.0), roughness),0).rg;
+    float3 specularIBL = prefilteredColor * (F * brdfSample.x + brdfSample.y);
+
+    float3 ibl = (kD * diffuseIBL + specularIBL);
+    finalColor += ibl;
 
     finalColor += albedo * 0.02;
     
