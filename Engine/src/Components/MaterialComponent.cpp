@@ -249,6 +249,7 @@ std::string Prisma::MaterialComponent::material_name()
 void Prisma::MaterialComponent::transparent(bool transparent)
 {
 	m_transparent = transparent;
+	CacheScene::getInstance().updateStatus(true);
 }
 
 bool Prisma::MaterialComponent::transparent() const

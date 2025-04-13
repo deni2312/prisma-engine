@@ -21,6 +21,7 @@ namespace Prisma {
 		const std::string MUTABLE_PREFILTER = "prefilter";
 		const std::string CONSTANT_CLUSTERS = "clusters";
 		const std::string CONSTANT_CLUSTERS_DATA = "ConstantsClusters";
+		const std::string MUTABLE_STATUS = "statusData";
 
 	}
 }

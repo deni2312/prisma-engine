@@ -240,12 +240,8 @@ void Prisma::MeshIndirect::updateSize()
 			m_textureViews.normal.push_back(material->material()->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 			m_textureViews.rm.push_back(material->material()->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 		}
-
-		std::vector<StatusData> status;
-		for (const auto& mesh : meshes)
-		{
-			status.push_back({ mesh->visible(),mesh->material()->plain(),glm::vec2(0) });
-		}
+		
+		updateStatus();
 
 		if (!m_cacheRemove.empty())
 		{
@@ -513,6 +509,11 @@ Diligent::DrawIndexedIndirectAttribs Prisma::MeshIndirect::commandsBuffer()
 	return m_commandsBuffer;
 }
 
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::statusBuffer()
+{
+	return m_statusBuffer;
+}
+
 void Prisma::MeshIndirect::resizeModels(std::vector<Prisma::Mesh::MeshData>& models)
 {
 	m_modelBuffer.Release();
@@ -740,21 +741,36 @@ void Prisma::MeshIndirect::updateTextureSize()
 	//                                    m_materialDataAnimation.data());
 }
 
-void Prisma::MeshIndirect::updateStatus() const
+void Prisma::MeshIndirect::updateStatus()
 {
-	//auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-	//if (!meshes.empty())
-	//{
-	//	std::vector<StatusData> status;
-	//	for (const auto& mesh : meshes)
-	//	{
-	//		status.push_back({ mesh->visible(),mesh->material()->plain(),glm::vec2(0.0)});
-	//	}
-	//	m_ssboStatusCopy->resize(sizeof(StatusData) * status.size());
-	//	m_ssboStatusCopy->modifyData(0, sizeof(StatusData) * status.size(), status.data());
-	//	m_ssboStatus->resize(sizeof(StatusData) * status.size());
-	//	updateStatusShader();
-	//}
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	if (!meshes.empty())
+	{
+		if (m_statusBuffer)
+		{
+			m_statusBuffer.Release();
+		}
+		std::vector<StatusData> status;
+		for (const auto& mesh : meshes)
+		{
+			status.push_back({ mesh->visible(),mesh->material()->plain(),mesh->material()->transparent(),0});
+		}
+
+		Diligent::BufferDesc statusDesc;
+		statusDesc.Name = "Omni Light Buffer";
+		statusDesc.Usage = Diligent::USAGE_DEFAULT;
+		statusDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+		statusDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+		statusDesc.ElementByteStride = sizeof(StatusData);
+		statusDesc.Size = sizeof(StatusData) * status.size();
+		Diligent::BufferData data;
+		data.DataSize = statusDesc.Size;
+		data.pData = status.data();
+		contextData.m_pDevice->CreateBuffer(statusDesc, &data, &m_statusBuffer);
+		updatePso();
+		updateStatusShader();
+	}
 	//auto animateMeshes = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
 
 

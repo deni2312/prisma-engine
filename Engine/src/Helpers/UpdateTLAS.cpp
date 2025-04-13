@@ -29,7 +29,7 @@ void Prisma::UpdateTLAS::update()
         auto meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
         if (!meshes.empty())
         {
-            if (Prisma::CacheScene::getInstance().updateSizes()) {
+            if (Prisma::CacheScene::getInstance().updateSizes() || Prisma::CacheScene::getInstance().updateStatus()) {
                 updateSizeTLAS();
             }
 
@@ -242,7 +242,7 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
         instance.InstanceName = meshes[i]->strUUID();
         instance.CustomId = i;
         instance.pBLAS = meshes[i]->blas();
-        instance.Mask = OPAQUE_GEOM_MASK;
+        instance.Mask = meshes[i]->material()->transparent()?TRANSPARENT_GEOM_MASK:OPAQUE_GEOM_MASK;
         glm::mat4 modelMatrix = meshes[i]->parent()->finalMatrix(); // This should include scale, rotation, and translation
         // Assign to the instance transform as a 3x4 row-major matrix
         for (int row = 0; row < 3; ++row) {
@@ -300,7 +300,7 @@ void Prisma::UpdateTLAS::updateTLAS(bool update)
 
         for (int i = 0;i < meshes.size();i++)
         {
-            m_pSBT->BindHitGroupForInstance(m_pTLAS, meshes[i]->strUUID(), PRIMARY_RAY_INDEX, "CubePrimaryHit");
+            m_pSBT->BindHitGroupForInstance(m_pTLAS, meshes[i]->strUUID(), PRIMARY_RAY_INDEX, meshes[i]->material()->transparent()?"GlassPrimaryHit" : "PrimaryHit");
         }
         m_pSBT->BindHitGroupForTLAS(m_pTLAS, SHADOW_RAY_INDEX, nullptr);
 

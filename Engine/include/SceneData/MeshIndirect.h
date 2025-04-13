@@ -60,7 +60,7 @@ namespace Prisma
 		void updateSize();
 		void updateModels();
 		void updateTextureSize();
-		void updateStatus() const;
+		void updateStatus();
 
 		void setupBuffers();
 
@@ -74,6 +74,8 @@ namespace Prisma
 
 		Diligent::DrawIndexedIndirectAttribs commandsBuffer();
 
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> statusBuffer();
+
 	private:
 
 		//BINDING DATA
@@ -83,6 +85,7 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indirectBuffer;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_statusBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelBuffer;
 		Diligent::DrawIndexedIndirectAttribs m_commandsBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
@@ -155,7 +158,16 @@ namespace Prisma
 		struct StatusData {
 			unsigned int status;
 			int plainMaterial;
-			glm::vec2 padding;
+			bool transparent = false;
+			float padding;
+			// Refraction cube properties
+			glm::vec3  GlassReflectionColorMask=glm::vec3(0.22f, 0.83f, 0.93f);
+			float   GlassAbsorption=0.5;
+			glm::vec4  GlassMaterialColor=glm::vec4(1);
+			glm::vec2  GlassIndexOfRefraction=glm::vec2(1.5f, 1.02f);  // min and max IOR
+			int GlassEnableDispersion=0;
+			unsigned int DispersionSampleCount=4; // 1..16
+			glm::vec4  DispersionSamples[16]; // [rgb color] [IOR scale]
 		};
 
 		void updatePso();

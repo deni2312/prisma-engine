@@ -36,6 +36,21 @@ struct ShadowRayPayload
     uint Recursion; // Current recusrsion depth
 };
 
+struct StatusData
+{
+    unsigned int status;
+    int plainMaterial;
+    bool transparent;
+    float padding;
+    float3 GlassReflectionColorMask;
+    float GlassAbsorption;
+    float4 GlassMaterialColor;
+    float2 GlassIndexOfRefraction; // min and max IOR
+    int GlassEnableDispersion;
+    unsigned int DispersionSampleCount; // 1..16
+    float4 DispersionSamples[16]; // [rgb color] [IOR scale]
+};
+
 #define NUM_LIGHTS          2
 #define MAX_DISPERS_SAMPLES 16
 

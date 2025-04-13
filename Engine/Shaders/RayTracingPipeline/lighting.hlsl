@@ -63,7 +63,7 @@ void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion)
 
     ray.Origin = Pos + Norm * SMALL_OFFSET;
     ray.TMin = 0.0;
-    ray.TMax = 10000.0;
+    ray.TMax = 1000.0;
 
     for (int i = 0; i < dirSize; ++i)
     {
