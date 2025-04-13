@@ -94,8 +94,6 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
                 shadowFactor = CastShadow(ray, Recursion).Shading;
             }
 
-            // === Cook-Torrance Specular ===
-            // Normal Distribution Function (GGX)
             float alpha2 = alpha * alpha;
             float denom = (NdotH * NdotH) * (alpha2 - 1.0) + 1.0;
             float D = alpha2 / (PI * denom * denom + 1e-6);
