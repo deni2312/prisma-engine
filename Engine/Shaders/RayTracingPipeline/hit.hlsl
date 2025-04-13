@@ -36,26 +36,46 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
     float3 normal = vertexBlas[locationBlas[InstanceID()].location+primitive.x].norm.xyz * barycentrics.x +
                     vertexBlas[locationBlas[InstanceID()].location+primitive.y].norm.xyz * barycentrics.y +
                     vertexBlas[locationBlas[InstanceID()].location+primitive.z].norm.xyz * barycentrics.z;
-	normal = normalize(mul((float3x3) ObjectToWorld3x4(), normal));
+    
+        // Calculate and transform triangle normal.
+    float3 tangent = vertexBlas[locationBlas[InstanceID()].location + primitive.x].tangent.xyz * barycentrics.x +
+                    vertexBlas[locationBlas[InstanceID()].location + primitive.y].tangent.xyz * barycentrics.y +
+                    vertexBlas[locationBlas[InstanceID()].location + primitive.z].tangent.xyz * barycentrics.z;
+    
+        // Calculate and transform triangle normal.
+    float3 bitangent = vertexBlas[locationBlas[InstanceID()].location + primitive.x].bitangent.xyz * barycentrics.x +
+                    vertexBlas[locationBlas[InstanceID()].location + primitive.y].bitangent.xyz * barycentrics.y +
+                    vertexBlas[locationBlas[InstanceID()].location + primitive.z].bitangent.xyz * barycentrics.z;
+    
+    
+	// Transform TBN to world space
+    float3x3 objToWorld = (float3x3) ObjectToWorld3x4();
+    tangent = normalize(mul(objToWorld, tangent));
+    bitangent = normalize(mul(objToWorld, bitangent));
+    normal = normalize(mul(objToWorld, normal));
 
-    float3 up = abs(normal.y) < 0.999 ? float3(0, 1, 0) : float3(1, 0, 0);
-    float3 tangent = normalize(cross(up, normal));
-    float3 bitangent = cross(normal, tangent);
-    float3 normalMap = normalTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz;
-    normalMap = normalize(normalMap * 2.0 - 1.0);
+    // Build TBN matrix
     float3x3 TBN = float3x3(tangent, bitangent, normal);
-    
-    
-    float3 worldNormal = normalize(mul(TBN, normalMap));
+
+    // Sample and decode normal map
+    float3 normalMap = normalTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz;
+    normalMap = normalMap * 2.0 - 1.0;
+
+    // Flip if needed
+    normalMap.xy *= -1.0;
+
+    // Transform to world space
+    float3 worldNormal = normalize(mul(normalMap, TBN));
+
     
     float4 rm = rmTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0);
 
     float metallic = rm.b;
     float roughness = rm.g;
-    worldNormal.xy = -worldNormal.xy;
 
     // Sample texturing. Ray tracing shaders don't support LOD calculation, so we must specify LOD and apply filtering.
     payload.Color = diffuseTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).rgb;
+
 	payload.Depth = RayTCurrent();
 
     // Apply lighting.

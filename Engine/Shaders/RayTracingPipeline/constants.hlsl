@@ -3,6 +3,8 @@ struct VertexBlas
 {
     float4 norm;
     float4 uv;
+    float4 tangent;
+    float4 bitangent;
 };
 
 struct LocationBlas

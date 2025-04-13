@@ -54,6 +54,8 @@ namespace Prisma{
 		{
 			glm::vec4 norm;
 			glm::vec4 uv;
+			glm::vec4 tangent;
+			glm::vec4 bitangent;
 		};
 
 		struct LocationBlas

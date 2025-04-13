@@ -80,7 +80,7 @@ void Prisma::UpdateTLAS::resizeTLAS()
                 locationBlas.push_back(currentLocation);
                 for (auto v : verticesData)
                 {
-                    verticesBlas.push_back({ glm::vec4(v.normal,0),glm::vec4(v.texCoords,0,0) });
+                    verticesBlas.push_back({ glm::vec4(v.normal,0),glm::vec4(v.texCoords,0,0),glm::vec4(v.tangent,0),glm::vec4(v.bitangent,0) });
                 }
 
                 for (int i = 0;i < indicesData.size();i += 3)
