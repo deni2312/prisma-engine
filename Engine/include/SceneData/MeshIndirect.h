@@ -167,7 +167,6 @@ namespace Prisma
 			glm::vec2  GlassIndexOfRefraction=glm::vec2(1.5f, 1.02f);  // min and max IOR
 			int GlassEnableDispersion=0;
 			unsigned int DispersionSampleCount=4; // 1..16
-			glm::vec4  DispersionSamples[16]; // [rgb color] [IOR scale]
 		};
 
 		void updatePso();

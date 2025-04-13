@@ -165,6 +165,31 @@ void Prisma::MaterialComponent::ui()
 	ComponentType componentColor;
 	componentColor = std::make_tuple(TYPES::COLOR, "Color", &m_color);
 
+	// Refraction cube properties
+	glm::vec3  GlassReflectionColorMask = glm::vec3(0.22f, 0.83f, 0.93f);
+	float   GlassAbsorption = 0.5;
+	glm::vec4  GlassMaterialColor = glm::vec4(1);
+	glm::vec2  GlassIndexOfRefraction = glm::vec2(1.5f, 1.02f);  // min and max IOR
+	int GlassEnableDispersion = 0;
+	unsigned int DispersionSampleCount = 4; // 1..16
+
+	ComponentType componentGlassReflectionColorMask;
+	componentGlassReflectionColorMask = std::make_tuple(TYPES::VEC3, "GlassReflectionColorMask", &m_rtMaterial.GlassReflectionColorMask);
+
+	ComponentType componentGlassAbsorption;
+	componentGlassAbsorption = std::make_tuple(TYPES::FLOAT, "GlassAbsorption", &m_rtMaterial.GlassAbsorption);
+
+	ComponentType componentGlassMaterialColor;
+	componentGlassMaterialColor = std::make_tuple(TYPES::VEC3, "GlassMaterialColor", &m_rtMaterial.GlassMaterialColor);
+
+	ComponentType componentGlassIndexOfRefraction;
+	componentGlassIndexOfRefraction = std::make_tuple(TYPES::VEC2, "GlassIndexOfRefraction", &m_rtMaterial.GlassIndexOfRefraction);
+
+	ComponentType componentGlassEnableDispersion;
+	componentGlassEnableDispersion = std::make_tuple(TYPES::BOOL, "GlassEnableDispersion", &m_rtMaterial.GlassEnableDispersion);
+
+	ComponentType componentDispersionSampleCount;
+	componentDispersionSampleCount = std::make_tuple(TYPES::INT, "DispersionSampleCount", &m_rtMaterial.DispersionSampleCount);
 	m_apply = []()
 		{
 			CacheScene::getInstance().updateTextures(true);
@@ -178,6 +203,12 @@ void Prisma::MaterialComponent::ui()
 	addGlobal({componentPlain,false });
 	addGlobal({componentTransparent,false });
 	addGlobal({componentColor,false });
+	addGlobal({ componentGlassReflectionColorMask,false });
+	addGlobal({ componentGlassAbsorption,false });
+	addGlobal({ componentGlassMaterialColor,false });
+	addGlobal({ componentGlassIndexOfRefraction,false });
+	addGlobal({ componentGlassEnableDispersion,false });
+	addGlobal({ componentDispersionSampleCount,false });
 	addGlobal({componentButton,false });
 
 	uiRemovable(false);
@@ -275,4 +306,14 @@ void Prisma::MaterialComponent::plain(bool plain)
 bool Prisma::MaterialComponent::plain()
 {
 	return m_plain;
+}
+
+void Prisma::MaterialComponent::rtMaterial(RayTracingMaterial rtMaterial)
+{
+	m_rtMaterial = rtMaterial;
+}
+
+Prisma::MaterialComponent::RayTracingMaterial Prisma::MaterialComponent::rtMaterial()
+{
+	return m_rtMaterial;
 }

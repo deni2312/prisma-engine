@@ -48,7 +48,6 @@ struct StatusData
     float2 GlassIndexOfRefraction; // min and max IOR
     int GlassEnableDispersion;
     unsigned int DispersionSampleCount; // 1..16
-    float4 DispersionSamples[16]; // [rgb color] [IOR scale]
 };
 
 #define NUM_LIGHTS          2
@@ -83,6 +82,27 @@ struct BoxAttribs
     {}
 #endif
 };
+
+static const float4 DispersionSamples[16] =
+{
+    float4(0.140000f, 0.000000f, 0.266667f, 0.53f),
+    float4(0.130031f, 0.037556f, 0.612267f, 0.25f),
+    float4(0.100123f, 0.213556f, 0.785067f, 0.16f),
+    float4(0.050277f, 0.533556f, 0.785067f, 0.00f),
+    float4(0.000000f, 0.843297f, 0.619682f, 0.13f),
+    float4(0.000000f, 0.927410f, 0.431834f, 0.38f),
+    float4(0.000000f, 0.972325f, 0.270893f, 0.27f),
+    float4(0.000000f, 0.978042f, 0.136858f, 0.19f),
+    float4(0.324000f, 0.944560f, 0.029730f, 0.47f),
+    float4(0.777600f, 0.871879f, 0.000000f, 0.64f),
+    float4(0.972000f, 0.762222f, 0.000000f, 0.77f),
+    float4(0.971835f, 0.482222f, 0.000000f, 0.62f),
+    float4(0.886744f, 0.202222f, 0.000000f, 0.73f),
+    float4(0.715967f, 0.000000f, 0.000000f, 0.68f),
+    float4(0.459920f, 0.000000f, 0.000000f, 0.91f),
+    float4(0.218000f, 0.000000f, 0.000000f, 0.99f)
+};
+
 
 struct ProceduralGeomIntersectionAttribs
 {

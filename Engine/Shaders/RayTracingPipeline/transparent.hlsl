@@ -82,8 +82,8 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
             float relIOR = 1.0;
 
             // Calculate index of refraction for specified wavelength.
-            float glassIOR = lerp(statusData[InstanceID()].GlassIndexOfRefraction.x, statusData[InstanceID()].GlassIndexOfRefraction.y, statusData[InstanceID()].DispersionSamples[i].a);
-            float3 colorMask = statusData[InstanceID()].DispersionSamples[i].rgb; // RGB color for wavelength
+            float glassIOR = lerp(statusData[InstanceID()].GlassIndexOfRefraction.x, statusData[InstanceID()].GlassIndexOfRefraction.y, DispersionSamples[i].a);
+            float3 colorMask = DispersionSamples[i].rgb; // RGB color for wavelength
             float3 rayDir = WorldRayDirection();
 
             // Refraction at the interface between air and glass.

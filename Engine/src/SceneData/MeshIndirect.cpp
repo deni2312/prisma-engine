@@ -751,10 +751,13 @@ void Prisma::MeshIndirect::updateStatus()
 		{
 			m_statusBuffer.Release();
 		}
+
 		std::vector<StatusData> status;
 		for (const auto& mesh : meshes)
 		{
-			status.push_back({ mesh->visible(),mesh->material()->plain(),mesh->material()->transparent(),0});
+			auto material = mesh->material();
+			auto rtMaterial = material->rtMaterial();
+			status.push_back({ mesh->visible(),material->plain(),material->transparent(),0,rtMaterial.GlassReflectionColorMask,rtMaterial.GlassAbsorption,rtMaterial.GlassMaterialColor,rtMaterial.GlassIndexOfRefraction,rtMaterial.GlassEnableDispersion,rtMaterial.DispersionSampleCount});
 		}
 
 		Diligent::BufferDesc statusDesc;

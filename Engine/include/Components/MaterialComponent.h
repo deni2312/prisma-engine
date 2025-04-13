@@ -29,6 +29,17 @@ namespace Prisma
 	{
 	public:
 
+		struct RayTracingMaterial
+		{
+			// Refraction cube properties
+			glm::vec3  GlassReflectionColorMask = glm::vec3(0.22f, 0.83f, 0.93f);
+			float   GlassAbsorption = 0.5;
+			glm::vec4  GlassMaterialColor = glm::vec4(1);
+			glm::vec2  GlassIndexOfRefraction = glm::vec2(1.5f, 1.02f);  // min and max IOR
+			int GlassEnableDispersion = 0;
+			unsigned int DispersionSampleCount = 4; // 1..16
+		};
+
 		void ui() override;
 
 		void update() override;
@@ -73,6 +84,11 @@ namespace Prisma
 
 		bool plain();
 
+		void rtMaterial(RayTracingMaterial rtMaterial);
+
+		RayTracingMaterial rtMaterial();
+
+
 	private:
 		std::vector<Texture> m_diffuse;
 		std::vector<Texture> m_normal;
@@ -114,6 +130,7 @@ namespace Prisma
 		Prisma::Component::ImageButton m_specularImage;
 		Prisma::Component::ImageButton m_ambientOcclusionImage;
 
+		RayTracingMaterial m_rtMaterial;
 
 		glm::vec2 m_size=glm::vec2(90,90);
 	};
