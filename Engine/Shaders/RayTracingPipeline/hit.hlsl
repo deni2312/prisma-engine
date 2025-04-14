@@ -16,6 +16,7 @@ SamplerState g_SamLinearWrap;
 StructuredBuffer<VertexBlas> vertexBlas;
 StructuredBuffer<LocationBlas> locationBlas;
 StructuredBuffer<int4> primitiveBlas;
+StructuredBuffer<StatusData> statusData;
 
 
 [shader("closesthit")]
@@ -69,7 +70,20 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
 
     float metallic = rm.b;
     float roughness = rm.g;
+    if (statusData[InstanceID()].isSpecular == 1)
+    {
+        // Assume rm.rgb = specularColor (r,g,b), rm.a = glossiness
+        float3 specularColor = rm.rgb;
+        float glossiness = rm.a;
 
+        // Convert glossiness to roughness
+        roughness = 1.0 - glossiness;
+
+        // Approximate metallic from specular color
+        // Metallic = max(specularColor.r, specularColor.g, specularColor.b)
+        // This is a simplification — for accurate conversion you'd need IOR and energy conservation, but this is a decent heuristic
+        metallic = max(max(specularColor.r, specularColor.g), specularColor.b);
+    }
     // Sample texturing. Ray tracing shaders don't support LOD calculation, so we must specify LOD and apply filtering.
     payload.Color = diffuseTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz;
 
