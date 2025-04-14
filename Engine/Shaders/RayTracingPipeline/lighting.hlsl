@@ -225,9 +225,12 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
     float3 kD = 1.0 - kS;
     kD *= 1.0 - metalness;
 
-    float3 irradianceData = RayTracedIrradiance(Pos, Norm, Recursion, 1);
-    float3 diffuseIBL = irradianceData * albedo;
+    //float3 irradianceData = RayTracedIrradiance(Pos, Norm, Recursion, 8);
+    //float3 diffuseIBL = irradianceData * albedo;
 
+    float3 irradianceData = irradiance.SampleLevel(skybox_sampler, Norm, 0).rgb;
+    float3 diffuseIBL = irradianceData * albedo;
+    
     float3 R = reflect(-V, Norm);
     R = normalize(R);
     // Compute blend weight based on metalness and roughness
