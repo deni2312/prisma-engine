@@ -120,6 +120,54 @@ PrimaryRayPayload CastReflectionRay(float3 origin, float3 direction, uint Recurs
     return payload;
 }
 
+float2 Hammersley(int i, int N)
+{
+    uint bits = asuint(i);
+    bits = (bits << 16) | (bits >> 16);
+    bits = ((bits & 0x55555555) << 1) | ((bits & 0xAAAAAAAA) >> 1);
+    bits = ((bits & 0x33333333) << 2) | ((bits & 0xCCCCCCCC) >> 2);
+    bits = ((bits & 0x0F0F0F0F) << 4) | ((bits & 0xF0F0F0F0) >> 4);
+    bits = ((bits & 0x00FF00FF) << 8) | ((bits & 0xFF00FF00) >> 8);
+    return float2((float) i / (float) N, float(bits) * 2.3283064365386963e-10); // 2^-32
+}
+
+float3 ImportanceSampleCosineHemisphere(float2 xi, float3 N)
+{
+    float phi = 2.0 * PI * xi.x;
+    float cosTheta = sqrt(1.0 - xi.y);
+    float sinTheta = sqrt(xi.y);
+
+    float3 H = float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+
+    // Build TBN
+    float3 up = abs(N.z) < 0.999 ? float3(0, 0, 1) : float3(1, 0, 0);
+    float3 tangentX = normalize(cross(up, N));
+    float3 tangentY = cross(N, tangentX);
+    return normalize(tangentX * H.x + tangentY * H.y + N * H.z);
+}
+
+float3 RayTracedIrradiance(float3 pos, float3 normal, uint Recursion, int sampleCount)
+{
+    float3 irradiance = float3(0.0, 0.0, 0.0);
+
+    for (int i = 0; i < sampleCount; ++i)
+    {
+        // Generate stratified sample direction in hemisphere
+        float2 xi = Hammersley(i, sampleCount);
+        float3 sampleDir = ImportanceSampleCosineHemisphere(xi, normal);
+
+        // Cast ray
+        PrimaryRayPayload payload = CastReflectionRay(pos, sampleDir, Recursion);
+
+        // Weight by cosine
+        float weight = max(dot(normal, sampleDir), 0.0);
+        irradiance += payload.Color * weight;
+    }
+
+    irradiance /= PI * sampleCount;
+    return irradiance;
+}
+
 void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float metalness,float roughness)
 {
     float3 V = normalize(g_ConstantsCB.CameraPos.xyz - Pos);
@@ -177,7 +225,7 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
     float3 kD = 1.0 - kS;
     kD *= 1.0 - metalness;
 
-    float3 irradianceData = irradiance.SampleLevel(skybox_sampler, Norm,0).rgb;
+    float3 irradianceData = RayTracedIrradiance(Pos, Norm, Recursion, 1);
     float3 diffuseIBL = irradianceData * albedo;
 
     float3 R = reflect(-V, Norm);
