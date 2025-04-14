@@ -26,6 +26,7 @@ namespace Prisma
 			std::vector<Diligent::IDeviceObject*> diffuse;
 			std::vector<Diligent::IDeviceObject*> normal;
 			std::vector<Diligent::IDeviceObject*> rm;
+			std::vector<Diligent::IDeviceObject*> specular;
 		};
 
 		//std::shared_ptr<VAO> vao();
@@ -158,8 +159,8 @@ namespace Prisma
 		struct StatusData {
 			unsigned int status;
 			int plainMaterial;
-			bool transparent = false;
-			float padding;
+			int transparent = 0;
+			int isSpecular = 0;
 			// Refraction cube properties
 			glm::vec3  GlassReflectionColorMask=glm::vec3(0.22f, 0.83f, 0.93f);
 			float   GlassAbsorption=0.5;
@@ -169,6 +170,7 @@ namespace Prisma
 			unsigned int DispersionSampleCount=4; // 1..16
 		};
 
+		void updateTextureData();
 		void updatePso();
 	
 	};

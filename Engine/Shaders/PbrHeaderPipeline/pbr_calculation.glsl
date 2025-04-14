@@ -10,6 +10,20 @@ uniform ConstantsClusters
     ivec4 screenDimensions;
 };
 
+struct StatusData
+{
+    int status;
+    int plainMaterial;
+    int transparent;
+    int isSpecular;
+    vec3 GlassReflectionColorMask;
+    float GlassAbsorption;
+    vec4 GlassMaterialColor;
+    vec2 GlassIndexOfRefraction;
+    int GlassEnableDispersion;
+    int DispersionSampleCount;
+};
+
 const float PI = 3.14159265359;
 
 layout(location = 0) out vec4 FragColor;
@@ -27,6 +41,10 @@ uniform sampler textureClamp_sampler;
 uniform sampler textureRepeat_sampler;
 
 uniform texture2D normalTexture[];
+
+readonly buffer statusData{
+    StatusData statusData_data[];
+};
 
 uniform texture2D rmTexture[];
 

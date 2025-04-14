@@ -73,6 +73,23 @@ void Prisma::MeshIndirect::updateStatusShader() const
 //	return m_ebo;
 //}
 
+void Prisma::MeshIndirect::updateTextureData()
+{
+	m_textureViews.diffuse.clear();
+	m_textureViews.normal.clear();
+	m_textureViews.rm.clear();
+	m_textureViews.specular.clear();
+
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+	for (const auto& material : meshes)
+	{
+		m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		m_textureViews.normal.push_back(material->material()->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		m_textureViews.rm.push_back(material->material()->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		m_textureViews.specular.push_back(material->material()->specular()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	}
+}
+
 void Prisma::MeshIndirect::updatePso()
 {
 	for (auto resizeHandler : m_resizeHandler)
@@ -213,10 +230,6 @@ void Prisma::MeshIndirect::updateSize()
 	m_materialData.clear();
 	m_drawCommands.clear();
 	m_updateModels.clear();
-	m_textureViews.diffuse.clear();
-	m_textureViews.normal.clear();
-	m_textureViews.rm.clear();
-
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
 	if (!meshes.empty())
@@ -234,12 +247,7 @@ void Prisma::MeshIndirect::updateSize()
 		resizeModels(models);
 
 		//PUSH MATERIAL TO AN SSBO WITH ID 0
-		for (const auto& material : meshes)
-		{
-			m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-			m_textureViews.normal.push_back(material->material()->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-			m_textureViews.rm.push_back(material->material()->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-		}
+		updateTextureData();
 		
 		updateStatus();
 
@@ -711,17 +719,7 @@ void Prisma::MeshIndirect::updateAnimation()
 
 void Prisma::MeshIndirect::updateTextureSize()
 {
-	m_textureViews.diffuse.clear();
-	m_textureViews.normal.clear();
-	m_textureViews.rm.clear();
-
-	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-	for (const auto& material : meshes)
-	{
-		m_textureViews.diffuse.push_back(material->material()->diffuse()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-		m_textureViews.normal.push_back(material->material()->normal()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-		m_textureViews.rm.push_back(material->material()->roughnessMetalness()[0].texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-	}
+	updateTextureData();
 	updatePso();
 	//m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
 	//m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
@@ -757,7 +755,7 @@ void Prisma::MeshIndirect::updateStatus()
 		{
 			auto material = mesh->material();
 			auto rtMaterial = material->rtMaterial();
-			status.push_back({ mesh->visible(),material->plain(),material->transparent(),0,rtMaterial.GlassReflectionColorMask,rtMaterial.GlassAbsorption,rtMaterial.GlassMaterialColor,rtMaterial.GlassIndexOfRefraction,rtMaterial.GlassEnableDispersion,rtMaterial.DispersionSampleCount});
+			status.push_back({ mesh->visible(),material->plain(),material->transparent(),material->isSpecular(),rtMaterial.GlassReflectionColorMask,rtMaterial.GlassAbsorption,rtMaterial.GlassMaterialColor,rtMaterial.GlassIndexOfRefraction,rtMaterial.GlassEnableDispersion,rtMaterial.DispersionSampleCount});
 		}
 
 		Diligent::BufferDesc statusDesc;

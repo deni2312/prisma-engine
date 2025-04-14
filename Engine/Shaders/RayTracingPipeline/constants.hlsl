@@ -43,8 +43,8 @@ struct StatusData
 {
     unsigned int status;
     int plainMaterial;
-    bool transparent;
-    float padding;
+    int transparent;
+    int isSpecular;
     float3 GlassReflectionColorMask;
     float GlassAbsorption;
     float4 GlassMaterialColor;

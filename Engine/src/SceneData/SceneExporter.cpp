@@ -88,6 +88,16 @@ void Prisma::Exporter::loadTexturesMultithreaded(std::vector<std::shared_ptr<Pri
 			Prisma::GlobalData::getInstance().addGlobalTexture({ t,texture.first });
 		}
 	}
+	for (auto mesh:meshes)
+	{
+		auto material = mesh->material();
+		if (material->roughnessMetalness()[0].name()==Define::DIR_DEFAULT_BLACK && material->specular()[0].name()!=Define::DIR_DEFAULT_WHITE)
+		{
+			material->roughnessMetalness(material->specular());
+			mesh->material()->isSpecular(true);
+			mesh->material(material);
+		}
+	}
 }
 
 void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCubemap)

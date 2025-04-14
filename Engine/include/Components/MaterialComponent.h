@@ -88,6 +88,10 @@ namespace Prisma
 
 		RayTracingMaterial rtMaterial();
 
+		void isSpecular(bool specular);
+
+		bool isSpecular();
+
 
 	private:
 		std::vector<Texture> m_diffuse;
@@ -131,6 +135,8 @@ namespace Prisma
 		Prisma::Component::ImageButton m_ambientOcclusionImage;
 
 		RayTracingMaterial m_rtMaterial;
+
+		bool m_isSpecular = false;
 
 		glm::vec2 m_size=glm::vec2(90,90);
 	};

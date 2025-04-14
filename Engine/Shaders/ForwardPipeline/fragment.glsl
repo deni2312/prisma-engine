@@ -19,6 +19,20 @@ void main()
 
     float metallic = rm.b;
     float roughness = rm.g;
+
+    if(statusData_data[outDrawId].isSpecular==1){
+        // Assume rm.rgb = specularColor (r,g,b), rm.a = glossiness
+        vec3 specularColor = rm.rgb;
+        float glossiness = rm.a;
+
+        // Convert glossiness to roughness
+        roughness = 1.0 - glossiness;
+
+        // Approximate metallic from specular color
+        // Metallic = max(specularColor.r, specularColor.g, specularColor.b)
+        // This is a simplification — for accurate conversion you'd need IOR and energy conservation, but this is a decent heuristic
+        metallic = max(max(specularColor.r, specularColor.g), specularColor.b);
+    }
     
     vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse), vec4(1.0), roughness, metallic);
         

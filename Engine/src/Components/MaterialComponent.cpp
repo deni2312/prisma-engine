@@ -317,3 +317,13 @@ Prisma::MaterialComponent::RayTracingMaterial Prisma::MaterialComponent::rtMater
 {
 	return m_rtMaterial;
 }
+
+void Prisma::MaterialComponent::isSpecular(bool specular)
+{
+	m_isSpecular = specular;
+}
+
+bool Prisma::MaterialComponent::isSpecular()
+{
+	return m_isSpecular;
+}

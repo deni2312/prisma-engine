@@ -485,7 +485,6 @@ std::vector<Prisma::Texture> Prisma::SceneLoader::loadMaterialTextures(aiMateria
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		bool skip = false;
 		Texture texture;
 		std::string name = m_folder+str.C_Str();
 		texture.name(name);
