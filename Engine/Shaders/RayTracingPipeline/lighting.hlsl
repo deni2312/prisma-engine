@@ -7,7 +7,23 @@ cbuffer LightSizes
     int areaSize;
     int padding;
 };
+
+struct OmniData
+{
+    float4 position;
+    float4 diffuse;
+    float4 specular;
+    float4 far_plane;
+    float4 attenuation;
+    float2 depthMap;
+    float padding;
+    float radius;
+};
+
 StructuredBuffer<DirectionalData> dirData;
+
+StructuredBuffer<OmniData> omniData;
+
 ConstantBuffer<Constants> g_ConstantsCB;
 RaytracingAccelerationStructure g_TLAS;
 
@@ -178,6 +194,52 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
 
     float3 Lo = float3(0.0, 0.0, 0.0);
 
+    for (int i = 0; i < omniSize; ++i)
+    {
+        float3 L = omniData[i].position.xyz - Pos;
+        float dist = length(L);
+        L = normalize(L);
+        float3 H = normalize(V + L);
+
+        float NdotL = max(dot(Norm, L), 0.0);
+        float NdotV = max(dot(Norm, V), 0.0);
+        float NdotH = max(dot(Norm, H), 0.0);
+        float VdotH = max(dot(V, H), 0.0);
+
+        float3 radiance = omniData[i].diffuse.rgb;
+
+    // Fresnel
+        float3 F = fresnelSchlick(VdotH, F0);
+
+    // Specular BRDF
+        float NDF = DistributionGGX(NdotH, roughness);
+        float G = GeometrySmith(NdotV, NdotL, roughness);
+        float3 numerator = NDF * G * F;
+        float denominator = 4.0 * NdotV * NdotL + 1e-6;
+        float3 specular = numerator / denominator;
+
+        float3 kS = F; // * specularMap; // You can modulate with a texture if needed
+        float3 kD = 1.0 - kS;
+        kD *= 1.0 - metalness;
+
+    // Attenuation
+        float3 att = omniData[i].attenuation.xyz;
+        float attenuation = 1.0 / (att.x + att.y * dist + att.z * dist * dist);
+        attenuation *= saturate(1.0 - dist / omniData[i].radius); // Optional: radius-based falloff
+
+        float shadow = 1.0;
+    // Add raytraced shadows if needed, example:
+    // RayDesc ray;
+    // ray.Origin = Pos + Norm * SMALL_OFFSET;
+    // ray.Direction = L;
+    // ray.TMin = 0.0;
+    // ray.TMax = dist - SMALL_OFFSET;
+    // shadow = CastShadow(ray, Recursion).Shading;
+
+        float3 light = (kD * albedo / PI + specular) * radiance * NdotL * shadow * attenuation;
+        Lo += light;
+    }
+    
     // === Direct Lighting Loop ===
     for (int i = 0; i < dirSize; ++i)
     {
