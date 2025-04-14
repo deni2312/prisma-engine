@@ -86,7 +86,7 @@ Prisma::Engine::Engine()
 	Diligent::ImGuiDiligentCreateInfo desc;
 	desc.pDevice = Prisma::PrismaFunc::getInstance().contextData().m_pDevice;
 
-	data->engineSettings.pipeline = EngineSettings::Pipeline::RAYTRACING;
+	data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 
 	data->engineSettings.ssr = false;
 

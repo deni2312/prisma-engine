@@ -7,13 +7,13 @@ void main()
 {
     vec4 diffuse = texture(sampler2D(diffuseTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
     // Sample the normal map
-    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
+    //vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
     
     // Remap from [0, 1] to [-1, 1]
-    tangentNormal = tangentNormal * 2.0 - 1.0;
+    //tangentNormal = tangentNormal * 2.0 - 1.0;
 
     // Transform from tangent space to world space
-    vec3 worldNormal = normalize(outTBN * tangentNormal);
+    vec3 worldNormal = getNormalFromMap();
 
     vec4 rm = texture(sampler2D(rmTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
 
