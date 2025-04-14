@@ -228,13 +228,6 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
         attenuation *= saturate(1.0 - dist / omniData[i].radius); // Optional: radius-based falloff
 
         float shadow = 1.0;
-    // Add raytraced shadows if needed, example:
-    // RayDesc ray;
-    // ray.Origin = Pos + Norm * SMALL_OFFSET;
-    // ray.Direction = L;
-    // ray.TMin = 0.0;
-    // ray.TMax = dist - SMALL_OFFSET;
-    // shadow = CastShadow(ray, Recursion).Shading;
 
         float3 light = (kD * albedo / PI + specular) * radiance * NdotL * shadow * attenuation;
         Lo += light;
