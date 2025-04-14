@@ -99,7 +99,7 @@ PrimaryRayPayload CastReflectionRay(float3 origin, float3 direction, uint Recurs
 {
     PrimaryRayPayload payload = { float3(0.0, 0.0, 0.0),0, Recursion + 1 };
 
-    if (Recursion >= g_ConstantsCB.MaxRecursion)
+    if (Recursion >= g_ConstantsCB.MaxRecurionReflection)
         return payload;
 
     RayDesc ray;
@@ -234,7 +234,7 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
     float reflectionWeight = metalness * saturate(1.0 - roughness);
 
     float3 rayTracedColor = float3(0.0, 0.0, 0.0);
-    if (Recursion < g_ConstantsCB.MaxRecursion && reflectionWeight > 0.01)
+    if (Recursion < g_ConstantsCB.MaxRecurionReflection && reflectionWeight > 0.01)
     {
         PrimaryRayPayload reflectionPayload = CastReflectionRay(Pos, R, Recursion);
         rayTracedColor = reflectionPayload.Color;

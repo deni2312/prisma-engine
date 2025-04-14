@@ -65,7 +65,7 @@ struct Constants
     // Near and far clip plane distances
     float2 ClipPlanes;
     float MaxRecursion;
-    float Padding;
+    float MaxRecurionReflection;
 };
 
 struct BoxAttribs

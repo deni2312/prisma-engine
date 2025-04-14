@@ -66,6 +66,16 @@ void Prisma::SettingsTab::drawSettings()
 			case EngineSettings::Pipeline::RAYTRACING:
 				Prisma::PipelineHandler::getInstance().raytracing();
 				Prisma::UpdateTLAS::getInstance().updateSizeTLAS();
+
+				int maxHardware = Prisma::PipelineHandler::getInstance().raytracing()->hardwareMaxReflection();
+
+				int maxRecursionDepth = Prisma::PipelineHandler::getInstance().raytracing()->maxRecursion();
+
+				ImGui::SliderInt("Max Recursion Depth##1", &maxRecursionDepth, 1, maxHardware);
+
+				int maxRecursionReflection = Prisma::PipelineHandler::getInstance().raytracing()->maxRecursionReflection();
+
+				ImGui::SliderInt("Max Recursion Reflection##1", &maxRecursionReflection, 1, maxHardware);
 				break;
 			}
 			Prisma::CacheScene::getInstance().updateSizes(true);
@@ -83,16 +93,41 @@ void Prisma::SettingsTab::drawSettings()
 		bool debugPhysics = Physics::getInstance().debug();
 
 		ImGui::Checkbox("PHYSICS DEBUG", &debugPhysics);
-
-		bool sortTransparencies = Prisma::GlobalData::getInstance().transparencies();
-
-		ImGui::Checkbox("SORT TRANSPARENCIES", &sortTransparencies);
+		//
+		//bool sortTransparencies = Prisma::GlobalData::getInstance().transparencies();
+		//
+		//ImGui::Checkbox("SORT TRANSPARENCIES", &sortTransparencies);
 
 		float scale = Prisma::ImguiDebug::getInstance().scale();
 
 		ImGui::SliderFloat("Scale##1", &scale, 0.1, 1);
 
-		Prisma::GlobalData::getInstance().transparencies(sortTransparencies);
+		switch (m_status.currentitem)
+		{
+		case EngineSettings::Pipeline::FORWARD:
+			break;
+		case EngineSettings::Pipeline::DEFERRED:
+			break;
+		case EngineSettings::Pipeline::DEFERRED_FORWARD:
+			break;
+		case EngineSettings::Pipeline::RAYTRACING:
+
+			int maxHardware = Prisma::PipelineHandler::getInstance().raytracing()->hardwareMaxReflection();
+
+			int maxRecursionDepth = Prisma::PipelineHandler::getInstance().raytracing()->maxRecursion();
+
+			ImGui::SliderInt("Max Recursion Depth##1", &maxRecursionDepth, 1, maxHardware);
+
+			int maxRecursionReflection = Prisma::PipelineHandler::getInstance().raytracing()->maxRecursionReflection();
+
+			ImGui::SliderInt("Max Recursion Reflection##1", &maxRecursionReflection, 1, maxHardware);
+
+			Prisma::PipelineHandler::getInstance().raytracing()->maxRecursion(maxRecursionDepth);
+			Prisma::PipelineHandler::getInstance().raytracing()->maxRecursionReflection(maxRecursionReflection);
+			break;
+		}
+
+		//Prisma::GlobalData::getInstance().transparencies(sortTransparencies);
 
 		Physics::getInstance().debug(debugPhysics);
 

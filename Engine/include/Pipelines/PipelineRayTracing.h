@@ -21,6 +21,11 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso();
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb();
 		Diligent::RefCntAutoPtr<Diligent::ITexture> colorBuffer();
+		void maxRecursion(unsigned int recursion);
+		Diligent::Uint32 maxRecursion();
+		void maxRecursionReflection(unsigned int recursionReflection);
+		Diligent::Uint32 maxRecursionReflection();
+		Diligent::Uint32 hardwareMaxReflection();
 		~PipelineRayTracing();
 
 	private:
@@ -34,7 +39,7 @@ namespace Prisma
 
 			glm::vec2   ClipPlanes;
 			float MaxRecursion;
-			float   Padding0;
+			float MaxRecursionReflection;
 		};
 
 		Diligent::Uint32 m_MaxRecursionDepth = 8;
@@ -59,6 +64,10 @@ namespace Prisma
 		std::shared_ptr<PipelineBlitRT> m_blitRT;
 
 		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
+
+		Diligent::Uint32 m_maxRecursionReflection = 4;
+
+		Diligent::Uint32 m_hardwareMaxReflection = 8;
 
 	};
 }

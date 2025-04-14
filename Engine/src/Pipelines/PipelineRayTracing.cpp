@@ -62,8 +62,8 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
     contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_raytracingData);
 
-    m_MaxRecursionDepth = std::min(m_MaxRecursionDepth, contextData.m_pDevice->GetAdapterInfo().RayTracing.MaxRecursionDepth);
-
+    m_hardwareMaxReflection = std::min(m_MaxRecursionDepth, contextData.m_pDevice->GetAdapterInfo().RayTracing.MaxRecursionDepth);
+    m_MaxRecursionDepth = m_hardwareMaxReflection;
     // Prepare ray tracing pipeline description.
     RayTracingPipelineStateCreateInfoX PSOCreateInfo;
 
@@ -309,6 +309,7 @@ void Prisma::PipelineRayTracing::render() {
         rayTracingData->InvViewProj = glm::inverse(Prisma::GlobalData::getInstance().currentProjection() * camera->matrix());
         rayTracingData->ClipPlanes = { camera->nearPlane(),camera->farPlane() };
         rayTracingData->MaxRecursion = m_MaxRecursionDepth;
+        rayTracingData->MaxRecursionReflection = m_maxRecursionReflection;
         
         contextData.m_pImmediateContext->SetPipelineState(m_pso);
         contextData.m_pImmediateContext->CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -340,5 +341,30 @@ Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::PipelineRayTra
 Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineRayTracing::colorBuffer()
 {
     return m_colorBuffer;
+}
+
+void Prisma::PipelineRayTracing::maxRecursion(unsigned int recursion)
+{
+    m_MaxRecursionDepth = recursion;
+}
+
+Diligent::Uint32 Prisma::PipelineRayTracing::maxRecursion()
+{
+    return m_MaxRecursionDepth;
+}
+
+void Prisma::PipelineRayTracing::maxRecursionReflection(unsigned int recursionReflection)
+{
+    m_maxRecursionReflection = recursionReflection;
+}
+
+Diligent::Uint32 Prisma::PipelineRayTracing::maxRecursionReflection()
+{
+    return m_maxRecursionReflection;
+}
+
+Diligent::Uint32 Prisma::PipelineRayTracing::hardwareMaxReflection()
+{
+    return m_hardwareMaxReflection;
 }
 
