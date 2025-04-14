@@ -95,6 +95,31 @@ float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
     return F0 + (max(float3(currentRoughness, currentRoughness, currentRoughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
+PrimaryRayPayload CastReflectionRay(float3 origin, float3 direction, uint Recursion)
+{
+    PrimaryRayPayload payload = { float3(0.0, 0.0, 0.0),0, Recursion + 1 };
+
+    if (Recursion >= g_ConstantsCB.MaxRecursion)
+        return payload;
+
+    RayDesc ray;
+    ray.Origin = origin + direction * SMALL_OFFSET;
+    ray.Direction = direction;
+    ray.TMin = 0.001;
+    ray.TMax = 10000.0;
+
+    TraceRay(g_TLAS,
+             RAY_FLAG_NONE,
+             OPAQUE_GEOM_MASK,
+             PRIMARY_RAY_INDEX,
+             HIT_GROUP_STRIDE,
+             PRIMARY_RAY_INDEX,
+             ray,
+             payload);
+
+    return payload;
+}
+
 void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float metalness,float roughness)
 {
     float3 V = normalize(g_ConstantsCB.CameraPos.xyz - Pos);
@@ -157,12 +182,24 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
 
     float3 R = reflect(-V, Norm);
     R = normalize(R);
-    const float MAX_REFLECTION_LOD = 9.0;
+    // Compute blend weight based on metalness and roughness
+    float reflectionWeight = metalness * saturate(1.0 - roughness);
+
+    float3 rayTracedColor = float3(0.0, 0.0, 0.0);
+    if (Recursion < g_ConstantsCB.MaxRecursion && reflectionWeight > 0.01)
+    {
+        PrimaryRayPayload reflectionPayload = CastReflectionRay(Pos, R, Recursion);
+        rayTracedColor = reflectionPayload.Color;
+    }
+    // Fallback IBL
+    const float MAX_REFLECTION_LOD = 8.0;
     float3 prefilteredColor = prefilter.SampleLevel(skybox_sampler, R, roughness * MAX_REFLECTION_LOD).rgb;
+    float2 brdf = lut.SampleLevel(skybox_sampler, float2(max(dot(Norm, V), 0.0), roughness), 0).rg;
+    float3 iblColor = prefilteredColor * (F * brdf.x + brdf.y);
 
-    float2 brdf = lut.SampleLevel(skybox_sampler, float2(max(dot(Norm, V), 0.0), roughness),0).rg;
-    float3 specularIBL = prefilteredColor * (F * brdf.x + brdf.y);
-
+    // Blend based on reflection weight
+    float3 specularIBL = lerp(iblColor, rayTracedColor, reflectionWeight);
+    
     float3 ambient = (kD * diffuseIBL + specularIBL);
     
     Color = Lo + ambient;
