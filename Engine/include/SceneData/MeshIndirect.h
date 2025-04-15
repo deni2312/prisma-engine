@@ -92,14 +92,15 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
 
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBufferAnimation;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBufferAnimation;
+
 		void resizeModels(std::vector<Prisma::Mesh::MeshData>& models);
 
 		std::vector<std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)>> m_resizeHandler;
 
 		//INDIRECT INDEX
 
-		unsigned int m_indirectDraw;
-		unsigned int m_indirectDrawCopy;
 		unsigned int m_currentIndex;
 		unsigned int m_currentVertex;
 
@@ -140,6 +141,7 @@ namespace Prisma
 
 		void sort() const;
 		void updateStatusShader() const;
+		void updateIndirectBuffer();
 
 
 		unsigned int m_sizeLocation;

@@ -58,6 +58,54 @@ void Prisma::MeshIndirect::updateStatusShader() const
 	//m_statusShader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
+void Prisma::MeshIndirect::updateIndirectBuffer()
+{
+	m_drawCommands.clear();
+
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+
+	m_currentIndex = 0;
+	m_currentVertex = 0;
+	for (const auto& mesh : meshes)
+	{
+		const auto& indices = mesh->verticesData().indices;
+		const auto& vertices = mesh->verticesData().vertices;
+		DrawElementsIndirectCommand command{};
+		command.count = static_cast<GLuint>(indices.size());
+		command.instanceCount = mesh->visible();
+		if (!mesh->visible())
+		{
+			std::cout << mesh->name() << std::endl;
+		}
+		command.firstIndex = m_currentIndex;
+		command.baseVertex = m_currentVertex;
+		command.baseInstance = 0;
+
+		m_drawCommands.push_back(command);
+		m_currentIndex = m_currentIndex + indices.size();
+		m_currentVertex = m_currentVertex + vertices.size();
+	}
+	m_indirectBuffer.Release();
+
+	Diligent::BufferDesc IndirectBufferDesc;
+	IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
+	IndirectBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+	IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+	IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * meshes.size();
+	IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+	Diligent::BufferData InitData;
+	InitData.pData = m_drawCommands.data();
+	InitData.DataSize = sizeof(DrawElementsIndirectCommand) * meshes.size();
+	contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBuffer);
+
+	m_commandsBuffer.DrawCount = meshes.size();
+	m_commandsBuffer.DrawArgsOffset = 0;
+	m_commandsBuffer.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
+	m_commandsBuffer.IndexType = Diligent::VT_UINT32;
+	m_commandsBuffer.pAttribsBuffer = m_indirectBuffer;
+}
+
 //std::shared_ptr<Prisma::VAO> Prisma::MeshIndirect::vao()
 //{
 //	return m_vao;
@@ -161,13 +209,6 @@ void Prisma::MeshIndirect::renderMeshes() const
 {
 	if (!Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.empty())
 	{
-		//m_vao->bind();
-		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDraw);
-		//glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_sizeAtomic);
-		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectSSBOId, m_indirectDraw);
-		//glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, 0, m_drawCommands.size(), 0);
-		//glBindBuffer(GL_PARAMETER_BUFFER_ARB, 0);
-		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 		contextData.m_pImmediateContext->DrawIndexedIndirect(m_commandsBuffer);
 	}
@@ -228,7 +269,6 @@ void Prisma::MeshIndirect::updateSize()
 
 	//CLEAR DATA
 	m_materialData.clear();
-	m_drawCommands.clear();
 	m_updateModels.clear();
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
@@ -349,41 +389,7 @@ void Prisma::MeshIndirect::updateSize()
 		m_cacheAdd.clear();
 		m_cacheRemove.clear();
 
-		m_currentIndex = 0;
-		m_currentVertex = 0;
-		for (const auto& mesh : meshes)
-		{
-			const auto& indices = mesh->verticesData().indices;
-			const auto& vertices = mesh->verticesData().vertices;
-			DrawElementsIndirectCommand command{};
-			command.count = static_cast<GLuint>(indices.size());
-			command.instanceCount = mesh->visible();
-			command.firstIndex = m_currentIndex;
-			command.baseVertex = m_currentVertex;
-			command.baseInstance = 0;
-
-			m_drawCommands.push_back(command);
-			m_currentIndex = m_currentIndex + indices.size();
-			m_currentVertex = m_currentVertex + vertices.size();
-		}
-		m_indirectBuffer.Release();
-
-		Diligent::BufferDesc IndirectBufferDesc;
-		IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
-		IndirectBufferDesc.Usage = Diligent::USAGE_DEFAULT;
-		IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
-		IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * meshes.size();
-		IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
-		Diligent::BufferData InitData;
-		InitData.pData = m_drawCommands.data();
-		InitData.DataSize = sizeof(DrawElementsIndirectCommand) * meshes.size();
-		contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBuffer);
-
-		m_commandsBuffer.DrawCount = meshes.size();
-		m_commandsBuffer.DrawArgsOffset = 0;
-		m_commandsBuffer.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
-		m_commandsBuffer.IndexType = Diligent::VT_UINT32;
-		m_commandsBuffer.pAttribsBuffer = m_indirectBuffer;
+		updateIndirectBuffer();
 
 		updatePso();
 	}
@@ -769,6 +775,7 @@ void Prisma::MeshIndirect::updateStatus()
 		data.DataSize = statusDesc.Size;
 		data.pData = status.data();
 		contextData.m_pDevice->CreateBuffer(statusDesc, &data, &m_statusBuffer);
+		updateIndirectBuffer();
 		updatePso();
 		updateStatusShader();
 	}

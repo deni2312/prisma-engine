@@ -2,6 +2,8 @@
 #include "GlobalData/GlobalData.h"
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
+
+#include "engine.h"
 #include "GlobalData/CacheScene.h"
 #include "GlobalData/GlobalShaderNames.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
@@ -241,7 +243,7 @@ void Prisma::LightHandler::updateCascade(bool updateCascade)
 void Prisma::LightHandler::update()
 {
 	const auto& scene = Prisma::GlobalData::getInstance().currentGlobalScene();
-	if (m_updateCascade)
+	if (m_updateCascade && Prisma::Engine::getInstance().engineSettings().pipeline != EngineSettings::Pipeline::RAYTRACING)
 	{
 		updateCSM();
 	}
