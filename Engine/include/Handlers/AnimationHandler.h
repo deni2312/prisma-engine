@@ -5,6 +5,13 @@
 #include "../GlobalData/InstanceData.h"
 #include <vector>
 
+#include "Common/interface/RefCntAutoPtr.hpp"
+
+namespace Diligent
+{
+	struct IBuffer;
+}
+
 namespace Prisma
 {
 	class AnimationHandler : public InstanceData<AnimationHandler>
@@ -17,11 +24,12 @@ namespace Prisma
 
 		void fill();
 
-		//std::shared_ptr<Prisma::SSBO> ssbo();
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> animation();
 
 		AnimationHandler();
 
 	private:
-		//std::shared_ptr<SSBO> m_ssboAnimation;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_animation;
+
 	};
 }
