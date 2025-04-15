@@ -33,6 +33,9 @@ void main()
         // This is a simplification — for accurate conversion you'd need IOR and energy conservation, but this is a decent heuristic
         metallic = max(max(specularColor.r, specularColor.g), specularColor.b);
     }
+
+    metallic =  metallic+statusData_data[outDrawId].metalness;
+    roughness = roughness+statusData_data[outDrawId].roughness;
     
     vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse), vec4(1.0), roughness, metallic);
         
