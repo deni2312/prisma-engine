@@ -509,6 +509,7 @@ void Prisma::PipelineForward::createAnimation()
             if (status) {
                 m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_STATUS_ANIMATION.c_str())->Set(status->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
             }
+
             if (Prisma::PipelineSkybox::getInstance().isInit()) {
                 m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_PREFILTER.c_str())->Set(Prisma::PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
                 m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(Prisma::PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
