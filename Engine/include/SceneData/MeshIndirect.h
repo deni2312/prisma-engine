@@ -60,8 +60,10 @@ namespace Prisma
 		void update();
 		void updateSize();
 		void updateModels();
+		void updateModelsAnimation();
 		void updateTextureSize();
 		void updateStatus();
+		void updateStatusAnimation();
 
 		void setupBuffers();
 
@@ -82,6 +84,7 @@ namespace Prisma
 		//BINDING DATA
 
 		MaterialView m_textureViews;
+		MaterialView m_textureViewsAnimation;
 
 		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 
@@ -94,8 +97,16 @@ namespace Prisma
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBufferAnimation;
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBufferAnimation;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indirectBufferAnimation;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_statusBufferAnimation;
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelBufferAnimation;
+		Diligent::DrawIndexedIndirectAttribs m_commandsBufferAnimation;
 
 		void resizeModels(std::vector<Prisma::Mesh::MeshData>& models);
+		void resizeModelsAnimation(std::vector<Prisma::Mesh::MeshData>& models);
+
+		void createMeshBuffer();
+		void createMeshAnimationBuffer();
 
 		std::vector<std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)>> m_resizeHandler;
 
@@ -142,6 +153,7 @@ namespace Prisma
 		void sort() const;
 		void updateStatusShader() const;
 		void updateIndirectBuffer();
+		void updateIndirectBufferAnimation();
 
 
 		unsigned int m_sizeLocation;
@@ -176,6 +188,7 @@ namespace Prisma
 		};
 
 		void updateTextureData();
+		void updateTextureDataAnimation();
 		void updatePso();
 	
 	};

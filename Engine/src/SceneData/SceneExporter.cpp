@@ -114,7 +114,7 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Prisma::Node> node, bool loadCub
 	{
 		auto mesh = std::dynamic_pointer_cast<Mesh>(node);
 
-		if (mesh && !std::dynamic_pointer_cast<AnimatedMesh>(node))
+		if (mesh)
 		{
 			meshes.push_back(mesh);
 		}
