@@ -73,12 +73,15 @@ namespace Prisma
 		MeshIndirect();
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> modelBuffer();
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> modelBufferAnimation();
 
 		MaterialView& textureViews();
+		MaterialView& textureViewsAnimation();
 
 		Diligent::DrawIndexedIndirectAttribs commandsBuffer();
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> statusBuffer();
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> statusBufferAnimation();
 
 	private:
 

@@ -289,13 +289,8 @@ void Prisma::MeshIndirect::renderAnimateMeshes() const
 {
 	if (!Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.empty())
 	{
-		//m_vaoAnimation->bind();
-		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawAnimation);
-		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_indirectAnimationSSBOId, m_indirectDrawAnimation);
-		//glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr,
-		//                            static_cast<GLuint>(Prisma::GlobalData::getInstance().currentGlobalScene()->
-		//	                            animateMeshes.size()), 0);
-		//glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+		contextData.m_pImmediateContext->DrawIndexedIndirect(m_commandsBufferAnimation);
 	}
 }
 
@@ -610,9 +605,19 @@ Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::modelBuffer()
 	return m_modelBuffer;
 }
 
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::modelBufferAnimation()
+{
+	return m_modelBufferAnimation;
+}
+
 Prisma::MeshIndirect::MaterialView& Prisma::MeshIndirect::textureViews()
 {
 	return m_textureViews;
+}
+
+Prisma::MeshIndirect::MaterialView& Prisma::MeshIndirect::textureViewsAnimation()
+{
+	return m_textureViewsAnimation;
 }
 
 Diligent::DrawIndexedIndirectAttribs Prisma::MeshIndirect::commandsBuffer()
@@ -623,6 +628,11 @@ Diligent::DrawIndexedIndirectAttribs Prisma::MeshIndirect::commandsBuffer()
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::statusBuffer()
 {
 	return m_statusBuffer;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::statusBufferAnimation()
+{
+	return m_statusBufferAnimation;
 }
 
 void Prisma::MeshIndirect::resizeModels(std::vector<Prisma::Mesh::MeshData>& models)

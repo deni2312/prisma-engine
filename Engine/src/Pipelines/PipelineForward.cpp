@@ -64,12 +64,22 @@ void Prisma::PipelineForward::render(){
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
     // makes sure that resources are transitioned to required states.
     auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
+    auto& meshesAnimation = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
     if (!meshes.empty() && Prisma::PipelineSkybox::getInstance().isInit())
     {
         Prisma::MeshIndirect::getInstance().setupBuffers();
         // Set texture SRV in the SRB
         contextData.m_pImmediateContext->CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Prisma::MeshIndirect::getInstance().renderMeshes();
+    }
+
+    contextData.m_pImmediateContext->SetPipelineState(m_psoAnimation);
+    if (!meshesAnimation.empty() && Prisma::PipelineSkybox::getInstance().isInit())
+    {
+        Prisma::MeshIndirect::getInstance().setupBuffersAnimation();
+        // Set texture SRV in the SRB
+        contextData.m_pImmediateContext->CommitShaderResources(m_srbAnimation, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
     }
     Prisma::PipelineSkybox::getInstance().render();
 
@@ -406,8 +416,8 @@ void Prisma::PipelineForward::createAnimation()
 
     PipelineResourceDesc Resources[] =
     {
-        {SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS_ANIMATION.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_STATUS_ANIMATION.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_STATUS.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -418,9 +428,9 @@ void Prisma::PipelineForward::createAnimation()
         {SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_DIR_DATA_SHADOW.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str(),Define::MAX_OMNI_LIGHTS,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_DIR_SHADOW.c_str(),5,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE_ANIMATION.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
-        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE_ANIMATION.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
-        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE_ANIMATION.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+        {SHADER_TYPE_PIXEL,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
 
         {SHADER_TYPE_PIXEL,samplerClampName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL,samplerRepeatName.c_str(),1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -495,19 +505,19 @@ void Prisma::PipelineForward::createAnimation()
 
     m_updateDataAnimation = [&]()
         {
-            auto buffers = Prisma::MeshIndirect::getInstance().modelBuffer();
-            auto materials = Prisma::MeshIndirect::getInstance().textureViews();
-            auto status = Prisma::MeshIndirect::getInstance().statusBuffer();
+            auto buffers = Prisma::MeshIndirect::getInstance().modelBufferAnimation();
+            auto materials = Prisma::MeshIndirect::getInstance().textureViewsAnimation();
+            auto status = Prisma::MeshIndirect::getInstance().statusBufferAnimation();
             m_srbAnimation.Release();
             m_pResourceSignatureAnimation->CreateShaderResourceBinding(&m_srbAnimation, true);
             m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str())->SetArray(Prisma::LightHandler::getInstance().omniData().data(), 0, Prisma::LightHandler::getInstance().omniData().size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIR_SHADOW.c_str())->Set(Prisma::LightHandler::getInstance().dirShadowData());
-            m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE_ANIMATION.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE_ANIMATION.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE_ANIMATION.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS_ANIMATION.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+            m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
             if (status) {
-                m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_STATUS_ANIMATION.c_str())->Set(status->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+                m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::MUTABLE_STATUS.c_str())->Set(status->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
             }
 
             if (Prisma::PipelineSkybox::getInstance().isInit()) {

@@ -38,18 +38,18 @@ layout(location = 2) in vec3 outNormal;
 layout(location = 3) in flat int outDrawId;
 //layout(location = 4) in mat3 outTBN;
 
-uniform texture2D diffuseTexture[];
 
 uniform sampler textureClamp_sampler;
 uniform sampler textureRepeat_sampler;
 
+uniform texture2D diffuseTexture[];
 uniform texture2D normalTexture[];
+uniform texture2D rmTexture[];
+
 
 readonly buffer statusData{
     StatusData statusData_data[];
 };
-
-uniform texture2D rmTexture[];
 
 uniform textureCube omniShadow[];
 
