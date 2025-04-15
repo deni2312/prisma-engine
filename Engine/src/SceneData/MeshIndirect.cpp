@@ -930,6 +930,15 @@ void Prisma::MeshIndirect::setupBuffers()
 	contextData.m_pImmediateContext->SetIndexBuffer(m_iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
+void Prisma::MeshIndirect::setupBuffersAnimation()
+{
+	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+	const Diligent::Uint64 offsets[] = { 0 };
+	Diligent::IBuffer* pBuffs[] = { m_vBufferAnimation };
+	contextData.m_pImmediateContext->SetVertexBuffers(0, _countof(pBuffs), pBuffs, offsets, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+	contextData.m_pImmediateContext->SetIndexBuffer(m_iBufferAnimation, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+}
+
 void Prisma::MeshIndirect::addResizeHandler(
 	std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)> resizeHandler)
 {

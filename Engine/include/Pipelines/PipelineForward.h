@@ -22,6 +22,9 @@ namespace Prisma
 		unsigned int m_width;
 		unsigned int m_height;
 
+		void create();
+		void createAnimation();
+
 		/*std::shared_ptr<Shader> m_shader;
 		std::shared_ptr<Shader> m_shaderAnimate;
 		std::shared_ptr<Shader> m_shaderTransparent;
@@ -31,18 +34,28 @@ namespace Prisma
 
 		std::shared_ptr<PipelinePrePass> m_prepass;*/
 
-		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-
 		Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
 		int m_SampleCount;
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
+
 		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
+
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
 		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
 		std::function<void()> m_updateData;
+
+
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoAnimation;
+
+		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignatureAnimation;
+
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbAnimation;
+
+		std::function<void()> m_updateDataAnimation;
 
 	};
 }

@@ -66,6 +66,7 @@ namespace Prisma
 		void updateStatusAnimation();
 
 		void setupBuffers();
+		void setupBuffersAnimation();
 
 		void addResizeHandler(std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)> resizeHandler);
 
