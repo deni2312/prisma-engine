@@ -190,6 +190,13 @@ void Prisma::MaterialComponent::ui()
 
 	ComponentType componentDispersionSampleCount;
 	componentDispersionSampleCount = std::make_tuple(TYPES::INT, "DispersionSampleCount", &m_rtMaterial.DispersionSampleCount);
+
+	ComponentType componentMetalness;
+	componentMetalness = std::make_tuple(TYPES::FLOAT, "MetalnessData", &m_metalness);
+
+	ComponentType componentRoughness;
+	componentRoughness = std::make_tuple(TYPES::FLOAT, "RoughnessData", &m_roughness);
+
 	m_apply = []()
 		{
 			CacheScene::getInstance().updateTextures(true);
@@ -209,6 +216,8 @@ void Prisma::MaterialComponent::ui()
 	addGlobal({ componentGlassIndexOfRefraction,false });
 	addGlobal({ componentGlassEnableDispersion,false });
 	addGlobal({ componentDispersionSampleCount,false });
+	addGlobal({ componentMetalness,false });
+	addGlobal({ componentRoughness,false });
 	addGlobal({componentButton,false });
 
 	uiRemovable(false);
@@ -326,4 +335,24 @@ void Prisma::MaterialComponent::isSpecular(bool specular)
 bool Prisma::MaterialComponent::isSpecular()
 {
 	return m_isSpecular;
+}
+
+void Prisma::MaterialComponent::roughness(float roughness)
+{
+	m_roughness = roughness;
+}
+
+float Prisma::MaterialComponent::roughness() const
+{
+	return m_roughness;
+}
+
+void Prisma::MaterialComponent::metalness(float metalness)
+{
+	m_metalness = metalness;
+}
+
+float Prisma::MaterialComponent::metalness() const
+{
+	return m_metalness;
 }

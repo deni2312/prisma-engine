@@ -92,6 +92,13 @@ namespace Prisma
 
 		bool isSpecular();
 
+		void roughness(float roughness);
+
+		float roughness() const;
+
+		void metalness(float metalness);
+
+		float metalness() const;
 
 	private:
 		std::vector<Texture> m_diffuse;
@@ -139,5 +146,8 @@ namespace Prisma
 		bool m_isSpecular = false;
 
 		glm::vec2 m_size=glm::vec2(90,90);
+
+		float m_roughness = 0;
+		float m_metalness = 0;
 	};
 }

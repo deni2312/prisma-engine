@@ -304,7 +304,7 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
     float3 iblColor = prefilteredColor * (F * brdf.x + brdf.y);
 
     // Blend based on reflection weight
-    float3 specularIBL = lerp(iblColor, rayTracedColor, reflectionWeight);
+    float3 specularIBL = lerp(iblColor, rayTracedColor, reflectionWeight*0.5);
     
     float3 ambient = (kD * diffuseIBL + specularIBL);
     

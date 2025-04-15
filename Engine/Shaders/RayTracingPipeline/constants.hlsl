@@ -51,6 +51,9 @@ struct StatusData
     float2 GlassIndexOfRefraction; // min and max IOR
     int GlassEnableDispersion;
     unsigned int DispersionSampleCount; // 1..16
+    float metalness;
+    float roughness;
+    float2 padding;
 };
 
 #define NUM_LIGHTS          2

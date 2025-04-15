@@ -84,6 +84,8 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
         // This is a simplification — for accurate conversion you'd need IOR and energy conservation, but this is a decent heuristic
         metallic = max(max(specularColor.r, specularColor.g), specularColor.b);
     }
+    metallic = metallic + statusData[InstanceID()].metalness;
+    roughness = roughness + statusData[InstanceID()].roughness;
     // Sample texturing. Ray tracing shaders don't support LOD calculation, so we must specify LOD and apply filtering.
     payload.Color = diffuseTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz;
 

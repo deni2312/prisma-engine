@@ -755,7 +755,7 @@ void Prisma::MeshIndirect::updateStatus()
 		{
 			auto material = mesh->material();
 			auto rtMaterial = material->rtMaterial();
-			status.push_back({ mesh->visible(),material->plain(),material->transparent(),material->isSpecular(),rtMaterial.GlassReflectionColorMask,rtMaterial.GlassAbsorption,rtMaterial.GlassMaterialColor,rtMaterial.GlassIndexOfRefraction,rtMaterial.GlassEnableDispersion,rtMaterial.DispersionSampleCount});
+			status.push_back({ mesh->visible(),material->plain(),material->transparent(),material->isSpecular(),rtMaterial.GlassReflectionColorMask,rtMaterial.GlassAbsorption,rtMaterial.GlassMaterialColor,rtMaterial.GlassIndexOfRefraction,rtMaterial.GlassEnableDispersion,rtMaterial.DispersionSampleCount,material->metalness(),material->roughness()});
 		}
 
 		Diligent::BufferDesc statusDesc;

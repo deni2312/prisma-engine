@@ -22,6 +22,9 @@ struct StatusData
     vec2 GlassIndexOfRefraction;
     int GlassEnableDispersion;
     int DispersionSampleCount;
+    float metalness;
+    float roughness;
+    vec2 padding;
 };
 
 const float PI = 3.14159265359;
