@@ -269,7 +269,7 @@ void Prisma::OmniShadowHandler::createAnimation()
     m_psoAnimation->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_ANIMATION.c_str())->Set(Prisma::AnimationHandler::getInstance().animation()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
 
     m_psoAnimation->CreateShaderResourceBinding(&m_srbAnimation, true);
-    if (Prisma::MeshIndirect::getInstance().modelBuffer()) {
+    if (Prisma::MeshIndirect::getInstance().modelBufferAnimation()) {
         m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(Prisma::MeshIndirect::getInstance().modelBufferAnimation()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     }
     Prisma::MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, Prisma::MeshIndirect::MaterialView& materials)
@@ -333,7 +333,7 @@ void Prisma::OmniShadowHandler::render(OmniShadowData data)
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
     // makes sure that resources are transitioned to required states.
     auto& meshesAnimation = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
-    if (!meshes.empty())
+    if (!meshesAnimation.empty())
     {
         Prisma::MeshIndirect::getInstance().setupBuffersAnimation();
         contextData.m_pImmediateContext->CommitShaderResources(m_srbAnimation, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
