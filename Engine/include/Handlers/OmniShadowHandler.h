@@ -39,16 +39,26 @@ namespace Prisma {
 
 		glm::mat4 m_shadowProj;
 		std::vector<glm::mat4> m_shadowTransforms;
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_lightBuffer;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_shadowBuffer;
 
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbAnimation;
+
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoAnimation;
+
+		void create();
+
+		void createAnimation();
+
 	public:
 		OmniShadowHandler();
-
+		
 		struct OmniShadowData {
 			Diligent::RefCntAutoPtr<Diligent::ITexture> depth;
 			float nearPlane;
