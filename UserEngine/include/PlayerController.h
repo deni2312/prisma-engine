@@ -1,3 +1,5 @@
+#pragma once
+
 #include "engine.h"
 #include "SceneObjects/Node.h"
 #include "SceneObjects/Camera.h"

@@ -15,7 +15,7 @@ public:
 	void update();
 
 private:
-	std::shared_ptr<Prisma::Shader> m_compute;
+	//std::shared_ptr<Prisma::Shader> m_compute;
 	unsigned int m_deltaPos;
 	unsigned int m_timePos;
 	bool m_start = false;

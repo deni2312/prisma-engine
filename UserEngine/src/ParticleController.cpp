@@ -2,7 +2,7 @@
 
 void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 {
-	auto spriteFire = std::make_shared<Prisma::Texture>();
+	/*auto spriteFire = std::make_shared<Prisma::Texture>();
 	spriteFire->loadTexture({"../../../Resources/DefaultScene/sprites/fire.png", true});
 
 	auto spriteBurst = std::make_shared<Prisma::Texture>();
@@ -19,12 +19,12 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 	m_deltaPos = m_compute->getUniformPosition("deltaTime");
 	m_timePos = m_compute->getUniformPosition("time");
 	sprite->matrix(translate(glm::mat4(1.0f), glm::vec3(0, -0.5, 0)));
-	root->addChild(sprite);
+	root->addChild(sprite);*/
 }
 
 void ParticleController::update()
 {
-	if (!m_start)
+	/*if (!m_start)
 	{
 		m_startPoint = std::chrono::high_resolution_clock::now();
 		m_start = true;
@@ -35,5 +35,5 @@ void ParticleController::update()
 	m_compute->setFloat(m_deltaPos, 1.0f / Prisma::Engine::getInstance().fps());
 	m_compute->setFloat(m_timePos, static_cast<float>(duration) / 1000.0f);
 	m_compute->dispatchCompute({1000, 1, 1});
-	m_compute->wait(GL_SHADER_STORAGE_BARRIER_BIT);
+	m_compute->wait(GL_SHADER_STORAGE_BARRIER_BIT);*/
 }

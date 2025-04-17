@@ -2,9 +2,6 @@
 #include "Components/PhysicsMeshComponent.h"
 #include "Components/CullingComponent.h"
 #include <glm/gtx/string_cast.hpp>
-#include "Components/CloudComponent.h"
-#include "../Components/include/TerrainComponent.h"
-#include "../Components/include/ShockwaveComponent.h"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene}
 {
@@ -191,12 +188,12 @@ void PlayerController::update()
 	updateKeyboard();
 	for (auto ball:m_balls)
 	{
-		auto shockwaveComponent = std::make_shared<ShockwaveComponent>();
-		shockwaveComponent->position(ball->finalMatrix()[3]);
-		ball->addComponent(shockwaveComponent);
+		//auto shockwaveComponent = std::make_shared<ShockwaveComponent>();
+		//shockwaveComponent->position(ball->finalMatrix()[3]);
+		//ball->addComponent(shockwaveComponent);
 	}
 	m_balls.clear();
-	m_areaLight->matrix(m_interpolator.next(1.0 / Prisma::Engine::getInstance().fps()));
+	//m_areaLight->matrix(m_interpolator.next(1.0 / Prisma::Engine::getInstance().fps()));
 }
 
 std::shared_ptr<Prisma::CallbackHandler> PlayerController::callback()
@@ -258,12 +255,12 @@ void PlayerController::createCamera()
 			auto lightParent = std::make_shared<Prisma::Node>();
 			ball->name("Ball");
 			auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
+			light->createShadow(1024, 1024);
 			Prisma::LightType::LightOmni lightType;
 			light->type(lightType);
 			light->name("LightBall");
 			lightParent->name("LightParent");
 			lightParent->addChild(light);
-
 			ball->parent()->addChild(lightParent);
 
 			auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
@@ -287,7 +284,7 @@ void PlayerController::createCamera()
 
 void PlayerController::createKeyboard()
 {
-	/*m_handler->keyboard = [this](int key, int scancode, int action, int mods)
+	m_handler->keyboard = [this](int key, int scancode, int action, int mods)
 	{
 		if (key == Prisma::KEY_G && action == GLFW_PRESS)
 		{
@@ -313,7 +310,7 @@ void PlayerController::createKeyboard()
 			m_previousClick = Prisma::KEY_SPACE;
 			m_previousAnimations = JUMP;
 		}
-	};*/
+	};
 }
 
 void PlayerController::clearVelocity()
