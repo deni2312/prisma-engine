@@ -3,7 +3,7 @@
 
 int main(int argc, const char* const* argv)
 {
-	_CrtSetBreakAlloc(6235030);
+	//_CrtSetBreakAlloc(169714);
 	auto userEngine = std::make_shared<UserEngine>();
 	Prisma::Engine::getInstance().setUserEngine(userEngine);
 	Prisma::Engine::getInstance().setGuiData(Prisma::ImguiDebug::getInstance().handlers());
