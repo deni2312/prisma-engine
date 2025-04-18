@@ -131,7 +131,7 @@ void Prisma::ImGuiCamera::velocity(float velocity)
 	m_velocity = velocity;
 }
 
-void Prisma::ImGuiCamera::currentSelect(Node* currentSelect)
+void Prisma::ImGuiCamera::currentSelect(std::shared_ptr<Node> currentSelect)
 {
 	m_currentSelect = currentSelect;
 }
@@ -167,7 +167,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 
 			if (result)
 			{
-				m_currentSelect = result.get();
+				m_currentSelect = result;
 				auto model = result->matrix();
 			}
 			else
@@ -212,7 +212,7 @@ void Prisma::ImGuiCamera::mouseButtonCallback()
 	};
 }
 
-Prisma::Node* Prisma::ImGuiCamera::currentSelect()
+std::shared_ptr<Prisma::Node> Prisma::ImGuiCamera::currentSelect()
 {
 	return m_currentSelect;
 }

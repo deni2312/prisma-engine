@@ -25,8 +25,8 @@ namespace Prisma
 		void mouseCallback();
 		void mouseButtonCallback();
 		void velocity(float velocity);
-		void currentSelect(Node* currentSelect);
-		Node* currentSelect();
+		void currentSelect(std::shared_ptr<Node> currentSelect);
+		std::shared_ptr<Node> currentSelect();
 
 		void constraints(CameraConstarints constraints);
 
@@ -59,7 +59,7 @@ namespace Prisma
 
 		std::shared_ptr<CallbackHandler> m_callback;
 
-		Node* m_currentSelect;
+		std::shared_ptr<Node> m_currentSelect;
 		CameraConstarints m_constraints;
 	};
 }

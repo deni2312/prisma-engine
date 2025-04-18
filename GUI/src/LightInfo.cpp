@@ -6,7 +6,7 @@
 #include "../include/ImGuiStyle.h"
 
 
-void Prisma::LightInfo::showSelectedDir(Light<LightType::LightDir>* lightData, const NodeViewer::NodeData& meshData)
+void Prisma::LightInfo::showSelectedDir(std::shared_ptr < Light<LightType::LightDir>> lightData, const NodeViewer::NodeData& meshData)
 {
 	auto type = lightData->type();
 	float windowWidth = meshData.translate * meshData.width / 2.0f;
@@ -79,7 +79,7 @@ void Prisma::LightInfo::showSelectedDir(Light<LightType::LightDir>* lightData, c
 	ImGui::End();
 }
 
-void Prisma::LightInfo::showSelectedOmni(Light<LightType::LightOmni>* lightData, const NodeViewer::NodeData& meshData)
+void Prisma::LightInfo::showSelectedOmni(std::shared_ptr < Light<LightType::LightOmni>> lightData, const NodeViewer::NodeData& meshData)
 {
 	auto type = lightData->type();
 	float windowWidth = meshData.translate * meshData.width / 2.0f;
@@ -144,7 +144,7 @@ void Prisma::LightInfo::showSelectedOmni(Light<LightType::LightOmni>* lightData,
 	ImGui::End();
 }
 
-void Prisma::LightInfo::showSelectedArea(Light<LightType::LightArea>* lightData, const NodeViewer::NodeData& meshData)
+void Prisma::LightInfo::showSelectedArea(std::shared_ptr<Light<LightType::LightArea>> lightData, const NodeViewer::NodeData& meshData)
 {
 	auto type = lightData->type();
 	float windowWidth = meshData.translate * meshData.width / 2.0f;

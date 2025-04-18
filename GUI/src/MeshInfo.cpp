@@ -22,8 +22,8 @@ void Prisma::MeshInfo::showSelected(const NodeViewer::NodeData& meshData)
 				physicsComponent = physicsMesh;
 			}
 		}
-		auto mesh = dynamic_cast<Prisma::Mesh*>(meshData.node);
-		auto isAnimate = dynamic_cast<AnimatedMesh*>(meshData.node);
+		auto mesh = std::dynamic_pointer_cast<Prisma::Mesh>(meshData.node);
+		auto isAnimate = std::dynamic_pointer_cast<AnimatedMesh>(meshData.node);
 
 		NodeViewer::getInstance().showSelected(parent, false, false, meshData.node);
 		ImGui::Dummy(ImVec2(0.0f, 4.0f));

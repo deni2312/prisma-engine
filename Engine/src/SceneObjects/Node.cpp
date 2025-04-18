@@ -39,7 +39,7 @@ void Prisma::Node::addChild(std::shared_ptr<Node> child, bool updateScene)
 	Prisma::GlobalData::getInstance().sceneNodes()[child->uuid()] = child;
 	m_children.push_back(child);
 	updateChild(this);
-	child->parent(this);
+	child->parent(shared_from_this());
 	if (updateScene)
 	{
 		updateCaches(child);
@@ -110,7 +110,7 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 			m_children[index]->removeComponent(k);
 		}
 
-		m_children[index]->parent(nullptr);
+		//m_children[index]->parent(nullptr);
 		m_children.erase(m_children.begin() + index);
 	}
 }
@@ -146,7 +146,7 @@ glm::mat4 Prisma::Node::finalMatrix() const
 	return m_finalMatrix;
 }
 
-void Prisma::Node::parent(Node* parent, bool update)
+void Prisma::Node::parent(std::shared_ptr<Node> parent, bool update)
 {
 	m_parent = parent;
 	if (update)
@@ -156,9 +156,9 @@ void Prisma::Node::parent(Node* parent, bool update)
 	CacheScene::getInstance().updateData(true);
 }
 
-Prisma::Node* Prisma::Node::parent() const
+std::shared_ptr<Prisma::Node> Prisma::Node::parent() const
 {
-	return m_parent;
+	return m_parent.lock();
 }
 
 void Prisma::Node::istantiate(std::shared_ptr<Node> node)
@@ -194,7 +194,7 @@ void Prisma::Node::updateCaches(std::shared_ptr<Node> child)
 	}
 }
 
-void Prisma::Node::updateParent(Node* parent)
+void Prisma::Node::updateParent(std::shared_ptr<Node> parent)
 {
 	if (parent)
 	{
@@ -202,9 +202,9 @@ void Prisma::Node::updateParent(Node* parent)
 		{
 			for (auto& component : child->components())
 			{
-				component.second->onParent(parent);
+				//component.second->onParent(parent);
 			}
-			updateParent(child.get());
+			updateParent(child);
 		}
 	}
 }

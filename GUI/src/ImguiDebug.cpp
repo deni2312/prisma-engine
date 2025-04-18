@@ -307,10 +307,10 @@ void Prisma::ImguiDebug::drawGui()
 		m_fileBrowser->show(m_width, m_height, m_initOffset+m_buttonSize, m_scale, m_translate);
 		if (m_imguiCamera.currentSelect())
 		{
-			auto currentSelectMesh = dynamic_cast<Mesh*>(m_imguiCamera.currentSelect());
-			auto currentSelectLightDir = dynamic_cast<Light<LightType::LightDir>*>(m_imguiCamera.currentSelect());
-			auto currentSelectLightOmni = dynamic_cast<Light<LightType::LightOmni>*>(m_imguiCamera.currentSelect());
-			auto currentSelectLightArea = dynamic_cast<Light<LightType::LightArea>*>(m_imguiCamera.currentSelect());
+			auto currentSelectMesh = std::dynamic_pointer_cast<Mesh>(m_imguiCamera.currentSelect());
+			auto currentSelectLightDir = std::dynamic_pointer_cast<Light<LightType::LightDir>>(m_imguiCamera.currentSelect());
+			auto currentSelectLightOmni = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(m_imguiCamera.currentSelect());
+			auto currentSelectLightArea = std::dynamic_pointer_cast<Light<LightType::LightArea>>(m_imguiCamera.currentSelect());
 			Prisma::NodeViewer::NodeData nodeData;
 			nodeData.camera = m_camera;
 			nodeData.projection = m_model * m_projection;

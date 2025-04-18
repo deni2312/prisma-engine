@@ -128,7 +128,7 @@ Prisma::NodeViewer::NodeViewer()
 	privateImguizmo = std::make_unique<PrivateImguizmo>();
 }
 
-void Prisma::NodeViewer::showComponents(Node* nodeData)
+void Prisma::NodeViewer::showComponents(std::shared_ptr<Node> nodeData)
 {
 	auto components = nodeData->components();
 	int i = 0;
@@ -191,7 +191,7 @@ void Prisma::NodeViewer::showComponents(Node* nodeData)
 // Getters for textures
 
 void Prisma::NodeViewer::showSelected(const NodeData& nodeData, bool end, bool showData,
-	Node* componentAdding)
+	std::shared_ptr<Node> componentAdding)
 {
 	if (nodeData.node)
 	{
@@ -367,12 +367,12 @@ void Prisma::NodeViewer::drawGizmo(const NodeData& nodeData)
 	}
 }
 
-void Prisma::NodeViewer::hideChilds(Node* root, bool hide)
+void Prisma::NodeViewer::hideChilds(std::shared_ptr<Node> root, bool hide)
 {
 	for (auto child : root->children())
 	{
 		child->visible(hide);
-		hideChilds(child.get(), hide);
+		hideChilds(child, hide);
 	}
 }
 

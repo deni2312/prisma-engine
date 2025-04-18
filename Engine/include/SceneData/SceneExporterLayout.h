@@ -394,7 +394,7 @@ namespace Prisma
 			{
 				child = std::make_shared<AnimatedMesh>();
 			}
-			child->parent(n.get());
+			child->parent(n);
 			from_json(childJson, child);
 			n->addChild(child, false);
 		}

@@ -72,7 +72,7 @@ void Prisma::ImGuiTabs::showCurrentNodes(ImGuiCamera& camera)
 			std::string finalText = findings[i]->name() + "##" + std::to_string(i);
 			if (ImGui::Selectable(finalText.c_str()))
 			{
-				camera.currentSelect(findings[i].get());
+				camera.currentSelect(findings[i]);
 			}
 
 			ImGuiDragDropFlags src_flags = 0;
@@ -113,7 +113,7 @@ void Prisma::ImGuiTabs::showCurrentNodes(ImGuiCamera& camera)
 		ImGui::SameLine();
 		if (ImGui::Selectable(finalText.c_str()))
 		{
-			camera.currentSelect(child.get());
+			camera.currentSelect(child);
 		}
 		ImGuiDragDropFlags src_flags = 0;
 		src_flags |= ImGuiDragDropFlags_SourceNoDisableHover;
@@ -192,7 +192,7 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, ImGuiCamera& camer
 		{
 			current->parent()->removeChild(m_current, false);
 			m_parent->addChild(current);
-			current->parent(m_parent.get(), true);
+			current->parent(m_parent, true);
 			m_current = -1;
 			m_parent = nullptr;
 		}

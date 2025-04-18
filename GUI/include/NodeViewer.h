@@ -16,7 +16,7 @@ namespace Prisma
 	public:
 		struct NodeData
 		{
-			Node* node;
+			std::shared_ptr<Node> node;
 			std::shared_ptr<Camera> camera;
 			glm::mat4 projection;
 			float translate;
@@ -30,10 +30,10 @@ namespace Prisma
 
 		NodeViewer();
 
-		void showComponents(Node* nodeData);
+		void showComponents(std::shared_ptr<Node> nodeData);
 
 		void showSelected(const NodeData& nodeData, bool end = true, bool showData = true,
-		                  Node* componentAdding = nullptr);
+		                  std::shared_ptr<Node> componentAdding = nullptr);
 		// Getters for textures
 		const std::shared_ptr<Texture>& rotateTexture() const;
 
@@ -53,7 +53,7 @@ namespace Prisma
 		glm::vec3 m_translation;
 
 		glm::mat4 m_currentModel;
-		void hideChilds(Node* root, bool hide);
+		void hideChilds(std::shared_ptr<Node> root, bool hide);
 		std::shared_ptr<Texture> m_rotateTexture;
 		std::shared_ptr<Texture> m_translateTexture;
 		std::shared_ptr<Texture> m_scaleTexture;
@@ -62,9 +62,9 @@ namespace Prisma
 		int m_componentSelect = 0;
 		std::vector<const char*> m_components;
 
-		Prisma::Node* m_currentNode = nullptr;
+		std::shared_ptr<Prisma::Node> m_currentNode = nullptr;
 
-		Prisma::Node* m_current = nullptr;
+		std::shared_ptr<Prisma::Node> m_current = nullptr;
 
 		void recompose(const NodeData& nodeData);
 	};
