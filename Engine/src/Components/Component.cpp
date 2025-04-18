@@ -29,24 +29,23 @@ void Prisma::Component::update()
 //{
 //}
 
-void Prisma::Component::onParent(Node* parent)
+void Prisma::Component::onParent(std::shared_ptr<Node> parent)
 {
 }
 
 void Prisma::Component::destroy()
 {
-	m_parent = nullptr;
 	Prisma::GlobalData::getInstance().sceneComponents().erase(m_uuid);
 }
 
-void Prisma::Component::parent(Node* parent)
+void Prisma::Component::parent(std::weak_ptr<Node> parent)
 {
 	m_parent = parent;
 }
 
-Prisma::Node* Prisma::Component::parent()
+std::shared_ptr<Prisma::Node> Prisma::Component::parent()
 {
-	return m_parent;
+	return m_parent.lock();
 }
 
 void Prisma::Component::isStart(bool start)

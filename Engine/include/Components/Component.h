@@ -64,13 +64,13 @@ namespace Prisma
 
 		//virtual void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
 
-		virtual void onParent(Node* parent);
+		virtual void onParent(std::shared_ptr<Node> parent);
 
 		virtual void destroy();
 
-		void parent(Node* parent);
+		void parent(std::weak_ptr<Node> parent);
 
-		Node* parent();
+		std::shared_ptr<Node> parent();
 
 		void isStart(bool start);
 
@@ -105,7 +105,7 @@ namespace Prisma
 		ComponentTypeVector m_globalVars;
 
 	private:
-		Node* m_parent = nullptr;
+		std::weak_ptr<Node> m_parent;
 		bool m_start = false;
 		bool m_ui = false;
 		std::string m_name;

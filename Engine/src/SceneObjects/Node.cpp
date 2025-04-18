@@ -110,7 +110,7 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive)
 			m_children[index]->removeComponent(k);
 		}
 
-		//m_children[index]->parent(nullptr);
+		m_children[index]->parent(nullptr);
 		m_children.erase(m_children.begin() + index);
 	}
 }
@@ -202,7 +202,7 @@ void Prisma::Node::updateParent(std::shared_ptr<Node> parent)
 		{
 			for (auto& component : child->components())
 			{
-				//component.second->onParent(parent);
+				component.second->onParent(parent);
 			}
 			updateParent(child);
 		}
@@ -315,7 +315,7 @@ void Prisma::Node::addComponent(std::shared_ptr<Component> component)
 		{
 			ComponentsHandler::getInstance().addComponent(component);
 		}
-		component->parent(this);
+		component->parent(shared_from_this());
 		m_components[component->name()] = component;
 	}
 }

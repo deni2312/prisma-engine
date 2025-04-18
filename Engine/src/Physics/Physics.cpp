@@ -155,7 +155,7 @@ void Prisma::Physics::destroy()
 
 void Prisma::Physics::softBody(std::shared_ptr<Prisma::PhysicsMeshComponent> physics)
 {
-	auto mesh = dynamic_cast<Mesh*>(physics->parent());
+	auto mesh = std::dynamic_pointer_cast<Mesh>(physics->parent());
 	auto softId = physics->softId();
 	if (softId)
 	{

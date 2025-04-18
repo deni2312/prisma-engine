@@ -34,7 +34,7 @@ namespace Prisma
 
 		void destroy() override;
 
-		void onParent(Node* parent) override;
+		void onParent(std::shared_ptr<Node> parent) override;
 
 		void collisionData(Physics::CollisionData collisionData);
 

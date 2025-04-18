@@ -95,7 +95,7 @@ void Prisma::PhysicsMeshComponent::destroy()
 	Component::destroy();
 }
 
-void Prisma::PhysicsMeshComponent::onParent(Node* parent)
+void Prisma::PhysicsMeshComponent::onParent(std::shared_ptr<Node> parent)
 {
 	Component::onParent(parent);
 	updateCollisionData();
@@ -114,7 +114,7 @@ void Prisma::PhysicsMeshComponent::updateCollisionData()
 
 void Prisma::PhysicsMeshComponent::colliderDispatcher()
 {
-	auto mesh = dynamic_cast<Mesh*>(parent());
+	auto mesh = std::dynamic_pointer_cast<Mesh>(parent());
 	if (mesh)
 	{
 		if (!m_collisionData.softBody)
@@ -245,7 +245,7 @@ glm::vec3 Prisma::PhysicsMeshComponent::scale() const
 
 BodyCreationSettings Prisma::PhysicsMeshComponent::getBodySettings()
 {
-	auto mesh = dynamic_cast<Mesh*>(parent());
+	auto mesh = std::dynamic_pointer_cast<Mesh>(parent());
 	BodyCreationSettings aabbSettings;
 	auto aabbData = mesh->aabbData();
 	glm::vec3 scale;
@@ -359,7 +359,7 @@ void Prisma::PhysicsMeshComponent::addSoftBody()
 
 	if (!m_physicsSoftId)
 	{
-		auto mesh = dynamic_cast<Mesh*>(parent());
+		auto mesh = std::dynamic_pointer_cast<Mesh>(parent());
 
 
 		m_softBodySharedSettings = new SoftBodySharedSettings;
