@@ -272,10 +272,7 @@ void PlayerController::createCamera()
 			ball->parent()->matrix(m_basePosition);
 			auto ballCopy = ball;
 			physicsComponent->collisionData({Prisma::Physics::Collider::SPHERE_COLLIDER, 1.0, true});
-			physicsComponent->onCollisionEnter([ballCopy,this](const auto& body)
-				{
-					this->m_balls.push_back(ballCopy);
-				});
+
 			Prisma::Physics::getInstance().bodyInterface().AddImpulse(physicsComponent->physicsId(),
 			                                                          m_currentDirection * 5);
 		}
