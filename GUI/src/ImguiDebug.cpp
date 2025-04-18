@@ -420,6 +420,11 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 		getInstance().close();
 		m_timeCounterUI.stop();
 	};
+	m_handlers->onDestroy = [&]()
+		{
+			auto* p = m_imguiDiligent.release();
+			delete p;
+		};
 	return m_handlers;
 }
 

@@ -31,6 +31,9 @@ namespace Prisma
 		std::function<void()> onEndRender = []()
 		{
 		};
+		std::function<void()> onDestroy = []()
+		{
+		};
 	};
 
 	struct UserData
