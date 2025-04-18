@@ -13,6 +13,8 @@
 #include "../../GUI/include/ImGuiDebug.h"
 #include "Helpers/WindowsHelper.h"
 
+struct PrivateData;
+
 namespace Prisma
 {
 	class Engine : public InstanceData<Engine>
@@ -38,5 +40,7 @@ namespace Prisma
 
 	private:
 		void initScene();
+		std::shared_ptr<PrivateData> data;
+
 	};
 }

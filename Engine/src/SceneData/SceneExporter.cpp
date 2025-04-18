@@ -91,7 +91,7 @@ void Prisma::Exporter::loadTexturesMultithreaded(std::vector<std::shared_ptr<Pri
 	for (auto mesh:meshes)
 	{
 		auto material = mesh->material();
-		if (material->roughnessMetalness()[0].name()==Define::DIR_DEFAULT_BLACK && material->specular()[0].name()!=Define::DIR_DEFAULT_WHITE)
+		if (material->roughnessMetalness()[0].name()==DIR_DEFAULT_BLACK && material->specular()[0].name()!=DIR_DEFAULT_WHITE)
 		{
 			material->roughnessMetalness(material->specular());
 			mesh->material()->isSpecular(true);
