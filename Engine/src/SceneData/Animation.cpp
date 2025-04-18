@@ -1,4 +1,5 @@
 #include "SceneData/Animation.h"
+#include <assimp/cimport.h>  // Needed for aiReleaseImport
 
 static unsigned int uid = 0;
 
@@ -14,9 +15,7 @@ Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<A
 {
 	Assimp::Importer importer;
 	m_BoneInfoMap = std::make_shared<std::map<std::string, BoneInfo>>();
-	importer.ReadFile(animationPath, aiProcess_Triangulate);
-
-	auto currentScene = importer.GetOrphanedScene();
+	auto currentScene= importer.ReadFile(animationPath, aiProcess_Triangulate);
 
 	assert(currentScene && currentScene->mRootNode);
 	m_scene = currentScene->mRootNode;
@@ -48,6 +47,7 @@ Prisma::Animation::Animation(std::shared_ptr<Animation> animation, std::shared_p
 
 Prisma::Animation::~Animation()
 {
+
 }
 
 std::shared_ptr<Prisma::Bone> Prisma::Animation::FindBone(const std::string& name)
