@@ -234,6 +234,7 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 			Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.push_back(
 				std::dynamic_pointer_cast<Light<LightType::LightDir>>(child));
 			CacheScene::getInstance().updateLights(true);
+			CacheScene::getInstance().updateSizeLights(true);
 		}
 	}
 

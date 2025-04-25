@@ -146,6 +146,7 @@ void Prisma::LightHandler::updateOmni()
 		m_omniData.clear();
 		m_dataOmni = std::make_shared<SSBODataOmni>();
 		int numVisible = 0;
+		int numShadow = 0;
 		for (int i = 0; i < scene->omniLights.size(); i++)
 		{
 			const auto& light = scene->omniLights[i];
@@ -166,10 +167,12 @@ void Prisma::LightHandler::updateOmni()
 				{
 					light->shadow()->update(m_dataOmni->lights[i].position);
 					m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
+					m_dataOmni->lights[i].shadowIndex = numShadow;
+					m_omniData.push_back(light->shadow()->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+					numShadow++;
 				}
 				m_dataOmni->lights[i].hasShadow = light->hasShadow() ? 2.0f : 0.0f;
 				m_dataOmni->lights[i].diffuse = m_dataOmni->lights[i].diffuse * light->intensity();
-				m_omniData.push_back(light->shadow()->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 				numVisible++;
 			}
 		}
@@ -180,9 +183,13 @@ void Prisma::LightHandler::updateOmni()
 			auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 			contextData.m_pImmediateContext->UpdateBuffer(m_omniLights, 0, numVisible * sizeof(LightType::LightOmni), m_dataOmni->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 		}
+		for (auto update : m_updates)
+		{
+			update();
+		}
 	}
 
-	if (CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes())
+	if (CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() || CacheScene::getInstance().updateShadows())
 	{
 		for (int i = 0; i < scene->omniLights.size(); i++)
 		{
@@ -265,7 +272,7 @@ void Prisma::LightHandler::update()
 	}
 
 	if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
-		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus() || CacheScene::getInstance().updateSizeLights())
+		CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus() || CacheScene::getInstance().updateSizeLights() || CacheScene::getInstance().updateShadows())
 	{
 		if (scene->dirLights.size() < Define::MAX_DIR_LIGHTS && scene->omniLights.size() < Define::MAX_OMNI_LIGHTS && scene->areaLights.size() < Define::MAX_AREA_LIGHTS)
 		{

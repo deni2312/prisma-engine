@@ -20,6 +20,16 @@ void Prisma::CacheScene::updateSizeLights(bool value)
 	m_updateSizeLights = value;
 }
 
+bool Prisma::CacheScene::updateShadows()
+{
+	return m_updateShadows;
+}
+
+void Prisma::CacheScene::updateShadows(bool value)
+{
+	m_updateShadows = value;
+}
+
 bool Prisma::CacheScene::updateSizes() const
 {
 	return m_updateSizes;
@@ -64,6 +74,7 @@ void Prisma::CacheScene::resetCaches()
 {
 	m_updateLights = false;
 	m_updateSizeLights = false;
+	m_updateShadows = false;
 	m_updateSizes = false;
 	m_updateData = false;
 	m_updateTextures = false;
@@ -74,6 +85,7 @@ void Prisma::CacheScene::updateAllCaches()
 {
 	m_updateLights = true;
 	m_updateSizeLights = true;
+	m_updateShadows = true;
 	m_updateSizes = true;
 	m_updateData = true;
 	m_updateTextures = true;

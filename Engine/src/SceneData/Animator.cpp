@@ -8,14 +8,14 @@ Prisma::Animator::Animator(std::shared_ptr<Animation> animation)
 {
 	m_CurrentTime = 0.0;
 	m_CurrentAnimation = animation;
-	CacheScene::getInstance().updateLights(true);
+	CacheScene::getInstance().updateShadows(true);
 }
 
 void Prisma::Animator::updateAnimation(float dt)
 {
 	if (m_CurrentAnimation)
 	{
-		CacheScene::getInstance().updateLights(true);
+		CacheScene::getInstance().updateShadows(true);
 		m_CurrentTime += m_CurrentAnimation->ticksPerSecond() * dt;
 		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->duration());
 
@@ -50,7 +50,7 @@ void Prisma::Animator::updateAnimation(float dt)
 
 void Prisma::Animator::playAnimation(std::shared_ptr<Animation> pAnimation, float blendDuration)
 {
-	CacheScene::getInstance().updateLights(true);
+	CacheScene::getInstance().updateShadows(true);
 
 	m_CurrentTime = 0.0f;
 	m_PreviousAnimation = m_CurrentAnimation;
@@ -105,7 +105,7 @@ void Prisma::Animator::frame(float frame)
 {
 	if (m_CurrentAnimation)
 	{
-		CacheScene::getInstance().updateLights(true);
+		CacheScene::getInstance().updateShadows(true);
 		m_CurrentTime = frame;
 		m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->duration());
 		calculateBoneTransform(&m_CurrentAnimation->rootNode(), glm::mat4(1.0f));

@@ -17,6 +17,11 @@ namespace Prisma
 
 		void updateSizeLights(bool value);
 
+		bool updateShadows();
+
+		void updateShadows(bool value);
+
+
 		bool updateSizes() const;
 
 		void updateSizes(bool value);
@@ -42,6 +47,7 @@ namespace Prisma
 	private:
 		bool m_updateLights=false;
 		bool m_updateSizeLights = false;
+		bool m_updateShadows = false;
 		bool m_updateSizes = false;
 		bool m_updateData = false;
 		bool m_updateTextures = false;
