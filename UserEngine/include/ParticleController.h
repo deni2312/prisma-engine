@@ -1,11 +1,6 @@
-#include "engine.h"
+#pragma once
+
 #include "SceneObjects/Node.h"
-#include "SceneObjects/Camera.h"
-#include "Helpers/NodeHelper.h"
-#include "Helpers/ScenePrinter.h"
-#include "GlobalData/Keys.h"
-#include "GlobalData/GlobalData.h"
-#include "Components/PhysicsMeshComponent.h"
 
 class ParticleController
 {

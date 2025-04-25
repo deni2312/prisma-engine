@@ -1,8 +1,10 @@
 #include "../include/ParticleController.h"
+#include "SceneObjects/Sprite.h"
+#include "glm/glm.hpp"
 
 void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 {
-	/*auto spriteFire = std::make_shared<Prisma::Texture>();
+	auto spriteFire = std::make_shared<Prisma::Texture>();
 	spriteFire->loadTexture({"../../../Resources/DefaultScene/sprites/fire.png", true});
 
 	auto spriteBurst = std::make_shared<Prisma::Texture>();
@@ -14,12 +16,12 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 	sprite->numSprites(1000);
 	sprite->size(glm::vec2(0.1f, 0.1f));
 	sprite->name("Sprite");
-	m_compute = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/SpriteCompute/compute.glsl");
+	/*m_compute = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/SpriteCompute/compute.glsl");
 	m_compute->use();
 	m_deltaPos = m_compute->getUniformPosition("deltaTime");
-	m_timePos = m_compute->getUniformPosition("time");
-	sprite->matrix(translate(glm::mat4(1.0f), glm::vec3(0, -0.5, 0)));
-	root->addChild(sprite);*/
+	m_timePos = m_compute->getUniformPosition("time");*/
+	//sprite->matrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, -0.5, 0)));
+	//root->addChild(sprite);
 }
 
 void ParticleController::update()

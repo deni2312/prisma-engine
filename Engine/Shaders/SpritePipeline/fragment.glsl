@@ -1,30 +1,23 @@
-#version 460 core
-#extension GL_ARB_bindless_texture : enable
+#extension GL_EXT_nonuniform_qualifier : require
+#extension GL_EXT_samplerless_texture_functions : require
 
 out vec4 FragColor;
 
-in vec2 TexCoords;
+layout(location = 0) in vec2 TexCoords;
+layout(location = 1) flat in int drawId;
 
-struct SpriteTexture {
-    sampler2D spriteTextures;
-    vec2 padding;
-};
+uniform sampler textureClamp_sampler;
 
-layout(std430, binding = 13) buffer SpriteTextures
-{
-    SpriteTexture spriteTextures[];
-};
+uniform texture2D spriteTextures[];
 
-layout(std430, binding = 14) buffer SpriteIds
+readonly buffer SpriteIds
 {
     ivec4 spriteId[];
 };
 
-flat in int drawId;
-
 void main()
 {
-    vec4 spriteTexture = texture(spriteTextures[spriteId[drawId].r].spriteTextures, TexCoords);
+    vec4 spriteTexture = texture(sampler2D(spriteTextures[nonuniformEXT(spriteId[drawId].r)],textureClamp_sampler), TexCoords);
     if (spriteTexture.a < 0.1) {
         discard;
     }

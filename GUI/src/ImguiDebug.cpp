@@ -422,6 +422,7 @@ std::shared_ptr<Prisma::SceneHandler> Prisma::ImguiDebug::handlers()
 	};
 	m_handlers->onDestroy = [&]()
 		{
+			std::cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << std::endl;
 			auto* p = m_imguiDiligent.release();
 			delete p;
 		};

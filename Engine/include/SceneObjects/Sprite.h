@@ -2,8 +2,16 @@
 #include <vector>
 #include <memory>
 #include "Node.h"
-#include "../Containers/Texture.h"
+#include "GlobalData/Platform.h"
+#include "Containers/Texture.h"
+#include "Common/interface/RefCntAutoPtr.hpp"
+#include "Graphics/GraphicsEngine/interface/RenderDevice.h"
 
+namespace Diligent
+{
+	struct IPipelineResourceSignature;
+	struct IPipelineState;
+}
 
 namespace Prisma
 {
@@ -17,21 +25,20 @@ namespace Prisma
 		void render();
 
 	private:
-		struct SpriteData
-		{
-			uint64_t sprite;
-			glm::vec2 padding;
-		};
+		std::vector<Diligent::IDeviceObject*> m_sprites;
 
-		std::vector<SpriteData> m_spritesData;
-		//std::shared_ptr<SSBO> m_ssbo;
-		//std::shared_ptr<SSBO> m_ssboTextures;
-		//std::shared_ptr<SSBO> m_ssboIds;
 		unsigned int m_spritePos;
 		unsigned int m_modelPos;
 		unsigned int m_numSprites = 0;
 		unsigned int m_sizePos;
 		glm::vec2 m_size = glm::vec2(1.0f, 1.0f);
-		//std::shared_ptr<Shader> m_spriteShader;
+
+		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_models;
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_spriteIds;
 	};
 }

@@ -21,6 +21,7 @@ namespace Prisma {
 		constexpr int MAX_SHADOW_OMNI_TEXTURE_SIZE = 1024;
 		constexpr int MAX_SHADOW_DIR_TEXTURE_SIZE = 4096;
 		constexpr int MAX_MESHES = 2048;
+		constexpr int MAX_SPRITES = 512;
 		constexpr int MAX_RAYTRACING_MESHES = 4096;
 		constexpr int DEFAULT_MIPS = 4;
 
