@@ -4,6 +4,7 @@
 
 #include "GlobalData/GlobalShaderNames.h"
 #include "GlobalData/PrismaFunc.h"
+#include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 #include "Handlers/MeshHandler.h"
 #include "Pipelines/PipelineHandler.h"
 
@@ -101,6 +102,14 @@ Prisma::Sprite::Sprite()
     PSOCreateInfo.pVS = pVS;
     PSOCreateInfo.pPS = pPS;
 
+    Diligent::BufferDesc CBDesc;
+    CBDesc.Name = "Sprite Models";
+    CBDesc.Size = sizeof(ModelSizes);
+    CBDesc.Usage = Diligent::USAGE_DYNAMIC;
+    CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+    CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+    contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_modelSizes);
+
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
@@ -109,6 +118,7 @@ Prisma::Sprite::Sprite()
     {
         {Diligent::SHADER_TYPE_VERTEX, "SpritesData", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_VERTEX, "ModelSizes", 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {Diligent::SHADER_TYPE_PIXEL, "SpriteIds", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_PIXEL,"spriteTextures",Define::MAX_SPRITES, Diligent::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, Diligent::PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         {Diligent::SHADER_TYPE_PIXEL,"textureClamp_sampler",1, Diligent::SHADER_RESOURCE_TYPE_SAMPLER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -141,8 +151,10 @@ Prisma::Sprite::Sprite()
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "textureClamp_sampler")->Set(samplerClamp);
 
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
+    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "ModelSizes")->Set(m_modelSizes);
 
     m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
+
 
     Diligent::BufferDesc ModelDesc;
     ModelDesc.Name = "Sprite Models Buffer";
@@ -251,7 +263,7 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
 
 void Prisma::Sprite::size(glm::vec2 size)
 {
-	m_size = size;
+    m_size = size;
 }
 
 void Prisma::Sprite::render()
@@ -274,6 +286,11 @@ void Prisma::Sprite::render()
         auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
         // Set the pipeline state
         contextData.m_pImmediateContext->SetPipelineState(m_pso);
+
+        auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
+        Diligent::MapHelper<ModelSizes> modelSizes(contextData.m_pImmediateContext, m_modelSizes, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+        modelSizes->model = finalMatrix();
+        modelSizes->size = m_size;
 
         auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
 

@@ -27,12 +27,14 @@ namespace Prisma
 	private:
 		std::vector<Diligent::IDeviceObject*> m_sprites;
 
-		unsigned int m_spritePos;
-		unsigned int m_modelPos;
-		unsigned int m_numSprites = 0;
-		unsigned int m_sizePos;
-		glm::vec2 m_size = glm::vec2(1.0f, 1.0f);
+		struct ModelSizes
+		{
+			glm::mat4 model;
+			glm::vec2 size;
+			glm::vec2 padding;
+		};
 
+		unsigned int m_numSprites = 0;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 		Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
@@ -40,5 +42,9 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_models;
 
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_spriteIds;
+
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelSizes;
+
+		glm::vec2 m_size = glm::vec2(1);
 	};
 }
