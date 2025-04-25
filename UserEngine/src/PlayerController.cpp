@@ -255,7 +255,6 @@ void PlayerController::createCamera()
 			auto lightParent = std::make_shared<Prisma::Node>();
 			ball->name("Ball");
 			auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
-			light->createShadow(1024, 1024);
 			Prisma::LightType::LightOmni lightType;
 			light->type(lightType);
 			light->name("LightBall");
