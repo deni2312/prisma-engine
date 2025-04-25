@@ -181,7 +181,7 @@ bool Prisma::Engine::run()
 			PrismaFunc::getInstance().update();
 		}
 	}
-	//data->userData->finish();
+	data->userData->finish();
 	data->sceneHandler->onDestroy();
 	PrismaFunc::getInstance().destroy();
 	Physics::getInstance().destroy();

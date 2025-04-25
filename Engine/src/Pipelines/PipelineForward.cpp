@@ -81,6 +81,14 @@ void Prisma::PipelineForward::render(){
         contextData.m_pImmediateContext->CommitShaderResources(m_srbAnimation, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
     }
+
+    auto& sprites = Prisma::GlobalData::getInstance().currentGlobalScene()->sprites;
+
+	for (auto& sprite : sprites)
+	{
+		sprite->render();
+	}
+
     Prisma::PipelineSkybox::getInstance().render();
 
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();

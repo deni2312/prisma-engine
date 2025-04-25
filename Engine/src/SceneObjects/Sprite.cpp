@@ -5,6 +5,7 @@
 #include "GlobalData/GlobalShaderNames.h"
 #include "GlobalData/PrismaFunc.h"
 #include "Handlers/MeshHandler.h"
+#include "Pipelines/PipelineHandler.h"
 
 Prisma::Sprite::Sprite()
 {
@@ -192,16 +193,20 @@ void Prisma::Sprite::loadSprites(std::vector<std::shared_ptr<Texture>> textures)
 
 void Prisma::Sprite::numSprites(unsigned int numSprites)
 {
-	//m_numSprites = numSprites;
+	m_numSprites = numSprites;
 	//m_ssbo->resize(sizeof(glm::mat4) * m_numSprites);
 	//m_ssboIds->resize(sizeof(glm::ivec4) * m_numSprites);
-	//std::vector<glm::mat4> spriteModels;
-	//spriteModels.resize(m_numSprites);
-	//glm::mat4 defaultData(1.0f);
-	//for (int i = 0; i < m_numSprites; i++)
-	//{
-	//	spriteModels[i] = defaultData;
-	//}
+	std::vector<glm::mat4> spriteModels;
+    std::vector<glm::ivec4> spriteIndices;
+	spriteModels.resize(m_numSprites);
+    spriteIndices.resize(m_numSprites);
+	glm::mat4 defaultData(1.0f);
+    glm::ivec4 defaultIndices(0.0f);
+	for (int i = 0; i < m_numSprites; i++)
+	{
+		spriteModels[i] = defaultData;
+        spriteIndices[i] = defaultIndices;
+	}
 	//m_ssbo->modifyData(0, sizeof(glm::mat4) * m_numSprites, spriteModels.data());
     m_models.Release();
     m_spriteIds.Release();
@@ -214,8 +219,12 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     ModelDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
     ModelDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
     ModelDesc.ElementByteStride = sizeof(glm::mat4);
-    ModelDesc.Size = sizeof(glm::mat4);
-    contextData.m_pDevice->CreateBuffer(ModelDesc, nullptr, &m_models);
+    ModelDesc.Size = sizeof(glm::mat4)*m_numSprites;
+	Diligent::BufferData modelData;
+    modelData.DataSize = ModelDesc.Size;
+    modelData.pData = spriteModels.data();
+
+    contextData.m_pDevice->CreateBuffer(ModelDesc, &modelData, &m_models);
 
     Diligent::BufferDesc SpriteDesc;
     SpriteDesc.Name = "Sprite Identifier Buffer";
@@ -223,8 +232,12 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     SpriteDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
     SpriteDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
     SpriteDesc.ElementByteStride = sizeof(glm::ivec4);
-    SpriteDesc.Size = sizeof(glm::ivec4);
-    contextData.m_pDevice->CreateBuffer(SpriteDesc, nullptr, &m_spriteIds);
+    SpriteDesc.Size = sizeof(glm::ivec4)*m_numSprites;
+    Diligent::BufferData indicesData;
+    indicesData.DataSize = SpriteDesc.Size;
+    indicesData.pData = spriteIndices.data();
+
+    contextData.m_pDevice->CreateBuffer(SpriteDesc, &indicesData, &m_spriteIds);
 
     m_srb.Release();
     m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
@@ -258,5 +271,27 @@ void Prisma::Sprite::render()
 
 		//// Deactivate blending and restore OpenGL state
 		//glDisable(GL_BLEND);
+        auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+        // Set the pipeline state
+        contextData.m_pImmediateContext->SetPipelineState(m_pso);
+
+        auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
+
+        // Bind vertex and index buffers
+        const Diligent::Uint64 offset = 0;
+        Diligent::IBuffer* pBuffs[] = { quadBuffer.vBuffer };
+        contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.m_pImmediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+        DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+        DrawAttrs.NumIndices = quadBuffer.iBufferSize;
+        // Verify the state of vertex and index buffers
+        DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+        DrawAttrs.NumInstances = m_numSprites;
+        contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
+
 	}
 }

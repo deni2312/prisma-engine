@@ -1,6 +1,7 @@
 #include "../include/ParticleController.h"
 #include "SceneObjects/Sprite.h"
 #include "glm/glm.hpp"
+#include "glm/gtx/transform.hpp"
 
 void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 {
@@ -20,8 +21,8 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 	m_compute->use();
 	m_deltaPos = m_compute->getUniformPosition("deltaTime");
 	m_timePos = m_compute->getUniformPosition("time");*/
-	//sprite->matrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, -0.5, 0)));
-	//root->addChild(sprite);
+	sprite->matrix(glm::translate(glm::mat4(1.0f), glm::vec3(0, -0.5, 0)));
+	root->addChild(sprite);
 }
 
 void ParticleController::update()
