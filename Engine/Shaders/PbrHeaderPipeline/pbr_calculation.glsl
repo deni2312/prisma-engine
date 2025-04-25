@@ -421,7 +421,7 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
             float NdotL = max(dot(N, L), 0.0);
 
             float attenuation = 1.0 / (omniData_data[lightIndex].attenuation.x + omniData_data[lightIndex].attenuation.y * totalDistance + omniData_data[lightIndex].attenuation.z * totalDistance * totalDistance);
-            attenuation *= clamp(1.0 - totalDistance / omniData_data[i].radius, 0.0, 1.0);
+            attenuation *= clamp(1.0 - totalDistance / omniData_data[tileIndex].radius, 0.0, 1.0);
 
 
             if (omniData_data[lightIndex].padding.x < 1.0) {
