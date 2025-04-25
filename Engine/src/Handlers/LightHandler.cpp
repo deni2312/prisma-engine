@@ -140,46 +140,62 @@ void Prisma::LightHandler::updateArea()
 
 void Prisma::LightHandler::updateOmni()
 {
-	m_omniData.clear();
-
 	const auto& scene = Prisma::GlobalData::getInstance().currentGlobalScene();
-	m_dataOmni = std::make_shared<SSBODataOmni>();
-	int numVisible = 0;
-	for (int i = 0; i < scene->omniLights.size(); i++)
-	{
-		const auto& light = scene->omniLights[i];
-		if (light->visible())
+
+	if (m_init || CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus() || CacheScene::getInstance().updateSizeLights()) {
+		m_omniData.clear();
+		m_dataOmni = std::make_shared<SSBODataOmni>();
+		int numVisible = 0;
+		for (int i = 0; i < scene->omniLights.size(); i++)
 		{
-			m_dataOmni->lights.push_back(light->type());
-			glm::mat4 omniMatrix;
-			if (light->parent())
+			const auto& light = scene->omniLights[i];
+			if (light->visible())
 			{
-				omniMatrix = light->parent()->finalMatrix();
+				m_dataOmni->lights.push_back(light->type());
+				glm::mat4 omniMatrix;
+				if (light->parent())
+				{
+					omniMatrix = light->parent()->finalMatrix();
+				}
+				else
+				{
+					omniMatrix = light->matrix();
+				}
+				m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
+				if (light->shadow() && light->hasShadow())
+				{
+					light->shadow()->update(m_dataOmni->lights[i].position);
+					m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
+				}
+				m_dataOmni->lights[i].hasShadow = light->hasShadow() ? 2.0f : 0.0f;
+				m_dataOmni->lights[i].diffuse = m_dataOmni->lights[i].diffuse * light->intensity();
+				m_omniData.push_back(light->shadow()->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+				numVisible++;
 			}
-			else
-			{
-				omniMatrix = light->matrix();
-			}
-			m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
-			if (light->shadow() && light->hasShadow())
-			{
-				light->shadow()->update(m_dataOmni->lights[i].position);
-				m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
-			}
-			m_dataOmni->lights[i].hasShadow = light->hasShadow() ? 2.0f : 0.0f;
-			m_dataOmni->lights[i].diffuse = m_dataOmni->lights[i].diffuse * light->intensity();
-			m_omniData.push_back(light->shadow()->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-			numVisible++;
+		}
+
+		m_sizes.omni = numVisible;
+
+		if (!m_dataOmni->lights.empty()) {
+			auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+			contextData.m_pImmediateContext->UpdateBuffer(m_omniLights, 0, numVisible * sizeof(LightType::LightOmni), m_dataOmni->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 		}
 	}
 
-	m_sizes.omni = numVisible;
-
-	if (!m_dataOmni->lights.empty()) {
-		auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-		contextData.m_pImmediateContext->UpdateBuffer(m_omniLights,0, numVisible * sizeof(LightType::LightOmni), m_dataOmni->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	if (CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes())
+	{
+		for (int i = 0; i < scene->omniLights.size(); i++)
+		{
+			const auto& light = scene->omniLights[i];
+			if (light->visible())
+			{
+				if (light->shadow() && light->hasShadow())
+				{
+					light->shadow()->update(m_dataOmni->lights[i].position);
+				}
+			}
+		}
 	}
-
 	//m_omniLights->modifyData(0, sizeof(glm::vec4), value_ptr(omniLength));
 	//m_omniLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightOmni),m_dataOmni->lights.data());
 }

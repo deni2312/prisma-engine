@@ -274,7 +274,7 @@ void Prisma::OmniShadowHandler::createAnimation()
     }
     Prisma::MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, Prisma::MeshIndirect::MaterialView& materials)
         {
-            m_srb.Release();
+            m_srbAnimation.Release();
             m_psoAnimation->CreateShaderResourceBinding(&m_srbAnimation, true);
             m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::MUTABLE_MODELS.c_str())->Set(Prisma::MeshIndirect::getInstance().modelBufferAnimation()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
         });
