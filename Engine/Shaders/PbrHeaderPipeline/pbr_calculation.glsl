@@ -75,8 +75,9 @@ struct OmniData
     vec4 specular;
     vec4 far_plane;
     vec4 attenuation;
-    vec2 depthMap;
+    int shadowIndex;
     float padding;
+    float hasShadow;
     float radius;
 };
 
@@ -424,7 +425,7 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
             attenuation *= clamp(1.0 - totalDistance / omniData_data[lightIndex].radius, 0.0, 1.0);
 
 
-            if (omniData_data[lightIndex].padding.x < 1.0) {
+            if (omniData_data[lightIndex].hasShadow < 1.0) {
                 Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
             }
             else {

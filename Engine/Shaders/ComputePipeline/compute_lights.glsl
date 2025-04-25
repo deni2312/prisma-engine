@@ -37,8 +37,9 @@ struct OmniData
     vec4 specular;
     vec4 far_plane;
     vec4 attenuation;
-    vec2 depthMap;
+    int shadowIndex;
     float padding;
+    float hasShadow;
     float radius;
 };
 

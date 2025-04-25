@@ -29,7 +29,8 @@ namespace Prisma
 			glm::vec4 specular = glm::vec4(1.0f);
 			glm::vec4 farPlane = glm::vec4(100.0f, 0.0f, 0.0f, 0.0f);
 			glm::vec4 attenuation = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
-			glm::vec2 padding;
+			int shadowIndex = 0;
+			float padding;
 			float hasShadow = 0;
 			float radius = 1;
 		};
