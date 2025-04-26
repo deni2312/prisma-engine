@@ -101,11 +101,6 @@ void ParticleController::update()
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - m_startPoint).count();
-	/*m_compute->use();
-	m_compute->setFloat(m_deltaPos, 1.0f / Prisma::Engine::getInstance().fps());
-	m_compute->setFloat(m_timePos, static_cast<float>(duration) / 1000.0f);
-	m_compute->dispatchCompute({1000, 1, 1});
-	m_compute->wait(GL_SHADER_STORAGE_BARRIER_BIT);*/
 	Diligent::MapHelper<TimeData> timeData(contextData.m_pImmediateContext, m_time, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
 	timeData->delta = 1.0f / Prisma::Engine::getInstance().fps();
 	timeData->time = static_cast<float>(duration) / 1000.0f;

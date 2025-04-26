@@ -33,7 +33,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 	m_basePosition = m_sphereMesh->parent()->matrix();
 	m_basePosition[3] = glm::vec4(0, 0, 0, 1);
 
-	m_particleController.init(m_gunPosition);
+	m_particleController.init(m_scene->root);
 
 	m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
 	m_physics->collisionData({Prisma::Physics::Collider::BOX_COLLIDER, 1.0, true});
