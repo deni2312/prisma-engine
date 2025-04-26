@@ -2,109 +2,94 @@
 #include "GlobalData/GlobalData.h"
 #include "SceneData/MeshIndirect.h"
 
-void Prisma::AnimatedMesh::computeAABB()
-{
-	auto vertices = animateVerticesData()->vertices;
-	auto indices = animateVerticesData()->indices;
-	if (vertices.empty())
-	{
-		m_aabbData = AABBData{glm::vec3(0.0f), glm::vec3(0.0f)};
-	}
+void Prisma::AnimatedMesh::computeAABB() {
+        auto vertices = animateVerticesData()->vertices;
+        auto indices = animateVerticesData()->indices;
+        if (vertices.empty()) {
+                m_aabbData = AABBData{glm::vec3(0.0f), glm::vec3(0.0f)};
+        }
 
-	glm::vec3 minPoint = vertices[0].position;
-	glm::vec3 maxPoint = vertices[0].position;
+        glm::vec3 minPoint = vertices[0].position;
+        glm::vec3 maxPoint = vertices[0].position;
 
-	for (const auto& vertex : vertices)
-	{
-		minPoint = min(minPoint, vertex.position);
-		maxPoint = max(maxPoint, vertex.position);
-	}
+        for (const auto& vertex : vertices) {
+                minPoint = min(minPoint, vertex.position);
+                maxPoint = max(maxPoint, vertex.position);
+        }
 
-	m_aabbData.min = minPoint;
-	m_aabbData.max = maxPoint;
+        m_aabbData.min = minPoint;
+        m_aabbData.max = maxPoint;
 
-	glm::vec3 center(0.0f);
+        glm::vec3 center(0.0f);
 
-	for (const auto& index : indices)
-	{
-		center += vertices[index].position;
-	}
+        for (const auto& index : indices) {
+                center += vertices[index].position;
+        }
 
-	center /= static_cast<float>(vertices.size());
+        center /= static_cast<float>(vertices.size());
 
-	m_aabbData.center = center;
+        m_aabbData.center = center;
 }
 
-void Prisma::AnimatedMesh::loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices)
-{
-	m_animateVertices = vertices;
-	computeAABB();
+void Prisma::AnimatedMesh::loadAnimateModel(std::shared_ptr<AnimateVerticesData> vertices) {
+        m_animateVertices = vertices;
+        computeAABB();
 }
 
-void Prisma::AnimatedMesh::finalMatrix(const glm::mat4& matrix, bool update)
-{
-	Node::finalMatrix(matrix);
-	if (m_vectorId >= 0)
-	{
-		Prisma::MeshIndirect::getInstance().updateModelsAnimate(m_vectorId);
-	}
-	CacheScene::getInstance().updateData(true);
+void Prisma::AnimatedMesh::finalMatrix(const glm::mat4& matrix, bool update) {
+        Node::finalMatrix(matrix);
+        if (m_vectorId >= 0) {
+                MeshIndirect::getInstance().updateModelsAnimate(m_vectorId);
+        }
+        CacheScene::getInstance().updateData(true);
 }
 
-glm::mat4 Prisma::AnimatedMesh::finalMatrix() const
-{
-	return Mesh::finalMatrix();
+glm::mat4 Prisma::AnimatedMesh::finalMatrix() const {
+        return Mesh::finalMatrix();
 }
 
-std::shared_ptr<Prisma::AnimatedMesh::AnimateVerticesData> Prisma::AnimatedMesh::animateVerticesData()
-{
-	return m_animateVertices;
+std::shared_ptr<Prisma::AnimatedMesh::AnimateVerticesData> Prisma::AnimatedMesh::animateVerticesData() {
+        return m_animateVertices;
 }
 
-std::shared_ptr<Prisma::AnimatedMesh> Prisma::AnimatedMesh::instantiate(std::shared_ptr<AnimatedMesh> mesh)
-{
-	std::shared_ptr<AnimatedMesh> newInstance = nullptr;
-	if (mesh)
-	{
-		newInstance = std::make_shared<AnimatedMesh>();
-		newInstance->loadAnimateModel(std::make_shared<AnimateVerticesData>(*mesh->m_animateVertices));
-		newInstance->m_BoneInfoMap = mesh->m_BoneInfoMap;
-		newInstance->m_BoneCounter = mesh->m_BoneCounter;
-		newInstance->material(std::make_shared<MaterialComponent>(*mesh->material()));
-		newInstance->matrix(mesh->matrix());
-		newInstance->name(mesh->name() + std::to_string(newInstance->uuid()));
-		auto parent = std::make_shared<Node>();
-		auto parentParent = std::make_shared<Node>();
+std::shared_ptr<Prisma::AnimatedMesh> Prisma::AnimatedMesh::instantiate(std::shared_ptr<AnimatedMesh> mesh) {
+        std::shared_ptr<AnimatedMesh> newInstance = nullptr;
+        if (mesh) {
+                newInstance = std::make_shared<AnimatedMesh>();
+                newInstance->loadAnimateModel(std::make_shared<AnimateVerticesData>(*mesh->m_animateVertices));
+                newInstance->m_BoneInfoMap = mesh->m_BoneInfoMap;
+                newInstance->m_BoneCounter = mesh->m_BoneCounter;
+                newInstance->material(std::make_shared<MaterialComponent>(*mesh->material()));
+                newInstance->matrix(mesh->matrix());
+                newInstance->name(mesh->name() + std::to_string(newInstance->uuid()));
+                auto parent = std::make_shared<Node>();
+                auto parentParent = std::make_shared<Node>();
 
-		parent->name(mesh->parent()->name() + std::to_string(parent->uuid()));
-		parent->matrix(mesh->parent()->matrix());
+                parent->name(mesh->parent()->name() + std::to_string(parent->uuid()));
+                parent->matrix(mesh->parent()->matrix());
 
-		parentParent->name(mesh->parent()->parent()->name() + std::to_string(parent->uuid()));
-		parentParent->matrix(mesh->parent()->parent()->matrix());
-		Prisma::GlobalData::getInstance().currentGlobalScene()->root->addChild(parentParent);
-		parent->addChild(newInstance);
-		parentParent->addChild(parent);
-	}
-	return newInstance;
+                parentParent->name(mesh->parent()->parent()->name() + std::to_string(parent->uuid()));
+                parentParent->matrix(mesh->parent()->parent()->matrix());
+                GlobalData::getInstance().currentGlobalScene()->root->addChild(parentParent);
+                parent->addChild(newInstance);
+                parentParent->addChild(parent);
+        }
+        return newInstance;
 }
 
-std::map<std::string, Prisma::BoneInfo>& Prisma::AnimatedMesh::boneInfoMap()
-{
-	return m_BoneInfoMap;
+std::map<std::string, Prisma::BoneInfo>& Prisma::AnimatedMesh::boneInfoMap() {
+        return m_BoneInfoMap;
 }
 
-int& Prisma::AnimatedMesh::boneInfoCounter()
-{
-	return m_BoneCounter;
+int& Prisma::AnimatedMesh::boneInfoCounter() {
+        return m_BoneCounter;
 }
 
-void Prisma::AnimatedMesh::animator(std::shared_ptr<Animator> animator)
-{
-	m_animator = animator;
-	m_animator->mesh(this);
+void Prisma::AnimatedMesh::animator(std::shared_ptr<Animator> animator) {
+        m_animator = animator;
+        m_animator->mesh(this);
 }
 
-std::shared_ptr<Prisma::Animator> Prisma::AnimatedMesh::animator()
-{
-	return m_animator;
+std::shared_ptr<Prisma::Animator> Prisma::AnimatedMesh::animator() {
+        return m_animator;
 }

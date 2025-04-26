@@ -2,13 +2,11 @@
 #include "Component.h"
 
 namespace Prisma {
-	class DecalComponent : public Component {
-	public:
-		DecalComponent();
+class DecalComponent : public Component {
+public:
+        DecalComponent();
 
-		void start() override;
-	private:
-		//std::shared_ptr<Prisma::Shader> m_shader;
-
-	};
+        void start() override;
+        //std::shared_ptr<Prisma::Shader> m_shader;
+};
 }

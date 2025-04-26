@@ -6,22 +6,20 @@
 #include "GlobalData/InstanceData.h"
 #include "Containers/Texture.h"
 
-namespace Prisma
-{
-	class TextureInfo : public InstanceData<TextureInfo>
-	{
-	public:
-		TextureInfo();
+namespace Prisma {
+class TextureInfo : public InstanceData<TextureInfo> {
+public:
+        TextureInfo();
 
-		void showTextures();
+        void showTextures();
 
-		bool textureTab();
-	private:
+        bool textureTab();
 
-		int m_index;
+private:
+        int m_index;
 
-		bool m_textureTab = false;
+        bool m_textureTab = false;
 
-		float m_scale = 1;
-	};
+        float m_scale = 1;
+};
 }

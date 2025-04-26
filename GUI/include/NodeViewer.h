@@ -9,63 +9,60 @@
 #include "Helpers/NodeHelper.h"
 
 
-namespace Prisma
-{
-	class NodeViewer : public InstanceData<NodeViewer>
-	{
-	public:
-		struct NodeData
-		{
-			std::shared_ptr<Node> node;
-			std::shared_ptr<Camera> camera;
-			glm::mat4 projection;
-			float translate;
-			float width;
-			float height;
-			float scale;
-			float initOffset;
-		};
+namespace Prisma {
+class NodeViewer : public InstanceData<NodeViewer> {
+public:
+        struct NodeData {
+                std::shared_ptr<Node> node;
+                std::shared_ptr<Camera> camera;
+                glm::mat4 projection;
+                float translate;
+                float width;
+                float height;
+                float scale;
+                float initOffset;
+        };
 
-		void varsDispatcher(Component::Options types, int index,unsigned int componentIndex);
+        void varsDispatcher(Component::Options types, int index, unsigned int componentIndex);
 
-		NodeViewer();
+        NodeViewer();
 
-		void showComponents(std::shared_ptr<Node> nodeData);
+        void showComponents(std::shared_ptr<Node> nodeData);
 
-		void showSelected(const NodeData& nodeData, bool end = true, bool showData = true,
-		                  std::shared_ptr<Node> componentAdding = nullptr);
-		// Getters for textures
-		const std::shared_ptr<Texture>& rotateTexture() const;
+        void showSelected(const NodeData& nodeData, bool end = true, bool showData = true,
+                          std::shared_ptr<Node> componentAdding = nullptr);
+        // Getters for textures
+        const std::shared_ptr<Texture>& rotateTexture() const;
 
-		const std::shared_ptr<Texture>& translateTexture() const;
+        const std::shared_ptr<Texture>& translateTexture() const;
 
-		const std::shared_ptr<Texture>& scaleTexture() const;
+        const std::shared_ptr<Texture>& scaleTexture() const;
 
-		const std::shared_ptr<Texture>& eyeOpenTexture() const;
+        const std::shared_ptr<Texture>& eyeOpenTexture() const;
 
-		const std::shared_ptr<Texture>& eyeCloseTexture() const;
+        const std::shared_ptr<Texture>& eyeCloseTexture() const;
 
-		void drawGizmo(const NodeData& nodeData);
+        void drawGizmo(const NodeData& nodeData);
 
-	private:
-		glm::vec3 m_scale;
-		glm::vec3 m_rotation;
-		glm::vec3 m_translation;
+private:
+        glm::vec3 m_scale;
+        glm::vec3 m_rotation;
+        glm::vec3 m_translation;
 
-		glm::mat4 m_currentModel;
-		void hideChilds(std::shared_ptr<Node> root, bool hide);
-		std::shared_ptr<Texture> m_rotateTexture;
-		std::shared_ptr<Texture> m_translateTexture;
-		std::shared_ptr<Texture> m_scaleTexture;
-		std::shared_ptr<Texture> m_eyeOpen;
-		std::shared_ptr<Texture> m_eyeClose;
-		int m_componentSelect = 0;
-		std::vector<const char*> m_components;
+        glm::mat4 m_currentModel;
+        void hideChilds(std::shared_ptr<Node> root, bool hide);
+        std::shared_ptr<Texture> m_rotateTexture;
+        std::shared_ptr<Texture> m_translateTexture;
+        std::shared_ptr<Texture> m_scaleTexture;
+        std::shared_ptr<Texture> m_eyeOpen;
+        std::shared_ptr<Texture> m_eyeClose;
+        int m_componentSelect = 0;
+        std::vector<const char*> m_components;
 
-		std::shared_ptr<Prisma::Node> m_currentNode = nullptr;
+        std::shared_ptr<Node> m_currentNode = nullptr;
 
-		std::shared_ptr<Prisma::Node> m_current = nullptr;
+        std::shared_ptr<Node> m_current = nullptr;
 
-		void recompose(const NodeData& nodeData);
-	};
+        void recompose(const NodeData& nodeData);
+};
 }

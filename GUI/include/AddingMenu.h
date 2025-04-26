@@ -2,14 +2,12 @@
 #include "ImGuiCamera.h"
 #include "NodeCreator.h"
 
-namespace Prisma
-{
-	class ImGuiAddingMenu
-	{
-	public:
-		void addMenu(Prisma::ImGuiCamera& camera) const;
+namespace Prisma {
+class ImGuiAddingMenu {
+public:
+        void addMenu(ImGuiCamera& camera) const;
 
-	private:
-		const int m_subDivisions = 16;
-	};
+private:
+        const int m_subDivisions = 16;
+};
 }

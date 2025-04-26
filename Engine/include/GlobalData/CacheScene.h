@@ -4,53 +4,51 @@
 #include "../GlobalData/InstanceData.h"
 
 
-namespace Prisma
-{
-	class CacheScene : public InstanceData<CacheScene>
-	{
-	public:
-		bool updateLights();
+namespace Prisma {
+class CacheScene : public InstanceData<CacheScene> {
+public:
+        bool updateLights();
 
-		void updateLights(bool value);
+        void updateLights(bool value);
 
-		bool updateSizeLights();
+        bool updateSizeLights();
 
-		void updateSizeLights(bool value);
+        void updateSizeLights(bool value);
 
-		bool updateShadows();
+        bool updateShadows();
 
-		void updateShadows(bool value);
+        void updateShadows(bool value);
 
 
-		bool updateSizes() const;
+        bool updateSizes() const;
 
-		void updateSizes(bool value);
+        void updateSizes(bool value);
 
-		bool updateData() const;
+        bool updateData() const;
 
-		void updateData(bool value);
+        void updateData(bool value);
 
-		bool updateTextures() const;
+        bool updateTextures() const;
 
-		void updateTextures(bool value);
+        void updateTextures(bool value);
 
-		bool updateStatus();
+        bool updateStatus();
 
-		void updateStatus(bool value);
+        void updateStatus(bool value);
 
-		void resetCaches();
+        void resetCaches();
 
-		void updateAllCaches();
+        void updateAllCaches();
 
-		CacheScene() = default;
+        CacheScene() = default;
 
-	private:
-		bool m_updateLights=false;
-		bool m_updateSizeLights = false;
-		bool m_updateShadows = false;
-		bool m_updateSizes = false;
-		bool m_updateData = false;
-		bool m_updateTextures = false;
-		bool m_updateStatus = false;
-	};
+private:
+        bool m_updateLights = false;
+        bool m_updateSizeLights = false;
+        bool m_updateShadows = false;
+        bool m_updateSizes = false;
+        bool m_updateData = false;
+        bool m_updateTextures = false;
+        bool m_updateStatus = false;
+};
 }

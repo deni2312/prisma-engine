@@ -46,327 +46,367 @@
 using namespace Diligent;
 
 Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const unsigned int& height) : m_width{
-                                                                                                                 width
-}, m_height{ height }
-{
+        width
+}, m_height{height} {
+        m_settings = SettingsLoader::getInstance().getSettings();
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        BufferDesc CBDesc;
+        CBDesc.Name = "RayTracing Data";
+        CBDesc.Size = sizeof(RayTracingData);
+        CBDesc.Usage = USAGE_DYNAMIC;
+        CBDesc.BindFlags = BIND_UNIFORM_BUFFER;
+        CBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
 
-    m_settings = Prisma::SettingsLoader::getInstance().getSettings();
-    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
-    Diligent::BufferDesc CBDesc;
-    CBDesc.Name = "RayTracing Data";
-    CBDesc.Size = sizeof(RayTracingData);
-    CBDesc.Usage = Diligent::USAGE_DYNAMIC;
-    CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
-    CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_raytracingData);
 
+        m_hardwareMaxReflection = std::min(m_MaxRecursionDepth,
+                                           contextData.m_pDevice->GetAdapterInfo().RayTracing.MaxRecursionDepth);
+        m_MaxRecursionDepth = m_hardwareMaxReflection;
+        // Prepare ray tracing pipeline description.
+        RayTracingPipelineStateCreateInfoX PSOCreateInfo;
 
-    contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_raytracingData);
+        PSOCreateInfo.PSODesc.Name = "Ray tracing PSO";
+        PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_RAY_TRACING;
 
-    m_hardwareMaxReflection = std::min(m_MaxRecursionDepth, contextData.m_pDevice->GetAdapterInfo().RayTracing.MaxRecursionDepth);
-    m_MaxRecursionDepth = m_hardwareMaxReflection;
-    // Prepare ray tracing pipeline description.
-    RayTracingPipelineStateCreateInfoX PSOCreateInfo;
+        // Define shader macros
 
-    PSOCreateInfo.PSODesc.Name = "Ray tracing PSO";
-    PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_RAY_TRACING;
+        ShaderCreateInfo ShaderCI;
+        // We will not be using combined texture samplers as they
+        // are only required for compatibility with OpenGL, and ray
+        // tracing is not supported in OpenGL backend.
+        ShaderCI.Desc.UseCombinedTextureSamplers = false;
 
-    // Define shader macros
+        // Only new DXC compiler can compile HLSL ray tracing shaders.
+        ShaderCI.ShaderCompiler = SHADER_COMPILER_DXC;
 
-    ShaderCreateInfo ShaderCI;
-    // We will not be using combined texture samplers as they
-    // are only required for compatibility with OpenGL, and ray
-    // tracing is not supported in OpenGL backend.
-    ShaderCI.Desc.UseCombinedTextureSamplers = false;
+        // Use row-major matrices.
+        ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
+        ShaderCI.CompileFlags |= SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
 
-    // Only new DXC compiler can compile HLSL ray tracing shaders.
-    ShaderCI.ShaderCompiler = SHADER_COMPILER_DXC;
+        // Shader model 6.3 is required for DXR 1.0, shader model 6.5 is required for DXR 1.1 and enables additional features.
+        // Use 6.3 for compatibility with DXR 1.0 and VK_NV_ray_tracing.
+        ShaderCI.HLSLVersion = {6, 3};
+        ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
 
-    // Use row-major matrices.
-    ShaderCI.CompileFlags = SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
-    ShaderCI.CompileFlags |= SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
+        // Create a shader source stream factory to load shaders from files.
+        RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
+        contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
 
-    // Shader model 6.3 is required for DXR 1.0, shader model 6.5 is required for DXR 1.1 and enables additional features.
-    // Use 6.3 for compatibility with DXR 1.0 and VK_NV_ray_tracing.
-    ShaderCI.HLSLVersion = { 6, 3 };
-    ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
-
-    // Create a shader source stream factory to load shaders from files.
-    RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
-    ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
-
-    // Create ray generation shader.
-    RefCntAutoPtr<IShader> pRayGen;
-    {
-        ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_GEN;
-        ShaderCI.Desc.Name = "Ray tracing RG";
-        ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/raytrace.hlsl";
-        ShaderCI.EntryPoint = "main";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pRayGen);
-        VERIFY_EXPR(pRayGen != nullptr);
-    }
-
-    RefCntAutoPtr<IShader> pShadowMiss;
-    ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_MISS;
-    ShaderCI.Desc.Name = "Shadow ray miss shader";
-    ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/shadow_miss.hlsl";
-    ShaderCI.EntryPoint = "main";
-    contextData.m_pDevice->CreateShader(ShaderCI, &pShadowMiss);
-    VERIFY_EXPR(pShadowMiss != nullptr);
-
-
-    RefCntAutoPtr<IShader> pGlassPrimaryHit;
-    ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_CLOSEST_HIT;
-    ShaderCI.Desc.Name = "Glass primary ray closest hit shader";
-    ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/transparent.hlsl";
-    ShaderCI.EntryPoint = "main";
-    contextData.m_pDevice->CreateShader(ShaderCI, &pGlassPrimaryHit);
-    VERIFY_EXPR(pGlassPrimaryHit != nullptr);
-
-    // Create miss shaders.
-    RefCntAutoPtr<IShader> pPrimaryMiss;
-    {
-        ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_MISS;
-        ShaderCI.Desc.Name = "Primary ray miss shader";
-        ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/miss.hlsl";
-        ShaderCI.EntryPoint = "main";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pPrimaryMiss);
-        VERIFY_EXPR(pPrimaryMiss != nullptr);
-    }
-
-    // Create closest hit shaders.
-    RefCntAutoPtr<IShader> pPrimaryHit;
-    {
-        ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_CLOSEST_HIT;
-        ShaderCI.Desc.Name = "Primary ray closest hit shader";
-        ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/hit.hlsl";
-        ShaderCI.EntryPoint = "main";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pPrimaryHit);
-        VERIFY_EXPR(pPrimaryHit != nullptr);
-    }
-
-    // Setup shader groups
-
-    // Ray generation shader is an entry point for a ray tracing pipeline.
-    PSOCreateInfo.AddGeneralShader("Main", pRayGen);
-    // Primary ray miss shader.
-    PSOCreateInfo.AddGeneralShader("PrimaryMiss", pPrimaryMiss);
-    // Primary ray hit group for the textured cube.
-    PSOCreateInfo.AddTriangleHitShader("PrimaryHit", pPrimaryHit);
-
-    PSOCreateInfo.AddTriangleHitShader("GlassPrimaryHit", pGlassPrimaryHit);
-
-    PSOCreateInfo.AddGeneralShader("ShadowMiss", pShadowMiss);
-
-    // Specify the maximum ray recursion depth.
-    // WARNING: the driver does not track the recursion depth and it is the
-    //          application's responsibility to not exceed the specified limit.
-    //          The value is used to reserve the necessary stack size and
-    //          exceeding it will likely result in driver crash.
-    PSOCreateInfo.RayTracingPipeline.MaxRecursionDepth = static_cast<Uint8>(m_MaxRecursionDepth);
-
-    // Per-shader data is not used.
-    PSOCreateInfo.RayTracingPipeline.ShaderRecordSize = 0;
-
-    // Define immutable sampler for g_Texture and g_GroundTexture. Immutable samplers should be used whenever possible
-    SamplerDesc SamLinearWrapDesc{
-        FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
-        TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP //
-    };
-
-    SamplerDesc SamLinearClampDesc
-    {
-        FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
-        TEXTURE_ADDRESS_CLAMP, TEXTURE_ADDRESS_CLAMP, TEXTURE_ADDRESS_CLAMP
-    };
-
-    PipelineResourceDesc Resources[] =
-    {
-        {SHADER_TYPE_RAY_GEN, "g_TLAS", 1,SHADER_RESOURCE_TYPE_ACCEL_STRUCT,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS", 1,SHADER_RESOURCE_TYPE_ACCEL_STRUCT,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str(), 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::CONSTANT_DIR_DATA.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_STATUS.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas", 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_GEN | SHADER_TYPE_RAY_MISS | SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB", 1,SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_RAY_GEN, "g_ColorBuffer", 1,SHADER_RESOURCE_TYPE_TEXTURE_UAV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_MISS, "skybox", 1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str(), 1,SHADER_RESOURCE_TYPE_BUFFER_SRV,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_RAY_MISS, "skybox_sampler",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_RAY_CLOSEST_HIT, "skybox_sampler",1,SHADER_RESOURCE_TYPE_SAMPLER,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
-        {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
-        {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),Define::MAX_MESHES,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
-        {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::CONSTANT_LUT.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_PREFILTER.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_RAY_CLOSEST_HIT,Prisma::ShaderNames::MUTABLE_IRRADIANCE.c_str(),1,SHADER_RESOURCE_TYPE_TEXTURE_SRV,SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-
-    };
-
-    PipelineResourceSignatureDesc ResourceSignDesc;
-    ResourceSignDesc.NumResources = _countof(Resources);
-    ResourceSignDesc.Resources = Resources;
-
-    contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
-    RefCntAutoPtr<ISampler> samplerWrap;
-    RefCntAutoPtr<ISampler> samplerClamp;
-
-    IPipelineResourceSignature* ppSignatures[]{ m_pResourceSignature };
-
-    PSOCreateInfo.ppResourceSignatures = ppSignatures;
-    PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
-
-
-    contextData.m_pDevice->CreateRayTracingPipelineState(PSOCreateInfo, &m_pso);
-	contextData.m_pDevice->CreateSampler(SamLinearWrapDesc, &samplerWrap);
-    contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &samplerClamp);
-    IDeviceObject* samplerDeviceWrap = samplerWrap;
-    IDeviceObject* samplerDeviceClamp = samplerClamp;
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap")->Set(samplerDeviceWrap);
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_MISS, "skybox_sampler")->Set(samplerDeviceClamp);
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "skybox_sampler")->Set(samplerDeviceClamp);
-
-    VERIFY_EXPR(m_pso != nullptr);
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_GEN, "g_ConstantsCB")->Set(m_raytracingData);
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_MISS, "g_ConstantsCB")->Set(m_raytracingData);
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB")->Set(m_raytracingData);
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(Prisma::LightHandler::getInstance().lightSizes());
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::CONSTANT_DIR_DATA.c_str())->Set(Prisma::LightHandler::getInstance().dirLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::CONSTANT_LUT.c_str())->Set(Prisma::PipelineLUT::getInstance().lutTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str())->Set(Prisma::LightHandler::getInstance().omniLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-
-    m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
-    VERIFY_EXPR(m_srb != nullptr);
-
-
-    // Create window-size color image.
-    TextureDesc RTDesc = {};
-    RTDesc.Name = "Color buffer";
-    RTDesc.Type = RESOURCE_DIM_TEX_2D;
-    RTDesc.Width = m_width;
-    RTDesc.Height = m_height;
-    RTDesc.BindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
-    RTDesc.ClearValue.Format = TEX_FORMAT_RGBA8_UNORM;
-    RTDesc.Format = TEX_FORMAT_RGBA8_UNORM;
-
-    contextData.m_pDevice->CreateTexture(RTDesc, nullptr, &m_colorBuffer);
-
-
-    Prisma::GlobalData::getInstance().addGlobalTexture({ m_colorBuffer,"RayTracing Color"});
-
-    m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
-
-    m_blitRT = std::make_shared<Prisma::PipelineBlitRT>(m_colorBuffer);
-
-    m_updateData = [&]()
+        // Create ray generation shader.
+        RefCntAutoPtr<IShader> pRayGen;
         {
-            m_srb.Release();
-            if (Prisma::UpdateTLAS::getInstance().vertexData() && Prisma::MeshIndirect::getInstance().statusBuffer() && Prisma::PipelineSkybox::getInstance().isInit()) {
-                auto materials = Prisma::MeshIndirect::getInstance().textureViews();
-                m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(Prisma::UpdateTLAS::getInstance().vertexData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(Prisma::UpdateTLAS::getInstance().primitiveData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(Prisma::UpdateTLAS::getInstance().vertexLocation()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_STATUS.c_str())->Set(Prisma::MeshIndirect::getInstance().statusBuffer()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_MISS, "skybox")->Set(Prisma::PipelineSkybox::getInstance().skybox()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_PREFILTER.c_str())->Set(Prisma::PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-                m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, Prisma::ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(Prisma::PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-            }
+                ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_GEN;
+                ShaderCI.Desc.Name = "Ray tracing RG";
+                ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/raytrace.hlsl";
+                ShaderCI.EntryPoint = "main";
+                contextData.m_pDevice->CreateShader(ShaderCI, &pRayGen);
+                VERIFY_EXPR(pRayGen != nullptr);
+        }
+
+        RefCntAutoPtr<IShader> pShadowMiss;
+        ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_MISS;
+        ShaderCI.Desc.Name = "Shadow ray miss shader";
+        ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/shadow_miss.hlsl";
+        ShaderCI.EntryPoint = "main";
+        contextData.m_pDevice->CreateShader(ShaderCI, &pShadowMiss);
+        VERIFY_EXPR(pShadowMiss != nullptr);
+
+        RefCntAutoPtr<IShader> pGlassPrimaryHit;
+        ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_CLOSEST_HIT;
+        ShaderCI.Desc.Name = "Glass primary ray closest hit shader";
+        ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/transparent.hlsl";
+        ShaderCI.EntryPoint = "main";
+        contextData.m_pDevice->CreateShader(ShaderCI, &pGlassPrimaryHit);
+        VERIFY_EXPR(pGlassPrimaryHit != nullptr);
+
+        // Create miss shaders.
+        RefCntAutoPtr<IShader> pPrimaryMiss;
+        {
+                ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_MISS;
+                ShaderCI.Desc.Name = "Primary ray miss shader";
+                ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/miss.hlsl";
+                ShaderCI.EntryPoint = "main";
+                contextData.m_pDevice->CreateShader(ShaderCI, &pPrimaryMiss);
+                VERIFY_EXPR(pPrimaryMiss != nullptr);
+        }
+
+        // Create closest hit shaders.
+        RefCntAutoPtr<IShader> pPrimaryHit;
+        {
+                ShaderCI.Desc.ShaderType = SHADER_TYPE_RAY_CLOSEST_HIT;
+                ShaderCI.Desc.Name = "Primary ray closest hit shader";
+                ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/hit.hlsl";
+                ShaderCI.EntryPoint = "main";
+                contextData.m_pDevice->CreateShader(ShaderCI, &pPrimaryHit);
+                VERIFY_EXPR(pPrimaryHit != nullptr);
+        }
+
+        // Setup shader groups
+
+        // Ray generation shader is an entry point for a ray tracing pipeline.
+        PSOCreateInfo.AddGeneralShader("Main", pRayGen);
+        // Primary ray miss shader.
+        PSOCreateInfo.AddGeneralShader("PrimaryMiss", pPrimaryMiss);
+        // Primary ray hit group for the textured cube.
+        PSOCreateInfo.AddTriangleHitShader("PrimaryHit", pPrimaryHit);
+
+        PSOCreateInfo.AddTriangleHitShader("GlassPrimaryHit", pGlassPrimaryHit);
+
+        PSOCreateInfo.AddGeneralShader("ShadowMiss", pShadowMiss);
+
+        // Specify the maximum ray recursion depth.
+        // WARNING: the driver does not track the recursion depth and it is the
+        //          application's responsibility to not exceed the specified limit.
+        //          The value is used to reserve the necessary stack size and
+        //          exceeding it will likely result in driver crash.
+        PSOCreateInfo.RayTracingPipeline.MaxRecursionDepth = static_cast<Uint8>(m_MaxRecursionDepth);
+
+        // Per-shader data is not used.
+        PSOCreateInfo.RayTracingPipeline.ShaderRecordSize = 0;
+
+        // Define immutable sampler for g_Texture and g_GroundTexture. Immutable samplers should be used whenever possible
+        SamplerDesc SamLinearWrapDesc{
+                FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
+                TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP //
         };
 
-    Prisma::UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index)
+        SamplerDesc SamLinearClampDesc
         {
-            m_updateData();
+                FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR, FILTER_TYPE_LINEAR,
+                TEXTURE_ADDRESS_CLAMP, TEXTURE_ADDRESS_CLAMP, TEXTURE_ADDRESS_CLAMP
+        };
+
+        PipelineResourceDesc Resources[] =
+        {
+                {SHADER_TYPE_RAY_GEN, "g_TLAS", 1, SHADER_RESOURCE_TYPE_ACCEL_STRUCT,
+                 SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS", 1, SHADER_RESOURCE_TYPE_ACCEL_STRUCT,
+                 SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas", 1, SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                 SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas", 1, SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                 SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::CONSTANT_LIGHT_SIZES.c_str(), 1,
+                 SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::CONSTANT_DIR_DATA.c_str(), 1,
+                 SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_STATUS.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                 SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas", 1, SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                 SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_GEN | SHADER_TYPE_RAY_MISS | SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB", 1,
+                 SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {SHADER_TYPE_RAY_GEN, "g_ColorBuffer", 1, SHADER_RESOURCE_TYPE_TEXTURE_UAV,
+                 SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_MISS, "skybox", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV,
+                 SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::CONSTANT_OMNI_DATA.c_str(), 1,
+                 SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap", 1, SHADER_RESOURCE_TYPE_SAMPLER,
+                 SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {SHADER_TYPE_RAY_MISS, "skybox_sampler", 1, SHADER_RESOURCE_TYPE_SAMPLER,
+                 SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, "skybox_sampler", 1, SHADER_RESOURCE_TYPE_SAMPLER,
+                 SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), Define::MAX_MESHES,
+                 SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,
+                 PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), Define::MAX_MESHES,
+                 SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,
+                 PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(),
+                 Define::MAX_MESHES, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,
+                 PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::CONSTANT_LUT.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV,
+                 SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_PREFILTER.c_str(), 1,
+                 SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_IRRADIANCE.c_str(), 1,
+                 SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+
+        };
+
+        PipelineResourceSignatureDesc ResourceSignDesc;
+        ResourceSignDesc.NumResources = _countof(Resources);
+        ResourceSignDesc.Resources = Resources;
+
+        contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
+        RefCntAutoPtr<ISampler> samplerWrap;
+        RefCntAutoPtr<ISampler> samplerClamp;
+
+        IPipelineResourceSignature* ppSignatures[]{m_pResourceSignature};
+
+        PSOCreateInfo.ppResourceSignatures = ppSignatures;
+        PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
+
+        contextData.m_pDevice->CreateRayTracingPipelineState(PSOCreateInfo, &m_pso);
+        contextData.m_pDevice->CreateSampler(SamLinearWrapDesc, &samplerWrap);
+        contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &samplerClamp);
+        IDeviceObject* samplerDeviceWrap = samplerWrap;
+        IDeviceObject* samplerDeviceClamp = samplerClamp;
+
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_SamLinearWrap")->Set(
+                samplerDeviceWrap);
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_MISS, "skybox_sampler")->Set(samplerDeviceClamp);
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "skybox_sampler")->Set(
+                samplerDeviceClamp);
+
+        VERIFY_EXPR(m_pso != nullptr);
+
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_GEN, "g_ConstantsCB")->Set(m_raytracingData);
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_MISS, "g_ConstantsCB")->Set(m_raytracingData);
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_ConstantsCB")->Set(
+                m_raytracingData);
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT,
+                                                      ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(
+                LightHandler::getInstance().lightSizes());
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT,
+                                                      ShaderNames::CONSTANT_DIR_DATA.c_str())->Set(
+                LightHandler::getInstance().dirLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::CONSTANT_LUT.c_str())->
+                              Set(PipelineLUT::getInstance().lutTexture()->GetDefaultView(
+                                      TEXTURE_VIEW_SHADER_RESOURCE));
+        m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT,
+                                                      ShaderNames::CONSTANT_OMNI_DATA.c_str())->Set(
+                LightHandler::getInstance().omniLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+
+        m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
+        VERIFY_EXPR(m_srb != nullptr);
+
+        // Create window-size color image.
+        TextureDesc RTDesc = {};
+        RTDesc.Name = "Color buffer";
+        RTDesc.Type = RESOURCE_DIM_TEX_2D;
+        RTDesc.Width = m_width;
+        RTDesc.Height = m_height;
+        RTDesc.BindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
+        RTDesc.ClearValue.Format = TEX_FORMAT_RGBA8_UNORM;
+        RTDesc.Format = TEX_FORMAT_RGBA8_UNORM;
+
+        contextData.m_pDevice->CreateTexture(RTDesc, nullptr, &m_colorBuffer);
+
+        GlobalData::getInstance().addGlobalTexture({m_colorBuffer, "RayTracing Color"});
+
+        m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(
+                m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
+
+        m_blitRT = std::make_shared<PipelineBlitRT>(m_colorBuffer);
+
+        m_updateData = [&]() {
+                m_srb.Release();
+                if (UpdateTLAS::getInstance().vertexData() && MeshIndirect::getInstance().statusBuffer() &&
+                    PipelineSkybox::getInstance().isInit()) {
+                        auto materials = MeshIndirect::getInstance().textureViews();
+                        m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(
+                                m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(UpdateTLAS::getInstance().TLAS());
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(
+                                UpdateTLAS::getInstance().TLAS());
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(
+                                UpdateTLAS::getInstance().vertexData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(
+                                UpdateTLAS::getInstance().primitiveData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(
+                                UpdateTLAS::getInstance().vertexLocation()->GetDefaultView(
+                                        BUFFER_VIEW_SHADER_RESOURCE));
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT,
+                                                 ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(
+                                materials.diffuse.data(), 0, materials.diffuse.size(),
+                                SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT,
+                                                 ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(
+                                materials.normal.data(), 0, materials.normal.size(),
+                                SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT,
+                                                 ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(
+                                materials.rm.data(), 0, materials.rm.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_STATUS.c_str())->Set(
+                                MeshIndirect::getInstance().statusBuffer()->GetDefaultView(
+                                        BUFFER_VIEW_SHADER_RESOURCE));
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_MISS, "skybox")->Set(
+                                PipelineSkybox::getInstance().skybox()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_PREFILTER.c_str())->
+                               Set(PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(
+                                       TEXTURE_VIEW_SHADER_RESOURCE));
+                        m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, ShaderNames::MUTABLE_IRRADIANCE.c_str())->
+                               Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(
+                                       TEXTURE_VIEW_SHADER_RESOURCE));
+                }
+        };
+
+        UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index) {
+                m_updateData();
         });
-    Prisma::MeshIndirect::getInstance().addResizeHandler([&](auto vBuffer,auto iBuffer)
-        {
-            m_updateData();
+        MeshIndirect::getInstance().addResizeHandler([&](auto vBuffer, auto iBuffer) {
+                m_updateData();
         });
-    Prisma::PipelineSkybox::getInstance().addUpdate([&]()
-        {
-            m_updateData();
+        PipelineSkybox::getInstance().addUpdate([&]() {
+                m_updateData();
         });
 }
 
 void Prisma::PipelineRayTracing::render() {
-    if (Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size()) {
-        auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+        if (GlobalData::getInstance().currentGlobalScene()->meshes.size()) {
+                auto& contextData = PrismaFunc::getInstance().contextData();
 
-        //mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
-        auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
-        Diligent::MapHelper<RayTracingData> rayTracingData(contextData.m_pImmediateContext, m_raytracingData, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-        rayTracingData->CameraPos = glm::vec4(camera->position(), 1.0);
-        rayTracingData->InvViewProj = Prisma::GlobalData::getInstance().currentProjection();
-        rayTracingData->InvViewProj = glm::inverse(Prisma::GlobalData::getInstance().currentProjection() * camera->matrix());
-        rayTracingData->ClipPlanes = { camera->nearPlane(),camera->farPlane() };
-        rayTracingData->MaxRecursion = m_MaxRecursionDepth;
-        rayTracingData->MaxRecursionReflection = m_maxRecursionReflection;
-        
-        contextData.m_pImmediateContext->SetPipelineState(m_pso);
-        contextData.m_pImmediateContext->CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        
-        TraceRaysAttribs Attribs;
-        Attribs.DimensionX = m_colorBuffer->GetDesc().Width;
-        Attribs.DimensionY = m_colorBuffer->GetDesc().Height;
-        Attribs.pSBT = Prisma::UpdateTLAS::getInstance().SBT();
+                //mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
+                auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
+                MapHelper<RayTracingData> rayTracingData(contextData.m_pImmediateContext, m_raytracingData, MAP_WRITE,
+                                                         MAP_FLAG_DISCARD);
+                rayTracingData->CameraPos = glm::vec4(camera->position(), 1.0);
+                rayTracingData->InvViewProj = GlobalData::getInstance().currentProjection();
+                rayTracingData->InvViewProj = inverse(GlobalData::getInstance().currentProjection() * camera->matrix());
+                rayTracingData->ClipPlanes = {camera->nearPlane(), camera->farPlane()};
+                rayTracingData->MaxRecursion = m_MaxRecursionDepth;
+                rayTracingData->MaxRecursionReflection = m_maxRecursionReflection;
 
-        contextData.m_pImmediateContext->TraceRays(Attribs);
-        m_blitRT->blit();
-    }
+                contextData.m_pImmediateContext->SetPipelineState(m_pso);
+                contextData.m_pImmediateContext->
+                            CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+                TraceRaysAttribs Attribs;
+                Attribs.DimensionX = m_colorBuffer->GetDesc().Width;
+                Attribs.DimensionY = m_colorBuffer->GetDesc().Height;
+                Attribs.pSBT = UpdateTLAS::getInstance().SBT();
+
+                contextData.m_pImmediateContext->TraceRays(Attribs);
+                m_blitRT->blit();
+        }
 }
 
-Diligent::RefCntAutoPtr<Diligent::IPipelineState> Prisma::PipelineRayTracing::pso()
-{
-    return m_pso;
+RefCntAutoPtr<IPipelineState> Prisma::PipelineRayTracing::pso() {
+        return m_pso;
 }
 
-Prisma::PipelineRayTracing::~PipelineRayTracing()
-{
+Prisma::PipelineRayTracing::~PipelineRayTracing() {
 }
 
-Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> Prisma::PipelineRayTracing::srb() 
-{
-    return m_srb;
+RefCntAutoPtr<IShaderResourceBinding> Prisma::PipelineRayTracing::srb() {
+        return m_srb;
 }
 
-Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineRayTracing::colorBuffer()
-{
-    return m_colorBuffer;
+RefCntAutoPtr<ITexture> Prisma::PipelineRayTracing::colorBuffer() {
+        return m_colorBuffer;
 }
 
-void Prisma::PipelineRayTracing::maxRecursion(unsigned int recursion)
-{
-    m_MaxRecursionDepth = recursion;
+void Prisma::PipelineRayTracing::maxRecursion(unsigned int recursion) {
+        m_MaxRecursionDepth = recursion;
 }
 
-Diligent::Uint32 Prisma::PipelineRayTracing::maxRecursion()
-{
-    return m_MaxRecursionDepth;
+Uint32 Prisma::PipelineRayTracing::maxRecursion() {
+        return m_MaxRecursionDepth;
 }
 
-void Prisma::PipelineRayTracing::maxRecursionReflection(unsigned int recursionReflection)
-{
-    m_maxRecursionReflection = recursionReflection;
+void Prisma::PipelineRayTracing::maxRecursionReflection(unsigned int recursionReflection) {
+        m_maxRecursionReflection = recursionReflection;
 }
 
-Diligent::Uint32 Prisma::PipelineRayTracing::maxRecursionReflection()
-{
-    return m_maxRecursionReflection;
+Uint32 Prisma::PipelineRayTracing::maxRecursionReflection() {
+        return m_maxRecursionReflection;
 }
 
-Diligent::Uint32 Prisma::PipelineRayTracing::hardwareMaxReflection()
-{
-    return m_hardwareMaxReflection;
+Uint32 Prisma::PipelineRayTracing::hardwareMaxReflection() {
+        return m_hardwareMaxReflection;
 }
-

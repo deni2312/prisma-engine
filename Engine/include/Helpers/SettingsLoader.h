@@ -5,25 +5,23 @@
 #include "Settings.h"
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma
-{
-	class SettingsLoader : public InstanceData<SettingsLoader>
-	{
-	public:
-		void load(const std::string& filename);
+namespace Prisma {
+class SettingsLoader : public InstanceData<SettingsLoader> {
+public:
+        void load(const std::string& filename);
 
-		// Accessor method to get the loaded settings
-		const Settings& getSettings() const;
+        // Accessor method to get the loaded settings
+        const Settings& getSettings() const;
 
-		void settings(Settings settings);
+        void settings(Settings settings);
 
-		SettingsLoader();
+        SettingsLoader();
 
-	private:
-		// Default settings in case of an error or when the file is not present
-		void setDefaultSettings(const std::string& filename);
+private:
+        // Default settings in case of an error or when the file is not present
+        void setDefaultSettings(const std::string& filename);
 
-		// Member variable to store the loaded settings
-		Settings m_settings;
-	};
+        // Member variable to store the loaded settings
+        Settings m_settings;
+};
 }

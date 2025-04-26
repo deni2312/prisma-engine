@@ -10,43 +10,38 @@
 #include "PipelineSkybox.h"
 #include "../GlobalData/InstanceData.h"
 
-namespace Prisma
-{
-	class PipelinePrefilter : public InstanceData<PipelinePrefilter>
-	{
-	public:
-		void texture(Diligent::RefCntAutoPtr<Diligent::ITexture> texture);
+namespace Prisma {
+class PipelinePrefilter : public InstanceData<PipelinePrefilter> {
+public:
+        void texture(Diligent::RefCntAutoPtr<Diligent::ITexture> texture);
 
-		Diligent::RefCntAutoPtr<Diligent::ITexture> prefilterTexture();
+        Diligent::RefCntAutoPtr<Diligent::ITexture> prefilterTexture();
 
-		PipelinePrefilter();
+        PipelinePrefilter();
 
-	private:
+private:
+        struct RoughnessResolution {
+                float roughness;
+                int resolution;
+                glm::vec2 padding;
+        };
 
+        Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iblData;
+        Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iblResolution;
+        Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTColor[6];
 
-		struct RoughnessResolution
-		{
-			float roughness;
-			int resolution;
-			glm::vec2 padding;
-		};
+        void calculateSkybox();
 
-		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iblData;
-		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iblResolution;
-		Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTColor[6];
+        Texture m_texture;
 
-		void calculateSkybox();
+        Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
-		Texture m_texture;
+        Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
-		Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+        Diligent::RefCntAutoPtr<Diligent::ITexture> m_pMSColorRTV;
 
-		Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+        const glm::vec2 m_dimensions = glm::vec2(128, 128);
 
-		Diligent::RefCntAutoPtr<Diligent::ITexture> m_pMSColorRTV;
-
-		const glm::vec2 m_dimensions = glm::vec2(128, 128);
-
-		const Prisma::PipelineSkybox::IBLData m_iblTransform;
-	};
+        const PipelineSkybox::IBLData m_iblTransform;
+};
 }

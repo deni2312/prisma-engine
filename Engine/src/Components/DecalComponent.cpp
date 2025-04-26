@@ -1,10 +1,9 @@
 #include "Components/DecalComponent.h"
 
 Prisma::DecalComponent::DecalComponent() {
-	name("Decal");
+        name("Decal");
 }
 
-void Prisma::DecalComponent::start()
-{
-	Component::start();
+void Prisma::DecalComponent::start() {
+        Component::start();
 }

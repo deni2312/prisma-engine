@@ -5,26 +5,25 @@
 #include "GlobalData/GlobalData.h"
 
 
-namespace Prisma
-{
-	class NodeCreator
-	{
-	public:
-		static std::shared_ptr<Prisma::Node> createCube();
+namespace Prisma {
+class NodeCreator {
+public:
+        static std::shared_ptr<Node> createCube();
 
-		static std::shared_ptr<Prisma::Node> createSphere(int subDivisions);
+        static std::shared_ptr<Node> createSphere(int subDivisions);
 
-		static std::shared_ptr<Prisma::Node> createOmnidirectional();
+        static std::shared_ptr<Node> createOmnidirectional();
 
-		static std::shared_ptr<Prisma::Node> createDirectional();
+        static std::shared_ptr<Node> createDirectional();
 
-		static std::shared_ptr<Prisma::Node> createArea();
+        static std::shared_ptr<Node> createArea();
 
-		static std::shared_ptr<Prisma::Node> createNode();
-	private:
-		static std::shared_ptr<Prisma::Node> createMesh(std::shared_ptr<Prisma::Mesh::VerticesData> verticesData,
-		                                        const std::string& name);
+        static std::shared_ptr<Node> createNode();
 
-		static std::shared_ptr<MaterialComponent> getEmptyMaterial();
-	};
+private:
+        static std::shared_ptr<Node> createMesh(std::shared_ptr<Mesh::VerticesData> verticesData,
+                                                const std::string& name);
+
+        static std::shared_ptr<MaterialComponent> getEmptyMaterial();
+};
 }

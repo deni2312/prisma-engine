@@ -7,21 +7,18 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "../GlobalData/GlobalData.h"
 
-namespace Prisma
-{
-	class CullingComponent : public Component
-	{
-	public:
-		CullingComponent();
+namespace Prisma {
+class CullingComponent : public Component {
+public:
+        CullingComponent();
 
-		void ui() override;
+        void ui() override;
 
-		void update() override;
+        void update() override;
 
-		void start() override;
+        void start() override;
 
-	private:
-		//std::shared_ptr<Shader> m_shader;
-		//std::shared_ptr<SSBO> m_ssbo;
-	};
+        //std::shared_ptr<Shader> m_shader;
+        //std::shared_ptr<SSBO> m_ssbo;
+};
 }

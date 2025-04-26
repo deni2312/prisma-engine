@@ -1,11 +1,9 @@
 #pragma once
 #include "RegisterComponent.h"
 
-namespace Prisma
-{
-	class RegisterData
-	{
-	public:
-		void init();
-	};
+namespace Prisma {
+class RegisterData {
+public:
+        void init();
+};
 }

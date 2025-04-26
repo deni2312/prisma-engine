@@ -3,11 +3,9 @@
 #include <iostream>
 #include "../SceneObjects/Node.h"
 
-namespace Prisma
-{
-	class ScenePrinter
-	{
-	public:
-		void printScene(std::shared_ptr<Node> nodeRoot, int depth);
-	};
+namespace Prisma {
+class ScenePrinter {
+public:
+        void printScene(std::shared_ptr<Node> nodeRoot, int depth);
+};
 }

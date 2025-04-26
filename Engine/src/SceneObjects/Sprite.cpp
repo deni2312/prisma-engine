@@ -8,47 +8,45 @@
 #include "Handlers/MeshHandler.h"
 #include "Pipelines/PipelineHandler.h"
 
-struct PrivateSprite
-{
-    bool createShader = false;
-    Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
-    Diligent::RefCntAutoPtr<Diligent::IShader> pPS;
+struct PrivateSprite {
+        bool createShader = false;
+        Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
+        Diligent::RefCntAutoPtr<Diligent::IShader> pPS;
 };
 
 static PrivateSprite privateSprite;
 
-Prisma::Sprite::Sprite()
-{
-	//m_spriteShader = std::make_shared<Shader>("../../../Engine/Shaders/SpritePipeline/vertex.glsl",
-	//                                          "../../../Engine/Shaders/SpritePipeline/fragment.glsl", nullptr);
-	//m_spriteShader->use();
-	//m_spritePos = m_spriteShader->getUniformPosition("sprite");
-	//m_modelPos = m_spriteShader->getUniformPosition("model");
-	//m_sizePos = m_spriteShader->getUniformPosition("billboardSize");
-	//m_ssbo = std::make_shared<SSBO>(12);
-	//m_ssboTextures = std::make_shared<SSBO>(13);
-	//m_ssboIds = std::make_shared<SSBO>(14);
+Prisma::Sprite::Sprite() {
+        //m_spriteShader = std::make_shared<Shader>("../../../Engine/Shaders/SpritePipeline/vertex.glsl",
+        //                                          "../../../Engine/Shaders/SpritePipeline/fragment.glsl", nullptr);
+        //m_spriteShader->use();
+        //m_spritePos = m_spriteShader->getUniformPosition("sprite");
+        //m_modelPos = m_spriteShader->getUniformPosition("model");
+        //m_sizePos = m_spriteShader->getUniformPosition("billboardSize");
+        //m_ssbo = std::make_shared<SSBO>(12);
+        //m_ssboTextures = std::make_shared<SSBO>(13);
+        //m_ssboIds = std::make_shared<SSBO>(14);
 
-    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+        auto& contextData = PrismaFunc::getInstance().contextData();
 
-    // Pipeline state object encompasses configuration of all GPU stages
+        // Pipeline state object encompasses configuration of all GPU stages
 
-    Diligent::GraphicsPipelineStateCreateInfo PSOCreateInfo;
+        Diligent::GraphicsPipelineStateCreateInfo PSOCreateInfo;
 
-    // Pipeline state name is used by the engine to report issues.
-    // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Sprite Pipeline";
+        // Pipeline state name is used by the engine to report issues.
+        // It is always a good idea to give objects descriptive names.
+        PSOCreateInfo.PSODesc.Name = "Sprite Pipeline";
 
-    // This is a graphics pipeline
-    PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
+        // This is a graphics pipeline
+        PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
 
     // clang-format off
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Prisma::PrismaFunc::getInstance().renderFormat().RenderFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PrismaFunc::getInstance().renderFormat().RenderFormat;
     // Set depth buffer format which is the format of the swap chain's back buffer
-    PSOCreateInfo.GraphicsPipeline.DSVFormat = Prisma::PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
@@ -73,40 +71,41 @@ Prisma::Sprite::Sprite()
     DepthStencilDesc.DepthEnable = Diligent::True;
     DepthStencilDesc.DepthWriteEnable = Diligent::False;
     DepthStencilDesc.DepthFunc = Diligent::COMPARISON_FUNC_LESS;
-    // clang-format on
-    if (!privateSprite.createShader) {
-        Diligent::ShaderCreateInfo ShaderCI;
-        // Tell the system that the shader source code is in HLSL.
-        // For OpenGL, the engine will convert this into GLSL under the hood.
-        ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
-        ShaderCI.CompileFlags |= Diligent::SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
+        // clang-format on
+        if (!privateSprite.createShader) {
+                Diligent::ShaderCreateInfo ShaderCI;
+                // Tell the system that the shader source code is in HLSL.
+                // For OpenGL, the engine will convert this into GLSL under the hood.
+                ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
+                ShaderCI.CompileFlags |= Diligent::SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
 
-        // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
-        ShaderCI.Desc.UseCombinedTextureSamplers = true;
-        // In this tutorial, we will load shaders from file. To be able to do that,
-        // we need to create a shader source stream factory
-        Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        Prisma::PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
-        ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
-        // Create a vertex shader
-        {
-            ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
-            ShaderCI.EntryPoint = "main";
-            ShaderCI.Desc.Name = "Sprite VS";
-            ShaderCI.FilePath = "../../../Engine/Shaders/SpritePipeline/vertex.glsl";
-            contextData.m_pDevice->CreateShader(ShaderCI, &privateSprite.pVS);
-        }
+                // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
+                ShaderCI.Desc.UseCombinedTextureSamplers = true;
+                // In this tutorial, we will load shaders from file. To be able to do that,
+                // we need to create a shader source stream factory
+                Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
+                PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(
+                        nullptr, &pShaderSourceFactory);
+                ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
+                // Create a vertex shader
+                {
+                        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
+                        ShaderCI.EntryPoint = "main";
+                        ShaderCI.Desc.Name = "Sprite VS";
+                        ShaderCI.FilePath = "../../../Engine/Shaders/SpritePipeline/vertex.glsl";
+                        contextData.m_pDevice->CreateShader(ShaderCI, &privateSprite.pVS);
+                }
 
-        // Create a pixel shader
-        {
-            ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
-            ShaderCI.EntryPoint = "main";
-            ShaderCI.Desc.Name = "Sprite PS";
-            ShaderCI.FilePath = "../../../Engine/Shaders/SpritePipeline/fragment.glsl";
-            contextData.m_pDevice->CreateShader(ShaderCI, &privateSprite.pPS);
+                // Create a pixel shader
+                {
+                        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
+                        ShaderCI.EntryPoint = "main";
+                        ShaderCI.Desc.Name = "Sprite PS";
+                        ShaderCI.FilePath = "../../../Engine/Shaders/SpritePipeline/fragment.glsl";
+                        contextData.m_pDevice->CreateShader(ShaderCI, &privateSprite.pPS);
+                }
+                privateSprite.createShader = true;
         }
-        privateSprite.createShader = true;
-    }
     // clang-format off
     // Define vertex shader input layout
     Diligent::LayoutElement LayoutElems[] =
@@ -116,39 +115,44 @@ Prisma::Sprite::Sprite()
         // Attribute 1 - texture coordinates
         Diligent::LayoutElement{1, 0, 2, Diligent::VT_FLOAT32, Diligent::False}
     };
-    // clang-format on
-    PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
-    PSOCreateInfo.GraphicsPipeline.InputLayout.NumElements = _countof(LayoutElems);
+        // clang-format on
+        PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
+        PSOCreateInfo.GraphicsPipeline.InputLayout.NumElements = _countof(LayoutElems);
 
-    PSOCreateInfo.pVS = privateSprite.pVS;
-    PSOCreateInfo.pPS = privateSprite.pPS;
+        PSOCreateInfo.pVS = privateSprite.pVS;
+        PSOCreateInfo.pPS = privateSprite.pPS;
 
-    Diligent::BufferDesc CBDesc;
-    CBDesc.Name = "Sprite Models";
-    CBDesc.Size = sizeof(ModelSizes);
-    CBDesc.Usage = Diligent::USAGE_DYNAMIC;
-    CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
-    CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
-    contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_modelSizes);
+        Diligent::BufferDesc CBDesc;
+        CBDesc.Name = "Sprite Models";
+        CBDesc.Size = sizeof(ModelSizes);
+        CBDesc.Usage = Diligent::USAGE_DYNAMIC;
+        CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+        CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_modelSizes);
 
-    // Define variable type that will be used by default
-    PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+        // Define variable type that will be used by default
+        PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
+        Diligent::PipelineResourceDesc Resources[] =
+        {
+                {Diligent::SHADER_TYPE_VERTEX, "SpritesData", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                 Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {Diligent::SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1,
+                 Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {Diligent::SHADER_TYPE_VERTEX, "ModelSizes", 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,
+                 Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                {Diligent::SHADER_TYPE_PIXEL, "SpriteIds", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                 Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                {Diligent::SHADER_TYPE_PIXEL, "spriteTextures", Define::MAX_SPRITES,
+                 Diligent::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE,
+                 Diligent::PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+                {Diligent::SHADER_TYPE_PIXEL, "textureClamp_sampler", 1, Diligent::SHADER_RESOURCE_TYPE_SAMPLER,
+                 Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        };
 
-	Diligent::PipelineResourceDesc Resources[] =
-    {
-        {Diligent::SHADER_TYPE_VERTEX, "SpritesData", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {Diligent::SHADER_TYPE_VERTEX, "ModelSizes", 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {Diligent::SHADER_TYPE_PIXEL, "SpriteIds", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {Diligent::SHADER_TYPE_PIXEL,"spriteTextures",Define::MAX_SPRITES, Diligent::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, Diligent::PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
-        {Diligent::SHADER_TYPE_PIXEL,"textureClamp_sampler",1, Diligent::SHADER_RESOURCE_TYPE_SAMPLER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-    };
-
-	Diligent::PipelineResourceSignatureDesc ResourceSignDesc;
-    ResourceSignDesc.NumResources = _countof(Resources);
-    ResourceSignDesc.Resources = Resources;
-
+        Diligent::PipelineResourceSignatureDesc ResourceSignDesc;
+        ResourceSignDesc.NumResources = _countof(Resources);
+        ResourceSignDesc.Resources = Resources;
 
     // clang-format off
     // Define immutable sampler for g_Texture. Immutable samplers should be used whenever possible
@@ -171,7 +175,7 @@ Prisma::Sprite::Sprite()
     contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &samplerClamp);
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "textureClamp_sampler")->Set(samplerClamp);
 
-    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
+    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "ModelSizes")->Set(m_modelSizes);
 
     m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
@@ -244,7 +248,7 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     m_models.Release();
     m_spriteIds.Release();
 
-    auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+    auto& contextData = PrismaFunc::getInstance().contextData();
 
     Diligent::BufferDesc ModelDesc;
     ModelDesc.Name = "Sprite Models Buffer";
@@ -304,19 +308,19 @@ void Prisma::Sprite::render()
 
 		//// Deactivate blending and restore OpenGL state
 		//glDisable(GL_BLEND);
-        auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
+        auto& contextData = PrismaFunc::getInstance().contextData();
         // Set the pipeline state
         contextData.m_pImmediateContext->SetPipelineState(m_pso);
 
-        auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
+        auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
         Diligent::MapHelper<ModelSizes> modelSizes(contextData.m_pImmediateContext, m_modelSizes, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
         modelSizes->model = finalMatrix();
         modelSizes->size = m_size;
 
-        auto quadBuffer = Prisma::PrismaRender::getInstance().quadBuffer();
+        auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
         // Bind vertex and index buffers
-        const Diligent::Uint64 offset = 0;
+                constexpr Diligent::Uint64 offset = 0;
         Diligent::IBuffer* pBuffs[] = { quadBuffer.vBuffer };
         contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
         contextData.m_pImmediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

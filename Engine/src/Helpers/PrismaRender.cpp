@@ -5,8 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-Prisma::PrismaRender::PrismaRender()
-{
+Prisma::PrismaRender::PrismaRender() {
 }
 
 /*void Prisma::PrismaRender::renderCube()
@@ -136,135 +135,134 @@ Prisma::PrismaRender::PrismaRender()
 }*/
 
 
-Prisma::PrismaRender::BufferData Prisma::PrismaRender::quadBuffer()
-{
-	if (!m_initQuad)
-	{
-		// Define fullscreen quad vertices directly
-		std::vector<VData> vertices = {
-			{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}, // Bottom-left
-			{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},  // Bottom-right
-			{{-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f}}, // Top-left
-			{{1.0f,  1.0f, 0.0f}, {1.0f, 0.0f}}   // Top-right
-		};
+Prisma::PrismaRender::BufferData Prisma::PrismaRender::quadBuffer() {
+        if (!m_initQuad) {
+                // Define fullscreen quad vertices directly
+                std::vector<VData> vertices = {
+                        {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}, // Bottom-left
+                        {{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}}, // Bottom-right
+                        {{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}}, // Top-left
+                        {{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}} // Top-right
+                };
 
-		std::vector<unsigned int> indices = { 0, 1, 2, 2, 1, 3 };
-		// Create vertex buffer
-		Diligent::BufferDesc VertBuffDesc;
-		VertBuffDesc.Name = "Vertices Data";
-		VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-		VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
-		VertBuffDesc.Size = sizeof(VData) * vertices.size();
+                std::vector<unsigned int> indices = {0, 1, 2, 2, 1, 3};
+                // Create vertex buffer
+                Diligent::BufferDesc VertBuffDesc;
+                VertBuffDesc.Name = "Vertices Data";
+                VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+                VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
+                VertBuffDesc.Size = sizeof(VData) * vertices.size();
 
-		Diligent::BufferData VBData;
-		VBData.pData = vertices.data();
-		VBData.DataSize = VertBuffDesc.Size;
+                Diligent::BufferData VBData;
+                VBData.pData = vertices.data();
+                VBData.DataSize = VertBuffDesc.Size;
 
-		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_quadBufferData.vBuffer);
+                PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(
+                        VertBuffDesc, &VBData, &m_quadBufferData.vBuffer);
 
-		// Create index buffer
-		Diligent::BufferDesc IndBuffDesc;
-		IndBuffDesc.Name = "Index Data";
-		IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-		IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
-		IndBuffDesc.Size = sizeof(unsigned int) * indices.size();
+                // Create index buffer
+                Diligent::BufferDesc IndBuffDesc;
+                IndBuffDesc.Name = "Index Data";
+                IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+                IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
+                IndBuffDesc.Size = sizeof(unsigned int) * indices.size();
 
-		Diligent::BufferData IBData;
-		IBData.pData = indices.data();
-		IBData.DataSize = IndBuffDesc.Size;
-		m_quadBufferData.iBufferSize = indices.size();
-		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_quadBufferData.iBuffer);
-		m_initQuad = true;
-	}
-	return m_quadBufferData;
+                Diligent::BufferData IBData;
+                IBData.pData = indices.data();
+                IBData.DataSize = IndBuffDesc.Size;
+                m_quadBufferData.iBufferSize = indices.size();
+                PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(
+                        IndBuffDesc, &IBData, &m_quadBufferData.iBuffer);
+                m_initQuad = true;
+        }
+        return m_quadBufferData;
 }
 
-Prisma::PrismaRender::BufferData Prisma::PrismaRender::cubeBuffer()
-{
-	if (!m_initCube)
-	{
-		std::vector<VData> vertices = {
-			// Back face
-			{{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f}},
-			{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f}},
-			{{ 1.0f, -1.0f, -1.0f}, {1.0f, 0.0f}},
-			{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f}},
-			{{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f}},
-			{{-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f}},
+Prisma::PrismaRender::BufferData Prisma::PrismaRender::cubeBuffer() {
+        if (!m_initCube) {
+                std::vector<VData> vertices = {
+                        // Back face
+                        {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f}},
+                        {{1.0f, 1.0f, -1.0f}, {1.0f, 1.0f}},
+                        {{1.0f, -1.0f, -1.0f}, {1.0f, 0.0f}},
+                        {{1.0f, 1.0f, -1.0f}, {1.0f, 1.0f}},
+                        {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f}},
+                        {{-1.0f, 1.0f, -1.0f}, {0.0f, 1.0f}},
 
-			// Front face
-			{{-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f}},
-			{{ 1.0f, -1.0f,  1.0f}, {1.0f, 0.0f}},
-			{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f}},
-			{{ 1.0f,  1.0f,  1.0f}, {1.0f, 1.0f}},
-			{{-1.0f,  1.0f,  1.0f}, {0.0f, 1.0f}},
-			{{-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f}},
+                        // Front face
+                        {{-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f}},
+                        {{1.0f, -1.0f, 1.0f}, {1.0f, 0.0f}},
+                        {{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+                        {{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+                        {{-1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+                        {{-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f}},
 
-			// Left face
-			{{-1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}},
-			{{-1.0f,  1.0f, -1.0f}, {1.0f, 1.0f}},
-			{{-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
-			{{-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
-			{{-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f}},
-			{{-1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}},
+                        // Left face
+                        {{-1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+                        {{-1.0f, 1.0f, -1.0f}, {1.0f, 1.0f}},
+                        {{-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
+                        {{-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
+                        {{-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f}},
+                        {{-1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
 
-			// Right face
-			{{ 1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}},
-			{{ 1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
-			{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f}},
-			{{ 1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
-			{{ 1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}},
-			{{ 1.0f, -1.0f,  1.0f}, {0.0f, 0.0f}},
+                        // Right face
+                        {{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+                        {{1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
+                        {{1.0f, 1.0f, -1.0f}, {1.0f, 1.0f}},
+                        {{1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
+                        {{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+                        {{1.0f, -1.0f, 1.0f}, {0.0f, 0.0f}},
 
-			// Bottom face
-			{{-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
-			{{ 1.0f, -1.0f, -1.0f}, {1.0f, 1.0f}},
-			{{ 1.0f, -1.0f,  1.0f}, {1.0f, 0.0f}},
-			{{ 1.0f, -1.0f,  1.0f}, {1.0f, 0.0f}},
-			{{-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f}},
-			{{-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
+                        // Bottom face
+                        {{-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
+                        {{1.0f, -1.0f, -1.0f}, {1.0f, 1.0f}},
+                        {{1.0f, -1.0f, 1.0f}, {1.0f, 0.0f}},
+                        {{1.0f, -1.0f, 1.0f}, {1.0f, 0.0f}},
+                        {{-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f}},
+                        {{-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f}},
 
-			// Top face
-			{{-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f}},
-			{{ 1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}},
-			{{ 1.0f,  1.0f, -1.0f}, {1.0f, 1.0f}},
-			{{ 1.0f,  1.0f,  1.0f}, {1.0f, 0.0f}},
-			{{-1.0f,  1.0f, -1.0f}, {0.0f, 1.0f}},
-			{{-1.0f,  1.0f,  1.0f}, {0.0f, 0.0f}},
-		};
+                        // Top face
+                        {{-1.0f, 1.0f, -1.0f}, {0.0f, 1.0f}},
+                        {{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+                        {{1.0f, 1.0f, -1.0f}, {1.0f, 1.0f}},
+                        {{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+                        {{-1.0f, 1.0f, -1.0f}, {0.0f, 1.0f}},
+                        {{-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+                };
 
-		std::vector<unsigned int> indices;
-		for (unsigned int i = 0; i < vertices.size(); ++i) {
-			indices.push_back(i);
-		}
+                std::vector<unsigned int> indices;
+                for (unsigned int i = 0; i < vertices.size(); ++i) {
+                        indices.push_back(i);
+                }
 
+                // Create vertex buffer
+                Diligent::BufferDesc VertBuffDesc;
+                VertBuffDesc.Name = "Vertices Data";
+                VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+                VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
+                VertBuffDesc.Size = sizeof(VData) * vertices.size();
 
-		// Create vertex buffer
-		Diligent::BufferDesc VertBuffDesc;
-		VertBuffDesc.Name = "Vertices Data";
-		VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-		VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
-		VertBuffDesc.Size = sizeof(VData) * vertices.size();
+                Diligent::BufferData VBData;
+                VBData.pData = vertices.data();
+                VBData.DataSize = VertBuffDesc.Size;
 
-		Diligent::BufferData VBData;
-		VBData.pData = vertices.data();
-		VBData.DataSize = VertBuffDesc.Size;
+                PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(
+                        VertBuffDesc, &VBData, &m_cubeBufferData.vBuffer);
 
-		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_cubeBufferData.vBuffer);
+                // Create index buffer
+                Diligent::BufferDesc IndBuffDesc;
+                IndBuffDesc.Name = "Index Data";
+                IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+                IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
+                IndBuffDesc.Size = sizeof(unsigned int) * indices.size();
 
-		// Create index buffer
-		Diligent::BufferDesc IndBuffDesc;
-		IndBuffDesc.Name = "Index Data";
-		IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
-		IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
-		IndBuffDesc.Size = sizeof(unsigned int) * indices.size();
-
-		Diligent::BufferData IBData;
-		IBData.pData = indices.data();
-		IBData.DataSize = IndBuffDesc.Size;
-		m_cubeBufferData.iBufferSize = indices.size();
-		Prisma::PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_cubeBufferData.iBuffer);
-		m_initCube = true;
-	}
-	return m_cubeBufferData;
+                Diligent::BufferData IBData;
+                IBData.pData = indices.data();
+                IBData.DataSize = IndBuffDesc.Size;
+                m_cubeBufferData.iBufferSize = indices.size();
+                PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(
+                        IndBuffDesc, &IBData, &m_cubeBufferData.iBuffer);
+                m_initCube = true;
+        }
+        return m_cubeBufferData;
 }
