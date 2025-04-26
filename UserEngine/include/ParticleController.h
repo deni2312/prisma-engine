@@ -10,7 +10,7 @@ namespace Diligent
 class ParticleController
 {
 public:
-	void init(std::shared_ptr<Prisma::Node> root);
+	void init(std::shared_ptr<Prisma::Node> root,int numParticles=1000);
 
 	void update();
 
@@ -19,7 +19,8 @@ private:
 	{
 		float delta;
 		float time;
-		glm::vec2 padding;
+		int numParticles;
+		float padding;
 	};
 	bool m_start = false;
 	float currentTime = 0;
@@ -28,4 +29,8 @@ private:
 	Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 	Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 	Diligent::RefCntAutoPtr<Diligent::IBuffer> m_time;
+
+	int m_numParticles;
+
+	void createPointLights(std::shared_ptr<Prisma::Node> root);
 };

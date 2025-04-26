@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include "Shader.h"
 #include "../GlobalData/Defines.h"
 #include "Common/interface/RefCntAutoPtr.hpp"
 

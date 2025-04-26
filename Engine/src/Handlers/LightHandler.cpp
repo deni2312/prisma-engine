@@ -30,7 +30,7 @@ Prisma::LightHandler::LightHandler()
 	Diligent::BufferDesc OmniDesc;
 	OmniDesc.Name = "Omni Light Buffer";
 	OmniDesc.Usage = Diligent::USAGE_DEFAULT;
-	OmniDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+	OmniDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
 	OmniDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
 	OmniDesc.ElementByteStride = sizeof(LightType::LightOmni);
 	OmniDesc.Size = Define::MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);

@@ -239,7 +239,7 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child)
 	}
 
 	if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(child) &&
-		child->addGlobalList() && Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.size() + 1 < Define::MAX_DIR_LIGHTS)
+		child->addGlobalList() && Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights.size() + 1 < Define::MAX_OMNI_LIGHTS)
 	{
 		if (nodeHelper.findUUID<Light<LightType::LightOmni>>(
 			Prisma::GlobalData::getInstance().currentGlobalScene()->omniLights, child->uuid()) < 0)

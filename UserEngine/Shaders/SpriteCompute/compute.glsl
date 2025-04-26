@@ -6,10 +6,11 @@ buffer SpritesData
     mat4 modelSprite[]; 
 };
 
-uniform TimeData{
-    float deltaTime;       // Time elapsed between frames
-    float time;            // Total time elapsed
-    vec2 padding;
+uniform TimeData {
+    float deltaTime;
+    float time;
+    int numParticles;
+    float padding;
 };
 
 buffer SpriteIds
@@ -17,7 +18,24 @@ buffer SpriteIds
     ivec4 spriteId[];
 };
 
-// A simple hash function to generate pseudo-random values
+struct OmniData
+{
+    vec4 position;
+    vec4 diffuse;
+    vec4 specular;
+    vec4 far_plane;
+    vec4 attenuation;
+    int shadowIndex;
+    float padding;
+    float hasShadow;
+    float radius;
+};
+
+buffer omniData {
+    OmniData omniData_data[];
+};
+
+// Hash and random functions (keep yours)
 uint hash(uint x) {
     x += (x << 10u);
     x ^= (x >> 6u);
@@ -27,54 +45,70 @@ uint hash(uint x) {
     return x;
 }
 
-// Convert a hashed integer to a float in the range [0.0, 1.0]
 float random(uint seed) {
-    return float(hash(seed)) / 4294967295.0; // 2^32 - 1
+    return float(hash(seed)) / 4294967295.0;
 }
+
+// Simple 2D Perlin-like noise based on hashing
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+
+    // Four corners
+    float a = random(uint(i.x + i.y * 57.0));
+    float b = random(uint(i.x + 1.0 + i.y * 57.0));
+    float c = random(uint(i.x + (i.y + 1.0) * 57.0));
+    float d = random(uint(i.x + 1.0 + (i.y + 1.0) * 57.0));
+
+    // Smooth interpolation
+    vec2 u = f * f * (3.0 - 2.0 * f);
+
+    // Mix the results
+    return mix(a, b, u.x) +
+           (c - a)* u.y * (1.0 - u.x) +
+           (d - b) * u.x * u.y;
+}
+
 
 void main()
 {
-    // Get the current sprite index
     uint idx = gl_GlobalInvocationID.x;
 
-    // Ensure we don't exceed the bounds of the buffer
-    if (idx < modelSprite.length()) {
-        // Get the original model matrix for this sprite
-        mat4 model = modelSprite[idx];
+    mat4 model = modelSprite[idx];
 
-        // Calculate the position of the sprite in a circular pattern
-        float rotationSpeed = 1.0;        // Speed of rotation around the Y-axis
-        float angle = mod(time * rotationSpeed + idx * 0.1, 6.28318530718); // Angle, wrapped at 360 degrees (2 * PI)
-        float radius = 0.5;   // Radius from the center, increases with sprite index
-        float height = mod(time * 0.5 + idx * 0.05, 10.0); // Height over time, loops every 10 units
+    // --- Parametrizable layout ---
+    float gridSize = ceil(sqrt(float(numParticles))); // how many particles per row/col
+    float halfGrid = gridSize * 0.5;                    // to center around (0,0)
 
-        // Calculate the new position in the XZ plane
-        float x = radius * cos(angle);
-        float z = radius * sin(angle);
+    // Base grid position
+    float baseX = (float(idx % uint(gridSize)) - halfGrid);
+    float baseZ = (float(idx / uint(gridSize)) - halfGrid);
+    float baseY = 0.0;
 
-        // Set the new translation
-        vec3 position = vec3(x, height, z);
+    vec2 noisePos = vec2(baseX * 0.1, baseZ * 0.1) + time * 0.05;
 
-        // Create rotation matrix around the Y-axis (up-axis)
-        mat4 rotationMatrix = mat4(1.0);
-        rotationMatrix[0][0] = cos(angle);
-        rotationMatrix[0][2] = -sin(angle);
-        rotationMatrix[2][0] = sin(angle);
-        rotationMatrix[2][2] = cos(angle);
+    // Calculate noise-influenced displacement
+    float offsetX = noise(noisePos * 1.5) * 5.0;
+    float offsetY = noise(noisePos * 2.0 + vec2(0.0, time * 0.2)) * 3.0;
+    float offsetZ = noise(noisePos * 1.8 + vec2(time * 0.3, 0.0)) * 5.0;
 
-        // Create the translation matrix
-        mat4 translationMatrix = mat4(1.0);
-        translationMatrix[3] = vec4(position, 1.0);
+    vec3 finalPos = vec3(baseX + offsetX, baseY + offsetY, baseZ + offsetZ);
 
-        // Combine the translation and rotation
-        model = translationMatrix * rotationMatrix;
+    // Create the translation matrix
+    mat4 translationMatrix = mat4(1.0);
+    translationMatrix[3] = vec4(finalPos, 1.0);
 
-        // Update the model matrix for this sprite
-        modelSprite[idx] = model;
-        int idSprite = 0;
-        if (idx > 500) {
-            idSprite = 1;
-        }
-        spriteId[idx].r = idSprite;
+    // Optionally, you could add small random rotations here if you want more dynamic particles
+    mat4 rotationMatrix = mat4(1.0); // No rotation for now
+
+    model = translationMatrix * rotationMatrix;
+
+    modelSprite[idx] = model;
+    omniData_data[idx].position = model[3];
+
+    int idSprite = 0;
+    if (idx > 500) {
+        idSprite = 1;
     }
+    spriteId[idx].r = idSprite;
 }

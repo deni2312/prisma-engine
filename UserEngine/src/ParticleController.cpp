@@ -4,11 +4,15 @@
 #include "SceneObjects/Sprite.h"
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
+#include "GlobalData/GlobalShaderNames.h"
 #include "GlobalData/PrismaFunc.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
+#include "Handlers/LightHandler.h"
 
-void ParticleController::init(std::shared_ptr<Prisma::Node> root)
+void ParticleController::init(std::shared_ptr<Prisma::Node> root,int numParticles)
 {
+	m_numParticles = numParticles;
+	createPointLights(root);
 	auto& contextData = Prisma::PrismaFunc::getInstance().contextData();
 
 	auto spriteFire = std::make_shared<Prisma::Texture>();
@@ -20,7 +24,7 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 	auto sprite = std::make_shared<Prisma::Sprite>();
 
 	sprite->loadSprites({spriteFire, spriteBurst});
-	sprite->numSprites(1000);
+	sprite->numSprites(m_numParticles);
 	sprite->size(glm::vec2(0.1f, 0.1f));
 	sprite->name("Sprite");
 	/*m_compute = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/SpriteCompute/compute.glsl");
@@ -71,7 +75,8 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 	{
 		{Diligent::SHADER_TYPE_COMPUTE, "SpritesData", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
 		{ Diligent::SHADER_TYPE_COMPUTE, "SpriteIds", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-		{Diligent::SHADER_TYPE_COMPUTE, "TimeData", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}
+		{Diligent::SHADER_TYPE_COMPUTE, "TimeData", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+		{ Diligent::SHADER_TYPE_COMPUTE, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}
 	};
 	// clang-format on
 	PSODesc.ResourceLayout.Variables = Vars;
@@ -84,6 +89,8 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root)
 
 
 	m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "TimeData")->Set(m_time);
+	m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str())->Set(Prisma::LightHandler::getInstance().omniLights()->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+
 	m_pso->CreateShaderResourceBinding(&m_srb, true);
 
 	m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SpritesData")->Set(sprite->models()->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
@@ -104,12 +111,30 @@ void ParticleController::update()
 	Diligent::MapHelper<TimeData> timeData(contextData.m_pImmediateContext, m_time, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
 	timeData->delta = 1.0f / Prisma::Engine::getInstance().fps();
 	timeData->time = static_cast<float>(duration) / 1000.0f;
+	timeData->numParticles = m_numParticles;
 
 	Diligent::DispatchComputeAttribs DispatAttribs;
-	DispatAttribs.ThreadGroupCountX = 1000;
+	DispatAttribs.ThreadGroupCountX = m_numParticles;
 	DispatAttribs.ThreadGroupCountY = 1;
 	DispatAttribs.ThreadGroupCountZ = 1;
 	contextData.m_pImmediateContext->SetPipelineState(m_pso);
 	contextData.m_pImmediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 	contextData.m_pImmediateContext->DispatchCompute(DispatAttribs);
+}
+
+void ParticleController::createPointLights(std::shared_ptr<Prisma::Node> root)
+{
+	for (int x = 0; x < m_numParticles; ++x) {
+		auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
+		Prisma::LightType::LightOmni lightType;
+		lightType.diffuse = lightType.diffuse * glm::vec4(8);
+		lightType.radius = 2;
+		light->type(lightType);
+		light->name("PointLight_" + std::to_string(x));
+		auto lightParent = std::make_shared<Prisma::Node>();
+		lightParent->name("PointParent_" + std::to_string(x));
+		lightParent->matrix(glm::mat4(1));
+		lightParent->addChild(light);
+		root->addChild(lightParent);
+	}
 }
