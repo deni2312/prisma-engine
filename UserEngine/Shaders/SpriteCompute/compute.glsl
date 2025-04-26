@@ -35,7 +35,9 @@ buffer omniData {
     OmniData omniData_data[];
 };
 
-// Hash and random functions (keep yours)
+// --------------------------------
+// Hash / Random / Noise Utilities
+// --------------------------------
 uint hash(uint x) {
     x += (x << 10u);
     x ^= (x >> 6u);
@@ -49,57 +51,114 @@ float random(uint seed) {
     return float(hash(seed)) / 4294967295.0;
 }
 
-// Simple 2D Perlin-like noise based on hashing
 float noise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
-
-    // Four corners
     float a = random(uint(i.x + i.y * 57.0));
     float b = random(uint(i.x + 1.0 + i.y * 57.0));
     float c = random(uint(i.x + (i.y + 1.0) * 57.0));
     float d = random(uint(i.x + 1.0 + (i.y + 1.0) * 57.0));
-
-    // Smooth interpolation
     vec2 u = f * f * (3.0 - 2.0 * f);
-
-    // Mix the results
     return mix(a, b, u.x) +
-           (c - a)* u.y * (1.0 - u.x) +
+           (c - a) * u.y * (1.0 - u.x) +
            (d - b) * u.x * u.y;
 }
 
+// --------------------------------
+// Fancy Particle Effects
+// --------------------------------
 
+// Effect 1: Wavy Perlin Noise
+vec3 effect_wavy_noise(vec2 base, float time)
+{
+    vec2 noisePos = base * 0.1 + time * 0.05;
+    float offsetX = noise(noisePos * 1.5) * 5.0;
+    float offsetY = noise(noisePos * 2.0 + vec2(0.0, time * 0.2)) * 3.0;
+    float offsetZ = noise(noisePos * 1.8 + vec2(time * 0.3, 0.0)) * 5.0;
+    return vec3(base.x + offsetX, offsetY, base.y + offsetZ);
+}
+
+// Effect 2: Vortex / Black Hole
+vec3 effect_vortex(vec2 base, float time)
+{
+    float dist = length(base);
+    float angle = atan(base.y, base.x) + time * (5.0 / (dist + 1.0));
+    float radius = dist - time * 0.5;
+
+    float x = radius * cos(angle);
+    float z = radius * sin(angle);
+    float y = sin(time * 2.0 + dist) * 2.0;
+
+    return vec3(x, y, z);
+}
+
+// Effect 3: Heartbeat Explosion
+vec3 effect_heartbeat(vec2 base, float time)
+{
+    float pulse = sin(time * 2.0) * 0.5 + 0.5;
+    float spread = pulse * 20.0;
+
+    float x = base.x * spread;
+    float z = base.y * spread;
+    float y = sin(length(base) * 5.0 - time * 10.0) * 2.0;
+
+    return vec3(x, y, z);
+}
+
+// Effect 4: Wormhole Tunnel
+vec3 effect_wormhole(vec2 base, float time)
+{
+    float spiralSpeed = time * 1.5;
+    float angle = spiralSpeed + base.y * 0.1;
+    float radius = 10.0 + sin(time + base.x) * 2.0;
+
+    float x = radius * cos(angle);
+    float z = radius * sin(angle);
+    float y = base.y * 0.5 - time * 5.0;
+
+    return vec3(x, y, z);
+}
+
+// Effect 5: MetaBlob Madness
+vec3 effect_metablob(vec2 base, float time)
+{
+    float field = sin(base.x * 0.5 + time) + cos(base.y * 0.5 + time);
+    float move = field * 5.0;
+
+    float x = base.x + move;
+    float z = base.y + move;
+    float y = sin(time * 3.0 + field * 5.0) * 3.0;
+
+    return vec3(x, y, z);
+}
+
+// --------------------------------
+// Main Shader Execution
+// --------------------------------
 void main()
 {
     uint idx = gl_GlobalInvocationID.x;
 
+    if (idx >= modelSprite.length()) return; // safety
+
     mat4 model = modelSprite[idx];
 
-    // --- Parametrizable layout ---
-    float gridSize = ceil(sqrt(float(numParticles))); // how many particles per row/col
-    float halfGrid = gridSize * 0.5;                    // to center around (0,0)
+    float gridSize = ceil(sqrt(float(numParticles)));
+    float halfGrid = gridSize * 0.5;
 
-    // Base grid position
-    float baseX = (float(idx % uint(gridSize)) - halfGrid);
-    float baseZ = (float(idx / uint(gridSize)) - halfGrid);
+    float baseX = float(idx % uint(gridSize)) - halfGrid;
+    float baseZ = float(idx / uint(gridSize)) - halfGrid;
     float baseY = 0.0;
+    
+    vec2 base = vec2(baseX, baseZ);
 
-    vec2 noisePos = vec2(baseX * 0.1, baseZ * 0.1) + time * 0.05;
+    // --- Pick the effect ---
+    vec3 finalPos = effect_wavy_noise(base, time); // <<< just call different functions here
 
-    // Calculate noise-influenced displacement
-    float offsetX = noise(noisePos * 1.5) * 5.0;
-    float offsetY = noise(noisePos * 2.0 + vec2(0.0, time * 0.2)) * 3.0;
-    float offsetZ = noise(noisePos * 1.8 + vec2(time * 0.3, 0.0)) * 5.0;
-
-    vec3 finalPos = vec3(baseX + offsetX, baseY + offsetY, baseZ + offsetZ);
-
-    // Create the translation matrix
     mat4 translationMatrix = mat4(1.0);
     translationMatrix[3] = vec4(finalPos, 1.0);
 
-    // Optionally, you could add small random rotations here if you want more dynamic particles
-    mat4 rotationMatrix = mat4(1.0); // No rotation for now
+    mat4 rotationMatrix = mat4(1.0); // Optional rotation later
 
     model = translationMatrix * rotationMatrix;
 
@@ -107,8 +166,5 @@ void main()
     omniData_data[idx].position = model[3];
 
     int idSprite = 0;
-    if (idx > 500) {
-        idSprite = 1;
-    }
     spriteId[idx].r = idSprite;
 }
