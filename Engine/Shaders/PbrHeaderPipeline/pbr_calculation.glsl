@@ -123,7 +123,7 @@ readonly buffer dirData{
     DirectionalData dirData_data[];
 };
 
-layout(binding=0) buffer clusters{
+readonly buffer clusters{
     Cluster clusters_data[];
 };
 

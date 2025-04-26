@@ -1,18 +1,18 @@
-#version 460 core
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 // Buffer containing model matrices for each sprite
-layout(std430, binding = 12) buffer SpritesData
+buffer SpritesData
 {
-    mat4 modelSprite[];
+    mat4 modelSprite[]; 
 };
 
-// Uniforms to control the tornado effect and delta time
-uniform float deltaTime;       // Time elapsed between frames
-uniform float time;            // Total time elapsed
+uniform TimeData{
+    float deltaTime;       // Time elapsed between frames
+    float time;            // Total time elapsed
+    vec2 padding;
+};
 
-
-layout(std430, binding = 14) buffer SpriteIds
+buffer SpriteIds
 {
     ivec4 spriteId[];
 };

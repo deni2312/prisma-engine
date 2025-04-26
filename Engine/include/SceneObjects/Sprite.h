@@ -23,6 +23,9 @@ namespace Prisma
 		void numSprites(unsigned int numSprites);
 		void size(glm::vec2 size);
 		void render();
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> models();
+		Diligent::RefCntAutoPtr<Diligent::IBuffer> spriteIds();
+
 
 	private:
 		std::vector<Diligent::IDeviceObject*> m_sprites;
@@ -46,5 +49,6 @@ namespace Prisma
 		Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelSizes;
 
 		glm::vec2 m_size = glm::vec2(1);
+
 	};
 }

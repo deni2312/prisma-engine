@@ -1,3 +1,6 @@
+layout ( local_size_x = 128, local_size_y = 1, local_size_z = 1 ) in;
+
+
 uniform ConstantsClusters
 {
 float zNear;
@@ -54,12 +57,6 @@ int padding1;
 readonly buffer omniData{
 OmniData omniData_data[];
 };
-
-
-layout ( local_size_x = 128, local_size_y = 1, local_size_z = 1 ) in;
-
-#define _RETURN_ {\
-return;}
 
 bool sphereAABBIntersection(vec3 center, float radius, vec3 aabbMin, vec3 aabbMax)
 {

@@ -1,3 +1,5 @@
+layout ( local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
+
 
 uniform ConstantsClusters
 {
@@ -23,8 +25,6 @@ buffer clusters
     Cluster clusters_data[];
 };
 
-
-layout ( local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 
 // Returns the intersection point of an infinite line and a

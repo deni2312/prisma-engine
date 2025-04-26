@@ -163,7 +163,7 @@ Prisma::Sprite::Sprite()
     Diligent::BufferDesc ModelDesc;
     ModelDesc.Name = "Sprite Models Buffer";
     ModelDesc.Usage = Diligent::USAGE_DEFAULT;
-    ModelDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+    ModelDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
     ModelDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
     ModelDesc.ElementByteStride = sizeof(glm::mat4);
     ModelDesc.Size = sizeof(glm::mat4);
@@ -172,7 +172,7 @@ Prisma::Sprite::Sprite()
     Diligent::BufferDesc SpriteDesc;
     SpriteDesc.Name = "Sprite Identifier Buffer";
     SpriteDesc.Usage = Diligent::USAGE_DEFAULT;
-    SpriteDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+    SpriteDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE| Diligent::BIND_UNORDERED_ACCESS;
     SpriteDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
     SpriteDesc.ElementByteStride = sizeof(glm::ivec4);
     SpriteDesc.Size = sizeof(glm::ivec4);
@@ -232,7 +232,7 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     Diligent::BufferDesc ModelDesc;
     ModelDesc.Name = "Sprite Models Buffer";
     ModelDesc.Usage = Diligent::USAGE_DEFAULT;
-    ModelDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+    ModelDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
     ModelDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
     ModelDesc.ElementByteStride = sizeof(glm::mat4);
     ModelDesc.Size = sizeof(glm::mat4)*m_numSprites;
@@ -245,7 +245,7 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     Diligent::BufferDesc SpriteDesc;
     SpriteDesc.Name = "Sprite Identifier Buffer";
     SpriteDesc.Usage = Diligent::USAGE_DEFAULT;
-    SpriteDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+    SpriteDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
     SpriteDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
     SpriteDesc.ElementByteStride = sizeof(glm::ivec4);
     SpriteDesc.Size = sizeof(glm::ivec4)*m_numSprites;
@@ -315,4 +315,13 @@ void Prisma::Sprite::render()
         contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
 
 	}
+}
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::Sprite::models()
+{
+    return m_models;
+}
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::Sprite::spriteIds()
+{
+    return m_spriteIds;
 }
