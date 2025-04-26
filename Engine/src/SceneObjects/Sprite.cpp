@@ -54,8 +54,25 @@ Prisma::Sprite::Sprite()
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
-    // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+
+    // Blend settings
+    auto& BlendDesc = PSOCreateInfo.GraphicsPipeline.BlendDesc;
+    BlendDesc.IndependentBlendEnable = Diligent::False;
+    auto& RT0 = BlendDesc.RenderTargets[0];
+    RT0.BlendEnable = Diligent::True;
+    RT0.SrcBlend = Diligent::BLEND_FACTOR_ONE;
+    RT0.DestBlend = Diligent::BLEND_FACTOR_ONE;
+    RT0.BlendOp = Diligent::BLEND_OPERATION_ADD;
+    RT0.SrcBlendAlpha = Diligent::BLEND_FACTOR_ONE;
+    RT0.DestBlendAlpha = Diligent::BLEND_FACTOR_ONE;
+    RT0.BlendOpAlpha = Diligent::BLEND_OPERATION_ADD;
+    RT0.RenderTargetWriteMask = Diligent::COLOR_MASK_ALL;
+
+    // Depth settings
+    auto& DepthStencilDesc = PSOCreateInfo.GraphicsPipeline.DepthStencilDesc;
+    DepthStencilDesc.DepthEnable = Diligent::True;
+    DepthStencilDesc.DepthWriteEnable = Diligent::False;
+    DepthStencilDesc.DepthFunc = Diligent::COMPARISON_FUNC_LESS;
     // clang-format on
     if (!privateSprite.createShader) {
         Diligent::ShaderCreateInfo ShaderCI;

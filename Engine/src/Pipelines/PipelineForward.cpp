@@ -82,14 +82,15 @@ void Prisma::PipelineForward::render(){
         Prisma::MeshIndirect::getInstance().renderAnimateMeshes();
     }
 
+    Prisma::PipelineSkybox::getInstance().render();
+
+
     auto& sprites = Prisma::GlobalData::getInstance().currentGlobalScene()->sprites;
 
-	for (auto& sprite : sprites)
-	{
-		sprite->render();
-	}
-
-    Prisma::PipelineSkybox::getInstance().render();
+    for (auto& sprite : sprites)
+    {
+        sprite->render();
+    }
 
     Prisma::PrismaFunc::getInstance().bindMainRenderTarget();
 }
