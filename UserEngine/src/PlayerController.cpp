@@ -3,6 +3,8 @@
 #include "Components/CullingComponent.h"
 #include <glm/gtx/string_cast.hpp>
 
+#include "engine.h"
+
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene}
 {
 	Prisma::NodeHelper nodeHelper;

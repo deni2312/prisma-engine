@@ -8,6 +8,15 @@
 #include "Handlers/MeshHandler.h"
 #include "Pipelines/PipelineHandler.h"
 
+struct PrivateSprite
+{
+    bool createShader = false;
+    Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
+    Diligent::RefCntAutoPtr<Diligent::IShader> pPS;
+};
+
+static PrivateSprite privateSprite;
+
 Prisma::Sprite::Sprite()
 {
 	//m_spriteShader = std::make_shared<Shader>("../../../Engine/Shaders/SpritePipeline/vertex.glsl",
@@ -48,40 +57,39 @@ Prisma::Sprite::Sprite()
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
     // clang-format on
+    if (!privateSprite.createShader) {
+        Diligent::ShaderCreateInfo ShaderCI;
+        // Tell the system that the shader source code is in HLSL.
+        // For OpenGL, the engine will convert this into GLSL under the hood.
+        ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
+        ShaderCI.CompileFlags |= Diligent::SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
 
-    Diligent::ShaderCreateInfo ShaderCI;
-    // Tell the system that the shader source code is in HLSL.
-    // For OpenGL, the engine will convert this into GLSL under the hood.
-    ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
-    ShaderCI.CompileFlags |= Diligent::SHADER_COMPILE_FLAG_ENABLE_UNBOUNDED_ARRAYS;
+        // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
+        ShaderCI.Desc.UseCombinedTextureSamplers = true;
+        // In this tutorial, we will load shaders from file. To be able to do that,
+        // we need to create a shader source stream factory
+        Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
+        Prisma::PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
+        // Create a vertex shader
+        {
+            ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
+            ShaderCI.EntryPoint = "main";
+            ShaderCI.Desc.Name = "Sprite VS";
+            ShaderCI.FilePath = "../../../Engine/Shaders/SpritePipeline/vertex.glsl";
+            contextData.m_pDevice->CreateShader(ShaderCI, &privateSprite.pVS);
+        }
 
-    // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
-    ShaderCI.Desc.UseCombinedTextureSamplers = true;
-    // In this tutorial, we will load shaders from file. To be able to do that,
-    // we need to create a shader source stream factory
-    Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    Prisma::PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
-    ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
-    // Create a vertex shader
-    Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
-    {
-        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
-        ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Sprite VS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/SpritePipeline/vertex.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+        // Create a pixel shader
+        {
+            ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
+            ShaderCI.EntryPoint = "main";
+            ShaderCI.Desc.Name = "Sprite PS";
+            ShaderCI.FilePath = "../../../Engine/Shaders/SpritePipeline/fragment.glsl";
+            contextData.m_pDevice->CreateShader(ShaderCI, &privateSprite.pPS);
+        }
+        privateSprite.createShader = true;
     }
-
-    // Create a pixel shader
-    Diligent::RefCntAutoPtr<Diligent::IShader> pPS;
-    {
-        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
-        ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Sprite PS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/SpritePipeline/fragment.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
-    }
-
     // clang-format off
     // Define vertex shader input layout
     Diligent::LayoutElement LayoutElems[] =
@@ -95,8 +103,8 @@ Prisma::Sprite::Sprite()
     PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
     PSOCreateInfo.GraphicsPipeline.InputLayout.NumElements = _countof(LayoutElems);
 
-    PSOCreateInfo.pVS = pVS;
-    PSOCreateInfo.pPS = pPS;
+    PSOCreateInfo.pVS = privateSprite.pVS;
+    PSOCreateInfo.pPS = privateSprite.pPS;
 
     Diligent::BufferDesc CBDesc;
     CBDesc.Name = "Sprite Models";
