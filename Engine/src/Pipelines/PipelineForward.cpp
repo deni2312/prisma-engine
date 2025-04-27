@@ -41,8 +41,8 @@
 using namespace Diligent;
 
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height) : m_width{
-        width
-}, m_height{height} {
+                width
+        }, m_height{height} {
         create();
         createAnimation();
 }
@@ -53,15 +53,15 @@ void Prisma::PipelineForward::render() {
         auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
         auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
         // Clear the back buffer
-        contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-        contextData.m_pImmediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),
-                                                           RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        contextData.m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0,
-                                                           RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),
+                                                        RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0,
+                                                        RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         // Set the pipeline state
-        contextData.m_pImmediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->SetPipelineState(m_pso);
         // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
         // makes sure that resources are transitioned to required states.
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -69,17 +69,17 @@ void Prisma::PipelineForward::render() {
         if (!meshes.empty() && PipelineSkybox::getInstance().isInit()) {
                 MeshIndirect::getInstance().setupBuffers();
                 // Set texture SRV in the SRB
-                contextData.m_pImmediateContext->
+                contextData.immediateContext->
                             CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 MeshIndirect::getInstance().renderMeshes();
         }
 
-        contextData.m_pImmediateContext->SetPipelineState(m_psoAnimation);
+        contextData.immediateContext->SetPipelineState(m_psoAnimation);
         if (!meshesAnimation.empty() && PipelineSkybox::getInstance().isInit()) {
                 MeshIndirect::getInstance().setupBuffersAnimation();
                 // Set texture SRV in the SRB
-                contextData.m_pImmediateContext->CommitShaderResources(m_srbAnimation,
-                                                                       RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                contextData.immediateContext->CommitShaderResources(m_srbAnimation,
+                                                                    RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 MeshIndirect::getInstance().renderAnimateMeshes();
         }
 
@@ -140,7 +140,7 @@ void Prisma::PipelineForward::create() {
         // In this tutorial, we will load shaders from file. To be able to do that,
         // we need to create a shader source stream factory
         RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        contextData.engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
         // Create a vertex shader
         RefCntAutoPtr<IShader> pVS;
@@ -149,7 +149,7 @@ void Prisma::PipelineForward::create() {
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "Forward VS";
                 ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+                contextData.device->CreateShader(ShaderCI, &pVS);
         }
 
         // Create a pixel shader
@@ -159,7 +159,7 @@ void Prisma::PipelineForward::create() {
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "Forward PS";
                 ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+                contextData.device->CreateShader(ShaderCI, &pPS);
         }
 
     // clang-format off
@@ -262,7 +262,7 @@ void Prisma::PipelineForward::create() {
     RefCntAutoPtr<ISampler> samplerClamp;
     RefCntAutoPtr<ISampler> samplerRepeat;
 
-    contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
+    contextData.device->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
 
     IPipelineResourceSignature* ppSignatures[]{ m_pResourceSignature };
 
@@ -270,9 +270,9 @@ void Prisma::PipelineForward::create() {
     PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
 
 
-    contextData.m_pDevice->CreatePipelineState(PSOCreateInfo, &m_pso);
-    contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &samplerClamp);
-    contextData.m_pDevice->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
+    contextData.device->CreatePipelineState(PSOCreateInfo, &m_pso);
+    contextData.device->CreateSampler(SamLinearClampDesc, &samplerClamp);
+    contextData.device->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
 
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
@@ -384,7 +384,7 @@ void Prisma::PipelineForward::createAnimation()
         // In this tutorial, we will load shaders from file. To be able to do that,
         // we need to create a shader source stream factory
         RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        contextData.engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
         // Create a vertex shader
         RefCntAutoPtr<IShader> pVS;
@@ -393,7 +393,7 @@ void Prisma::PipelineForward::createAnimation()
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "Forward VS";
                 ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+                contextData.device->CreateShader(ShaderCI, &pVS);
         }
 
         // Create a pixel shader
@@ -403,7 +403,7 @@ void Prisma::PipelineForward::createAnimation()
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "Forward PS";
                 ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+                contextData.device->CreateShader(ShaderCI, &pPS);
         }
 
     // clang-format off
@@ -513,7 +513,7 @@ void Prisma::PipelineForward::createAnimation()
     RefCntAutoPtr<ISampler> samplerClamp;
     RefCntAutoPtr<ISampler> samplerRepeat;
 
-    contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignatureAnimation);
+    contextData.device->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignatureAnimation);
 
     IPipelineResourceSignature* ppSignatures[]{ m_pResourceSignatureAnimation };
 
@@ -521,9 +521,9 @@ void Prisma::PipelineForward::createAnimation()
     PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
 
 
-    contextData.m_pDevice->CreatePipelineState(PSOCreateInfo, &m_psoAnimation);
-    contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &samplerClamp);
-    contextData.m_pDevice->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
+    contextData.device->CreatePipelineState(PSOCreateInfo, &m_psoAnimation);
+    contextData.device->CreateSampler(SamLinearClampDesc, &samplerClamp);
+    contextData.device->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
 
 
     m_pResourceSignatureAnimation->GetStaticVariableByName(SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());

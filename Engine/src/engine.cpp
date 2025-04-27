@@ -57,7 +57,7 @@ Prisma::Engine::Engine() {
         Physics::getInstance();
 
         Diligent::ImGuiDiligentCreateInfo desc;
-        desc.pDevice = PrismaFunc::getInstance().contextData().m_pDevice;
+        desc.pDevice = PrismaFunc::getInstance().contextData().device;
 
         data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 

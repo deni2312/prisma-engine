@@ -89,7 +89,7 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
         Diligent::BufferData InitData;
         InitData.pData = m_drawCommands.data();
         InitData.DataSize = sizeof(DrawElementsIndirectCommand) * meshes.size();
-        contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBuffer);
+        contextData.device->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBuffer);
 
         m_commandsBuffer.DrawCount = meshes.size();
         m_commandsBuffer.DrawArgsOffset = 0;
@@ -131,7 +131,7 @@ void Prisma::MeshIndirect::updateIndirectBufferAnimation() {
         Diligent::BufferData InitData;
         InitData.pData = m_drawCommandsAnimation.data();
         InitData.DataSize = sizeof(DrawElementsIndirectCommand) * meshes.size();
-        contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBufferAnimation);
+        contextData.device->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBufferAnimation);
 
         m_commandsBufferAnimation.DrawCount = meshes.size();
         m_commandsBufferAnimation.DrawArgsOffset = 0;
@@ -258,7 +258,7 @@ void Prisma::MeshIndirect::updateModelsAnimate(int model) {
 void Prisma::MeshIndirect::renderMeshes() const {
         if (!GlobalData::getInstance().currentGlobalScene()->meshes.empty()) {
                 auto& contextData = PrismaFunc::getInstance().contextData();
-                contextData.m_pImmediateContext->DrawIndexedIndirect(m_commandsBuffer);
+                contextData.immediateContext->DrawIndexedIndirect(m_commandsBuffer);
         }
 }
 
@@ -277,7 +277,7 @@ void Prisma::MeshIndirect::renderMeshesCopy() const {
 void Prisma::MeshIndirect::renderAnimateMeshes() const {
         if (!GlobalData::getInstance().currentGlobalScene()->animateMeshes.empty()) {
                 auto& contextData = PrismaFunc::getInstance().contextData();
-                contextData.m_pImmediateContext->DrawIndexedIndirect(m_commandsBufferAnimation);
+                contextData.immediateContext->DrawIndexedIndirect(m_commandsBufferAnimation);
         }
 }
 
@@ -391,7 +391,7 @@ void Prisma::MeshIndirect::updateSize() {
                                 Diligent::BufferData VBData;
                                 VBData.pData = m_verticesData.vertices.data();
                                 VBData.DataSize = m_currentVertexMax * sizeof(Mesh::Vertex);
-                                contextData.m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
+                                contextData.device->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
 
                                 Diligent::BufferDesc IndBuffDesc;
                                 IndBuffDesc.Name = "Index Data";
@@ -401,13 +401,13 @@ void Prisma::MeshIndirect::updateSize() {
                                 Diligent::BufferData IBData;
                                 IBData.pData = m_verticesData.indices.data();
                                 IBData.DataSize = sizeof(unsigned int) * m_currentIndexMax;
-                                contextData.m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
+                                contextData.device->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
                         } else {
-                                contextData.m_pImmediateContext->UpdateBuffer(
+                                contextData.immediateContext->UpdateBuffer(
                                         m_vBuffer, vboCache * sizeof(Mesh::Vertex), sizeVbo * sizeof(Mesh::Vertex),
                                         &m_verticesData.vertices[vboCache],
                                         Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-                                contextData.m_pImmediateContext->UpdateBuffer(
+                                contextData.immediateContext->UpdateBuffer(
                                         m_iBuffer, eboCache * sizeof(unsigned int), sizeEbo * sizeof(unsigned int),
                                         &m_verticesData.indices[eboCache],
                                         Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -433,9 +433,9 @@ void Prisma::MeshIndirect::updateModels() {
                 auto meshData = std::make_shared<Mesh::MeshData>();
                 meshData->model = finalMatrix;
                 meshData->normal = transpose(inverse(finalMatrix));
-                contextData.m_pImmediateContext->UpdateBuffer(m_modelBuffer, sizeof(Mesh::MeshData) * model.first,
-                                                              sizeof(Mesh::MeshData), meshData.get(),
-                                                              Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                contextData.immediateContext->UpdateBuffer(m_modelBuffer, sizeof(Mesh::MeshData) * model.first,
+                                                           sizeof(Mesh::MeshData), meshData.get(),
+                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         }
 
         m_updateModels.clear();
@@ -451,10 +451,10 @@ void Prisma::MeshIndirect::updateModelsAnimation() {
                 auto meshData = std::make_shared<Mesh::MeshData>();
                 meshData->model = finalMatrix;
                 meshData->normal = transpose(inverse(finalMatrix));
-                contextData.m_pImmediateContext->UpdateBuffer(m_modelBufferAnimation,
-                                                              sizeof(Mesh::MeshData) * model.first,
-                                                              sizeof(Mesh::MeshData), meshData.get(),
-                                                              Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                contextData.immediateContext->UpdateBuffer(m_modelBufferAnimation,
+                                                           sizeof(Mesh::MeshData) * model.first,
+                                                           sizeof(Mesh::MeshData), meshData.get(),
+                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         }
         m_updateModelsAnimate.clear();
 }
@@ -516,21 +516,21 @@ void Prisma::MeshIndirect::createMeshBuffer() {
         MatBufferDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
         MatBufferDesc.ElementByteStride = sizeof(glm::mat4);
         MatBufferDesc.Size = sizeof(glm::mat4); // Ensure enough space
-        contextData.m_pDevice->CreateBuffer(MatBufferDesc, nullptr, &m_modelBuffer);
+        contextData.device->CreateBuffer(MatBufferDesc, nullptr, &m_modelBuffer);
 
         Diligent::BufferDesc VertBuffDesc;
         VertBuffDesc.Name = "Vertices Data";
         VertBuffDesc.Usage = Diligent::USAGE_DEFAULT;
         VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
         VertBuffDesc.Size = 1;
-        contextData.m_pDevice->CreateBuffer(VertBuffDesc, nullptr, &m_vBuffer);
+        contextData.device->CreateBuffer(VertBuffDesc, nullptr, &m_vBuffer);
 
         Diligent::BufferDesc IndBuffDesc;
         IndBuffDesc.Name = "Index Data";
         IndBuffDesc.Usage = Diligent::USAGE_DEFAULT;
         IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
         IndBuffDesc.Size = 1;
-        contextData.m_pDevice->CreateBuffer(IndBuffDesc, nullptr, &m_iBuffer);
+        contextData.device->CreateBuffer(IndBuffDesc, nullptr, &m_iBuffer);
 
         Diligent::BufferDesc IndirectBufferDesc;
         IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
@@ -538,7 +538,7 @@ void Prisma::MeshIndirect::createMeshBuffer() {
         IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
         IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
         IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
-        contextData.m_pDevice->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBuffer);
+        contextData.device->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBuffer);
 }
 
 void Prisma::MeshIndirect::createMeshAnimationBuffer() {
@@ -552,21 +552,21 @@ void Prisma::MeshIndirect::createMeshAnimationBuffer() {
         MatBufferDescAnimation.Mode = Diligent::BUFFER_MODE_STRUCTURED;
         MatBufferDescAnimation.ElementByteStride = sizeof(glm::mat4);
         MatBufferDescAnimation.Size = sizeof(glm::mat4); // Ensure enough space
-        contextData.m_pDevice->CreateBuffer(MatBufferDescAnimation, nullptr, &m_modelBufferAnimation);
+        contextData.device->CreateBuffer(MatBufferDescAnimation, nullptr, &m_modelBufferAnimation);
 
         Diligent::BufferDesc VertBuffDescAnimation;
         VertBuffDescAnimation.Name = "Animation Vertices Data";
         VertBuffDescAnimation.Usage = Diligent::USAGE_DEFAULT;
         VertBuffDescAnimation.BindFlags = Diligent::BIND_VERTEX_BUFFER;
         VertBuffDescAnimation.Size = 1;
-        contextData.m_pDevice->CreateBuffer(VertBuffDescAnimation, nullptr, &m_vBufferAnimation);
+        contextData.device->CreateBuffer(VertBuffDescAnimation, nullptr, &m_vBufferAnimation);
 
         Diligent::BufferDesc IndBuffDescAnimation;
         IndBuffDescAnimation.Name = "Animation Index Data";
         IndBuffDescAnimation.Usage = Diligent::USAGE_DEFAULT;
         IndBuffDescAnimation.BindFlags = Diligent::BIND_INDEX_BUFFER;
         IndBuffDescAnimation.Size = 1;
-        contextData.m_pDevice->CreateBuffer(IndBuffDescAnimation, nullptr, &m_iBufferAnimation);
+        contextData.device->CreateBuffer(IndBuffDescAnimation, nullptr, &m_iBufferAnimation);
 
         Diligent::BufferDesc IndirectBufferDescAnimation;
         IndirectBufferDescAnimation.Name = "Animation Indirect Draw Command Buffer";
@@ -574,7 +574,7 @@ void Prisma::MeshIndirect::createMeshAnimationBuffer() {
         IndirectBufferDescAnimation.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
         IndirectBufferDescAnimation.Size = sizeof(DrawElementsIndirectCommand);
         IndirectBufferDescAnimation.ElementByteStride = sizeof(DrawElementsIndirectCommand);
-        contextData.m_pDevice->CreateBuffer(IndirectBufferDescAnimation, nullptr, &m_indirectBufferAnimation);
+        contextData.device->CreateBuffer(IndirectBufferDescAnimation, nullptr, &m_indirectBufferAnimation);
 }
 
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::modelBuffer() {
@@ -620,7 +620,7 @@ void Prisma::MeshIndirect::resizeModels(std::vector<Mesh::MeshData>& models) {
         Diligent::BufferData InitData;
         InitData.pData = models.data();
         InitData.DataSize = size;
-        contextData.m_pDevice->CreateBuffer(MatBufferDesc, &InitData, &m_modelBuffer);
+        contextData.device->CreateBuffer(MatBufferDesc, &InitData, &m_modelBuffer);
 
         updatePso();
 }
@@ -640,7 +640,7 @@ void Prisma::MeshIndirect::resizeModelsAnimation(std::vector<Mesh::MeshData>& mo
         Diligent::BufferData InitData;
         InitData.pData = models.data();
         InitData.DataSize = size;
-        contextData.m_pDevice->CreateBuffer(MatBufferDesc, &InitData, &m_modelBufferAnimation);
+        contextData.device->CreateBuffer(MatBufferDesc, &InitData, &m_modelBufferAnimation);
 
         updatePso();
 }
@@ -738,7 +738,7 @@ void Prisma::MeshIndirect::updateAnimation() {
                                 Diligent::BufferData VBData;
                                 VBData.pData = m_verticesDataAnimation.vertices.data();
                                 VBData.DataSize = m_currentVertexMaxAnimation * sizeof(AnimatedMesh::AnimateVertex);
-                                contextData.m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBufferAnimation);
+                                contextData.device->CreateBuffer(VertBuffDesc, &VBData, &m_vBufferAnimation);
 
                                 Diligent::BufferDesc IndBuffDesc;
                                 IndBuffDesc.Name = "Animation Index Data";
@@ -748,7 +748,7 @@ void Prisma::MeshIndirect::updateAnimation() {
                                 Diligent::BufferData IBData;
                                 IBData.pData = m_verticesDataAnimation.indices.data();
                                 IBData.DataSize = m_currentIndexMaxAnimation * sizeof(unsigned int);
-                                contextData.m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_iBufferAnimation);
+                                contextData.device->CreateBuffer(IndBuffDesc, &IBData, &m_iBufferAnimation);
 
                                 /*m_vaoAnimation->addAttribPointer(0, 3, sizeof(AnimatedMesh::AnimateVertex), nullptr);
                                 m_vaoAnimation->addAttribPointer(1, 3, sizeof(AnimatedMesh::AnimateVertex),
@@ -765,12 +765,12 @@ void Prisma::MeshIndirect::updateAnimation() {
                                 m_vaoAnimation->addAttribPointer(6, 4, sizeof(AnimatedMesh::AnimateVertex),
                                                                  (void*)offsetof(Prisma::AnimatedMesh::AnimateVertex, m_Weights));*/
                         } else {
-                                contextData.m_pImmediateContext->UpdateBuffer(
+                                contextData.immediateContext->UpdateBuffer(
                                         m_vBufferAnimation, vboCache * sizeof(AnimatedMesh::AnimateVertex),
                                         sizeVbo * sizeof(AnimatedMesh::AnimateVertex),
                                         &m_verticesDataAnimation.vertices[vboCache],
                                         Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-                                contextData.m_pImmediateContext->UpdateBuffer(
+                                contextData.immediateContext->UpdateBuffer(
                                         m_iBufferAnimation, eboCache * sizeof(unsigned int),
                                         sizeEbo * sizeof(unsigned int), &m_verticesDataAnimation.indices[eboCache],
                                         Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -836,7 +836,7 @@ void Prisma::MeshIndirect::updateStatus() {
                 Diligent::BufferData data;
                 data.DataSize = statusDesc.Size;
                 data.pData = status.data();
-                contextData.m_pDevice->CreateBuffer(statusDesc, &data, &m_statusBuffer);
+                contextData.device->CreateBuffer(statusDesc, &data, &m_statusBuffer);
                 updateIndirectBuffer();
                 updatePso();
         }
@@ -885,7 +885,7 @@ void Prisma::MeshIndirect::updateStatusAnimation() {
                 Diligent::BufferData data;
                 data.DataSize = statusDesc.Size;
                 data.pData = status.data();
-                contextData.m_pDevice->CreateBuffer(statusDesc, &data, &m_statusBufferAnimation);
+                contextData.device->CreateBuffer(statusDesc, &data, &m_statusBufferAnimation);
                 updateIndirectBufferAnimation();
                 updatePso();
         }
@@ -895,22 +895,22 @@ void Prisma::MeshIndirect::setupBuffers() {
         auto& contextData = PrismaFunc::getInstance().contextData();
         constexpr Diligent::Uint64 offsets[] = {0};
         Diligent::IBuffer* pBuffs[] = {m_vBuffer};
-        contextData.m_pImmediateContext->SetVertexBuffers(0, _countof(pBuffs), pBuffs, offsets,
-                                                          Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
-                                                          Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-        contextData.m_pImmediateContext->SetIndexBuffer(m_iBuffer, 0,
-                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->SetVertexBuffers(0, _countof(pBuffs), pBuffs, offsets,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
+                                                       Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.immediateContext->SetIndexBuffer(m_iBuffer, 0,
+                                                     Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void Prisma::MeshIndirect::setupBuffersAnimation() {
         auto& contextData = PrismaFunc::getInstance().contextData();
         constexpr Diligent::Uint64 offsets[] = {0};
         Diligent::IBuffer* pBuffs[] = {m_vBufferAnimation};
-        contextData.m_pImmediateContext->SetVertexBuffers(0, _countof(pBuffs), pBuffs, offsets,
-                                                          Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
-                                                          Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-        contextData.m_pImmediateContext->SetIndexBuffer(m_iBufferAnimation, 0,
-                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->SetVertexBuffers(0, _countof(pBuffs), pBuffs, offsets,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
+                                                       Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.immediateContext->SetIndexBuffer(m_iBufferAnimation, 0,
+                                                     Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void Prisma::MeshIndirect::addResizeHandler(

@@ -17,7 +17,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters) {
                 loadInfo.CompressMode = Diligent::TEXTURE_LOAD_COMPRESS_MODE_BC;
         }
         loadInfo.MipLevels = m_parameters.mips;
-        CreateTextureFromFile(m_parameters.texture.c_str(), loadInfo, PrismaFunc::getInstance().contextData().m_pDevice,
+        CreateTextureFromFile(m_parameters.texture.c_str(), loadInfo, PrismaFunc::getInstance().contextData().device,
                               &m_texture);
         if (m_texture) {
                 m_data.width = m_texture->GetDesc().GetWidth();

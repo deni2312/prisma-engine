@@ -105,27 +105,27 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
         auto rt = m_pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
         auto rtDepth = m_pRTDepth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
         // Clear the back buffer
-        contextData.m_pImmediateContext->SetRenderTargets(1, &rt, rtDepth,
-                                                          Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        contextData.m_pImmediateContext->ClearRenderTarget(rt, value_ptr(m_clearColor),
-                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        contextData.m_pImmediateContext->ClearDepthStencil(rtDepth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0,
-                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->SetRenderTargets(1, &rt, rtDepth,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearRenderTarget(rt, value_ptr(m_clearColor),
+                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearDepthStencil(rtDepth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0,
+                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         // Set the pipeline state
-        contextData.m_pImmediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->SetPipelineState(m_pso);
         // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
         // makes sure that resources are transitioned to required states.
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
         if (!meshes.empty() && MeshIndirect::getInstance().commandsBuffer().pAttribsBuffer) {
                 MeshIndirect::getInstance().setupBuffers();
                 // Set texture SRV in the SRB
-                contextData.m_pImmediateContext->CommitShaderResources(
+                contextData.immediateContext->CommitShaderResources(
                         m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 MeshIndirect::getInstance().renderMeshes();
         }
-        contextData.m_pImmediateContext->SetRenderTargets(0, nullptr, nullptr,
-                                                          Diligent::RESOURCE_STATE_TRANSITION_MODE_NONE);
+        contextData.immediateContext->SetRenderTargets(0, nullptr, nullptr,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_NONE);
 
         drawModel(model);
         auto settings = SettingsLoader::getInstance().getSettings();
@@ -134,11 +134,11 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
                                                  m_pStagingTexture,
                                                  Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-        contextData.m_pImmediateContext->CopyTexture(CopyAttribs);
+        contextData.immediateContext->CopyTexture(CopyAttribs);
 
-        contextData.m_pImmediateContext->WaitForIdle();
+        contextData.immediateContext->WaitForIdle();
         Diligent::MappedTextureSubresource MappedData;
-        contextData.m_pImmediateContext->MapTextureSubresource(
+        contextData.immediateContext->MapTextureSubresource(
                 m_pStagingTexture, 0, 0, Diligent::MAP_READ, Diligent::MAP_FLAG_DO_NOT_WAIT, nullptr, MappedData
                 );
         auto pData = static_cast<uint8_t*>(MappedData.pData);
@@ -151,7 +151,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
         uint8_t a = pData[pixelOffset + 3];
 
         // 5. Unmap the texture
-        contextData.m_pImmediateContext->UnmapTextureSubresource(m_pStagingTexture, 0, 0);
+        contextData.immediateContext->UnmapTextureSubresource(m_pStagingTexture, 0, 0);
 
         PrismaFunc::getInstance().bindMainRenderTarget();
 
@@ -207,7 +207,7 @@ void Prisma::PixelCapture::createDrawPipeline() {
         // In this tutorial, we will load shaders from file. To be able to do that,
         // we need to create a shader source stream factory
         Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(
+        PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(
                 nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
         // Create a vertex shader
@@ -217,7 +217,7 @@ void Prisma::PixelCapture::createDrawPipeline() {
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "ImGui VS";
                 ShaderCI.FilePath = "../../../GUI/Shaders/PixelCapture/vertex.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+                contextData.device->CreateShader(ShaderCI, &pVS);
         }
 
         // Create a pixel shader
@@ -227,7 +227,7 @@ void Prisma::PixelCapture::createDrawPipeline() {
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "ImGui PS";
                 ShaderCI.FilePath = "../../../GUI/Shaders/PixelCapture/fragment.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+                contextData.device->CreateShader(ShaderCI, &pPS);
         }
 
     // clang-format off
@@ -271,13 +271,13 @@ void Prisma::PixelCapture::createDrawPipeline() {
         Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
         Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
     };
-    contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+    contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
     Diligent::TextureDesc RTColorDesc;
     RTColorDesc.Name = "Offscreen render target";
     RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
-    RTColorDesc.Width = contextData.m_pSwapChain->GetDesc().Width;
-    RTColorDesc.Height = contextData.m_pSwapChain->GetDesc().Height;
+    RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
+    RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
     RTColorDesc.MipLevels = 1;
     RTColorDesc.Format = Diligent::TEX_FORMAT_RGBA8_UNORM;
     // The render target can be bound as a shader resource and as a render target
@@ -288,7 +288,7 @@ void Prisma::PixelCapture::createDrawPipeline() {
     RTColorDesc.ClearValue.Color[1] = 0;
     RTColorDesc.ClearValue.Color[2] = 0;
     RTColorDesc.ClearValue.Color[3] = 1;
-    contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pRTColor);
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_pRTColor);
 
 
     // Create window-size depth buffer
@@ -300,7 +300,7 @@ void Prisma::PixelCapture::createDrawPipeline() {
     RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
     RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
     RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
-    contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &m_pRTDepth);
+    contextData.device->CreateTexture(RTDepthDesc, nullptr, &m_pRTDepth);
 
     // Store the depth-stencil view
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
@@ -313,7 +313,7 @@ void Prisma::PixelCapture::createDrawPipeline() {
             m_pso->CreateShaderResourceBinding(&m_srb, true);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
         });
-    GlobalData::getInstance().addGlobalTexture({ m_pRTColor ,"PixelCapture",{contextData.m_pSwapChain->GetDesc().Width,contextData.m_pSwapChain->GetDesc().Height} });
+    GlobalData::getInstance().addGlobalTexture({ m_pRTColor ,"PixelCapture",{contextData.swapChain->GetDesc().Width,contextData.swapChain->GetDesc().Height} });
 }
 
 void Prisma::PixelCapture::createScalePipeline()
@@ -359,7 +359,7 @@ void Prisma::PixelCapture::createScalePipeline()
         // In this tutorial, we will load shaders from file. To be able to do that,
         // we need to create a shader source stream factory
         Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(
+        PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(
                 nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
         // Create a vertex shader
@@ -369,7 +369,7 @@ void Prisma::PixelCapture::createScalePipeline()
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "ImGui VS";
                 ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/vertex.hlsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+                contextData.device->CreateShader(ShaderCI, &pVS);
                 // Create dynamic uniform buffer that will store our transformation matrix
                 // Dynamic buffers can be frequently updated by the CPU
                 Diligent::BufferDesc CBDesc;
@@ -378,7 +378,7 @@ void Prisma::PixelCapture::createScalePipeline()
                 CBDesc.Usage = Diligent::USAGE_DYNAMIC;
                 CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
                 CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
-                contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_mvpVS);
+                contextData.device->CreateBuffer(CBDesc, nullptr, &m_mvpVS);
         }
 
         // Create a pixel shader
@@ -388,7 +388,7 @@ void Prisma::PixelCapture::createScalePipeline()
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "ImGui PS";
                 ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/fragment.hlsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+                contextData.device->CreateShader(ShaderCI, &pPS);
         }
 
     // clang-format off
@@ -432,13 +432,13 @@ void Prisma::PixelCapture::createScalePipeline()
         // clang-format on
         PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
         PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
-        contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_scalePso);
+        contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_scalePso);
 
         Diligent::TextureDesc RTColorDesc;
         RTColorDesc.Name = "Offscreen render target";
         RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
-        RTColorDesc.Width = contextData.m_pSwapChain->GetDesc().Width;
-        RTColorDesc.Height = contextData.m_pSwapChain->GetDesc().Height;
+        RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
+        RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
         RTColorDesc.MipLevels = 1;
         RTColorDesc.Format = PSOCreateInfo.GraphicsPipeline.RTVFormats[0];
         // The render target can be bound as a shader resource and as a render target
@@ -455,16 +455,16 @@ void Prisma::PixelCapture::createScalePipeline()
         StagingTexDesc.BindFlags = Diligent::BIND_NONE;
         StagingTexDesc.CPUAccessFlags = Diligent::CPU_ACCESS_READ;
 
-        contextData.m_pDevice->CreateTexture(StagingTexDesc, nullptr, &m_pStagingTexture);
+        contextData.device->CreateTexture(StagingTexDesc, nullptr, &m_pStagingTexture);
 
-        contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pRTColorOutput);
+        contextData.device->CreateTexture(RTColorDesc, nullptr, &m_pRTColorOutput);
 
         m_scalePso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "Constants")->Set(m_mvpVS);
         m_scalePso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")->Set(
                 m_pRTColor->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
         GlobalData::getInstance().addGlobalTexture({m_pRTColorOutput, "PixelCapture Resize",
-                                                    {contextData.m_pSwapChain->GetDesc().Width,
-                                                     contextData.m_pSwapChain->GetDesc().Height}});
+                                                    {contextData.swapChain->GetDesc().Width,
+                                                     contextData.swapChain->GetDesc().Height}});
 
         m_scalePso->CreateShaderResourceBinding(&m_scaleSrb, true);
 }
@@ -472,34 +472,34 @@ void Prisma::PixelCapture::createScalePipeline()
 void Prisma::PixelCapture::drawModel(const glm::mat4& model) {
         auto& contextData = PrismaFunc::getInstance().contextData();
 
-        contextData.m_pImmediateContext->SetPipelineState(m_scalePso);
+        contextData.immediateContext->SetPipelineState(m_scalePso);
 
         auto rt = m_pRTColorOutput->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
 
-        contextData.m_pImmediateContext->SetRenderTargets(1, &rt, nullptr,
-                                                          Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        contextData.m_pImmediateContext->ClearRenderTarget(rt, value_ptr(m_clearColor),
-                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->SetRenderTargets(1, &rt, nullptr,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearRenderTarget(rt, value_ptr(m_clearColor),
+                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
         // Bind vertex and index buffers
         constexpr Diligent::Uint64 offset = 0;
         Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
-        contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset,
-                                                          Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
-                                                          Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-        contextData.m_pImmediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0,
-                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
+                                                       Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0,
+                                                     Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         {
                 // Map the buffer and write current world-view-projection matrix
-                Diligent::MapHelper<glm::mat4> CBConstants(contextData.m_pImmediateContext, m_mvpVS,
+                Diligent::MapHelper<glm::mat4> CBConstants(contextData.immediateContext, m_mvpVS,
                                                            Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
                 *CBConstants = model;
         }
 
         // Set texture SRV in the SRB
-        contextData.m_pImmediateContext->CommitShaderResources(
+        contextData.immediateContext->CommitShaderResources(
                 m_scaleSrb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
@@ -507,6 +507,6 @@ void Prisma::PixelCapture::drawModel(const glm::mat4& model) {
         DrawAttrs.NumIndices = quadBuffer.iBufferSize;
         // Verify the state of vertex and index buffers
         DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
-        contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
+        contextData.immediateContext->DrawIndexed(DrawAttrs);
         PrismaFunc::getInstance().bindMainRenderTarget();
 }

@@ -117,10 +117,10 @@ void Prisma::Animator::updateSSBO() {
         //                 sizeof(Prisma::AnimationHandler::SSBOAnimation), &m_ssboAnimation);
         auto& contextData = PrismaFunc::getInstance().contextData();
         auto uuid = findUUID();
-        contextData.m_pImmediateContext->UpdateBuffer(AnimationHandler::getInstance().animation(),
-                                                      sizeof(AnimationHandler::SSBOAnimation) * uuid,
-                                                      sizeof(AnimationHandler::SSBOAnimation), &m_ssboAnimation,
-                                                      Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->UpdateBuffer(AnimationHandler::getInstance().animation(),
+                                                   sizeof(AnimationHandler::SSBOAnimation) * uuid,
+                                                   sizeof(AnimationHandler::SSBOAnimation), &m_ssboAnimation,
+                                                   Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void Prisma::Animator::automaticUpdate(bool automatic) {

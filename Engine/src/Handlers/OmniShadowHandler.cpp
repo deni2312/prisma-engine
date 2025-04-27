@@ -44,7 +44,7 @@ void Prisma::OmniShadowHandler::create() {
 
 
     Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
     ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
     // Create a vertex shader
     Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
@@ -53,7 +53,7 @@ void Prisma::OmniShadowHandler::create() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Omni Shadow VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/vertex.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+        contextData.device->CreateShader(ShaderCI, &pVS);
     }
 
     Diligent::RefCntAutoPtr<Diligent::IShader> pGS;
@@ -62,7 +62,7 @@ void Prisma::OmniShadowHandler::create() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Omni Shadow GS";
         ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pGS);
+        contextData.device->CreateShader(ShaderCI, &pGS);
     }
 
     // Create a pixel shader
@@ -72,7 +72,7 @@ void Prisma::OmniShadowHandler::create() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Omni Shadow PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+        contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
     // clang-format off
@@ -124,7 +124,7 @@ void Prisma::OmniShadowHandler::create() {
         LightBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
         LightBuffer.ElementByteStride = sizeof(LightPlane);
         LightBuffer.Size = sizeof(LightPlane);
-        contextData.m_pDevice->CreateBuffer(LightBuffer, nullptr, &m_lightBuffer);
+        contextData.device->CreateBuffer(LightBuffer, nullptr, &m_lightBuffer);
 
         Diligent::BufferDesc ShadowBuffer;
         ShadowBuffer.Name = "ShadowBuffer";
@@ -133,9 +133,9 @@ void Prisma::OmniShadowHandler::create() {
         ShadowBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
         ShadowBuffer.Size = sizeof(OmniShadow);
         ShadowBuffer.ElementByteStride = sizeof(OmniShadow);
-        contextData.m_pDevice->CreateBuffer(ShadowBuffer, nullptr, &m_shadowBuffer);
+        contextData.device->CreateBuffer(ShadowBuffer, nullptr, &m_shadowBuffer);
 
-        contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+        contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY, shadowMatrices.c_str())->Set(m_shadowBuffer);
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, lightPlane.c_str())->Set(m_lightBuffer);
 
@@ -185,7 +185,7 @@ void Prisma::OmniShadowHandler::createAnimation() {
     ShaderCI.Macros = { Macros, _countof(Macros) };
 
     Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
     ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
     // Create a vertex shader
     Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
@@ -194,7 +194,7 @@ void Prisma::OmniShadowHandler::createAnimation() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Omni Shadow VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/vertex.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+        contextData.device->CreateShader(ShaderCI, &pVS);
     }
 
     Diligent::RefCntAutoPtr<Diligent::IShader> pGS;
@@ -203,7 +203,7 @@ void Prisma::OmniShadowHandler::createAnimation() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Omni Shadow GS";
         ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/geometry.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pGS);
+        contextData.device->CreateShader(ShaderCI, &pGS);
     }
 
     // Create a pixel shader
@@ -213,7 +213,7 @@ void Prisma::OmniShadowHandler::createAnimation() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Omni Shadow PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/OmniShadowPipeline/fragment.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+        contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
     // clang-format off
@@ -262,7 +262,7 @@ void Prisma::OmniShadowHandler::createAnimation() {
         PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
         PSOCreateInfo.GraphicsPipeline.RasterizerDesc.DepthClipEnable = Diligent::False;
 
-        contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_psoAnimation);
+        contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_psoAnimation);
         m_psoAnimation->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY, shadowMatrices.c_str())->Set(
                 m_shadowBuffer);
         m_psoAnimation->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, lightPlane.c_str())->Set(m_lightBuffer);
@@ -308,45 +308,45 @@ void Prisma::OmniShadowHandler::render(OmniShadowData data) {
                                                      glm::vec3(0.0f, -1.0f, 0.0f));
         auto& contextData = PrismaFunc::getInstance().contextData();
 
-        contextData.m_pImmediateContext->UpdateBuffer(m_shadowBuffer, 0, sizeof(OmniShadow), &m_shadows,
-                                                      Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->UpdateBuffer(m_shadowBuffer, 0, sizeof(OmniShadow), &m_shadows,
+                                                   Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         m_lightPlane.far_plane = data.farPlane;
         m_lightPlane.lightPos = data.lightPos;
 
-        contextData.m_pImmediateContext->UpdateBuffer(m_lightBuffer, 0, sizeof(LightPlane), &m_lightPlane,
-                                                      Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->UpdateBuffer(m_lightBuffer, 0, sizeof(LightPlane), &m_lightPlane,
+                                                   Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         auto depth = data.depth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
         // Clear the back buffer
-        contextData.m_pImmediateContext->SetRenderTargets(0, nullptr, depth,
-                                                          Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->SetRenderTargets(0, nullptr, depth,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-        contextData.m_pImmediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0,
-                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0,
+                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         // Set the pipeline state
-        contextData.m_pImmediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->SetPipelineState(m_pso);
         // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
         // makes sure that resources are transitioned to required states.
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
         if (!meshes.empty()) {
                 MeshIndirect::getInstance().setupBuffers();
                 // Set texture SRV in the SRB
-                contextData.m_pImmediateContext->CommitShaderResources(
+                contextData.immediateContext->CommitShaderResources(
                         m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 MeshIndirect::getInstance().renderMeshes();
         }
 
         // Set the pipeline state
-        contextData.m_pImmediateContext->SetPipelineState(m_psoAnimation);
+        contextData.immediateContext->SetPipelineState(m_psoAnimation);
         // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
         // makes sure that resources are transitioned to required states.
         auto& meshesAnimation = GlobalData::getInstance().currentGlobalScene()->animateMeshes;
         if (!meshesAnimation.empty()) {
                 MeshIndirect::getInstance().setupBuffersAnimation();
-                contextData.m_pImmediateContext->CommitShaderResources(m_srbAnimation,
-                                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                contextData.immediateContext->CommitShaderResources(m_srbAnimation,
+                                                                    Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 MeshIndirect::getInstance().renderAnimateMeshes();
         }
 

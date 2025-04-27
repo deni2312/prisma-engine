@@ -13,7 +13,7 @@
 void Prisma::MeshHandler::updateCamera() {
         auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
         auto& contextData = PrismaFunc::getInstance().contextData();
-        Diligent::MapHelper<ViewProjectionData> viewProjection(contextData.m_pImmediateContext, m_viewProjection,
+        Diligent::MapHelper<ViewProjectionData> viewProjection(contextData.immediateContext, m_viewProjection,
                                                                Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
         viewProjection->view = camera->matrix();
         viewProjection->projection = GlobalData::getInstance().currentProjection();
@@ -37,7 +37,7 @@ Prisma::MeshHandler::MeshHandler() {
         CBDesc.Usage = Diligent::USAGE_DYNAMIC;
         CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
-        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_viewProjection);
+        contextData.device->CreateBuffer(CBDesc, nullptr, &m_viewProjection);
 }
 
 

@@ -40,7 +40,7 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root, int numParticl
 
         // Create a shader source stream factory to load shaders from files.
         Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        contextData.engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
 
         Diligent::RefCntAutoPtr<Diligent::IShader> pResetParticleListsCS;
@@ -49,7 +49,7 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root, int numParticl
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "Sprite Movement CS";
                 ShaderCI.FilePath = "../../../UserEngine/Shaders/SpriteCompute/compute.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pResetParticleListsCS);
+                contextData.device->CreateShader(ShaderCI, &pResetParticleListsCS);
         }
 
         Diligent::BufferDesc CBDesc;
@@ -58,7 +58,7 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root, int numParticl
         CBDesc.Usage = Diligent::USAGE_DYNAMIC;
         CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
-        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_time);
+        contextData.device->CreateBuffer(CBDesc, nullptr, &m_time);
 
         Diligent::ComputePipelineStateCreateInfo PSOCreateInfo;
         Diligent::PipelineStateDesc& PSODesc = PSOCreateInfo.PSODesc;
@@ -81,7 +81,7 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root, int numParticl
 
         PSODesc.Name = "Sprite Movement";
         PSOCreateInfo.pCS = pResetParticleListsCS;
-        contextData.m_pDevice->CreateComputePipelineState(PSOCreateInfo, &m_pso);
+        contextData.device->CreateComputePipelineState(PSOCreateInfo, &m_pso);
 
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "TimeData")->Set(m_time);
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, Prisma::ShaderNames::CONSTANT_OMNI_DATA.c_str())->
@@ -105,7 +105,7 @@ void ParticleController::update() {
         }
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - m_startPoint).count();
-        Diligent::MapHelper<TimeData> timeData(contextData.m_pImmediateContext, m_time, Diligent::MAP_WRITE,
+        Diligent::MapHelper<TimeData> timeData(contextData.immediateContext, m_time, Diligent::MAP_WRITE,
                                                Diligent::MAP_FLAG_DISCARD);
         timeData->delta = 1.0f / Prisma::Engine::getInstance().fps();
         timeData->time = static_cast<float>(duration) / 1000.0f;
@@ -115,10 +115,10 @@ void ParticleController::update() {
         DispatAttribs.ThreadGroupCountX = m_numParticles;
         DispatAttribs.ThreadGroupCountY = 1;
         DispatAttribs.ThreadGroupCountZ = 1;
-        contextData.m_pImmediateContext->SetPipelineState(m_pso);
-        contextData.m_pImmediateContext->CommitShaderResources(
+        contextData.immediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->CommitShaderResources(
                 m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        contextData.m_pImmediateContext->DispatchCompute(DispatAttribs);
+        contextData.immediateContext->DispatchCompute(DispatAttribs);
 }
 
 void ParticleController::createPointLights(std::shared_ptr<Prisma::Node> root) {

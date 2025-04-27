@@ -80,7 +80,6 @@ void rollCallback(GLFWwindow* window, double x, double y) {
 
 
 Prisma::PrismaFunc::PrismaFunc() {
-
 }
 
 Prisma::PrismaFunc::RenderTargetFormat Prisma::PrismaFunc::renderFormat() const {
@@ -144,7 +143,7 @@ void Prisma::PrismaFunc::init() {
 
         SwapChainDesc SCDesc;
 
-        switch (m_contextData.m_DeviceType) {
+        switch (m_contextData.deviceType) {
 #if D3D11_SUPPORTED
                 case RENDER_DEVICE_TYPE_D3D11: {
                         EngineD3D11CreateInfo EngineCI;
@@ -153,12 +152,12 @@ void Prisma::PrismaFunc::init() {
                         auto* GetEngineFactoryD3D11 = LoadGraphicsEngineD3D11();
 #    endif
                         auto* pFactoryD3D11 = GetEngineFactoryD3D11();
-                        pFactoryD3D11->CreateDeviceAndContextsD3D11(EngineCI, &m_contextData.m_pDevice,
-                                                                    &m_contextData.m_pImmediateContext);
-                        pFactoryD3D11->CreateSwapChainD3D11(m_contextData.m_pDevice, m_contextData.m_pImmediateContext,
+                        pFactoryD3D11->CreateDeviceAndContextsD3D11(EngineCI, &m_contextData.device,
+                                                                    &m_contextData.immediateContext);
+                        pFactoryD3D11->CreateSwapChainD3D11(m_contextData.device, m_contextData.immediateContext,
                                                             SCDesc, FullScreenModeDesc{}, Window,
-                                                            &m_contextData.m_pSwapChain);
-                        m_contextData.m_pEngineFactory = pFactoryD3D11;
+                                                            &m_contextData.swapChain);
+                        m_contextData.engineFactory = pFactoryD3D11;
                 }
                 break;
 #endif
@@ -172,12 +171,12 @@ void Prisma::PrismaFunc::init() {
                         EngineD3D12CreateInfo EngineCI;
 
                         auto* pFactoryD3D12 = GetEngineFactoryD3D12();
-                        pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_contextData.m_pDevice,
-                                                                    &m_contextData.m_pImmediateContext);
-                        pFactoryD3D12->CreateSwapChainD3D12(m_contextData.m_pDevice, m_contextData.m_pImmediateContext,
+                        pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_contextData.device,
+                                                                    &m_contextData.immediateContext);
+                        pFactoryD3D12->CreateSwapChainD3D12(m_contextData.device, m_contextData.immediateContext,
                                                             SCDesc, FullScreenModeDesc{}, Window,
-                                                            &m_contextData.m_pSwapChain);
-                        m_contextData.m_pEngineFactory = pFactoryD3D12;
+                                                            &m_contextData.swapChain);
+                        m_contextData.engineFactory = pFactoryD3D12;
                 }
                 break;
 #endif
@@ -193,10 +192,10 @@ void Prisma::PrismaFunc::init() {
                         EngineGLCreateInfo EngineCI;
                         EngineCI.Window = Window;
 
-                        pFactoryOpenGL->CreateDeviceAndSwapChainGL(EngineCI, &m_contextData.m_pDevice,
-                                                                   &m_contextData.m_pImmediateContext, SCDesc,
-                                                                   &m_contextData.m_pSwapChain);
-                        m_contextData.m_pEngineFactory = pFactoryOpenGL;
+                        pFactoryOpenGL->CreateDeviceAndSwapChainGL(EngineCI, &m_contextData.device,
+                                                                   &m_contextData.immediateContext, SCDesc,
+                                                                   &m_contextData.swapChain);
+                        m_contextData.engineFactory = pFactoryOpenGL;
                 }
                 break;
 #endif
@@ -222,11 +221,11 @@ void Prisma::PrismaFunc::init() {
                         EngineCI.Features.PixelUAVWritesAndAtomics = DEVICE_FEATURE_STATE_ENABLED;
                         EngineCI.Features.NativeMultiDraw = DEVICE_FEATURE_STATE_ENABLED;
 
-                        pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.m_pDevice,
-                                                              &m_contextData.m_pImmediateContext);
-                        pFactoryVk->CreateSwapChainVk(m_contextData.m_pDevice, m_contextData.m_pImmediateContext,
-                                                      SCDesc, Window, &m_contextData.m_pSwapChain);
-                        m_contextData.m_pEngineFactory = pFactoryVk;
+                        pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.device,
+                                                              &m_contextData.immediateContext);
+                        pFactoryVk->CreateSwapChainVk(m_contextData.device, m_contextData.immediateContext,
+                                                      SCDesc, Window, &m_contextData.swapChain);
+                        m_contextData.engineFactory = pFactoryVk;
                 }
                 break;
 #endif
@@ -251,7 +250,7 @@ void Prisma::PrismaFunc::init() {
         TexDesc.Usage = USAGE_DEFAULT;
         TexDesc.BindFlags = BIND_SHADER_RESOURCE;
 
-        m_contextData.m_pDevice->CreateTexture(TexDesc, nullptr, &pDummyTexture);
+        m_contextData.device->CreateTexture(TexDesc, nullptr, &pDummyTexture);
 
         RefCntAutoPtr<ITexture> pDummyTextureArray;
 
@@ -266,7 +265,7 @@ void Prisma::PrismaFunc::init() {
 
         TexDescArray.ArraySize = 5;
 
-        m_contextData.m_pDevice->CreateTexture(TexDescArray, nullptr, &pDummyTextureArray);
+        m_contextData.device->CreateTexture(TexDescArray, nullptr, &pDummyTextureArray);
 
         GlobalData::getInstance().dummyTexture(pDummyTexture);
 
@@ -278,24 +277,24 @@ void Prisma::PrismaFunc::poll() {
 }
 
 void Prisma::PrismaFunc::update() {
-        m_contextData.m_pImmediateContext->Flush();
-        m_contextData.m_pSwapChain->Present();
+        m_contextData.immediateContext->Flush();
+        m_contextData.swapChain->Present();
 }
 
 void Prisma::PrismaFunc::bindMainRenderTarget() {
-        auto pRTV = m_contextData.m_pSwapChain->GetCurrentBackBufferRTV();
-        auto pDSV = m_contextData.m_pSwapChain->GetDepthBufferDSV();
+        auto pRTV = m_contextData.swapChain->GetCurrentBackBufferRTV();
+        auto pDSV = m_contextData.swapChain->GetDepthBufferDSV();
         // Clear the back buffer
-        m_contextData.m_pImmediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        m_contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void Prisma::PrismaFunc::clear() {
-        auto pRTV = m_contextData.m_pSwapChain->GetCurrentBackBufferRTV();
-        auto pDSV = m_contextData.m_pSwapChain->GetDepthBufferDSV();
-        m_contextData.m_pImmediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),
-                                                             RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        m_contextData.m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0,
-                                                             RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        auto pRTV = m_contextData.swapChain->GetCurrentBackBufferRTV();
+        auto pDSV = m_contextData.swapChain->GetDepthBufferDSV();
+        m_contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),
+                                                          RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        m_contextData.immediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0,
+                                                          RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHandler) {
@@ -340,12 +339,12 @@ void* Prisma::PrismaFunc::windowNative() {
 }
 
 void Prisma::PrismaFunc::destroy() {
-        if (m_contextData.m_pImmediateContext)
-                m_contextData.m_pImmediateContext->Flush();
+        if (m_contextData.immediateContext)
+                m_contextData.immediateContext->Flush();
 
-        m_contextData.m_pSwapChain = nullptr;
-        m_contextData.m_pImmediateContext = nullptr;
-        m_contextData.m_pDevice = nullptr;
+        m_contextData.swapChain = nullptr;
+        m_contextData.immediateContext = nullptr;
+        m_contextData.device = nullptr;
 
         if (m_window) {
                 glfwDestroyWindow(m_window);

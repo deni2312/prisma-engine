@@ -22,11 +22,11 @@ struct CallbackHandler;
 class PrismaFunc : public InstanceData<PrismaFunc> {
 public:
         struct ContextData {
-                Diligent::RefCntAutoPtr<Diligent::IRenderDevice> m_pDevice;
-                Diligent::RefCntAutoPtr<Diligent::IDeviceContext> m_pImmediateContext;
-                Diligent::RefCntAutoPtr<Diligent::ISwapChain> m_pSwapChain;
-                Diligent::RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
-                Diligent::RefCntAutoPtr<Diligent::IEngineFactory> m_pEngineFactory;
+                Diligent::RefCntAutoPtr<Diligent::IRenderDevice> device;
+                Diligent::RefCntAutoPtr<Diligent::IDeviceContext> immediateContext;
+                Diligent::RefCntAutoPtr<Diligent::ISwapChain> swapChain;
+                Diligent::RENDER_DEVICE_TYPE deviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
+                Diligent::RefCntAutoPtr<Diligent::IEngineFactory> engineFactory;
         };
 
         struct UIInput {

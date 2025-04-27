@@ -34,8 +34,8 @@ Prisma::PipelineHandler::PipelineHandler() {
         Diligent::TextureDesc RTColorDesc;
         RTColorDesc.Name = "Offscreen render target";
         RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
-        RTColorDesc.Width = contextData.m_pSwapChain->GetDesc().Width;
-        RTColorDesc.Height = contextData.m_pSwapChain->GetDesc().Height;
+        RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
+        RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
         RTColorDesc.MipLevels = 1;
         RTColorDesc.Format = PrismaFunc::getInstance().renderFormat().RenderFormat;
         // The render target can be bound as a shader resource and as a render target
@@ -46,7 +46,7 @@ Prisma::PipelineHandler::PipelineHandler() {
         RTColorDesc.ClearValue.Color[1] = 0.350f;
         RTColorDesc.ClearValue.Color[2] = 0.350f;
         RTColorDesc.ClearValue.Color[3] = 1.f;
-        contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_textureData.pColorRTV);
+        contextData.device->CreateTexture(RTColorDesc, nullptr, &m_textureData.pColorRTV);
 
         // Create window-size depth buffer
         Diligent::TextureDesc RTDepthDesc = RTColorDesc;
@@ -57,7 +57,7 @@ Prisma::PipelineHandler::PipelineHandler() {
         RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
         RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
         RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
-        contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &m_textureData.pDepthDSV);
+        contextData.device->CreateTexture(RTDepthDesc, nullptr, &m_textureData.pDepthDSV);
         // Store the depth-stencil view
 }
 

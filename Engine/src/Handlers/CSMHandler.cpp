@@ -44,7 +44,7 @@ void Prisma::CSMHandler::create() {
 
 
     Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
     ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
     // Create a vertex shader
     Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
@@ -53,7 +53,7 @@ void Prisma::CSMHandler::create() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "CSM Shadow VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/vertex.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+        contextData.device->CreateShader(ShaderCI, &pVS);
     }
 
     Diligent::RefCntAutoPtr<Diligent::IShader> pGS;
@@ -62,7 +62,7 @@ void Prisma::CSMHandler::create() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "CSM Shadow GS";
         ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/geometry.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pGS);
+        contextData.device->CreateShader(ShaderCI, &pGS);
     }
 
     // Create a pixel shader
@@ -72,7 +72,7 @@ void Prisma::CSMHandler::create() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "CSM Shadow PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/fragment.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+        contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
     // clang-format off
@@ -123,9 +123,9 @@ void Prisma::CSMHandler::create() {
         Diligent::BufferData data;
         data.DataSize = sizeof(CSMShadow);
         data.pData = &shadow;
-        contextData.m_pDevice->CreateBuffer(ShadowBuffer, &data, &m_shadowBuffer);
+        contextData.device->CreateBuffer(ShadowBuffer, &data, &m_shadowBuffer);
 
-        contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+        contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY, ShaderNames::CONSTANT_DIR_DATA_SHADOW.c_str())->
                Set(m_shadowBuffer);
 
@@ -175,7 +175,7 @@ void Prisma::CSMHandler::createAnimation() {
     ShaderCI.Macros = { Macros, _countof(Macros) };
 
     Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
     ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
     // Create a vertex shader
     Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
@@ -184,7 +184,7 @@ void Prisma::CSMHandler::createAnimation() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "CSM Shadow VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/vertex.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+        contextData.device->CreateShader(ShaderCI, &pVS);
     }
 
     Diligent::RefCntAutoPtr<Diligent::IShader> pGS;
@@ -193,7 +193,7 @@ void Prisma::CSMHandler::createAnimation() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "CSM Shadow GS";
         ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/geometry.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pGS);
+        contextData.device->CreateShader(ShaderCI, &pGS);
     }
 
     // Create a pixel shader
@@ -203,7 +203,7 @@ void Prisma::CSMHandler::createAnimation() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "CSM Shadow PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/CSMPipeline/fragment.glsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+        contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
     // clang-format off
@@ -247,7 +247,7 @@ void Prisma::CSMHandler::createAnimation() {
         PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
         PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
 
-        contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_psoAnimation);
+        contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_psoAnimation);
         m_psoAnimation->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY,
                                                 ShaderNames::CONSTANT_DIR_DATA_SHADOW.c_str())->Set(m_shadowBuffer);
         m_psoAnimation->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_ANIMATION.c_str())->
@@ -273,37 +273,37 @@ void Prisma::CSMHandler::createAnimation() {
 
 void Prisma::CSMHandler::render(const CSMData& data) {
         auto& contextData = PrismaFunc::getInstance().contextData();
-        contextData.m_pImmediateContext->UpdateBuffer(m_shadowBuffer, 0, sizeof(CSMShadow), &data.shadows,
-                                                      Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->UpdateBuffer(m_shadowBuffer, 0, sizeof(CSMShadow), &data.shadows,
+                                                   Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         auto depth = data.depth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
         // Clear the back buffer
-        contextData.m_pImmediateContext->SetRenderTargets(0, nullptr, depth,
-                                                          Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->SetRenderTargets(0, nullptr, depth,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-        contextData.m_pImmediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0,
-                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0,
+                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         // Set the pipeline state
-        contextData.m_pImmediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->SetPipelineState(m_pso);
         // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
         // makes sure that resources are transitioned to required states.
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
         if (!meshes.empty()) {
                 MeshIndirect::getInstance().setupBuffers();
                 // Set texture SRV in the SRB
-                contextData.m_pImmediateContext->CommitShaderResources(
+                contextData.immediateContext->CommitShaderResources(
                         m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 MeshIndirect::getInstance().renderMeshes();
         }
 
-        contextData.m_pImmediateContext->SetPipelineState(m_psoAnimation);
+        contextData.immediateContext->SetPipelineState(m_psoAnimation);
 
         auto& meshesAnimation = GlobalData::getInstance().currentGlobalScene()->animateMeshes;
         if (!meshesAnimation.empty()) {
                 MeshIndirect::getInstance().setupBuffersAnimation();
-                contextData.m_pImmediateContext->CommitShaderResources(m_srbAnimation,
-                                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                contextData.immediateContext->CommitShaderResources(m_srbAnimation,
+                                                                    Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 MeshIndirect::getInstance().renderAnimateMeshes();
         }
 

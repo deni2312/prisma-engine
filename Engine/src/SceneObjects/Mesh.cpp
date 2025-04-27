@@ -109,7 +109,7 @@ void Prisma::Mesh::uploadBLAS() {
                 Diligent::BufferData VBData;
                 VBData.pData = vertices.data();
                 VBData.DataSize = sizeof(glm::vec3) * vertices.size();
-                contextData.m_pDevice->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
+                contextData.device->CreateBuffer(VertBuffDesc, &VBData, &m_vBuffer);
 
                 Diligent::BufferDesc IndBuffDesc;
                 IndBuffDesc.Name = "Cube index buffer";
@@ -119,7 +119,7 @@ void Prisma::Mesh::uploadBLAS() {
                 Diligent::BufferData IBData;
                 IBData.pData = m_vertices->indices.data();
                 IBData.DataSize = sizeof(unsigned int) * m_vertices->indices.size();
-                contextData.m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
+                contextData.device->CreateBuffer(IndBuffDesc, &IBData, &m_iBuffer);
 
                 // Create & build bottom level acceleration structure
                 // Create BLAS
@@ -138,7 +138,7 @@ void Prisma::Mesh::uploadBLAS() {
                         ASDesc.pTriangles = &Triangles;
                         ASDesc.TriangleCount = 1;
 
-                        contextData.m_pDevice->CreateBLAS(ASDesc, &m_pCubeBLAS);
+                        contextData.device->CreateBLAS(ASDesc, &m_pCubeBLAS);
                         VERIFY_EXPR(m_pCubeBLAS != nullptr);
                 }
 
@@ -151,7 +151,7 @@ void Prisma::Mesh::uploadBLAS() {
                         BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
                         BuffDesc.Size = m_pCubeBLAS->GetScratchBufferSizes().Build;
 
-                        contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &pScratchBuffer);
+                        contextData.device->CreateBuffer(BuffDesc, nullptr, &pScratchBuffer);
                         VERIFY_EXPR(pScratchBuffer != nullptr);
                 }
 
@@ -182,7 +182,7 @@ void Prisma::Mesh::uploadBLAS() {
                 Attribs.GeometryTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
                 Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
-                contextData.m_pImmediateContext->BuildBLAS(Attribs);
+                contextData.immediateContext->BuildBLAS(Attribs);
                 m_blasGPU = true;
         }
 }

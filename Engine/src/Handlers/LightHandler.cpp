@@ -11,7 +11,6 @@
 
 
 Prisma::LightHandler::LightHandler() {
-
         auto& contextData = PrismaFunc::getInstance().contextData();
 
         Diligent::BufferDesc OmniDesc;
@@ -21,7 +20,7 @@ Prisma::LightHandler::LightHandler() {
         OmniDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
         OmniDesc.ElementByteStride = sizeof(LightType::LightOmni);
         OmniDesc.Size = Define::MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni);
-        contextData.m_pDevice->CreateBuffer(OmniDesc, nullptr, &m_omniLights);
+        contextData.device->CreateBuffer(OmniDesc, nullptr, &m_omniLights);
 
         Diligent::BufferDesc DirDesc;
         DirDesc.Name = "Dir Light Buffer";
@@ -30,14 +29,14 @@ Prisma::LightHandler::LightHandler() {
         DirDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
         DirDesc.ElementByteStride = sizeof(LightType::LightDir);
         DirDesc.Size = Define::MAX_DIR_LIGHTS * sizeof(LightType::LightDir);
-        contextData.m_pDevice->CreateBuffer(DirDesc, nullptr, &m_dirLights);
+        contextData.device->CreateBuffer(DirDesc, nullptr, &m_dirLights);
 
         Diligent::BufferDesc LightSizeDesc;
         LightSizeDesc.Name = "Light sizes";
         LightSizeDesc.Usage = Diligent::USAGE_DEFAULT;
         LightSizeDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
         LightSizeDesc.Size = sizeof(LightSizes);
-        contextData.m_pDevice->CreateBuffer(LightSizeDesc, nullptr, &m_lightSizes);
+        contextData.device->CreateBuffer(LightSizeDesc, nullptr, &m_lightSizes);
         m_clusterCalculation = std::make_shared<ClusterCalculation>(m_omniLights, m_lightSizes);
 
         m_init = true;
@@ -46,7 +45,6 @@ Prisma::LightHandler::LightHandler() {
 void Prisma::LightHandler::updateDirectional() {
         const auto& scene = GlobalData::getInstance().currentGlobalScene();
         int numVisible = 0;
-
 
         m_dataDirectional = std::make_shared<SSBODataDirectional>();
         for (int i = 0; i < scene->dirLights.size(); i++) {
@@ -68,9 +66,9 @@ void Prisma::LightHandler::updateDirectional() {
 
         if (!m_dataDirectional->lights.empty()) {
                 auto& contextData = PrismaFunc::getInstance().contextData();
-                contextData.m_pImmediateContext->UpdateBuffer(m_dirLights, 0, numVisible * sizeof(LightType::LightDir),
-                                                              m_dataDirectional->lights.data(),
-                                                              Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                contextData.immediateContext->UpdateBuffer(m_dirLights, 0, numVisible * sizeof(LightType::LightDir),
+                                                           m_dataDirectional->lights.data(),
+                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         }
 }
 
@@ -143,10 +141,10 @@ void Prisma::LightHandler::updateOmni() {
 
                 if (!m_dataOmni->lights.empty()) {
                         auto& contextData = PrismaFunc::getInstance().contextData();
-                        contextData.m_pImmediateContext->UpdateBuffer(m_omniLights, 0,
-                                                                      numVisible * sizeof(LightType::LightOmni),
-                                                                      m_dataOmni->lights.data(),
-                                                                      Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                        contextData.immediateContext->UpdateBuffer(m_omniLights, 0,
+                                                                   numVisible * sizeof(LightType::LightOmni),
+                                                                   m_dataOmni->lights.data(),
+                                                                   Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 }
                 for (auto update : m_updates) {
                         update();
@@ -186,8 +184,8 @@ void Prisma::LightHandler::updateCSM() {
 
 void Prisma::LightHandler::updateSizes() {
         auto& contextData = PrismaFunc::getInstance().contextData();
-        contextData.m_pImmediateContext->UpdateBuffer(m_lightSizes, 0, sizeof(LightSizes), &m_sizes,
-                                                      Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->UpdateBuffer(m_lightSizes, 0, sizeof(LightSizes), &m_sizes,
+                                                   Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 std::vector<Diligent::IDeviceObject*>& Prisma::LightHandler::omniData() {

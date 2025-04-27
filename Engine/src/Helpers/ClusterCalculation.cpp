@@ -21,7 +21,7 @@ Prisma::ClusterCalculation::ClusterCalculation(Diligent::RefCntAutoPtr<Diligent:
         CBDesc.Usage = Diligent::USAGE_DYNAMIC;
         CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
-        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_clusterData);
+        contextData.device->CreateBuffer(CBDesc, nullptr, &m_clusterData);
 
         Diligent::BufferDesc ClusterDesc;
         ClusterDesc.Name = "Cluster";
@@ -30,7 +30,7 @@ Prisma::ClusterCalculation::ClusterCalculation(Diligent::RefCntAutoPtr<Diligent:
         ClusterDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
         ClusterDesc.ElementByteStride = sizeof(Cluster);
         ClusterDesc.Size = sizeof(Cluster) * m_gridSizeX * m_gridSizeY * m_gridSizeZ;
-        contextData.m_pDevice->CreateBuffer(ClusterDesc, nullptr, &m_cluster);
+        contextData.device->CreateBuffer(ClusterDesc, nullptr, &m_cluster);
         createCamera();
         createLight();
 }
@@ -39,7 +39,7 @@ void Prisma::ClusterCalculation::updateCamera() {
         auto currentSettings = SettingsLoader::getInstance().getSettings();
         auto& contextData = PrismaFunc::getInstance().contextData();
 
-        Diligent::MapHelper<ClusterData> clusterData(contextData.m_pImmediateContext, m_clusterData,
+        Diligent::MapHelper<ClusterData> clusterData(contextData.immediateContext, m_clusterData,
                                                      Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
         clusterData->gridSize = {m_gridSizeX, m_gridSizeY, m_gridSizeZ, 0};
         clusterData->inverseProjection = inverse(GlobalData::getInstance().currentProjection());
@@ -50,10 +50,10 @@ void Prisma::ClusterCalculation::updateCamera() {
         DispatAttribs.ThreadGroupCountX = m_gridSizeX;
         DispatAttribs.ThreadGroupCountY = m_gridSizeY;
         DispatAttribs.ThreadGroupCountZ = m_gridSizeZ;
-        contextData.m_pImmediateContext->SetPipelineState(m_pso);
-        contextData.m_pImmediateContext->CommitShaderResources(
+        contextData.immediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->CommitShaderResources(
                 m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        contextData.m_pImmediateContext->DispatchCompute(DispatAttribs);
+        contextData.immediateContext->DispatchCompute(DispatAttribs);
 }
 
 void Prisma::ClusterCalculation::updateLights() {
@@ -63,10 +63,10 @@ void Prisma::ClusterCalculation::updateLights() {
         DispatAttribs.ThreadGroupCountX = 27;
         DispatAttribs.ThreadGroupCountY = 1;
         DispatAttribs.ThreadGroupCountZ = 1;
-        contextData.m_pImmediateContext->SetPipelineState(m_psoLight);
-        contextData.m_pImmediateContext->CommitShaderResources(
+        contextData.immediateContext->SetPipelineState(m_psoLight);
+        contextData.immediateContext->CommitShaderResources(
                 m_srbLight, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        contextData.m_pImmediateContext->DispatchCompute(DispatAttribs);
+        contextData.immediateContext->DispatchCompute(DispatAttribs);
 }
 
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::ClusterCalculation::clusters() {
@@ -87,7 +87,7 @@ void Prisma::ClusterCalculation::createCamera() {
 
         // Create a shader source stream factory to load shaders from files.
         Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        contextData.engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
 
         Diligent::RefCntAutoPtr<Diligent::IShader> pResetParticleListsCS;
@@ -96,7 +96,7 @@ void Prisma::ClusterCalculation::createCamera() {
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "Cluster CS";
                 ShaderCI.FilePath = "../../../Engine/Shaders/ComputePipeline/compute.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pResetParticleListsCS);
+                contextData.device->CreateShader(ShaderCI, &pResetParticleListsCS);
         }
 
         Diligent::ComputePipelineStateCreateInfo PSOCreateInfo;
@@ -118,7 +118,7 @@ void Prisma::ClusterCalculation::createCamera() {
 
         PSODesc.Name = "Cluster";
         PSOCreateInfo.pCS = pResetParticleListsCS;
-        contextData.m_pDevice->CreateComputePipelineState(PSOCreateInfo, &m_pso);
+        contextData.device->CreateComputePipelineState(PSOCreateInfo, &m_pso);
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_CLUSTERS_DATA.c_str())->Set(
                 m_clusterData);
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_CLUSTERS.c_str())->Set(
@@ -136,7 +136,7 @@ void Prisma::ClusterCalculation::createLight() {
 
         // Create a shader source stream factory to load shaders from files.
         Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        contextData.engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
 
         Diligent::RefCntAutoPtr<Diligent::IShader> pResetParticleListsCS;
@@ -145,7 +145,7 @@ void Prisma::ClusterCalculation::createLight() {
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "Cluster Light CS";
                 ShaderCI.FilePath = "../../../Engine/Shaders/ComputePipeline/compute_lights.glsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pResetParticleListsCS);
+                contextData.device->CreateShader(ShaderCI, &pResetParticleListsCS);
         }
 
         Diligent::ComputePipelineStateCreateInfo PSOCreateInfo;
@@ -169,7 +169,7 @@ void Prisma::ClusterCalculation::createLight() {
 
         PSODesc.Name = "Cluster Lights";
         PSOCreateInfo.pCS = pResetParticleListsCS;
-        contextData.m_pDevice->CreateComputePipelineState(PSOCreateInfo, &m_psoLight);
+        contextData.device->CreateComputePipelineState(PSOCreateInfo, &m_psoLight);
 
         m_psoLight->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_CLUSTERS.c_str())->Set(
                 m_cluster->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));

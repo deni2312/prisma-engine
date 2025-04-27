@@ -248,7 +248,7 @@ void Prisma::PipelineCSM::init() {
         RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
         RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
         RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
-        contextData.m_pDevice->CreateTexture(RTDepthDesc, nullptr, &m_depth);
+        contextData.device->CreateTexture(RTDepthDesc, nullptr, &m_depth);
 
         // Create render target views for each face
         for (int i = 0; i < m_size; ++i) {

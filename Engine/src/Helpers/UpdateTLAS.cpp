@@ -96,7 +96,7 @@ void Prisma::UpdateTLAS::resizeTLAS() {
                         vertexData.DataSize = vertexDataDesc.Size;
                         vertexData.pData = verticesBlas.data();
 
-                        contextData.m_pDevice->CreateBuffer(vertexDataDesc, &vertexData, &m_vertexData);
+                        contextData.device->CreateBuffer(vertexDataDesc, &vertexData, &m_vertexData);
 
                         Diligent::BufferDesc primitiveDesc;
 
@@ -110,7 +110,7 @@ void Prisma::UpdateTLAS::resizeTLAS() {
                         indexData.DataSize = primitiveDesc.Size;
                         indexData.pData = primitivesBlas.data();
 
-                        contextData.m_pDevice->CreateBuffer(primitiveDesc, &indexData, &m_primitiveData);
+                        contextData.device->CreateBuffer(primitiveDesc, &indexData, &m_primitiveData);
 
                         Diligent::BufferDesc vertexLocationDesc;
 
@@ -123,7 +123,7 @@ void Prisma::UpdateTLAS::resizeTLAS() {
                         Diligent::BufferData locationData;
                         locationData.DataSize = vertexLocationDesc.Size;
                         locationData.pData = locationBlas.data();
-                        contextData.m_pDevice->CreateBuffer(vertexLocationDesc, &locationData, &m_vertexLocation);
+                        contextData.device->CreateBuffer(vertexLocationDesc, &locationData, &m_vertexLocation);
 
                         for (auto update : m_updates) {
                                 update(m_vertexData, m_primitiveData, m_vertexLocation);
@@ -180,7 +180,7 @@ void Prisma::UpdateTLAS::updateSizeTLAS() {
                 TLASDesc.Flags = Diligent::RAYTRACING_BUILD_AS_ALLOW_UPDATE |
                                  Diligent::RAYTRACING_BUILD_AS_PREFER_FAST_TRACE;
 
-                contextData.m_pDevice->CreateTLAS(TLASDesc, &m_pTLAS);
+                contextData.device->CreateTLAS(TLASDesc, &m_pTLAS);
                 VERIFY_EXPR(m_pTLAS != nullptr);
                 PipelineHandler::getInstance().raytracing()->srb()->GetVariableByName(
                         Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(getInstance().TLAS());
@@ -197,7 +197,7 @@ void Prisma::UpdateTLAS::updateSizeTLAS() {
                 BuffDesc.Size = std::max(m_pTLAS->GetScratchBufferSizes().Build,
                                          m_pTLAS->GetScratchBufferSizes().Update);
 
-                contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_ScratchBuffer);
+                contextData.device->CreateBuffer(BuffDesc, nullptr, &m_ScratchBuffer);
                 VERIFY_EXPR(m_ScratchBuffer != nullptr);
         }
 
@@ -209,7 +209,7 @@ void Prisma::UpdateTLAS::updateSizeTLAS() {
                 BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
                 BuffDesc.Size = Diligent::TLAS_INSTANCE_DATA_SIZE * meshes.size();
 
-                contextData.m_pDevice->CreateBuffer(BuffDesc, nullptr, &m_InstanceBuffer);
+                contextData.device->CreateBuffer(BuffDesc, nullptr, &m_InstanceBuffer);
                 VERIFY_EXPR(m_InstanceBuffer != nullptr);
         }
 
@@ -266,7 +266,7 @@ void Prisma::UpdateTLAS::updateTLAS(bool update) {
         Attribs.BLASTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
         Attribs.InstanceBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
         Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-        contextData.m_pImmediateContext->BuildTLAS(Attribs);
+        contextData.immediateContext->BuildTLAS(Attribs);
 
         // Create shader binding table.
 
@@ -278,7 +278,7 @@ void Prisma::UpdateTLAS::updateTLAS(bool update) {
                 if (m_pSBT) {
                         m_pSBT.Release();
                 }
-                contextData.m_pDevice->CreateSBT(SBTDesc, &m_pSBT);
+                contextData.device->CreateSBT(SBTDesc, &m_pSBT);
                 VERIFY_EXPR(m_pSBT != nullptr);
                 m_pSBT->BindRayGenShader("Main");
                 m_pSBT->BindMissShader("PrimaryMiss", PRIMARY_RAY_INDEX);
@@ -293,7 +293,7 @@ void Prisma::UpdateTLAS::updateTLAS(bool update) {
                 m_pSBT->BindHitGroupForTLAS(m_pTLAS, SHADOW_RAY_INDEX, nullptr);
 
                 // Update SBT with the shader groups we bound
-                contextData.m_pImmediateContext->UpdateSBT(m_pSBT);
+                contextData.immediateContext->UpdateSBT(m_pSBT);
         }
 }
 

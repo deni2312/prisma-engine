@@ -87,8 +87,8 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f} 
 
         NodeViewer::getInstance();
         m_imguiDiligent = Diligent::ImGuiImplWin32::Create(
-                Diligent::ImGuiDiligentCreateInfo{contextData.m_pDevice, contextData.m_pSwapChain->GetDesc()},
-                static_cast<HWND>(Prisma::PrismaFunc::getInstance().windowNative()));
+                Diligent::ImGuiDiligentCreateInfo{contextData.device, contextData.swapChain->GetDesc()},
+                static_cast<HWND>(PrismaFunc::getInstance().windowNative()));
 
         ScenePipeline::getInstance();
         PixelCapture::getInstance();
@@ -382,7 +382,7 @@ void Prisma::ImguiDebug::start() {
         //ImGui_ImplOpenGL3_NewFrame();
         //ImGui_ImplGlfw_NewFrame();
         //
-        auto contextDesc = PrismaFunc::getInstance().contextData().m_pSwapChain->GetDesc();
+        auto contextDesc = PrismaFunc::getInstance().contextData().swapChain->GetDesc();
         m_imguiDiligent->NewFrame(m_width, m_height, contextDesc.PreTransform);
         ImGuizmo::BeginFrame();
 }
@@ -407,7 +407,7 @@ void Prisma::ImguiDebug::close() {
                 m_addingMenu.addMenu(m_imguiCamera);
                 ImGuiTabs::getInstance().updateTabs(GlobalData::getInstance().currentGlobalScene()->root, 0);
         }
-        m_imguiDiligent->Render(PrismaFunc::getInstance().contextData().m_pImmediateContext);
+        m_imguiDiligent->Render(PrismaFunc::getInstance().contextData().immediateContext);
         //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
@@ -466,8 +466,8 @@ void Prisma::ImguiDebug::drawScene() {
         }
         auto& contextData = PrismaFunc::getInstance().contextData();
 
-        auto pRTV = contextData.m_pSwapChain->GetCurrentBackBufferRTV();
-        auto pDSV = contextData.m_pSwapChain->GetDepthBufferDSV();
+        auto pRTV = contextData.swapChain->GetCurrentBackBufferRTV();
+        auto pDSV = contextData.swapChain->GetDepthBufferDSV();
         ScenePipeline::getInstance().render(model, pRTV, pDSV);
 }
 

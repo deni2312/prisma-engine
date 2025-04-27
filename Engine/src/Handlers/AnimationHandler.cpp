@@ -29,7 +29,7 @@ Prisma::AnimationHandler::AnimationHandler() {
         MatBufferDesc.ElementByteStride = sizeof(Mesh::MeshData);
         auto size = sizeof(SSBOAnimation) * Define::MAX_ANIMATION_MESHES;
         MatBufferDesc.Size = size; // Ensure enough space
-        contextData.m_pDevice->CreateBuffer(MatBufferDesc, nullptr, &m_animation);
+        contextData.device->CreateBuffer(MatBufferDesc, nullptr, &m_animation);
         animations.resize(Define::MAX_ANIMATION_MESHES);
         //m_ssboAnimation = std::make_shared<SSBO>(8);
         //m_ssboAnimation->resize(sizeof(SSBOAnimation) * MAX_ANIMATION_MESHES);

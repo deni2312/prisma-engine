@@ -157,7 +157,7 @@ Prisma::PrismaRender::BufferData Prisma::PrismaRender::quadBuffer() {
                 VBData.pData = vertices.data();
                 VBData.DataSize = VertBuffDesc.Size;
 
-                PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(
+                PrismaFunc::getInstance().contextData().device->CreateBuffer(
                         VertBuffDesc, &VBData, &m_quadBufferData.vBuffer);
 
                 // Create index buffer
@@ -171,7 +171,7 @@ Prisma::PrismaRender::BufferData Prisma::PrismaRender::quadBuffer() {
                 IBData.pData = indices.data();
                 IBData.DataSize = IndBuffDesc.Size;
                 m_quadBufferData.iBufferSize = indices.size();
-                PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(
+                PrismaFunc::getInstance().contextData().device->CreateBuffer(
                         IndBuffDesc, &IBData, &m_quadBufferData.iBuffer);
                 m_initQuad = true;
         }
@@ -246,7 +246,7 @@ Prisma::PrismaRender::BufferData Prisma::PrismaRender::cubeBuffer() {
                 VBData.pData = vertices.data();
                 VBData.DataSize = VertBuffDesc.Size;
 
-                PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(
+                PrismaFunc::getInstance().contextData().device->CreateBuffer(
                         VertBuffDesc, &VBData, &m_cubeBufferData.vBuffer);
 
                 // Create index buffer
@@ -260,7 +260,7 @@ Prisma::PrismaRender::BufferData Prisma::PrismaRender::cubeBuffer() {
                 IBData.pData = indices.data();
                 IBData.DataSize = IndBuffDesc.Size;
                 m_cubeBufferData.iBufferSize = indices.size();
-                PrismaFunc::getInstance().contextData().m_pDevice->CreateBuffer(
+                PrismaFunc::getInstance().contextData().device->CreateBuffer(
                         IndBuffDesc, &IBData, &m_cubeBufferData.iBuffer);
                 m_initCube = true;
         }

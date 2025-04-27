@@ -6,21 +6,21 @@
 void Prisma::PipelineSkyboxRenderer::render() {
         auto& contextData = PrismaFunc::getInstance().contextData();
 
-        contextData.m_pImmediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->SetPipelineState(m_pso);
 
         auto cubeBuffer = PrismaRender::getInstance().cubeBuffer();
 
         // Bind vertex and index buffers
         constexpr Diligent::Uint64 offset = 0;
         Diligent::IBuffer* pBuffs[] = {cubeBuffer.vBuffer};
-        contextData.m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offset,
+        contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset,
                                                           Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
                                                           Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-        contextData.m_pImmediateContext->SetIndexBuffer(cubeBuffer.iBuffer, 0,
+        contextData.immediateContext->SetIndexBuffer(cubeBuffer.iBuffer, 0,
                                                         Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         // Set texture SRV in the SRB
-        contextData.m_pImmediateContext->CommitShaderResources(
+        contextData.immediateContext->CommitShaderResources(
                 m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
@@ -28,7 +28,7 @@ void Prisma::PipelineSkyboxRenderer::render() {
         DrawAttrs.NumIndices = cubeBuffer.iBufferSize;
         // Verify the state of vertex and index buffers
         DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
-        contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
+        contextData.immediateContext->DrawIndexed(DrawAttrs);
 }
 
 void Prisma::PipelineSkyboxRenderer::texture(Diligent::RefCntAutoPtr<Diligent::ITexture> texture) {
@@ -84,7 +84,7 @@ Prisma::PipelineSkyboxRenderer::PipelineSkyboxRenderer() {
         // In this tutorial, we will load shaders from file. To be able to do that,
         // we need to create a shader source stream factory
         Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(
+        PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(
                 nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
         // Create a vertex shader
@@ -94,7 +94,7 @@ Prisma::PipelineSkyboxRenderer::PipelineSkyboxRenderer() {
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "SkyboxPipeline VS";
                 ShaderCI.FilePath = "../../../Engine/Shaders/SkyboxPipeline/vertex.hlsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+                contextData.device->CreateShader(ShaderCI, &pVS);
                 // Create dynamic uniform buffer that will store our transformation matrix
                 // Dynamic buffers can be frequently updated by the CPU
                 Diligent::BufferDesc CBDesc;
@@ -103,7 +103,7 @@ Prisma::PipelineSkyboxRenderer::PipelineSkyboxRenderer() {
                 CBDesc.Usage = Diligent::USAGE_DYNAMIC;
                 CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
                 CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
-                contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_mvpVS);
+                contextData.device->CreateBuffer(CBDesc, nullptr, &m_mvpVS);
         }
 
         // Create a pixel shader
@@ -113,7 +113,7 @@ Prisma::PipelineSkyboxRenderer::PipelineSkyboxRenderer() {
                 ShaderCI.EntryPoint = "main";
                 ShaderCI.Desc.Name = "SkyboxPipeline PS";
                 ShaderCI.FilePath = "../../../Engine/Shaders/SkyboxPipeline/fragment.hlsl";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+                contextData.device->CreateShader(ShaderCI, &pPS);
         }
 
     // clang-format off
@@ -158,7 +158,7 @@ Prisma::PipelineSkyboxRenderer::PipelineSkyboxRenderer() {
         // clang-format on
         PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
         PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
-        contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+        contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->
                Set(MeshHandler::getInstance().viewProjection());

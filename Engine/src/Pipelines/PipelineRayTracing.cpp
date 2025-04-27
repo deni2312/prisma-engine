@@ -57,10 +57,10 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         CBDesc.BindFlags = BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
 
-        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_raytracingData);
+        contextData.device->CreateBuffer(CBDesc, nullptr, &m_raytracingData);
 
         m_hardwareMaxReflection = std::min(m_MaxRecursionDepth,
-                                           contextData.m_pDevice->GetAdapterInfo().RayTracing.MaxRecursionDepth);
+                                           contextData.device->GetAdapterInfo().RayTracing.MaxRecursionDepth);
         m_MaxRecursionDepth = m_hardwareMaxReflection;
         // Prepare ray tracing pipeline description.
         RayTracingPipelineStateCreateInfoX PSOCreateInfo;
@@ -90,7 +90,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
         // Create a shader source stream factory to load shaders from files.
         RefCntAutoPtr<IShaderSourceInputStreamFactory> pShaderSourceFactory;
-        contextData.m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+        contextData.engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
         ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
 
         // Create ray generation shader.
@@ -100,7 +100,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
                 ShaderCI.Desc.Name = "Ray tracing RG";
                 ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/raytrace.hlsl";
                 ShaderCI.EntryPoint = "main";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pRayGen);
+                contextData.device->CreateShader(ShaderCI, &pRayGen);
                 VERIFY_EXPR(pRayGen != nullptr);
         }
 
@@ -109,7 +109,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         ShaderCI.Desc.Name = "Shadow ray miss shader";
         ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/shadow_miss.hlsl";
         ShaderCI.EntryPoint = "main";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pShadowMiss);
+        contextData.device->CreateShader(ShaderCI, &pShadowMiss);
         VERIFY_EXPR(pShadowMiss != nullptr);
 
         RefCntAutoPtr<IShader> pGlassPrimaryHit;
@@ -117,7 +117,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         ShaderCI.Desc.Name = "Glass primary ray closest hit shader";
         ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/transparent.hlsl";
         ShaderCI.EntryPoint = "main";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pGlassPrimaryHit);
+        contextData.device->CreateShader(ShaderCI, &pGlassPrimaryHit);
         VERIFY_EXPR(pGlassPrimaryHit != nullptr);
 
         // Create miss shaders.
@@ -127,7 +127,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
                 ShaderCI.Desc.Name = "Primary ray miss shader";
                 ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/miss.hlsl";
                 ShaderCI.EntryPoint = "main";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pPrimaryMiss);
+                contextData.device->CreateShader(ShaderCI, &pPrimaryMiss);
                 VERIFY_EXPR(pPrimaryMiss != nullptr);
         }
 
@@ -138,7 +138,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
                 ShaderCI.Desc.Name = "Primary ray closest hit shader";
                 ShaderCI.FilePath = "../../../Engine/Shaders/RayTracingPipeline/hit.hlsl";
                 ShaderCI.EntryPoint = "main";
-                contextData.m_pDevice->CreateShader(ShaderCI, &pPrimaryHit);
+                contextData.device->CreateShader(ShaderCI, &pPrimaryHit);
                 VERIFY_EXPR(pPrimaryHit != nullptr);
         }
 
@@ -231,7 +231,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         ResourceSignDesc.NumResources = _countof(Resources);
         ResourceSignDesc.Resources = Resources;
 
-        contextData.m_pDevice->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
+        contextData.device->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
         RefCntAutoPtr<ISampler> samplerWrap;
         RefCntAutoPtr<ISampler> samplerClamp;
 
@@ -240,9 +240,9 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         PSOCreateInfo.ppResourceSignatures = ppSignatures;
         PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
 
-        contextData.m_pDevice->CreateRayTracingPipelineState(PSOCreateInfo, &m_pso);
-        contextData.m_pDevice->CreateSampler(SamLinearWrapDesc, &samplerWrap);
-        contextData.m_pDevice->CreateSampler(SamLinearClampDesc, &samplerClamp);
+        contextData.device->CreateRayTracingPipelineState(PSOCreateInfo, &m_pso);
+        contextData.device->CreateSampler(SamLinearWrapDesc, &samplerWrap);
+        contextData.device->CreateSampler(SamLinearClampDesc, &samplerClamp);
         IDeviceObject* samplerDeviceWrap = samplerWrap;
         IDeviceObject* samplerDeviceClamp = samplerClamp;
 
@@ -284,7 +284,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         RTDesc.ClearValue.Format = TEX_FORMAT_RGBA8_UNORM;
         RTDesc.Format = TEX_FORMAT_RGBA8_UNORM;
 
-        contextData.m_pDevice->CreateTexture(RTDesc, nullptr, &m_colorBuffer);
+        contextData.device->CreateTexture(RTDesc, nullptr, &m_colorBuffer);
 
         GlobalData::getInstance().addGlobalTexture({m_colorBuffer, "RayTracing Color"});
 
@@ -353,7 +353,7 @@ void Prisma::PipelineRayTracing::render() {
 
                 //mesh->raytracingSrb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(Prisma::UpdateTLAS::getInstance().TLAS());
                 auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
-                MapHelper<RayTracingData> rayTracingData(contextData.m_pImmediateContext, m_raytracingData, MAP_WRITE,
+                MapHelper<RayTracingData> rayTracingData(contextData.immediateContext, m_raytracingData, MAP_WRITE,
                                                          MAP_FLAG_DISCARD);
                 rayTracingData->CameraPos = glm::vec4(camera->position(), 1.0);
                 rayTracingData->InvViewProj = GlobalData::getInstance().currentProjection();
@@ -362,8 +362,8 @@ void Prisma::PipelineRayTracing::render() {
                 rayTracingData->MaxRecursion = m_MaxRecursionDepth;
                 rayTracingData->MaxRecursionReflection = m_maxRecursionReflection;
 
-                contextData.m_pImmediateContext->SetPipelineState(m_pso);
-                contextData.m_pImmediateContext->
+                contextData.immediateContext->SetPipelineState(m_pso);
+                contextData.immediateContext->
                             CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
                 TraceRaysAttribs Attribs;
@@ -371,7 +371,7 @@ void Prisma::PipelineRayTracing::render() {
                 Attribs.DimensionY = m_colorBuffer->GetDesc().Height;
                 Attribs.pSBT = UpdateTLAS::getInstance().SBT();
 
-                contextData.m_pImmediateContext->TraceRays(Attribs);
+                contextData.immediateContext->TraceRays(Attribs);
                 m_blitRT->blit();
         }
 }

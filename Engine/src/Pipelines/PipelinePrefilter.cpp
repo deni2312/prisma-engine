@@ -51,7 +51,7 @@ Prisma::PipelinePrefilter::PipelinePrefilter() {
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
     Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    PrismaFunc::getInstance().contextData().m_pEngineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
     ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
     // Create a vertex shader
     Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
@@ -60,7 +60,7 @@ Prisma::PipelinePrefilter::PipelinePrefilter() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Skybox VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/PrefilterPipeline/vertex.hlsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pVS);
+        contextData.device->CreateShader(ShaderCI, &pVS);
     }
 
     // Create a pixel shader
@@ -70,7 +70,7 @@ Prisma::PipelinePrefilter::PipelinePrefilter() {
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Skybox PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/PrefilterPipeline/fragment.hlsl";
-        contextData.m_pDevice->CreateShader(ShaderCI, &pPS);
+        contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
     // clang-format off
@@ -115,7 +115,7 @@ Prisma::PipelinePrefilter::PipelinePrefilter() {
         // clang-format on
         PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
         PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
-        contextData.m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+        contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
         Diligent::BufferDesc CBDesc;
         CBDesc.Name = "IBLData";
@@ -124,7 +124,7 @@ Prisma::PipelinePrefilter::PipelinePrefilter() {
         CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
 
-        contextData.m_pDevice->CreateBuffer(CBDesc, nullptr, &m_iblData);
+        contextData.device->CreateBuffer(CBDesc, nullptr, &m_iblData);
 
         Diligent::BufferDesc CBDescRL;
         CBDescRL.Name = "IBLData";
@@ -133,7 +133,7 @@ Prisma::PipelinePrefilter::PipelinePrefilter() {
         CBDescRL.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
         CBDescRL.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
 
-        contextData.m_pDevice->CreateBuffer(CBDescRL, nullptr, &m_iblResolution);
+        contextData.device->CreateBuffer(CBDescRL, nullptr, &m_iblResolution);
 
         m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "IBLData")->Set(m_iblData);
 
@@ -156,7 +156,7 @@ Prisma::PipelinePrefilter::PipelinePrefilter() {
         RTColorDesc.ClearValue.Format = RTColorDesc.Format;
         RTColorDesc.MiscFlags = Diligent::MISC_TEXTURE_FLAG_GENERATE_MIPS;
         // Create the cubemap texture
-        contextData.m_pDevice->CreateTexture(RTColorDesc, nullptr, &m_pMSColorRTV);
+        contextData.device->CreateTexture(RTColorDesc, nullptr, &m_pMSColorRTV);
 }
 
 void Prisma::PipelinePrefilter::texture(Diligent::RefCntAutoPtr<Diligent::ITexture> texture) {
@@ -179,13 +179,13 @@ void Prisma::PipelinePrefilter::texture(Diligent::RefCntAutoPtr<Diligent::ITextu
 
                 for (unsigned int i = 0; i < 6; ++i) {
                         Diligent::MapHelper<PipelineSkybox::IBLViewProjection> viewProjection(
-                                contextData.m_pImmediateContext, m_iblData, Diligent::MAP_WRITE,
+                                contextData.immediateContext, m_iblData, Diligent::MAP_WRITE,
                                 Diligent::MAP_FLAG_DISCARD);
                         viewProjection->view = m_iblTransform.captureViews[i];
                         viewProjection->projection = m_iblTransform.captureProjection;
 
                         Diligent::MapHelper<RoughnessResolution> roughnessResolution(
-                                contextData.m_pImmediateContext, m_iblResolution, Diligent::MAP_WRITE,
+                                contextData.immediateContext, m_iblResolution, Diligent::MAP_WRITE,
                                 Diligent::MAP_FLAG_DISCARD);
                         roughnessResolution->roughness = roughness;
                         roughnessResolution->resolution = texture->GetDesc().GetWidth();
@@ -201,28 +201,28 @@ void Prisma::PipelinePrefilter::texture(Diligent::RefCntAutoPtr<Diligent::ITextu
 
                         Diligent::ITextureView* ppRTVs[] = {pRTV};
 
-                        contextData.m_pImmediateContext->SetRenderTargets(
+                        contextData.immediateContext->SetRenderTargets(
                                 1, ppRTVs, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-                        contextData.m_pImmediateContext->ClearRenderTarget(
+                        contextData.immediateContext->ClearRenderTarget(
                                 pRTV, value_ptr(glm::vec4(Define::CLEAR_COLOR)),
                                 Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-                        contextData.m_pImmediateContext->SetPipelineState(m_pso);
+                        contextData.immediateContext->SetPipelineState(m_pso);
 
                         auto cubeBuffer = PrismaRender::getInstance().cubeBuffer();
 
                         // Bind vertex and index buffers
                         constexpr Diligent::Uint64 offset = 0;
                         Diligent::IBuffer* pBuffs[] = {cubeBuffer.vBuffer};
-                        contextData.m_pImmediateContext->SetVertexBuffers(
+                        contextData.immediateContext->SetVertexBuffers(
                                 0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
                                 Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-                        contextData.m_pImmediateContext->SetIndexBuffer(
+                        contextData.immediateContext->SetIndexBuffer(
                                 cubeBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
                         // Set texture SRV in the SRB
-                        contextData.m_pImmediateContext->CommitShaderResources(
+                        contextData.immediateContext->CommitShaderResources(
                                 m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
                         Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
@@ -230,7 +230,7 @@ void Prisma::PipelinePrefilter::texture(Diligent::RefCntAutoPtr<Diligent::ITextu
                         DrawAttrs.NumIndices = cubeBuffer.iBufferSize;
                         // Verify the state of vertex and index buffers
                         DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
-                        contextData.m_pImmediateContext->DrawIndexed(DrawAttrs);
+                        contextData.immediateContext->DrawIndexed(DrawAttrs);
                 }
         }
 
