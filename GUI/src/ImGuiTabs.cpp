@@ -1,17 +1,18 @@
 #include "../include/ImGuiTabs.h"
-#include "imgui.h"
 #include <iostream> // For std::cout
 
-#include "imgui_internal.h"
 #include "Helpers/NodeHelper.h"
 #include "SceneObjects/Mesh.h"
 #include "GlobalData/CacheScene.h"
 #include "../include/ImGuiHelper.h"
-#include "imgui_stdlib.h"
+#include "ThirdParty/imgui/imgui.h"
+#include "ThirdParty/imgui/imgui_internal.h"
+
+
 #include "GlobalData/GlobalData.h"
 #include "Helpers/StringHelper.h"
 
-std::string textSearch;
+static char textSearch[128] = "";
 
 Prisma::ImGuiTabs::ImGuiTabs() {
         m_meshTexture = std::make_shared<Texture>();
@@ -59,13 +60,14 @@ void Prisma::ImGuiTabs::dispatch(std::shared_ptr<Node> node, glm::vec2 size) {
 }
 
 void Prisma::ImGuiTabs::showCurrentNodes(ImGuiCamera& camera) {
-        if (!textSearch.empty() && GlobalData::getInstance().currentGlobalScene()->root) {
+
+        std::string currentText = textSearch;
+        if (!currentText.empty() && GlobalData::getInstance().currentGlobalScene()->root) {
                 std::vector<std::shared_ptr<Node>> findings;
                 NodeHelper nodeHelper;
                 nodeHelper.nodeIterator(GlobalData::getInstance().currentGlobalScene()->root,
                                         [&](auto node, auto parent) {
-                                                if (StringHelper::getInstance().toLower(node->name()).find(
-                                                            StringHelper::getInstance().toLower(textSearch)) !=
+                                                if (StringHelper::getInstance().toLower(node->name()).find(StringHelper::getInstance().toLower(currentText)) !=
                                                     std::string::npos) {
                                                         findings.push_back(node);
                                                 }
@@ -164,8 +166,11 @@ void Prisma::ImGuiTabs::showNodes(std::shared_ptr<Node> root, ImGuiCamera& camer
         m_current = -1;
         m_parent = nullptr;
 
-        ImGui::InputText("Search", &textSearch);
-
+        ImGui::InputText("Search", textSearch, IM_ARRAYSIZE(textSearch),  // Size of the array (automatically computed)
+                         ImGuiInputTextFlags_None,                        // No special flags
+                         NULL,                                            // No callback
+                         NULL                                             // No user data);
+        );
         showCurrentNodes(camera);
 
         if (m_current && m_parent && m_current == m_parent->uuid()) {

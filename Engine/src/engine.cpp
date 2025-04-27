@@ -23,8 +23,6 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include <Windows.h>
-#include "ImGuiImplDiligent.hpp"
-#include "ImGuiImplWin32.hpp"
 #include "../include/Handlers/LoadingHandler.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 #include "Helpers/UpdateTLAS.h"
