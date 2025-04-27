@@ -1,0 +1,17 @@
+Checks: >
+  *,
+  -clang-analyzer-alpha.*,      # Disable unstable checks
+  -llvm-header-guard,            # Disable if not using LLVM style headers
+  readability-identifier-naming
+
+WarningsAsErrors: ''
+
+CheckOptions:
+  - key:             readability-identifier-naming.MemberCase
+    value:           camelBack
+  - key:             readability-identifier-naming.MemberPrefix
+    value:           m_
+  - key:             readability-identifier-naming.PrivateMemberPrefix
+    value:           m_
+  - key:             readability-identifier-naming.PrivateMemberCase
+    value:           camelBack
