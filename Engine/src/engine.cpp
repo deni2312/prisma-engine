@@ -48,26 +48,6 @@ Prisma::Engine::Engine() {
 
         SettingsLoader::getInstance().load(DIR_DEFAULT_SETTINGS);
 
-        /*LightHandler::getInstance();
-
-        MeshIndirect::getInstance();
-
-        MeshHandler::getInstance();
-
-        PrismaRender::getInstance();
-
-        PipelineDiffuseIrradiance::getInstance();
-
-        PipelineSkybox::getInstance();
-
-        PipelinePrefilter::getInstance();
-
-        Physics::getInstance();
-
-        Postprocess::getInstance();
-
-        AnimationHandler::getInstance();*/
-
         PrismaFunc::getInstance().init();
 
         MeshIndirect::getInstance();
@@ -132,10 +112,6 @@ bool Prisma::Engine::run() {
                         if (data->debug) {
                                 ComponentsHandler::getInstance().updateUi();
                         }
-                        /*MeshHandler::getInstance().updateCamera();
-                        MeshHandler::getInstance().updateFragment();
-                        MeshIndirect::getInstance().update();
-                        LightHandler::getInstance().update();*/
 
                         switch (data->engineSettings.pipeline) {
                                 case EngineSettings::Pipeline::FORWARD:
@@ -154,15 +130,6 @@ bool Prisma::Engine::run() {
 
                         //Postprocess::getInstance().render();
 
-                        //
-                        //
-                        //data->sceneHandler->onEndRender();
-                        //data->sceneHandler->onEndRender();
-                        /*else
-                        {
-                                std::cerr << "Null camera or scene" << std::endl;
-                                PrismaFunc::getInstance().closeWindow();
-                        }*/
                         LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
 
                         data->sceneHandler->onEndRender();
@@ -185,7 +152,6 @@ void Prisma::Engine::setUserEngine(std::shared_ptr<UserData> userData) {
 
 void Prisma::Engine::initScene() {
         data->userData->start();
-        //MeshHandler::getInstance().updateCluster();
         PipelineHandler::getInstance().initScene();
 }
 

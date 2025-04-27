@@ -11,18 +11,6 @@
 
 
 Prisma::LightHandler::LightHandler() {
-        /*m_dirLights = std::make_shared<SSBO>(2);
-        m_dirLights->resize(MAX_DIR_LIGHTS * sizeof(LightType::LightDir) + sizeof(glm::vec4));
-
-        m_omniLights = std::make_shared<SSBO>(3);
-        m_omniLights->resize(MAX_OMNI_LIGHTS * sizeof(LightType::LightOmni) + sizeof(glm::vec4));
-
-        m_dirCSM = std::make_shared<SSBO>(9);
-        m_dirCSM->resize(16 * sizeof(float) + sizeof(glm::vec4));
-
-        m_areaLights = std::make_shared<SSBO>(31);
-        m_areaLights->resize(MAX_AREA_LIGHTS * sizeof(LightType::LightArea) + sizeof(glm::vec4));
-        */
 
         auto& contextData = PrismaFunc::getInstance().contextData();
 
@@ -59,19 +47,6 @@ void Prisma::LightHandler::updateDirectional() {
         const auto& scene = GlobalData::getInstance().currentGlobalScene();
         int numVisible = 0;
 
-        if (scene->dirLights.size() > 0) {
-                auto shadow = GlobalData::getInstance().currentGlobalScene()->dirLights[0]->shadow();
-
-                if (shadow && GlobalData::getInstance().currentGlobalScene()->dirLights[0]->hasShadow()) {
-                        /*auto& levels = std::dynamic_pointer_cast<PipelineCSM>(shadow)->cascadeLevels();
-                        glm::vec4 length;
-                        length.x = levels.size();
-                        length.y = shadow->farPlane();*/
-
-                        //m_dirCSM->modifyData(0, 16 * sizeof(float), levels.data());
-                        //m_dirCSM->modifyData(16 * sizeof(float), sizeof(glm::vec4), value_ptr(length));
-                }
-        }
 
         m_dataDirectional = std::make_shared<SSBODataDirectional>();
         for (int i = 0; i < scene->dirLights.size(); i++) {
@@ -196,7 +171,8 @@ void Prisma::LightHandler::updateOmni() {
 void Prisma::LightHandler::updateCSM() {
         const auto& dirLights = GlobalData::getInstance().currentGlobalScene()->dirLights;
 
-        if (dirLights.size() > 0 && dirLights[0]->shadow() && dirLights[0]->hasShadow()) {
+        if (dirLights.size() > 0 && dirLights[0]->shadow() && dirLights[0]->hasShadow() && m_updateCascade &&
+            Engine::getInstance().engineSettings().pipeline != EngineSettings::Pipeline::RAYTRACING) {
                 auto shadow = dirLights[0]->shadow();
 
                 const auto& dirMatrix = dirLights[0]->finalMatrix();
@@ -237,16 +213,11 @@ bool Prisma::LightHandler::updateCascade() {
         return m_updateCascade;
 }
 
-void Prisma::LightHandler::updateCascade(bool updateCascade) {
-        m_updateCascade;
-}
+void Prisma::LightHandler::updateCascade(bool updateCascade) { m_updateCascade = updateCascade; }
 
 void Prisma::LightHandler::update() {
         const auto& scene = GlobalData::getInstance().currentGlobalScene();
-        if (m_updateCascade && Engine::getInstance().engineSettings().pipeline !=
-            EngineSettings::Pipeline::RAYTRACING) {
-                updateCSM();
-        }
+        updateCSM();
 
         if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
             CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus() ||
