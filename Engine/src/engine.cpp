@@ -126,7 +126,7 @@ bool Prisma::Engine::run() {
                                         break;
                         }
 
-                        //Postprocess::getInstance().render();
+                        Postprocess::getInstance().render();
 
                         LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
 

@@ -3,11 +3,7 @@
 
 namespace Prisma {
 class PostprocessEffect {
-        /*virtual void render(std::shared_ptr<FBO> texture, std::shared_ptr<FBO> raw)
-        {
-        };*/
-
-private:
-        bool m_raw = false;
+public:
+        virtual void render() = 0;
 };
 }
