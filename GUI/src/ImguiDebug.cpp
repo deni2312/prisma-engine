@@ -27,6 +27,12 @@ struct PrivateIO {
 std::shared_ptr<PrivateIO> data;
 
 Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f} {
+        auto& contextData = PrismaFunc::getInstance().contextData();
+
+        m_imguiDiligent = Diligent::ImGuiImplWin32::Create(
+                Diligent::ImGuiDiligentCreateInfo{contextData.device, contextData.swapChain->GetDesc()},
+                static_cast<HWND>(PrismaFunc::getInstance().windowNative()));
+
         data = std::make_shared<PrivateIO>();
         m_camera = std::make_shared<Camera>();
         Engine::getInstance().mainCamera(m_camera);
@@ -55,8 +61,7 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f} 
         auto settings = SettingsLoader::getInstance().getSettings();
         m_globalSize.x = settings.width / 1920.0f;
         m_globalSize.y = settings.height / 1080.0f;
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
+
         //ImPlot::CreateContext();
         data->io = ImGui::GetIO();
         data->io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -72,7 +77,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f} 
                 static_cast<float>(settings.width) / static_cast<float>(settings.height),
                 GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
                 GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
-        auto& contextData = PrismaFunc::getInstance().contextData();
 
         m_model = translate(glm::mat4(1.0f), glm::vec3(0.0f, m_translate, 0.0f)) * glm::scale(
                           glm::mat4(1.0f), glm::vec3(m_scale));
@@ -86,10 +90,6 @@ Prisma::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f} 
         m_pauseButton->loadTexture({"../../../GUI/icons/pause.png", false});
 
         NodeViewer::getInstance();
-        m_imguiDiligent = Diligent::ImGuiImplWin32::Create(
-                Diligent::ImGuiDiligentCreateInfo{contextData.device, contextData.swapChain->GetDesc()},
-                static_cast<HWND>(PrismaFunc::getInstance().windowNative()));
-
         ScenePipeline::getInstance();
         PixelCapture::getInstance();
         initStatus();
