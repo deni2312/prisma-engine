@@ -1,16 +1,10 @@
-#version 460 core
+layout(location = 0) in flat int outDrawId;
 
-flat in int drawId;
+layout(location = 0) out vec4 FragColor;
 
-out vec4 FragColor;
-
-void main()
-{
-    // Extract the RGB components from the UUID
-    float r = float((drawId >> 16) & 0xFF) / 255.0;
-    float g = float((drawId >> 8) & 0xFF) / 255.0;
-    float b = float(drawId & 0xFF) / 255.0;
-
-    // Assign the RGB components to the fragment color, alpha is set to 1.0
-    FragColor = vec4(r, g, b, 1.0);
+void main(){
+    FragColor.r = float((outDrawId >> 16) & 0xFF) / 255.0;
+    FragColor.g = float((outDrawId >> 8)  & 0xFF) / 255.0;
+    FragColor.b = float((outDrawId)       & 0xFF) / 255.0;
+    FragColor.a = 255;
 }
