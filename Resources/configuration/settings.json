@@ -1,33 +1,6 @@
 {
-    "black_texture": "",
-    "clear_color": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-    ],
-    "default_mips": 0,
     "fullscreen": false,
     "height": 1080,
-    "ltc1": "",
-    "ltc2": "",
-    "max_animation_meshes": 0,
-    "max_area_lights": 0,
-    "max_bone_influence": 0,
-    "max_bones": 0,
-    "max_cluster_size": 0,
-    "max_directional_lights": 0,
-    "max_meshes": 0,
-    "max_omni_lights": 0,
-    "max_omni_shadow": 0,
-    "max_raytracing_meshes": 0,
-    "max_shadow_dir_texture_size": 0,
-    "max_shadow_omni_texture_size": 0,
-    "max_sprites": 0,
     "name": "Default",
-    "normal_map": "",
-    "scene_path": "",
-    "settings_file": "",
-    "white_texture": "",
     "width": 1920
 }
