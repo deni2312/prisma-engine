@@ -7,11 +7,11 @@
 #include <functional>
 #include "NodeViewer.h"
 
-namespace Prisma {
+namespace Prisma::GUI {
 class MeshInfo {
 public:
-        void showSelected(const NodeViewer::NodeData& meshData);
+    void showSelected(const NodeViewer::NodeData& meshData);
 
-        MeshInfo();
+    MeshInfo();
 };
 }

@@ -16,106 +16,106 @@
 #include "QueryGPU.h"
 
 
-namespace Prisma {
+namespace Prisma::GUI {
 class ImguiDebug : public InstanceData<ImguiDebug> {
 public:
-        struct ImGuiData {
-                std::vector<std::shared_ptr<std::pair<std::string, float>>> performances;
-        };
+    struct ImGuiData {
+        std::vector<std::shared_ptr<std::pair<std::string, float>>> performances;
+    };
 
 
-        struct ImGuiStatus {
-                //PIPELINE DATA
-                std::vector<const char*> items;
-                int currentitem = 0;
+    struct ImGuiStatus {
+        //PIPELINE DATA
+        std::vector<const char*> items;
+        int currentitem = 0;
 
-                std::vector<const char*> postprocess;
-                int currentPostprocess = 0;
-        };
+        std::vector<const char*> postprocess;
+        int currentPostprocess = 0;
+    };
 
-        struct GlobalSize {
-                float x;
-                float y;
-        };
+    struct GlobalSize {
+        float x;
+        float y;
+    };
 
-        ImguiDebug();
-        void drawGui();
-        float fps();
-        void start();
-        void close();
-        void imguiData(std::shared_ptr<ImGuiData> data);
-        //std::shared_ptr<FBO> fbo();
+    ImguiDebug();
+    void drawGui();
+    float fps();
+    void start();
+    void close();
+    void imguiData(std::shared_ptr<ImGuiData> data);
+    //std::shared_ptr<FBO> fbo();
 
-        std::shared_ptr<SceneHandler> handlers();
+    std::shared_ptr<SceneHandler> handlers();
 
-        GlobalSize globalSize();
+    GlobalSize globalSize();
 
-        void scale(float scale);
+    void scale(float scale);
 
-        float scale();
+    float scale();
 
 private:
-        double m_lastFrameTime = 0.0;
-        float m_fps;
-        std::shared_ptr<ImGuiData> m_data;
-        //std::shared_ptr<FBO> m_fbo;
-        //std::shared_ptr<Shader> m_shader;
-        unsigned int m_bindlessPos;
-        unsigned int m_modelPos;
-        glm::mat4 m_model;
+    double m_lastFrameTime = 0.0;
+    float m_fps;
+    std::shared_ptr<ImGuiData> m_data;
+    //std::shared_ptr<FBO> m_fbo;
+    //std::shared_ptr<Shader> m_shader;
+    unsigned int m_bindlessPos;
+    unsigned int m_modelPos;
+    glm::mat4 m_model;
 
-        float m_scale;
-        float m_translate;
-        unsigned int m_width;
-        unsigned int m_height;
+    float m_scale;
+    float m_translate;
+    unsigned int m_width;
+    unsigned int m_height;
 
-        void drawScene();
-        void initStatus();
-        std::string saveFile();
-        void onLoading(std::pair<std::string, int>& data);
+    void drawScene();
+    void initStatus();
+    std::string saveFile();
+    void onLoading(std::pair<std::string, int>& data);
 
 
-        float m_initOffset = 0.0f;
+    float m_initOffset = 0.0f;
 
-        ImGuiCamera m_imguiCamera;
+    ImGuiCamera m_imguiCamera;
 
-        std::shared_ptr<Camera> m_camera;
+    std::shared_ptr<Camera> m_camera;
 
-        MeshInfo meshInfo;
+    MeshInfo meshInfo;
 
-        LightInfo lightInfo;
+    LightInfo lightInfo;
 
-        std::shared_ptr<FileBrowser> m_fileBrowser;
+    std::shared_ptr<FileBrowser> m_fileBrowser;
 
-        glm::mat4 m_projection;
+    glm::mat4 m_projection;
 
-        bool m_run = false;
+    bool m_run = false;
 
-        std::string m_saveLocation;
+    std::string m_saveLocation;
 
-        std::shared_ptr<Texture> m_runButton;
+    std::shared_ptr<Texture> m_runButton;
 
-        std::shared_ptr<Texture> m_pauseButton;
+    std::shared_ptr<Texture> m_pauseButton;
 
-        SettingsTab m_settingsTab;
+    SettingsTab m_settingsTab;
 
-        bool m_settingsTabShow = false;
+    bool m_settingsTabShow = false;
 
-        //PlotFPS m_plot;
+    //PlotFPS m_plot;
 
-        TimeCounter m_timeCounterUI;
-        TimeCounter m_timeCounterEngine;
+    TimeCounter m_timeCounterUI;
+    TimeCounter m_timeCounterEngine;
 
-        ImGuiAddingMenu m_addingMenu;
+    ImGuiAddingMenu m_addingMenu;
 
-        Exporter m_exporter;
+    Exporter m_exporter;
 
-        float m_buttonSize = 44;
+    float m_buttonSize = 44;
 
-        std::shared_ptr<SceneHandler> m_handlers;
+    std::shared_ptr<SceneHandler> m_handlers;
 
-        GlobalSize m_globalSize;
+    GlobalSize m_globalSize;
 
-        std::unique_ptr<Diligent::ImGuiImplDiligent> m_imguiDiligent;
+    std::unique_ptr<Diligent::ImGuiImplDiligent> m_imguiDiligent;
 };
 }

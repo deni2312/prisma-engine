@@ -2,12 +2,12 @@
 #include <string>
 #include <glm/glm.hpp>
 
-namespace Prisma {
+namespace Prisma::GUI {
 class ImGuiLog {
 public:
-        void render();
+    void render();
 
 private:
-        void print(const glm::vec4& color, const std::string& text);
+    void print(const glm::vec4& color, const std::string& text);
 };
 }

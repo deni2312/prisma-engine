@@ -8,31 +8,31 @@
 #include "Containers/Texture.h"
 #include "glm/vec2.hpp"
 
-namespace Prisma {
+namespace Prisma::GUI {
 namespace fs = std::filesystem;
 
 class FileBrowser {
-        glm::vec2 m_fontSize;
-        glm::vec2 m_iconSize;
+    glm::vec2 m_fontSize;
+    glm::vec2 m_iconSize;
 
-        fs::path m_currentPath;
-        std::shared_ptr<Texture> m_folder;
-        std::shared_ptr<Texture> m_file;
-        std::shared_ptr<Texture> m_back;
-        std::vector<fs::directory_entry> m_entries;
-        ImGuiLog m_logger;
+    fs::path m_currentPath;
+    std::shared_ptr<Texture> m_folder;
+    std::shared_ptr<Texture> m_file;
+    std::shared_ptr<Texture> m_back;
+    std::vector<fs::directory_entry> m_entries;
+    ImGuiLog m_logger;
 
-        std::string windowsToString(std::wstring wStr);
+    std::string windowsToString(std::wstring wStr);
 
-        void setPath(const fs::path& path);
+    void setPath(const fs::path& path);
 
-        void listDirectoryContents();
+    void listDirectoryContents();
 
-        void addEntries();
+    void addEntries();
 
 public:
-        FileBrowser();
+    FileBrowser();
 
-        void show(unsigned int width, unsigned int height, float offset, float scale, float translation);
+    void show(unsigned int width, unsigned int height, float offset, float scale, float translation);
 };
 }

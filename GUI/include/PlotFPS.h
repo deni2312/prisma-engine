@@ -3,8 +3,7 @@
 #include <chrono>
 #include <imgui.h>
 
-namespace Prisma
-{
+namespace Prisma::GUI {
 	class PlotFPS
 	{
 	public:

@@ -7,7 +7,7 @@
 #include "SceneObjects/Mesh.h"
 #include "GlobalData/InstanceData.h"
 
-namespace Prisma {
+namespace Prisma::GUI {
 class PixelCapture : public InstanceData<PixelCapture> {
 public:
     PixelCapture();

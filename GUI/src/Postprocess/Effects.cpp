@@ -1,10 +1,8 @@
 #include "../../include/Postprocess/Effects.h"
-#include "../Helpers/SettingsLoader.h"
 #include "../../include/TextureInfo.h"
 
-Prisma::Effects::Effects()
-{
-	m_shaderSeppia = std::make_shared<Shader>("../../../GUI/Shaders/Seppia/vertex.glsl",
+Prisma::GUI::Effects::Effects() {
+    /* m_shaderSeppia = std::make_shared<Shader>("../../../GUI/Shaders/Seppia/vertex.glsl",
 	                                          "../../../GUI/Shaders/Seppia/fragment.glsl");
 	m_shaderSeppia->use();
 	m_bindlessPosSeppia = m_shaderSeppia->getUniformPosition("screenTexture");
@@ -61,7 +59,7 @@ Prisma::Effects::Effects()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
 		// also check if framebuffers are complete (no need for depth buffer)
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			Prisma::Logger::getInstance().log(Prisma::LogLevel::ERROR,
+			Prisma::GUI::Logger::getInstance().log(Prisma::LogLevel::ERROR,
 			                                  "Frame buffer not created correctly.");
 		m_bloomTexture[i] = glGetTextureHandleARB(pingpongColorbuffers[i]);
 		glMakeTextureHandleResidentARB(m_bloomTexture[i]);
@@ -75,16 +73,15 @@ Prisma::Effects::Effects()
 	fboData.enableDepth = true;
 	fboData.name = "BRIGHTNESS";
 	m_brightnessFbo = std::make_shared<FBO>(fboData);
+	*/
 }
 
-void Prisma::Effects::effect(EFFECTS effect)
-{
-	m_effects = effect;
+void Prisma::GUI::Effects::effect(EFFECTS effect) {
+    m_effects = effect;
 }
 
-void Prisma::Effects::render(std::shared_ptr<FBO> texture, std::shared_ptr<FBO> raw)
-{
-	switch (m_effects)
+void Prisma::GUI::Effects::render() {
+    /* switch (m_effects)
 	{
 	case EFFECTS::NORMAL:
 		break;
@@ -149,5 +146,5 @@ void Prisma::Effects::render(std::shared_ptr<FBO> texture, std::shared_ptr<FBO> 
 		texture->bind();
 
 		break;
-	}
+	}*/
 }

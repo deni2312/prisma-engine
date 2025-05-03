@@ -14,13 +14,13 @@
 //static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
 //static std::shared_ptr<Prisma::Shader> shaderData = nullptr;
 
-Prisma::PixelCapture::PixelCapture() {
+Prisma::GUI::PixelCapture::PixelCapture() {
     createDrawPipeline();
     createDrawAnimationPipeline();
     createScalePipeline();
 }
 
-std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, const glm::mat4& model) {
+std::shared_ptr<Prisma::Mesh> Prisma::GUI::PixelCapture::capture(glm::vec2 position, const glm::mat4& model) {
     /*m_fbo->bind();
     GLfloat bkColor[4];
     glGetFloatv(GL_COLOR_CLEAR_VALUE, bkColor);
@@ -179,7 +179,7 @@ std::shared_ptr<Prisma::Mesh> Prisma::PixelCapture::capture(glm::vec2 position, 
     return nullptr;
 }
 
-void Prisma::PixelCapture::createDrawPipeline() {
+void Prisma::GUI::PixelCapture::createDrawPipeline() {
     auto settings = SettingsLoader::getInstance().getSettings();
     auto& contextData = PrismaFunc::getInstance().contextData();
 
@@ -330,7 +330,7 @@ void Prisma::PixelCapture::createDrawPipeline() {
     GlobalData::getInstance().addGlobalTexture({ m_pRTColor ,"PixelCapture",{contextData.swapChain->GetDesc().Width,contextData.swapChain->GetDesc().Height} });
 }
 
-void Prisma::PixelCapture::createDrawAnimationPipeline()
+void Prisma::GUI::PixelCapture::createDrawAnimationPipeline()
 {
     auto settings = SettingsLoader::getInstance().getSettings();
     auto& contextData = PrismaFunc::getInstance().contextData();
@@ -458,7 +458,7 @@ void Prisma::PixelCapture::createDrawAnimationPipeline()
         });
 }
 
-void Prisma::PixelCapture::createScalePipeline()
+void Prisma::GUI::PixelCapture::createScalePipeline()
 {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
@@ -611,7 +611,7 @@ void Prisma::PixelCapture::createScalePipeline()
     m_scalePso->CreateShaderResourceBinding(&m_scaleSrb, true);
 }
 
-void Prisma::PixelCapture::drawModel(const glm::mat4& model) {
+void Prisma::GUI::PixelCapture::drawModel(const glm::mat4& model) {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     contextData.immediateContext->SetPipelineState(m_scalePso);

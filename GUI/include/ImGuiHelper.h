@@ -3,9 +3,9 @@
 #include <functional>
 
 
-namespace Prisma {
+namespace Prisma::GUI {
 class ImGuiHelper : public InstanceData<ImGuiHelper> {
 public:
-        void clipVertical(int size, std::function<void(int)> data);
+    void clipVertical(int size, std::function<void(int)> data);
 };
 }
