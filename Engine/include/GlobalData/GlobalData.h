@@ -55,7 +55,7 @@ public:
 
     void defaultWhite(const Texture& defaultWhite);
 
-        // Getter and Setter for m_defaultWhite
+    // Getter and Setter for m_defaultWhite
     Texture& defaultRoughness();
 
     void defaultRoughness(const Texture& defaultRoughness);
