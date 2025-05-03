@@ -237,8 +237,8 @@ void Prisma::PrismaFunc::init() {
 
     GlobalData::getInstance().defaultBlack().loadTexture({DIR_DEFAULT_BLACK, true});
     GlobalData::getInstance().defaultWhite().loadTexture({DIR_DEFAULT_WHITE, false});
+    GlobalData::getInstance().defaultNormal().loadTexture({DIR_DEFAULT_NORMAL, false});
     GlobalData::getInstance().defaultRoughness().loadTexture({DIR_DEFAULT_ROUGHNESS, false});
-    GlobalData::getInstance().defaultWhite().loadTexture({DIR_DEFAULT_WHITE, false});
 
     RefCntAutoPtr<ITexture> pDummyTexture;
 
