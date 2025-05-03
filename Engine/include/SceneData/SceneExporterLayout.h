@@ -383,7 +383,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     std::vector<Texture> textures;
                     Texture texture;
                     if (t.second == "NO_TEXTURE") {
-                        textures.push_back(GlobalData::getInstance().defaultBlack());
+                        textures.push_back(GlobalData::getInstance().defaultRoughness());
                         Logger::getInstance().log(LogLevel::WARN,
                                                   "No roughness or metalness texture " + mesh->
                                                   name());
@@ -583,7 +583,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     std::vector<Texture> textures;
                     Texture texture;
                     if (t.second == "NO_TEXTURE") {
-                        textures.push_back(GlobalData::getInstance().defaultBlack());
+                        textures.push_back(GlobalData::getInstance().defaultRoughness());
                     } else {
                         texture.name(t.second);
                         //texture.loadTexture({t.second});
