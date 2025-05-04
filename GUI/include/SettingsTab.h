@@ -2,6 +2,8 @@
 #include <memory>
 
 #include "Postprocess/Effects.h"
+#include "Postprocess/Bloom.h"
+
 
 namespace Prisma::GUI {
 class SettingsTab {
@@ -21,6 +23,6 @@ private:
     std::shared_ptr<Effects> m_effects;
     //std::shared_ptr<Effects> m_effectsBloom;
     bool m_bloom = false;
-    ;
+    std::unique_ptr<Bloom> m_bloomRender;
 };
 }

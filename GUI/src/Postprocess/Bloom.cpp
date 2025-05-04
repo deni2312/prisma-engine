@@ -38,14 +38,10 @@ Prisma::Bloom::Bloom() {
     Diligent::ShaderCreateInfo ShaderCI;
     // Tell the system that the shader source code is in HLSL.
     // For OpenGL, the engine will convert this into GLSL under the hood.
-    ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_HLSL;
+    ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
 
     // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
     ShaderCI.Desc.UseCombinedTextureSamplers = true;
-
-    // Pack matrices in row-major order
-    ShaderCI.CompileFlags = Diligent::SHADER_COMPILE_FLAG_PACK_MATRIX_ROW_MAJOR;
-
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
     Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
@@ -58,13 +54,13 @@ Prisma::Bloom::Bloom() {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Bloom VS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/vertex.hlsl";
+        ShaderCI.FilePath = "../../../GUI/Shaders/Bloom/vertex.glsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
         // Create dynamic uniform buffer that will store our transformation matrix
         // Dynamic buffers can be frequently updated by the CPU
         Diligent::BufferDesc CBDesc;
         CBDesc.Name = "VS";
-        CBDesc.Size = sizeof(glm::mat4);
+        CBDesc.Size = sizeof(glm::ivec4);
         CBDesc.Usage = Diligent::USAGE_DYNAMIC;
         CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
@@ -77,7 +73,7 @@ Prisma::Bloom::Bloom() {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Bloom PS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/fragment.hlsl";
+        ShaderCI.FilePath = "../../../GUI/Shaders/Bloom/fragment.glsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
@@ -101,7 +97,7 @@ Prisma::Bloom::Bloom() {
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
     Diligent::ShaderResourceVariableDesc Vars[] = {
-        {Diligent::SHADER_TYPE_PIXEL, "g_Texture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+        {Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
@@ -115,17 +111,14 @@ Prisma::Bloom::Bloom() {
     };
 	Diligent::ImmutableSamplerDesc ImtblSamplers[] =
     {
-        {Diligent::SHADER_TYPE_PIXEL, "g_Texture", SamLinearClampDesc}
+        {Diligent::SHADER_TYPE_PIXEL, "screenTexture", SamLinearClampDesc}
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "Constants")->Set(m_pingPong);
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "g_Texture")
-        ->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(
-            Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "Constants")->Set(m_pingPong);
 
     Diligent::TextureDesc RTColorDesc;
     RTColorDesc.Name = "Offscreen render target";
@@ -145,5 +138,13 @@ Prisma::Bloom::Bloom() {
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_texturePing);
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_texturePong);
 
-    m_pso->CreateShaderResourceBinding(&m_srb, true);
+    m_pso->CreateShaderResourceBinding(&m_srbPing, true);
+    m_pso->CreateShaderResourceBinding(&m_srbPong, true);
+
+    m_srbPing->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")
+        ->Set(m_texturePing->GetDefaultView(
+        Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+
+    m_srbPong->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")
+        ->Set(m_texturePong->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 }

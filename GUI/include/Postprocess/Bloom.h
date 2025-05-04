@@ -15,7 +15,8 @@ class Bloom {
    private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_pingPong;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbPing;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbPong;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texturePing;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texturePong;
 };
