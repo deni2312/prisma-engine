@@ -278,7 +278,7 @@ void Prisma::PrismaFunc::poll() {
 }
 
 void Prisma::PrismaFunc::update() {
-    //m_contextData.immediateContext->Flush();
+    m_contextData.immediateContext->Flush();
     m_contextData.swapChain->Present();
 }
 
