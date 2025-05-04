@@ -1,9 +1,52 @@
 #include "../include/Postprocess/Bloom.h"
 #include "GlobalData/PrismaFunc.h"
 #include "Pipelines/PipelineHandler.h"
+#include "GlobalData/Defines.h"
+#include "Helpers/PrismaRender.h"
+#include "Graphics/GraphicsTools/interface/MapHelper.hpp"
+#include <glm/glm.hpp>
 
 
-void Prisma::Bloom::render() {}
+void Prisma::Bloom::render() {
+    auto& contextData = PrismaFunc::getInstance().contextData();
+
+    auto color = m_texturePing->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+
+    contextData.immediateContext->SetRenderTargets(1, &color, nullptr,
+                                                   Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->ClearRenderTarget(color, value_ptr(Define::CLEAR_COLOR),
+                                                    Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.immediateContext->SetPipelineState(m_pso);
+
+    auto quadBuffer = PrismaRender::getInstance().quadBuffer();
+
+    // Bind vertex and index buffers
+    constexpr Diligent::Uint64 offset = 0;
+    Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
+    contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset,
+                                                   Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
+                                                   Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+    contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0,
+                                                 Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    {
+        // Map the buffer and write current world-view-projection matrix
+        Diligent::MapHelper<glm::ivec4> constants(contextData.immediateContext, m_pingPong, Diligent::MAP_WRITE,
+                                                   Diligent::MAP_FLAG_DISCARD);
+        *constants = glm::ivec4(1,0,0,0);
+    }
+
+    // Set texture SRV in the SRB
+    contextData.immediateContext->CommitShaderResources(m_srbPing, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+    DrawAttrs.IndexType = Diligent::VT_UINT32;  // Index type
+    DrawAttrs.NumIndices = quadBuffer.iBufferSize;
+    // Verify the state of vertex and index buffers
+    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+    contextData.immediateContext->DrawIndexed(DrawAttrs);
+
+}
 
 Prisma::Bloom::Bloom() {
     auto& contextData = PrismaFunc::getInstance().contextData();
@@ -25,14 +68,13 @@ Prisma::Bloom::Bloom() {
     // Set render target format which is the format of the swap chain's color buffer
     PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PrismaFunc::getInstance().renderFormat().RenderFormat;
     // Set depth buffer format which is the format of the swap chain's back buffer
-    PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
     // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
     // clang-format on
 
     Diligent::ShaderCreateInfo ShaderCI;
