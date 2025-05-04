@@ -2,5 +2,6 @@
     "fullscreen": false,
     "height": 1080,
     "name": "Default",
-    "width": 1920
+    "width": 1920,
+    "vsync": false
 }

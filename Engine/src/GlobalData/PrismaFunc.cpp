@@ -95,7 +95,7 @@ void Prisma::PrismaFunc::inputUI(UIInput inputUi) {
 }
 
 void Prisma::PrismaFunc::init() {
-    Settings settings = SettingsLoader::getInstance().getSettings();
+    m_settings = SettingsLoader::getInstance().getSettings();
     privatePrisma = std::make_shared<PrivatePrisma>();
 
     glfwInit();
@@ -110,11 +110,11 @@ void Prisma::PrismaFunc::init() {
     glfwGetMonitorWorkarea(monitor, &x, &y, &width, &height);
 
     // Set settings to match monitor work area
-    settings.width = width;
-    settings.height = height;
-    SettingsLoader::getInstance().settings(settings);
+    m_settings.width = width;
+    m_settings.height = height;
+    SettingsLoader::getInstance().settings(m_settings);
 
-    m_window = glfwCreateWindow(settings.width, settings.height, settings.name.c_str(), nullptr, nullptr);
+    m_window = glfwCreateWindow(m_settings.width, m_settings.height, m_settings.name.c_str(), nullptr, nullptr);
     if (m_window == nullptr) {
         LOG_ERROR_MESSAGE("Failed to create GLFW window");
     }
@@ -279,7 +279,7 @@ void Prisma::PrismaFunc::poll() {
 
 void Prisma::PrismaFunc::update() {
     m_contextData.immediateContext->Flush();
-    m_contextData.swapChain->Present();
+    m_contextData.swapChain->Present(m_settings.vsync);
 }
 
 void Prisma::PrismaFunc::bindMainRenderTarget() {
