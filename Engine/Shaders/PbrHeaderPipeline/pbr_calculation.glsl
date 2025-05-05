@@ -381,64 +381,71 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         }
     }
 
-    // Locating which cluster this fragment is part of
-    uint zTile = uint((log(abs(vec3(view * vec4(FragPos, 1.0)).z) / zNear) * gridSize.z) / log(zFar / zNear));
-    vec2 tileSize = screenDimensions.xy / gridSize.xy;
+    vec3 fragViewPos = vec3(view * vec4(FragPos, 1.0));
+    float zView = abs(fragViewPos.z);
+    uint zTile = uint(log(zView / zNear) * gridSize.z / log(zFar / zNear));
+    zTile = clamp(zTile, 0u, gridSize.z - 1u);
 
-    vec2 fragCoord=gl_FragCoord.xy;
-    fragCoord.y=screenDimensions.y-fragCoord.y;
-    uvec3 tile = uvec3(fragCoord / tileSize, zTile);
-    uint tileIndex =
-        tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);
+    vec2 tileSize = screenDimensions.xy / vec2(gridSize.xy);
+    vec2 fragCoord = gl_FragCoord.xy;
+
+    fragCoord.y = screenDimensions.y - fragCoord.y;
+
+    uvec2 tileXY = uvec2(fragCoord / tileSize);
+    tileXY.x = clamp(tileXY.x, 0u, gridSize.x - 1u);
+    tileXY.y = clamp(tileXY.y, 0u, gridSize.y - 1u);
+
+    uvec3 tile = uvec3(tileXY, zTile);
+    uint tileIndex = tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);
+
+    uint totalGrid = gridSize.x * gridSize.y * gridSize.z;
+    tileIndex = clamp(tileIndex, 0u, totalGrid - 1u); // final safeguard
 
     uint lightCount = clusters_data[tileIndex].count;
-    uint totalGrid=gridSize.x * gridSize.y * gridSize.z;
+    for (int k = 0; k < lightCount; k++) {
+        uint lightIndex = clusters_data[tileIndex].lightIndices[k];
 
-    if(lightCount < totalGrid){
-        for (int k = 0; k < lightCount; k++) {
-            uint lightIndex = clusters_data[tileIndex].lightIndices[k];
+        vec3 distance = vec3(omniData_data[lightIndex].position) - FragPos;
+        vec3 L = normalize(distance);
+        vec3 H = normalize(V + L);
 
-            vec3 distance = vec3(omniData_data[lightIndex].position) - FragPos;
-            vec3 L = normalize(distance);
-            vec3 H = normalize(V + L);
+        float totalDistance = length(distance);
 
-            float totalDistance = length(distance);
+        if (totalDistance <= omniData_data[lightIndex].radius) {
 
-            if (totalDistance <= omniData_data[lightIndex].radius) {
-
-                vec3 radiance = vec3(omniData_data[lightIndex].diffuse);
+            vec3 radiance = vec3(omniData_data[lightIndex].diffuse);
 
 
-                float NDF = DistributionGGX(N, H, roughness);
-                float G = GeometrySmith(N, V, L, roughness);
-                vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+            float NDF = DistributionGGX(N, H, roughness);
+            float G = GeometrySmith(N, V, L, roughness);
+            vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-                vec3 numerator = NDF * G * F;
-                float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-                vec3 specular = numerator / denominator;
+            vec3 numerator = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+            vec3 specular = numerator / denominator;
 
-                vec3 kS = F * specularMap;
+            vec3 kS = F * specularMap;
 
-                vec3 kD = vec3(1.0) - kS;
+            vec3 kD = vec3(1.0) - kS;
 
-                kD *= 1.0 - metallic;
+            kD *= 1.0 - metallic;
 
-                float NdotL = max(dot(N, L), 0.0);
+            float NdotL = max(dot(N, L), 0.0);
 
-                float attenuation = 1.0 / (omniData_data[lightIndex].attenuation.x + omniData_data[lightIndex].attenuation.y * totalDistance + omniData_data[lightIndex].attenuation.z * totalDistance * totalDistance);
-                attenuation *= clamp(1.0 - totalDistance / omniData_data[lightIndex].radius, 0.0, 1.0);
+            float attenuation = 1.0 / (omniData_data[lightIndex].attenuation.x + omniData_data[lightIndex].attenuation.y * totalDistance + omniData_data[lightIndex].attenuation.z * totalDistance * totalDistance);
+            attenuation *= clamp(1.0 - totalDistance / omniData_data[lightIndex].radius, 0.0, 1.0);
 
 
-                if (omniData_data[lightIndex].hasShadow < 1.0) {
-                    Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
-                }
-                else {
-                    Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation * (1 - ShadowCalculation(FragPos, vec3(omniData_data[lightIndex].position), int(lightIndex)));
-                }
-
+            if (omniData_data[lightIndex].hasShadow < 1.0) {
+                Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
             }
+            else {
+                Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation * (1 - ShadowCalculation(FragPos, vec3(omniData_data[lightIndex].position), int(lightIndex)));
+            }
+
         }
     }
+    
 
     vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
