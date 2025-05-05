@@ -2,15 +2,15 @@
 
 namespace Prisma::EngineSettings {
 enum class Pipeline {
-        FORWARD,
-        DEFERRED,
-        DEFERRED_FORWARD,
-        RAYTRACING
+    FORWARD,
+    DEFERRED,
+    DEFERRED_FORWARD,
+    RAYTRACING
 };
 
 struct Settings {
-        Pipeline pipeline;
-        bool ssr;
-        bool ssao;
+    Pipeline pipeline;
+    bool ssr;
+    bool ssao;
 };
 }

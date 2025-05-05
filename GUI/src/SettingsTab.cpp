@@ -69,7 +69,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
                     ImGui::SliderInt("Max Recursion Depth##1", &maxRecursionDepth, 1, maxHardware);
 
                     int maxRecursionReflection = PipelineHandler::getInstance().raytracing()->
-                        maxRecursionReflection();
+                                                                                maxRecursionReflection();
 
                     ImGui::SliderInt("Max Recursion Reflection##1", &maxRecursionReflection, 1,
                                      maxHardware);

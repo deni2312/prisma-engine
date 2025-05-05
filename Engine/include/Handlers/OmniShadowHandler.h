@@ -17,51 +17,51 @@ struct IShaderResourceBinding;
 
 namespace Prisma {
 class OmniShadowHandler : public InstanceData<OmniShadowHandler> {
-        struct LightPlane {
-                glm::vec3 lightPos;
-                float far_plane;
-        };
+    struct LightPlane {
+        glm::vec3 lightPos;
+        float far_plane;
+    };
 
-        struct OmniShadow {
-                glm::mat4 shadows[6];
-        };
+    struct OmniShadow {
+        glm::mat4 shadows[6];
+    };
 
-        OmniShadow m_shadows;
+    OmniShadow m_shadows;
 
-        LightPlane m_lightPlane;
+    LightPlane m_lightPlane;
 
 
-        glm::mat4 m_shadowProj;
-        std::vector<glm::mat4> m_shadowTransforms;
+    glm::mat4 m_shadowProj;
+    std::vector<glm::mat4> m_shadowTransforms;
 
-        Diligent::RefCntAutoPtr<Diligent::IBuffer> m_lightBuffer;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_lightBuffer;
 
-        Diligent::RefCntAutoPtr<Diligent::IBuffer> m_shadowBuffer;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_shadowBuffer;
 
-        Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
-        Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
-        Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbAnimation;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbAnimation;
 
-        Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoAnimation;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoAnimation;
 
-        void create();
+    void create();
 
-        void createAnimation();
+    void createAnimation();
 
 public:
-        OmniShadowHandler();
+    OmniShadowHandler();
 
-        struct OmniShadowData {
-                Diligent::RefCntAutoPtr<Diligent::ITexture> depth;
-                float nearPlane;
-                float farPlane;
-                unsigned int width;
-                unsigned int height;
-                glm::vec3 lightPos;
-        };
+    struct OmniShadowData {
+        Diligent::RefCntAutoPtr<Diligent::ITexture> depth;
+        float nearPlane;
+        float farPlane;
+        unsigned int width;
+        unsigned int height;
+        glm::vec3 lightPos;
+    };
 
-        void render(OmniShadowData data);
+    void render(OmniShadowData data);
 };
 }

@@ -14,17 +14,17 @@ struct IBuffer;
 namespace Prisma {
 class AnimationHandler : public InstanceData<AnimationHandler> {
 public:
-        struct SSBOAnimation {
-                glm::mat4 animations[Define::MAX_BONES];
-        };
+    struct SSBOAnimation {
+        glm::mat4 animations[Define::MAX_BONES];
+    };
 
-        void fill();
+    void fill();
 
-        Diligent::RefCntAutoPtr<Diligent::IBuffer> animation();
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> animation();
 
-        AnimationHandler();
+    AnimationHandler();
 
 private:
-        Diligent::RefCntAutoPtr<Diligent::IBuffer> m_animation;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_animation;
 };
 }

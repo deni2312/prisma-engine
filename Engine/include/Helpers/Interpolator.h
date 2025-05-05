@@ -6,20 +6,20 @@
 namespace Prisma {
 class Interpolator {
 public:
-        struct Timeframe {
-                glm::mat4 position;
-                float duration;
-        };
+    struct Timeframe {
+        glm::mat4 position;
+        float duration;
+    };
 
-        Interpolator();
+    Interpolator();
 
-        glm::mat4 next(float dt);
+    glm::mat4 next(float dt);
 
-        void timeframe(const std::vector<Timeframe>& timeframe);
+    void timeframe(const std::vector<Timeframe>& timeframe);
 
 private:
-        std::vector<Timeframe> m_timeframe;
-        size_t m_currentIndex;
-        float m_elapsedTime;
+    std::vector<Timeframe> m_timeframe;
+    size_t m_currentIndex;
+    float m_elapsedTime;
 };
 }

@@ -11,11 +11,11 @@
 namespace Prisma {
 class PipelineBlitRT {
 public:
-        PipelineBlitRT(Diligent::RefCntAutoPtr<Diligent::ITexture> texture);
-        void blit();
+    PipelineBlitRT(Diligent::RefCntAutoPtr<Diligent::ITexture> texture);
+    void blit();
 
 private:
-        Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-        Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 };
 }

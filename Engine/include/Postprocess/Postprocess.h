@@ -6,13 +6,13 @@
 namespace Prisma {
 class Postprocess : public InstanceData<Postprocess> {
 public:
-        Postprocess();
+    Postprocess();
 
-        void render();
-        void addPostProcess(std::shared_ptr<PostprocessEffect> postprocessEffect);
-        void removePostProcess(std::shared_ptr<PostprocessEffect> postprocessEffect);
+    void render();
+    void addPostProcess(std::shared_ptr<PostprocessEffect> postprocessEffect);
+    void removePostProcess(std::shared_ptr<PostprocessEffect> postprocessEffect);
 
 private:
-        std::vector<std::shared_ptr<PostprocessEffect>> m_effects;
+    std::vector<std::shared_ptr<PostprocessEffect>> m_effects;
 };
 }

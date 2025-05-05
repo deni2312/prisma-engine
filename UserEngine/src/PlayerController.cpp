@@ -108,7 +108,7 @@ void PlayerController::updateKeyboard() {
     frontClamp.y = 0;
     glm::mat4 offsetRotation;
     auto isJumping = m_animatedMesh->animator()->animation()->id() == m_jumpAnimation->id() && m_animatedMesh->
-                     animator()->currentTime() + m_jumpAnimation->ticksPerSecond() * 1.0f /
+                                                                                               animator()->currentTime() + m_jumpAnimation->ticksPerSecond() * 1.0f /
                      Prisma::Engine::getInstance().fps() >=
                      m_jumpAnimation->duration();
     auto velocity = Prisma::Physics::getInstance().bodyInterface().GetLinearVelocity(id);

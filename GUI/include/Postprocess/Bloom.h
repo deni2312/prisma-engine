@@ -8,11 +8,11 @@
 
 namespace Prisma {
 class Bloom {
-   public:
+public:
     void render();
     Bloom();
 
-   private:
+private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_pingPong;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbPing;

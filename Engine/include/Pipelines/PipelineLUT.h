@@ -11,21 +11,21 @@
 namespace Prisma {
 class PipelineLUT : public InstanceData<PipelineLUT> {
 public:
-        void texture();
+    void texture();
 
-        Diligent::RefCntAutoPtr<Diligent::ITexture> lutTexture();
+    Diligent::RefCntAutoPtr<Diligent::ITexture> lutTexture();
 
-        PipelineLUT();
+    PipelineLUT();
 
 private:
-        Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-        Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
-        Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
+    Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
 
-        Diligent::RefCntAutoPtr<Diligent::ITexture> m_pRTColor;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_pRTColor;
 
-        const glm::vec2 m_dimensions = glm::vec2(512, 512);
-        bool m_init = false;
+    const glm::vec2 m_dimensions = glm::vec2(512, 512);
+    bool m_init = false;
 };
 }

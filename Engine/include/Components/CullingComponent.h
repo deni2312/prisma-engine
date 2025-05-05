@@ -10,15 +10,15 @@
 namespace Prisma {
 class CullingComponent : public Component {
 public:
-        CullingComponent();
+    CullingComponent();
 
-        void ui() override;
+    void ui() override;
 
-        void update() override;
+    void update() override;
 
-        void start() override;
+    void start() override;
 
-        //std::shared_ptr<Shader> m_shader;
-        //std::shared_ptr<SSBO> m_ssbo;
+    //std::shared_ptr<Shader> m_shader;
+    //std::shared_ptr<SSBO> m_ssbo;
 };
 }

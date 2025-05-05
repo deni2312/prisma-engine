@@ -24,81 +24,81 @@ using namespace JPH::literals;
 namespace Prisma {
 class PhysicsMeshComponent : public Component {
 public:
-        PhysicsMeshComponent();
+    PhysicsMeshComponent();
 
-        void ui() override;
+    void ui() override;
 
-        void update() override;
+    void update() override;
 
-        void destroy() override;
+    void destroy() override;
 
-        void onParent(std::shared_ptr<Node> parent) override;
+    void onParent(std::shared_ptr<Node> parent) override;
 
-        void collisionData(Physics::CollisionData collisionData);
+    void collisionData(Physics::CollisionData collisionData);
 
-        void updateCollisionData();
+    void updateCollisionData();
 
-        Physics::CollisionData collisionData();
+    Physics::CollisionData collisionData();
 
-        void start() override;
+    void start() override;
 
-        BodyID& physicsId();
+    BodyID& physicsId();
 
-        bool initPhysics();
+    bool initPhysics();
 
-        void onCollisionEnter(std::function<void(const Body&)> add);
+    void onCollisionEnter(std::function<void(const Body&)> add);
 
-        void onCollisionStay(std::function<void(const Body&)> stay);
+    void onCollisionStay(std::function<void(const Body&)> stay);
 
-        void onCollisionExit(std::function<void(const BodyID&)> remove);
+    void onCollisionExit(std::function<void(const BodyID&)> remove);
 
-        std::function<void(const Body&)> onCollisionEnter();
+    std::function<void(const Body&)> onCollisionEnter();
 
-        std::function<void(const Body&)> onCollisionStay();
+    std::function<void(const Body&)> onCollisionStay();
 
-        std::function<void(const BodyID&)> onCollisionExit();
+    std::function<void(const BodyID&)> onCollisionExit();
 
-        void landscapeData(const Physics::LandscapeData& landscapeData);
+    void landscapeData(const Physics::LandscapeData& landscapeData);
 
-        void settingsSoftBody(Physics::SoftBodySettings settingsSoft);
+    void settingsSoftBody(Physics::SoftBodySettings settingsSoft);
 
-        Physics::SoftBodySettings settingsSoftBody();
+    Physics::SoftBodySettings settingsSoftBody();
 
-        Body* softId();
+    Body* softId();
 
-        nlohmann::json serialize() override;
+    nlohmann::json serialize() override;
 
-        void deserialize(nlohmann::json& data) override;
+    void deserialize(nlohmann::json& data) override;
 
-        glm::vec3 scale() const;
+    glm::vec3 scale() const;
 
 private:
-        ComponentList m_status;
-        std::function<void()> m_apply;
-        std::function<void()> m_applySoft;
-        Physics::CollisionData m_collisionData{};
-        void colliderDispatcher();
-        BodyCreationSettings getBodySettings();
-        void addSoftBody();
+    ComponentList m_status;
+    std::function<void()> m_apply;
+    std::function<void()> m_applySoft;
+    Physics::CollisionData m_collisionData{};
+    void colliderDispatcher();
+    BodyCreationSettings getBodySettings();
+    void addSoftBody();
 
-        std::shared_ptr<BodyID> m_physicsId = nullptr;
-        Body* m_physicsSoftId = nullptr;
+    std::shared_ptr<BodyID> m_physicsId = nullptr;
+    Body* m_physicsSoftId = nullptr;
 
-        nlohmann::json m_jsonComponent;
+    nlohmann::json m_jsonComponent;
 
 
-        Physics::LandscapeData m_landscapeData;
+    Physics::LandscapeData m_landscapeData;
 
-        const float m_minScale = 0.001;
-        const float m_minSize = 0.1;
+    const float m_minScale = 0.001;
+    const float m_minSize = 0.1;
 
-        Ref<SoftBodySharedSettings> m_softBodySharedSettings = nullptr;
+    Ref<SoftBodySharedSettings> m_softBodySharedSettings = nullptr;
 
-        std::function<void(const Body&)> m_add = nullptr;
-        std::function<void(const Body&)> m_stay = nullptr;
-        std::function<void(const BodyID&)> m_remove = nullptr;
+    std::function<void(const Body&)> m_add = nullptr;
+    std::function<void(const Body&)> m_stay = nullptr;
+    std::function<void(const BodyID&)> m_remove = nullptr;
 
-        Physics::SoftBodySettings m_settingsSoft;
-        glm::vec3 m_scale = glm::vec3(1, 1, 1);
+    Physics::SoftBodySettings m_settingsSoft;
+    glm::vec3 m_scale = glm::vec3(1, 1, 1);
 };
 }

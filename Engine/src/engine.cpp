@@ -28,186 +28,183 @@
 #include "Helpers/UpdateTLAS.h"
 
 struct PrivateData {
-        Prisma::Settings settings;
-        std::shared_ptr<Prisma::CallbackHandler> callbackHandler;
-        std::shared_ptr<Prisma::Camera> camera;
-        Prisma::SceneLoader::SceneParameters sceneParameters;
-        Prisma::EngineSettings::Settings engineSettings;
-        std::shared_ptr<Prisma::SceneHandler> sceneHandler;
-        std::shared_ptr<Prisma::UserData> userData;
-        std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
-        float fps;
-        bool debug;
-        Prisma::WindowsHelper::WindowsData windowsData;
+    Prisma::Settings settings;
+    std::shared_ptr<Prisma::CallbackHandler> callbackHandler;
+    std::shared_ptr<Prisma::Camera> camera;
+    Prisma::SceneLoader::SceneParameters sceneParameters;
+    Prisma::EngineSettings::Settings engineSettings;
+    std::shared_ptr<Prisma::SceneHandler> sceneHandler;
+    std::shared_ptr<Prisma::UserData> userData;
+    std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
+    float fps;
+    bool debug;
+    Prisma::WindowsHelper::WindowsData windowsData;
 };
 
 Prisma::Engine::Engine() {
-        data = std::make_shared<PrivateData>();
+    data = std::make_shared<PrivateData>();
 
-        SettingsLoader::getInstance().load(DIR_DEFAULT_SETTINGS);
+    SettingsLoader::getInstance().load(DIR_DEFAULT_SETTINGS);
 
-        PrismaFunc::getInstance().init();
+    PrismaFunc::getInstance().init();
 
-        MeshIndirect::getInstance();
+    MeshIndirect::getInstance();
 
-        MeshHandler::getInstance();
+    MeshHandler::getInstance();
 
-        LightHandler::getInstance();
+    LightHandler::getInstance();
 
-        Physics::getInstance();
+    Physics::getInstance();
 
-        Diligent::ImGuiDiligentCreateInfo desc;
-        desc.pDevice = PrismaFunc::getInstance().contextData().device;
+    data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 
-        data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
+    data->engineSettings.ssr = false;
 
-        data->engineSettings.ssr = false;
+    data->engineSettings.ssao = false;
 
-        data->engineSettings.ssao = false;
+    data->settings = SettingsLoader::getInstance().getSettings();
 
-        data->settings = SettingsLoader::getInstance().getSettings();
+    data->sceneHandler = std::make_shared<SceneHandler>();
 
-        data->sceneHandler = std::make_shared<SceneHandler>();
+    GlobalData::getInstance().currentGlobalScene(std::make_shared<Scene>());
 
-        GlobalData::getInstance().currentGlobalScene(std::make_shared<Scene>());
+    data->lastTime = std::chrono::high_resolution_clock::now();
 
-        data->lastTime = std::chrono::high_resolution_clock::now();
+    data->sceneParameters.srgb = true;
 
-        data->sceneParameters.srgb = true;
+    data->fps = 0.0f;
 
-        data->fps = 0.0f;
+    data->debug = true;
 
-        data->debug = true;
-
-        data->camera = nullptr;
+    data->camera = nullptr;
 }
 
 bool Prisma::Engine::run() {
-        initScene();
-        while (!PrismaFunc::getInstance().shouldClose()) {
-                if (data->camera && GlobalData::getInstance().currentGlobalScene()) {
-                        PrismaFunc::getInstance().bindMainRenderTarget();
-                        PrismaFunc::getInstance().clear();
+    initScene();
+    while (!PrismaFunc::getInstance().shouldClose()) {
+        if (data->camera && GlobalData::getInstance().currentGlobalScene()) {
+            PrismaFunc::getInstance().bindMainRenderTarget();
+            PrismaFunc::getInstance().clear();
 
-                        auto currentTime = std::chrono::high_resolution_clock::now();
+            auto currentTime = std::chrono::high_resolution_clock::now();
 
-                        std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
-                        data->lastTime = currentTime;
-                        data->fps = 1.0f / deltaTime.count();
+            std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
+            data->lastTime = currentTime;
+            data->fps = 1.0f / deltaTime.count();
 
-                        if (!data->debug) {
-                                data->userData->update();
-                                ComponentsHandler::getInstance().updateStart();
-                                ComponentsHandler::getInstance().updateComponents();
-                                Physics::getInstance().update(1.0f / fps());
-                        }
+            if (!data->debug) {
+                data->userData->update();
+                ComponentsHandler::getInstance().updateStart();
+                ComponentsHandler::getInstance().updateComponents();
+                Physics::getInstance().update(1.0f / fps());
+            }
 
-                        data->sceneHandler->onBeginRender();
-                        MeshHandler::getInstance().updateCamera();
-                        MeshIndirect::getInstance().update();
-                        UpdateTLAS::getInstance().update();
-                        LightHandler::getInstance().update();
-                        if (data->debug) {
-                                ComponentsHandler::getInstance().updateUi();
-                        }
+            data->sceneHandler->onBeginRender();
+            MeshHandler::getInstance().updateCamera();
+            MeshIndirect::getInstance().update();
+            UpdateTLAS::getInstance().update();
+            LightHandler::getInstance().update();
+            if (data->debug) {
+                ComponentsHandler::getInstance().updateUi();
+            }
 
-                        switch (data->engineSettings.pipeline) {
-                                case EngineSettings::Pipeline::FORWARD:
-                                        PipelineHandler::getInstance().forward()->render();
-                                        break;
-                                case EngineSettings::Pipeline::DEFERRED:
-                                        PipelineHandler::getInstance().deferred()->render();
-                                        break;
-                                case EngineSettings::Pipeline::DEFERRED_FORWARD:
-                                        PipelineHandler::getInstance().deferredForward()->render();
-                                        break;
-                                case EngineSettings::Pipeline::RAYTRACING:
-                                        PipelineHandler::getInstance().raytracing()->render();
-                                        break;
-                        }
+            switch (data->engineSettings.pipeline) {
+                case EngineSettings::Pipeline::FORWARD:
+                    PipelineHandler::getInstance().forward()->render();
+                    break;
+                case EngineSettings::Pipeline::DEFERRED:
+                    PipelineHandler::getInstance().deferred()->render();
+                    break;
+                case EngineSettings::Pipeline::DEFERRED_FORWARD:
+                    PipelineHandler::getInstance().deferredForward()->render();
+                    break;
+                case EngineSettings::Pipeline::RAYTRACING:
+                    PipelineHandler::getInstance().raytracing()->render();
+                    break;
+            }
 
-                        Postprocess::getInstance().render();
+            Postprocess::getInstance().render();
 
-                        LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
+            LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading);
 
-                        data->sceneHandler->onEndRender();
+            data->sceneHandler->onEndRender();
 
-                        PrismaFunc::getInstance().poll();
+            PrismaFunc::getInstance().poll();
 
-                        PrismaFunc::getInstance().update();
-                }
+            PrismaFunc::getInstance().update();
         }
-        data->userData->finish();
-        data->sceneHandler->onDestroy();
-        PrismaFunc::getInstance().destroy();
-        Physics::getInstance().destroy();
-        return true;
+    }
+    data->userData->finish();
+    data->sceneHandler->onDestroy();
+    PrismaFunc::getInstance().destroy();
+    Physics::getInstance().destroy();
+    return true;
 }
 
 void Prisma::Engine::setUserEngine(std::shared_ptr<UserData> userData) {
-        data->userData = userData;
+    data->userData = userData;
 }
 
 void Prisma::Engine::initScene() {
-        data->userData->start();
-        PipelineHandler::getInstance().initScene();
+    data->userData->start();
+    PipelineHandler::getInstance().initScene();
 }
 
 void Prisma::Engine::setGuiData(std::shared_ptr<SceneHandler> guiData) {
-        data->sceneHandler = guiData;
+    data->sceneHandler = guiData;
 }
 
 void Prisma::Engine::engineSettings(const EngineSettings::Settings& engineSettings) {
-        data->engineSettings = engineSettings;
+    data->engineSettings = engineSettings;
 }
 
 Prisma::EngineSettings::Settings Prisma::Engine::engineSettings() const {
-        return data->engineSettings;
+    return data->engineSettings;
 }
 
 void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandler) {
-        auto& contextData = PrismaFunc::getInstance().contextData();
+    auto& contextData = PrismaFunc::getInstance().contextData();
 
-        callbackHandler->resize = [&](int width, int height) {
-                GlobalData::getInstance().currentProjection(glm::perspective(
-                        glm::radians(GlobalData::getInstance().currentGlobalScene()->camera->angle()),
-                        static_cast<float>(data->settings.width) / static_cast<float>(data->
-                                settings.height),
-                        GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
-                        GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
-        };
+    callbackHandler->resize = [&](int width, int height) {
         GlobalData::getInstance().currentProjection(glm::perspective(
-                glm::radians(GlobalData::getInstance().currentGlobalScene()->camera->angle()),
-                static_cast<float>(data->settings.width) / static_cast<float>(data->settings.
-                        height),
-                GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
-                GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
-        data->callbackHandler = callbackHandler;
-        PrismaFunc::getInstance().setCallback(callbackHandler);
+            glm::radians(GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+            static_cast<float>(data->settings.width) / static_cast<float>(data->
+                                                                          settings.height),
+            GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
+            GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
+    };
+    GlobalData::getInstance().currentProjection(glm::perspective(
+        glm::radians(GlobalData::getInstance().currentGlobalScene()->camera->angle()),
+        static_cast<float>(data->settings.width) / static_cast<float>(data->settings.
+                                                                            height),
+        GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
+        GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
+    data->callbackHandler = callbackHandler;
+    PrismaFunc::getInstance().setCallback(callbackHandler);
 }
 
 float Prisma::Engine::fps() const {
-        return data->fps;
+    return data->fps;
 }
 
 void Prisma::Engine::mainCamera(const std::shared_ptr<Camera>& camera) {
-        data->camera = camera;
-        GlobalData::getInstance().currentGlobalScene()->camera = data->camera;
+    data->camera = camera;
+    GlobalData::getInstance().currentGlobalScene()->camera = data->camera;
 }
 
 void Prisma::Engine::debug(bool debug) {
-        data->debug = debug;
+    data->debug = debug;
 }
 
 void Prisma::Engine::windowsData(WindowsHelper::WindowsData windowsData) {
-        data->windowsData = windowsData;
+    data->windowsData = windowsData;
 }
 
 std::shared_ptr<Prisma::UserData> Prisma::Engine::getUserEngine() {
-        return data->userData;
+    return data->userData;
 }
 
 void Prisma::Engine::getScene(const std::string& scene,
                               SceneLoader::SceneParameters sceneParameters) {
-        LoadingHandler::getInstance().load(scene, sceneParameters);
+    LoadingHandler::getInstance().load(scene, sceneParameters);
 }

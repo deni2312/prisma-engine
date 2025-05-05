@@ -16,44 +16,44 @@ namespace Prisma {
 struct BoneInfo;
 
 struct AssimpNodeData {
-        glm::mat4 transformation;
-        std::string name;
-        int childrenCount;
-        std::vector<AssimpNodeData> children;
+    glm::mat4 transformation;
+    std::string name;
+    int childrenCount;
+    std::vector<AssimpNodeData> children;
 };
 
 class Animation {
 public:
-        Animation();
+    Animation();
 
-        Animation(const std::string& animationPath, std::shared_ptr<AnimatedMesh> model);
+    Animation(const std::string& animationPath, std::shared_ptr<AnimatedMesh> model);
 
-        Animation(std::shared_ptr<Animation> animation, std::shared_ptr<AnimatedMesh> model);
+    Animation(std::shared_ptr<Animation> animation, std::shared_ptr<AnimatedMesh> model);
 
-        ~Animation();
+    ~Animation();
 
-        std::shared_ptr<Bone> FindBone(const std::string& name);
+    std::shared_ptr<Bone> FindBone(const std::string& name);
 
-        int ticksPerSecond();
-        float duration();
-        const AssimpNodeData& rootNode();
-        std::shared_ptr<std::map<std::string, BoneInfo>> boneIdMap();
-        std::string name() const;
+    int ticksPerSecond();
+    float duration();
+    const AssimpNodeData& rootNode();
+    std::shared_ptr<std::map<std::string, BoneInfo>> boneIdMap();
+    std::string name() const;
 
-        unsigned int id();
+    unsigned int id();
 
 private:
-        aiNode* m_scene;
-        aiAnimation* m_animation;
-        std::string m_animationPath;
-        void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<AnimatedMesh> model);
-        glm::mat4 m_inverseTransform;
-        void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src);
-        float m_Duration;
-        int m_TicksPerSecond;
-        std::map<const std::string, std::shared_ptr<Bone>> m_Bones;
-        AssimpNodeData m_RootNode;
-        std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap;
-        unsigned int m_id;
+    aiNode* m_scene;
+    aiAnimation* m_animation;
+    std::string m_animationPath;
+    void ReadMissingBones(const aiAnimation* animation, std::shared_ptr<AnimatedMesh> model);
+    glm::mat4 m_inverseTransform;
+    void ReadHierarchyData(AssimpNodeData& dest, const aiNode* src);
+    float m_Duration;
+    int m_TicksPerSecond;
+    std::map<const std::string, std::shared_ptr<Bone>> m_Bones;
+    AssimpNodeData m_RootNode;
+    std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap;
+    unsigned int m_id;
 };
 }

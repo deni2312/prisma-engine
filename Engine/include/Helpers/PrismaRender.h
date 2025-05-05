@@ -15,29 +15,29 @@ struct IBuffer;
 namespace Prisma {
 class PrismaRender : public InstanceData<PrismaRender> {
 public:
-        struct BufferData {
-                Diligent::RefCntAutoPtr<Diligent::IBuffer> vBuffer;
-                Diligent::RefCntAutoPtr<Diligent::IBuffer> iBuffer;
-                unsigned int iBufferSize;
-        };
+    struct BufferData {
+        Diligent::RefCntAutoPtr<Diligent::IBuffer> vBuffer;
+        Diligent::RefCntAutoPtr<Diligent::IBuffer> iBuffer;
+        unsigned int iBufferSize;
+    };
 
-        BufferData quadBuffer();
+    BufferData quadBuffer();
 
-        BufferData cubeBuffer();
+    BufferData cubeBuffer();
 
 
-        PrismaRender();
+    PrismaRender();
 
 private:
-        BufferData m_quadBufferData;
-        BufferData m_cubeBufferData;
+    BufferData m_quadBufferData;
+    BufferData m_cubeBufferData;
 
-        struct VData {
-                glm::vec3 pos;
-                glm::vec2 uv;
-        };
+    struct VData {
+        glm::vec3 pos;
+        glm::vec2 uv;
+    };
 
-        bool m_initQuad = false;
-        bool m_initCube = false;
+    bool m_initQuad = false;
+    bool m_initCube = false;
 };
 }

@@ -9,26 +9,26 @@
 namespace Prisma {
 class ComponentsHandler : public InstanceData<ComponentsHandler> {
 public:
-        void updateStart();
+    void updateStart();
 
-        void updateUi();
+    void updateUi();
 
-        void updateComponents();
+    void updateComponents();
 
-        //void updateRender(std::shared_ptr<FBO> fbo = nullptr);
+    //void updateRender(std::shared_ptr<FBO> fbo = nullptr);
 
-        //void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
+    //void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
 
-        //void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
+    //void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
 
-        void addComponent(std::shared_ptr<Component> component);
+    void addComponent(std::shared_ptr<Component> component);
 
-        void removeComponent(std::shared_ptr<Component> component);
+    void removeComponent(std::shared_ptr<Component> component);
 
-        ComponentsHandler();
+    ComponentsHandler();
 
 private:
-        std::vector<std::shared_ptr<Component>> m_components;
-        RegisterData m_registerData;
+    std::vector<std::shared_ptr<Component>> m_components;
+    RegisterData m_registerData;
 };
 }

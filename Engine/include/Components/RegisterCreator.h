@@ -4,6 +4,6 @@
 namespace Prisma {
 class RegisterData {
 public:
-        void init();
+    void init();
 };
 }

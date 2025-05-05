@@ -3,17 +3,17 @@
 
 namespace Prisma {
 class TimeCounter {
-        std::chrono::high_resolution_clock::time_point start_time;
-        std::chrono::high_resolution_clock::time_point end_time;
-        bool running;
+    std::chrono::high_resolution_clock::time_point start_time;
+    std::chrono::high_resolution_clock::time_point end_time;
+    bool running;
 
 public:
-        TimeCounter();
+    TimeCounter();
 
-        void start();
+    void start();
 
-        void stop();
+    void stop();
 
-        double duration_seconds() const;
+    double duration_seconds() const;
 };
 }

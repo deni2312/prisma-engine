@@ -6,13 +6,13 @@
 namespace Prisma {
 class WindowsHelper : public InstanceData<WindowsHelper> {
 public:
-        struct WindowsData {
-                void* hInstance;
-                int nShowCmd;
-        };
+    struct WindowsData {
+        void* hInstance;
+        int nShowCmd;
+    };
 
-        WindowsHelper();
-        std::string openFolder(const std::string& stringFilter) const;
-        std::string relativePath(const std::string& path) const;
+    WindowsHelper();
+    std::string openFolder(const std::string& stringFilter) const;
+    std::string relativePath(const std::string& path) const;
 };
 }

@@ -32,20 +32,19 @@ void Prisma::Bloom::render() {
     {
         // Map the buffer and write current world-view-projection matrix
         Diligent::MapHelper<glm::ivec4> constants(contextData.immediateContext, m_pingPong, Diligent::MAP_WRITE,
-                                                   Diligent::MAP_FLAG_DISCARD);
-        *constants = glm::ivec4(1,0,0,0);
+                                                  Diligent::MAP_FLAG_DISCARD);
+        *constants = glm::ivec4(1, 0, 0, 0);
     }
 
     // Set texture SRV in the SRB
     contextData.immediateContext->CommitShaderResources(m_srbPing, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
-    DrawAttrs.IndexType = Diligent::VT_UINT32;  // Index type
+    Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
+    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
     DrawAttrs.NumIndices = quadBuffer.iBufferSize;
     // Verify the state of vertex and index buffers
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.immediateContext->DrawIndexed(DrawAttrs);
-
 }
 
 Prisma::Bloom::Bloom() {
@@ -184,9 +183,9 @@ Prisma::Bloom::Bloom() {
     m_pso->CreateShaderResourceBinding(&m_srbPong, true);
 
     m_srbPing->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")
-        ->Set(m_texturePing->GetDefaultView(
-        Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+             ->Set(m_texturePing->GetDefaultView(
+                 Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 
     m_srbPong->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")
-        ->Set(m_texturePong->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+             ->Set(m_texturePong->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 }
