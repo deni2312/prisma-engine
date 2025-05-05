@@ -319,7 +319,7 @@ bool Prisma::PrismaFunc::shouldClose() {
 }
 
 void Prisma::PrismaFunc::hiddenMouse(bool hidden) {
-    //glfwSetInputMode(m_window, GLFW_CURSOR, hidden ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_window, GLFW_CURSOR, hidden ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 void Prisma::PrismaFunc::msaa(bool isMsaa, int samples) {

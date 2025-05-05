@@ -103,7 +103,6 @@ private:
 
     //PlotFPS m_plot;
 
-    TimeCounter m_timeCounterUI;
     TimeCounter m_timeCounterEngine;
 
     ImGuiAddingMenu m_addingMenu;
