@@ -1,5 +1,7 @@
 #extension GL_EXT_nonuniform_qualifier : require
 #extension GL_EXT_samplerless_texture_functions : require
+#define MAX_CLUSTER_SIZE 100
+
 uniform ConstantsClusters
 {
     float zNear;
@@ -112,7 +114,7 @@ struct Cluster
     vec4 minPoint;
     vec4 maxPoint;
     uint count;
-    uint lightIndices[100];
+    uint lightIndices[MAX_CLUSTER_SIZE];
 };
 
 readonly buffer omniData{
@@ -390,48 +392,49 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);
 
     uint lightCount = clusters_data[tileIndex].count;
+    if(lightCount < MAX_CLUSTER_SIZE){
+        for (int k = 0; k < lightCount; k++) {
+            uint lightIndex = clusters_data[tileIndex].lightIndices[k];
 
-    for (int k = 0; k < lightCount; k++) {
-        uint lightIndex = clusters_data[tileIndex].lightIndices[k];
+            vec3 distance = vec3(omniData_data[lightIndex].position) - FragPos;
+            vec3 L = normalize(distance);
+            vec3 H = normalize(V + L);
 
-        vec3 distance = vec3(omniData_data[lightIndex].position) - FragPos;
-        vec3 L = normalize(distance);
-        vec3 H = normalize(V + L);
+            float totalDistance = length(distance);
 
-        float totalDistance = length(distance);
+            if (totalDistance <= omniData_data[lightIndex].radius) {
 
-        if (totalDistance <= omniData_data[lightIndex].radius) {
-
-            vec3 radiance = vec3(omniData_data[lightIndex].diffuse);
-
-
-            float NDF = DistributionGGX(N, H, roughness);
-            float G = GeometrySmith(N, V, L, roughness);
-            vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-            vec3 numerator = NDF * G * F;
-            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-            vec3 specular = numerator / denominator;
-
-            vec3 kS = F * specularMap;
-
-            vec3 kD = vec3(1.0) - kS;
-
-            kD *= 1.0 - metallic;
-
-            float NdotL = max(dot(N, L), 0.0);
-
-            float attenuation = 1.0 / (omniData_data[lightIndex].attenuation.x + omniData_data[lightIndex].attenuation.y * totalDistance + omniData_data[lightIndex].attenuation.z * totalDistance * totalDistance);
-            attenuation *= clamp(1.0 - totalDistance / omniData_data[lightIndex].radius, 0.0, 1.0);
+                vec3 radiance = vec3(omniData_data[lightIndex].diffuse);
 
 
-            if (omniData_data[lightIndex].hasShadow < 1.0) {
-                Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
+                float NDF = DistributionGGX(N, H, roughness);
+                float G = GeometrySmith(N, V, L, roughness);
+                vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+                vec3 numerator = NDF * G * F;
+                float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+                vec3 specular = numerator / denominator;
+
+                vec3 kS = F * specularMap;
+
+                vec3 kD = vec3(1.0) - kS;
+
+                kD *= 1.0 - metallic;
+
+                float NdotL = max(dot(N, L), 0.0);
+
+                float attenuation = 1.0 / (omniData_data[lightIndex].attenuation.x + omniData_data[lightIndex].attenuation.y * totalDistance + omniData_data[lightIndex].attenuation.z * totalDistance * totalDistance);
+                attenuation *= clamp(1.0 - totalDistance / omniData_data[lightIndex].radius, 0.0, 1.0);
+
+
+                if (omniData_data[lightIndex].hasShadow < 1.0) {
+                    Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation;
+                }
+                else {
+                    Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation * (1 - ShadowCalculation(FragPos, vec3(omniData_data[lightIndex].position), int(lightIndex)));
+                }
+
             }
-            else {
-                Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation * (1 - ShadowCalculation(FragPos, vec3(omniData_data[lightIndex].position), int(lightIndex)));
-            }
-
         }
     }
 
