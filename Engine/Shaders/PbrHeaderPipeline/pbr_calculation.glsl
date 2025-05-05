@@ -392,7 +392,9 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         tile.x + (tile.y * gridSize.x) + (tile.z * gridSize.x * gridSize.y);
 
     uint lightCount = clusters_data[tileIndex].count;
-    if(lightCount < MAX_CLUSTER_SIZE){
+    uint totalGrid=gridSize.x * gridSize.y * gridSize.z;
+
+    if(lightCount < totalGrid){
         for (int k = 0; k < lightCount; k++) {
             uint lightIndex = clusters_data[tileIndex].lightIndices[k];
 
