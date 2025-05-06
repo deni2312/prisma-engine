@@ -6,7 +6,7 @@
 #include <Common/interface/RefCntAutoPtr.hpp>
 
 
-namespace Prisma::GUI {
+namespace Prisma {
 class Bloom {
 public:
     void render();

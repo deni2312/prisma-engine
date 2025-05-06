@@ -9,19 +9,19 @@
 #include "GlobalData/EngineSettings.h"
 
 
-void Prisma::Bloom::render() {
+void Prisma::GUI::Bloom::render() {
     renderBrightness();
     renderPingPong();
     renderBloom();
 }
 
-Prisma::Bloom::Bloom() {
+Prisma::GUI::Bloom::Bloom() {
     createShaderBrightness();
     createShaderPingPong();
     createShaderRender();
 }
 
-void Prisma::Bloom::createShaderBrightness() {
+void Prisma::GUI::Bloom::createShaderBrightness() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
@@ -147,7 +147,7 @@ void Prisma::Bloom::createShaderBrightness() {
     GlobalData::getInstance().addGlobalTexture({m_textureBrightness, "Bloom Brightness"});
 }
 
-void Prisma::Bloom::createShaderPingPong() {
+void Prisma::GUI::Bloom::createShaderPingPong() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
@@ -283,7 +283,7 @@ void Prisma::Bloom::createShaderPingPong() {
     GlobalData::getInstance().addGlobalTexture({m_texturePingPong[1], "Bloom Pong"});
 }
 
-void Prisma::Bloom::createShaderRender() {
+void Prisma::GUI::Bloom::createShaderRender() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
@@ -302,7 +302,6 @@ void Prisma::Bloom::createShaderRender() {
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
     PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PrismaFunc::getInstance().renderFormat().RenderFormat;
-    PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
 
     // Set depth buffer format which is the format of the swap chain's back buffer
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
@@ -311,7 +310,7 @@ void Prisma::Bloom::createShaderRender() {
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
     // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
     // clang-format on
 
     Diligent::ShaderCreateInfo ShaderCI;
@@ -396,7 +395,7 @@ void Prisma::Bloom::createShaderRender() {
     m_psoRender->CreateShaderResourceBinding(&m_srbRender, true);
 }
 
-void Prisma::Bloom::renderBrightness() {
+void Prisma::GUI::Bloom::renderBrightness() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     auto color = m_textureBrightness->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
@@ -425,7 +424,7 @@ void Prisma::Bloom::renderBrightness() {
     contextData.immediateContext->DrawIndexed(DrawAttrs);
 }
 
-void Prisma::Bloom::renderPingPong() {
+void Prisma::GUI::Bloom::renderPingPong() {
     bool horizontal = true, first_iteration = true;
     unsigned int amount = 10;
     for (unsigned int i = 0; i < amount; i++) {
@@ -468,7 +467,7 @@ void Prisma::Bloom::renderPingPong() {
     }
 }
 
-void Prisma::Bloom::renderBloom() {
+void Prisma::GUI::Bloom::renderBloom() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     auto color = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
