@@ -48,4 +48,14 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
 }
 
 void Prisma::PipelineSoftwareRT::render() {
+    auto& contextData = PrismaFunc::getInstance().contextData();
+
+    Diligent::DispatchComputeAttribs DispatAttribs;
+    DispatAttribs.ThreadGroupCountX = 1;
+    DispatAttribs.ThreadGroupCountY = 1;
+    DispatAttribs.ThreadGroupCountZ = 1;
+    contextData.immediateContext->SetPipelineState(m_pso);
+    contextData.immediateContext->CommitShaderResources(
+        m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->DispatchCompute(DispatAttribs);
 }
