@@ -58,7 +58,7 @@ private:
 
     Settings m_settings;
 
-    std::shared_ptr<PipelineBlitRT> m_blitRT;
+    std::unique_ptr<PipelineBlitRT> m_blitRT;
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 

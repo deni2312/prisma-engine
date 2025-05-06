@@ -64,6 +64,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     Diligent::PipelineResourceDesc Resources[] =
     {
         {Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "SizeData", 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {Diligent::SHADER_TYPE_COMPUTE, "vertices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "indices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
@@ -97,7 +98,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size);
 
     m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
-    m_blit = std::make_unique<Blit>(m_texture);
+    m_blitRT = std::make_unique<PipelineBlitRT>(m_texture);
     Diligent::BufferDesc RTBufferDescVertex;
     RTBufferDescVertex.Name = "Vertices Buffer";
     RTBufferDescVertex.Usage = Diligent::USAGE_DEFAULT;
@@ -118,6 +119,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
 
     MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -170,6 +172,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
 
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
         }
     });
 }
@@ -189,5 +192,5 @@ void Prisma::PipelineSoftwareRT::render() {
     contextData.immediateContext->CommitShaderResources(
         m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.immediateContext->DispatchCompute(DispatAttribs);
-    m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
+    m_blitRT->blit();
 }

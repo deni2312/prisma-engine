@@ -9,6 +9,8 @@
 #include "Helpers/Blit.h"
 #include <glm/glm.hpp>
 
+#include "PipelineBlitRT.h"
+
 namespace Prisma {
 class PipelineSoftwareRT {
 public:
@@ -33,7 +35,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_size;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
-    std::unique_ptr<Blit> m_blit;
+    std::unique_ptr<PipelineBlitRT> m_blitRT;
     unsigned int m_width;
     unsigned int m_height;
 };

@@ -28,6 +28,18 @@ buffer indices{
     ivec4 indices_data[];
 };
 
+struct MeshData
+{
+    mat4 model;
+    mat4 normal;
+};
+
+
+readonly buffer models{
+    MeshData modelsData[];
+};
+
+
 void main()
 {
     ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
@@ -43,14 +55,27 @@ void main()
         if (i0 < 0 || i1 < 0 || i2 < 0 || 
             i0 >= int(vertexSize) || i1 >= int(vertexSize) || i2 >= int(vertexSize))
             continue;
+        mat4 model=modelsData[0].model;
+        vec4 v0 = projection * view * model*vertices_data[i0].vertex;
+        vec4 v1 = projection * view * model*vertices_data[i1].vertex;
+        vec4 v2 = projection * view * model*vertices_data[i2].vertex;
 
-        vec4 v0 = projection * view * vertices_data[i0].vertex;
-        vec4 v1 = projection * view * vertices_data[i1].vertex;
-        vec4 v2 = projection * view * vertices_data[i2].vertex;
+        if (v0.w <= 0.0 || v1.w <= 0.0 || v2.w <= 0.0)
+            continue;
 
         v0.xyz /= v0.w;
         v1.xyz /= v1.w;
         v2.xyz /= v2.w;
+
+        vec3 ndc0 = v0.xyz;
+        vec3 ndc1 = v1.xyz;
+        vec3 ndc2 = v2.xyz;
+
+        if ((ndc0.x < -1.0 && ndc1.x < -1.0 && ndc2.x < -1.0) ||
+            (ndc0.x >  1.0 && ndc1.x >  1.0 && ndc2.x >  1.0) ||
+            (ndc0.y < -1.0 && ndc1.y < -1.0 && ndc2.y < -1.0) ||
+            (ndc0.y >  1.0 && ndc1.y >  1.0 && ndc2.y >  1.0))
+            continue;
 
         vec2 a = v0.xy;
         vec2 b = v1.xy;

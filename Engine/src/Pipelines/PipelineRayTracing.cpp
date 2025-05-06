@@ -291,7 +291,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(
         m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
 
-    m_blitRT = std::make_shared<PipelineBlitRT>(m_colorBuffer);
+    m_blitRT = std::make_unique<PipelineBlitRT>(m_colorBuffer);
 
     m_updateData = [&]() {
         m_srb.Release();
