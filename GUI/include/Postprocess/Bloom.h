@@ -5,6 +5,8 @@
 #include "Graphics/GraphicsEngine/interface/PipelineState.h"
 #include <Common/interface/RefCntAutoPtr.hpp>
 
+#include "Helpers/Blit.h"
+
 
 namespace Prisma::GUI {
 class Bloom {
@@ -32,5 +34,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoPingPong;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbPingPong;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texturePingPong[2];
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureBlit;
+    std::unique_ptr<Blit> m_blit;
 };
 }

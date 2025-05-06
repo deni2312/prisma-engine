@@ -141,7 +141,8 @@ void Prisma::GUI::Bloom::createShaderBrightness() {
     RTColorDesc.ClearValue.Color[2] = 0.350f;
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_textureBrightness);
-
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_textureBlit);
+    m_blit = std::make_unique<Blit>(m_textureBlit);
     m_psoBrightness->CreateShaderResourceBinding(&m_srbBrightness, true);
 
     GlobalData::getInstance().addGlobalTexture({m_textureBrightness, "Bloom Brightness"});
@@ -470,7 +471,7 @@ void Prisma::GUI::Bloom::renderPingPong() {
 void Prisma::GUI::Bloom::renderBloom() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto color = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto color = m_textureBlit->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
 
     contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.immediateContext->SetPipelineState(m_psoRender);
@@ -492,4 +493,6 @@ void Prisma::GUI::Bloom::renderBloom() {
     // Verify the state of vertex and index buffers
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.immediateContext->DrawIndexed(DrawAttrs);
+
+    m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
 }
