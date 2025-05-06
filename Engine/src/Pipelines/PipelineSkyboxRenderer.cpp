@@ -2,6 +2,7 @@
 
 #include "../../include/GlobalData/GlobalShaderNames.h"
 #include "../../include/Helpers/PrismaRender.h"
+#include "Pipelines/PipelineHandler.h"
 
 void Prisma::PipelineSkyboxRenderer::render() {
     auto& contextData = PrismaFunc::getInstance().contextData();
@@ -57,7 +58,7 @@ Prisma::PipelineSkyboxRenderer::PipelineSkyboxRenderer() {
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PrismaFunc::getInstance().renderFormat().RenderFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
     // Set depth buffer format which is the format of the swap chain's back buffer
     PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state

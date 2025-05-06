@@ -27,6 +27,8 @@ public:
     std::shared_ptr<PipelineSoftwareRT> softwareRt();
     PipelineHandler();
 
+    Diligent::TEXTURE_FORMAT textureFormat();
+
     TextureData textureData();
 
 private:
@@ -36,6 +38,8 @@ private:
     std::shared_ptr<PipelineRayTracing> m_raytracingPipeline;
     std::shared_ptr<PipelineSoftwareRT> m_softwarePipeline;
     SceneLoader::SceneParameters m_sceneParameters;
+
+    Diligent::TEXTURE_FORMAT m_format;
 
     TextureData m_textureData;
 };

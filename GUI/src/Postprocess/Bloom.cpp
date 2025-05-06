@@ -39,7 +39,7 @@ void Prisma::GUI::Bloom::createShaderBrightness() {
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PrismaFunc::getInstance().renderFormat().RenderFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
     // Set depth buffer format which is the format of the swap chain's back buffer
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -131,7 +131,7 @@ void Prisma::GUI::Bloom::createShaderBrightness() {
     RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
     RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
     RTColorDesc.MipLevels = 1;
-    RTColorDesc.Format = PrismaFunc::getInstance().renderFormat().RenderFormat;
+    RTColorDesc.Format = PipelineHandler::getInstance().textureFormat();
     // The render target can be bound as a shader resource and as a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
@@ -166,7 +166,7 @@ void Prisma::GUI::Bloom::createShaderPingPong() {
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PrismaFunc::getInstance().renderFormat().RenderFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
     // Set depth buffer format which is the format of the swap chain's back buffer
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -265,7 +265,7 @@ void Prisma::GUI::Bloom::createShaderPingPong() {
     RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
     RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
     RTColorDesc.MipLevels = 1;
-    RTColorDesc.Format = PrismaFunc::getInstance().renderFormat().RenderFormat;
+    RTColorDesc.Format = PipelineHandler::getInstance().textureFormat();
     // The render target can be bound as a shader resource and as a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
@@ -302,7 +302,7 @@ void Prisma::GUI::Bloom::createShaderRender() {
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PrismaFunc::getInstance().renderFormat().RenderFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
 
     // Set depth buffer format which is the format of the swap chain's back buffer
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state

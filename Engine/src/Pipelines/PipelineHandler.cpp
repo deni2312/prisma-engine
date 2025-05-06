@@ -37,6 +37,7 @@ std::shared_ptr<Prisma::PipelineSoftwareRT> Prisma::PipelineHandler::softwareRt(
 }
 
 Prisma::PipelineHandler::PipelineHandler() {
+    m_format = Diligent::TEX_FORMAT_RGBA16_FLOAT;
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     Diligent::TextureDesc RTColorDesc;
@@ -45,7 +46,7 @@ Prisma::PipelineHandler::PipelineHandler() {
     RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
     RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
     RTColorDesc.MipLevels = 1;
-    RTColorDesc.Format = PrismaFunc::getInstance().renderFormat().RenderFormat;
+    RTColorDesc.Format = m_format;
     // The render target can be bound as a shader resource and as a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
@@ -68,6 +69,8 @@ Prisma::PipelineHandler::PipelineHandler() {
     contextData.device->CreateTexture(RTDepthDesc, nullptr, &m_textureData.pDepthDSV);
     // Store the depth-stencil view
 }
+
+Diligent::TEXTURE_FORMAT Prisma::PipelineHandler::textureFormat() { return m_format; }
 
 Prisma::PipelineHandler::TextureData Prisma::PipelineHandler::textureData() {
     return m_textureData;

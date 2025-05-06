@@ -2,6 +2,7 @@
 
 #include "GlobalData/PrismaFunc.h"
 #include "Helpers/PrismaRender.h"
+#include "Pipelines/PipelineHandler.h"
 
 Prisma::Blit::Blit(Diligent::RefCntAutoPtr<Diligent::ITexture> texture) {
     auto& contextData = PrismaFunc::getInstance().contextData();
@@ -21,7 +22,7 @@ Prisma::Blit::Blit(Diligent::RefCntAutoPtr<Diligent::ITexture> texture) {
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PrismaFunc::getInstance().renderFormat().RenderFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
 
     // Set depth buffer format which is the format of the swap chain's back buffer
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
