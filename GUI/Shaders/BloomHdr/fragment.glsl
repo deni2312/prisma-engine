@@ -1,18 +1,19 @@
-#version 460 core
-#extension GL_ARB_bindless_texture : enable
-out vec4 FragColor;
+#extension GL_EXT_samplerless_texture_functions : require
 
-in vec2 TexCoords;
+layout(location = 0) out vec4 FragColor;
 
-layout(bindless_sampler) uniform sampler2D hdrTexture;
-layout(bindless_sampler) uniform sampler2D screenTexture;
+layout(location = 0) in vec2 TexCoords;
+
+uniform texture2D hdrTexture;
+uniform texture2D screenTexture;
+uniform sampler screenTexture_sampler;
 
 void main()
 {
     const float gamma = 2.2;
 
-    vec3 hdrText = texture(hdrTexture, TexCoords).rgb;
-    vec3 screenText = texture(screenTexture, TexCoords).rgb;
+    vec3 hdrText = texture(sampler2D(hdrTexture,screenTexture_sampler), TexCoords).rgb;
+    vec3 screenText = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords).rgb;
 
     hdrText += screenText;
 
@@ -20,5 +21,5 @@ void main()
 
     hdrText = pow(hdrText, vec3(1.0 / gamma));
 
-    FragColor = vec4(hdrText, 1.0);
+    FragColor = vec4(hdrText.r,1,1, 1.0);
 }

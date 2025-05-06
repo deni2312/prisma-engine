@@ -21,8 +21,5 @@ private:
     SettingsData m_settings;
     bool m_position = false;
     std::shared_ptr<Effects> m_effects;
-    //std::shared_ptr<Effects> m_effectsBloom;
-    bool m_bloom = false;
-    std::unique_ptr<Bloom> m_bloomRender;
 };
 }

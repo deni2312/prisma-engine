@@ -74,6 +74,7 @@ Prisma::GUI::Effects::Effects() {
 	fboData.name = "BRIGHTNESS";
 	m_brightnessFbo = std::make_shared<FBO>(fboData);
 	*/
+    m_bloomRender = std::make_unique<Bloom>();
 }
 
 void Prisma::GUI::Effects::effect(EFFECTS effect) {
@@ -147,4 +148,11 @@ void Prisma::GUI::Effects::render() {
 
 		break;
 	}*/
+    switch (m_effects) {
+        case EFFECTS::NORMAL:
+            break;
+        case EFFECTS::BLOOM:
+            m_bloomRender->render();
+            break;
+    }
 }

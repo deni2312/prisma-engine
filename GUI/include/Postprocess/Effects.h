@@ -1,5 +1,6 @@
 #pragma once
 #include "Postprocess/PostprocessEffect.h"
+#include "Bloom.h"
 
 namespace Prisma::GUI {
 class Effects : public PostprocessEffect {
@@ -9,7 +10,6 @@ public:
         SEPPIA,
         CARTOON,
         VIGNETTE,
-        VOLUMETRIC,
         BLOOM
     };
 
@@ -21,6 +21,8 @@ public:
     void render() override;
 
 private:
+    std::unique_ptr<Bloom> m_bloomRender;
+
     /* std::shared_ptr<Shader> m_shaderSeppia;
     unsigned int m_bindlessPosSeppia;
 

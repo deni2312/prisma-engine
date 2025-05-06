@@ -9,8 +9,7 @@ uniform sampler screenTexture_sampler;
 
 
 uniform Constants{
-    bool horizontal;
-    ivec3 padding;
+    ivec4 horizontal;
 };
 
 void main()
@@ -21,7 +20,7 @@ void main()
     vec3 currentTexture = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords).rgb;
 
     vec3 result = currentTexture.rgb * weight[0];
-    if (horizontal)
+    if (horizontal.r==1)
     {
         for (int i = 1; i < 5; ++i)
         {

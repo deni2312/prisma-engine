@@ -28,7 +28,7 @@ void Prisma::GUI::SettingsTab::init() {
     m_status.postprocess.push_back("SEPPIA");
     m_status.postprocess.push_back("CARTOON");
     m_status.postprocess.push_back("VIGNETTE");
-    m_bloomRender = std::make_unique<Bloom>();
+    m_status.postprocess.push_back("BLOOM");
 }
 
 void Prisma::GUI::SettingsTab::drawSettings() {
@@ -79,7 +79,6 @@ void Prisma::GUI::SettingsTab::drawSettings() {
         }
         ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(),
                      m_status.postprocess.size());
-        ImGui::Checkbox("BLOOM", &m_bloom);
 
         auto settings = Engine::getInstance().engineSettings();
 
@@ -145,7 +144,4 @@ void Prisma::GUI::SettingsTab::updateStatus() {
     engineSettings.pipeline = static_cast<EngineSettings::Pipeline>(m_status.currentitem);
     Engine::getInstance().engineSettings(engineSettings);
     m_effects->effect(static_cast<Effects::EFFECTS>(m_status.currentPostprocess));
-    if (m_bloom) {
-        m_bloomRender->render();
-    }
 }
