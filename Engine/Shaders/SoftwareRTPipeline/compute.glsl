@@ -32,6 +32,7 @@ void main()
 {
     ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
     ivec2 screenSize = imageSize(screenTexture);
+    vec2 fragCoord = (vec2(gid) + 0.5) / vec2(screenSize) * 2.0 - 1.0;
 
     for (uint tri = 0; tri + 2 < indexSize; tri += 3)
     {
@@ -39,7 +40,8 @@ void main()
         int i1 = indices_data[tri + 1].r;
         int i2 = indices_data[tri + 2].r;
 
-        if (i0 < 0 || i1 < 0 || i2 < 0 || i0 >= int(vertexSize) || i1 >= int(vertexSize) || i2 >= int(vertexSize))
+        if (i0 < 0 || i1 < 0 || i2 < 0 || 
+            i0 >= int(vertexSize) || i1 >= int(vertexSize) || i2 >= int(vertexSize))
             continue;
 
         vec4 v0 = projection * view * vertices_data[i0].vertex;
@@ -50,12 +52,19 @@ void main()
         v1.xyz /= v1.w;
         v2.xyz /= v2.w;
 
-        ivec2 p0 = ivec2((v0.xy * 0.5 + 0.5) * vec2(screenSize));
-        ivec2 p1 = ivec2((v1.xy * 0.5 + 0.5) * vec2(screenSize));
-        ivec2 p2 = ivec2((v2.xy * 0.5 + 0.5) * vec2(screenSize));
+        vec2 a = v0.xy;
+        vec2 b = v1.xy;
+        vec2 c = v2.xy;
 
-        if (gid == p0 || gid == p1 || gid == p2) {
-            imageStore(screenTexture, gid, vec4(1.0, 0.5, 0.0, 1.0)); // orange pixel
+        // Compute barycentric coordinates
+        float area = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+        float w0 = (b.x - fragCoord.x) * (c.y - fragCoord.y) - (b.y - fragCoord.y) * (c.x - fragCoord.x);
+        float w1 = (c.x - fragCoord.x) * (a.y - fragCoord.y) - (c.y - fragCoord.y) * (a.x - fragCoord.x);
+        float w2 = (a.x - fragCoord.x) * (b.y - fragCoord.y) - (a.y - fragCoord.y) * (b.x - fragCoord.x);
+
+        if ((w0 >= 0.0 && w1 >= 0.0 && w2 >= 0.0) || 
+            (w0 <= 0.0 && w1 <= 0.0 && w2 <= 0.0)) {
+            imageStore(screenTexture, gid, vec4(1.0, 0.5, 0.0, 1.0)); // orange fill
         }
     }
 }
