@@ -1,6 +1,8 @@
 #include "Pipelines/PipelineSoftwareRT.h"
 
+#include "GlobalData/GlobalShaderNames.h"
 #include "GlobalData/PrismaFunc.h"
+#include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 #include "Pipelines/PipelineHandler.h"
 
 Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int height): m_width{width}, m_height{height} {
@@ -76,7 +78,17 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     PSODesc.Name = "Software RT";
     PSOCreateInfo.pCS = pResetParticleListsCS;
     contextData.device->CreateComputePipelineState(PSOCreateInfo, &m_pso);
+
+    Diligent::BufferDesc CBDesc;
+    CBDesc.Name = "Sizes";
+    CBDesc.Size = sizeof(Sizes);
+    CBDesc.Usage = Diligent::USAGE_DEFAULT;
+    CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+    contextData.device->CreateBuffer(CBDesc, nullptr, &m_size);
+
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "screenTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_UNORDERED_ACCESS));
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size);
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
     m_blit = std::make_unique<Blit>(m_texture);
@@ -142,6 +154,14 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             indexData.DataSize = RTBufferDescIndex.Size;
             indexData.pData = indices.data();
             contextData.device->CreateBuffer(RTBufferDescIndex, &indexData, &m_rtIndices);
+            Sizes sizes;
+            sizes.vertexSize = vertices.size();
+            sizes.indexSize = indices.size();
+
+            contextData.immediateContext->UpdateBuffer(m_size, 0, sizeof(Sizes),
+                                                       &sizes,
+                                                       Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
         }
@@ -150,7 +170,11 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
 
 void Prisma::PipelineSoftwareRT::render() {
     auto& contextData = PrismaFunc::getInstance().contextData();
+    auto color = m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
+    contextData.immediateContext->ClearRenderTarget(color, value_ptr(Define::CLEAR_COLOR),
+                                                    Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     Diligent::DispatchComputeAttribs DispatAttribs;
     DispatAttribs.ThreadGroupCountX = (m_width + 7) / 8;
     DispatAttribs.ThreadGroupCountY = (m_height + 7) / 8;
