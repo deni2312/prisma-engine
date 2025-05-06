@@ -50,55 +50,80 @@ readonly buffer models{
 };
 
 
+bool rayTriangleIntersect(
+    vec3 orig, vec3 dir,
+    vec3 v0, vec3 v1, vec3 v2,
+    out float t)
+{
+    float EPSILON = 0.000001;
+    vec3 edge1 = v1 - v0;
+    vec3 edge2 = v2 - v0;
+    vec3 h = cross(dir, edge2);
+    float a = dot(edge1, h);
+    if (abs(a) < EPSILON) return false;
+
+    float f = 1.0 / a;
+    vec3 s = orig - v0;
+    float u = f * dot(s, h);
+    if (u < 0.0 || u > 1.0) return false;
+
+    vec3 q = cross(s, edge1);
+    float v = f * dot(dir, q);
+    if (v < 0.0 || u + v > 1.0) return false;
+
+    float tTemp = f * dot(edge2, q);
+    if (tTemp > EPSILON) {
+        t = tTemp;
+        return true;
+    }
+    return false;
+}
+
 void main()
 {
     ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
     ivec2 screenSize = imageSize(screenTexture);
-    vec2 fragCoord = (vec2(gid) + 0.5) / vec2(screenSize) * 2.0 - 1.0;
-    for(int i=0;i<totalMeshes.r;i++){
-        SizeMeshes currentSize=size_data[i];
-        for (uint tri = currentSize.indexBase; tri < currentSize.indexBase+currentSize.indexSize; tri += 3)
-        {
+
+    // NDC coordinates [-1, 1]
+    vec2 uv = (vec2(gid) + 0.5) / vec2(screenSize) * 2.0 - 1.0;
+
+    // Invert projection to get ray direction in view space
+    vec4 rayClip = vec4(uv, -1.0, 1.0); // z = -1 for near plane
+    vec4 rayView = inverse(projection) * rayClip;
+    rayView = vec4(rayView.xy, -1.0, 0.0); // set direction, w=0
+
+    vec3 rayOrigin = viewPos.xyz;
+    vec3 rayDir = normalize((inverse(view) * rayView).xyz);
+
+    float closestT = 1e30;
+    bool hit = false;
+
+    for (int i = 0; i < totalMeshes.r; i++) {
+        SizeMeshes currentSize = size_data[i];
+        mat4 model = modelsData[i].model;
+
+        for (uint tri = currentSize.indexBase; tri < currentSize.indexBase + currentSize.indexSize; tri += 3) {
             int i0 = indices_data[tri + 0].r;
             int i1 = indices_data[tri + 1].r;
             int i2 = indices_data[tri + 2].r;
 
-            mat4 model=modelsData[i].model;
-            vec4 v0 = projection * view * model*vertices_data[currentSize.vertexBase+i0].vertex;
-            vec4 v1 = projection * view * model*vertices_data[currentSize.vertexBase+i1].vertex;
-            vec4 v2 = projection * view * model*vertices_data[currentSize.vertexBase+i2].vertex;
+            vec3 v0 = (model * vertices_data[currentSize.vertexBase + i0].vertex).xyz;
+            vec3 v1 = (model * vertices_data[currentSize.vertexBase + i1].vertex).xyz;
+            vec3 v2 = (model * vertices_data[currentSize.vertexBase + i2].vertex).xyz;
 
-            if (v0.w <= 0.0 || v1.w <= 0.0 || v2.w <= 0.0)
-                continue;
-
-            v0.xyz /= v0.w;
-            v1.xyz /= v1.w;
-            v2.xyz /= v2.w;
-
-            vec3 ndc0 = v0.xyz;
-            vec3 ndc1 = v1.xyz;
-            vec3 ndc2 = v2.xyz;
-
-            if ((ndc0.x < -1.0 && ndc1.x < -1.0 && ndc2.x < -1.0) ||
-                (ndc0.x >  1.0 && ndc1.x >  1.0 && ndc2.x >  1.0) ||
-                (ndc0.y < -1.0 && ndc1.y < -1.0 && ndc2.y < -1.0) ||
-                (ndc0.y >  1.0 && ndc1.y >  1.0 && ndc2.y >  1.0))
-                continue;
-
-            vec2 a = v0.xy;
-            vec2 b = v1.xy;
-            vec2 c = v2.xy;
-
-            // Compute barycentric coordinates
-            float area = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-            float w0 = (b.x - fragCoord.x) * (c.y - fragCoord.y) - (b.y - fragCoord.y) * (c.x - fragCoord.x);
-            float w1 = (c.x - fragCoord.x) * (a.y - fragCoord.y) - (c.y - fragCoord.y) * (a.x - fragCoord.x);
-            float w2 = (a.x - fragCoord.x) * (b.y - fragCoord.y) - (a.y - fragCoord.y) * (b.x - fragCoord.x);
-
-            if ((w0 >= 0.0 && w1 >= 0.0 && w2 >= 0.0) || 
-                (w0 <= 0.0 && w1 <= 0.0 && w2 <= 0.0)) {
-                imageStore(screenTexture, gid, vec4(1.0, 0.5, 0.0, 1.0)); // orange fill
+            float t;
+            if (rayTriangleIntersect(rayOrigin, rayDir, v0, v1, v2, t)) {
+                if (t < closestT) {
+                    closestT = t;
+                    hit = true;
+                }
             }
         }
+    }
+
+    if (hit) {
+        imageStore(screenTexture, gid, vec4(1.0, 0.5, 0.0, 1.0)); // hit: orange
+    } else {
+        imageStore(screenTexture, gid, vec4(0.0, 0.0, 0.0, 1.0)); // no hit: black
     }
 }
