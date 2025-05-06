@@ -17,9 +17,5 @@ void main()
 
     hdrText += screenText;
 
-    hdrText = vec3(1.0) - exp(-hdrText * vec3(1.0));
-
-    hdrText = pow(hdrText, vec3(1.0 / gamma));
-
-    FragColor = vec4(hdrText.r,1,1, 1.0);
+    FragColor = vec4(hdrText, 1.0);
 }

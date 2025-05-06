@@ -6,6 +6,8 @@
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 #include <glm/glm.hpp>
 
+#include "GlobalData/EngineSettings.h"
+
 
 void Prisma::Bloom::render() {
     renderBrightness();
@@ -469,11 +471,9 @@ void Prisma::Bloom::renderPingPong() {
 void Prisma::Bloom::renderBloom() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto color = contextData.swapChain->GetCurrentBackBufferRTV();
-    auto depth = contextData.swapChain->GetDepthBufferDSV();
+    auto color = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
 
-    contextData.immediateContext->SetRenderTargets(1, &color, depth, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->ClearDepthStencil(depth, Diligent::CLEAR_DEPTH_FLAG, 1.f, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.immediateContext->SetPipelineState(m_psoRender);
 
     auto quadBuffer = PrismaRender::getInstance().quadBuffer();
