@@ -5,6 +5,8 @@
 #include "Graphics/GraphicsEngine/interface/PipelineState.h"
 #include <Common/interface/RefCntAutoPtr.hpp>
 
+#include "Helpers/Blit.h"
+
 
 namespace Prisma::GUI {
 class PostprocessingStyles {
@@ -18,16 +20,11 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoBlit;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbBlit;
-
     void createShaderEffects();
-    void createShaderBlit();
-
     void renderEffects(EFFECTS effect);
-    void renderBlit();
-
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_current;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
+
+    std::unique_ptr<Blit> m_blit;
 };
 }
