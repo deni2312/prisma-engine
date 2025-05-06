@@ -35,20 +35,6 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
 
     PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    Diligent::ShaderResourceVariableDesc Vars[] = {
-        {Diligent::SHADER_TYPE_COMPUTE, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {Diligent::SHADER_TYPE_COMPUTE, "vertices", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {Diligent::SHADER_TYPE_COMPUTE, "indices", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
-    // clang-format on
-    PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
-    PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
-
-    Diligent::SamplerDesc SamLinearClampDesc{Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP};
-    Diligent::ImmutableSamplerDesc ImtblSamplers[] = {{Diligent::SHADER_TYPE_PIXEL, "screenTexture", SamLinearClampDesc}};
-    // clang-format on
-    PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
-    PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
-
     Diligent::TextureDesc RTColorDesc;
     RTColorDesc.Name = "Offscreen render target";
     RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
@@ -75,8 +61,28 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
         PSODesc.ResourceLayout.Variables = Vars;
         PSODesc.ResourceLayout.NumVariables = _countof(Vars);
         */
+    Diligent::PipelineResourceDesc Resources[] =
+    {
+        {Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_COMPUTE, "SizeData", 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_COMPUTE, "vertices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {Diligent::SHADER_TYPE_COMPUTE, "indices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {Diligent::SHADER_TYPE_COMPUTE, "screenTexture", 1, Diligent::SHADER_RESOURCE_TYPE_TEXTURE_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+    };
+
+    Diligent::PipelineResourceSignatureDesc ResourceSignDesc;
+    ResourceSignDesc.NumResources = _countof(Resources);
+    ResourceSignDesc.Resources = Resources;
+
     PSODesc.Name = "Software RT";
     PSOCreateInfo.pCS = pResetParticleListsCS;
+
+    contextData.device->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
+
+    Diligent::IPipelineResourceSignature* ppSignatures[]{m_pResourceSignature};
+
+    PSOCreateInfo.ppResourceSignatures = ppSignatures;
+    PSOCreateInfo.ResourceSignaturesCount = _countof(ppSignatures);
     contextData.device->CreateComputePipelineState(PSOCreateInfo, &m_pso);
 
     Diligent::BufferDesc CBDesc;
@@ -86,11 +92,11 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
     contextData.device->CreateBuffer(CBDesc, nullptr, &m_size);
 
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "screenTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_UNORDERED_ACCESS));
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size);
+    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "screenTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_UNORDERED_ACCESS));
+    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
+    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size);
 
-    m_pso->CreateShaderResourceBinding(&m_srb, true);
+    m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
     m_blit = std::make_unique<Blit>(m_texture);
     Diligent::BufferDesc RTBufferDescVertex;
     RTBufferDescVertex.Name = "Vertices Buffer";
@@ -119,7 +125,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             m_rtVertices.Release();
             m_rtIndices.Release();
             m_srb.Release();
-            m_pso->CreateShaderResourceBinding(&m_srb, true);
+            m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
 
             auto mesh = meshes[0];
             std::vector<Vertex> vertices;

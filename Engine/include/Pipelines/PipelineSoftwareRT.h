@@ -32,6 +32,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtIndices;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_size;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
     std::unique_ptr<Blit> m_blit;
     unsigned int m_width;
     unsigned int m_height;
