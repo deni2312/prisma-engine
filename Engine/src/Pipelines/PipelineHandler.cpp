@@ -28,6 +28,14 @@ std::shared_ptr<Prisma::PipelineRayTracing> Prisma::PipelineHandler::raytracing(
     return m_raytracingPipeline;
 }
 
+std::shared_ptr<Prisma::PipelineSoftwareRT> Prisma::PipelineHandler::softwareRt() {
+    if (!m_softwarePipeline) {
+        auto settings = SettingsLoader::getInstance().getSettings();
+        m_softwarePipeline = std::make_shared<PipelineSoftwareRT>(settings.width, settings.height);
+    }
+    return m_softwarePipeline;
+}
+
 Prisma::PipelineHandler::PipelineHandler() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 

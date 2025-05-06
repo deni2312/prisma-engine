@@ -21,6 +21,7 @@ void Prisma::GUI::SettingsTab::init() {
 
     m_status.items.push_back("FORWARD");
     m_status.items.push_back("RAYTRACING");
+    m_status.items.push_back("SOFTWARE RAYTRACING");
 
     m_status.postprocess.push_back("NORMAL");
     m_status.postprocess.push_back("SEPPIA");

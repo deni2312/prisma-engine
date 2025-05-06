@@ -9,6 +9,7 @@
 #include "PipelineSkybox.h"
 #include <memory>
 #include "PipelineDeferredForward.h"
+#include "PipelineSoftwareRT.h"
 
 namespace Prisma {
 class PipelineHandler : public InstanceData<PipelineHandler> {
@@ -23,6 +24,7 @@ public:
     std::shared_ptr<PipelineDeferred> deferred();
     std::shared_ptr<PipelineDeferredForward> deferredForward();
     std::shared_ptr<PipelineRayTracing> raytracing();
+    std::shared_ptr<PipelineSoftwareRT> softwareRt();
     PipelineHandler();
 
     TextureData textureData();
@@ -32,6 +34,7 @@ private:
     std::shared_ptr<PipelineDeferred> m_deferredPipeline;
     std::shared_ptr<PipelineDeferredForward> m_deferredForwardPipeline;
     std::shared_ptr<PipelineRayTracing> m_raytracingPipeline;
+    std::shared_ptr<PipelineSoftwareRT> m_softwarePipeline;
     SceneLoader::SceneParameters m_sceneParameters;
 
     TextureData m_textureData;

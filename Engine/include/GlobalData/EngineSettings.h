@@ -3,7 +3,8 @@
 namespace Prisma::EngineSettings {
 enum class Pipeline {
     FORWARD,
-    RAYTRACING
+    RAYTRACING,
+    SOFTWARE_RAYTRACING
 };
 
 struct Settings {
