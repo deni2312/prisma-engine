@@ -6,31 +6,28 @@
 #include <Common/interface/RefCntAutoPtr.hpp>
 
 
-namespace Prisma {
-class Bloom {
+namespace Prisma::GUI {
+class PostprocessingStyles {
 public:
-    void render();
-    Bloom();
+    enum class EFFECTS { NORMAL, SEPPIA, CARTOON, VIGNETTE, BLOOM };
+
+    void render(EFFECTS effect);
+    PostprocessingStyles();
 
 private:
-    void createShaderBrightness();
-    void createShaderPingPong();
-    void createShaderRender();
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
-    void renderBrightness();
-    void renderPingPong();
-    void renderBloom();
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoBlit;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbBlit;
 
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoRender;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbRender;
+    void createShaderEffects();
+    void createShaderBlit();
 
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoBrightness;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbBrightness;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureBrightness;
+    void renderEffects(EFFECTS effect);
+    void renderBlit();
 
-    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_pingPong;
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoPingPong;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbPingPong;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_texturePingPong[2];
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_current;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
 };
 }

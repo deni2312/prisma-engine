@@ -1,29 +1,23 @@
 #pragma once
 #include "Postprocess/PostprocessEffect.h"
 #include "Bloom.h"
+#include "Styles.h"
 
 namespace Prisma::GUI {
 class Effects : public PostprocessEffect {
 public:
-    enum class EFFECTS {
-        NORMAL,
-        SEPPIA,
-        CARTOON,
-        VIGNETTE,
-        BLOOM
-    };
-
     Effects();
 
-    void effect(EFFECTS effect);
+    void effect(PostprocessingStyles::EFFECTS effect);
 
 
     void render() override;
 
 private:
     std::unique_ptr<Bloom> m_bloomRender;
+    std::unique_ptr<PostprocessingStyles> m_stylesRender;
 
-    EFFECTS m_effects = EFFECTS::NORMAL;
+    PostprocessingStyles::EFFECTS m_effects = PostprocessingStyles::EFFECTS::NORMAL;
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoRender;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbRender;

@@ -143,5 +143,5 @@ void Prisma::GUI::SettingsTab::updateStatus() {
     auto engineSettings = Engine::getInstance().engineSettings();
     engineSettings.pipeline = static_cast<EngineSettings::Pipeline>(m_status.currentitem);
     Engine::getInstance().engineSettings(engineSettings);
-    m_effects->effect(static_cast<Effects::EFFECTS>(m_status.currentPostprocess));
+    m_effects->effect(static_cast<PostprocessingStyles::EFFECTS>(m_status.currentPostprocess));
 }

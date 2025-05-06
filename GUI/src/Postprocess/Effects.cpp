@@ -75,9 +75,10 @@ Prisma::GUI::Effects::Effects() {
 	m_brightnessFbo = std::make_shared<FBO>(fboData);
 	*/
     m_bloomRender = std::make_unique<Bloom>();
+    m_stylesRender = std::make_unique<PostprocessingStyles>();
 }
 
-void Prisma::GUI::Effects::effect(EFFECTS effect) {
+void Prisma::GUI::Effects::effect(PostprocessingStyles::EFFECTS effect) {
     m_effects = effect;
 }
 
@@ -148,11 +149,8 @@ void Prisma::GUI::Effects::render() {
 
 		break;
 	}*/
-    switch (m_effects) {
-        case EFFECTS::NORMAL:
-            break;
-        case EFFECTS::BLOOM:
-            m_bloomRender->render();
-            break;
+    m_stylesRender->render(m_effects);
+    if (m_effects == PostprocessingStyles::EFFECTS::BLOOM) {
+        m_bloomRender->render();
     }
 }
