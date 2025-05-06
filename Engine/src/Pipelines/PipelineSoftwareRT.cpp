@@ -65,7 +65,8 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     {
         {Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {Diligent::SHADER_TYPE_COMPUTE, "SizeData", 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_COMPUTE, "TotalSizes", 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_COMPUTE, "SizeData", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "vertices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "indices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "screenTexture", 1, Diligent::SHADER_RESOURCE_TYPE_TEXTURE_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -90,12 +91,23 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     CBDesc.Name = "Sizes";
     CBDesc.Size = sizeof(Sizes);
     CBDesc.Usage = Diligent::USAGE_DEFAULT;
-    CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+    CBDesc.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+    CBDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    CBDesc.ElementByteStride = sizeof(Sizes);
+    CBDesc.Size = sizeof(Sizes);
     contextData.device->CreateBuffer(CBDesc, nullptr, &m_size);
+
+    Diligent::BufferDesc CBDescTotal;
+    CBDescTotal.Name = "Total Sizes";
+    CBDescTotal.Size = sizeof(Sizes);
+    CBDescTotal.Usage = Diligent::USAGE_DEFAULT;
+    CBDescTotal.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+    CBDescTotal.Size = sizeof(glm::ivec4);
+    contextData.device->CreateBuffer(CBDescTotal, nullptr, &m_totalMeshes);
 
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "screenTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_UNORDERED_ACCESS));
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
-    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size);
+    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "TotalSizes")->Set(m_totalMeshes);
 
     m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
     m_blitRT = std::make_unique<PipelineBlitRT>(m_texture);
@@ -120,23 +132,38 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
 
     MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
         if (!meshes.empty()) {
             m_rtVertices.Release();
             m_rtIndices.Release();
+            m_size.Release();
             m_srb.Release();
             m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
 
-            auto mesh = meshes[0];
             std::vector<Vertex> vertices;
             std::vector<glm::ivec4> indices;
-            for (auto v : mesh->verticesData().vertices) {
-                vertices.push_back({glm::vec4(v.position, 1)});
-            }
-            for (auto v : mesh->verticesData().indices) {
-                indices.push_back({glm::ivec4(v)});
+            std::vector<Sizes> sizes;
+            unsigned int currentVertex = 0;
+            unsigned int currentIndex = 0;
+            for (auto mesh : meshes) {
+                for (auto v : mesh->verticesData().vertices) {
+                    vertices.push_back({glm::vec4(v.position, 1)});
+                }
+                for (auto v : mesh->verticesData().indices) {
+                    indices.push_back({glm::ivec4(v)});
+                }
+                Sizes size;
+                size.vertexBase = currentVertex;
+                size.indexBase = currentIndex;
+                size.vertexSize = mesh->verticesData().vertices.size();
+                size.indexSize = mesh->verticesData().indices.size();
+                currentVertex = currentVertex + mesh->verticesData().vertices.size();
+                currentIndex = currentIndex + mesh->verticesData().indices.size();
+
+                sizes.push_back(size);
             }
 
             Diligent::BufferDesc RTBufferDescVertex;
@@ -162,17 +189,32 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             indexData.DataSize = RTBufferDescIndex.Size;
             indexData.pData = indices.data();
             contextData.device->CreateBuffer(RTBufferDescIndex, &indexData, &m_rtIndices);
-            Sizes sizes;
-            sizes.vertexSize = vertices.size();
-            sizes.indexSize = indices.size();
 
-            contextData.immediateContext->UpdateBuffer(m_size, 0, sizeof(Sizes),
-                                                       &sizes,
+            Diligent::BufferDesc CBDesc;
+            CBDesc.Name = "Sizes";
+            CBDesc.Size = sizeof(Sizes);
+            CBDesc.Usage = Diligent::USAGE_DEFAULT;
+            CBDesc.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+            CBDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+            CBDesc.ElementByteStride = sizeof(Sizes);
+            CBDesc.Size = sizeof(Sizes) * sizes.size();
+            Diligent::BufferData sizesData;
+            sizesData.DataSize = CBDesc.Size;
+            sizesData.pData = sizes.data();
+            contextData.device->CreateBuffer(CBDesc, &sizesData, &m_size);
+
+            glm::ivec4 totalSize;
+
+            totalSize.r = meshes.size();
+
+            contextData.immediateContext->UpdateBuffer(m_totalMeshes, 0, sizeof(glm::ivec4),
+                                                       glm::value_ptr(totalSize),
                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
         }
     });
 }

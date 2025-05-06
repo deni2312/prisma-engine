@@ -23,9 +23,10 @@ private:
     };
 
     struct Sizes {
+        unsigned int vertexBase;
+        unsigned int indexBase;
         unsigned int vertexSize;
         unsigned int indexSize;
-        glm::ivec2 padding;
     };
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
@@ -33,6 +34,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtVertices;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtIndices;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_size;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_totalMeshes;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
     std::unique_ptr<PipelineBlitRT> m_blitRT;
