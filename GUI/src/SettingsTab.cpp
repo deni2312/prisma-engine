@@ -20,8 +20,6 @@ void Prisma::GUI::SettingsTab::init() {
     m_status.currentPostprocess = 0;
 
     m_status.items.push_back("FORWARD");
-    m_status.items.push_back("DEFERRED");
-    m_status.items.push_back("DEFERRED_FORWARD");
     m_status.items.push_back("RAYTRACING");
 
     m_status.postprocess.push_back("NORMAL");
@@ -51,10 +49,6 @@ void Prisma::GUI::SettingsTab::drawSettings() {
             switch (m_status.currentitem) {
                 case EngineSettings::Pipeline::FORWARD:
                     PipelineHandler::getInstance().forward();
-                    break;
-                case EngineSettings::Pipeline::DEFERRED:
-                    break;
-                case EngineSettings::Pipeline::DEFERRED_FORWARD:
                     break;
                 case EngineSettings::Pipeline::RAYTRACING:
                     PipelineHandler::getInstance().raytracing();
@@ -100,10 +94,6 @@ void Prisma::GUI::SettingsTab::drawSettings() {
 
         switch (m_status.currentitem) {
             case EngineSettings::Pipeline::FORWARD:
-                break;
-            case EngineSettings::Pipeline::DEFERRED:
-                break;
-            case EngineSettings::Pipeline::DEFERRED_FORWARD:
                 break;
             case EngineSettings::Pipeline::RAYTRACING:
 
