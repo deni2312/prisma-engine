@@ -33,7 +33,10 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
 
     PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+    Diligent::ShaderResourceVariableDesc Vars[] = {
+        {Diligent::SHADER_TYPE_COMPUTE, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_COMPUTE, "vertices", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {Diligent::SHADER_TYPE_COMPUTE, "indices", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
@@ -77,6 +80,72 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
     m_blit = std::make_unique<Blit>(m_texture);
+    Diligent::BufferDesc RTBufferDescVertex;
+    RTBufferDescVertex.Name = "Vertices Buffer";
+    RTBufferDescVertex.Usage = Diligent::USAGE_DEFAULT;
+    RTBufferDescVertex.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+    RTBufferDescVertex.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    RTBufferDescVertex.ElementByteStride = sizeof(Vertex);
+    RTBufferDescVertex.Size = sizeof(Vertex);
+    contextData.device->CreateBuffer(RTBufferDescVertex, nullptr, &m_rtVertices);
+
+    Diligent::BufferDesc RTBufferDescIndex;
+    RTBufferDescIndex.Name = "Indices Buffer";
+    RTBufferDescIndex.Usage = Diligent::USAGE_DEFAULT;
+    RTBufferDescIndex.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+    RTBufferDescIndex.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    RTBufferDescIndex.ElementByteStride = sizeof(glm::ivec4);
+    RTBufferDescIndex.Size = sizeof(glm::ivec4);
+    contextData.device->CreateBuffer(RTBufferDescIndex, nullptr, &m_rtIndices);
+
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+
+    MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
+        auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
+        if (!meshes.empty()) {
+            m_rtVertices.Release();
+            m_rtIndices.Release();
+            m_srb.Release();
+            m_pso->CreateShaderResourceBinding(&m_srb, true);
+
+            auto mesh = meshes[0];
+            std::vector<Vertex> vertices;
+            std::vector<glm::ivec4> indices;
+            for (auto v : mesh->verticesData().vertices) {
+                vertices.push_back({glm::vec4(v.position, 1)});
+            }
+            for (auto v : mesh->verticesData().indices) {
+                indices.push_back({glm::ivec4(v)});
+            }
+
+            Diligent::BufferDesc RTBufferDescVertex;
+            RTBufferDescVertex.Name = "Vertices Buffer";
+            RTBufferDescVertex.Usage = Diligent::USAGE_DEFAULT;
+            RTBufferDescVertex.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
+            RTBufferDescVertex.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+            RTBufferDescVertex.ElementByteStride = sizeof(Vertex);
+            RTBufferDescVertex.Size = sizeof(Vertex) * vertices.size();
+            Diligent::BufferData vertexData;
+            vertexData.DataSize = RTBufferDescVertex.Size;
+            vertexData.pData = vertices.data();
+            contextData.device->CreateBuffer(RTBufferDescVertex, &vertexData, &m_rtVertices);
+
+            Diligent::BufferDesc RTBufferDescIndex;
+            RTBufferDescIndex.Name = "Indices Buffer";
+            RTBufferDescIndex.Usage = Diligent::USAGE_DEFAULT;
+            RTBufferDescIndex.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
+            RTBufferDescIndex.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+            RTBufferDescIndex.ElementByteStride = sizeof(glm::ivec4);
+            RTBufferDescIndex.Size = sizeof(glm::ivec4) * indices.size();
+            Diligent::BufferData indexData;
+            indexData.DataSize = RTBufferDescIndex.Size;
+            indexData.pData = indices.data();
+            contextData.device->CreateBuffer(RTBufferDescIndex, &indexData, &m_rtIndices);
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+        }
+    });
 }
 
 void Prisma::PipelineSoftwareRT::render() {
