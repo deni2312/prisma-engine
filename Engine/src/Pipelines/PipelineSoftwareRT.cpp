@@ -102,7 +102,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
 
     Diligent::BufferDesc CBDescTotal;
     CBDescTotal.Name = "Total Sizes";
-    CBDescTotal.Size = sizeof(Sizes);
+    CBDescTotal.Size = sizeof(glm::ivec4);
     CBDescTotal.Usage = Diligent::USAGE_DEFAULT;
     CBDescTotal.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
     CBDescTotal.Size = sizeof(glm::ivec4);
@@ -128,8 +128,8 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     RTBufferDescIndex.Usage = Diligent::USAGE_DEFAULT;
     RTBufferDescIndex.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
     RTBufferDescIndex.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    RTBufferDescIndex.ElementByteStride = sizeof(glm::ivec4);
-    RTBufferDescIndex.Size = sizeof(glm::ivec4);
+    RTBufferDescIndex.ElementByteStride = sizeof(unsigned int);
+    RTBufferDescIndex.Size = sizeof(unsigned int);
     contextData.device->CreateBuffer(RTBufferDescIndex, nullptr, &m_rtIndices);
 
     /*Diligent::BufferDesc RTBufferDescVertexBVH;
@@ -165,7 +165,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
 
             std::vector<Vertex> vertices;
-            std::vector<glm::ivec4> indices;
+            std::vector<unsigned int> indices;
             std::vector<Sizes> sizes;
             unsigned int currentVertex = 0;
             unsigned int currentIndex = 0;
@@ -174,7 +174,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
                     vertices.push_back({glm::vec4(v.position, 1)});
                 }
                 for (auto v : mesh->verticesData().indices) {
-                    indices.push_back({glm::ivec4(v)});
+                    indices.push_back(v);
                 }
                 Sizes size;
                 size.vertexBase = currentVertex;
@@ -204,8 +204,8 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             RTBufferDescIndex.Usage = Diligent::USAGE_DEFAULT;
             RTBufferDescIndex.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
             RTBufferDescIndex.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-            RTBufferDescIndex.ElementByteStride = sizeof(glm::ivec4);
-            RTBufferDescIndex.Size = sizeof(glm::ivec4) * indices.size();
+            RTBufferDescIndex.ElementByteStride = sizeof(unsigned int);
+            RTBufferDescIndex.Size = sizeof(unsigned int) * indices.size();
             Diligent::BufferData indexData;
             indexData.DataSize = RTBufferDescIndex.Size;
             indexData.pData = indices.data();

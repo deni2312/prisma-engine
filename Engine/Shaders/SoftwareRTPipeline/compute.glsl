@@ -31,7 +31,7 @@ buffer vertices{
 };
 
 buffer indices{
-    ivec4 indices_data[];
+    uint indices_data[];
 };
 
 buffer SizeData{
@@ -103,9 +103,9 @@ void main()
         mat4 model = modelsData[i].model;
 
         for (uint tri = currentSize.indexBase; tri < currentSize.indexBase + currentSize.indexSize; tri += 3) {
-            int i0 = indices_data[tri + 0].r;
-            int i1 = indices_data[tri + 1].r;
-            int i2 = indices_data[tri + 2].r;
+            uint i0 = indices_data[tri + 0];
+            uint i1 = indices_data[tri + 1];
+            uint i2 = indices_data[tri + 2];
 
             vec3 v0 = (model * vertices_data[currentSize.vertexBase + i0].vertex).xyz;
             vec3 v1 = (model * vertices_data[currentSize.vertexBase + i1].vertex).xyz;
