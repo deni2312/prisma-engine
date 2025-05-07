@@ -51,6 +51,9 @@ void Prisma::GUI::SettingsTab::drawSettings() {
                 case EngineSettings::Pipeline::FORWARD:
                     PipelineHandler::getInstance().forward();
                     break;
+                case EngineSettings::Pipeline::SOFTWARE_RAYTRACING:
+                    PipelineHandler::getInstance().softwareRt()->loadData();
+                    break;
                 case EngineSettings::Pipeline::RAYTRACING:
                     PipelineHandler::getInstance().raytracing();
                     UpdateTLAS::getInstance().updateSizeTLAS();

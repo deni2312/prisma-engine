@@ -6,6 +6,7 @@
 #include "Pipelines/PipelineHandler.h"
 #include <Helpers/BVHHelper.h>
 
+#include "engine.h"
 #include "Helpers/BVHHelper.h"
 #include "Helpers/BVHHelper.h"
 #include "Helpers/BVHHelper.h"
@@ -185,7 +186,34 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     contextData.immediateContext->UpdateBuffer(m_totalMeshes, 0, sizeof(glm::ivec4),
                                                glm::value_ptr(totalSize),
                                                Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
     MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
+        loadData();
+    });
+}
+
+void Prisma::PipelineSoftwareRT::render() {
+    auto& contextData = PrismaFunc::getInstance().contextData();
+    auto color = m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.immediateContext->ClearRenderTarget(color, value_ptr(Define::CLEAR_COLOR),
+                                                    Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    Diligent::DispatchComputeAttribs DispatAttribs;
+    DispatAttribs.ThreadGroupCountX = (m_width + 7) / 8;
+    DispatAttribs.ThreadGroupCountY = (m_height + 7) / 8;
+    DispatAttribs.ThreadGroupCountZ = 1;
+    contextData.immediateContext->SetPipelineState(m_pso);
+    contextData.immediateContext->CommitShaderResources(
+        m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->DispatchCompute(DispatAttribs);
+    m_blitRT->blit();
+}
+
+void Prisma::PipelineSoftwareRT::loadData() {
+    if (Engine::getInstance().engineSettings().pipeline == EngineSettings::Pipeline::SOFTWARE_RAYTRACING) {
+        auto& contextData = PrismaFunc::getInstance().contextData();
+
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
         if (!meshes.empty()) {
             m_rtVertices.Release();
@@ -267,7 +295,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             BVH bvh(vertices, indices, sizes);
             auto bvhNodes = bvh.getFlatNodes();
             auto bvhTriangles = bvh.getTriangles();
-
+    
             Diligent::BufferDesc RTBufferDescVertexBVH;
             RTBufferDescVertexBVH.Name = "Vertices Bvh Buffer";
             RTBufferDescVertexBVH.Usage = Diligent::USAGE_DEFAULT;
@@ -278,9 +306,9 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             Diligent::BufferData bvhvData;
             bvhvData.DataSize = RTBufferDescVertexBVH.Size;
             bvhvData.pData = bvhTriangles.data();
-
+    
             contextData.device->CreateBuffer(RTBufferDescVertexBVH, &bvhvData, &m_rtBvhVertices);
-
+    
             Diligent::BufferDesc RTBufferDescNodesBVH;
             RTBufferDescNodesBVH.Name = "Nodes Bvh Buffer";
             RTBufferDescNodesBVH.Usage = Diligent::USAGE_DEFAULT;
@@ -291,34 +319,16 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             Diligent::BufferData bvhnData;
             bvhnData.DataSize = RTBufferDescNodesBVH.Size;
             bvhnData.pData = bvhNodes.data();
-
+    
             contextData.device->CreateBuffer(RTBufferDescNodesBVH, &bvhnData, &m_rtBvhNodes);*/
-
+            auto materials = MeshIndirect::getInstance().textureViews();
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             //m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "verticesBVH")->Set(m_rtBvhVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             //m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "nodesBVH")->Set(m_rtBvhVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
-            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
         }
-    });
-}
-
-void Prisma::PipelineSoftwareRT::render() {
-    auto& contextData = PrismaFunc::getInstance().contextData();
-    auto color = m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
-    contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    contextData.immediateContext->ClearRenderTarget(color, value_ptr(Define::CLEAR_COLOR),
-                                                    Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    Diligent::DispatchComputeAttribs DispatAttribs;
-    DispatAttribs.ThreadGroupCountX = (m_width + 7) / 8;
-    DispatAttribs.ThreadGroupCountY = (m_height + 7) / 8;
-    DispatAttribs.ThreadGroupCountZ = 1;
-    contextData.immediateContext->SetPipelineState(m_pso);
-    contextData.immediateContext->CommitShaderResources(
-        m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->DispatchCompute(DispatAttribs);
-    m_blitRT->blit();
+    }
 }

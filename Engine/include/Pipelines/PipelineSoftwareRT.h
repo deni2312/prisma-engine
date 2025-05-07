@@ -31,6 +31,8 @@ public:
     PipelineSoftwareRT(unsigned int width, unsigned int height);
     void render();
 
+    void loadData();
+
 private:
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;

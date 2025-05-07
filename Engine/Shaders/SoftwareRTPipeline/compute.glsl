@@ -150,12 +150,8 @@ void main()
                     hit = true;
                     found = i;
                     finalUV = vert0.uv.xy * bary.x + vert1.uv.xy * bary.y + vert2.uv.xy * bary.z;
-                    break;
                 }
             }
-        }
-        if(hit) {
-            break;
         }
     }
 

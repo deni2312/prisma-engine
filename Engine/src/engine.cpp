@@ -56,7 +56,7 @@ Prisma::Engine::Engine() {
 
     Physics::getInstance();
 
-    data->engineSettings.pipeline = EngineSettings::Pipeline::SOFTWARE_RAYTRACING;
+    data->engineSettings.pipeline = EngineSettings::Pipeline::FORWARD;
 
     data->engineSettings.ssr = false;
 
