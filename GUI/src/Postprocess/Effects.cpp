@@ -75,6 +75,7 @@ Prisma::GUI::Effects::Effects() {
 	m_brightnessFbo = std::make_shared<FBO>(fboData);
 	*/
     m_bloomRender = std::make_unique<Bloom>();
+    m_volumetricRender = std::make_unique<VolumetricLight>();
     m_stylesRender = std::make_unique<PostprocessingStyles>();
 }
 
@@ -152,5 +153,8 @@ void Prisma::GUI::Effects::render() {
     m_stylesRender->render(m_effects);
     if (m_effects == PostprocessingStyles::EFFECTS::BLOOM) {
         m_bloomRender->render();
+    }
+    if (m_effects == PostprocessingStyles::EFFECTS::VOLUMETRIC) {
+        m_volumetricRender->render();
     }
 }

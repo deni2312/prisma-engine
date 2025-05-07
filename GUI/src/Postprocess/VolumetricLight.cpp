@@ -1,22 +1,14 @@
-#include "Postprocess/Styles.h"
+#include "PostProcess/VolumetricLight.h"
 
+#include "engine.h"
+#include "GlobalData/GlobalShaderNames.h"
 #include "GlobalData/PrismaFunc.h"
-#include "Graphics/GraphicsTools/interface/MapHelper.hpp"
+#include "Handlers/LightHandler.h"
 #include "Helpers/PrismaRender.h"
 #include "Pipelines/PipelineHandler.h"
 
-void Prisma::GUI::PostprocessingStyles::render(EFFECTS effect) {
-    if (effect != EFFECTS::NORMAL && effect != EFFECTS::BLOOM && effect != EFFECTS::VOLUMETRIC) {
-        renderEffects(effect);
-        m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
-    }
-}
 
-Prisma::GUI::PostprocessingStyles::PostprocessingStyles() {
-    createShaderEffects();
-}
-
-void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
+Prisma::GUI::VolumetricLight::VolumetricLight() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
@@ -25,7 +17,7 @@ void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Effects Render";
+    PSOCreateInfo.PSODesc.Name = "Volumetric Light Render";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
@@ -63,16 +55,11 @@ void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Effects VS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/Styles/vertex.glsl";
+        ShaderCI.Desc.Name = "Volumetric Light VS";
+        ShaderCI.FilePath = "../../../GUI/Shaders/VolumetricLight/vertex.glsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
-        Diligent::BufferDesc CBDesc;
-        CBDesc.Name = "VS";
-        CBDesc.Size = sizeof(glm::ivec4);
-        CBDesc.Usage = Diligent::USAGE_DYNAMIC;
-        CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
-        CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
-        contextData.device->CreateBuffer(CBDesc, nullptr, &m_current);
+        // Create dynamic uniform buffer that will store our transformation matrix
+        // Dynamic buffers can be frequently updated by the CPU
     }
 
     // Create a pixel shader
@@ -80,8 +67,8 @@ void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Effects PS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/Styles/fragment.glsl";
+        ShaderCI.Desc.Name = "Volumetric Light PS";
+        ShaderCI.FilePath = "../../../GUI/Shaders/VolumetricLight/fragment.glsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
@@ -104,25 +91,28 @@ void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
 
-    Diligent::SamplerDesc SamLinearClampDesc
+    // clang-format off
+	// Define immutable sampler for g_Texture. Immutable samplers should be used whenever possible
+	Diligent::SamplerDesc SamLinearClampDesc
     {
-        Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
-        Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
+	    Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
+	    Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
     };
-    Diligent::ImmutableSamplerDesc ImtblSamplers[] =
+	Diligent::ImmutableSamplerDesc ImtblSamplers[] =
     {
-        {Diligent::SHADER_TYPE_PIXEL, "screenTexture", SamLinearClampDesc}
+        {Diligent::SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str(), SamLinearClampDesc}
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
+    m_pso->CreateShaderResourceBinding(&m_srb, true);
     Diligent::TextureDesc RTColorDesc;
     RTColorDesc.Name = "Offscreen render target";
     RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
@@ -139,43 +129,43 @@ void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
     RTColorDesc.ClearValue.Color[2] = 0.350f;
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_texture);
-
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "Constants")->Set(m_current);
-
-    m_pso->CreateShaderResourceBinding(&m_srb, true);
-
-    m_blit = std::make_unique<Blit>(m_texture);
-    GlobalData::getInstance().addGlobalTexture({m_texture, "Texture effects"});
+    LightHandler::getInstance().addLightHandler([&]() {
+        const auto& dirLights = GlobalData::getInstance().currentGlobalScene()->dirLights;
+        if (!dirLights.empty() && dirLights[0]->shadow() && dirLights[0]->hasShadow() && Engine::getInstance().engineSettings().pipeline != EngineSettings::Pipeline::RAYTRACING) {
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str())->Set(dirLights[0]->shadow()->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+        }
+    });
+    GlobalData::getInstance().addGlobalTexture({m_texture, "Volumetric Light"});
 }
 
-void Prisma::GUI::PostprocessingStyles::renderEffects(EFFECTS effect) {
-    auto& contextData = PrismaFunc::getInstance().contextData();
+void Prisma::GUI::VolumetricLight::render() {
+    const auto& dirLights = GlobalData::getInstance().currentGlobalScene()->dirLights;
+    if (!dirLights.empty() && dirLights[0]->shadow() && dirLights[0]->hasShadow() && Engine::getInstance().engineSettings().pipeline != EngineSettings::Pipeline::RAYTRACING) {
+        auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto color = m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+        auto color = m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
 
-    contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearRenderTarget(color, value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    auto quadBuffer = PrismaRender::getInstance().quadBuffer();
+        contextData.immediateContext->SetPipelineState(m_pso);
 
-    // Bind vertex and index buffers
-    constexpr Diligent::Uint64 offset = 0;
-    Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
-    contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-    contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    {
-        // Map the buffer and write current world-view-projection matrix
-        Diligent::MapHelper<glm::ivec4> constants(contextData.immediateContext, m_current, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-        *constants = glm::ivec4(effect, 0, 0, 0);
+        auto quadBuffer = PrismaRender::getInstance().quadBuffer();
+
+        // Bind vertex and index buffers
+        constexpr Diligent::Uint64 offset = 0;
+        Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
+        contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        // Set texture SRV in the SRB
+        contextData.immediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
+        DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+        DrawAttrs.NumIndices = quadBuffer.iBufferSize;
+        // Verify the state of vertex and index buffers
+        DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+        contextData.immediateContext->DrawIndexed(DrawAttrs);
     }
-    // Set texture SRV in the SRB
-    contextData.immediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
-    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
-    DrawAttrs.NumIndices = quadBuffer.iBufferSize;
-    // Verify the state of vertex and index buffers
-    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
-    contextData.immediateContext->DrawIndexed(DrawAttrs);
 }

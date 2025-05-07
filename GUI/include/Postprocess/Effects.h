@@ -1,6 +1,7 @@
 #pragma once
 #include "Postprocess/PostprocessEffect.h"
 #include "Bloom.h"
+#include "VolumetricLight.h"
 #include "Styles.h"
 
 namespace Prisma::GUI {
@@ -15,6 +16,7 @@ public:
 
 private:
     std::unique_ptr<Bloom> m_bloomRender;
+    std::unique_ptr<VolumetricLight> m_volumetricRender;
     std::unique_ptr<PostprocessingStyles> m_stylesRender;
 
     PostprocessingStyles::EFFECTS m_effects = PostprocessingStyles::EFFECTS::NORMAL;

@@ -169,7 +169,7 @@ void Prisma::LightHandler::updateOmni() {
 void Prisma::LightHandler::updateCSM() {
     const auto& dirLights = GlobalData::getInstance().currentGlobalScene()->dirLights;
 
-    if (dirLights.size() > 0 && dirLights[0]->shadow() && dirLights[0]->hasShadow() && m_updateCascade &&
+    if (!dirLights.empty() && dirLights[0]->shadow() && dirLights[0]->hasShadow() && m_updateCascade &&
         Engine::getInstance().engineSettings().pipeline != EngineSettings::Pipeline::RAYTRACING) {
         auto shadow = dirLights[0]->shadow();
 

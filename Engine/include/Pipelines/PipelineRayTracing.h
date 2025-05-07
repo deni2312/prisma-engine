@@ -24,6 +24,8 @@ public:
     void maxRecursionReflection(unsigned int recursionReflection);
     Diligent::Uint32 maxRecursionReflection();
     Diligent::Uint32 hardwareMaxReflection();
+    void raytracingEasy(bool raytracingEasy);
+    bool raytracingEasy();
     ~PipelineRayTracing();
 
 private:
@@ -37,6 +39,7 @@ private:
         glm::vec2 ClipPlanes;
         float MaxRecursion;
         float MaxRecursionReflection;
+        glm::ivec4 raytracingEasy;
     };
 
     Diligent::Uint32 m_MaxRecursionDepth = 8;
@@ -65,5 +68,7 @@ private:
     Diligent::Uint32 m_maxRecursionReflection = 4;
 
     Diligent::Uint32 m_hardwareMaxReflection = 8;
+
+    bool m_raytracingEasy = false;
 };
 }

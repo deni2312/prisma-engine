@@ -28,6 +28,7 @@ void Prisma::GUI::SettingsTab::init() {
     m_status.postprocess.push_back("CARTOON");
     m_status.postprocess.push_back("VIGNETTE");
     m_status.postprocess.push_back("BLOOM");
+    m_status.postprocess.push_back("VOLUMETRIC");
 }
 
 void Prisma::GUI::SettingsTab::drawSettings() {
@@ -87,6 +88,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
         bool debugPhysics = Physics::getInstance().debug();
 
         ImGui::Checkbox("PHYSICS DEBUG", &debugPhysics);
+
         //
         //bool sortTransparencies = Prisma::GlobalData::getInstance().transparencies();
         //
@@ -112,6 +114,12 @@ void Prisma::GUI::SettingsTab::drawSettings() {
 
                 ImGui::SliderInt("Max Recursion Reflection##1", &maxRecursionReflection, 1,
                                  maxHardware);
+
+                bool raytracingEasy = PipelineHandler::getInstance().raytracing()->raytracingEasy();
+
+                ImGui::Checkbox("Raytracing easy##1", &raytracingEasy);
+
+                PipelineHandler::getInstance().raytracing()->raytracingEasy(raytracingEasy);
 
                 PipelineHandler::getInstance().raytracing()->maxRecursion(maxRecursionDepth);
                 PipelineHandler::getInstance().raytracing()->maxRecursionReflection(

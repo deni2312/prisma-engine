@@ -69,6 +69,7 @@ struct Constants
     float2 ClipPlanes;
     float MaxRecursion;
     float MaxRecurionReflection;
+    int4 raytracingEasy;
 };
 
 struct BoxAttribs
@@ -76,8 +77,8 @@ struct BoxAttribs
     float minX, minY, minZ;
     float maxX, maxY, maxZ;
     float padding0, padding1;
-
 #ifdef __cplusplus
+
     BoxAttribs() {}
 
     BoxAttribs(float _minX, float _minY, float _minZ,

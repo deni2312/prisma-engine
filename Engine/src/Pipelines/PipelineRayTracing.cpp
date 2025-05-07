@@ -361,6 +361,7 @@ void Prisma::PipelineRayTracing::render() {
         rayTracingData->ClipPlanes = {camera->nearPlane(), camera->farPlane()};
         rayTracingData->MaxRecursion = m_MaxRecursionDepth;
         rayTracingData->MaxRecursionReflection = m_maxRecursionReflection;
+        rayTracingData->raytracingEasy.r = m_raytracingEasy;
 
         contextData.immediateContext->SetPipelineState(m_pso);
         contextData.immediateContext->
@@ -410,3 +411,7 @@ Uint32 Prisma::PipelineRayTracing::maxRecursionReflection() {
 Uint32 Prisma::PipelineRayTracing::hardwareMaxReflection() {
     return m_hardwareMaxReflection;
 }
+
+void Prisma::PipelineRayTracing::raytracingEasy(bool raytracingEasy) { m_raytracingEasy = raytracingEasy; }
+
+bool Prisma::PipelineRayTracing::raytracingEasy() { return m_raytracingEasy; }

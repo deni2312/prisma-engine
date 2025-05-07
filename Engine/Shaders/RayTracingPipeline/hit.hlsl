@@ -93,5 +93,8 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
 
     // Apply lighting.
 	float3 rayOrigin = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
-    LightingPass(payload.Color, rayOrigin, worldNormal, payload.Recursion + 1, metallic, roughness);
+    if (g_ConstantsCB.raytracingEasy.r == 0)
+    {
+        LightingPass(payload.Color, rayOrigin, worldNormal, payload.Recursion + 1, metallic, roughness);
+    }
 }
