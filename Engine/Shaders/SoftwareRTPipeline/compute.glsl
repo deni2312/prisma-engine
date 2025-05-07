@@ -1,6 +1,13 @@
+#extension GL_EXT_nonuniform_qualifier : require
+#extension GL_EXT_samplerless_texture_functions : require
+
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 layout(binding = 1, rgba8) writeonly uniform image2D screenTexture;
+
+uniform sampler textureRepeat_sampler;
+
+uniform texture2D diffuseTexture[];
 
 uniform ViewProjection
 {
@@ -123,6 +130,7 @@ void main()
 
     float closestT = 1e30;
     bool hit = false;
+    int found=0;
 
     for (int i = 0; i < totalMeshes.r; i++) {
         SizeMeshes currentSize = size_data[i];
@@ -142,13 +150,21 @@ void main()
                 if (t < closestT) {
                     closestT = t;
                     hit = true;
+                    break;
                 }
             }
+        }
+        if(hit){
+            found=i;
+            break;
         }
     }
 
     if (hit) {
-        imageStore(screenTexture, gid, vec4(1.0, 0.5, 0.0, triangle_data[0].index.r)); // hit: orange
+
+        vec4 diffuse = texture(sampler2D(diffuseTexture[found],textureRepeat_sampler),uv);
+
+        imageStore(screenTexture, gid, vec4(1.0, 0.5, 0.0, triangle_data[0].index.r+diffuse.g)); // hit: orange
     } else {
         imageStore(screenTexture, gid, vec4(0.0, 0.0, 0.0, node_data[0].count.r)); // no hit: black
     }

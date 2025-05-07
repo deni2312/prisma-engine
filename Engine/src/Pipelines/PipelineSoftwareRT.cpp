@@ -68,6 +68,8 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
         PSODesc.ResourceLayout.Variables = Vars;
         PSODesc.ResourceLayout.NumVariables = _countof(Vars);
         */
+    std::string samplerRepeatName = "textureRepeat_sampler";
+
     Diligent::PipelineResourceDesc Resources[] =
     {
         {Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -79,6 +81,8 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
         {Diligent::SHADER_TYPE_COMPUTE, "verticesBVH", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "nodesBVH", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "screenTexture", 1, Diligent::SHADER_RESOURCE_TYPE_TEXTURE_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), Define::MAX_MESHES, Diligent::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, Diligent::PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
+        {Diligent::SHADER_TYPE_COMPUTE, samplerRepeatName.c_str(), 1, Diligent::SHADER_RESOURCE_TYPE_SAMPLER, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
     };
 
     Diligent::PipelineResourceSignatureDesc ResourceSignDesc;
@@ -114,6 +118,17 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     CBDescTotal.Size = sizeof(glm::ivec4);
     contextData.device->CreateBuffer(CBDescTotal, nullptr, &m_totalMeshes);
 
+    Diligent::SamplerDesc SamLinearRepeatDesc
+    {
+        Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
+        Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
+    };
+    Diligent::RefCntAutoPtr<Diligent::ISampler> samplerRepeat;
+
+    contextData.device->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
+    Diligent::IDeviceObject* samplerDeviceRepeat = samplerRepeat;
+
+    m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, samplerRepeatName.c_str())->Set(samplerDeviceRepeat);
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "screenTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_UNORDERED_ACCESS));
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
     m_pResourceSignature->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "TotalSizes")->Set(m_totalMeshes);
@@ -162,6 +177,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+
     glm::ivec4 totalSize;
 
     totalSize.r = 0;
@@ -284,6 +300,7 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "nodesBVH")->Set(m_rtBvhVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
         }
     });
 }
