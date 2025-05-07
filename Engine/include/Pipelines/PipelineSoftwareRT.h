@@ -25,6 +25,7 @@ public:
 
     struct Vertex {
         glm::vec4 vertex;
+        glm::vec4 uv;
     };
 
     PipelineSoftwareRT(unsigned int width, unsigned int height);
@@ -35,8 +36,8 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtVertices;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtIndices;
-    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhVertices;
-    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhNodes;
+    //Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhVertices;
+    //Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhNodes;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_size;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_totalMeshes;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
