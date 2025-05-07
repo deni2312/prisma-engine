@@ -6,6 +6,12 @@
 #include "Pipelines/PipelineHandler.h"
 #include <Helpers/BVHHelper.h>
 
+#include "Helpers/BVHHelper.h"
+#include "Helpers/BVHHelper.h"
+#include "Helpers/BVHHelper.h"
+#include "Helpers/BVHHelper.h"
+#include "Helpers/BVHHelper.h"
+
 Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int height): m_width{width}, m_height{height} {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
@@ -70,8 +76,8 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
         {Diligent::SHADER_TYPE_COMPUTE, "SizeData", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "vertices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "indices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        //{Diligent::SHADER_TYPE_COMPUTE, "verticesBVH", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        //{Diligent::SHADER_TYPE_COMPUTE, "indicesBVH", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {Diligent::SHADER_TYPE_COMPUTE, "verticesBVH", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {Diligent::SHADER_TYPE_COMPUTE, "nodesBVH", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "screenTexture", 1, Diligent::SHADER_RESOURCE_TYPE_TEXTURE_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
     };
 
@@ -132,34 +138,44 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     RTBufferDescIndex.Size = sizeof(unsigned int);
     contextData.device->CreateBuffer(RTBufferDescIndex, nullptr, &m_rtIndices);
 
-    /*Diligent::BufferDesc RTBufferDescVertexBVH;
+    Diligent::BufferDesc RTBufferDescVertexBVH;
     RTBufferDescVertexBVH.Name = "Vertices Bvh Buffer";
     RTBufferDescVertexBVH.Usage = Diligent::USAGE_DEFAULT;
     RTBufferDescVertexBVH.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
     RTBufferDescVertexBVH.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    RTBufferDescVertexBVH.ElementByteStride = sizeof(BVHHelper::BVHNodeGPU);
-    RTBufferDescVertexBVH.Size = sizeof(BVHHelper::BVHNodeGPU);
+    RTBufferDescVertexBVH.ElementByteStride = sizeof(BVH::Triangle);
+    RTBufferDescVertexBVH.Size = sizeof(BVH::Triangle);
     contextData.device->CreateBuffer(RTBufferDescVertexBVH, nullptr, &m_rtBvhVertices);
 
-    Diligent::BufferDesc RTBufferDescIndexBVH;
-    RTBufferDescIndexBVH.Name = "Indices Buffer";
-    RTBufferDescIndexBVH.Usage = Diligent::USAGE_DEFAULT;
-    RTBufferDescIndexBVH.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
-    RTBufferDescIndexBVH.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    RTBufferDescIndexBVH.ElementByteStride = sizeof(glm::ivec4);
-    RTBufferDescIndexBVH.Size = sizeof(glm::ivec4);
-    contextData.device->CreateBuffer(RTBufferDescIndexBVH, nullptr, &m_rtBvhIndices);*/
+    Diligent::BufferDesc RTBufferDescNodesBVH;
+    RTBufferDescNodesBVH.Name = "Nodes Bvh Buffer";
+    RTBufferDescNodesBVH.Usage = Diligent::USAGE_DEFAULT;
+    RTBufferDescNodesBVH.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+    RTBufferDescNodesBVH.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    RTBufferDescNodesBVH.ElementByteStride = sizeof(BVH::BVHNode);
+    RTBufferDescNodesBVH.Size = sizeof(BVH::BVHNode);
+    contextData.device->CreateBuffer(RTBufferDescNodesBVH, nullptr, &m_rtBvhNodes);
 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "verticesBVH")->Set(m_rtBvhVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "nodesBVH")->Set(m_rtBvhVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+    glm::ivec4 totalSize;
 
+    totalSize.r = 0;
+
+    contextData.immediateContext->UpdateBuffer(m_totalMeshes, 0, sizeof(glm::ivec4),
+                                               glm::value_ptr(totalSize),
+                                               Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
         if (!meshes.empty()) {
             m_rtVertices.Release();
             m_rtIndices.Release();
+            m_rtBvhVertices.Release();
+            m_rtBvhNodes.Release();
             m_size.Release();
             m_srb.Release();
             m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
@@ -232,11 +248,40 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
                                                        glm::value_ptr(totalSize),
                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-            //BVHHelper bvh;
-            //auto bvhData = bvh.buildFlat(vertices, indices);
+            BVH bvh(vertices, indices, sizes);
+            auto bvhNodes = bvh.getFlatNodes();
+            auto bvhTriangles = bvh.getTriangles();
+
+            Diligent::BufferDesc RTBufferDescVertexBVH;
+            RTBufferDescVertexBVH.Name = "Vertices Bvh Buffer";
+            RTBufferDescVertexBVH.Usage = Diligent::USAGE_DEFAULT;
+            RTBufferDescVertexBVH.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+            RTBufferDescVertexBVH.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+            RTBufferDescVertexBVH.ElementByteStride = sizeof(BVH::Triangle);
+            RTBufferDescVertexBVH.Size = sizeof(BVH::Triangle) * bvhTriangles.size();
+            Diligent::BufferData bvhvData;
+            bvhvData.DataSize = RTBufferDescVertexBVH.Size;
+            bvhvData.pData = bvhTriangles.data();
+
+            contextData.device->CreateBuffer(RTBufferDescVertexBVH, &bvhvData, &m_rtBvhVertices);
+
+            Diligent::BufferDesc RTBufferDescNodesBVH;
+            RTBufferDescNodesBVH.Name = "Nodes Bvh Buffer";
+            RTBufferDescNodesBVH.Usage = Diligent::USAGE_DEFAULT;
+            RTBufferDescNodesBVH.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+            RTBufferDescNodesBVH.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+            RTBufferDescNodesBVH.ElementByteStride = sizeof(BVH::BVHNode);
+            RTBufferDescNodesBVH.Size = sizeof(BVH::BVHNode) * bvhNodes.size();
+            Diligent::BufferData bvhnData;
+            bvhnData.DataSize = RTBufferDescNodesBVH.Size;
+            bvhnData.pData = bvhNodes.data();
+
+            contextData.device->CreateBuffer(RTBufferDescNodesBVH, &bvhnData, &m_rtBvhNodes);
 
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "verticesBVH")->Set(m_rtBvhVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
+            m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "nodesBVH")->Set(m_rtBvhVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "SizeData")->Set(m_size->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
         }

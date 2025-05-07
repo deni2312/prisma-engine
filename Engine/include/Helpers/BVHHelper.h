@@ -7,142 +7,149 @@
 #include "Pipelines/PipelineSoftwareRT.h"
 
 namespace Prisma {
-class BVHHelper {
+// -------- BVH Class --------
+class BVH {
 public:
-    struct AABB {
-        glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
-        glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
+    struct Triangle {
+        glm::vec4 v0, v1, v2;
+        glm::vec4 index;
+    };
 
-        void expand(const glm::vec3& point) {
+    // -------- AABB --------
+    struct AABB {
+        glm::vec4 min = glm::vec4(std::numeric_limits<float>::max());
+        glm::vec4 max = glm::vec4(std::numeric_limits<float>::lowest());
+
+        void expand(const glm::vec4& point) {
             min = glm::min(min, point);
             max = glm::max(max, point);
         }
 
         void expand(const AABB& box) {
-            min = glm::min(min, box.min);
-            max = glm::max(max, box.max);
+            expand(box.min);
+            expand(box.max);
         }
+
+        glm::vec3 centroid() const { return (min + max) * 0.5f; }
     };
 
+    // -------- Flat BVH Node (GPU-friendly) --------
     struct BVHNode {
         AABB bounds;
-        BVHNode* left = nullptr;
-        BVHNode* right = nullptr;
-        std::vector<int> triangleIndices;
-
-        bool isLeaf() const { return left == nullptr && right == nullptr; }
+        glm::vec4 leftFirst; // index to child (internal) or primitive offset (leaf)
+        glm::vec4 count; // if 0 = internal, >0 = leaf with count triangles
     };
 
-    struct BVHNodeGPU {
-        glm::vec3 boundsMin;
-        int leftFirst;
-        glm::vec3 boundsMax;
-        int count; // > 0 = leaf, == 0 = internal
-    };
+    BVH(const std::vector<PipelineSoftwareRT::Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<PipelineSoftwareRT::Sizes>& sizes) {
+        for (int j = 0; j < sizes.size(); j++) {
+            auto size = sizes[j];
+            // Convert triangles
+            for (size_t i = size.indexBase; i < size.indexBase + size.indexSize; i += 3) {
+                Triangle tri;
+                tri.v0 = vertices[size.vertexBase + indices[i + 0]].vertex;
+                tri.v1 = vertices[size.vertexBase + indices[i + 1]].vertex;
+                tri.v2 = vertices[size.vertexBase + indices[i + 2]].vertex;
+                tri.index = glm::vec4(j);
+                triangles.push_back(tri);
+            }
+        }
 
-    struct VectorData {
-        std::vector<BVHNodeGPU> flatNodes;
-        std::vector<glm::ivec4> flatTriIndices;
-    };
+        triangleIndices.resize(triangles.size());
+        for (int i = 0; i < triangleIndices.size(); ++i) triangleIndices[i] = i;
 
-
-    VectorData& buildFlat(const std::vector<PipelineSoftwareRT::Vertex>& vertices, const std::vector<glm::ivec4>& indices, int maxLeafSize = 4) {
-        this->vertices = &vertices;
-        this->indices = &indices;
-
-        std::vector<int> triIndices(indices.size());
-        std::iota(triIndices.begin(), triIndices.end(), 0);
-
-        m_data.flatNodes.clear();
-        m_data.flatTriIndices.clear();
-
-        BVHNode* root = buildRecursive(triIndices, maxLeafSize);
-        flattenRecursive(root);
-        deleteRecursive(root);
-        return m_data;
+        buildRecursive(0, static_cast<int>(triangles.size()));
+        flatten(0);
     }
+
+    const std::vector<BVHNode>& getFlatNodes() const { return flatNodes; }
+    const std::vector<Triangle>& getTriangles() const { return triangles; }
 
 private:
-    VectorData m_data;
+    struct Node {
+        AABB bounds;
+        int left = -1, right = -1;
+        int start = 0, count = 0;
+        bool isLeaf() const { return count > 0; }
+    };
 
-    const std::vector<PipelineSoftwareRT::Vertex>* vertices;
-    const std::vector<glm::ivec4>* indices;
+    std::vector<Triangle> triangles;
+    std::vector<int> triangleIndices;
+    std::vector<Node> nodes;
+    std::vector<BVHNode> flatNodes;
 
-    AABB computeTriangleBounds(int index) const {
-        const auto& tri = (*indices)[index];
-        auto v0 = glm::vec3((*vertices)[tri.x].vertex);
-        auto v1 = glm::vec3((*vertices)[tri.y].vertex);
-        auto v2 = glm::vec3((*vertices)[tri.z].vertex);
+    int buildRecursive(int start, int end) {
+        Node node;
+        node.start = start;
+        node.count = end - start;
 
-        AABB box;
-        box.expand(v0);
-        box.expand(v1);
-        box.expand(v2);
-        return box;
-    }
-
-    glm::vec3 computeTriangleCentroid(int index) const {
-        const auto& tri = (*indices)[index];
-        auto v0 = glm::vec3((*vertices)[tri.x].vertex);
-        auto v1 = glm::vec3((*vertices)[tri.y].vertex);
-        auto v2 = glm::vec3((*vertices)[tri.z].vertex);
-        return (v0 + v1 + v2) / 3.0f;
-    }
-
-    BVHNode* buildRecursive(std::vector<int>& triIndices, int maxLeafSize) {
-        auto node = new BVHNode();
-
-        for (int idx : triIndices) {
-            AABB triBox = computeTriangleBounds(idx);
-            node->bounds.expand(triBox);
+        // Compute bounding box
+        for (int i = start; i < end; ++i) {
+            const Triangle& tri = triangles[triangleIndices[i]];
+            AABB triBounds;
+            triBounds.expand(tri.v0);
+            triBounds.expand(tri.v1);
+            triBounds.expand(tri.v2);
+            node.bounds.expand(triBounds);
         }
 
-        if (triIndices.size() <= maxLeafSize) {
-            node->triangleIndices = triIndices;
-            return node;
+        int nodeIndex = static_cast<int>(nodes.size());
+        nodes.push_back(node);
+
+        if (node.count <= 2) return nodeIndex; // Leaf
+
+        // Split axis using centroid
+        AABB centroidBounds;
+        for (int i = start; i < end; ++i) {
+            const Triangle& tri = triangles[triangleIndices[i]];
+            glm::vec4 c = (tri.v0 + tri.v1 + tri.v2) / 3.0f;
+            centroidBounds.expand(c);
         }
 
-        glm::vec3 extent = node->bounds.max - node->bounds.min;
-        int axis = extent.x > extent.y ? (extent.x > extent.z ? 0 : 2) : (extent.y > extent.z ? 1 : 2);
+        glm::vec3 diag = centroidBounds.max - centroidBounds.min;
+        int axis = 0;
+        if (diag.y > diag.x) axis = 1;
+        if (diag.z > diag[axis]) axis = 2;
 
-        std::sort(triIndices.begin(), triIndices.end(), [&](int a, int b) { return computeTriangleCentroid(a)[axis] < computeTriangleCentroid(b)[axis]; });
+        float split = 0.5f * (centroidBounds.min[axis] + centroidBounds.max[axis]);
 
-        int mid = triIndices.size() / 2;
-        std::vector<int> leftTris(triIndices.begin(), triIndices.begin() + mid);
-        std::vector<int> rightTris(triIndices.begin() + mid, triIndices.end());
+        // Partition
+        int mid = start;
+        for (int i = start; i < end; ++i) {
+            const Triangle& tri = triangles[triangleIndices[i]];
+            glm::vec3 c = (tri.v0 + tri.v1 + tri.v2) / 3.0f;
+            if (c[axis] < split) std::swap(triangleIndices[i], triangleIndices[mid++]);
+        }
 
-        node->left = buildRecursive(leftTris, maxLeafSize);
-        node->right = buildRecursive(rightTris, maxLeafSize);
+        if (mid == start || mid == end) mid = (start + end) / 2;
 
-        return node;
+        int left = buildRecursive(start, mid);
+        int right = buildRecursive(mid, end);
+
+        nodes[nodeIndex].left = left;
+        nodes[nodeIndex].right = right;
+        nodes[nodeIndex].count = 0; // mark as internal
+
+        return nodeIndex;
     }
 
-    int flattenRecursive(BVHNode* node) {
-        int currentIndex = m_data.flatNodes.size();
-        m_data.flatNodes.push_back({}); // placeholder
+    int flatten(int nodeIndex) {
+        const Node& node = nodes[nodeIndex];
+        int flatIndex = static_cast<int>(flatNodes.size());
+        flatNodes.emplace_back();
 
-        BVHNodeGPU& flat = m_data.flatNodes[currentIndex];
-        flat.boundsMin = node->bounds.min;
-        flat.boundsMax = node->bounds.max;
+        BVHNode& flat = flatNodes.back();
+        flat.bounds = node.bounds;
 
-        if (node->isLeaf()) {
-            flat.leftFirst = m_data.flatTriIndices.size();
-            flat.count = node->triangleIndices.size();
-            m_data.flatTriIndices.insert(m_data.flatTriIndices.end(), node->triangleIndices.begin(), node->triangleIndices.end());
+        if (node.isLeaf()) {
+            flat.leftFirst.r = node.start;
+            flat.count.r = node.count;
         } else {
-            flat.count = 0;
-            flat.leftFirst = flattenRecursive(node->left);
-            flattenRecursive(node->right); // always immediately after left
+            flat.count.r = 0;
+            flat.leftFirst.r = flatten(node.left);
+            flatten(node.right);
         }
 
-        return currentIndex;
-    }
-
-    void deleteRecursive(BVHNode* node) {
-        if (!node) return;
-        deleteRecursive(node->left);
-        deleteRecursive(node->right);
-        delete node;
+        return flatIndex;
     }
 };
 }

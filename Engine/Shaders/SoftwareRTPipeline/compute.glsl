@@ -17,6 +17,32 @@ struct SizeMeshes
     uint indexSize;
 };
 
+struct Triangle {
+    vec4 v0, v1, v2;
+    vec4 index;// ONLY R CONTAINS DATA THE REST IS PADDING
+};
+
+struct AABB {
+    vec4 min;
+    vec4 max;
+};
+
+struct BVHNode {
+    AABB bounds;
+    vec4 leftFirst; // index to child (internal) or primitive offset (leaf) ONLY R CONTAINS DATA THE REST IS PADDING
+    vec4 count; // if 0 = internal, >0 = leaf with count triangles ONLY R CONTAINS DATA THE REST IS PADDING
+};
+
+
+buffer verticesBVH{
+    Triangle triangle_data[];
+};
+
+
+buffer nodesBVH{
+    BVHNode node_data[];
+};
+
 uniform TotalSizes
 {
     ivec4 totalMeshes;
@@ -122,8 +148,8 @@ void main()
     }
 
     if (hit) {
-        imageStore(screenTexture, gid, vec4(1.0, 0.5, 0.0, 1.0)); // hit: orange
+        imageStore(screenTexture, gid, vec4(1.0, 0.5, 0.0, triangle_data[0].index.r)); // hit: orange
     } else {
-        imageStore(screenTexture, gid, vec4(0.0, 0.0, 0.0, 1.0)); // no hit: black
+        imageStore(screenTexture, gid, vec4(0.0, 0.0, 0.0, node_data[0].count.r)); // no hit: black
     }
 }

@@ -16,6 +16,13 @@
 namespace Prisma {
 class PipelineSoftwareRT {
 public:
+    struct Sizes {
+        unsigned int vertexBase;
+        unsigned int indexBase;
+        unsigned int vertexSize;
+        unsigned int indexSize;
+    };
+
     struct Vertex {
         glm::vec4 vertex;
     };
@@ -24,19 +31,12 @@ public:
     void render();
 
 private:
-    struct Sizes {
-        unsigned int vertexBase;
-        unsigned int indexBase;
-        unsigned int vertexSize;
-        unsigned int indexSize;
-    };
-
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtVertices;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtIndices;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhVertices;
-    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhIndices;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhNodes;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_size;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_totalMeshes;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
