@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #include "../GlobalData/Platform.h"
 #include "GlobalData/Platform.h"
 #include "Graphics/GraphicsEngine/interface/Buffer.h"
@@ -14,14 +16,14 @@
 namespace Prisma {
 class PipelineSoftwareRT {
 public:
-    PipelineSoftwareRT(unsigned int width, unsigned int height);
-    void render();
-
-private:
     struct Vertex {
         glm::vec4 vertex;
     };
 
+    PipelineSoftwareRT(unsigned int width, unsigned int height);
+    void render();
+
+private:
     struct Sizes {
         unsigned int vertexBase;
         unsigned int indexBase;
@@ -33,6 +35,8 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtVertices;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtIndices;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhVertices;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_rtBvhIndices;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_size;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_totalMeshes;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;

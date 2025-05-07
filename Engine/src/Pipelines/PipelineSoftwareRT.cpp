@@ -4,6 +4,7 @@
 #include "GlobalData/PrismaFunc.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 #include "Pipelines/PipelineHandler.h"
+#include <Helpers/BVHHelper.h>
 
 Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int height): m_width{width}, m_height{height} {
     auto& contextData = PrismaFunc::getInstance().contextData();
@@ -69,6 +70,8 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
         {Diligent::SHADER_TYPE_COMPUTE, "SizeData", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "vertices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "indices", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        //{Diligent::SHADER_TYPE_COMPUTE, "verticesBVH", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        //{Diligent::SHADER_TYPE_COMPUTE, "indicesBVH", 1, Diligent::SHADER_RESOURCE_TYPE_BUFFER_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {Diligent::SHADER_TYPE_COMPUTE, "screenTexture", 1, Diligent::SHADER_RESOURCE_TYPE_TEXTURE_UAV, Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
     };
 
@@ -128,6 +131,24 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
     RTBufferDescIndex.ElementByteStride = sizeof(glm::ivec4);
     RTBufferDescIndex.Size = sizeof(glm::ivec4);
     contextData.device->CreateBuffer(RTBufferDescIndex, nullptr, &m_rtIndices);
+
+    /*Diligent::BufferDesc RTBufferDescVertexBVH;
+    RTBufferDescVertexBVH.Name = "Vertices Bvh Buffer";
+    RTBufferDescVertexBVH.Usage = Diligent::USAGE_DEFAULT;
+    RTBufferDescVertexBVH.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+    RTBufferDescVertexBVH.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    RTBufferDescVertexBVH.ElementByteStride = sizeof(BVHHelper::BVHNodeGPU);
+    RTBufferDescVertexBVH.Size = sizeof(BVHHelper::BVHNodeGPU);
+    contextData.device->CreateBuffer(RTBufferDescVertexBVH, nullptr, &m_rtBvhVertices);
+
+    Diligent::BufferDesc RTBufferDescIndexBVH;
+    RTBufferDescIndexBVH.Name = "Indices Buffer";
+    RTBufferDescIndexBVH.Usage = Diligent::USAGE_DEFAULT;
+    RTBufferDescIndexBVH.BindFlags = Diligent::BIND_UNORDERED_ACCESS;
+    RTBufferDescIndexBVH.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    RTBufferDescIndexBVH.ElementByteStride = sizeof(glm::ivec4);
+    RTBufferDescIndexBVH.Size = sizeof(glm::ivec4);
+    contextData.device->CreateBuffer(RTBufferDescIndexBVH, nullptr, &m_rtBvhIndices);*/
 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
@@ -210,6 +231,9 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
             contextData.immediateContext->UpdateBuffer(m_totalMeshes, 0, sizeof(glm::ivec4),
                                                        glm::value_ptr(totalSize),
                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+            //BVHHelper bvh;
+            //auto bvhData = bvh.buildFlat(vertices, indices);
 
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "vertices")->Set(m_rtVertices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_COMPUTE, "indices")->Set(m_rtIndices->GetDefaultView(Diligent::BUFFER_VIEW_UNORDERED_ACCESS));
