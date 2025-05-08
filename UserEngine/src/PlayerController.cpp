@@ -274,7 +274,7 @@ void PlayerController::createCamera() {
 
 void PlayerController::createKeyboard() {
     m_handler->keyboard = [this](int key, int scancode, int action, int mods) {
-        if (key == Prisma::KEY_G && action == GLFW_PRESS) {
+        if (key == Prisma::KEY_G && action == GLFW_RELEASE) {
             m_hide = !m_hide;
             if (m_hide) {
                 Prisma::PrismaFunc::getInstance().hiddenMouse(m_hide);
