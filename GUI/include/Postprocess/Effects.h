@@ -11,12 +11,13 @@ public:
 
     void effect(PostprocessingStyles::EFFECTS effect);
 
-
     void render() override;
+
+    std::shared_ptr<VolumetricLight> volumetricRender();
 
 private:
     std::unique_ptr<Bloom> m_bloomRender;
-    std::unique_ptr<VolumetricLight> m_volumetricRender;
+    std::shared_ptr<VolumetricLight> m_volumetricRender;
     std::unique_ptr<PostprocessingStyles> m_stylesRender;
 
     PostprocessingStyles::EFFECTS m_effects = PostprocessingStyles::EFFECTS::NORMAL;

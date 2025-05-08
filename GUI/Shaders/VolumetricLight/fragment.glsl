@@ -1,6 +1,6 @@
-layout(location = 0) out float FragColor;
+layout(location = 0) out vec4 FragColor;
 
 void main()
 {
-	FragColor=0.0;
+	FragColor=vec4(0.0);
 }

@@ -127,6 +127,22 @@ void Prisma::GUI::SettingsTab::drawSettings() {
                 break;
         }
 
+        switch (m_status.currentPostprocess) {
+            case PostprocessingStyles::EFFECTS::VOLUMETRIC:
+                auto volumetric = m_effects->volumetricRender();
+                auto volumetricData = volumetric->blurData();
+                int samples = volumetricData.numSamples.r;
+                ImGui::SliderFloat("Volumetric Density", &volumetricData.density, 0.0f, 1.0f);
+                ImGui::SliderFloat("Volumetric Decay", &volumetricData.decay, 0.0f, 1.0f);
+                ImGui::SliderFloat("Volumetric Exposure", &volumetricData.exposure, 0.0f, 1.0f);
+                ImGui::SliderFloat("Volumetric Weight", &volumetricData.weight, 0.0f, 1.0f);
+                ImGui::SliderInt("Volumetric Samples", &samples, 0.0f, 1000.0f);
+                auto samplesData = glm::ivec4(samples);
+                volumetricData.numSamples = samplesData;
+                volumetric->blurData(volumetricData);
+                break;
+        }
+
         //Prisma::GlobalData::getInstance().transparencies(sortTransparencies);
 
         Physics::getInstance().debug(debugPhysics);

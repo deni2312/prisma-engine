@@ -6,7 +6,7 @@
 #include "Pipelines/PipelineHandler.h"
 
 void Prisma::GUI::PostprocessingStyles::render(EFFECTS effect) {
-    if (effect != EFFECTS::NORMAL && effect != EFFECTS::BLOOM && effect != EFFECTS::VOLUMETRIC) {
+    if (effect == EFFECTS::CARTOON || effect == EFFECTS::SEPPIA || effect == EFFECTS::VIGNETTE) {
         renderEffects(effect);
         m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
     }

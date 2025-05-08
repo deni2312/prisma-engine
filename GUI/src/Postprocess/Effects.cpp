@@ -75,7 +75,7 @@ Prisma::GUI::Effects::Effects() {
 	m_brightnessFbo = std::make_shared<FBO>(fboData);
 	*/
     m_bloomRender = std::make_unique<Bloom>();
-    m_volumetricRender = std::make_unique<VolumetricLight>();
+    m_volumetricRender = std::make_shared<VolumetricLight>();
     m_stylesRender = std::make_unique<PostprocessingStyles>();
 }
 
@@ -158,3 +158,5 @@ void Prisma::GUI::Effects::render() {
         m_volumetricRender->render();
     }
 }
+
+std::shared_ptr<Prisma::GUI::VolumetricLight> Prisma::GUI::Effects::volumetricRender() { return m_volumetricRender; }
