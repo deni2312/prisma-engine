@@ -49,7 +49,7 @@ void main()
     if(dirSize>0){
         vec3 lightDir = -normalize(dirData_data[0].direction.xyz); // World-space direction
 
-        vec3 eyePos = vec3(0.0); // The camera is at the origin in view space
+        vec3 eyePos = viewPos.rgb; // The camera is at the origin in view space
         vec2 coord = TexCoords;
         float illuminationDecay = 1.0;
 
