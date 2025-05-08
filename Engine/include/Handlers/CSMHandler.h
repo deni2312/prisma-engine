@@ -39,7 +39,7 @@ public:
         glm::vec4 cascadePlanes[16];
         float sizeCSM;
         float farPlaneCSM;
-        glm::vec2 paddingCSM;
+        glm::vec2 resolutionCSM;
     };
 
     struct CSMData {

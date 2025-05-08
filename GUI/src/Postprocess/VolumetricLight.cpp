@@ -111,6 +111,7 @@ Prisma::GUI::VolumetricLight::VolumetricLight() {
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_DIR_DATA_SHADOW.c_str())->Set(CSMHandler::getInstance().shadowBuffer());
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
     Diligent::TextureDesc RTColorDesc;

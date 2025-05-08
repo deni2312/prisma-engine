@@ -67,7 +67,7 @@ uniform LightSpaceMatrices
     vec4 cascadePlanes[16];
     float sizeCSM;
     float farPlaneCSM;
-    vec2 paddingCSM;
+    vec2 resolutionCSM;
 };
 
 struct OmniData
@@ -274,7 +274,7 @@ float ShadowCalculationDirectional(vec3 fragPosWorldSpace, vec3 lightPos, vec3 N
     }
     // PCF
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / vec2(4096,4096);
+    vec2 texelSize = 1.0 / resolutionCSM;
     //projCoords.y=1-projCoords.y;
     for (int x = -1; x <= 1; ++x)
     {

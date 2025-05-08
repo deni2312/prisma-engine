@@ -30,6 +30,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     createLightSpaceMatrices();
     m_lightMatrices.farPlaneCSM = m_farPlane;
     m_lightMatrices.sizeCSM = m_size - 1;
+    m_lightMatrices.resolutionCSM = glm::vec2(m_width, m_height);
     CSMHandler::getInstance().render({m_depth, m_lightMatrices});
     //if (ssbo)
     //{
