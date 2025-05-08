@@ -14,8 +14,13 @@ public:
     VolumetricLight();
 
 private:
+    void createShaderRender();
+    void createShaderBlur();
+    void createShaderBlit();
+
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureDepth;
 };
 } // namespace Prisma::GUI
