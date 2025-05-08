@@ -585,6 +585,8 @@ Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::modelBufferAnim
     return m_modelBufferAnimation;
 }
 
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::vertexBuffer() { return m_vBuffer; }
+
 Prisma::MeshIndirect::MaterialView& Prisma::MeshIndirect::textureViews() {
     return m_textureViews;
 }

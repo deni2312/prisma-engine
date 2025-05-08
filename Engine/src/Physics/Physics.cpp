@@ -139,33 +139,24 @@ void Prisma::Physics::softBody(std::shared_ptr<PhysicsMeshComponent> physics) {
     auto mesh = std::dynamic_pointer_cast<Mesh>(physics->parent());
     auto softId = physics->softId();
     if (softId) {
-        //BodyLockRead lock(physicsSystem().GetBodyLockInterface(), softId->GetID());
-        //if (lock.Succeeded())
-        //{
-        //	SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId->GetMotionProperties());
-        //	auto& faces = mp->GetFaces();
-        //	auto& verticesSoft = mp->GetVertices();
+        BodyLockRead lock(physicsSystem().GetBodyLockInterface(), softId->GetID());
+        if (lock.Succeeded()) {
+            auto mp = static_cast<SoftBodyMotionProperties*>(softId->GetMotionProperties());
+            auto& faces = mp->GetFaces();
+            auto& verticesSoft = mp->GetVertices();
 
-        //	auto& verticesData = mesh->verticesData();
+            auto& verticesData = mesh->verticesData();
 
-        //	auto vao = Prisma::MeshIndirect::getInstance().vao();
-        //	auto vbo = Prisma::MeshIndirect::getInstance().vbo();
-        //	auto ebo = Prisma::MeshIndirect::getInstance().ebo();
+            auto& verticesIndirect = MeshIndirect::getInstance().verticesData();
 
-        //	auto& verticesIndirect = Prisma::MeshIndirect::getInstance().verticesData();
+            for (int i = 0; i < verticesData.vertices.size(); i++) {
+                verticesData.vertices[i].position = JfromVec3(verticesSoft[i].mPosition);
+                verticesIndirect.vertices[m_indexVbo + i].position = verticesData.vertices[i].position;
+            }
+            auto& contextData = PrismaFunc::getInstance().contextData();
 
-        //	for (int i = 0; i < verticesData.vertices.size(); i++)
-        //	{
-        //		verticesData.vertices[i].position = Prisma::JfromVec3(verticesSoft[i].mPosition);
-        //		verticesIndirect.vertices[m_indexVbo + i].position = verticesData.vertices[i].position;
-        //	}
-
-        //	vao->bind();
-
-        //	vbo->writeSubData(verticesData.vertices.size() * sizeof(Prisma::Mesh::Vertex),
-        //	                  m_indexVbo * sizeof(Prisma::Mesh::Vertex),
-        //	                  verticesData.vertices.data());
-        //	vao->resetVao();
-        //}
+            auto vertexIndirect = MeshIndirect::getInstance().vertexBuffer();
+            contextData.immediateContext->UpdateBuffer(vertexIndirect, m_indexVbo * sizeof(Mesh::Vertex), verticesData.vertices.size() * sizeof(Mesh::Vertex), verticesData.vertices.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        }
     }
 }

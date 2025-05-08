@@ -73,6 +73,8 @@ public:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> modelBuffer();
     Diligent::RefCntAutoPtr<Diligent::IBuffer> modelBufferAnimation();
 
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> vertexBuffer();
+
     MaterialView& textureViews();
     MaterialView& textureViewsAnimation();
 
