@@ -7,7 +7,7 @@ uniform LightSpaceMatrices
 	vec4 cascadePlanes[16];
     float sizeCSM;
     float farPlaneCSM;
-    vec2 paddingCSM;
+    vec2 resolutionCSM;
 };
 
 void main()
