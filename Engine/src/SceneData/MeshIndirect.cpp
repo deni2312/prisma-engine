@@ -201,10 +201,14 @@ void Prisma::MeshIndirect::updateTextureDataAnimation() {
     }
 }
 
+int a = 0;
+
 void Prisma::MeshIndirect::updatePso() {
+    std::cout << "aaaaaaaaaaaaaaaaaaa" << a << std::endl;
     for (auto resizeHandler : m_resizeHandler) {
         resizeHandler(m_modelBuffer, m_textureViews);
     }
+    a++;
 }
 
 Prisma::Mesh::VerticesData& Prisma::MeshIndirect::verticesData() {
@@ -284,17 +288,18 @@ void Prisma::MeshIndirect::renderAnimateMeshes() const {
 void Prisma::MeshIndirect::update() {
     if (CacheScene::getInstance().updateSizes()) {
         updateSize();
-    }
-    if (CacheScene::getInstance().updateData()) {
-        updateModels();
-        updateModelsAnimation();
-    }
-    if (CacheScene::getInstance().updateTextures()) {
-        updateTextureSize();
-    }
-    if (CacheScene::getInstance().updateStatus()) {
-        updateStatus();
-        updateStatusAnimation();
+    } else {
+        if (CacheScene::getInstance().updateData()) {
+            updateModels();
+            updateModelsAnimation();
+        }
+        if (CacheScene::getInstance().updateTextures()) {
+            updateTextureSize();
+        }
+        if (CacheScene::getInstance().updateStatus()) {
+            updateStatus();
+            updateStatusAnimation();
+        }
     }
     sort();
 }
@@ -317,9 +322,7 @@ void Prisma::MeshIndirect::updateSize() {
 
         resizeModels(models);
 
-        updateTextureData();
-
-        updateStatus();
+        updateStatus(false);
 
         if (!m_cacheRemove.empty()) {
             m_verticesData.vertices.clear();
@@ -418,10 +421,10 @@ void Prisma::MeshIndirect::updateSize() {
         m_cacheRemove.clear();
 
         updateIndirectBuffer();
-
-        updatePso();
     }
     updateAnimation();
+    updateTextureSize(false);
+    updatePso();
 }
 
 void Prisma::MeshIndirect::updateModels() {
@@ -623,8 +626,6 @@ void Prisma::MeshIndirect::resizeModels(std::vector<Mesh::MeshData>& models) {
     InitData.pData = models.data();
     InitData.DataSize = size;
     contextData.device->CreateBuffer(MatBufferDesc, &InitData, &m_modelBuffer);
-
-    updatePso();
 }
 
 void Prisma::MeshIndirect::resizeModelsAnimation(std::vector<Mesh::MeshData>& models) {
@@ -643,8 +644,6 @@ void Prisma::MeshIndirect::resizeModelsAnimation(std::vector<Mesh::MeshData>& mo
     InitData.pData = models.data();
     InitData.DataSize = size;
     contextData.device->CreateBuffer(MatBufferDesc, &InitData, &m_modelBufferAnimation);
-
-    updatePso();
 }
 
 void Prisma::MeshIndirect::updateAnimation() {
@@ -662,9 +661,7 @@ void Prisma::MeshIndirect::updateAnimation() {
         }
         resizeModelsAnimation(models);
 
-        updateTextureDataAnimation();
-
-        updateStatusAnimation();
+        updateStatusAnimation(false);
 
         if (!m_cacheRemoveAnimate.empty()) {
             m_verticesDataAnimation.vertices.clear();
@@ -786,10 +783,12 @@ void Prisma::MeshIndirect::updateAnimation() {
     }
 }
 
-void Prisma::MeshIndirect::updateTextureSize() {
+void Prisma::MeshIndirect::updateTextureSize(bool update) {
     updateTextureData();
     updateTextureDataAnimation();
-    updatePso();
+    if (update) {
+        updatePso();
+    }
     //m_ssboMaterial->resize(sizeof(MaterialData) * (m_materialData.size()));
     //m_ssboMaterial->modifyData(0, sizeof(MaterialData) * m_materialData.size(), m_materialData.data());
 
@@ -808,7 +807,7 @@ void Prisma::MeshIndirect::updateTextureSize() {
     //                                    m_materialDataAnimation.data());
 }
 
-void Prisma::MeshIndirect::updateStatus() {
+void Prisma::MeshIndirect::updateStatus(bool update) {
     auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
     auto& contextData = PrismaFunc::getInstance().contextData();
     if (!meshes.empty()) {
@@ -840,7 +839,9 @@ void Prisma::MeshIndirect::updateStatus() {
         data.pData = status.data();
         contextData.device->CreateBuffer(statusDesc, &data, &m_statusBuffer);
         updateIndirectBuffer();
-        updatePso();
+        if (update) {
+            updatePso();
+        }
     }
     //auto animateMeshes = Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes;
 
@@ -857,7 +858,7 @@ void Prisma::MeshIndirect::updateStatus() {
     //}
 }
 
-void Prisma::MeshIndirect::updateStatusAnimation() {
+void Prisma::MeshIndirect::updateStatusAnimation(bool update) {
     auto& meshes = GlobalData::getInstance().currentGlobalScene()->animateMeshes;
     auto& contextData = PrismaFunc::getInstance().contextData();
     if (!meshes.empty()) {
@@ -889,7 +890,9 @@ void Prisma::MeshIndirect::updateStatusAnimation() {
         data.pData = status.data();
         contextData.device->CreateBuffer(statusDesc, &data, &m_statusBufferAnimation);
         updateIndirectBufferAnimation();
-        updatePso();
+        if (update) {
+            updatePso();
+        }
     }
 }
 

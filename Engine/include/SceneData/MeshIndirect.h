@@ -58,9 +58,9 @@ public:
     void updateSize();
     void updateModels();
     void updateModelsAnimation();
-    void updateTextureSize();
-    void updateStatus();
-    void updateStatusAnimation();
+    void updateTextureSize(bool update = true);
+    void updateStatus(bool update = true);
+    void updateStatusAnimation(bool update = true);
 
     void setupBuffers();
     void setupBuffersAnimation();
