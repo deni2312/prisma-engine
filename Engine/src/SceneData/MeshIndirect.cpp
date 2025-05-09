@@ -201,14 +201,10 @@ void Prisma::MeshIndirect::updateTextureDataAnimation() {
     }
 }
 
-int a = 0;
-
 void Prisma::MeshIndirect::updatePso() {
-    std::cout << "aaaaaaaaaaaaaaaaaaa" << a << std::endl;
     for (auto resizeHandler : m_resizeHandler) {
         resizeHandler(m_modelBuffer, m_textureViews);
     }
-    a++;
 }
 
 Prisma::Mesh::VerticesData& Prisma::MeshIndirect::verticesData() {
