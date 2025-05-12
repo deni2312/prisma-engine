@@ -53,7 +53,7 @@ private:
 
     float m_nearPlane = 0.1f;
 
-    float m_bias = 0.5f;
+    float m_bias = 0.01f;
 
     Settings m_settings;
 
