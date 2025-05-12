@@ -118,12 +118,10 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     maxOrtho = glm::vec3(glm::vec4(maxOrtho, 1.0f));
     minOrtho = glm::vec3(glm::vec4(minOrtho, 1.0f));
 
-    //Store the far and near planes
-    float far = maxOrtho.z;
-    float near = minOrtho.z;
+    auto maxOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(maxOrtho, 1.0f));
+    auto minOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(minOrtho, 1.0f));
 
-    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minOrtho.x, maxOrtho.x, minOrtho.y, maxOrtho.y, near,
-                                                           far);
+    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minOrthoLS.x, maxOrthoLS.x, minOrthoLS.y, maxOrthoLS.y, minOrthoLS.z, maxOrthoLS.z);
 
     glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
     auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
