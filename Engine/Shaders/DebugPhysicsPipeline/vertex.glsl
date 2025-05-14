@@ -1,15 +1,19 @@
-#version 460 core
-layout(location = 0) in vec3 aPos;
-
-layout(std140, binding = 1) uniform MeshData
+uniform ViewProjection
 {
     mat4 view;
     mat4 projection;
+    vec4 viewPos;
 };
 
-uniform mat4 model;
+layout(location = 0) in vec3 inPos;
+//layout(location = 4) out mat3 outTBN;
+
+uniform MeshData{
+    mat4 model;
+    vec4 color;
+};
 
 void main()
 {
-    gl_Position = projection*view*model*vec4(aPos.xyz, 1.0);
+    gl_Position = projection * view * model * inPos;
 }

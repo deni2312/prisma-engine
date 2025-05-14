@@ -3,6 +3,8 @@
 #include "Physics/DrawDebugger.h"
 #include "Helpers/PrismaMath.h"
 #include <glm/gtx/string_cast.hpp>
+
+#include "GlobalData/PrismaFunc.h"
 #include "SceneObjects/Mesh.h"
 
 void Prisma::DrawDebugger::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor) {
@@ -115,10 +117,86 @@ void Prisma::DrawDebugger::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, 
 void Prisma::DrawDebugger::init() {
     if (!m_init) {
         m_init = true;
-        /*m_shader = std::make_shared<Shader>("../../../Engine/Shaders/DebugPhysicsPipeline/vertex.glsl",
-                                            "../../../Engine/Shaders/DebugPhysicsPipeline/fragment.glsl");
-        m_modelPos = m_shader->getUniformPosition("model");
-        m_colorPos = m_shader->getUniformPosition("color");*/
+        // Pipeline state object encompasses configuration of all GPU stages
+        auto& contextData = PrismaFunc::getInstance().contextData();
+
+  /*      Diligent::GraphicsPipelineStateCreateInfo PSOCreateInfo;
+
+        // Pipeline state name is used by the engine to report issues.
+        // It is always a good idea to give objects descriptive names.
+        PSOCreateInfo.PSODesc.Name = "Debug Physics";
+
+        // This is a graphics pipeline
+        PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
+
+        // clang-format off
+    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 0;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Diligent::TEX_FORMAT_UNKNOWN;
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+    // Primitive topology defines what kind of primitives will be rendered by this pipeline state
+    PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
+    // Cull back faces
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
+    // Enable depth testing
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.DepthClipEnable = Diligent::False;
+    Diligent::ShaderCreateInfo ShaderCI;
+    ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
+
+
+    Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
+    PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
+    // Create a vertex shader
+    Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
+    {
+        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
+        ShaderCI.EntryPoint = "main";
+        ShaderCI.Desc.Name = "Debug Physics VS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/DebugPhysicsPipeline/vertex.glsl";
+        contextData.device->CreateShader(ShaderCI, &pVS);
+    }
+
+    // Create a pixel shader
+    Diligent::RefCntAutoPtr<Diligent::IShader> pPS;
+    {
+        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
+        ShaderCI.EntryPoint = "main";
+        ShaderCI.Desc.Name = "Debug Physics PS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/DebugPhysicsPipeline/fragment.glsl";
+        contextData.device->CreateShader(ShaderCI, &pPS);
+    }
+
+    // clang-format off
+    // Define vertex shader input layout
+    Diligent::LayoutElement LayoutElems[] =
+    {
+        // Attribute 0 - vertex position
+        Diligent::LayoutElement{0, 0, 3, Diligent::VT_FLOAT32, Diligent::False},
+    };
+        // clang-format on
+        PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
+        PSOCreateInfo.GraphicsPipeline.InputLayout.NumElements = _countof(LayoutElems);
+
+        PSOCreateInfo.pVS = pVS;
+        PSOCreateInfo.pPS = pPS;
+
+        // Define variable type that will be used by default
+        PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+
+        Diligent::BufferDesc CBDesc;
+        CBDesc.Name = "Debug Physics Buffer";
+        CBDesc.Size = sizeof(DebugPhysicsBufferData);
+        CBDesc.Usage = Diligent::USAGE_DYNAMIC;
+        CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+        CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+        contextData.device->CreateBuffer(CBDesc, nullptr, &m_buffer);
+
+        contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+        m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_GEOMETRY, "MeshData")->Set(m_buffer);
+
+        m_pso->CreateShaderResourceBinding(&m_srb, true);*/
     }
 }
 

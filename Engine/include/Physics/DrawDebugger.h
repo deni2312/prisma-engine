@@ -5,7 +5,19 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Renderer/DebugRenderer.h>
 #include <iostream>
+/*
+#include "GlobalData/Platform.h"
+#include "Common/interface/RefCntAutoPtr.hpp"
 
+namespace Diligent {
+struct IPipelineState;
+struct ITexture;
+struct IBuffer;
+struct ITextureView;
+struct IShaderResourceBinding;
+};
+
+*/
 namespace Prisma {
 class DrawDebugger : public JPH::DebugRenderer {
 public:
@@ -40,6 +52,17 @@ private:
     //VBO m_vbo;
     //EBO m_ebo;
     bool m_init = false;
+
+    /*Diligent::RefCntAutoPtr<Diligent::IBuffer> m_buffer;
+
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+*/
+    struct DebugPhysicsBufferData {
+        glm::mat4 model;
+        glm::vec4 color;
+    };
 
     /// Implementation specific batch object
     class BatchImpl : public JPH::RefTargetVirtual {
