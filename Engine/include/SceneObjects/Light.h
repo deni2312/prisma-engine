@@ -99,6 +99,7 @@ public:
     void hasShadow(bool hasShadow) {
         m_hasShadow = hasShadow;
         CacheScene::getInstance().updateLights(true);
+        CacheScene::getInstance().updateSizeLights(true);
     }
 
     bool hasShadow() {
