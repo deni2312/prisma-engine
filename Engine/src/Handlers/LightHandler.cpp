@@ -146,9 +146,6 @@ void Prisma::LightHandler::updateOmni() {
                                                        m_dataOmni->lights.data(),
                                                        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         }
-        for (auto update : m_updates) {
-            update();
-        }
     }
 
     if (CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
@@ -231,7 +228,7 @@ void Prisma::LightHandler::update() {
         }
     }
 
-    if (m_init || CacheScene::getInstance().updateSizeLights()) {
+    if (m_init || CacheScene::getInstance().updateSizeLights() || CacheScene::getInstance().updateStatus()) {
         for (auto update : m_updates) {
             update();
         }

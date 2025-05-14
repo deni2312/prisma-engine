@@ -100,6 +100,7 @@ void Prisma::GUI::LightInfo::showSelectedOmni(std::shared_ptr<Light<LightType::L
 
         if (ImGui::Checkbox("Shadow ", &hasShadow)) {
             lightData->hasShadow(hasShadow);
+            CacheScene::getInstance().updateSizeLights(true);
         }
 
         auto shadow = lightData->shadow();
