@@ -66,9 +66,7 @@ public:
 private:
     void softBody(std::shared_ptr<PhysicsMeshComponent> physics);
 #ifdef JPH_DEBUG_RENDERER
-
-    //std::shared_ptr<DrawDebugger> m_drawDebugger;
-    //JPH::BodyManager::DrawSettings m_settings;
+    DrawDebugger* m_drawDebugger;
 #endif
     bool m_debug;
     unsigned int m_indexVbo = 0;

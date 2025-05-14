@@ -41,7 +41,7 @@ Prisma::Physics::Physics() {
     physicsWorldJolt->physics_system.SetContactListener(&physicsWorldJolt->contact_listener);
     physicsWorldJolt->physics_system.OptimizeBroadPhase();
 #ifdef JPH_DEBUG_RENDERER
-    //m_drawDebugger = std::make_shared<Prisma::DrawDebugger>();
+    m_drawDebugger = new DrawDebugger();
 #endif
 }
 
@@ -92,28 +92,25 @@ void Prisma::Physics::drawDebug() {
 #ifdef JPH_DEBUG_RENDERER
 
     if (m_debug) {
-        /*m_drawDebugger->line.setMVP(
-                Prisma::GlobalData::getInstance().currentProjection() * Prisma::GlobalData::getInstance().
-                                                                        currentGlobalScene()->camera->matrix());
-        m_settings.mDrawShape = true;
-        physicsWorldJolt->physics_system.DrawBodies(m_settings, m_drawDebugger.get());
-        for (const auto& mesh : Prisma::GlobalData::getInstance().currentGlobalScene()->meshes)
-        {
-                auto physicsComponent = std::dynamic_pointer_cast<PhysicsMeshComponent>(mesh->components()["Physics"]);
-                if (physicsComponent && physicsComponent->initPhysics())
-                {
-                        if (physicsComponent->collisionData().softBody)
-                        {
-                                auto* softId = physicsComponent->softId();
-                                if (softId)
-                                {
-                                        SoftBodyMotionProperties* mp = static_cast<SoftBodyMotionProperties*>(softId->
-                                                GetMotionProperties());
-                                        mp->DrawVertices(m_drawDebugger.get(), JPH::Mat44::sIdentity());
-                                }
-                        }
+        m_drawDebugger->line.setMVP(
+            GlobalData::getInstance().currentProjection() * GlobalData::getInstance().
+                                                            currentGlobalScene()->camera->matrix());
+        BodyManager::DrawSettings settings;
+        settings.mDrawShape = true;
+        physicsWorldJolt->physics_system.DrawBodies(settings, m_drawDebugger);
+        for (const auto& mesh : GlobalData::getInstance().currentGlobalScene()->meshes) {
+            auto physicsComponent = std::dynamic_pointer_cast<PhysicsMeshComponent>(mesh->components()["Physics"]);
+            if (physicsComponent && physicsComponent->initPhysics()) {
+                if (physicsComponent->collisionData().softBody) {
+                    auto* softId = physicsComponent->softId();
+                    if (softId) {
+                        auto mp = static_cast<SoftBodyMotionProperties*>(softId->
+                            GetMotionProperties());
+                        mp->DrawVertices(m_drawDebugger, Mat44::sIdentity());
+                    }
                 }
-        }*/
+            }
+        }
     }
 #endif
 }
@@ -125,13 +122,14 @@ void Prisma::Physics::debug(bool debug) {
 bool Prisma::Physics::debug() {
     if (m_debug) {
 #ifdef JPH_DEBUG_RENDERER
-        //m_drawDebugger->init();
+        m_drawDebugger->init();
 #endif
     }
     return m_debug;
 }
 
 void Prisma::Physics::destroy() {
+    delete m_drawDebugger;
     delete Factory::sInstance;
 }
 

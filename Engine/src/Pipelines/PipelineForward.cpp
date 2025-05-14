@@ -90,6 +90,7 @@ void Prisma::PipelineForward::render() {
     for (auto& sprite : sprites) {
         sprite->render();
     }
+    Physics::getInstance().drawDebug();
 
     PrismaFunc::getInstance().bindMainRenderTarget();
 }

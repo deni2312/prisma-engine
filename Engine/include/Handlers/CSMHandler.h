@@ -6,14 +6,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <Common/interface/RefCntAutoPtr.hpp>
-
-namespace Diligent {
-struct IPipelineState;
-struct ITexture;
-struct IBuffer;
-struct ITextureView;
-struct IShaderResourceBinding;
-}
+#include "Graphics/GraphicsEngine/interface/RenderDevice.h"
+#include "Graphics/GraphicsEngine/interface/DeviceContext.h"
 
 namespace Prisma {
 class CSMHandler : public InstanceData<CSMHandler> {

@@ -133,8 +133,8 @@ bool Prisma::Engine::run() {
     }
     data->userData->finish();
     data->sceneHandler->onDestroy();
-    PrismaFunc::getInstance().destroy();
     Physics::getInstance().destroy();
+    PrismaFunc::getInstance().destroy();
     return true;
 }
 
