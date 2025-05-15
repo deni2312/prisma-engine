@@ -237,21 +237,16 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         j["roughness"] = mesh->material()->roughness();
         j["metalness"] = mesh->material()->metalness();
         // Convert Vertex properties to arrays of floats
-        std::vector<std::vector<float>> data;
-
+        std::vector<float> flatData;
         for (const auto& vertex : mesh->verticesData().vertices) {
-            data.push_back({vertex.position.x, vertex.position.y, vertex.position.z});
-
-            data.push_back({vertex.normal.x, vertex.normal.y, vertex.normal.z});
-
-            data.push_back({vertex.texCoords.x, vertex.texCoords.y});
-
-            data.push_back({vertex.tangent.x, vertex.tangent.y, vertex.tangent.z});
-
-            data.push_back({vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z});
+            flatData.insert(flatData.end(), {vertex.position.x, vertex.position.y, vertex.position.z});
+            flatData.insert(flatData.end(), {vertex.normal.x, vertex.normal.y, vertex.normal.z});
+            flatData.insert(flatData.end(), {vertex.texCoords.x, vertex.texCoords.y});
+            flatData.insert(flatData.end(), {vertex.tangent.x, vertex.tangent.y, vertex.tangent.z});
+            flatData.insert(flatData.end(), {vertex.bitangent.x, vertex.bitangent.y, vertex.bitangent.z});
         }
         j["type"] = "MESH";
-        j["vertices"] = data;
+        j["vertices"] = flatData;
         j["faces"] = mesh->verticesData().indices;
         j["plain"] = mesh->material()->plain();
         j["transparent"] = mesh->material()->transparent();
@@ -448,21 +443,18 @@ void from_json(json& j, std::shared_ptr<Node> n) {
         }
 
         // Convert arrays of floats back to Vertex properties
-        auto verticesJson = j.at("vertices").get<std::vector<std::vector<float>>>();
-        std::vector<Mesh::Vertex> vertices;
-        vertices.resize(verticesJson.size() / 5);
-        for (size_t i = 0; i < verticesJson.size(); i = i + 5) {
-            int vertexIndex = i / 5;
+        auto flatData = j.at("vertices").get<std::vector<float>>();
+        size_t stride = 3 + 3 + 2 + 3 + 3;
+        size_t vertexCount = flatData.size() / stride;
 
-            vertices[vertexIndex].position = glm::vec3(verticesJson[i][0], verticesJson[i][1],
-                                                       verticesJson[i][2]);
-            vertices[vertexIndex].normal = glm::vec3(verticesJson[i + 1][0], verticesJson[i + 1][1],
-                                                     verticesJson[i + 1][2]);
-            vertices[vertexIndex].texCoords = glm::vec2(verticesJson[i + 2][0], verticesJson[i + 2][1]);
-            vertices[vertexIndex].tangent = glm::vec3(verticesJson[i + 3][0], verticesJson[i + 3][1],
-                                                      verticesJson[i + 3][2]);
-            vertices[vertexIndex].bitangent = glm::vec3(verticesJson[i + 4][0], verticesJson[i + 4][1],
-                                                        verticesJson[i + 4][2]);
+        std::vector<Mesh::Vertex> vertices(vertexCount);
+        for (size_t i = 0; i < vertexCount; ++i) {
+            size_t base = i * stride;
+            vertices[i].position = glm::vec3(flatData[base], flatData[base + 1], flatData[base + 2]);
+            vertices[i].normal = glm::vec3(flatData[base + 3], flatData[base + 4], flatData[base + 5]);
+            vertices[i].texCoords = glm::vec2(flatData[base + 6], flatData[base + 7]);
+            vertices[i].tangent = glm::vec3(flatData[base + 8], flatData[base + 9], flatData[base + 10]);
+            vertices[i].bitangent = glm::vec3(flatData[base + 11], flatData[base + 12], flatData[base + 13]);
         }
 
         auto verticesData = std::make_shared<Mesh::VerticesData>();
