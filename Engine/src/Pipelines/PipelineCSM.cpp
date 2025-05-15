@@ -1,25 +1,25 @@
 #include "Pipelines/PipelineCSM.h"
-#include "glm/ext/matrix_clip_space.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "SceneData/MeshIndirect.h"
-#include "GlobalData/GlobalData.h"
+
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
-#include "GlobalData/GlobalData.h"
-#include "Helpers/SettingsLoader.h"
 #include <glm/gtx/string_cast.hpp>
+
 #include "../../../GUI/include/TextureInfo.h"
+#include "GlobalData/GlobalData.h"
 #include "Handlers/CSMHandler.h"
 #include "Helpers/PrismaRender.h"
+#include "Helpers/SettingsLoader.h"
+#include "SceneData/MeshIndirect.h"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_transform.hpp"
 //
-//static std::shared_ptr<Prisma::Shader> shader = nullptr;
+// static std::shared_ptr<Prisma::Shader> shader = nullptr;
 //
-//static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
+// static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
 //
-//static std::shared_ptr<Prisma::SSBO> ssbo = nullptr;
+// static std::shared_ptr<Prisma::SSBO> ssbo = nullptr;
 
-Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height,
-                                 bool post) : m_width{width}, m_height{height} {
+Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height, bool post) : m_width{width}, m_height{height} {
     if (!post) {
         init();
     }
@@ -32,7 +32,7 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     m_lightMatrices.sizeCSM = m_size - 1;
     m_lightMatrices.resolutionCSM = glm::vec2(m_width, m_height);
     CSMHandler::getInstance().render({m_depth, m_lightMatrices});
-    //if (ssbo)
+    // if (ssbo)
     //{
     /*auto lightMatrices = getLightSpaceMatrices();
 
@@ -66,8 +66,7 @@ std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const gl
     for (unsigned int x = 0; x < 2; ++x) {
         for (unsigned int y = 0; y < 2; ++y) {
             for (unsigned int z = 0; z < 2; ++z) {
-                const glm::vec4 pt = inv * glm::vec4(2.0f * x - 1.0f, 2.0f * y - 1.0f, z == 0 ? 0.0f : 1.0f, 1.0f);
-
+                const glm::vec4 pt = inv * glm::vec4(2.0f * x - 1.0f, 2.0f * y - 1.0f, 2.0f * z - 1.0f, 1.0f);
                 frustumCorners.push_back(pt / pt.w);
             }
         }
@@ -76,9 +75,7 @@ std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const gl
     return frustumCorners;
 }
 
-Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture() {
-    return m_depth;
-}
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture() { return m_depth; }
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane) {
     auto proj = oglToVkProjection * glm::perspective(glm::radians(90.0f), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane, farPlane);
@@ -105,14 +102,20 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
         radius = glm::max(radius, distance);
     }
     radius = std::ceil(radius);
-    glm::vec3 minBounds(FLT_MAX), maxBounds(-FLT_MAX);
 
-    for (const auto& corner : corners) {
-        auto cornerLS = glm::vec3(lightViewMatrix * corner);
-        minBounds = glm::min(minBounds, cornerLS);
-        maxBounds = glm::max(maxBounds, cornerLS);
-    }
-    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minBounds.x, maxBounds.x, minBounds.y, maxBounds.y, minBounds.z, maxBounds.z);
+    // Create the AABB from the radius
+    glm::vec3 maxOrtho = center + glm::vec3(radius);
+    glm::vec3 minOrtho = center - glm::vec3(radius);
+
+    // Get the AABB in light view space
+    maxOrtho = glm::vec3(glm::vec4(maxOrtho, 1.0f));
+    minOrtho = glm::vec3(glm::vec4(minOrtho, 1.0f));
+
+    auto maxOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(maxOrtho, 1.0f));
+    auto minOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(minOrtho, 1.0f));
+
+    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minOrthoLS.x, maxOrthoLS.x, minOrthoLS.y, maxOrthoLS.y, minOrthoLS.z, maxOrthoLS.z);
+
     glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
     auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     shadowOrigin = shadowMatrix * shadowOrigin;
@@ -134,14 +137,11 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 void Prisma::PipelineCSM::createLightSpaceMatrices() {
     for (size_t i = 0; i < m_size; ++i) {
         if (i == 0) {
-            m_lightMatrices.shadows[i] = getLightSpaceMatrix(
-                m_nearPlane, m_lightMatrices.cascadePlanes[i].x);
+            m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_nearPlane, m_lightMatrices.cascadePlanes[i].x);
         } else if (i < m_size - 1) {
-            m_lightMatrices.shadows[i] = getLightSpaceMatrix(
-                m_lightMatrices.cascadePlanes[i - 1].x, m_lightMatrices.cascadePlanes[i].x);
+            m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_lightMatrices.cascadePlanes[i].x);
         } else {
-            m_lightMatrices.shadows[i] = getLightSpaceMatrix(
-                m_lightMatrices.cascadePlanes[i - 1].x, m_farPlane);
+            m_lightMatrices.shadows[i] = getLightSpaceMatrix(m_lightMatrices.cascadePlanes[i - 1].x, m_farPlane);
         }
     }
 }
@@ -151,13 +151,9 @@ void Prisma::PipelineCSM::bias(float bias) {
     CacheScene::getInstance().updateStatus(true);
 }
 
-float Prisma::PipelineCSM::bias() {
-    return m_bias;
-}
+float Prisma::PipelineCSM::bias() { return m_bias; }
 
-float Prisma::PipelineCSM::farPlane() {
-    return m_farPlane;
-}
+float Prisma::PipelineCSM::farPlane() { return m_farPlane; }
 
 void Prisma::PipelineCSM::farPlane(float farPlane) {
     m_farPlane = farPlane;
@@ -248,9 +244,7 @@ void Prisma::PipelineCSM::init() {
     }
 }
 
-float Prisma::PipelineCSM::nearPlane() {
-    return m_nearPlane;
-}
+float Prisma::PipelineCSM::nearPlane() { return m_nearPlane; }
 
 void Prisma::PipelineCSM::nearPlane(float nearPlane) {
     m_nearPlane = nearPlane;
@@ -262,6 +256,4 @@ void Prisma::PipelineCSM::lightDir(glm::vec3 lightDir) {
     CacheScene::getInstance().updateStatus(true);
 }
 
-glm::vec3 Prisma::PipelineCSM::lightDir() {
-    return m_lightDir;
-}
+glm::vec3 Prisma::PipelineCSM::lightDir() { return m_lightDir; }
