@@ -81,13 +81,9 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture()
 }
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane) {
-    auto proj = oglToVkProjection * glm::perspective(
-                    glm::radians(90.0f),
-                    static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane,
-                    farPlane);
+    auto proj = oglToVkProjection * glm::perspective(glm::radians(90.0f), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane, farPlane);
 
-    const auto corners = getFrustumCornersWorldSpace(
-        proj * GlobalData::getInstance().currentGlobalScene()->camera->matrix());
+    const auto corners = getFrustumCornersWorldSpace(proj * GlobalData::getInstance().currentGlobalScene()->camera->matrix());
 
     auto center = glm::vec3(0, 0, 0);
     for (const auto& v : corners) {
@@ -102,7 +98,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
 
     auto lightViewMatrix = lookAt(direction, center, worldUp);
 
-    //Get the longest radius in world space
+    // Get the longest radius in world space
     float radius = length(center - glm::vec3(corners[6]));
     for (unsigned int i = 0; i < 8; ++i) {
         float distance = length(glm::vec3(corners[i]) - center);
@@ -110,18 +106,19 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     }
     radius = std::ceil(radius);
 
-    //Create the AABB from the radius
+    // Create the AABB from the radius
     glm::vec3 maxOrtho = center + glm::vec3(radius);
     glm::vec3 minOrtho = center - glm::vec3(radius);
 
-    //Get the AABB in light view space
+    // Get the AABB in light view space
     maxOrtho = glm::vec3(glm::vec4(maxOrtho, 1.0f));
     minOrtho = glm::vec3(glm::vec4(minOrtho, 1.0f));
 
-    auto maxOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(maxOrtho, 1.0f));
-    auto minOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(minOrtho, 1.0f));
+    // Store the far and near planes
+    float far = maxOrtho.z;
+    float near = minOrtho.z;
 
-    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minOrthoLS.x, maxOrthoLS.x, minOrthoLS.y, maxOrthoLS.y, minOrthoLS.z, maxOrthoLS.z);
+    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minOrtho.x, maxOrtho.x, minOrtho.y, maxOrtho.y, near, far);
 
     glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
     auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -137,7 +134,7 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     glm::mat4 shadowProj = lightOrthoMatrix;
     shadowProj[3] += roundOffset;
     lightOrthoMatrix = shadowProj;
-    //glm::scale(glm::mat4(1.0),glm::vec3(1,-1,1))*
+    // glm::scale(glm::mat4(1.0),glm::vec3(1,-1,1))*
     return lightOrthoMatrix * lightViewMatrix;
 }
 
