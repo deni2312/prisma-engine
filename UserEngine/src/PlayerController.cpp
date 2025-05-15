@@ -50,14 +50,6 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
         m_isColliding = false;
     };
 
-    auto transparentMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Cube.012"));
-    auto transparentMesh1 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Cube.013"));
-
-    if (transparentMesh && transparentMesh1) {
-        transparentMesh->material()->transparent(true);
-        transparentMesh1->material()->transparent(true);
-    }
-
     m_physics->onCollisionStay(contact);
     m_physics->onCollisionExit(noContact);
 

@@ -117,6 +117,8 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         j["plain"] = mesh->material()->plain();
         j["color"] = {mesh->material()->color().x, mesh->material()->color().y, mesh->material()->color().z,
                       mesh->material()->color().w};
+        j["transparent"] = mesh->material()->transparent();
+
         // Convert Vertex properties to arrays of floats
         std::vector<json> verticesJson;
         for (const auto& vertex : mesh->animateVerticesData()->vertices) {
@@ -252,6 +254,7 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         j["vertices"] = data;
         j["faces"] = mesh->verticesData().indices;
         j["plain"] = mesh->material()->plain();
+        j["transparent"] = mesh->material()->transparent();
         j["color"] = {mesh->material()->color().x, mesh->material()->color().y, mesh->material()->color().z,
                       mesh->material()->color().w};
     } else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(n)) {
@@ -430,7 +433,8 @@ void from_json(json& j, std::shared_ptr<Node> n) {
 
             int plain = 0;
             plain = j.at("plain");
-
+            int transparent = 0;
+            transparent = j.at("transparent");
             float roughness = 0;
             float metalness = 0;
             j.at("roughness").get_to(roughness);
@@ -439,6 +443,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
             material->metalness(metalness);
             material->plain(plain);
             material->color(color);
+            material->transparent(transparent);
             mesh->material(material);
         }
 
@@ -622,6 +627,8 @@ void from_json(json& j, std::shared_ptr<Node> n) {
 
             int plain = 0;
             plain = j.at("plain");
+            int transparent = 0;
+            transparent = j.at("transparent");
             float roughness = 0;
             float metalness = 0;
             j.at("roughness").get_to(roughness);
@@ -630,6 +637,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
             material->metalness(metalness);
             material->plain(plain);
             material->color(color);
+            material->transparent(transparent);
             mesh->material(material);
         }
         // Convert arrays of floats back to Vertex properties
