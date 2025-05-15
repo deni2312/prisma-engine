@@ -66,8 +66,8 @@ std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const gl
     for (unsigned int x = 0; x < 2; ++x) {
         for (unsigned int y = 0; y < 2; ++y) {
             for (unsigned int z = 0; z < 2; ++z) {
-                const glm::vec4 pt = inv * glm::vec4(2.0f * x - 1.0f, 2.0f * y - 1.0f, 2.0f * z - 1.0f,
-                                                     1.0f);
+                const glm::vec4 pt = inv * glm::vec4(2.0f * x - 1.0f, 2.0f * y - 1.0f, z == 0 ? 0.0f : 1.0f, 1.0f);
+
                 frustumCorners.push_back(pt / pt.w);
             }
         }
@@ -105,20 +105,14 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
         radius = glm::max(radius, distance);
     }
     radius = std::ceil(radius);
+    glm::vec3 minBounds(FLT_MAX), maxBounds(-FLT_MAX);
 
-    // Create the AABB from the radius
-    glm::vec3 maxOrtho = center + glm::vec3(radius);
-    glm::vec3 minOrtho = center - glm::vec3(radius);
-
-    // Get the AABB in light view space
-    maxOrtho = glm::vec3(glm::vec4(maxOrtho, 1.0f));
-    minOrtho = glm::vec3(glm::vec4(minOrtho, 1.0f));
-
-    auto maxOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(maxOrtho, 1.0f));
-    auto minOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(minOrtho, 1.0f));
-
-    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minOrthoLS.x, maxOrthoLS.x, minOrthoLS.y, maxOrthoLS.y, minOrthoLS.z, maxOrthoLS.z);
-
+    for (const auto& corner : corners) {
+        auto cornerLS = glm::vec3(lightViewMatrix * corner);
+        minBounds = glm::min(minBounds, cornerLS);
+        maxBounds = glm::max(maxBounds, cornerLS);
+    }
+    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minBounds.x, maxBounds.x, minBounds.y, maxBounds.y, minBounds.z, maxBounds.z);
     glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
     auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     shadowOrigin = shadowMatrix * shadowOrigin;
