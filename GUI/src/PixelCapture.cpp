@@ -165,14 +165,16 @@ std::shared_ptr<Prisma::Mesh> Prisma::GUI::PixelCapture::capture(glm::vec2 posit
 
     PrismaFunc::getInstance().bindMainRenderTarget();
 
-    uint32_t encodedUUID = (r << 16) | (g << 8) | b;
-    if (a < 128) {
-        if (encodedUUID < GlobalData::getInstance().currentGlobalScene()->meshes.size() && encodedUUID >= 0) {
-            return GlobalData::getInstance().currentGlobalScene()->meshes[encodedUUID];
-        }
-    } else {
-        if (encodedUUID < GlobalData::getInstance().currentGlobalScene()->animateMeshes.size() && encodedUUID >= 0) {
-            return GlobalData::getInstance().currentGlobalScene()->animateMeshes[encodedUUID];
+    uint32_t encodedUUID = (r << 16) | (g << 8) | b - 1;
+    if (encodedUUID >= 0) {
+        if (a < 128) {
+            if (encodedUUID < GlobalData::getInstance().currentGlobalScene()->meshes.size()) {
+                return GlobalData::getInstance().currentGlobalScene()->meshes[encodedUUID];
+            }
+        } else {
+            if (encodedUUID < GlobalData::getInstance().currentGlobalScene()->animateMeshes.size()) {
+                return GlobalData::getInstance().currentGlobalScene()->animateMeshes[encodedUUID];
+            }
         }
     }
 
