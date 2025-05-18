@@ -78,7 +78,7 @@ std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const gl
 Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineCSM::shadowTexture() { return m_depth; }
 
 glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const float farPlane) {
-    auto proj = oglToVkProjection * glm::perspective(glm::radians(90.0f), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane, farPlane);
+    auto proj = glm::perspective(glm::radians(GlobalData::getInstance().currentGlobalScene()->camera->angle()), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), nearPlane, farPlane);
 
     const auto corners = getFrustumCornersWorldSpace(proj * GlobalData::getInstance().currentGlobalScene()->camera->matrix());
 
@@ -86,52 +86,41 @@ glm::mat4 Prisma::PipelineCSM::getLightSpaceMatrix(const float nearPlane, const 
     for (const auto& v : corners) {
         center += glm::vec3(v);
     }
-
     center /= corners.size();
 
-    auto direction = center + m_lightDir;
+    const auto lightView = glm::lookAt(center + m_lightDir, center, glm::vec3(0.0f, 1.0f, 0.0f));
 
-    auto worldUp = glm::vec3(0.0f, 1.0f, 0.0f); // Define the world's up direction
-
-    auto lightViewMatrix = lookAt(direction, center, worldUp);
-
-    // Get the longest radius in world space
-    float radius = length(center - glm::vec3(corners[6]));
-    for (unsigned int i = 0; i < 8; ++i) {
-        float distance = length(glm::vec3(corners[i]) - center);
-        radius = glm::max(radius, distance);
+    float minX = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::lowest();
+    float minY = std::numeric_limits<float>::max();
+    float maxY = std::numeric_limits<float>::lowest();
+    float minZ = std::numeric_limits<float>::max();
+    float maxZ = std::numeric_limits<float>::lowest();
+    for (const auto& v : corners) {
+        const auto trf = lightView * v;
+        minX = std::min(minX, trf.x);
+        maxX = std::max(maxX, trf.x);
+        minY = std::min(minY, trf.y);
+        maxY = std::max(maxY, trf.y);
+        minZ = std::min(minZ, trf.z);
+        maxZ = std::max(maxZ, trf.z);
     }
-    radius = std::ceil(radius);
 
-    // Create the AABB from the radius
-    glm::vec3 maxOrtho = center + glm::vec3(radius);
-    glm::vec3 minOrtho = center - glm::vec3(radius);
+    // Tune this parameter according to the scene
+    constexpr float zMult = 10.0f;
+    if (minZ < 0) {
+        minZ *= zMult;
+    } else {
+        minZ /= zMult;
+    }
+    if (maxZ < 0) {
+        maxZ /= zMult;
+    } else {
+        maxZ *= zMult;
+    }
 
-    // Get the AABB in light view space
-    maxOrtho = glm::vec3(glm::vec4(maxOrtho, 1.0f));
-    minOrtho = glm::vec3(glm::vec4(minOrtho, 1.0f));
-
-    auto maxOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(maxOrtho, 1.0f));
-    auto minOrthoLS = glm::vec3(lightViewMatrix * glm::vec4(minOrtho, 1.0f));
-
-    auto lightOrthoMatrix = oglToVkProjection * glm::ortho(minOrthoLS.x, maxOrthoLS.x, minOrthoLS.y, maxOrthoLS.y, minOrthoLS.z, maxOrthoLS.z);
-
-    glm::mat4 shadowMatrix = lightOrthoMatrix * lightViewMatrix;
-    auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    shadowOrigin = shadowMatrix * shadowOrigin;
-    shadowOrigin = shadowOrigin * static_cast<float>(m_width) / 2.0f;
-
-    glm::vec4 roundedOrigin = round(shadowOrigin);
-    glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
-    roundOffset = roundOffset * 2.0f / static_cast<float>(m_width);
-    roundOffset.z = 0.0f;
-    roundOffset.w = 0.0f;
-
-    glm::mat4 shadowProj = lightOrthoMatrix;
-    shadowProj[3] += roundOffset;
-    lightOrthoMatrix = shadowProj;
-    // glm::scale(glm::mat4(1.0),glm::vec3(1,-1,1))*
-    return lightOrthoMatrix * lightViewMatrix;
+    const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+    return lightProjection * lightView;
 }
 
 void Prisma::PipelineCSM::createLightSpaceMatrices() {
