@@ -158,142 +158,136 @@ void Prisma::UpdateTLAS::updateSizeTLAS() {
     resizeTLAS();
     auto& contextData = PrismaFunc::getInstance().contextData();
     auto meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
-    if (meshes.size() >= Define::MAX_RAYTRACING_MESHES) {
-        Logger::getInstance().log(LogLevel::ERRORS,
-                                  "Limit meshes in raytracing pipeline exceeded(" + std::to_string(
-                                      Define::MAX_RAYTRACING_MESHES) + ")");
+    if (!meshes.empty()) {
+        if (meshes.size() >= Define::MAX_RAYTRACING_MESHES) {
+            Logger::getInstance().log(LogLevel::ERRORS, "Limit meshes in raytracing pipeline exceeded(" + std::to_string(Define::MAX_RAYTRACING_MESHES) + ")");
+        }
+
+        for (int i = 0; i < meshes.size() && i < Define::MAX_RAYTRACING_MESHES; i++) {
+            meshes[i]->uploadBLAS();
+        }
+        if (m_pTLAS) {
+            m_ScratchBuffer.Release();
+            m_InstanceBuffer.Release();
+        }
+
+        // Create TLAS
+        if (!m_pTLAS) {
+            Diligent::TopLevelASDesc TLASDesc;
+            TLASDesc.Name = "TLAS";
+            TLASDesc.MaxInstanceCount = Define::MAX_RAYTRACING_MESHES;
+            TLASDesc.Flags = Diligent::RAYTRACING_BUILD_AS_ALLOW_UPDATE | Diligent::RAYTRACING_BUILD_AS_PREFER_FAST_TRACE;
+
+            contextData.device->CreateTLAS(TLASDesc, &m_pTLAS);
+            VERIFY_EXPR(m_pTLAS != nullptr);
+            PipelineHandler::getInstance().raytracing()->srb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(getInstance().TLAS());
+            PipelineHandler::getInstance().raytracing()->srb()->GetVariableByName(Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(getInstance().TLAS());
+        }
+
+        // Create scratch buffer
+        if (!m_ScratchBuffer) {
+            Diligent::BufferDesc BuffDesc;
+            BuffDesc.Name = "TLAS Scratch Buffer";
+            BuffDesc.Usage = Diligent::USAGE_DEFAULT;
+            BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
+            BuffDesc.Size = std::max(m_pTLAS->GetScratchBufferSizes().Build, m_pTLAS->GetScratchBufferSizes().Update);
+
+            contextData.device->CreateBuffer(BuffDesc, nullptr, &m_ScratchBuffer);
+            VERIFY_EXPR(m_ScratchBuffer != nullptr);
+        }
+
+        // Create instance buffer
+        if (!m_InstanceBuffer) {
+            Diligent::BufferDesc BuffDesc;
+            BuffDesc.Name = "TLAS Instance Buffer";
+            BuffDesc.Usage = Diligent::USAGE_DEFAULT;
+            BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
+            BuffDesc.Size = Diligent::TLAS_INSTANCE_DATA_SIZE * meshes.size();
+
+            contextData.device->CreateBuffer(BuffDesc, nullptr, &m_InstanceBuffer);
+            VERIFY_EXPR(m_InstanceBuffer != nullptr);
+        }
+
+        updateTLAS(false);
     }
-
-    for (int i = 0; i < meshes.size() && i < Define::MAX_RAYTRACING_MESHES; i++) {
-        meshes[i]->uploadBLAS();
-    }
-    if (m_pTLAS) {
-        m_ScratchBuffer.Release();
-        m_InstanceBuffer.Release();
-    }
-
-    // Create TLAS
-    if (!m_pTLAS) {
-        Diligent::TopLevelASDesc TLASDesc;
-        TLASDesc.Name = "TLAS";
-        TLASDesc.MaxInstanceCount = Define::MAX_RAYTRACING_MESHES;
-        TLASDesc.Flags = Diligent::RAYTRACING_BUILD_AS_ALLOW_UPDATE |
-                         Diligent::RAYTRACING_BUILD_AS_PREFER_FAST_TRACE;
-
-        contextData.device->CreateTLAS(TLASDesc, &m_pTLAS);
-        VERIFY_EXPR(m_pTLAS != nullptr);
-        PipelineHandler::getInstance().raytracing()->srb()->GetVariableByName(
-            Diligent::SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(getInstance().TLAS());
-        PipelineHandler::getInstance().raytracing()->srb()->GetVariableByName(
-            Diligent::SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(getInstance().TLAS());
-    }
-
-    // Create scratch buffer
-    if (!m_ScratchBuffer) {
-        Diligent::BufferDesc BuffDesc;
-        BuffDesc.Name = "TLAS Scratch Buffer";
-        BuffDesc.Usage = Diligent::USAGE_DEFAULT;
-        BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
-        BuffDesc.Size = std::max(m_pTLAS->GetScratchBufferSizes().Build,
-                                 m_pTLAS->GetScratchBufferSizes().Update);
-
-        contextData.device->CreateBuffer(BuffDesc, nullptr, &m_ScratchBuffer);
-        VERIFY_EXPR(m_ScratchBuffer != nullptr);
-    }
-
-    // Create instance buffer
-    if (!m_InstanceBuffer) {
-        Diligent::BufferDesc BuffDesc;
-        BuffDesc.Name = "TLAS Instance Buffer";
-        BuffDesc.Usage = Diligent::USAGE_DEFAULT;
-        BuffDesc.BindFlags = Diligent::BIND_RAY_TRACING;
-        BuffDesc.Size = Diligent::TLAS_INSTANCE_DATA_SIZE * meshes.size();
-
-        contextData.device->CreateBuffer(BuffDesc, nullptr, &m_InstanceBuffer);
-        VERIFY_EXPR(m_InstanceBuffer != nullptr);
-    }
-
-    updateTLAS(false);
 }
 
 void Prisma::UpdateTLAS::updateTLAS(bool update) {
     auto& contextData = PrismaFunc::getInstance().contextData();
     auto meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
-
-    std::vector<Diligent::TLASBuildInstanceData> instances;
-
-    for (int i = 0; i < meshes.size(); i++) {
-        Diligent::TLASBuildInstanceData instance;
-
-        instance.InstanceName = meshes[i]->strUUID();
-        instance.CustomId = i;
-        instance.pBLAS = meshes[i]->blas();
-        instance.Mask = meshes[i]->material()->transparent() ? TRANSPARENT_GEOM_MASK : OPAQUE_GEOM_MASK;
-        glm::mat4 modelMatrix = meshes[i]->parent()->finalMatrix();
-        // This should include scale, rotation, and translation
-        // Assign to the instance transform as a 3x4 row-major matrix
-        for (int row = 0; row < 3; ++row) {
-            for (int col = 0; col < 4; ++col) {
-                instance.Transform.data[row][col] = modelMatrix[col][row];
-                // glm is column-major, Diligent expects row-major
-            }
-        }
-        instances.push_back(instance);
-    }
-    // Build or update TLAS
-    Diligent::BuildTLASAttribs Attribs;
-    Attribs.pTLAS = m_pTLAS;
-    Attribs.Update = update;
-
-    // Scratch buffer will be used to store temporary data during TLAS build or update.
-    // Previous content in the scratch buffer will be discarded.
-    Attribs.pScratchBuffer = m_ScratchBuffer;
-
-    // Instance buffer will store instance data during TLAS build or update.
-    // Previous content in the instance buffer will be discarded.
-    Attribs.pInstanceBuffer = m_InstanceBuffer;
-
-    // Instances will be converted to the format that is required by the graphics driver and copied to the instance buffer.
-    Attribs.pInstances = instances.data();
-    Attribs.InstanceCount = instances.size();
-
-    // Bind hit shaders per instance, it allows you to change the number of geometries in BLAS without invalidating the shader binding table.
-    Attribs.BindingMode = Diligent::HIT_GROUP_BINDING_MODE_PER_INSTANCE;
-    Attribs.HitGroupStride = HIT_GROUP_STRIDE;
-
-    // Allow engine to change resource states.
-    Attribs.TLASTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-    Attribs.BLASTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-    Attribs.InstanceBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-    Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-    contextData.immediateContext->BuildTLAS(Attribs);
-
-    // Create shader binding table.
-
-    Diligent::ShaderBindingTableDesc SBTDesc;
-    SBTDesc.Name = "SBT";
-    SBTDesc.pPSO = PipelineHandler::getInstance().raytracing()->pso();
-
-    if (!update) {
-        if (m_pSBT) {
-            m_pSBT.Release();
-        }
-        contextData.device->CreateSBT(SBTDesc, &m_pSBT);
-        VERIFY_EXPR(m_pSBT != nullptr);
-        m_pSBT->BindRayGenShader("Main");
-        m_pSBT->BindMissShader("PrimaryMiss", PRIMARY_RAY_INDEX);
-        m_pSBT->BindMissShader("ShadowMiss", SHADOW_RAY_INDEX);
+    if (!meshes.empty()) {
+        std::vector<Diligent::TLASBuildInstanceData> instances;
 
         for (int i = 0; i < meshes.size(); i++) {
-            m_pSBT->BindHitGroupForInstance(m_pTLAS, meshes[i]->strUUID(), PRIMARY_RAY_INDEX,
-                                            meshes[i]->material()->transparent()
-                                                ? "GlassPrimaryHit"
-                                                : "PrimaryHit");
-        }
-        m_pSBT->BindHitGroupForTLAS(m_pTLAS, SHADOW_RAY_INDEX, nullptr);
+            Diligent::TLASBuildInstanceData instance;
 
-        // Update SBT with the shader groups we bound
-        contextData.immediateContext->UpdateSBT(m_pSBT);
+            instance.InstanceName = meshes[i]->strUUID();
+            instance.CustomId = i;
+            instance.pBLAS = meshes[i]->blas();
+            instance.Mask = meshes[i]->material()->transparent() ? TRANSPARENT_GEOM_MASK : OPAQUE_GEOM_MASK;
+            glm::mat4 modelMatrix = meshes[i]->parent()->finalMatrix();
+            // This should include scale, rotation, and translation
+            // Assign to the instance transform as a 3x4 row-major matrix
+            for (int row = 0; row < 3; ++row) {
+                for (int col = 0; col < 4; ++col) {
+                    instance.Transform.data[row][col] = modelMatrix[col][row];
+                    // glm is column-major, Diligent expects row-major
+                }
+            }
+            instances.push_back(instance);
+        }
+        // Build or update TLAS
+        Diligent::BuildTLASAttribs Attribs;
+        Attribs.pTLAS = m_pTLAS;
+        Attribs.Update = update;
+
+        // Scratch buffer will be used to store temporary data during TLAS build or update.
+        // Previous content in the scratch buffer will be discarded.
+        Attribs.pScratchBuffer = m_ScratchBuffer;
+
+        // Instance buffer will store instance data during TLAS build or update.
+        // Previous content in the instance buffer will be discarded.
+        Attribs.pInstanceBuffer = m_InstanceBuffer;
+
+        // Instances will be converted to the format that is required by the graphics driver and copied to the instance buffer.
+        Attribs.pInstances = instances.data();
+        Attribs.InstanceCount = instances.size();
+
+        // Bind hit shaders per instance, it allows you to change the number of geometries in BLAS without invalidating the shader binding table.
+        Attribs.BindingMode = Diligent::HIT_GROUP_BINDING_MODE_PER_INSTANCE;
+        Attribs.HitGroupStride = HIT_GROUP_STRIDE;
+
+        // Allow engine to change resource states.
+        Attribs.TLASTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+        Attribs.BLASTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+        Attribs.InstanceBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+        Attribs.ScratchBufferTransitionMode = Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+        contextData.immediateContext->BuildTLAS(Attribs);
+
+        // Create shader binding table.
+
+        Diligent::ShaderBindingTableDesc SBTDesc;
+        SBTDesc.Name = "SBT";
+        SBTDesc.pPSO = PipelineHandler::getInstance().raytracing()->pso();
+
+        if (!update) {
+            if (m_pSBT) {
+                m_pSBT.Release();
+            }
+            contextData.device->CreateSBT(SBTDesc, &m_pSBT);
+            VERIFY_EXPR(m_pSBT != nullptr);
+            m_pSBT->BindRayGenShader("Main");
+            m_pSBT->BindMissShader("PrimaryMiss", PRIMARY_RAY_INDEX);
+            m_pSBT->BindMissShader("ShadowMiss", SHADOW_RAY_INDEX);
+
+            for (int i = 0; i < meshes.size(); i++) {
+                m_pSBT->BindHitGroupForInstance(m_pTLAS, meshes[i]->strUUID(), PRIMARY_RAY_INDEX, meshes[i]->material()->transparent() ? "GlassPrimaryHit" : "PrimaryHit");
+            }
+            m_pSBT->BindHitGroupForTLAS(m_pTLAS, SHADOW_RAY_INDEX, nullptr);
+
+            // Update SBT with the shader groups we bound
+            contextData.immediateContext->UpdateSBT(m_pSBT);
+        }
     }
 }
 
