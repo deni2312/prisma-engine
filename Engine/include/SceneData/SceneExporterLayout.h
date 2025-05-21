@@ -118,6 +118,14 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         j["color"] = {mesh->material()->color().x, mesh->material()->color().y, mesh->material()->color().z,
                       mesh->material()->color().w};
         j["transparent"] = mesh->material()->transparent();
+        auto rtMaterial = mesh->material()->rtMaterial();
+
+        j["DispersionSampleCount"] = rtMaterial.DispersionSampleCount;
+        j["GlassAbsorption"] = rtMaterial.GlassAbsorption;
+        j["GlassEnableDispersion"] = rtMaterial.GlassEnableDispersion;
+        j["GlassIndexOfRefraction"] = {rtMaterial.GlassIndexOfRefraction.r, rtMaterial.GlassIndexOfRefraction.g};
+        j["GlassMaterialColor"] = {rtMaterial.GlassMaterialColor.r, rtMaterial.GlassMaterialColor.g, rtMaterial.GlassMaterialColor.b, rtMaterial.GlassMaterialColor.a};
+        j["GlassReflectionColorMask"] = {rtMaterial.GlassReflectionColorMask.r, rtMaterial.GlassReflectionColorMask.g, rtMaterial.GlassReflectionColorMask.b};
 
         // Convert Vertex properties to arrays of floats
         std::vector<json> verticesJson;
@@ -252,6 +260,14 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         j["transparent"] = mesh->material()->transparent();
         j["color"] = {mesh->material()->color().x, mesh->material()->color().y, mesh->material()->color().z,
                       mesh->material()->color().w};
+        auto rtMaterial = mesh->material()->rtMaterial();
+
+        j["DispersionSampleCount"] = rtMaterial.DispersionSampleCount;
+        j["GlassAbsorption"] = rtMaterial.GlassAbsorption;
+        j["GlassEnableDispersion"] = rtMaterial.GlassEnableDispersion;
+        j["GlassIndexOfRefraction"] = {rtMaterial.GlassIndexOfRefraction.r, rtMaterial.GlassIndexOfRefraction.g};
+        j["GlassMaterialColor"] = {rtMaterial.GlassMaterialColor.r, rtMaterial.GlassMaterialColor.g, rtMaterial.GlassMaterialColor.b, rtMaterial.GlassMaterialColor.a};
+        j["GlassReflectionColorMask"] = {rtMaterial.GlassReflectionColorMask.r, rtMaterial.GlassReflectionColorMask.g, rtMaterial.GlassReflectionColorMask.b};
     } else if (std::dynamic_pointer_cast<Light<LightType::LightDir>>(n)) {
         j["type"] = "LIGHT_DIRECTIONAL";
         auto light = std::dynamic_pointer_cast<Light<LightType::LightDir>>(n);
@@ -425,6 +441,22 @@ void from_json(json& j, std::shared_ptr<Node> n) {
             color.y = j.at("color").at(1);
             color.z = j.at("color").at(2);
             color.w = j.at("color").at(3);
+
+            MaterialComponent::RayTracingMaterial rtMaterial;
+            rtMaterial.DispersionSampleCount = j.at("DispersionSampleCount");
+            rtMaterial.GlassAbsorption = j.at("GlassAbsorption");
+            rtMaterial.GlassEnableDispersion = j.at("GlassEnableDispersion");
+            rtMaterial.GlassIndexOfRefraction.r = j.at("GlassIndexOfRefraction").at(0);
+            rtMaterial.GlassIndexOfRefraction.g = j.at("GlassIndexOfRefraction").at(1);
+            rtMaterial.GlassMaterialColor.r = j.at("GlassMaterialColor").at(0);
+            rtMaterial.GlassMaterialColor.g = j.at("GlassMaterialColor").at(1);
+            rtMaterial.GlassMaterialColor.b = j.at("GlassMaterialColor").at(2);
+            rtMaterial.GlassMaterialColor.a = j.at("GlassMaterialColor").at(3);
+            rtMaterial.GlassReflectionColorMask.r = j.at("GlassReflectionColorMask").at(0);
+            rtMaterial.GlassReflectionColorMask.g = j.at("GlassReflectionColorMask").at(1);
+            rtMaterial.GlassReflectionColorMask.b = j.at("GlassReflectionColorMask").at(2);
+
+            material->rtMaterial(rtMaterial);
 
             int plain = 0;
             plain = j.at("plain");
@@ -616,6 +648,22 @@ void from_json(json& j, std::shared_ptr<Node> n) {
             color.y = j.at("color").at(1);
             color.z = j.at("color").at(2);
             color.w = j.at("color").at(3);
+
+            MaterialComponent::RayTracingMaterial rtMaterial;
+            rtMaterial.DispersionSampleCount = j.at("DispersionSampleCount");
+            rtMaterial.GlassAbsorption = j.at("GlassAbsorption");
+            rtMaterial.GlassEnableDispersion = j.at("GlassEnableDispersion");
+            rtMaterial.GlassIndexOfRefraction.r = j.at("GlassIndexOfRefraction").at(0);
+            rtMaterial.GlassIndexOfRefraction.g = j.at("GlassIndexOfRefraction").at(1);
+            rtMaterial.GlassMaterialColor.r = j.at("GlassMaterialColor").at(0);
+            rtMaterial.GlassMaterialColor.g = j.at("GlassMaterialColor").at(1);
+            rtMaterial.GlassMaterialColor.b = j.at("GlassMaterialColor").at(2);
+            rtMaterial.GlassMaterialColor.a = j.at("GlassMaterialColor").at(3);
+            rtMaterial.GlassReflectionColorMask.r = j.at("GlassReflectionColorMask").at(0);
+            rtMaterial.GlassReflectionColorMask.g = j.at("GlassReflectionColorMask").at(1);
+            rtMaterial.GlassReflectionColorMask.b = j.at("GlassReflectionColorMask").at(2);
+
+            material->rtMaterial(rtMaterial);
 
             int plain = 0;
             plain = j.at("plain");
