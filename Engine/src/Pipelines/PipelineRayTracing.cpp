@@ -281,8 +281,8 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     RTDesc.Width = m_width;
     RTDesc.Height = m_height;
     RTDesc.BindFlags = BIND_UNORDERED_ACCESS | BIND_SHADER_RESOURCE;
-    RTDesc.ClearValue.Format = TEX_FORMAT_RGBA8_UNORM;
-    RTDesc.Format = TEX_FORMAT_RGBA8_UNORM;
+    RTDesc.ClearValue.Format = PipelineHandler::getInstance().textureFormat();
+    RTDesc.Format = PipelineHandler::getInstance().textureFormat();
 
     contextData.device->CreateTexture(RTDesc, nullptr, &m_colorBuffer);
 

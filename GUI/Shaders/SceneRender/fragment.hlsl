@@ -16,6 +16,6 @@ void main(in PSInput PSIn,
           out PSOutput PSOut)
 {
     float4 Color = g_Texture.Sample(g_Texture_sampler, PSIn.UV);
-    //Color = Color / (Color + 1.0f);
+    Color = Color / (Color + 1.0f);
     PSOut.Color = Color;
 }
