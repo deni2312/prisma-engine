@@ -531,7 +531,7 @@ void Prisma::GUI::PixelCapture::createScalePipeline()
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "ImGui PS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/fragment.hlsl";
+        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/fragment_capture.hlsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
