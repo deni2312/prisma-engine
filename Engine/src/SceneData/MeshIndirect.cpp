@@ -57,7 +57,7 @@ void Prisma::MeshIndirect::updateStatusShader() const {
 }
 
 void Prisma::MeshIndirect::updateIndirectBuffer() {
-    m_drawCommands.clear();
+    std::vector<DrawElementsIndirectCommand> drawCommands;
 
     auto& contextData = PrismaFunc::getInstance().contextData();
     auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -74,11 +74,11 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
         command.baseVertex = m_currentVertex;
         command.baseInstance = 0;
 
-        m_drawCommands.push_back(command);
+        drawCommands.push_back(command);
         m_currentIndex = m_currentIndex + indices.size();
         m_currentVertex = m_currentVertex + vertices.size();
     }
-    m_indirectBuffer.Release();
+    m_indirectBufferOpaque.Release();
 
     Diligent::BufferDesc IndirectBufferDesc;
     IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
@@ -87,15 +87,15 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
     IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * meshes.size();
     IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
     Diligent::BufferData InitData;
-    InitData.pData = m_drawCommands.data();
+    InitData.pData = drawCommands.data();
     InitData.DataSize = sizeof(DrawElementsIndirectCommand) * meshes.size();
-    contextData.device->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBuffer);
+    contextData.device->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBufferOpaque);
 
     m_commandsBuffer.DrawCount = meshes.size();
     m_commandsBuffer.DrawArgsOffset = 0;
     m_commandsBuffer.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
     m_commandsBuffer.IndexType = Diligent::VT_UINT32;
-    m_commandsBuffer.pAttribsBuffer = m_indirectBuffer;
+    m_commandsBuffer.pAttribsBuffer = m_indirectBufferOpaque;
 }
 
 void Prisma::MeshIndirect::updateIndirectBufferAnimation() {
@@ -537,7 +537,7 @@ void Prisma::MeshIndirect::createMeshBuffer() {
     IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
     IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
     IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
-    contextData.device->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBuffer);
+    contextData.device->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBufferOpaque);
 }
 
 void Prisma::MeshIndirect::createMeshAnimationBuffer() {

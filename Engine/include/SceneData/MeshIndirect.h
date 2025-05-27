@@ -91,12 +91,17 @@ private:
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 
-    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indirectBuffer;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indirectBufferOpaque;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indirectBufferTransparent;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_statusBuffer;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelBuffer;
     Diligent::DrawIndexedIndirectAttribs m_commandsBuffer;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
+
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indexBufferOpaque;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_indexBufferTransparent;
+
 
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBufferAnimation;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBufferAnimation;
@@ -135,7 +140,6 @@ private:
     //VERTICES DATA
 
     Mesh::VerticesData m_verticesData;
-    std::vector<DrawElementsIndirectCommand> m_drawCommands;
 
 
     AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
