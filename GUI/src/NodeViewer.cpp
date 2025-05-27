@@ -134,9 +134,9 @@ void Prisma::GUI::NodeViewer::showComponents(std::shared_ptr<Node> nodeData) {
             };
 
             ImGuiStyles::getInstance().treeStyle();
-
+            std::string name = component.second->name() + "##" + std::to_string(i);
             if (component.second->uiRemovable()) {
-                if (ImGui::CollapsingHeader((component.second->name()).c_str(), &visible)) {
+                if (ImGui::CollapsingHeader(name.c_str(), &visible)) {
                     dispatch();
                 } else {
                     ImGuiStyles::getInstance().clearTreeStyle();
@@ -145,7 +145,7 @@ void Prisma::GUI::NodeViewer::showComponents(std::shared_ptr<Node> nodeData) {
                     indexRemove = component.first;
                 }
             } else {
-                if (ImGui::CollapsingHeader((component.second->name()).c_str())) {
+                if (ImGui::CollapsingHeader(name.c_str())) {
                     dispatch();
                 } else {
                     ImGuiStyles::getInstance().clearTreeStyle();
