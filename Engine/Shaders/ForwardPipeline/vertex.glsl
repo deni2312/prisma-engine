@@ -48,8 +48,21 @@ readonly buffer models{
     MeshData modelsData[];
 };
 
+#ifndef ANIMATION
+readonly buffer opaqueIndices{
+    int opaqueIndicesData[];
+};
+#endif
+
 void main()
 {
+#ifndef ANIMATION
+int currentId=opaqueIndicesData[gl_DrawIDARB];
+#else
+int currentId=gl_DrawIDARB;
+#endif
+
+
 #ifdef ANIMATION
     vec4 totalPosition = vec4(0.0f);
     vec3 localNormal = vec3(0.0f);
@@ -62,24 +75,24 @@ void main()
             totalPosition = vec4(inPos, 1.0f);
             break;
         }
-        vec4 localPosition = modelAnimations[gl_DrawIDARB].animations[boneIds[i]] * vec4(inPos, 1.0f);
+        vec4 localPosition = modelAnimations[currentId].animations[boneIds[i]] * vec4(inPos, 1.0f);
         totalPosition += localPosition * weights[i];
-        localNormal = mat3(modelAnimations[gl_DrawIDARB].animations[boneIds[i]]) * inNormal;
+        localNormal = mat3(modelAnimations[currentId].animations[boneIds[i]]) * inNormal;
     }
 
-    mat4 modelMatrix = modelsData[gl_DrawIDARB].model;
-    mat4 normalMatrix = modelsData[gl_DrawIDARB].normal;
+    mat4 modelMatrix = modelsData[currentId].model;
+    mat4 normalMatrix = modelsData[currentId].normal;
     vec4 worldPos = modelMatrix * vec4(totalPosition.xyz, 1.0);
     vec3 worldNormal = normalize(vec3(normalMatrix * vec4(localNormal, 0.0)));
 
     outUv = inUV;
     outFragPos = worldPos.xyz;
     outNormal = worldNormal;
-    outDrawId = gl_DrawIDARB;
+    outDrawId = currentId;
     gl_Position = projection * view * worldPos;
 #else
-    mat4 modelMatrix = modelsData[gl_DrawIDARB].model;
-    mat4 normalMatrix = modelsData[gl_DrawIDARB].normal;
+    mat4 modelMatrix = modelsData[currentId].model;
+    mat4 normalMatrix = modelsData[currentId].normal;
 
     vec4 worldPos = modelMatrix * vec4(inPos, 1.0);
     vec3 worldNormal = normalize(vec3(normalMatrix * vec4(inNormal, 0.0)));
@@ -89,7 +102,7 @@ void main()
     outUv = inUV;
     outFragPos = worldPos.xyz;
     outNormal = worldNormal;
-    outDrawId = gl_DrawIDARB;
+    outDrawId = currentId;
 
     // Construct TBN matrix
     //outTBN = mat3(worldTangent, worldBitangent, worldNormal);

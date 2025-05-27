@@ -57,13 +57,16 @@ void Prisma::MeshIndirect::updateStatusShader() const {
 }
 
 void Prisma::MeshIndirect::updateIndirectBuffer() {
-    std::vector<DrawElementsIndirectCommand> drawCommands;
+    std::vector<DrawElementsIndirectCommand> drawCommandsAll;
+    std::vector<DrawElementsIndirectCommand> drawCommandsOpaque;
 
     auto& contextData = PrismaFunc::getInstance().contextData();
     auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
 
     m_currentIndex = 0;
     m_currentVertex = 0;
+    int index = 0;
+    std::vector<unsigned int> indexes;
     for (const auto& mesh : meshes) {
         const auto& indices = mesh->verticesData().indices;
         const auto& vertices = mesh->verticesData().vertices;
@@ -74,28 +77,65 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
         command.baseVertex = m_currentVertex;
         command.baseInstance = 0;
 
-        drawCommands.push_back(command);
+        if (!mesh->material()->transparent()) {
+            drawCommandsOpaque.push_back(command);
+            indexes.push_back(index);
+        }
+
+        drawCommandsAll.push_back(command);
         m_currentIndex = m_currentIndex + indices.size();
         m_currentVertex = m_currentVertex + vertices.size();
+        index++;
     }
+    m_indirectBufferAll.Release();
     m_indirectBufferOpaque.Release();
+    m_indexBufferOpaque.Release();
 
     Diligent::BufferDesc IndirectBufferDesc;
     IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
     IndirectBufferDesc.Usage = Diligent::USAGE_DEFAULT;
     IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
-    IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * meshes.size();
+    IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsAll.size();
     IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
     Diligent::BufferData InitData;
-    InitData.pData = drawCommands.data();
-    InitData.DataSize = sizeof(DrawElementsIndirectCommand) * meshes.size();
-    contextData.device->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBufferOpaque);
+    InitData.pData = drawCommandsAll.data();
+    InitData.DataSize = IndirectBufferDesc.Size;
+    contextData.device->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBufferAll);
 
-    m_commandsBuffer.DrawCount = meshes.size();
-    m_commandsBuffer.DrawArgsOffset = 0;
-    m_commandsBuffer.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
-    m_commandsBuffer.IndexType = Diligent::VT_UINT32;
-    m_commandsBuffer.pAttribsBuffer = m_indirectBufferOpaque;
+    Diligent::BufferDesc OpaqueBufferDesc;
+    OpaqueBufferDesc.Name = "Opaque Draw Command Buffer";
+    OpaqueBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+    OpaqueBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+    OpaqueBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsOpaque.size();
+    OpaqueBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+    Diligent::BufferData InitDataOpaque;
+    InitDataOpaque.pData = drawCommandsOpaque.data();
+    InitDataOpaque.DataSize = OpaqueBufferDesc.Size;
+    contextData.device->CreateBuffer(OpaqueBufferDesc, &InitDataOpaque, &m_indirectBufferOpaque);
+
+    Diligent::BufferDesc OpaqueIndexBuffer;
+    OpaqueIndexBuffer.Name = "Index Opaque Buffer";
+    OpaqueIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
+    OpaqueIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+    OpaqueIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    OpaqueIndexBuffer.ElementByteStride = sizeof(unsigned int);
+    OpaqueIndexBuffer.Size = sizeof(unsigned int) * indexes.size();
+    Diligent::BufferData IndexDataOpaque;
+    IndexDataOpaque.pData = indexes.data();
+    IndexDataOpaque.DataSize = OpaqueIndexBuffer.Size;
+    contextData.device->CreateBuffer(OpaqueIndexBuffer, &IndexDataOpaque, &m_indexBufferOpaque);
+
+    m_commandsBufferAll.DrawCount = drawCommandsAll.size();
+    m_commandsBufferAll.DrawArgsOffset = 0;
+    m_commandsBufferAll.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
+    m_commandsBufferAll.IndexType = Diligent::VT_UINT32;
+    m_commandsBufferAll.pAttribsBuffer = m_indirectBufferAll;
+
+    m_commandsBufferOpaque.DrawCount = drawCommandsOpaque.size();
+    m_commandsBufferOpaque.DrawArgsOffset = 0;
+    m_commandsBufferOpaque.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
+    m_commandsBufferOpaque.IndexType = Diligent::VT_UINT32;
+    m_commandsBufferOpaque.pAttribsBuffer = m_indirectBufferOpaque;
 }
 
 void Prisma::MeshIndirect::updateIndirectBufferAnimation() {
@@ -258,7 +298,14 @@ void Prisma::MeshIndirect::updateModelsAnimate(int model) {
 void Prisma::MeshIndirect::renderMeshes() const {
     if (!GlobalData::getInstance().currentGlobalScene()->meshes.empty()) {
         auto& contextData = PrismaFunc::getInstance().contextData();
-        contextData.immediateContext->DrawIndexedIndirect(m_commandsBuffer);
+        contextData.immediateContext->DrawIndexedIndirect(m_commandsBufferAll);
+    }
+}
+
+void Prisma::MeshIndirect::renderMeshesOpaque() const {
+    if (!GlobalData::getInstance().currentGlobalScene()->meshes.empty()) {
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        contextData.immediateContext->DrawIndexedIndirect(m_commandsBufferOpaque);
     }
 }
 
@@ -537,7 +584,24 @@ void Prisma::MeshIndirect::createMeshBuffer() {
     IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
     IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
     IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
-    contextData.device->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBufferOpaque);
+    contextData.device->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBufferAll);
+
+    Diligent::BufferDesc OpaqueBufferDesc;
+    OpaqueBufferDesc.Name = "Opaque Draw Command Buffer";
+    OpaqueBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+    OpaqueBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+    OpaqueBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
+    OpaqueBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+    contextData.device->CreateBuffer(OpaqueBufferDesc, nullptr, &m_indirectBufferOpaque);
+
+    Diligent::BufferDesc OpaqueIndexBuffer;
+    OpaqueIndexBuffer.Name = "Index Opaque Buffer";
+    OpaqueIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
+    OpaqueIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+    OpaqueIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    OpaqueIndexBuffer.ElementByteStride = sizeof(unsigned int);
+    OpaqueIndexBuffer.Size = sizeof(unsigned int);
+    contextData.device->CreateBuffer(OpaqueIndexBuffer, nullptr, &m_indexBufferOpaque);
 }
 
 void Prisma::MeshIndirect::createMeshAnimationBuffer() {
@@ -594,9 +658,7 @@ Prisma::MeshIndirect::MaterialView& Prisma::MeshIndirect::textureViewsAnimation(
     return m_textureViewsAnimation;
 }
 
-Diligent::DrawIndexedIndirectAttribs Prisma::MeshIndirect::commandsBuffer() {
-    return m_commandsBuffer;
-}
+Diligent::DrawIndexedIndirectAttribs Prisma::MeshIndirect::commandsBuffer() { return m_commandsBufferAll; }
 
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::statusBuffer() {
     return m_statusBuffer;
@@ -605,6 +667,8 @@ Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::statusBuffer() 
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::statusBufferAnimation() {
     return m_statusBufferAnimation;
 }
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::indexBufferOpaque() { return m_indexBufferOpaque; }
 
 void Prisma::MeshIndirect::resizeModels(std::vector<Mesh::MeshData>& models) {
     m_modelBuffer.Release();
