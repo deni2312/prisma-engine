@@ -6,6 +6,9 @@
 void main()
 {
     vec4 diffuse = texture(sampler2D(diffuseTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
+    if(diffuse.a<0.1){
+        discard;
+    }
     // Sample the normal map
     //vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
     
