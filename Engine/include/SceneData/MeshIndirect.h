@@ -52,6 +52,7 @@ public:
 
     void renderMeshes() const;
     void renderMeshesOpaque() const;
+    void renderMeshesTransparent() const;
     void renderMeshesCopy() const;
     void renderAnimateMeshes() const;
 
@@ -85,6 +86,7 @@ public:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> statusBufferAnimation();
 
     Diligent::RefCntAutoPtr<Diligent::IBuffer> indexBufferOpaque();
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> indexBufferTransparent();
 
 private:
     //BINDING DATA
@@ -101,6 +103,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelBuffer;
     Diligent::DrawIndexedIndirectAttribs m_commandsBufferAll;
     Diligent::DrawIndexedIndirectAttribs m_commandsBufferOpaque;
+    Diligent::DrawIndexedIndirectAttribs m_commandsBufferTransparent;
 
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;

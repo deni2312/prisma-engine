@@ -59,6 +59,7 @@ void Prisma::MeshIndirect::updateStatusShader() const {
 void Prisma::MeshIndirect::updateIndirectBuffer() {
     std::vector<DrawElementsIndirectCommand> drawCommandsAll;
     std::vector<DrawElementsIndirectCommand> drawCommandsOpaque;
+    std::vector<DrawElementsIndirectCommand> drawCommandsTransparent;
 
     auto& contextData = PrismaFunc::getInstance().contextData();
     auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -67,6 +68,7 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
     m_currentVertex = 0;
     int index = 0;
     std::vector<unsigned int> indexes;
+    std::vector<unsigned int> indexesTransparent;
     for (const auto& mesh : meshes) {
         const auto& indices = mesh->verticesData().indices;
         const auto& vertices = mesh->verticesData().vertices;
@@ -82,6 +84,11 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
             indexes.push_back(index);
         }
 
+        if (mesh->material()->transparent()) {
+            drawCommandsTransparent.push_back(command);
+            indexesTransparent.push_back(index);
+        }
+
         drawCommandsAll.push_back(command);
         m_currentIndex = m_currentIndex + indices.size();
         m_currentVertex = m_currentVertex + vertices.size();
@@ -90,6 +97,8 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
     m_indirectBufferAll.Release();
     m_indirectBufferOpaque.Release();
     m_indexBufferOpaque.Release();
+    m_indirectBufferTransparent.Release();
+    m_indexBufferTransparent.Release();
 
     Diligent::BufferDesc IndirectBufferDesc;
     IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
@@ -125,6 +134,29 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
     IndexDataOpaque.DataSize = OpaqueIndexBuffer.Size;
     contextData.device->CreateBuffer(OpaqueIndexBuffer, &IndexDataOpaque, &m_indexBufferOpaque);
 
+    Diligent::BufferDesc TransparentBufferDesc;
+    TransparentBufferDesc.Name = "Transparent Draw Command Buffer";
+    TransparentBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+    TransparentBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+    TransparentBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsTransparent.size();
+    TransparentBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+    Diligent::BufferData InitDataTransparent;
+    InitDataTransparent.pData = drawCommandsTransparent.data();
+    InitDataTransparent.DataSize = TransparentBufferDesc.Size;
+    contextData.device->CreateBuffer(TransparentBufferDesc, &InitDataTransparent, &m_indirectBufferTransparent);
+
+    Diligent::BufferDesc TransparentIndexBuffer;
+    TransparentIndexBuffer.Name = "Index Transparent Buffer";
+    TransparentIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
+    TransparentIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+    TransparentIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    TransparentIndexBuffer.ElementByteStride = sizeof(unsigned int);
+    TransparentIndexBuffer.Size = sizeof(unsigned int) * indexesTransparent.size();
+    Diligent::BufferData IndexDataTransparent;
+    IndexDataTransparent.pData = indexesTransparent.data();
+    IndexDataTransparent.DataSize = TransparentIndexBuffer.Size;
+    contextData.device->CreateBuffer(TransparentIndexBuffer, &IndexDataTransparent, &m_indexBufferTransparent);
+
     m_commandsBufferAll.DrawCount = drawCommandsAll.size();
     m_commandsBufferAll.DrawArgsOffset = 0;
     m_commandsBufferAll.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
@@ -136,6 +168,12 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
     m_commandsBufferOpaque.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
     m_commandsBufferOpaque.IndexType = Diligent::VT_UINT32;
     m_commandsBufferOpaque.pAttribsBuffer = m_indirectBufferOpaque;
+
+    m_commandsBufferTransparent.DrawCount = drawCommandsTransparent.size();
+    m_commandsBufferTransparent.DrawArgsOffset = 0;
+    m_commandsBufferTransparent.Flags = Diligent::DRAW_FLAGS::DRAW_FLAG_VERIFY_STATES;
+    m_commandsBufferTransparent.IndexType = Diligent::VT_UINT32;
+    m_commandsBufferTransparent.pAttribsBuffer = m_indirectBufferTransparent;
 }
 
 void Prisma::MeshIndirect::updateIndirectBufferAnimation() {
@@ -306,6 +344,13 @@ void Prisma::MeshIndirect::renderMeshesOpaque() const {
     if (!GlobalData::getInstance().currentGlobalScene()->meshes.empty()) {
         auto& contextData = PrismaFunc::getInstance().contextData();
         contextData.immediateContext->DrawIndexedIndirect(m_commandsBufferOpaque);
+    }
+}
+
+void Prisma::MeshIndirect::renderMeshesTransparent() const {
+    if (!GlobalData::getInstance().currentGlobalScene()->meshes.empty()) {
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        contextData.immediateContext->DrawIndexedIndirect(m_commandsBufferTransparent);
     }
 }
 
@@ -602,6 +647,23 @@ void Prisma::MeshIndirect::createMeshBuffer() {
     OpaqueIndexBuffer.ElementByteStride = sizeof(unsigned int);
     OpaqueIndexBuffer.Size = sizeof(unsigned int);
     contextData.device->CreateBuffer(OpaqueIndexBuffer, nullptr, &m_indexBufferOpaque);
+
+    Diligent::BufferDesc TransparentBufferDesc;
+    TransparentBufferDesc.Name = "Transparent Draw Command Buffer";
+    TransparentBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+    TransparentBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+    TransparentBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
+    TransparentBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+    contextData.device->CreateBuffer(TransparentBufferDesc, nullptr, &m_indirectBufferTransparent);
+
+    Diligent::BufferDesc TransparentIndexBuffer;
+    TransparentIndexBuffer.Name = "Index Transparent Buffer";
+    TransparentIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
+    TransparentIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+    TransparentIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    TransparentIndexBuffer.ElementByteStride = sizeof(unsigned int);
+    TransparentIndexBuffer.Size = sizeof(unsigned int);
+    contextData.device->CreateBuffer(TransparentIndexBuffer, nullptr, &m_indexBufferTransparent);
 }
 
 void Prisma::MeshIndirect::createMeshAnimationBuffer() {
@@ -669,6 +731,8 @@ Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::statusBufferAni
 }
 
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::indexBufferOpaque() { return m_indexBufferOpaque; }
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::MeshIndirect::indexBufferTransparent() { return m_indexBufferTransparent; }
 
 void Prisma::MeshIndirect::resizeModels(std::vector<Mesh::MeshData>& models) {
     m_modelBuffer.Release();
