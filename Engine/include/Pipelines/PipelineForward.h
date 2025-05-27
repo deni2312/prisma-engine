@@ -42,9 +42,11 @@ private:
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbOpaque;
 
-    std::function<void()> m_updateData;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbTransparent;
+
+    std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&, Diligent::RefCntAutoPtr<Diligent::IBuffer>&)> m_updateData;
 
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoAnimation;

@@ -69,9 +69,10 @@ void Prisma::PipelineForward::render() {
     if (!meshes.empty() && PipelineSkybox::getInstance().isInit()) {
         MeshIndirect::getInstance().setupBuffers();
         // Set texture SRV in the SRB
-        contextData.immediateContext->
-                    CommitShaderResources(m_srb, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->CommitShaderResources(m_srbOpaque, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         MeshIndirect::getInstance().renderMeshesOpaque();
+        contextData.immediateContext->CommitShaderResources(m_srbTransparent, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        MeshIndirect::getInstance().renderMeshesTransparent();
     }
 
     contextData.immediateContext->SetPipelineState(m_psoAnimation);
@@ -303,44 +304,49 @@ void Prisma::PipelineForward::create() {
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerRepeatName.c_str())->Set(samplerDeviceRepeat);
 
     // Create a shader resource binding object and bind all static resources in it
-    m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
+    m_pResourceSignature->CreateShaderResourceBinding(&m_srbOpaque, true);
 
-    m_updateData = [&]()
+    m_pResourceSignature->CreateShaderResourceBinding(&m_srbTransparent, true);
+
+    m_updateData = [&](RefCntAutoPtr<IShaderResourceBinding>& srb,RefCntAutoPtr<IBuffer>& indexBuffer)
         {
             auto buffers = MeshIndirect::getInstance().modelBuffer();
             auto materials = MeshIndirect::getInstance().textureViews();
             auto status = MeshIndirect::getInstance().statusBuffer();
-            m_srb.Release();
-            m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
-            m_srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str())->SetArray(LightHandler::getInstance().omniData().data(), 0, LightHandler::getInstance().omniData().size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            m_srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str())->Set(LightHandler::getInstance().dirShadowData());
-            m_srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            m_srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            m_srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            m_srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-            m_srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_INDEX_OPAQUE.c_str())->Set(MeshIndirect::getInstance().indexBufferOpaque()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+            srb.Release();
+            m_pResourceSignature->CreateShaderResourceBinding(&srb, true);
+            srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str())->SetArray(LightHandler::getInstance().omniData().data(), 0, LightHandler::getInstance().omniData().size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str())->Set(LightHandler::getInstance().dirShadowData());
+            srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+            srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+            srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_INDEX_OPAQUE.c_str())->Set(indexBuffer->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
 
             if (status) {
-                m_srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str())->Set(status->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+                srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str())->Set(status->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
             }
             if (PipelineSkybox::getInstance().isInit()) {
-                m_srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_PREFILTER.c_str())->Set(PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-                m_srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+                srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_PREFILTER.c_str())->Set(PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+                srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
             }
         };
 
     //CreateMSAARenderTarget();
     MeshIndirect::getInstance().addResizeHandler([&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
-            m_updateData();
+            m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
+            m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
         });
     PipelineSkybox::getInstance().addUpdate([&]()
         {
-            m_updateData();
+            m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
+            m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
         });
     LightHandler::getInstance().addLightHandler([&]()
         {
-            m_updateData();
+            m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
+            m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
         });
 }
 
