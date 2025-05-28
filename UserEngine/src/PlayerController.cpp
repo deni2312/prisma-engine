@@ -253,11 +253,11 @@ void PlayerController::createCamera() {
             ball->parent()->matrix(m_basePosition);
             std::weak_ptr<Prisma::Mesh> ballCopy = ball;
             physicsComponent->collisionData({Prisma::Physics::Collider::SPHERE_COLLIDER, 1.0, true});
-            physicsComponent->onCollisionEnter([ballCopy, this](const auto& body) {
+            /* physicsComponent->onCollisionEnter([ballCopy, this](const auto& body) {
                 if (auto ballShared = ballCopy.lock()) {
                     this->m_balls.push_back(ballShared);
                 }
-            });
+            });*/
             Prisma::Physics::getInstance().bodyInterface().AddImpulse(physicsComponent->physicsId(),
                                                                       m_currentDirection * 5);
         }
