@@ -53,13 +53,12 @@ void Prisma::PipelineForward::render() {
 
     auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
     auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
-    auto opaque = m_opaqueTexture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
 
     // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(1, &opaque, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     //contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->ClearRenderTarget(opaque, value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.immediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // Set the pipeline state
@@ -96,7 +95,7 @@ void Prisma::PipelineForward::render() {
     Physics::getInstance().drawDebug();
     renderComposite();
 
-    m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
+    //m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
     PrismaFunc::getInstance().bindMainRenderTarget();
 }
 
@@ -688,7 +687,7 @@ Diligent::LayoutElement LayoutElems[] =
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "accum", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
@@ -702,7 +701,7 @@ Diligent::LayoutElement LayoutElems[] =
     };
     Diligent::ImmutableSamplerDesc ImtblSamplers[] =
     {
-        {Diligent::SHADER_TYPE_PIXEL, "screenTexture", SamLinearClampDesc}
+        {Diligent::SHADER_TYPE_PIXEL, "accum", SamLinearClampDesc}
     };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
@@ -731,7 +730,10 @@ Diligent::LayoutElement LayoutElems[] =
     GlobalData::getInstance().addGlobalTexture({m_opaqueTexture, "Opaque Texture"});
     m_blit = std::make_unique<Prisma::Blit>(m_compositeTexture);
 
-    m_psoComposite->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(m_opaqueTexture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoComposite->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "accum")->Set(m_forwardTransparent->accum()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoComposite->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "reveal")->Set(m_forwardTransparent->reveal()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+
+
     m_psoComposite->CreateShaderResourceBinding(&m_srbComposite, true);
 
 }
@@ -739,10 +741,9 @@ Diligent::LayoutElement LayoutElems[] =
 void Prisma::PipelineForward::renderComposite() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto color = m_compositeTexture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto color = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
 
     contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->ClearRenderTarget(color, value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     contextData.immediateContext->SetPipelineState(m_psoComposite);
 

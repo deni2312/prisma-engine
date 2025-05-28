@@ -242,7 +242,7 @@ void Prisma::PipelineCSM::nearPlane(float nearPlane) {
 
 void Prisma::PipelineCSM::lightDir(glm::vec3 lightDir) {
     m_lightDir = lightDir;
-    CacheScene::getInstance().updateStatus(true);
+    CacheScene::getInstance().updateLights();
 }
 
 glm::vec3 Prisma::PipelineCSM::lightDir() { return m_lightDir; }

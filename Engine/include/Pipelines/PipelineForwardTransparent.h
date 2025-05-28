@@ -17,6 +17,9 @@ class PipelineForwardTransparent {
     void render();
     ~PipelineForwardTransparent();
 
+    Diligent::RefCntAutoPtr<Diligent::ITexture> accum();
+    Diligent::RefCntAutoPtr<Diligent::ITexture> reveal();
+
    private:
     unsigned int m_width;
     unsigned int m_height;

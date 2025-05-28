@@ -72,6 +72,10 @@ void Prisma::PipelineForwardTransparent::render() {
 
 Prisma::PipelineForwardTransparent::~PipelineForwardTransparent() {}
 
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineForwardTransparent::accum() { return m_accum; }
+
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineForwardTransparent::reveal() { return m_reveal; }
+
 void Prisma::PipelineForwardTransparent::create() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
