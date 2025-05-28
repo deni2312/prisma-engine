@@ -129,7 +129,10 @@ bool Prisma::Physics::debug() {
 }
 
 void Prisma::Physics::destroy() {
+#ifdef JPH_DEBUG_RENDERER
     delete m_drawDebugger;
+#endif
+
     delete Factory::sInstance;
 }
 
