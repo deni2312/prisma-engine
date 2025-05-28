@@ -6,6 +6,8 @@
 #include "../SceneData/MeshIndirect.h"
 #include "PipelineFullScreen.h"
 #include "../Helpers/Settings.h"
+#include "../Helpers/Blit.h"
+
 #include <memory>
 #include "PipelinePrePass.h"
 #include "PipelineForwardTransparent.h"
@@ -23,7 +25,8 @@ private:
 
     void create();
     void createAnimation();
-
+    void createCompositePipeline();
+    void renderComposite();
     /*std::shared_ptr<Shader> m_shader;
     std::shared_ptr<Shader> m_shaderAnimate;
     std::shared_ptr<Shader> m_shaderTransparent;
@@ -34,16 +37,16 @@ private:
     std::shared_ptr<PipelinePrePass> m_prepass;*/
 
     Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
-    int m_SampleCount;
-    Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
-
-    Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
-
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoComposite;
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbOpaque;
+
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbComposite;
+
 
     std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&, Diligent::RefCntAutoPtr<Diligent::IBuffer>&)> m_updateData;
 
@@ -57,5 +60,11 @@ private:
     std::function<void()> m_updateDataAnimation;
 
     std::unique_ptr<Prisma::PipelineForwardTransparent> m_forwardTransparent;
+
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_compositeTexture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_opaqueTexture;
+
+    std::unique_ptr<Prisma::Blit> m_blit;
+
 };
 }

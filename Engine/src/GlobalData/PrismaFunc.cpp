@@ -221,6 +221,7 @@ void Prisma::PrismaFunc::init() {
             EngineCI.Features.PixelUAVWritesAndAtomics = DEVICE_FEATURE_STATE_ENABLED;
             EngineCI.Features.NativeMultiDraw = DEVICE_FEATURE_STATE_ENABLED;
             EngineCI.Features.WireframeFill = DEVICE_FEATURE_STATE_ENABLED;
+            EngineCI.Features.IndependentBlend = DEVICE_FEATURE_STATE_ENABLED;
 
             pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.device,
                                                   &m_contextData.immediateContext);

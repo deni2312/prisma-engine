@@ -40,16 +40,34 @@ Prisma::PipelineForwardTransparent::PipelineForwardTransparent(const unsigned in
 
 void Prisma::PipelineForwardTransparent::render() {
     auto& contextData = PrismaFunc::getInstance().contextData();
+
+    auto accum = m_accum->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+    auto reveal = m_reveal->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+    ITextureView* textures[] = {accum, reveal};
+    auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
+
+    // Clear the back buffer
+    contextData.immediateContext->SetRenderTargets(2, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.immediateContext->ClearRenderTarget(accum, value_ptr(glm::vec4(0)), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->ClearRenderTarget(reveal, value_ptr(glm::vec4(1)), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
     // Set the pipeline state
     contextData.immediateContext->SetPipelineState(m_pso);
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode
     // makes sure that resources are transitioned to required states.
     auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
     if (!meshes.empty() && PipelineSkybox::getInstance().isInit()) {
+        MeshIndirect::getInstance().setupBuffers();
         // Set texture SRV in the SRB
         contextData.immediateContext->CommitShaderResources(m_srbTransparent, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         MeshIndirect::getInstance().renderMeshesTransparent();
     }
+
+    
+    auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+    // Clear the back buffer
+    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 Prisma::PipelineForwardTransparent::~PipelineForwardTransparent() {}
@@ -67,10 +85,10 @@ void Prisma::PipelineForwardTransparent::create() {
     PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_GRAPHICS;
 
     // clang-format off
-    // This tutorial will render to a single render target
-    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
+    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 2;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = TEX_FORMAT_RGBA16_FLOAT;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[1] = PipelineHandler::getInstance().textureFormat();
     // Set depth buffer format which is the format of the swap chain's back buffer
     PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
@@ -80,6 +98,34 @@ void Prisma::PipelineForwardTransparent::create() {
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = CULL_MODE_BACK;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthWriteEnable = false;
+
+    // Enable blending
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.AlphaToCoverageEnable = false;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.IndependentBlendEnable = true;
+
+    // Configure blending for Render Target 0
+    auto& RT0 = PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0];
+    RT0.BlendEnable = true;
+    RT0.SrcBlend = BLEND_FACTOR_ONE;
+    RT0.DestBlend = BLEND_FACTOR_ONE;
+    RT0.BlendOp = BLEND_OPERATION_ADD;
+    RT0.SrcBlendAlpha = BLEND_FACTOR_ONE;
+    RT0.DestBlendAlpha = BLEND_FACTOR_ONE;
+    RT0.BlendOpAlpha = BLEND_OPERATION_ADD;
+    RT0.RenderTargetWriteMask = COLOR_MASK_ALL;
+
+    // Configure blending for Render Target 1
+    auto& RT1 = PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[1];
+    RT1.BlendEnable = true;
+    RT1.SrcBlend = BLEND_FACTOR_ZERO;
+    RT1.DestBlend = BLEND_FACTOR_INV_SRC_COLOR;
+    RT1.BlendOp = BLEND_OPERATION_ADD;
+    RT1.SrcBlendAlpha = BLEND_FACTOR_ZERO;
+    RT1.DestBlendAlpha = BLEND_FACTOR_INV_SRC_COLOR;
+    RT1.BlendOpAlpha = BLEND_OPERATION_ADD;
+    RT1.RenderTargetWriteMask = COLOR_MASK_ALL;
+
     // clang-format on
 
     ShaderCreateInfo ShaderCI;
@@ -115,7 +161,7 @@ void Prisma::PipelineForwardTransparent::create() {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "Forward Transparent PS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.glsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment_transparent.glsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
@@ -272,5 +318,31 @@ void Prisma::PipelineForwardTransparent::create() {
         {
             m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
         });
+
+    Diligent::TextureDesc RTColorDesc;
+    RTColorDesc.Name = "Offscreen render target";
+    RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
+    RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
+    RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
+    RTColorDesc.MipLevels = 1;
+    RTColorDesc.Format = PipelineHandler::getInstance().textureFormat();
+    // The render target can be bound as a shader resource and as a render target
+    RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
+    // Define optimal clear value
+    RTColorDesc.ClearValue.Format = RTColorDesc.Format;
+    RTColorDesc.ClearValue.Color[0] = 0.350f;
+    RTColorDesc.ClearValue.Color[1] = 0.350f;
+    RTColorDesc.ClearValue.Color[2] = 0.350f;
+    RTColorDesc.ClearValue.Color[3] = 1.f;
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_accum);
+
+    RTColorDesc.ClearValue.Format = RTColorDesc.Format;
+    RTColorDesc.ClearValue.Color[0] = 0.350f;
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_reveal);
+
+    GlobalData::getInstance().addGlobalTexture({m_accum, "Transparent Accumulation"});
+    GlobalData::getInstance().addGlobalTexture({m_reveal, "Transparent Reveal"});
+
+
 }
 

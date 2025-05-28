@@ -24,10 +24,8 @@ class PipelineForwardTransparent {
     void create();
 
     Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
-    int m_SampleCount;
-    Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSColorRTV;
-
-    Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pMSDepthDSV;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_accum;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_reveal;
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
