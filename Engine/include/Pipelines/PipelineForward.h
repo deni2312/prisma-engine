@@ -8,6 +8,7 @@
 #include "../Helpers/Settings.h"
 #include <memory>
 #include "PipelinePrePass.h"
+#include "PipelineForwardTransparent.h"
 
 namespace Prisma {
 class PipelineForward {
@@ -44,8 +45,6 @@ private:
 
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbOpaque;
 
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbTransparent;
-
     std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&, Diligent::RefCntAutoPtr<Diligent::IBuffer>&)> m_updateData;
 
 
@@ -56,5 +55,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbAnimation;
 
     std::function<void()> m_updateDataAnimation;
+
+    std::unique_ptr<Prisma::PipelineForwardTransparent> m_forwardTransparent;
 };
 }

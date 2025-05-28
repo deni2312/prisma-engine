@@ -71,8 +71,7 @@ void Prisma::PipelineForward::render() {
         // Set texture SRV in the SRB
         contextData.immediateContext->CommitShaderResources(m_srbOpaque, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         MeshIndirect::getInstance().renderMeshesOpaque();
-        contextData.immediateContext->CommitShaderResources(m_srbTransparent, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        MeshIndirect::getInstance().renderMeshesTransparent();
+        m_forwardTransparent->render();
     }
 
     contextData.immediateContext->SetPipelineState(m_psoAnimation);
@@ -306,8 +305,6 @@ void Prisma::PipelineForward::create() {
     // Create a shader resource binding object and bind all static resources in it
     m_pResourceSignature->CreateShaderResourceBinding(&m_srbOpaque, true);
 
-    m_pResourceSignature->CreateShaderResourceBinding(&m_srbTransparent, true);
-
     m_updateData = [&](RefCntAutoPtr<IShaderResourceBinding>& srb,RefCntAutoPtr<IBuffer>& indexBuffer)
         {
             auto buffers = MeshIndirect::getInstance().modelBuffer();
@@ -336,18 +333,17 @@ void Prisma::PipelineForward::create() {
     MeshIndirect::getInstance().addResizeHandler([&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
-            m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
         });
     PipelineSkybox::getInstance().addUpdate([&]()
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
-            m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
         });
     LightHandler::getInstance().addLightHandler([&]()
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
-            m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
         });
+
+    m_forwardTransparent=std::make_unique<Prisma::PipelineForwardTransparent>(m_width,m_height);
 }
 
 void Prisma::PipelineForward::createAnimation()
