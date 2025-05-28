@@ -47,9 +47,7 @@ private:
 
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbComposite;
 
-
     std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&, Diligent::RefCntAutoPtr<Diligent::IBuffer>&)> m_updateData;
-
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoAnimation;
 
@@ -62,9 +60,6 @@ private:
     std::unique_ptr<Prisma::PipelineForwardTransparent> m_forwardTransparent;
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_compositeTexture;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_opaqueTexture;
-
-    std::unique_ptr<Prisma::Blit> m_blit;
 
 };
 }

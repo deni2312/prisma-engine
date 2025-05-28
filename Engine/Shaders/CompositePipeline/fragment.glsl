@@ -36,7 +36,7 @@ uniform ConstantsClusters
 void main()
 {
 
-	// fragment coordination
+    // fragment coordination
 	ivec2 coords = ivec2(gl_FragCoord.xy);
 	// fragment revealage
 	float revealage = texelFetch(sampler2D(reveal,accum_sampler), coords, 0).r;

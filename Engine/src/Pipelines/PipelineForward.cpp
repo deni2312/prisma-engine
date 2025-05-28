@@ -631,8 +631,26 @@ void Prisma::PipelineForward::createCompositePipeline()
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
     // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
-    // clang-format on
+
+    // Set depth function to ALWAYS (equivalent to glDepthFunc(GL_ALWAYS))
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthFunc = COMPARISON_FUNC_ALWAYS;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthWriteEnable = false;  // Optional depending on use case
+
+    // Enable blending
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.AlphaToCoverageEnable = false;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0].BlendEnable = true;
+
+    // Set blend function to (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0].SrcBlend = BLEND_FACTOR_SRC_ALPHA;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0].DestBlend = BLEND_FACTOR_INV_SRC_ALPHA;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0].BlendOp = BLEND_OPERATION_ADD;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0].SrcBlendAlpha = BLEND_FACTOR_SRC_ALPHA;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0].DestBlendAlpha = BLEND_FACTOR_INV_SRC_ALPHA;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0].BlendOpAlpha = BLEND_OPERATION_ADD;
+
+    // Make sure render target write mask allows all channels (default is usually correct)
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0].RenderTargetWriteMask = COLOR_MASK_ALL;
 
     Diligent::ShaderCreateInfo ShaderCI;
     // Tell the system that the shader source code is in HLSL.
@@ -724,11 +742,8 @@ Diligent::LayoutElement LayoutElems[] =
     RTColorDesc.ClearValue.Color[2] = 0.350f;
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_compositeTexture);
-    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_opaqueTexture);
 
     GlobalData::getInstance().addGlobalTexture({m_compositeTexture, "Composite Texture"});
-    GlobalData::getInstance().addGlobalTexture({m_opaqueTexture, "Opaque Texture"});
-    m_blit = std::make_unique<Prisma::Blit>(m_compositeTexture);
 
     m_psoComposite->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "accum")->Set(m_forwardTransparent->accum()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoComposite->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "reveal")->Set(m_forwardTransparent->reveal()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
