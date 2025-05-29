@@ -11,7 +11,7 @@ struct Settings {
     unsigned int width = 1920;
     unsigned int height = 1080;
     bool fullscreen = false;
-    bool vsync = false;
+    int vsync = 0;
 };
 
 struct CallbackHandler {

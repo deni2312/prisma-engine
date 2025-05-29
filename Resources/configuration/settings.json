@@ -3,5 +3,5 @@
     "height": 1080,
     "name": "Default",
     "width": 1920,
-    "vsync": false
+    "vsync": 0
 }

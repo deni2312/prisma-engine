@@ -26,6 +26,7 @@
 #include "../include/Handlers/LoadingHandler.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 #include "Helpers/UpdateTLAS.h"
+#include "Helpers/FPSCounter.h"
 
 struct PrivateData {
     Prisma::Settings settings;
@@ -35,8 +36,7 @@ struct PrivateData {
     Prisma::EngineSettings::Settings engineSettings;
     std::shared_ptr<Prisma::SceneHandler> sceneHandler;
     std::shared_ptr<Prisma::UserData> userData;
-    std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
-    float fps;
+    Prisma::FPSCounter fpsCounter;
     bool debug;
     Prisma::WindowsHelper::WindowsData windowsData;
 };
@@ -68,11 +68,7 @@ Prisma::Engine::Engine() {
 
     GlobalData::getInstance().currentGlobalScene(std::make_shared<Scene>());
 
-    data->lastTime = std::chrono::high_resolution_clock::now();
-
     data->sceneParameters.srgb = true;
-
-    data->fps = 0.0f;
 
     data->debug = true;
 
@@ -83,14 +79,10 @@ bool Prisma::Engine::run() {
     initScene();
     while (!PrismaFunc::getInstance().shouldClose()) {
         if (data->camera && GlobalData::getInstance().currentGlobalScene()) {
+            data->fpsCounter.begin();
+
             PrismaFunc::getInstance().bindMainRenderTarget();
-            PrismaFunc::getInstance().clear();
-
-            auto currentTime = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<float> deltaTime = currentTime - data->lastTime;
-            data->lastTime = currentTime;
-            data->fps = 1.0f / deltaTime.count();
+            PrismaFunc::getInstance().clear();            
 
             if (!data->debug) {
                 data->userData->update();
@@ -129,6 +121,7 @@ bool Prisma::Engine::run() {
             PrismaFunc::getInstance().poll();
 
             PrismaFunc::getInstance().update();
+            data->fpsCounter.end();
         }
     }
 
@@ -182,7 +175,7 @@ void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandle
 }
 
 float Prisma::Engine::fps() const {
-    return data->fps;
+    return data->fpsCounter.getFPS();
 }
 
 void Prisma::Engine::mainCamera(const std::shared_ptr<Camera>& camera) {
