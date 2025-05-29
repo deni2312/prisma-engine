@@ -68,7 +68,7 @@ private:
 #ifdef JPH_DEBUG_RENDERER
     DrawDebugger* m_drawDebugger;
 #endif
-    bool m_debug;
+    bool m_debug=false;
     unsigned int m_indexVbo = 0;
 };
 }
