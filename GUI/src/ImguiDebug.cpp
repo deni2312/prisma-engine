@@ -203,7 +203,7 @@ void Prisma::GUI::ImguiDebug::drawGui() {
                 ImGui::Text(valueFormat, std::forward<decltype(value)>(value));
             };
             addRow("Engine Time:", "%.9f", m_timeCounterEngine.duration_seconds());
-            addRow("FPS:", "%.2f", 1.0 / m_timeCounterEngine.duration_seconds());
+            addRow("FPS:", "%.2f", Prisma::Engine::getInstance().fps());
             addRow("Meshes:", "%zu", GlobalData::getInstance().currentGlobalScene()->meshes.size());
             addRow("Animate Meshes:", "%zu", GlobalData::getInstance().currentGlobalScene()->animateMeshes.size());
             addRow("Omni Lights:", "%zu", GlobalData::getInstance().currentGlobalScene()->omniLights.size());
