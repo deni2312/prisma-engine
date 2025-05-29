@@ -79,8 +79,6 @@ bool Prisma::Engine::run() {
     initScene();
     while (!PrismaFunc::getInstance().shouldClose()) {
         if (data->camera && GlobalData::getInstance().currentGlobalScene()) {
-            data->fpsCounter.begin();
-
             PrismaFunc::getInstance().bindMainRenderTarget();
             PrismaFunc::getInstance().clear();            
 
@@ -121,7 +119,7 @@ bool Prisma::Engine::run() {
             PrismaFunc::getInstance().poll();
 
             PrismaFunc::getInstance().update();
-            data->fpsCounter.end();
+            data->fpsCounter.calculate();
         }
     }
 
@@ -155,21 +153,6 @@ Prisma::EngineSettings::Settings Prisma::Engine::engineSettings() const {
 
 void Prisma::Engine::setCallback(std::shared_ptr<CallbackHandler> callbackHandler) {
     auto& contextData = PrismaFunc::getInstance().contextData();
-
-    callbackHandler->resize = [&](int width, int height) {
-        GlobalData::getInstance().currentProjection(glm::perspective(
-            glm::radians(GlobalData::getInstance().currentGlobalScene()->camera->angle()),
-            static_cast<float>(data->settings.width) / static_cast<float>(data->
-                                                                          settings.height),
-            GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
-            GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
-    };
-    GlobalData::getInstance().currentProjection(glm::perspective(
-        glm::radians(GlobalData::getInstance().currentGlobalScene()->camera->angle()),
-        static_cast<float>(data->settings.width) / static_cast<float>(data->settings.
-                                                                            height),
-        GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
-        GlobalData::getInstance().currentGlobalScene()->camera->farPlane()));
     data->callbackHandler = callbackHandler;
     PrismaFunc::getInstance().setCallback(callbackHandler);
 }

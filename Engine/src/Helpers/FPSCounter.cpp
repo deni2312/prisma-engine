@@ -1,20 +1,16 @@
 #include "Helpers/FPSCounter.h"
+#include <iostream>
 
-// Call at the beginning of each frame
-void Prisma::FPSCounter::begin() { startTime = std::chrono::high_resolution_clock::now(); }
+Prisma::FPSCounter::FPSCounter() : m_fps(60) { 
+    m_lastTime = std::chrono::high_resolution_clock::now();
+}
 
-// Call at the end of each frame
-void Prisma::FPSCounter::end() {
-    ++frameCount;
-    auto endTime = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = endTime - lastTime;
-
-    if (elapsed.count() >= 1.0) {
-        fps = frameCount / elapsed.count();
-        frameCount = 0;
-        lastTime = endTime;
-    }
+void Prisma::FPSCounter::calculate() {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> deltaTime = currentTime - m_lastTime;
+        m_lastTime = currentTime;
+        m_fps = 1.0f / deltaTime.count();
 }
 
 // Get the current FPS
-double Prisma::FPSCounter::getFPS() const { return fps; }
+double Prisma::FPSCounter::getFPS() const { return m_fps; }

@@ -301,6 +301,12 @@ void Prisma::PrismaFunc::clear() {
 }
 
 void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHandler) {
+    auto projection =glm::perspective(glm::radians(GlobalData::getInstance().currentGlobalScene()->camera->angle()), static_cast<float>(m_settings.width) / static_cast<float>(m_settings.height), GlobalData::getInstance().currentGlobalScene()->camera->nearPlane(),
+                         GlobalData::getInstance().currentGlobalScene()->camera->farPlane());
+    callbackHandler->resize = [&](int width, int height) {
+        GlobalData::getInstance().currentProjection(projection);
+    };
+    GlobalData::getInstance().currentProjection(projection);
     privatePrisma->callback = callbackHandler;
     if (!privatePrisma->initCallback) {
         glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
