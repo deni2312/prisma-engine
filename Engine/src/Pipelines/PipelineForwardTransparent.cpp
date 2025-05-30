@@ -92,7 +92,7 @@ void Prisma::PipelineForwardTransparent::create() {
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 2;
     // Set render target format which is the format of the swap chain's color buffer
     PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[1] = PipelineHandler::getInstance().textureFormat();
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[1] = Diligent::TEX_FORMAT_R16_FLOAT;
     // Set depth buffer format which is the format of the swap chain's back buffer
     PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
@@ -340,6 +340,7 @@ void Prisma::PipelineForwardTransparent::create() {
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_accum);
 
+    RTColorDesc.Format = Diligent::TEX_FORMAT_R16_FLOAT;
     RTColorDesc.ClearValue.Format = RTColorDesc.Format;
     RTColorDesc.ClearValue.Color[0] = 0.350f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_reveal);

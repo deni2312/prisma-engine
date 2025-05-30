@@ -1,7 +1,8 @@
 #extension GL_ARB_shading_language_include : require
 
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.glsl"
-layout(location = 1) out vec4 reveal;
+
+layout(location = 1) out float reveal;
 
 
 void main()
@@ -44,6 +45,6 @@ void main()
     vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse), vec4(1.0), roughness, metallic);
     float weight = clamp(pow(min(1.0, diffuse.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragCoord.z * 0.9, 3.0), 1e-2, 3e3);
 
-    reveal = vec4(diffuse.a);
+    reveal = diffuse.a;
     FragColor = vec4(color.rgb * diffuse.a, diffuse.a) * weight;
 }
