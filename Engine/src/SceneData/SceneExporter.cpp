@@ -115,7 +115,6 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Node> node, bool loadCubemap) {
 
         if (animatedMesh) {
             auto path = animatedMesh->path();
-            
             if (!path.empty()) {
                 auto animation = std::make_shared<Prisma::Animation>(path, animatedMesh);
                 auto animator = std::make_shared<Prisma::Animator>(animation);

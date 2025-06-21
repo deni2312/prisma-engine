@@ -60,5 +60,7 @@ private:
     std::function<void()> m_loading;
 
     SceneParameters m_sceneParameters;
+
+    std::string m_path = "";
 };
 }

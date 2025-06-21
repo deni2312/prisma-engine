@@ -12,6 +12,7 @@
 
 std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene, SceneParameters sceneParameters) {
     m_sceneParameters = sceneParameters;
+    m_path = scene;
     // Extracting the directory to the last folder
     size_t lastSlash = scene.find_last_of("/");
 
@@ -396,7 +397,9 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
     currentMesh->material(currentMaterial);
 
     if (mesh->HasBones()) {
-        std::dynamic_pointer_cast<AnimatedMesh>(currentMesh)->loadAnimateModel(animeteData);
+        auto animatedMesh = std::dynamic_pointer_cast<AnimatedMesh>(currentMesh);
+        animatedMesh->loadAnimateModel(animeteData);
+        animatedMesh->path(m_path);
     } else {
         currentMesh->loadModel(data);
     }
