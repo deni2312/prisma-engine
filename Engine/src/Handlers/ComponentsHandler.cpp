@@ -1,20 +1,22 @@
 #include "Handlers/ComponentsHandler.h"
 
 void Prisma::ComponentsHandler::updateStart() {
-    for (const auto& component : m_components) {
+    for (const auto& component : m_start) {
         if (component && !component->isStart()) {
             component->start();
         }
     }
+    m_start.clear();
 }
 
 void Prisma::ComponentsHandler::updateUi() {
-    for (const auto& component : m_components) {
+    for (const auto& component : m_ui) {
         if (component && !component->isUi()) {
             component->ui();
             component->isUi(true);
         }
     }
+    m_start.clear();
 }
 
 void Prisma::ComponentsHandler::updateComponents() {
@@ -61,15 +63,29 @@ void Prisma::ComponentsHandler::updateComponents() {
 
 void Prisma::ComponentsHandler::addComponent(std::shared_ptr<Component> component) {
     m_components.push_back(component);
+    m_start.push_back(component);
+    m_ui.push_back(component);
 }
 
 void Prisma::ComponentsHandler::removeComponent(std::shared_ptr<Component> component) {
     // Find and remove the component from the vector
     auto it = std::find(m_components.begin(), m_components.end(), component);
+    auto itStart = std::find(m_start.begin(), m_start.end(), component);
+    auto itUi = std::find(m_ui.begin(), m_ui.end(), component);
 
     // Erase the removed elements (if any)
     if (it != m_components.end()) {
         m_components.erase(it);
+    }
+
+    // Erase the removed elements (if any)
+    if (itStart != m_start.end()) {
+        m_start.erase(itStart);
+    }
+
+    // Erase the removed elements (if any)
+    if (itUi != m_ui.end()) {
+        m_ui.erase(itUi);
     }
 }
 

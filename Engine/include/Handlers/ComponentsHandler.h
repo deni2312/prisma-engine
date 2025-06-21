@@ -29,6 +29,9 @@ public:
 
 private:
     std::vector<std::shared_ptr<Component>> m_components;
+    std::vector<std::shared_ptr<Component>> m_start;
+    std::vector<std::shared_ptr<Component>> m_ui;
+
     RegisterData m_registerData;
 };
 }

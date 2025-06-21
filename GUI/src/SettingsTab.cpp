@@ -48,7 +48,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
         ImGui::Text(("    STATUS: " + stringBool(CacheScene::getInstance().updateStatus())).c_str());
 
         if (ImGui::Combo("PIPELINE", &m_status.currentitem, m_status.items.data(), m_status.items.size())) {
-            switch (m_status.currentitem) {
+            switch (static_cast<EngineSettings::Pipeline>(m_status.currentitem)) {
                 case EngineSettings::Pipeline::FORWARD:
                     PipelineHandler::getInstance().forward();
                     break;
@@ -84,10 +84,11 @@ void Prisma::GUI::SettingsTab::drawSettings() {
         ImGui::Checkbox("SCREEN SPACE REFLECTIONS", &settings.ssr);
 
         ImGui::Checkbox("SCREEN SPACE AMBIENT OCCLUSION", &settings.ssao);
-
+        
         bool debugPhysics = Physics::getInstance().debug();
 
         ImGui::Checkbox("PHYSICS DEBUG", &debugPhysics);
+        Physics::getInstance().debug(debugPhysics);
 
         //
         //bool sortTransparencies = Prisma::GlobalData::getInstance().transparencies();
@@ -98,7 +99,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
 
         ImGui::SliderFloat("Scale##1", &scale, 0.1, 1);
 
-        switch (m_status.currentitem) {
+        switch (static_cast<EngineSettings::Pipeline>(m_status.currentitem)) {
             case EngineSettings::Pipeline::FORWARD:
                 break;
             case EngineSettings::Pipeline::RAYTRACING:
@@ -127,7 +128,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
                 break;
         }
 
-        switch (m_status.currentPostprocess) {
+        switch (static_cast<PostprocessingStyles::EFFECTS>(m_status.currentPostprocess)) {
             case PostprocessingStyles::EFFECTS::VOLUMETRIC:
                 auto volumetric = m_effects->volumetricRender();
                 auto volumetricData = volumetric->blurData();
@@ -144,8 +145,6 @@ void Prisma::GUI::SettingsTab::drawSettings() {
         }
 
         //Prisma::GlobalData::getInstance().transparencies(sortTransparencies);
-
-        Physics::getInstance().debug(debugPhysics);
 
         Engine::getInstance().engineSettings(settings);
 
