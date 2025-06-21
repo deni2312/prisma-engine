@@ -38,7 +38,8 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_baseData = m_animatedMesh->parent()->parent()->matrix();
     m_animations = IDLE;
     m_previousAnimations = IDLE;
-
+    auto id = m_physics->physicsId();
+    Prisma::Physics::getInstance().bodyInterface().SetFriction(id, 10);
     auto contact = [&](const Body& body) {
         m_isColliding = true;
     };
