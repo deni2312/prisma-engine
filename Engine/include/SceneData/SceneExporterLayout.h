@@ -188,6 +188,13 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         }
 
         j["faces"] = mesh->animateVerticesData()->indices;
+        auto animator = mesh->animator();
+        if (animator) {
+            j["animationPath"] = animator->animation()->path();
+        } else {
+            j["animationPath"] = "";
+        }
+        
     } else if (std::dynamic_pointer_cast<Mesh>(n)) {
         auto mesh = std::dynamic_pointer_cast<Mesh>(n);
 
@@ -729,6 +736,8 @@ void from_json(json& j, std::shared_ptr<Node> n) {
         }
 
         mesh->loadAnimateModel(verticesData);
+        std::string animationPath = j.at("animationPath");
+        mesh->path(animationPath);
     }
     if (j.contains("visible")) {
         bool visible = true;

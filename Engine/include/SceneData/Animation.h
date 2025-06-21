@@ -40,7 +40,9 @@ public:
     std::shared_ptr<std::map<std::string, BoneInfo>> boneIdMap();
     std::string name() const;
 
-    unsigned int id();
+    unsigned int id() const;
+
+    std::string path() const;
 
 private:
     aiNode* m_scene;
@@ -55,5 +57,6 @@ private:
     AssimpNodeData m_RootNode;
     std::shared_ptr<std::map<std::string, BoneInfo>> m_BoneInfoMap;
     unsigned int m_id;
+    std::string m_path = "";
 };
 }

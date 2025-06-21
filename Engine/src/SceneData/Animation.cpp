@@ -11,6 +11,7 @@ Prisma::Animation::Animation() {
 Prisma::Animation::Animation(const std::string& animationPath, std::shared_ptr<AnimatedMesh> model): m_animationPath{
     animationPath
 } {
+    m_path = animationPath;
     Assimp::Importer importer;
     m_BoneInfoMap = std::make_shared<std::map<std::string, BoneInfo>>();
     auto currentScene = importer.ReadFile(animationPath, aiProcess_Triangulate);
@@ -66,10 +67,13 @@ std::shared_ptr<std::map<std::string, Prisma::BoneInfo>> Prisma::Animation::bone
 }
 
 std::string Prisma::Animation::name() const {
-    return m_animationPath;
+    return m_animationPath; }
+
+std::string Prisma::Animation::path() const { 
+    return m_path; 
 }
 
-unsigned int Prisma::Animation::id() {
+unsigned int Prisma::Animation::id() const{
     return m_id;
 }
 

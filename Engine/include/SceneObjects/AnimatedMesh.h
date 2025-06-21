@@ -49,10 +49,15 @@ public:
 
     std::shared_ptr<Animator> animator();
 
+    std::string path() const;
+
+    void path(std::string path);
+
 private:
     std::map<std::string, Prisma::BoneInfo> m_BoneInfoMap;
     std::shared_ptr<AnimateVerticesData> m_animateVertices;
     std::shared_ptr<Animator> m_animator = nullptr;
+    std::string m_path = "";
 
     int m_BoneCounter = 0;
 };

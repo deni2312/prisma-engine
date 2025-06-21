@@ -87,9 +87,17 @@ int& Prisma::AnimatedMesh::boneInfoCounter() {
 
 void Prisma::AnimatedMesh::animator(std::shared_ptr<Animator> animator) {
     m_animator = animator;
+    m_path = m_animator->animation()->path();
     m_animator->mesh(this);
 }
 
 std::shared_ptr<Prisma::Animator> Prisma::AnimatedMesh::animator() {
-    return m_animator;
+    return m_animator; }
+
+std::string Prisma::AnimatedMesh::path() const { 
+    return m_path; 
+}
+
+void Prisma::AnimatedMesh::path(std::string path) { 
+    m_path=path; 
 }

@@ -111,6 +111,17 @@ void Prisma::Exporter::postLoad(std::shared_ptr<Node> node, bool loadCubemap) {
     std::vector<std::shared_ptr<Mesh>> meshes;
     nodeHelper.nodeIterator(node, [&](auto node, auto parent) {
         auto mesh = std::dynamic_pointer_cast<Mesh>(node);
+        auto animatedMesh = std::dynamic_pointer_cast<AnimatedMesh>(node);
+
+        if (animatedMesh) {
+            auto path = animatedMesh->path();
+            
+            if (!path.empty()) {
+                auto animation = std::make_shared<Prisma::Animation>(path, animatedMesh);
+                auto animator = std::make_shared<Prisma::Animator>(animation);
+                animatedMesh->animator(animator);
+            }
+        }
 
         if (mesh) {
             meshes.push_back(mesh);

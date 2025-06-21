@@ -17,11 +17,8 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
         m_jumpAnimation = std::make_shared<Prisma::Animation>(
             "../../../Resources/DefaultScene/animations/jump.gltf",
             m_animatedMesh);
-        m_idleAnimation = std::make_shared<Prisma::Animation>(
-            "../../../Resources/DefaultScene/animations/idle.gltf",
-            m_animatedMesh);
-        auto animator = std::make_shared<Prisma::Animator>(m_idleAnimation);
-        m_animatedMesh->animator(animator);
+        m_idleAnimation = m_animatedMesh->animator()->animation();
+            
     }
 
     m_bboxMesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "BBoxMesh"));
