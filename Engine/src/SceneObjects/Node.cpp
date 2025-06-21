@@ -239,6 +239,7 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child) {
                     std::dynamic_pointer_cast<AnimatedMesh>(child));
                 CacheScene::getInstance().updateSizes(true);
                 CacheScene::getInstance().updateSizeLights(true);
+                Prisma::AnimationHandler::getInstance().fill();
             }
         }
     } else {
