@@ -39,5 +39,7 @@ private:
     float m_farPlane = 100.0f;
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_depth;
+
+    bool m_init = false;
 };
 }

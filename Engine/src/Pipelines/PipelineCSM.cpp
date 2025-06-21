@@ -198,39 +198,41 @@ void Prisma::PipelineCSM::init() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     m_id = glGetTextureHandleARB(lightDepthMaps);
     glMakeTextureHandleResidentARB(m_id);*/
+    if (!m_init) {
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        farPlane(m_farPlane);
 
-    auto& contextData = PrismaFunc::getInstance().contextData();
-    farPlane(m_farPlane);
+        // Create window-size depth buffer
+        Diligent::TextureDesc RTDepthDesc;
+        RTDepthDesc.Type = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+        RTDepthDesc.Width = m_width;
+        RTDepthDesc.Height = m_height;
+        RTDepthDesc.MipLevels = 1;
+        RTDepthDesc.ArraySize = m_size;
+        RTDepthDesc.Name = "Offscreen depth buffer CSM";
+        RTDepthDesc.Format = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+        RTDepthDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_DEPTH_STENCIL;
+        // Define optimal clear value
+        RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
+        RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
+        RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
+        contextData.device->CreateTexture(RTDepthDesc, nullptr, &m_depth);
 
-    // Create window-size depth buffer
-    Diligent::TextureDesc RTDepthDesc;
-    RTDepthDesc.Type = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
-    RTDepthDesc.Width = m_width;
-    RTDepthDesc.Height = m_height;
-    RTDepthDesc.MipLevels = 1;
-    RTDepthDesc.ArraySize = m_size;
-    RTDepthDesc.Name = "Offscreen depth buffer CSM";
-    RTDepthDesc.Format = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
-    RTDepthDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_DEPTH_STENCIL;
-    // Define optimal clear value
-    RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
-    RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
-    RTDepthDesc.ClearValue.DepthStencil.Stencil = 0;
-    contextData.device->CreateTexture(RTDepthDesc, nullptr, &m_depth);
-
-    // Create render target views for each face
-    for (int i = 0; i < m_size; ++i) {
-        Diligent::TextureViewDesc DepthDesc;
-        DepthDesc.ViewType = Diligent::TEXTURE_VIEW_DEPTH_STENCIL;
-        DepthDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D;
-        DepthDesc.MostDetailedMip = 0;
-        DepthDesc.NumMipLevels = 1;
-        DepthDesc.FirstArraySlice = i; // Select the specific face
-        DepthDesc.NumArraySlices = 1;
-        Diligent::RefCntAutoPtr<Diligent::ITextureView> depth;
-        m_depth->CreateView(DepthDesc, &depth);
-        Diligent::RefCntAutoPtr<Diligent::ITextureView> color;
+        // Create render target views for each face
+        for (int i = 0; i < m_size; ++i) {
+            Diligent::TextureViewDesc DepthDesc;
+            DepthDesc.ViewType = Diligent::TEXTURE_VIEW_DEPTH_STENCIL;
+            DepthDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D;
+            DepthDesc.MostDetailedMip = 0;
+            DepthDesc.NumMipLevels = 1;
+            DepthDesc.FirstArraySlice = i;  // Select the specific face
+            DepthDesc.NumArraySlices = 1;
+            Diligent::RefCntAutoPtr<Diligent::ITextureView> depth;
+            m_depth->CreateView(DepthDesc, &depth);
+            Diligent::RefCntAutoPtr<Diligent::ITextureView> color;
+        }
     }
+    m_init = true;
 }
 
 float Prisma::PipelineCSM::nearPlane() { return m_nearPlane; }

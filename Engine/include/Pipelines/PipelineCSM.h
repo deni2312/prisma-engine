@@ -64,5 +64,6 @@ private:
     CSMHandler::CSMShadow m_lightMatrices;
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_depth;
+
 };
 }
