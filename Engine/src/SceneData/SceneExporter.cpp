@@ -24,7 +24,7 @@ std::mutex textureMutex;
 void processMeshChunk(std::vector<std::shared_ptr<Mesh>>::iterator start,
                       std::vector<std::shared_ptr<Mesh>>::iterator end,
                       std::unordered_map<std::string, Texture>& texturesLoaded) {
-    auto processTexture = [&](std::vector<Texture>& textureList, Texture defaultTexture, bool srgb) {
+    auto processTexture = [&](std::vector<Texture>& textureList, Texture defaultTexture) {
         if (!textureList.empty() && !textureList[0].name().empty()) {
             std::string textureName = textureList[0].name();
 
@@ -35,7 +35,7 @@ void processMeshChunk(std::vector<std::shared_ptr<Mesh>>::iterator start,
             if (notFind) {
                 Texture texture;
                 texture.name(textureName);
-                if (!texture.loadTexture({textureName, srgb, Define::DEFAULT_MIPS, true, false})) {
+                if (!texture.loadTexture({textureName, textureList[0].parameters().srgb, Define::DEFAULT_MIPS, true, false})) {
                     texture = defaultTexture;
                 }
                 textureMutex.lock();
@@ -53,11 +53,11 @@ void processMeshChunk(std::vector<std::shared_ptr<Mesh>>::iterator start,
         std::shared_ptr<Mesh> mesh = *it;
         auto mat = mesh->material();
 
-        processTexture(mat->diffuse(), GlobalData::getInstance().defaultBlack(), true);
-        processTexture(mat->normal(), GlobalData::getInstance().defaultNormal(), false);
-        processTexture(mat->roughnessMetalness(), GlobalData::getInstance().defaultRoughness(), false);
-        processTexture(mat->specular(), GlobalData::getInstance().defaultWhite(), false);
-        processTexture(mat->ambientOcclusion(), GlobalData::getInstance().defaultWhite(), false);
+        processTexture(mat->diffuse(), GlobalData::getInstance().defaultBlack());
+        processTexture(mat->normal(), GlobalData::getInstance().defaultNormal());
+        processTexture(mat->roughnessMetalness(), GlobalData::getInstance().defaultRoughness());
+        processTexture(mat->specular(), GlobalData::getInstance().defaultWhite());
+        processTexture(mat->ambientOcclusion(), GlobalData::getInstance().defaultWhite());
     }
 }
 }

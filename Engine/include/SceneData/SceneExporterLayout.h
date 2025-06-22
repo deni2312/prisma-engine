@@ -56,7 +56,7 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         {"c", n->children()}
     };
     j["type"] = "NODE";
-    std::vector<std::pair<std::string, std::string>> textures;
+    std::vector<std::tuple<std::string, std::string,bool>> textures;
     if (std::dynamic_pointer_cast<AnimatedMesh>(n)) {
         auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
 
@@ -64,9 +64,9 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->diffuse().size() > 0) {
             std::string textureName = mesh->material()->diffuse()[0].name();
             if (textureName == "") {
-                textures.push_back({"DIFFUSE", "NO_TEXTURE"});
+                textures.push_back({"DIFFUSE", "NO_TEXTURE", true});
             } else {
-                textures.push_back({"DIFFUSE", WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"DIFFUSE", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->diffuse()[0].parameters().srgb});
             }
         }
 
@@ -74,9 +74,9 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->normal().size() > 0) {
             std::string textureName = mesh->material()->normal()[0].name();
             if (textureName == "") {
-                textures.push_back({"NORMAL", "NO_TEXTURE"});
+                textures.push_back({"NORMAL", "NO_TEXTURE",false});
             } else {
-                textures.push_back({"NORMAL", WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"NORMAL", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->normal()[0].parameters().srgb});
             }
         }
 
@@ -84,29 +84,26 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->roughnessMetalness().size() > 0) {
             std::string textureName = mesh->material()->roughnessMetalness()[0].name();
             if (textureName == "") {
-                textures.push_back({"ROUGHNESS", "NO_TEXTURE"});
+                textures.push_back({"ROUGHNESS", "NO_TEXTURE",false});
             } else {
-                textures.push_back(
-                    {"ROUGHNESS", WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"ROUGHNESS", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->roughnessMetalness()[0].parameters().srgb});
             }
         }
 
         if (mesh->material()->specular().size() > 0) {
             std::string textureName = mesh->material()->specular()[0].name();
             if (textureName == "") {
-                textures.push_back({"SPECULAR", "NO_TEXTURE"});
+                textures.push_back({"SPECULAR", "NO_TEXTURE",false});
             } else {
-                textures.push_back(
-                    {"SPECULAR", WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"SPECULAR", WindowsHelper::getInstance().relativePath(textureName),mesh->material()->specular()[0].parameters().srgb});
             }
         }
         if (mesh->material()->ambientOcclusion().size() > 0) {
             std::string textureName = mesh->material()->ambientOcclusion()[0].name();
             if (textureName == "") {
-                textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
+                textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE",false});
             } else {
-                textures.push_back({"AMBIENT_OCCLUSION",
-                                    WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"AMBIENT_OCCLUSION", WindowsHelper::getInstance().relativePath(textureName),mesh->material()->ambientOcclusion()[0].parameters().srgb});
             }
         }
 
@@ -198,13 +195,13 @@ void to_json(json& j, std::shared_ptr<Node> n) {
     } else if (std::dynamic_pointer_cast<Mesh>(n)) {
         auto mesh = std::dynamic_pointer_cast<Mesh>(n);
 
-        // Add the diffuse texture property
+                // Add the diffuse texture property
         if (mesh->material()->diffuse().size() > 0) {
             std::string textureName = mesh->material()->diffuse()[0].name();
             if (textureName == "") {
-                textures.push_back({"DIFFUSE", "NO_TEXTURE"});
+                textures.push_back({"DIFFUSE", "NO_TEXTURE", true});
             } else {
-                textures.push_back({"DIFFUSE", WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"DIFFUSE", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->diffuse()[0].parameters().srgb});
             }
         }
 
@@ -212,9 +209,9 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->normal().size() > 0) {
             std::string textureName = mesh->material()->normal()[0].name();
             if (textureName == "") {
-                textures.push_back({"NORMAL", "NO_TEXTURE"});
+                textures.push_back({"NORMAL", "NO_TEXTURE", false});
             } else {
-                textures.push_back({"NORMAL", WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"NORMAL", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->normal()[0].parameters().srgb});
             }
         }
 
@@ -222,29 +219,26 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->roughnessMetalness().size() > 0) {
             std::string textureName = mesh->material()->roughnessMetalness()[0].name();
             if (textureName == "") {
-                textures.push_back({"ROUGHNESS", "NO_TEXTURE"});
+                textures.push_back({"ROUGHNESS", "NO_TEXTURE", false});
             } else {
-                textures.push_back(
-                    {"ROUGHNESS", WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"ROUGHNESS", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->roughnessMetalness()[0].parameters().srgb});
             }
         }
 
         if (mesh->material()->specular().size() > 0) {
             std::string textureName = mesh->material()->specular()[0].name();
             if (textureName == "") {
-                textures.push_back({"SPECULAR", "NO_TEXTURE"});
+                textures.push_back({"SPECULAR", "NO_TEXTURE", false});
             } else {
-                textures.push_back(
-                    {"SPECULAR", WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"SPECULAR", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->specular()[0].parameters().srgb});
             }
         }
         if (mesh->material()->ambientOcclusion().size() > 0) {
             std::string textureName = mesh->material()->ambientOcclusion()[0].name();
             if (textureName == "") {
-                textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE"});
+                textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE", false});
             } else {
-                textures.push_back({"AMBIENT_OCCLUSION",
-                                    WindowsHelper::getInstance().relativePath(textureName)});
+                textures.push_back({"AMBIENT_OCCLUSION", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->ambientOcclusion()[0].parameters().srgb});
             }
         }
 
@@ -371,73 +365,70 @@ void from_json(json& j, std::shared_ptr<Node> n) {
         auto mesh = std::dynamic_pointer_cast<Mesh>(n);
         // Deserialize textures
         if (j.contains("textures")) {
-            auto texturesJson = j.at("textures").get<std::vector<std::pair<std::string, std::string>>>();
+            auto texturesJson = j.at("textures").get<std::vector<std::tuple<std::string, std::string,bool>>>();
             auto material = std::make_shared<MaterialComponent>();
             for (const auto& t : texturesJson) {
-                if (t.first == "DIFFUSE") {
+                std::string type = std::get<0>(t);
+                std::string name = std::get<1>(t);
+                bool srgb = std::get<2>(t);
+
+                if (type == "DIFFUSE") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultBlack());
-                        Logger::getInstance().log(LogLevel::WARN,
-                                                  "No diffuse texture " + mesh->name());
                     } else {
-                        texture.name(t.second);
-                        //texture.loadTexture({t.second, true});
+                        texture.name(name);
+                        // texture.loadTexture({t.second, true});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->diffuse(textures);
-                } else if (t.first == "NORMAL") {
+                } else if (type == "NORMAL") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultNormal());
-                        Logger::getInstance().log(LogLevel::WARN,
-                                                  "No normal texture " + mesh->name());
                     } else {
-                        texture.name(t.second);
-                        //texture.loadTexture({t.second});
+                        texture.name(name);
+                        // texture.loadTexture({t.second});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->normal(textures);
-                } else if (t.first == "ROUGHNESS") {
+                } else if (type == "ROUGHNESS") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultRoughness());
-                        Logger::getInstance().log(LogLevel::WARN,
-                                                  "No roughness or metalness texture " + mesh->
-                                                  name());
                     } else {
-                        texture.name(t.second);
-                        //texture.loadTexture({t.second});
+                        texture.name(name);
+                        // texture.loadTexture({t.second});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->roughnessMetalness(textures);
-                } else if (t.first == "SPECULAR") {
+                } else if (type == "SPECULAR") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultWhite());
-                        Logger::getInstance().log(LogLevel::WARN,
-                                                  "No specular texture " + mesh->name());
                     } else {
-                        texture.name(t.second);
-                        //texture.loadTexture({t.second});
+                        texture.name(name);
+                        // texture.loadTexture({t.second});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->specular(textures);
-                } else if (t.first == "AMBIENT_OCCLUSION") {
+                } else if (type == "AMBIENT_OCCLUSION") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultWhite());
-                        Logger::getInstance().log(LogLevel::WARN,
-                                                  "No ambient occlusion texture " + mesh->
-                                                  name());
                     } else {
-                        texture.name(t.second);
-                        //texture.loadTexture({t.second});
+                        texture.name(name);
+                        // texture.loadTexture({t.second});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->ambientOcclusion(textures);
@@ -590,61 +581,70 @@ void from_json(json& j, std::shared_ptr<Node> n) {
         auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
         // Deserialize textures
         if (j.contains("textures")) {
-            auto texturesJson = j.at("textures").get<std::vector<std::pair<std::string, std::string>>>();
+            auto texturesJson = j.at("textures").get<std::vector<std::tuple<std::string, std::string,bool>>>();
             auto material = std::make_shared<MaterialComponent>();
             for (const auto& t : texturesJson) {
-                if (t.first == "DIFFUSE") {
+                std::string type = std::get<0>(t);
+                std::string name = std::get<1>(t);
+                bool srgb = std::get<2>(t);
+
+                if (type == "DIFFUSE") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultBlack());
                     } else {
-                        texture.name(t.second);
+                        texture.name(name);
                         //texture.loadTexture({t.second, true});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->diffuse(textures);
-                } else if (t.first == "NORMAL") {
+                } else if (type == "NORMAL") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultNormal());
                     } else {
-                        texture.name(t.second);
+                        texture.name(name);
                         //texture.loadTexture({t.second});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->normal(textures);
-                } else if (t.first == "ROUGHNESS") {
+                } else if (type == "ROUGHNESS") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultRoughness());
                     } else {
-                        texture.name(t.second);
+                        texture.name(name);
                         //texture.loadTexture({t.second});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->roughnessMetalness(textures);
-                } else if (t.first == "SPECULAR") {
+                } else if (type == "SPECULAR") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultWhite());
                     } else {
-                        texture.name(t.second);
+                        texture.name(name);
                         //texture.loadTexture({t.second});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->specular(textures);
-                } else if (t.first == "AMBIENT_OCCLUSION") {
+                } else if (type == "AMBIENT_OCCLUSION") {
                     std::vector<Texture> textures;
                     Texture texture;
-                    if (t.second == "NO_TEXTURE") {
+                    if (name == "NO_TEXTURE") {
                         textures.push_back(GlobalData::getInstance().defaultWhite());
                     } else {
-                        texture.name(t.second);
+                        texture.name(name);
                         //texture.loadTexture({t.second});
+                        texture.parameters({name, srgb});
                         textures.push_back(texture);
                     }
                     material->ambientOcclusion(textures);

@@ -140,8 +140,9 @@ void Prisma::Texture::freeData() {
 }
 
 Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::Texture::texture() {
-    return m_texture;
-}
+    return m_texture; }
+
+void Prisma::Texture::parameters(const Parameters& parameters) { m_parameters = parameters; }
 
 const Prisma::Texture::Parameters Prisma::Texture::parameters() const {
     return m_parameters;

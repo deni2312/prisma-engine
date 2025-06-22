@@ -47,6 +47,8 @@ public:
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> texture();
 
+    void parameters(const Parameters& parameters);
+    
     const Parameters parameters() const;
 
 private:
