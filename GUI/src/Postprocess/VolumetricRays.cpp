@@ -146,7 +146,6 @@ void Prisma::GUI::VolumetricRays::createShaderVolumetric() {
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_textureVolumetric);
 
-    GlobalData::getInstance().addGlobalTexture({m_textureNoise, "Blue Noise"});
     m_psoVolumetric->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoVolumetric->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_DIR_DATA.c_str())->Set(LightHandler::getInstance().dirLights()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     m_psoVolumetric->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(LightHandler::getInstance().lightSizes());
