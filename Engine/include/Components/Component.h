@@ -54,9 +54,9 @@ public:
 
     //virtual void updateRender(std::shared_ptr<FBO> fbo = nullptr);
 
-    //virtual void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
+    virtual void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
 
-    //virtual void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
+    virtual void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
 
     virtual void onParent(std::shared_ptr<Node> parent);
 

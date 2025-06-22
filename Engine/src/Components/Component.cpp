@@ -11,8 +11,11 @@ void Prisma::Component::start() {
     m_start = true;
 }
 
-void Prisma::Component::update() {
-}
+void Prisma::Component::update() {}
+
+void Prisma::Component::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
+
+void Prisma::Component::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
 
 //void Prisma::Component::updateRender(std::shared_ptr<FBO> fbo)
 //{

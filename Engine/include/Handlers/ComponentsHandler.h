@@ -2,6 +2,7 @@
 
 #include "../GlobalData/GlobalData.h"
 #include "../Components/Component.h"
+#include "../Components/RenderComponent.h"
 #include "../GlobalData/InstanceData.h"
 #include "../Components/RegisterCreator.h"
 
@@ -17,9 +18,9 @@ public:
 
     //void updateRender(std::shared_ptr<FBO> fbo = nullptr);
 
-    //void updatePreRender(std::shared_ptr<FBO> fbo = nullptr);
+    void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
 
-    //void updatePostRender(std::shared_ptr<FBO> fbo = nullptr);
+    void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
 
     void addComponent(std::shared_ptr<Component> component);
 
@@ -31,7 +32,7 @@ private:
     std::vector<std::shared_ptr<Component>> m_components;
     std::vector<std::shared_ptr<Component>> m_start;
     std::vector<std::shared_ptr<Component>> m_ui;
-
+    std::vector<std::shared_ptr<RenderComponent>> m_renderComponents;
     RegisterData m_registerData;
 };
 }

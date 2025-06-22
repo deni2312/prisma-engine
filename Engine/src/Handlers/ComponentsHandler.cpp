@@ -27,6 +27,22 @@ void Prisma::ComponentsHandler::updateComponents() {
     }
 }
 
+void Prisma::ComponentsHandler::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
+    for (const auto& component : m_renderComponents) {
+        if (component && component->isStart()) {
+            component->updatePreRender(texture, depth);
+        }
+    }
+}
+
+void Prisma::ComponentsHandler::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
+    for (const auto& component : m_renderComponents) {
+        if (component && component->isStart()) {
+            component->updatePostRender(texture, depth);
+        }
+    }
+}
+
 //
 //void Prisma::ComponentsHandler::updateRender(std::shared_ptr<FBO> fbo)
 //{
@@ -65,6 +81,10 @@ void Prisma::ComponentsHandler::addComponent(std::shared_ptr<Component> componen
     m_components.push_back(component);
     m_start.push_back(component);
     m_ui.push_back(component);
+    auto renderComponent = std::dynamic_pointer_cast<RenderComponent>(component);
+    if (renderComponent) {
+        m_renderComponents.push_back(renderComponent);
+    }
 }
 
 void Prisma::ComponentsHandler::removeComponent(std::shared_ptr<Component> component) {
@@ -72,6 +92,7 @@ void Prisma::ComponentsHandler::removeComponent(std::shared_ptr<Component> compo
     auto it = std::find(m_components.begin(), m_components.end(), component);
     auto itStart = std::find(m_start.begin(), m_start.end(), component);
     auto itUi = std::find(m_ui.begin(), m_ui.end(), component);
+    auto renderComponent = std::dynamic_pointer_cast<RenderComponent>(component);
 
     // Erase the removed elements (if any)
     if (it != m_components.end()) {
@@ -86,6 +107,14 @@ void Prisma::ComponentsHandler::removeComponent(std::shared_ptr<Component> compo
     // Erase the removed elements (if any)
     if (itUi != m_ui.end()) {
         m_ui.erase(itUi);
+    }
+
+    if (renderComponent) {
+        auto itRender = std::find(m_renderComponents.begin(), m_renderComponents.end(), renderComponent);
+        // Erase the removed elements (if any)
+        if (itRender != m_renderComponents.end()) {
+            m_renderComponents.erase(itRender);
+        }
     }
 }
 
