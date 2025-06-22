@@ -72,7 +72,9 @@ float getDensity(vec3 worldPos) {
 
 // === Reconstruct world position from screen UV and depth ===
 vec3 reconstructWorldPos(vec2 uv, float depth) {
-    vec4 ndc = vec4(uv * 2.0 - 1.0, depth, 1.0);
+    vec2 newUvs=vec2(uv.x,1-uv.y);
+
+    vec4 ndc = vec4(newUvs * 2.0 - 1.0, depth, 1.0);
     vec4 clip = inverse(projection) * ndc;
     vec4 view = inverse(view) * (clip / clip.w);
     return view.xyz;
