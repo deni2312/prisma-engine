@@ -136,7 +136,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
                 ImGui::ColorEdit4("Fog Color", glm::value_ptr(volumetricSettings.fogColor));
                 ImGui::SliderFloat("Max Distance", &volumetricSettings.maxDistance.r, 1.0f, 500.0f);
                 ImGui::SliderFloat("Step Size", &volumetricSettings.stepSize.r, 0.1f, 20.0f);
-                ImGui::SliderFloat("Density Multiplier", &volumetricSettings.densityMultiplier.r, 0.0f, 10.0f);
+                ImGui::SliderFloat("Density Multiplier", &volumetricSettings.densityMultiplier.r, 0.0f, 1.0f);
                 ImGui::SliderFloat("Noise Offset", &volumetricSettings.noiseOffset.r, 0.0f, 10.0f);
                 ImGui::SliderFloat("Density Threshold", &volumetricSettings.densityThreshold.r, 0.0f, 1.0f);
                 ImGui::SliderFloat("Noise Tiling", &volumetricSettings.noiseTiling.r, 0.1f, 10.0f);

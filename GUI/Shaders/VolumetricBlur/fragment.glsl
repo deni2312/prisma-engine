@@ -92,29 +92,39 @@ void main() {
 
     float distLimit = min(viewLength, maxDistance.r);
     
-    // Simple hash noise based offset
+    // Randomize starting distance a bit to reduce banding
     float hash = fract(sin(dot(TexCoords, vec2(12.9898, 78.233))) * 43758.5453);
     float distTravelled = hash * noiseOffset.r;
 
     float transmittance = 1.0;
-    vec3 fogAccum = fogColor.rgb;
+    vec3 fogAccum = vec3(0.0); // Start empty, accumulate only scattering
 
-    while (distTravelled < distLimit) {
+    for (; distTravelled < distLimit; distTravelled += stepSize.r) {
         vec3 rayPos = camPos + rayDir * distTravelled;
         float density = getDensity(rayPos);
 
         if (density > 0.0 && dirSize > 0) {
-            vec3 lightDir = normalize(-dirData_data[0].direction.xyz); // World-space
+            vec3 lightDir = normalize(-dirData_data[0].direction.xyz); // World-space light dir
             vec3 lightCol = dirData_data[0].diffuse.rgb;
             float phase = henyeyGreenstein(dot(rayDir, lightDir), lightScattering.r);
-            float shadow = 1.0; // Shadowing would be integrated here
-            fogAccum += lightCol * lightContribution.rgb * phase * density * shadow * stepSize.r;
+            float shadow = 1.0; // TODO: add shadowing here
+            
+            // Scattered light at this step
+            vec3 scatteredLight = lightCol * lightContribution.rgb * phase * density * shadow * stepSize.r;
+            
+            // Accumulate scattered light attenuated by current transmittance
+            fogAccum += transmittance * scatteredLight;
+            
+            // Update transmittance for next step
             transmittance *= exp(-density * stepSize.r);
         }
-
-        distTravelled += stepSize.r;
     }
 
-    vec3 finalColor = mix(col, fogAccum, 1.0 - clamp(transmittance, 0.0, 1.0));
-    FragColor = vec4(finalColor,1);
+    // Add fog color weighted by fog density and inverse transmittance
+    // You can scale fogColor by some fog intensity if needed
+    vec3 finalFog = fogAccum + fogColor.rgb * (1.0 - transmittance);
+
+    // Mix original scene color with fog
+    vec3 finalColor = mix(col, finalFog, 1.0 - transmittance);
+    FragColor = vec4(finalColor, 1.0);
 }
