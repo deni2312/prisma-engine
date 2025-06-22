@@ -5,4 +5,4 @@ add_library(PrismaGUI STATIC "include/ImGuiDebug.h" "src/ImGuiDebug.cpp" "includ
 find_package(glm CONFIG REQUIRED)
 target_include_directories(PrismaGUI PUBLIC "../Engine/include/" "include/")
 
-target_link_libraries(PrismaGUI PRIVATE PrismaEngineDll Diligent-Imgui glm::glm)
+target_link_libraries(PrismaGUI PRIVATE PrismaEngineDll Diligent-Imgui glm::glm Diligent-TextureLoader)

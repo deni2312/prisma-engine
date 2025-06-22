@@ -5,6 +5,8 @@ layout(location = 0) out vec4 FragColor;
 layout(location = 0) in vec2 TexCoords;
 
 uniform texture2D screenTexture;
+uniform texture2D depthTexture;
+uniform texture2D noiseTexture;
 uniform sampler screenTexture_sampler;
 
 struct DirectionalData
@@ -36,49 +38,81 @@ uniform ViewProjection
     vec4 viewPos;
 };
 
-uniform BlurData{
-    float exposure;
-    float decay;
-    float density;
-    float weight;
-    ivec4 numSamples;
+// === Volumetric Fog Uniforms ===
+uniform FogSettings {
+    vec4 fogColor;
+
+    vec4 maxDistance;
+    vec4 stepSize;
+    vec4 densityMultiplier;
+    vec4 noiseOffset;
+
+    vec4 densityThreshold;
+    vec4 noiseTiling;
+
+    vec4 lightContribution;
+    vec4 lightScattering;
 };
 
-void main()
-{
-    if(dirSize>0){
-        vec3 lightDir = -normalize(dirData_data[0].direction.xyz); // World-space direction
+const float PI = 3.14159265359;
 
-        vec3 eyePos = viewPos.rgb; // The camera is at the origin in view space
-        vec2 coord = TexCoords;
-        float illuminationDecay = 1.0;
+// === Henyey-Greenstein phase function ===
+float henyeyGreenstein(float angle, float g) {
+    return (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * angle, 1.5));
+}
 
-        vec3 color = vec3(0.0);
-        vec3 sunWorldPos = eyePos + lightDir * 100.0; // Arbitrary distant point along the light direction
+// === Get volumetric density from noise ===
+float getDensity(vec3 worldPos) {
+    // Project world position onto XZ plane (you can also use XY or YZ)
+    vec2 uv = worldPos.xz * 0.01 * noiseTiling.r;
+    vec4 noise = texture(sampler2D(noiseTexture, screenTexture_sampler), uv);
+    float d = dot(noise.rgb, noise.rgb);
+    return max((d - densityThreshold.r), 0.0) * densityMultiplier.r;
+}
 
-        // Project into clip space
-        vec4 sunClipPos = projection * view * vec4(sunWorldPos, 1.0);
+// === Reconstruct world position from screen UV and depth ===
+vec3 reconstructWorldPos(vec2 uv, float depth) {
+    vec4 ndc = vec4(uv * 2.0 - 1.0, depth, 1.0);
+    vec4 clip = inverse(projection) * ndc;
+    vec4 view = inverse(view) * (clip / clip.w);
+    return view.xyz;
+}
 
-        // Perspective divide to get NDC
-        vec3 sunNDC = sunClipPos.xyz / sunClipPos.w;
+void main() {
+    vec3 col = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords).rgb;
+    float depthVal = texture(sampler2D(depthTexture, screenTexture_sampler), TexCoords).r;
 
-        // Convert to screen space [0,1]
-        vec2 lightScreenPos = sunNDC.xy * 0.5 + 0.5;
-        vec2 deltaTexCoord = TexCoords - lightScreenPos;
-        deltaTexCoord *= 1.0 / float(numSamples.r) * density;
-        for(int i = 0; i < numSamples.r; ++i)
-        {
-            coord -= deltaTexCoord;
-            vec3 occlusionTexture = texture(sampler2D(screenTexture,screenTexture_sampler), coord).rgb;
-            occlusionTexture *= illuminationDecay * weight;
+    vec3 worldPos = reconstructWorldPos(TexCoords, depthVal);
+    vec3 camPos = viewPos.xyz;
+    vec3 viewDir = worldPos - camPos;
+    float viewLength = length(viewDir);
+    vec3 rayDir = normalize(viewDir);
 
-            color += occlusionTexture;
+    float distLimit = min(viewLength, maxDistance.r);
+    
+    // Simple hash noise based offset
+    float hash = fract(sin(dot(TexCoords, vec2(12.9898, 78.233))) * 43758.5453);
+    float distTravelled = hash * noiseOffset.r;
 
-            illuminationDecay *= decay;
+    float transmittance = 1.0;
+    vec3 fogAccum = fogColor.rgb;
+
+    while (distTravelled < distLimit) {
+        vec3 rayPos = camPos + rayDir * distTravelled;
+        float density = getDensity(rayPos);
+
+        if (density > 0.0 && dirSize > 0) {
+            vec3 lightDir = normalize(-dirData_data[0].direction.xyz); // World-space
+            vec3 lightCol = dirData_data[0].diffuse.rgb;
+            float phase = henyeyGreenstein(dot(rayDir, lightDir), lightScattering.r);
+            float shadow = 1.0; // Shadowing would be integrated here
+            fogAccum += lightCol * lightContribution.rgb * phase * density * shadow * stepSize.r;
+            transmittance *= exp(-density * stepSize.r);
         }
 
-        FragColor = vec4(color * exposure, 1.0);
-    }else{
-        FragColor=vec4(0.0);
+        distTravelled += stepSize.r;
     }
+
+    vec3 finalColor = mix(col, fogAccum, 1.0 - clamp(transmittance, 0.0, 1.0));
+    FragColor = vec4(worldPos, finalColor.r);
 }

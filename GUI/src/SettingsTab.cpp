@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "../include/SettingsTab.h"
 #include "GlobalData/PrismaFunc.h"
 #include "GlobalData/CacheScene.h"
@@ -132,14 +133,15 @@ void Prisma::GUI::SettingsTab::drawSettings() {
             case PostprocessingStyles::EFFECTS::VOLUMETRIC:
                 auto volumetric = m_effects->volumetricRender();
                 auto volumetricData = volumetric->blurData();
-                int samples = volumetricData.numSamples.r;
-                ImGui::SliderFloat("Volumetric Density", &volumetricData.density, 0.0f, 1.0f);
-                ImGui::SliderFloat("Volumetric Decay", &volumetricData.decay, 0.0f, 1.0f);
-                ImGui::SliderFloat("Volumetric Exposure", &volumetricData.exposure, 0.0f, 1.0f);
-                ImGui::SliderFloat("Volumetric Weight", &volumetricData.weight, 0.0f, 1.0f);
-                ImGui::SliderInt("Volumetric Samples", &samples, 0.0f, 1000.0f);
-                auto samplesData = glm::ivec4(samples);
-                volumetricData.numSamples = samplesData;
+                ImGui::ColorEdit4("Fog Color", glm::value_ptr(volumetricData.fogColor));
+                ImGui::SliderFloat("Max Distance", &volumetricData.maxDistance.r, 1.0f, 500.0f);
+                ImGui::SliderFloat("Step Size", &volumetricData.stepSize.r, 0.1f, 20.0f);
+                ImGui::SliderFloat("Density Multiplier", &volumetricData.densityMultiplier.r, 0.0f, 10.0f);
+                ImGui::SliderFloat("Noise Offset", &volumetricData.noiseOffset.r, 0.0f, 10.0f);
+                ImGui::SliderFloat("Density Threshold", &volumetricData.densityThreshold.r, 0.0f, 1.0f);
+                ImGui::SliderFloat("Noise Tiling", &volumetricData.noiseTiling.r, 0.1f, 10.0f);
+                ImGui::ColorEdit4("Light Contribution", glm::value_ptr(volumetricData.lightContribution));
+                ImGui::SliderFloat("Light Scattering", &volumetricData.lightScattering.r, 0.0f, 1.0f);
                 volumetric->blurData(volumetricData);
                 break;
         }

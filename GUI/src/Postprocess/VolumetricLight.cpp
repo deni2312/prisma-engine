@@ -7,6 +7,8 @@
 #include "Handlers/LightHandler.h"
 #include "Helpers/PrismaRender.h"
 #include "Pipelines/PipelineHandler.h"
+#include "TextureLoader/interface/TextureLoader.h"
+#include "TextureLoader/interface/TextureUtilities.h"
 
 
 Prisma::GUI::VolumetricLight::VolumetricLight() {
@@ -138,7 +140,7 @@ void Prisma::GUI::VolumetricLight::createShaderRender() {
     Diligent::TextureDesc RTDepthDesc = RTColorDesc;
     RTDepthDesc.Name = "Offscreen depth buffer MAIN";
     RTDepthDesc.Format = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
-    RTDepthDesc.BindFlags = Diligent::BIND_DEPTH_STENCIL;
+    RTDepthDesc.BindFlags = Diligent::BIND_DEPTH_STENCIL | Diligent::BIND_SHADER_RESOURCE;
     // Define optimal clear value
     RTDepthDesc.ClearValue.Format = RTDepthDesc.Format;
     RTDepthDesc.ClearValue.DepthStencil.Depth = 1;
@@ -280,11 +282,17 @@ void Prisma::GUI::VolumetricLight::createShaderBlur() {
     RTColorDesc.ClearValue.Color[2] = 0.350f;
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_textureBlur);
+    Diligent::TextureLoadInfo loadInfo;
+    loadInfo.IsSRGB = false;
+    CreateTextureFromFile("../../../Resources/res/bluenoise.png", loadInfo, PrismaFunc::getInstance().contextData().device, &m_textureNoise);
+    GlobalData::getInstance().addGlobalTexture({m_textureNoise, "Blue Noise"});
     m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "depthTexture")->Set(m_textureDepth->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "noiseTexture")->Set(m_textureNoise->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_DIR_DATA.c_str())->Set(LightHandler::getInstance().dirLights()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(LightHandler::getInstance().lightSizes());
     m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
-    m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "BlurData")->Set(m_blur);
+    m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "FogSettings")->Set(m_blur);
 
     m_psoBlur->CreateShaderResourceBinding(&m_srbBlur, true);
     GlobalData::getInstance().addGlobalTexture({m_textureBlur, "Volumetric Blur"});
@@ -451,12 +459,18 @@ void Prisma::GUI::VolumetricLight::renderBlur() {
 
     contextData.immediateContext->SetPipelineState(m_psoBlur);
     Diligent::MapHelper<BlurData> blurData(contextData.immediateContext, m_blur, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-    blurData->density = m_blurData.density;
-    blurData->decay = m_blurData.decay;
-    blurData->exposure = m_blurData.exposure;
-    blurData->weight = m_blurData.weight;
-    blurData->numSamples = m_blurData.numSamples;
+    blurData->densityMultiplier = m_blurData.densityMultiplier;
+    blurData->fogColor = m_blurData.fogColor;
+    blurData->maxDistance = m_blurData.maxDistance;
+    blurData->stepSize = m_blurData.stepSize;
+    blurData->densityMultiplier = m_blurData.densityMultiplier;
+    blurData->noiseOffset = m_blurData.noiseOffset;
 
+    blurData->densityThreshold = m_blurData.densityThreshold;
+    blurData->noiseTiling = m_blurData.noiseTiling;
+
+    blurData->lightContribution = m_blurData.lightContribution;
+    blurData->lightScattering = m_blurData.lightScattering;
     auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
     // Bind vertex and index buffers
