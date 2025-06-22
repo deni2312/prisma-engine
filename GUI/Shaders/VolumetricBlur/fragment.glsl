@@ -116,5 +116,5 @@ void main() {
     }
 
     vec3 finalColor = mix(col, fogAccum, 1.0 - clamp(transmittance, 0.0, 1.0));
-    FragColor = vec4(worldPos, finalColor.r);
+    FragColor = vec4(finalColor,1);
 }

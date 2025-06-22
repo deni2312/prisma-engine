@@ -286,7 +286,7 @@ void Prisma::GUI::VolumetricLight::createShaderBlur() {
     loadInfo.IsSRGB = false;
     CreateTextureFromFile("../../../Resources/res/bluenoise.png", loadInfo, PrismaFunc::getInstance().contextData().device, &m_textureNoise);
     GlobalData::getInstance().addGlobalTexture({m_textureNoise, "Blue Noise"});
-    m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "depthTexture")->Set(m_textureDepth->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "noiseTexture")->Set(m_textureNoise->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoBlur->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_DIR_DATA.c_str())->Set(LightHandler::getInstance().dirLights()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
