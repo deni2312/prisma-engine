@@ -12,7 +12,7 @@
 namespace Prisma::GUI {
 class VolumetricLight {
 public:
-    struct BlurData {
+    struct VolumetricData {
         glm::vec4 fogColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
         glm::vec4 maxDistance = glm::vec4(100.0f);
@@ -31,31 +31,25 @@ public:
     void render();
     VolumetricLight();
 
-    void blurData(BlurData blurData);
-    BlurData blurData() const;
+    void volumetricSettings(VolumetricData VolumetricData);
+    VolumetricData volumetricSettings() const;
 
 private:
-    void createShaderRender();
-    void createShaderBlur();
+    void createShaderVolumetric();
     void createShaderBlit();
 
-    void renderData();
-    void renderBlur();
+    void renderVolumetric();
     void renderBlit();
 
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoBlit;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbBlit;
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoBlur;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbBlur;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureDepth;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureBlur;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoVolumetric;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbVolumetric;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureVolumetric;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureBlit;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureNoise;
-    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_blur;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_volumetric;
     std::unique_ptr<Blit> m_blit;
-    BlurData m_blurData;
+    VolumetricData m_volumetricData;
 };
 } // namespace Prisma::GUI

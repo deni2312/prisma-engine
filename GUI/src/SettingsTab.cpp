@@ -132,17 +132,17 @@ void Prisma::GUI::SettingsTab::drawSettings() {
         switch (static_cast<PostprocessingStyles::EFFECTS>(m_status.currentPostprocess)) {
             case PostprocessingStyles::EFFECTS::VOLUMETRIC:
                 auto volumetric = m_effects->volumetricRender();
-                auto volumetricData = volumetric->blurData();
-                ImGui::ColorEdit4("Fog Color", glm::value_ptr(volumetricData.fogColor));
-                ImGui::SliderFloat("Max Distance", &volumetricData.maxDistance.r, 1.0f, 500.0f);
-                ImGui::SliderFloat("Step Size", &volumetricData.stepSize.r, 0.1f, 20.0f);
-                ImGui::SliderFloat("Density Multiplier", &volumetricData.densityMultiplier.r, 0.0f, 10.0f);
-                ImGui::SliderFloat("Noise Offset", &volumetricData.noiseOffset.r, 0.0f, 10.0f);
-                ImGui::SliderFloat("Density Threshold", &volumetricData.densityThreshold.r, 0.0f, 1.0f);
-                ImGui::SliderFloat("Noise Tiling", &volumetricData.noiseTiling.r, 0.1f, 10.0f);
-                ImGui::ColorEdit4("Light Contribution", glm::value_ptr(volumetricData.lightContribution));
-                ImGui::SliderFloat("Light Scattering", &volumetricData.lightScattering.r, 0.0f, 1.0f);
-                volumetric->blurData(volumetricData);
+                auto volumetricSettings = volumetric->volumetricSettings();
+                ImGui::ColorEdit4("Fog Color", glm::value_ptr(volumetricSettings.fogColor));
+                ImGui::SliderFloat("Max Distance", &volumetricSettings.maxDistance.r, 1.0f, 500.0f);
+                ImGui::SliderFloat("Step Size", &volumetricSettings.stepSize.r, 0.1f, 20.0f);
+                ImGui::SliderFloat("Density Multiplier", &volumetricSettings.densityMultiplier.r, 0.0f, 10.0f);
+                ImGui::SliderFloat("Noise Offset", &volumetricSettings.noiseOffset.r, 0.0f, 10.0f);
+                ImGui::SliderFloat("Density Threshold", &volumetricSettings.densityThreshold.r, 0.0f, 1.0f);
+                ImGui::SliderFloat("Noise Tiling", &volumetricSettings.noiseTiling.r, 0.1f, 10.0f);
+                ImGui::ColorEdit4("Light Contribution", glm::value_ptr(volumetricSettings.lightContribution));
+                ImGui::SliderFloat("Light Scattering", &volumetricSettings.lightScattering.r, 0.0f, 1.0f);
+                volumetric->volumetricSettings(volumetricSettings);
                 break;
         }
 
