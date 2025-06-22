@@ -11,7 +11,7 @@
 namespace Prisma::GUI {
 class PostprocessingStyles {
 public:
-    enum class EFFECTS { NORMAL, SEPPIA, CARTOON, VIGNETTE, BLOOM, VOLUMETRIC };
+    enum class EFFECTS { NORMAL, SEPPIA, CARTOON, VIGNETTE, BLOOM, VOLUMETRIC,RAYS };
 
     void render(EFFECTS effect);
     PostprocessingStyles();

@@ -30,6 +30,7 @@ void Prisma::GUI::SettingsTab::init() {
     m_status.postprocess.push_back("VIGNETTE");
     m_status.postprocess.push_back("BLOOM");
     m_status.postprocess.push_back("VOLUMETRIC");
+    m_status.postprocess.push_back("VOLUMETRIC RAYS");
 }
 
 void Prisma::GUI::SettingsTab::drawSettings() {
@@ -130,7 +131,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
         }
 
         switch (static_cast<PostprocessingStyles::EFFECTS>(m_status.currentPostprocess)) {
-            case PostprocessingStyles::EFFECTS::VOLUMETRIC:
+            case PostprocessingStyles::EFFECTS::VOLUMETRIC: {
                 auto volumetric = m_effects->volumetricRender();
                 auto volumetricSettings = volumetric->volumetricSettings();
                 ImGui::ColorEdit4("Fog Color", glm::value_ptr(volumetricSettings.fogColor));
@@ -144,6 +145,19 @@ void Prisma::GUI::SettingsTab::drawSettings() {
                 ImGui::SliderFloat("Light Scattering", &volumetricSettings.lightScattering.r, 0.0f, 1.0f);
                 volumetric->volumetricSettings(volumetricSettings);
                 break;
+            }
+            case PostprocessingStyles::EFFECTS::RAYS: {
+                auto volumetric = m_effects->volumetricRaysRender();
+                auto volumetricSettings = volumetric->volumetricSettings();
+                ImGui::SliderFloat("Density", &volumetricSettings.density.r,0,1);
+                ImGui::SliderFloat("Decay", &volumetricSettings.decay.r, 0, 1);
+                ImGui::SliderFloat("Exposure", &volumetricSettings.exposure.r, 0, 1);
+                ImGui::SliderFloat("Weight", &volumetricSettings.weight.r, 0, 1);
+                ImGui::SliderInt("Samples", &volumetricSettings.samples.r, 0, 100);
+
+                volumetric->volumetricSettings(volumetricSettings);
+                break;
+            }
         }
 
         //Prisma::GlobalData::getInstance().transparencies(sortTransparencies);
