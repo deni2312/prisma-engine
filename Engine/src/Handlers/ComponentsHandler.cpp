@@ -16,7 +16,7 @@ void Prisma::ComponentsHandler::updateUi() {
             component->isUi(true);
         }
     }
-    m_start.clear();
+    m_ui.clear();
 }
 
 void Prisma::ComponentsHandler::updateComponents() {
