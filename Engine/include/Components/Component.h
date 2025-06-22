@@ -33,6 +33,7 @@ public:
 
     struct ImageButton {
         std::function<void()> handler;
+        std::function<void()> hover;
         Texture texture;
     };
 

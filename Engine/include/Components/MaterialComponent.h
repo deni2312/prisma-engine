@@ -123,11 +123,8 @@ private:
     ComponentType m_componentTypeSpecular;
     ComponentType m_componentTypeAmbientOcclusion;
     std::function<void()> m_apply;
-    std::function<void()> m_diffuseButton;
-    std::function<void()> m_normalButton;
-    std::function<void()> m_metalnessRoughnessButton;
-    std::function<void()> m_specularButton;
-    std::function<void()> m_ambientOcclusionButton;
+
+    std::function<void(const std::string&, std::vector<Prisma::Texture>&)> m_hover;
 
     ImageButton m_diffuseImage;
     ImageButton m_normalImage;

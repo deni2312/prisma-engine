@@ -4,6 +4,8 @@
 #include "GlobalData/GlobalShaderNames.h"
 #include "Helpers/WindowsHelper.h"
 #include "Pipelines/PipelineHandler.h"
+#include "ThirdParty/imgui/imgui.h"
+
 
 static unsigned int materialId = 0;
 
@@ -30,7 +32,7 @@ void Prisma::MaterialComponent::ui() {
         return found != std::string::npos ? s.substr(found + 1) : s;
     };
 
-    m_diffuseButton = [&]() {
+    m_diffuseImage.handler = [&]() {
         std::vector<Texture> diffuseTextures;
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
@@ -43,7 +45,8 @@ void Prisma::MaterialComponent::ui() {
             data->texture = m_diffuse[0];
         }
     };
-    m_normalButton = [&]() {
+
+    m_normalImage.handler = [&]() {
         std::vector<Texture> normalTextures;
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
@@ -56,7 +59,7 @@ void Prisma::MaterialComponent::ui() {
             data->texture = m_normal[0];
         }
     };
-    m_metalnessRoughnessButton = [&]() {
+     m_metalnessRoughnessImage.handler = [&]() {
         std::vector<Texture> metalnessRoughnessTextures;
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
@@ -69,7 +72,7 @@ void Prisma::MaterialComponent::ui() {
             data->texture = m_roughnessMetalness[0];
         }
     };
-    m_specularButton = [&]() {
+    m_specularImage.handler = [&]() {
         std::vector<Texture> specularTextures;
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
@@ -82,7 +85,7 @@ void Prisma::MaterialComponent::ui() {
             data->texture = m_specular[0];
         }
     };
-    m_ambientOcclusionButton = [&]() {
+     m_ambientOcclusionImage.handler = [&]() {
         std::vector<Texture> ambientOcclusionTextures;
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
@@ -96,11 +99,27 @@ void Prisma::MaterialComponent::ui() {
         }
     };
 
-    m_diffuseImage.handler = m_diffuseButton;
-    m_normalImage.handler = m_normalButton;
-    m_metalnessRoughnessImage.handler = m_metalnessRoughnessButton;
-    m_specularImage.handler = m_specularButton;
-    m_ambientOcclusionImage.handler = m_ambientOcclusionButton;
+     
+    auto hover = [&](const std::string& type, std::vector<Prisma::Texture>& textures) {
+         return [=]() {
+             std::string typeText = type;
+             ImGui::BeginTooltip();
+             ImGui::Text(("Type: " + typeText).c_str());
+             ImGui::Text(("Name: " + textures[0].name()).c_str());
+             ImGui::Text(("Size: " + std::to_string(textures[0].data().width) + "x" + std::to_string(textures[0].data().height)).c_str());
+             ImGui::Text("Srgb: %s", textures[0].parameters().srgb ? "Yes" : "No");
+             ImGui::Text("Compress: %s", textures[0].parameters().compress ? "Yes" : "No");
+
+             ImGui::EndTooltip();
+         };
+     };
+
+    m_diffuseImage.hover = hover("diffuse", diffuse());
+    m_normalImage.hover = hover("normal", normal());
+    m_metalnessRoughnessImage.hover = hover("metalness roughness", roughnessMetalness());
+    m_specularImage.hover = hover("specular", specular());
+    m_ambientOcclusionImage.hover = hover("ambient occlusion", ambientOcclusion());
+
 
     if (m_diffuse.size() > 0) {
         m_diffuseName = std::make_shared<std::string>(getLast(m_diffuse[0].name()));

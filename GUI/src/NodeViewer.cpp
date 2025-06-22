@@ -87,6 +87,12 @@ void Prisma::GUI::NodeViewer::varsDispatcher(Component::Options types, int index
                            types.size.y * ImguiDebug::getInstance().globalSize().y))) {
                     (*static_cast<std::function<void()>*>(variable))();
                 }
+                if (ImGui::IsItemHovered()) {
+                    if (imageButton->hover) {
+                        imageButton->hover();
+                    }
+                }
+
                 ImGui::PopID();
             }
             break;
