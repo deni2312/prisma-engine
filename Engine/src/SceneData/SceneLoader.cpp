@@ -417,6 +417,7 @@ std::vector<Prisma::Texture> Prisma::SceneLoader::loadMaterialTextures(aiMateria
         texture.parameters({name, srgb, Define::DEFAULT_MIPS, true});
         textures.push_back(texture);
     }
+
     return textures;
 }
 
