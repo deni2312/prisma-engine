@@ -139,6 +139,9 @@ private:
 
     bool m_isSpecular = false;
 
+    bool m_loadSrgb = false;
+    bool m_loadCompress = false;
+
     glm::vec2 m_size = glm::vec2(90, 90);
 
     float m_roughness = 0;

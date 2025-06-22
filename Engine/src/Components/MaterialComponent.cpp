@@ -35,7 +35,7 @@ void Prisma::MaterialComponent::ui() {
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
         if (!openFolder.empty()) {
-            texture.loadTexture({openFolder, true, Define::DEFAULT_MIPS, true});
+            texture.loadTexture({openFolder, m_loadSrgb, Define::DEFAULT_MIPS, m_loadCompress});
             texture.name(openFolder);
             diffuseTextures.push_back(texture);
             diffuse(diffuseTextures);
@@ -48,7 +48,7 @@ void Prisma::MaterialComponent::ui() {
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
         if (!openFolder.empty()) {
-            texture.loadTexture({openFolder, false, Define::DEFAULT_MIPS, true});
+            texture.loadTexture({openFolder, m_loadSrgb, Define::DEFAULT_MIPS, m_loadCompress});
             texture.name(openFolder);
             normalTextures.push_back(texture);
             normal(normalTextures);
@@ -61,7 +61,7 @@ void Prisma::MaterialComponent::ui() {
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
         if (!openFolder.empty()) {
-            texture.loadTexture({openFolder, false, Define::DEFAULT_MIPS, true});
+            texture.loadTexture({openFolder, m_loadSrgb, Define::DEFAULT_MIPS, m_loadCompress});
             texture.name(openFolder);
             metalnessRoughnessTextures.push_back(texture);
             roughnessMetalness(metalnessRoughnessTextures);
@@ -74,7 +74,7 @@ void Prisma::MaterialComponent::ui() {
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
         if (!openFolder.empty()) {
-            texture.loadTexture({openFolder, false, Define::DEFAULT_MIPS, true});
+            texture.loadTexture({openFolder, m_loadSrgb, Define::DEFAULT_MIPS, m_loadCompress});
             texture.name(openFolder);
             specularTextures.push_back(texture);
             specular(specularTextures);
@@ -87,7 +87,7 @@ void Prisma::MaterialComponent::ui() {
         Texture texture;
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
         if (!openFolder.empty()) {
-            texture.loadTexture({openFolder, false, Define::DEFAULT_MIPS, true});
+            texture.loadTexture({openFolder, m_loadSrgb, Define::DEFAULT_MIPS, m_loadCompress});
             texture.name(openFolder);
             ambientOcclusionTextures.push_back(texture);
             ambientOcclusion(ambientOcclusionTextures);
@@ -169,6 +169,12 @@ void Prisma::MaterialComponent::ui() {
     componentGlassReflectionColorMask = std::make_tuple(TYPES::VEC3, "GlassReflectionColorMask",
                                                         &m_rtMaterial.GlassReflectionColorMask);
 
+    ComponentType componentSrgb;
+    componentSrgb = std::make_tuple(TYPES::BOOL, "Srgb", &m_loadSrgb);
+
+    ComponentType componentCompress;
+    componentCompress = std::make_tuple(TYPES::BOOL, "Compress", &m_loadCompress);
+
     ComponentType componentGlassAbsorption;
     componentGlassAbsorption = std::make_tuple(TYPES::FLOAT, "GlassAbsorption", &m_rtMaterial.GlassAbsorption);
 
@@ -204,6 +210,8 @@ void Prisma::MaterialComponent::ui() {
     componentButton = std::make_tuple(TYPES::BUTTON, "Apply", &m_apply);
 
     addGlobal({componentPlain, false});
+    addGlobal({componentSrgb, false});
+    addGlobal({componentCompress, false});
     addGlobal({componentTransparent, false});
     addGlobal({componentColor, false});
     addGlobal({componentGlassReflectionColorMask, false});

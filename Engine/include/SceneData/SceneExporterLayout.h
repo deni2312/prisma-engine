@@ -56,7 +56,7 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         {"c", n->children()}
     };
     j["type"] = "NODE";
-    std::vector<std::tuple<std::string, std::string,bool>> textures;
+    std::vector<std::tuple<std::string, std::string,bool,bool>> textures;
     if (std::dynamic_pointer_cast<AnimatedMesh>(n)) {
         auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
 
@@ -64,9 +64,9 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->diffuse().size() > 0) {
             std::string textureName = mesh->material()->diffuse()[0].name();
             if (textureName == "") {
-                textures.push_back({"DIFFUSE", "NO_TEXTURE", true});
+                textures.push_back({"DIFFUSE", "NO_TEXTURE", true,false});
             } else {
-                textures.push_back({"DIFFUSE", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->diffuse()[0].parameters().srgb});
+                textures.push_back({"DIFFUSE", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->diffuse()[0].parameters().srgb, mesh->material()->diffuse()[0].parameters().compress});
             }
         }
 
@@ -74,9 +74,9 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->normal().size() > 0) {
             std::string textureName = mesh->material()->normal()[0].name();
             if (textureName == "") {
-                textures.push_back({"NORMAL", "NO_TEXTURE",false});
+                textures.push_back({"NORMAL", "NO_TEXTURE",false,false});
             } else {
-                textures.push_back({"NORMAL", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->normal()[0].parameters().srgb});
+                textures.push_back({"NORMAL", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->normal()[0].parameters().srgb, mesh->material()->normal()[0].parameters().compress});
             }
         }
 
@@ -84,26 +84,26 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->roughnessMetalness().size() > 0) {
             std::string textureName = mesh->material()->roughnessMetalness()[0].name();
             if (textureName == "") {
-                textures.push_back({"ROUGHNESS", "NO_TEXTURE",false});
+                textures.push_back({"ROUGHNESS", "NO_TEXTURE",false,false});
             } else {
-                textures.push_back({"ROUGHNESS", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->roughnessMetalness()[0].parameters().srgb});
+                textures.push_back({"ROUGHNESS", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->roughnessMetalness()[0].parameters().srgb,mesh->material()->roughnessMetalness()[0].parameters().compress});
             }
         }
 
         if (mesh->material()->specular().size() > 0) {
             std::string textureName = mesh->material()->specular()[0].name();
             if (textureName == "") {
-                textures.push_back({"SPECULAR", "NO_TEXTURE",false});
+                textures.push_back({"SPECULAR", "NO_TEXTURE",false,false});
             } else {
-                textures.push_back({"SPECULAR", WindowsHelper::getInstance().relativePath(textureName),mesh->material()->specular()[0].parameters().srgb});
+                textures.push_back({"SPECULAR", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->specular()[0].parameters().srgb, mesh->material()->specular()[0].parameters().compress});
             }
         }
         if (mesh->material()->ambientOcclusion().size() > 0) {
             std::string textureName = mesh->material()->ambientOcclusion()[0].name();
             if (textureName == "") {
-                textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE",false});
+                textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE",false,false});
             } else {
-                textures.push_back({"AMBIENT_OCCLUSION", WindowsHelper::getInstance().relativePath(textureName),mesh->material()->ambientOcclusion()[0].parameters().srgb});
+                textures.push_back({"AMBIENT_OCCLUSION", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->ambientOcclusion()[0].parameters().srgb, mesh->material()->ambientOcclusion()[0].parameters().compress});
             }
         }
 
@@ -195,13 +195,14 @@ void to_json(json& j, std::shared_ptr<Node> n) {
     } else if (std::dynamic_pointer_cast<Mesh>(n)) {
         auto mesh = std::dynamic_pointer_cast<Mesh>(n);
 
-                // Add the diffuse texture property
+        
+        // Add the diffuse texture property
         if (mesh->material()->diffuse().size() > 0) {
             std::string textureName = mesh->material()->diffuse()[0].name();
             if (textureName == "") {
-                textures.push_back({"DIFFUSE", "NO_TEXTURE", true});
+                textures.push_back({"DIFFUSE", "NO_TEXTURE", true, false});
             } else {
-                textures.push_back({"DIFFUSE", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->diffuse()[0].parameters().srgb});
+                textures.push_back({"DIFFUSE", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->diffuse()[0].parameters().srgb, mesh->material()->diffuse()[0].parameters().compress});
             }
         }
 
@@ -209,9 +210,9 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->normal().size() > 0) {
             std::string textureName = mesh->material()->normal()[0].name();
             if (textureName == "") {
-                textures.push_back({"NORMAL", "NO_TEXTURE", false});
+                textures.push_back({"NORMAL", "NO_TEXTURE", false, false});
             } else {
-                textures.push_back({"NORMAL", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->normal()[0].parameters().srgb});
+                textures.push_back({"NORMAL", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->normal()[0].parameters().srgb, mesh->material()->normal()[0].parameters().compress});
             }
         }
 
@@ -219,26 +220,26 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         if (mesh->material()->roughnessMetalness().size() > 0) {
             std::string textureName = mesh->material()->roughnessMetalness()[0].name();
             if (textureName == "") {
-                textures.push_back({"ROUGHNESS", "NO_TEXTURE", false});
+                textures.push_back({"ROUGHNESS", "NO_TEXTURE", false, false});
             } else {
-                textures.push_back({"ROUGHNESS", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->roughnessMetalness()[0].parameters().srgb});
+                textures.push_back({"ROUGHNESS", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->roughnessMetalness()[0].parameters().srgb, mesh->material()->roughnessMetalness()[0].parameters().compress});
             }
         }
 
         if (mesh->material()->specular().size() > 0) {
             std::string textureName = mesh->material()->specular()[0].name();
             if (textureName == "") {
-                textures.push_back({"SPECULAR", "NO_TEXTURE", false});
+                textures.push_back({"SPECULAR", "NO_TEXTURE", false, false});
             } else {
-                textures.push_back({"SPECULAR", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->specular()[0].parameters().srgb});
+                textures.push_back({"SPECULAR", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->specular()[0].parameters().srgb, mesh->material()->specular()[0].parameters().compress});
             }
         }
         if (mesh->material()->ambientOcclusion().size() > 0) {
             std::string textureName = mesh->material()->ambientOcclusion()[0].name();
             if (textureName == "") {
-                textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE", false});
+                textures.push_back({"AMBIENT_OCCLUSION", "NO_TEXTURE", false, false});
             } else {
-                textures.push_back({"AMBIENT_OCCLUSION", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->ambientOcclusion()[0].parameters().srgb});
+                textures.push_back({"AMBIENT_OCCLUSION", WindowsHelper::getInstance().relativePath(textureName), mesh->material()->ambientOcclusion()[0].parameters().srgb, mesh->material()->ambientOcclusion()[0].parameters().compress});
             }
         }
 
@@ -365,12 +366,13 @@ void from_json(json& j, std::shared_ptr<Node> n) {
         auto mesh = std::dynamic_pointer_cast<Mesh>(n);
         // Deserialize textures
         if (j.contains("textures")) {
-            auto texturesJson = j.at("textures").get<std::vector<std::tuple<std::string, std::string,bool>>>();
+            auto texturesJson = j.at("textures").get<std::vector<std::tuple<std::string, std::string, bool, bool>>>();
             auto material = std::make_shared<MaterialComponent>();
             for (const auto& t : texturesJson) {
                 std::string type = std::get<0>(t);
                 std::string name = std::get<1>(t);
                 bool srgb = std::get<2>(t);
+                bool compress = std::get<3>(t);
 
                 if (type == "DIFFUSE") {
                     std::vector<Texture> textures;
@@ -380,7 +382,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         // texture.loadTexture({t.second, true});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->diffuse(textures);
@@ -392,7 +394,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         // texture.loadTexture({t.second});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->normal(textures);
@@ -404,7 +406,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         // texture.loadTexture({t.second});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->roughnessMetalness(textures);
@@ -416,7 +418,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         // texture.loadTexture({t.second});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->specular(textures);
@@ -428,7 +430,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         // texture.loadTexture({t.second});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->ambientOcclusion(textures);
@@ -581,12 +583,13 @@ void from_json(json& j, std::shared_ptr<Node> n) {
         auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
         // Deserialize textures
         if (j.contains("textures")) {
-            auto texturesJson = j.at("textures").get<std::vector<std::tuple<std::string, std::string,bool>>>();
+            auto texturesJson = j.at("textures").get<std::vector<std::tuple<std::string, std::string,bool,bool>>>();
             auto material = std::make_shared<MaterialComponent>();
             for (const auto& t : texturesJson) {
                 std::string type = std::get<0>(t);
                 std::string name = std::get<1>(t);
                 bool srgb = std::get<2>(t);
+                bool compress = std::get<3>(t);
 
                 if (type == "DIFFUSE") {
                     std::vector<Texture> textures;
@@ -596,7 +599,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         //texture.loadTexture({t.second, true});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->diffuse(textures);
@@ -608,7 +611,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         //texture.loadTexture({t.second});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->normal(textures);
@@ -620,7 +623,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         //texture.loadTexture({t.second});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->roughnessMetalness(textures);
@@ -632,7 +635,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         //texture.loadTexture({t.second});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->specular(textures);
@@ -644,7 +647,7 @@ void from_json(json& j, std::shared_ptr<Node> n) {
                     } else {
                         texture.name(name);
                         //texture.loadTexture({t.second});
-                        texture.parameters({name, srgb});
+                        texture.parameters({name, srgb, Define::DEFAULT_MIPS, compress});
                         textures.push_back(texture);
                     }
                     material->ambientOcclusion(textures);
