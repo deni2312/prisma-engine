@@ -5,6 +5,7 @@
 
 #include "engine.h"
 
+#include "../Components/include/TreeRendererComponent.h"
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
 
@@ -65,6 +66,16 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     }
 
     m_interpolator.timeframe(timeframes);
+
+    auto tree = std::make_shared<Prisma::Node>();
+
+    tree->name("TreeRenderer");
+
+    auto treeRenderer = std::make_shared<Prisma::TreeRendererComponent>();
+
+    tree->addComponent(treeRenderer);
+
+    m_scene->root->addChild(tree);
 
     m_areaLight = nodeHelper.find(m_scene->root, "ParentArea_74");
     createCamera();
