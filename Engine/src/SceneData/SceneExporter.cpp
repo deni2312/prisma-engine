@@ -33,7 +33,6 @@ void processMeshChunk(std::vector<std::shared_ptr<Mesh>>::iterator start,
             textureMutex.unlock();
 
             if (notFind) {
-                std::cout << textureList[0].parameters().compress << std::endl;
                 Texture texture;
                 texture.name(textureName);
                 if (!texture.loadTexture({textureName, textureList[0].parameters().srgb, Define::DEFAULT_MIPS, textureList[0].parameters().compress, false})) {
