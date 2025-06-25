@@ -184,8 +184,18 @@ void Prisma::GUI::ImGuiTabs::showNodes(std::shared_ptr<Node> root, ImGuiCamera& 
 
         auto isMesh = std::dynamic_pointer_cast<Mesh>(current);
 
-        if (current && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !isMesh) {
+        bool isChild = false;
+
+        nodeHelper.nodeIterator(current, [&](auto node, auto parent) {
+            if (m_parent->uuid() == node->uuid()) {
+                isChild = true;
+            }
+        });
+
+
+        if (current && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !isMesh && !isChild) {
             current->parent()->removeChild(m_current, false);
+
             m_parent->addChild(current);
             current->parent(m_parent, true);
             m_current = -1;
