@@ -37,7 +37,9 @@ std::shared_ptr<PrivatePrisma> privatePrisma;
 namespace Prisma {
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     if (privatePrisma->callback->resize) {
-        privatePrisma->callback->resize(width, height);
+        if (width > 0 && height > 0) {
+            privatePrisma->callback->resize(width, height);        
+        }
     }
 }
 
@@ -222,7 +224,6 @@ void Prisma::PrismaFunc::init() {
             EngineCI.Features.NativeMultiDraw = DEVICE_FEATURE_STATE_ENABLED;
             EngineCI.Features.WireframeFill = DEVICE_FEATURE_STATE_ENABLED;
             EngineCI.Features.IndependentBlend = DEVICE_FEATURE_STATE_ENABLED;
-
             pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.device,
                                                   &m_contextData.immediateContext);
             pFactoryVk->CreateSwapChainVk(m_contextData.device, m_contextData.immediateContext,
@@ -309,7 +310,7 @@ void Prisma::PrismaFunc::setCallback(std::shared_ptr<CallbackHandler> callbackHa
     GlobalData::getInstance().currentProjection(projection);
     privatePrisma->callback = callbackHandler;
     if (!privatePrisma->initCallback) {
-        glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
+        //glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
         glfwSetCursorPosCallback(m_window, mouseCallback);
         glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
         glfwSetKeyCallback(m_window, keyboardCallback);
