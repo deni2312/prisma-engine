@@ -224,10 +224,30 @@ void Prisma::PrismaFunc::init() {
             EngineCI.Features.NativeMultiDraw = DEVICE_FEATURE_STATE_ENABLED;
             EngineCI.Features.WireframeFill = DEVICE_FEATURE_STATE_ENABLED;
             EngineCI.Features.IndependentBlend = DEVICE_FEATURE_STATE_ENABLED;
+            /* DebugMessageCallbackType debugType = [](enum DEBUG_MESSAGE_SEVERITY Severity,
+                                                           const Char*                 Message,
+                                                           const Char*                 Function,
+                                                           const Char*                 File,
+                                                           int                         Line){
+                
+                    if (Severity == DEBUG_MESSAGE_SEVERITY ::DEBUG_MESSAGE_SEVERITY_ERROR) {
+                
+                                    std::cout << "aaaaaaaaaaaaaaaaaaaaa" << std::endl;
+
+                    }                
+                };
+
+
+            pFactoryVk->SetMessageCallback(debugType);
+            */
+
+
             pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.device,
                                                   &m_contextData.immediateContext);
             pFactoryVk->CreateSwapChainVk(m_contextData.device, m_contextData.immediateContext,
                                           SCDesc, Window, &m_contextData.swapChain);
+            
+
             m_contextData.engineFactory = pFactoryVk;
         }
         break;
