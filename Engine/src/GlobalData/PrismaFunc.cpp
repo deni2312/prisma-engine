@@ -125,6 +125,12 @@ void Prisma::PrismaFunc::init() {
 
     glfwSetWindowUserPointer(m_window, this);
 
+    HWND hwnd = glfwGetWin32Window(m_window);
+    LONG style = GetWindowLong(hwnd, GWL_STYLE);
+    style &= ~WS_MINIMIZEBOX;  // Remove minimize button
+    SetWindowLong(hwnd, GWL_STYLE, style);
+    SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
 #if PLATFORM_WIN32
     Win32NativeWindow Window{glfwGetWin32Window(m_window)};
 #endif
@@ -240,7 +246,6 @@ void Prisma::PrismaFunc::init() {
 
             pFactoryVk->SetMessageCallback(debugType);
             */
-
 
             pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_contextData.device,
                                                   &m_contextData.immediateContext);
