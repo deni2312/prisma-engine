@@ -100,62 +100,117 @@ void Prisma::MeshIndirect::updateIndirectBuffer() {
     m_indirectBufferTransparent.Release();
     m_indexBufferTransparent.Release();
 
-    Diligent::BufferDesc IndirectBufferDesc;
-    IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
-    IndirectBufferDesc.Usage = Diligent::USAGE_DEFAULT;
-    IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
-    IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsAll.size();
-    IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
-    Diligent::BufferData InitData;
-    InitData.pData = drawCommandsAll.data();
-    InitData.DataSize = IndirectBufferDesc.Size;
-    contextData.device->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBufferAll);
+    if (drawCommandsAll.size()) {
+        Diligent::BufferDesc IndirectBufferDesc;
+        IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
+        IndirectBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+        IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+        IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsAll.size();
+        IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+        Diligent::BufferData InitData;
+        InitData.pData = drawCommandsAll.data();
+        InitData.DataSize = IndirectBufferDesc.Size;
+        contextData.device->CreateBuffer(IndirectBufferDesc, &InitData, &m_indirectBufferAll);
+    } else {
+        Diligent::BufferDesc IndirectBufferDesc;
+        IndirectBufferDesc.Name = "Indirect Draw Command Buffer";
+        IndirectBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+        IndirectBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+        IndirectBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
+        IndirectBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+        contextData.device->CreateBuffer(IndirectBufferDesc, nullptr, &m_indirectBufferAll);
+    }
 
-    Diligent::BufferDesc OpaqueBufferDesc;
-    OpaqueBufferDesc.Name = "Opaque Draw Command Buffer";
-    OpaqueBufferDesc.Usage = Diligent::USAGE_DEFAULT;
-    OpaqueBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
-    OpaqueBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsOpaque.size();
-    OpaqueBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
-    Diligent::BufferData InitDataOpaque;
-    InitDataOpaque.pData = drawCommandsOpaque.data();
-    InitDataOpaque.DataSize = OpaqueBufferDesc.Size;
-    contextData.device->CreateBuffer(OpaqueBufferDesc, &InitDataOpaque, &m_indirectBufferOpaque);
 
-    Diligent::BufferDesc OpaqueIndexBuffer;
-    OpaqueIndexBuffer.Name = "Index Opaque Buffer";
-    OpaqueIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
-    OpaqueIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
-    OpaqueIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    OpaqueIndexBuffer.ElementByteStride = sizeof(unsigned int);
-    OpaqueIndexBuffer.Size = sizeof(unsigned int) * indexes.size();
-    Diligent::BufferData IndexDataOpaque;
-    IndexDataOpaque.pData = indexes.data();
-    IndexDataOpaque.DataSize = OpaqueIndexBuffer.Size;
-    contextData.device->CreateBuffer(OpaqueIndexBuffer, &IndexDataOpaque, &m_indexBufferOpaque);
+    if (drawCommandsOpaque.size()) {
+        Diligent::BufferDesc OpaqueBufferDesc;
+        OpaqueBufferDesc.Name = "Opaque Draw Command Buffer";
+        OpaqueBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+        OpaqueBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+        OpaqueBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsOpaque.size();
+        OpaqueBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+        Diligent::BufferData InitDataOpaque;
+        InitDataOpaque.pData = drawCommandsOpaque.data();
+        InitDataOpaque.DataSize = OpaqueBufferDesc.Size;
+        contextData.device->CreateBuffer(OpaqueBufferDesc, &InitDataOpaque, &m_indirectBufferOpaque);
+    } else {
+        Diligent::BufferDesc OpaqueBufferDesc;
+        OpaqueBufferDesc.Name = "Opaque Draw Command Buffer";
+        OpaqueBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+        OpaqueBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+        OpaqueBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
+        OpaqueBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+        contextData.device->CreateBuffer(OpaqueBufferDesc, nullptr, &m_indirectBufferOpaque);
+    }
 
-    Diligent::BufferDesc TransparentBufferDesc;
-    TransparentBufferDesc.Name = "Transparent Draw Command Buffer";
-    TransparentBufferDesc.Usage = Diligent::USAGE_DEFAULT;
-    TransparentBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
-    TransparentBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsTransparent.size();
-    TransparentBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
-    Diligent::BufferData InitDataTransparent;
-    InitDataTransparent.pData = drawCommandsTransparent.data();
-    InitDataTransparent.DataSize = TransparentBufferDesc.Size;
-    contextData.device->CreateBuffer(TransparentBufferDesc, &InitDataTransparent, &m_indirectBufferTransparent);
+    if (indexes.size()) {
+        Diligent::BufferDesc OpaqueIndexBuffer;
+        OpaqueIndexBuffer.Name = "Index Opaque Buffer";
+        OpaqueIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
+        OpaqueIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+        OpaqueIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+        OpaqueIndexBuffer.ElementByteStride = sizeof(unsigned int);
+        OpaqueIndexBuffer.Size = sizeof(unsigned int) * indexes.size();
+        Diligent::BufferData IndexDataOpaque;
+        IndexDataOpaque.pData = indexes.data();
+        IndexDataOpaque.DataSize = OpaqueIndexBuffer.Size;
+        contextData.device->CreateBuffer(OpaqueIndexBuffer, &IndexDataOpaque, &m_indexBufferOpaque);
+    } else {
+        Diligent::BufferDesc OpaqueIndexBuffer;
+        OpaqueIndexBuffer.Name = "Index Opaque Buffer";
+        OpaqueIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
+        OpaqueIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+        OpaqueIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+        OpaqueIndexBuffer.ElementByteStride = sizeof(unsigned int);
+        OpaqueIndexBuffer.Size = sizeof(unsigned int);
+        contextData.device->CreateBuffer(OpaqueIndexBuffer, nullptr, &m_indexBufferOpaque);
+    }
 
-    Diligent::BufferDesc TransparentIndexBuffer;
-    TransparentIndexBuffer.Name = "Index Transparent Buffer";
-    TransparentIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
-    TransparentIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
-    TransparentIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    TransparentIndexBuffer.ElementByteStride = sizeof(unsigned int);
-    TransparentIndexBuffer.Size = sizeof(unsigned int) * indexesTransparent.size();
-    Diligent::BufferData IndexDataTransparent;
-    IndexDataTransparent.pData = indexesTransparent.data();
-    IndexDataTransparent.DataSize = TransparentIndexBuffer.Size;
-    contextData.device->CreateBuffer(TransparentIndexBuffer, &IndexDataTransparent, &m_indexBufferTransparent);
+
+    if (drawCommandsTransparent.size()) {
+        Diligent::BufferDesc TransparentBufferDesc;
+        TransparentBufferDesc.Name = "Transparent Draw Command Buffer";
+        TransparentBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+        TransparentBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+        TransparentBufferDesc.Size = sizeof(DrawElementsIndirectCommand) * drawCommandsTransparent.size();
+        TransparentBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+        Diligent::BufferData InitDataTransparent;
+        InitDataTransparent.pData = drawCommandsTransparent.data();
+        InitDataTransparent.DataSize = TransparentBufferDesc.Size;
+        contextData.device->CreateBuffer(TransparentBufferDesc, &InitDataTransparent, &m_indirectBufferTransparent);
+    } else {
+        Diligent::BufferDesc TransparentBufferDesc;
+        TransparentBufferDesc.Name = "Transparent Draw Command Buffer";
+        TransparentBufferDesc.Usage = Diligent::USAGE_DEFAULT;
+        TransparentBufferDesc.BindFlags = Diligent::BIND_INDIRECT_DRAW_ARGS;
+        TransparentBufferDesc.Size = sizeof(DrawElementsIndirectCommand);
+        TransparentBufferDesc.ElementByteStride = sizeof(DrawElementsIndirectCommand);
+        contextData.device->CreateBuffer(TransparentBufferDesc, nullptr, &m_indirectBufferTransparent);
+    }
+
+    if (indexesTransparent.size()) {
+        Diligent::BufferDesc TransparentIndexBuffer;
+        TransparentIndexBuffer.Name = "Index Transparent Buffer";
+        TransparentIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
+        TransparentIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+        TransparentIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+        TransparentIndexBuffer.ElementByteStride = sizeof(unsigned int);
+        TransparentIndexBuffer.Size = sizeof(unsigned int) * indexesTransparent.size();
+        Diligent::BufferData IndexDataTransparent;
+        IndexDataTransparent.pData = indexesTransparent.data();
+        IndexDataTransparent.DataSize = TransparentIndexBuffer.Size;
+        contextData.device->CreateBuffer(TransparentIndexBuffer, &IndexDataTransparent, &m_indexBufferTransparent);
+    } else {
+        Diligent::BufferDesc TransparentIndexBuffer;
+        TransparentIndexBuffer.Name = "Index Transparent Buffer";
+        TransparentIndexBuffer.Usage = Diligent::USAGE_DEFAULT;
+        TransparentIndexBuffer.BindFlags = Diligent::BIND_SHADER_RESOURCE;
+        TransparentIndexBuffer.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+        TransparentIndexBuffer.ElementByteStride = sizeof(unsigned int);
+        TransparentIndexBuffer.Size = sizeof(unsigned int);
+        contextData.device->CreateBuffer(TransparentIndexBuffer, nullptr, &m_indexBufferTransparent);
+    }
+
 
     m_commandsBufferAll.DrawCount = drawCommandsAll.size();
     m_commandsBufferAll.DrawArgsOffset = 0;
