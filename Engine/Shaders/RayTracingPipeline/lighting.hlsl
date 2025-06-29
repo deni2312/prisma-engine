@@ -279,10 +279,11 @@ void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion, f
         float3 light = (kD * diffuse + specular) * NdotL * shadow;
         Lo += light;
     }
+    
     // === Ray-Traced Reflections with Roughness and Metalness ===
     float3 R = reflect(-V, Norm);
     R = normalize(R);
-
+    
     // Compute Fresnel with roughness-aware version
     float NdotV = max(dot(Norm, V), 0.0);
     float3 F = fresnelSchlickRoughness(NdotV, F0, roughness);
@@ -290,6 +291,9 @@ void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion, f
     float3 kD = 1.0 - kS;
     kD *= 1.0 - metalness;
 
+    float3 irradianceData = irradiance.SampleLevel(skybox_sampler, Norm, 0).rgb;
+    float3 diffuseIBL = irradianceData * albedo;
+    
     float3 reflectionColor = float3(0.0, 0.0, 0.0);
     if (Recursion < g_ConstantsCB.MaxRecurionReflection)
     {
@@ -298,7 +302,7 @@ void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion, f
     }
 
     // Blend reflection using Fresnel (kS)
-    float3 specularReflection = kS * reflectionColor * (1.0 - roughness * roughness);
+    float3 specularReflection = (kD * diffuseIBL)+kS * reflectionColor * (1.0 - roughness * roughness);
 
     // Final output
     Color = Lo + specularReflection;
