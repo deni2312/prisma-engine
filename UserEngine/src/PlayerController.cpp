@@ -1,11 +1,11 @@
 #include "../include/PlayerController.h"
 #include "Components/PhysicsMeshComponent.h"
 #include "Components/CullingComponent.h"
+#include "Components/InstancingComponent.h"
 #include <glm/gtx/string_cast.hpp>
 
 #include "engine.h"
 
-#include "../Components/include/TreeRendererComponent.h"
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
 
@@ -71,7 +71,13 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     tree->name("TreeRenderer");
 
-    auto treeRenderer = std::make_shared<Prisma::TreeRendererComponent>();
+    auto treeRenderer = std::make_shared<Prisma::InstancingComponent>();
+
+    std::vector<Prisma::Mesh::MeshData> models;
+
+    models.push_back({glm::mat4(1.0), glm::transpose(glm::inverse(glm::mat4(1.0)))});
+
+    treeRenderer->models(models);
 
     tree->addComponent(treeRenderer);
 

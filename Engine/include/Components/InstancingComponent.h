@@ -7,18 +7,23 @@
 #include <Common/interface/RefCntAutoPtr.hpp>
 
 #include "Components/RenderComponent.h"
+#include "SceneObjects/Mesh.h"
 
 #include "Helpers/PrismaRender.h"
 
 
 namespace Prisma {
-class TreeRendererComponent : public RenderComponent {
+class InstancingComponent : public RenderComponent {
    public:
-    TreeRendererComponent();
+    InstancingComponent();
 
     void ui() override;
 
     void start() override;
+
+    void models(const std::vector<Mesh::MeshData>& models);
+
+    void updateModels(const std::vector<Mesh::MeshData>& models);
 
     virtual void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
 
@@ -28,7 +33,10 @@ class TreeRendererComponent : public RenderComponent {
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbOpaque;
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
-    std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&, Diligent::RefCntAutoPtr<Diligent::IBuffer>&)> m_updateData;
+    std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&)> m_updateData;
     Prisma::PrismaRender::BufferData m_bufferData;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelsBuffer;
+
+    std::vector<Mesh::MeshData> m_models;
 };
 }  // namespace Prisma

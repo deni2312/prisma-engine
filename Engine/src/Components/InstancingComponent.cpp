@@ -1,4 +1,4 @@
-#include "../include/TreeRendererComponent.h"
+#include "Components/InstancingComponent.h"
 #include "GlobalData/PrismaFunc.h"
 #include "Pipelines/PipelineHandler.h"
 #include "GlobalData/GlobalShaderNames.h"
@@ -9,9 +9,9 @@
 
 using namespace Diligent;
 
-Prisma::TreeRendererComponent::TreeRendererComponent() : RenderComponent{} { name("Tree"); }
+Prisma::InstancingComponent::InstancingComponent() : RenderComponent{} { name("Instancing"); }
 
-void Prisma::TreeRendererComponent::start() { 
+void Prisma::InstancingComponent::start() { 
 	Component::start(); 
 	auto& contextData = PrismaFunc::getInstance().contextData();
 
@@ -19,7 +19,7 @@ void Prisma::TreeRendererComponent::start() {
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Forward Pipeline Tree Renderer";
+    PSOCreateInfo.PSODesc.Name = "Forward Pipeline Instancing Renderer";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_GRAPHICS;
@@ -62,7 +62,7 @@ void Prisma::TreeRendererComponent::start() {
         {
             ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
             ShaderCI.EntryPoint = "main";
-            ShaderCI.Desc.Name = "Forward VS Tree Renderer";
+            ShaderCI.Desc.Name = "Forward VS Instancing Renderer";
             ShaderCI.FilePath = "../../../UserEngine/Shaders/ForwardPipeline/vertex.glsl";
             contextData.device->CreateShader(ShaderCI, &pVS);
         }
@@ -72,7 +72,7 @@ void Prisma::TreeRendererComponent::start() {
         {
             ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
             ShaderCI.EntryPoint = "main";
-            ShaderCI.Desc.Name = "Forward PS Tree Renderer";
+            ShaderCI.Desc.Name = "Forward PS Instancing Renderer";
             ShaderCI.FilePath = "../../../UserEngine/Shaders/ForwardPipeline/fragment.glsl";
             contextData.device->CreateShader(ShaderCI, &pPS);
         }
@@ -194,7 +194,7 @@ void Prisma::TreeRendererComponent::start() {
     // Create a shader resource binding object and bind all static resources in it
     m_pResourceSignature->CreateShaderResourceBinding(&m_srbOpaque, true);
 
-    m_updateData = [&](RefCntAutoPtr<IShaderResourceBinding>& srb,RefCntAutoPtr<IBuffer>& indexBuffer)
+    m_updateData = [&](RefCntAutoPtr<IShaderResourceBinding>& srb)
         {
             auto buffers = MeshIndirect::getInstance().modelBuffer();
             auto materials = MeshIndirect::getInstance().textureViews();
@@ -206,7 +206,7 @@ void Prisma::TreeRendererComponent::start() {
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+            srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(m_modelsBuffer->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
 
             if (status) {
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str())->Set(status->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
@@ -216,20 +216,21 @@ void Prisma::TreeRendererComponent::start() {
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
             }
         };
-    m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
+
+    m_updateData(m_srbOpaque);
 
     //CreateMSAARenderTarget();
     MeshIndirect::getInstance().addResizeHandler([&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
-            m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
+            m_updateData(m_srbOpaque);
         });
     PipelineSkybox::getInstance().addUpdate([&]()
         {
-            m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
+            m_updateData(m_srbOpaque);
         });
     LightHandler::getInstance().addLightHandler([&]()
         {
-            m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
+            m_updateData(m_srbOpaque);
         });
     auto mesh=Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[0];
     auto vertices=mesh->verticesData();
@@ -260,20 +261,45 @@ void Prisma::TreeRendererComponent::start() {
     IBData.DataSize = IndBuffDesc.Size;
     m_bufferData.iBufferSize = vertices.indices.size();
     PrismaFunc::getInstance().contextData().device->CreateBuffer(
-        IndBuffDesc, &IBData, &m_bufferData.iBuffer);
+    IndBuffDesc, &IBData, &m_bufferData.iBuffer);
 }
 
-void Prisma::TreeRendererComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 
+void Prisma::InstancingComponent::models(const std::vector<Mesh::MeshData>& models) { 
+        m_models = models;
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        if (m_modelsBuffer) {
+            m_modelsBuffer->Release();
+        }
+
+        Diligent::BufferDesc InstancingDesc;
+        InstancingDesc.Name = "Instancing Models Buffer";
+        InstancingDesc.Usage = Diligent::USAGE_DEFAULT;
+        InstancingDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
+        InstancingDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+        InstancingDesc.ElementByteStride = sizeof(Mesh::MeshData);
+        InstancingDesc.Size = m_models.size() * sizeof(Mesh::MeshData);
+        BufferData data;
+        data.pData=models.data();
+        data.DataSize=InstancingDesc.Size;
+
+        contextData.device->CreateBuffer(InstancingDesc, &data, &m_modelsBuffer);
+}
+
+void Prisma::InstancingComponent::updateModels(const std::vector<Mesh::MeshData>& models)
+{
+    auto& contextData = PrismaFunc::getInstance().contextData();
+    contextData.immediateContext->UpdateBuffer(m_modelsBuffer, 0, m_models.size() * sizeof(Mesh::MeshData), models.data(),Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+}
+
+void Prisma::InstancingComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 
 	RenderComponent::updatePreRender(texture, depth); 
 }
 
-void Prisma::TreeRendererComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 
+void Prisma::InstancingComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 
 	RenderComponent::updatePostRender(texture, depth);
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-
     contextData.immediateContext->SetPipelineState(m_pso);
-
 
     // Bind vertex and index buffers
     constexpr Diligent::Uint64 offset = 0;
@@ -287,10 +313,11 @@ void Prisma::TreeRendererComponent::updatePostRender(Diligent::RefCntAutoPtr<Dil
     Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
     DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
     DrawAttrs.NumIndices = m_bufferData.iBufferSize;
+    DrawAttrs.NumInstances=m_models.size();
     // Verify the state of vertex and index buffers
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
 
     contextData.immediateContext->DrawIndexed(DrawAttrs);
 }
 
-void Prisma::TreeRendererComponent::ui() { Component::ui(); }
+void Prisma::InstancingComponent::ui() { Component::ui(); }
