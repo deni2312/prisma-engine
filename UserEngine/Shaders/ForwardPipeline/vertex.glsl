@@ -38,7 +38,7 @@ readonly buffer models{
 
 void main()
 {
-    int currentId=0;
+    int currentId=gl_InstanceIndex;
 
     mat4 modelMatrix = modelsData[currentId].model;
     mat4 normalMatrix = modelsData[currentId].normal;

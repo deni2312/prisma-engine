@@ -75,7 +75,30 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     std::vector<Prisma::Mesh::MeshData> models;
 
-    models.push_back({glm::mat4(1.0), glm::transpose(glm::inverse(glm::mat4(1.0)))});
+        for (int i = 0; i < 10; ++i) {
+        // Random translation
+        float x = (std::rand() % 200 - 100) / 10.0f;
+        float y = (std::rand() % 200 - 100) / 10.0f;
+        float z = (std::rand() % 200 - 100) / 10.0f;
+        glm::mat4 translation = glm::translate(glm::mat4(1.0),glm::vec3(x, y, z));
+
+        // Random scale
+        float scaleFactor = (std::rand() % 200) / 100.0f + 0.1f;  // avoid 0
+        glm::mat4 scale = glm::scale(glm::mat4(1.0), glm::vec3(scaleFactor));
+
+        // Random rotation
+        float angle = (std::rand() % 360);
+        glm::vec3 axis((std::rand() % 100) / 100.0f, (std::rand() % 100) / 100.0f, (std::rand() % 100) / 100.0f);
+        if (glm::length(axis) < 0.001f) axis = glm::vec3(1.0f, 0.0f, 0.0f);  // Avoid zero axis
+        axis = glm::normalize(axis);
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0), glm::radians(angle), axis);
+
+        // Combine transformations: model = T * R * S
+        glm::mat4 model = translation * rotation * scale;
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(model));
+
+        models.push_back({model, normalMatrix});
+    }
 
     treeRenderer->models(models);
 
