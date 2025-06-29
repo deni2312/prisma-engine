@@ -207,7 +207,6 @@ void Prisma::TreeRendererComponent::start() {
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-            srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_INDEX_OPAQUE.c_str())->Set(indexBuffer->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
 
             if (status) {
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str())->Set(status->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
@@ -217,6 +216,7 @@ void Prisma::TreeRendererComponent::start() {
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
             }
         };
+    m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
 
     //CreateMSAARenderTarget();
     MeshIndirect::getInstance().addResizeHandler([&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
@@ -231,7 +231,36 @@ void Prisma::TreeRendererComponent::start() {
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
         });
+    auto mesh=Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[0];
+    auto vertices=mesh->verticesData();
 
+    // Create vertex buffer
+    Diligent::BufferDesc VertBuffDesc;
+    VertBuffDesc.Name = "Vertices Data";
+    VertBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+    VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
+    VertBuffDesc.Size = sizeof(Prisma::Mesh::Vertex) * vertices.vertices.size();
+
+    Diligent::BufferData VBData;
+    VBData.pData = vertices.vertices.data();
+    VBData.DataSize = VertBuffDesc.Size;
+
+    PrismaFunc::getInstance().contextData().device->CreateBuffer(
+        VertBuffDesc, &VBData, &m_bufferData.vBuffer);
+
+    // Create index buffer
+    Diligent::BufferDesc IndBuffDesc;
+    IndBuffDesc.Name = "Index Data";
+    IndBuffDesc.Usage = Diligent::USAGE_IMMUTABLE;
+    IndBuffDesc.BindFlags = Diligent::BIND_INDEX_BUFFER;
+    IndBuffDesc.Size = sizeof(unsigned int) * vertices.indices.size();
+
+    Diligent::BufferData IBData;
+    IBData.pData = vertices.indices.data();
+    IBData.DataSize = IndBuffDesc.Size;
+    m_bufferData.iBufferSize = vertices.indices.size();
+    PrismaFunc::getInstance().contextData().device->CreateBuffer(
+        IndBuffDesc, &IBData, &m_bufferData.iBuffer);
 }
 
 void Prisma::TreeRendererComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 
@@ -240,8 +269,28 @@ void Prisma::TreeRendererComponent::updatePreRender(Diligent::RefCntAutoPtr<Dili
 
 void Prisma::TreeRendererComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 
 	RenderComponent::updatePostRender(texture, depth);
+    auto& contextData = PrismaFunc::getInstance().contextData();
 
 
+    contextData.immediateContext->SetPipelineState(m_pso);
+
+
+    // Bind vertex and index buffers
+    constexpr Diligent::Uint64 offset = 0;
+    Diligent::IBuffer* pBuffs[] = {m_bufferData.vBuffer};
+    contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+    contextData.immediateContext->SetIndexBuffer(m_bufferData.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    // Set texture SRV in the SRB
+    contextData.immediateContext->CommitShaderResources(m_srbOpaque, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
+    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+    DrawAttrs.NumIndices = m_bufferData.iBufferSize;
+    // Verify the state of vertex and index buffers
+    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+
+    contextData.immediateContext->DrawIndexed(DrawAttrs);
 }
 
 void Prisma::TreeRendererComponent::ui() { Component::ui(); }

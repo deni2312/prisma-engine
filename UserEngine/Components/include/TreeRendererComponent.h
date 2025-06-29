@@ -8,6 +8,8 @@
 
 #include "Components/RenderComponent.h"
 
+#include "Helpers/PrismaRender.h"
+
 
 namespace Prisma {
 class TreeRendererComponent : public RenderComponent {
@@ -27,5 +29,6 @@ class TreeRendererComponent : public RenderComponent {
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbOpaque;
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
     std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&, Diligent::RefCntAutoPtr<Diligent::IBuffer>&)> m_updateData;
+    Prisma::PrismaRender::BufferData m_bufferData;
 };
 }  // namespace Prisma
