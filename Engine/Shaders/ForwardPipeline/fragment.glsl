@@ -37,8 +37,8 @@ void main()
         metallic = max(max(specularColor.r, specularColor.g), specularColor.b);
     }
 
-    metallic =  metallic+statusData_data[outDrawId].metalness;
-    roughness = roughness+statusData_data[outDrawId].roughness;
+    metallic =  clamp(metallic+statusData_data[outDrawId].metalness,0,1);
+    roughness = clamp(roughness+statusData_data[outDrawId].roughness,0,1);
     
     vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse), vec4(1.0), roughness, metallic);
         
