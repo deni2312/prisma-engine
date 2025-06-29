@@ -232,8 +232,44 @@ void Prisma::InstancingComponent::start() {
         {
             m_updateData(m_srbOpaque);
         });
-    auto mesh=Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[0];
-    auto vertices=mesh->verticesData();
+}
+
+void Prisma::InstancingComponent::models(const std::vector<Mesh::MeshData>& models) { 
+        m_models = models;
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        if (m_modelsBuffer) {
+            m_modelsBuffer->Release();
+        }
+
+        Diligent::BufferDesc InstancingDesc;
+        InstancingDesc.Name = "Instancing Models Buffer";
+        InstancingDesc.Usage = Diligent::USAGE_DEFAULT;
+        InstancingDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
+        InstancingDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+        InstancingDesc.ElementByteStride = sizeof(Mesh::MeshData);
+        InstancingDesc.Size = m_models.size() * sizeof(Mesh::MeshData);
+        BufferData data;
+        data.pData=models.data();
+        data.DataSize=InstancingDesc.Size;
+
+        contextData.device->CreateBuffer(InstancingDesc, &data, &m_modelsBuffer);
+}
+
+void Prisma::InstancingComponent::updateModels(const std::vector<Mesh::MeshData>& models)
+{
+    auto& contextData = PrismaFunc::getInstance().contextData();
+    contextData.immediateContext->UpdateBuffer(m_modelsBuffer, 0, m_models.size() * sizeof(Mesh::MeshData), models.data(),Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+}
+
+void Prisma::InstancingComponent::mesh(std::shared_ptr<Prisma::Mesh> mesh)
+{
+    m_mesh=mesh;
+    auto vertices=m_mesh->verticesData();
+
+    if (m_bufferData.vBuffer) {
+        m_bufferData.vBuffer.Release();
+        m_bufferData.iBuffer.Release();
+    }
 
     // Create vertex buffer
     Diligent::BufferDesc VertBuffDesc;
@@ -262,33 +298,6 @@ void Prisma::InstancingComponent::start() {
     m_bufferData.iBufferSize = vertices.indices.size();
     PrismaFunc::getInstance().contextData().device->CreateBuffer(
     IndBuffDesc, &IBData, &m_bufferData.iBuffer);
-}
-
-void Prisma::InstancingComponent::models(const std::vector<Mesh::MeshData>& models) { 
-        m_models = models;
-        auto& contextData = PrismaFunc::getInstance().contextData();
-        if (m_modelsBuffer) {
-            m_modelsBuffer->Release();
-        }
-
-        Diligent::BufferDesc InstancingDesc;
-        InstancingDesc.Name = "Instancing Models Buffer";
-        InstancingDesc.Usage = Diligent::USAGE_DEFAULT;
-        InstancingDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
-        InstancingDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-        InstancingDesc.ElementByteStride = sizeof(Mesh::MeshData);
-        InstancingDesc.Size = m_models.size() * sizeof(Mesh::MeshData);
-        BufferData data;
-        data.pData=models.data();
-        data.DataSize=InstancingDesc.Size;
-
-        contextData.device->CreateBuffer(InstancingDesc, &data, &m_modelsBuffer);
-}
-
-void Prisma::InstancingComponent::updateModels(const std::vector<Mesh::MeshData>& models)
-{
-    auto& contextData = PrismaFunc::getInstance().contextData();
-    contextData.immediateContext->UpdateBuffer(m_modelsBuffer, 0, m_models.size() * sizeof(Mesh::MeshData), models.data(),Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void Prisma::InstancingComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 

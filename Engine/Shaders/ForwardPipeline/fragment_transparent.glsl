@@ -1,10 +1,10 @@
 #extension GL_ARB_shading_language_include : require
 
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.glsl"
+#include "../../../Engine/Shaders/ForwardPipeline/common.glsl"
+
 
 layout(location = 1) out float reveal;
-
-
 void main()
 {
     vec4 diffuse = texture(sampler2D(diffuseTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);

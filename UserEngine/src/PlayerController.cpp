@@ -100,6 +100,10 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
         models.push_back({model, normalMatrix});
     }
 
+    auto mesh = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[0];
+
+    treeRenderer->mesh(mesh);
+
     treeRenderer->models(models);
 
     tree->addComponent(treeRenderer);

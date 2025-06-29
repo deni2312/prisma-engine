@@ -1,6 +1,7 @@
 #extension GL_ARB_shading_language_include : require
 
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.glsl"
+#include "../../../Engine/Shaders/ForwardPipeline/common.glsl"
 
 
 void main()

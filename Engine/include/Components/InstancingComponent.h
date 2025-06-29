@@ -25,9 +25,12 @@ class InstancingComponent : public RenderComponent {
 
     void updateModels(const std::vector<Mesh::MeshData>& models);
 
+    void mesh(std::shared_ptr<Prisma::Mesh> mesh);
+
     virtual void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
 
     virtual void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
+
 
    private:
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
@@ -38,5 +41,7 @@ class InstancingComponent : public RenderComponent {
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelsBuffer;
 
     std::vector<Mesh::MeshData> m_models;
+
+    std::shared_ptr<Prisma::Mesh> m_mesh;
 };
 }  // namespace Prisma

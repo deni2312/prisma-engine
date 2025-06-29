@@ -44,14 +44,6 @@ layout(location = 3) in flat int outDrawId;
 uniform sampler textureClamp_sampler;
 uniform sampler textureRepeat_sampler;
 
-uniform texture2D diffuseTexture[];
-uniform texture2D normalTexture[];
-uniform texture2D rmTexture[];
-
-
-readonly buffer statusData{
-    StatusData statusData_data[];
-};
 
 uniform textureCube omniShadow[];
 
@@ -174,23 +166,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
-}
-
-vec3 getNormalFromMap()
-{
-    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).xyz * 2.0 - 1.0;
-
-    vec3 Q1 = dFdx(outFragPos);
-    vec3 Q2 = dFdy(outFragPos);
-    vec2 st1 = dFdx(outUv);
-    vec2 st2 = dFdy(outUv);
-
-    vec3 N = normalize(outNormal);
-    vec3 T = normalize(Q1 * st2.t - Q2 * st1.t);
-    vec3 B = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
 }
 
 const vec3 gridSamplingDisk[20] = vec3[20](
