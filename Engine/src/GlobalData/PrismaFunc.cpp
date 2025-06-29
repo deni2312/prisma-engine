@@ -130,7 +130,6 @@ void Prisma::PrismaFunc::init() {
     style &= ~WS_MINIMIZEBOX;  // Remove minimize button
     SetWindowLong(hwnd, GWL_STYLE, style);
     SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-
 #if PLATFORM_WIN32
     Win32NativeWindow Window{glfwGetWin32Window(m_window)};
 #endif
