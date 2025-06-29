@@ -113,6 +113,7 @@ void Prisma::GUI::ImguiDebug::drawGui() {
                     GlobalData::getInstance().currentGlobalScene()->root->
                                               removeChild(child->uuid());
                 }
+                m_imguiCamera.currentSelect(nullptr);
             }
 
             if (ImGui::MenuItem("Save")) {
