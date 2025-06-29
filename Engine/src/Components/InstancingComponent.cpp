@@ -63,7 +63,7 @@ void Prisma::InstancingComponent::start() {
             ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
             ShaderCI.EntryPoint = "main";
             ShaderCI.Desc.Name = "Forward VS Instancing Renderer";
-            ShaderCI.FilePath = "../../../UserEngine/Shaders/ForwardPipeline/vertex.glsl";
+            ShaderCI.FilePath = "../../../Engine/Shaders/ForwardInstancingPipeline/vertex.glsl";
             contextData.device->CreateShader(ShaderCI, &pVS);
         }
 
@@ -73,7 +73,7 @@ void Prisma::InstancingComponent::start() {
             ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
             ShaderCI.EntryPoint = "main";
             ShaderCI.Desc.Name = "Forward PS Instancing Renderer";
-            ShaderCI.FilePath = "../../../UserEngine/Shaders/ForwardPipeline/fragment.glsl";
+            ShaderCI.FilePath = "../../../Engine/Shaders/ForwardInstancingPipeline/fragment.glsl";
             contextData.device->CreateShader(ShaderCI, &pPS);
         }
 
