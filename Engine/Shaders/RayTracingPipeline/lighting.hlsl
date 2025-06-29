@@ -1,5 +1,8 @@
 #include "../../../Engine/Shaders/RayTracingPipeline/constants.hlsl"
 
+#define EPSILON 1e-3f
+
+
 cbuffer LightSizes
 {
     int omniSize;
@@ -111,7 +114,7 @@ float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
     return F0 + (max(float3(currentRoughness, currentRoughness, currentRoughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-PrimaryRayPayload CastReflectionRay(float3 origin, float3 direction, uint Recursion)
+PrimaryRayPayload CastReflectionRay(float3 origin, float3 direction, uint Recursion,float3 normal)
 {
     PrimaryRayPayload payload = { float3(0.0, 0.0, 0.0),0, Recursion + 1 };
 
@@ -119,7 +122,7 @@ PrimaryRayPayload CastReflectionRay(float3 origin, float3 direction, uint Recurs
         return payload;
 
     RayDesc ray;
-    ray.Origin = origin + direction * SMALL_OFFSET;
+    ray.Origin = origin + normal * SMALL_OFFSET + direction * EPSILON;
     ray.Direction = direction;
     ray.TMin = 0.001;
     ray.TMax = 10000.0;
@@ -164,6 +167,7 @@ float3 ImportanceSampleCosineHemisphere(float2 xi, float3 N)
 
 float3 RayTracedIrradiance(float3 pos, float3 normal, uint Recursion, int sampleCount)
 {
+    /*
     float3 irradiance = float3(0.0, 0.0, 0.0);
 
     for (int i = 0; i < sampleCount; ++i)
@@ -181,10 +185,12 @@ float3 RayTracedIrradiance(float3 pos, float3 normal, uint Recursion, int sample
     }
 
     irradiance /= PI * sampleCount;
-    return irradiance;
+    return irradiance;*/
+    return float3(0.0, 0.0, 0.0);
+
 }
 
-void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float metalness,float roughness)
+void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion, float metalness, float roughness)
 {
     float3 V = normalize(g_ConstantsCB.CameraPos.xyz - Pos);
     float3 albedo = Color;
@@ -194,6 +200,7 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
 
     float3 Lo = float3(0.0, 0.0, 0.0);
 
+    // === Omni Lights ===
     for (int i = 0; i < omniSize; ++i)
     {
         float3 L = omniData[i].position.xyz - Pos;
@@ -208,32 +215,31 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
 
         float3 radiance = omniData[i].diffuse.rgb;
 
-    // Fresnel
+        // Fresnel
         float3 F = fresnelSchlick(VdotH, F0);
 
-    // Specular BRDF
+        // Specular BRDF
         float NDF = DistributionGGX(NdotH, roughness);
         float G = GeometrySmith(NdotV, NdotL, roughness);
         float3 numerator = NDF * G * F;
         float denominator = 4.0 * NdotV * NdotL + 1e-6;
         float3 specular = numerator / denominator;
 
-        float3 kS = F; // * specularMap; // You can modulate with a texture if needed
+        float3 kS = F;
         float3 kD = 1.0 - kS;
         kD *= 1.0 - metalness;
 
-    // Attenuation
         float3 att = omniData[i].attenuation.xyz;
         float attenuation = 1.0 / (att.x + att.y * dist + att.z * dist * dist);
-        attenuation *= saturate(1.0 - dist / omniData[i].radius); // Optional: radius-based falloff
+        attenuation *= saturate(1.0 - dist / omniData[i].radius);
 
         float shadow = 1.0;
 
         float3 light = (kD * albedo / PI + specular) * radiance * NdotL * shadow * attenuation;
         Lo += light;
     }
-    
-    // === Direct Lighting Loop ===
+
+    // === Directional Lights ===
     for (int i = 0; i < dirSize; ++i)
     {
         float3 L = normalize(dirData[i].direction.xyz);
@@ -273,40 +279,27 @@ void LightingPass(inout float3 Color,float3 Pos,float3 Norm,uint Recursion,float
         float3 light = (kD * diffuse + specular) * NdotL * shadow;
         Lo += light;
     }
+    // === Ray-Traced Reflections with Roughness and Metalness ===
+    float3 R = reflect(-V, Norm);
+    R = normalize(R);
 
-    // === IBL Lighting ===
-    float3 F = fresnelSchlickRoughness(max(dot(Norm, V), 0.0), F0, roughness);
+    // Compute Fresnel with roughness-aware version
+    float NdotV = max(dot(Norm, V), 0.0);
+    float3 F = fresnelSchlickRoughness(NdotV, F0, roughness);
     float3 kS = F;
     float3 kD = 1.0 - kS;
     kD *= 1.0 - metalness;
 
-    //float3 irradianceData = RayTracedIrradiance(Pos, Norm, Recursion, 8);
-    //float3 diffuseIBL = irradianceData * albedo;
-
-    float3 irradianceData = irradiance.SampleLevel(skybox_sampler, Norm, 0).rgb;
-    float3 diffuseIBL = irradianceData * albedo;
-    
-    float3 R = reflect(-V, Norm);
-    R = normalize(R);
-    // Compute blend weight based on metalness and roughness
-    float reflectionWeight = metalness * saturate(1.0 - roughness);
-
-    float3 rayTracedColor = float3(0.0, 0.0, 0.0);
-    if (Recursion < g_ConstantsCB.MaxRecurionReflection && reflectionWeight > 0.01)
+    float3 reflectionColor = float3(0.0, 0.0, 0.0);
+    if (Recursion < g_ConstantsCB.MaxRecurionReflection)
     {
-        PrimaryRayPayload reflectionPayload = CastReflectionRay(Pos, R, Recursion);
-        rayTracedColor = reflectionPayload.Color;
+        PrimaryRayPayload reflectionPayload = CastReflectionRay(Pos, R, Recursion,Norm);
+        reflectionColor = reflectionPayload.Color;
     }
-    // Fallback IBL
-    const float MAX_REFLECTION_LOD = 8.0;
-    float3 prefilteredColor = prefilter.SampleLevel(skybox_sampler, R, roughness * MAX_REFLECTION_LOD).rgb;
-    float2 brdf = lut.SampleLevel(skybox_sampler, float2(max(dot(Norm, V), 0.0), roughness), 0).rg;
-    float3 iblColor = prefilteredColor * (F * brdf.x + brdf.y);
 
-    // Blend based on reflection weight
-    float3 specularIBL = lerp(iblColor, rayTracedColor, reflectionWeight*0.5);
-    
-    float3 ambient = (kD * diffuseIBL + specularIBL);
-    
-    Color = Lo + ambient;
+    // Blend reflection using Fresnel (kS)
+    float3 specularReflection = kS * reflectionColor * (1.0 - roughness * roughness);
+
+    // Final output
+    Color = Lo + specularReflection;
 }
