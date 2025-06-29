@@ -75,32 +75,20 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     std::vector<Prisma::Mesh::MeshData> models;
 
-        for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         // Random translation
-        float x = (std::rand() % 200 - 100) / 10.0f;
-        float y = (std::rand() % 200 - 100) / 10.0f;
-        float z = (std::rand() % 200 - 100) / 10.0f;
-        glm::mat4 translation = glm::translate(glm::mat4(1.0),glm::vec3(x, y, z));
+        float x = (std::rand() % 200 - 100);
+        float z = (std::rand() % 200 - 100);
+        glm::mat4 translation = glm::translate(glm::mat4(1.0),glm::vec3(x, 0, z))*glm::rotate(glm::mat4(1.0),glm::radians(90.0f),glm::vec3(1,0,0));
 
-        // Random scale
-        float scaleFactor = (std::rand() % 200) / 100.0f + 0.1f;  // avoid 0
-        glm::mat4 scale = glm::scale(glm::mat4(1.0), glm::vec3(scaleFactor));
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(translation));
 
-        // Random rotation
-        float angle = (std::rand() % 360);
-        glm::vec3 axis((std::rand() % 100) / 100.0f, (std::rand() % 100) / 100.0f, (std::rand() % 100) / 100.0f);
-        if (glm::length(axis) < 0.001f) axis = glm::vec3(1.0f, 0.0f, 0.0f);  // Avoid zero axis
-        axis = glm::normalize(axis);
-        glm::mat4 rotation = glm::rotate(glm::mat4(1.0), glm::radians(angle), axis);
-
-        // Combine transformations: model = T * R * S
-        glm::mat4 model = translation * rotation * scale;
-        glm::mat4 normalMatrix = glm::transpose(glm::inverse(model));
-
-        models.push_back({model, normalMatrix});
+        models.push_back({translation, normalMatrix});
     }
 
-    auto mesh = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes[0];
+    auto mesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "tree_Mesh.003")->children()[0]);
+
+    
 
     treeRenderer->mesh(mesh);
 

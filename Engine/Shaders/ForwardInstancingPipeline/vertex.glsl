@@ -1,7 +1,5 @@
 #extension GL_ARB_shader_draw_parameters : enable
 
-const int MAX_BONES = 128;
-const int MAX_BONE_INFLUENCE = 4;
 
 uniform ViewProjection
 {
@@ -15,10 +13,6 @@ layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inTangent;
 layout(location = 4) in vec3 inBitangent;
-#ifdef ANIMATION
-layout(location = 5) in ivec4 boneIds;
-layout(location = 6) in vec4 weights;
-#endif
 
 layout(location = 0) out vec2 outUv;
 layout(location = 1) out vec3 outFragPos;
