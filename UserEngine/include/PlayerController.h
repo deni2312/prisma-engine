@@ -119,4 +119,6 @@ private:
     unsigned int m_ballIndex = 0;
 
     const unsigned int m_maxBalls = 10;
+
+    int m_numScene = 1;
 };

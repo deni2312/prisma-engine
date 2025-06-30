@@ -32,8 +32,6 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_basePosition = m_sphereMesh->parent()->matrix();
     m_basePosition[3] = glm::vec4(0, 0, 0, 1);
 
-    m_particleController.init(m_scene->root);
-
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
     m_physics->collisionData({Prisma::Physics::Collider::BOX_COLLIDER, 1.0, true});
 
@@ -68,62 +66,62 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     m_interpolator.timeframe(timeframes);
 
-    auto grass1Renderer = std::make_shared<Prisma::Node>();
+    if (m_numScene == 0) {
+        m_particleController.init(m_scene->root);
 
-    grass1Renderer->name("Grass1Renderer");
+        auto grass1Renderer = std::make_shared<Prisma::Node>();
 
-    auto grass1Instance = std::make_shared<Prisma::InstancingGrassComponent>();
+        grass1Renderer->name("Grass1Renderer");
 
-    
-    auto grass2Renderer = std::make_shared<Prisma::Node>();
+        auto grass1Instance = std::make_shared<Prisma::InstancingGrassComponent>();
 
-    grass2Renderer->name("Grass2Renderer");
+        auto grass2Renderer = std::make_shared<Prisma::Node>();
 
-    auto grass2Instance = std::make_shared<Prisma::InstancingGrassComponent>();
+        grass2Renderer->name("Grass2Renderer");
 
-    std::vector<Prisma::Mesh::MeshData> models;
-    std::vector<Prisma::Mesh::MeshData> models1;
-    auto grass2 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Grass_2.250")->children()[0]);
-    auto grass1 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Grass_1.250")->children()[0]);
+        auto grass2Instance = std::make_shared<Prisma::InstancingGrassComponent>();
 
-    int range = 2000;
+        std::vector<Prisma::Mesh::MeshData> models;
+        std::vector<Prisma::Mesh::MeshData> models1;
+        auto grass2 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Grass_2.250")->children()[0]);
+        auto grass1 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Grass_1.250")->children()[0]);
 
-    for (int i = 0; i < 10000; ++i) {
-        // Random translation
-        float x = (std::rand() % range - range/2);
-        float z = (std::rand() % range - range/2);
+        int range = 2000;
 
-        float x1 = (std::rand() % range - range / 2);
-        float z1 = (std::rand() % range - range / 2);
+        for (int i = 0; i < 10000; ++i) {
+            // Random translation
+            float x = (std::rand() % range - range / 2);
+            float z = (std::rand() % range - range / 2);
 
-        glm::mat4 translation = glm::translate(grass2->parent()->matrix(), glm::vec3(x, 0, z)) * glm::rotate(glm::mat4(1.0), glm::radians(static_cast<float>(std::rand() % 360)), glm::vec3(0, 1, 0));
-        glm::mat4 translation1 = glm::translate(grass1->parent()->matrix(), glm::vec3(x1, 0, z1)) * glm::rotate(glm::mat4(1.0), glm::radians(static_cast<float>(std::rand() % 360)), glm::vec3(0, 1, 0));
+            float x1 = (std::rand() % range - range / 2);
+            float z1 = (std::rand() % range - range / 2);
 
+            glm::mat4 translation = glm::translate(grass2->parent()->matrix(), glm::vec3(x, 0, z)) * glm::rotate(glm::mat4(1.0), glm::radians(static_cast<float>(std::rand() % 360)), glm::vec3(0, 1, 0));
+            glm::mat4 translation1 = glm::translate(grass1->parent()->matrix(), glm::vec3(x1, 0, z1)) * glm::rotate(glm::mat4(1.0), glm::radians(static_cast<float>(std::rand() % 360)), glm::vec3(0, 1, 0));
 
-        glm::mat4 normalMatrix = glm::transpose(glm::inverse(translation));
-        glm::mat4 normalMatrix1 = glm::transpose(glm::inverse(translation1));
+            glm::mat4 normalMatrix = glm::transpose(glm::inverse(translation));
+            glm::mat4 normalMatrix1 = glm::transpose(glm::inverse(translation1));
 
-        models.push_back({translation, normalMatrix});
-        models1.push_back({translation1, normalMatrix1});
+            models.push_back({translation, normalMatrix});
+            models1.push_back({translation1, normalMatrix1});
+        }
+
+        grass1Instance->mesh(grass1);
+
+        grass1Instance->models(models);
+
+        grass1Renderer->addComponent(grass1Instance);
+
+        m_scene->root->addChild(grass1Renderer);
+
+        grass2Instance->mesh(grass2);
+
+        grass2Instance->models(models1);
+
+        grass2Renderer->addComponent(grass2Instance);
+
+        m_scene->root->addChild(grass2Renderer);
     }
-
-
-    grass1Instance->mesh(grass1);
-
-    grass1Instance->models(models);
-
-    grass1Renderer->addComponent(grass1Instance);
-
-    m_scene->root->addChild(grass1Renderer);
-
-    
-    grass2Instance->mesh(grass2);
-
-    grass2Instance->models(models1);
-
-    grass2Renderer->addComponent(grass2Instance);
-
-    m_scene->root->addChild(grass2Renderer);
 
     m_sphereMesh->visible(false);
 
@@ -256,7 +254,9 @@ void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
 }
 
 void PlayerController::update() {
-    m_particleController.update();
+    if (m_numScene == 0) {
+        m_particleController.update();    
+    }
     target(m_animatedMesh->parent()->finalMatrix()[3]);
     updateCamera();
     updateKeyboard();
