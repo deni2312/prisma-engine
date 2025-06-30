@@ -97,7 +97,8 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     tree->addComponent(treeRenderer);
 
     m_scene->root->addChild(tree);
-    m_sphereMesh->parent()->matrix(glm::translate(glm::mat4(0), glm::vec3(0, -1000, 0)));
+
+    m_sphereMesh->visible(false);
 
     for (int i = 0; i < m_maxBalls; i++) {
         auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
@@ -111,7 +112,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
         lightParent->addChild(light);
         ball->parent()->addChild(lightParent);
 
-        lightParent->matrix(glm::translate(glm::mat4(0),glm::vec3(0, -1000, 0)));
+        ball->parent()->matrix(glm::translate(glm::mat4(1), glm::vec3(0, -1000, 0)));
 
         auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
         ball->addComponent(physicsComponent);
