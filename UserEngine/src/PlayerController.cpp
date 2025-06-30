@@ -5,6 +5,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "engine.h"
+#include "../Components/include/InstancingGrassComponent.h"
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
@@ -31,7 +32,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     m_basePosition = m_sphereMesh->parent()->matrix();
     m_basePosition[3] = glm::vec4(0, 0, 0, 1);
 
-    //m_particleController.init(m_scene->root);
+    m_particleController.init(m_scene->root);
 
     m_physics = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(m_bboxMesh->components()["Physics"]);
     m_physics->collisionData({Prisma::Physics::Collider::BOX_COLLIDER, 1.0, true});
@@ -67,36 +68,62 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     m_interpolator.timeframe(timeframes);
 
-    auto tree = std::make_shared<Prisma::Node>();
+    auto grass1Renderer = std::make_shared<Prisma::Node>();
 
-    tree->name("TreeRenderer");
+    grass1Renderer->name("Grass1Renderer");
 
-    auto treeRenderer = std::make_shared<Prisma::InstancingComponent>();
-
-    std::vector<Prisma::Mesh::MeshData> models;
-
-    for (int i = 0; i < 1000; ++i) {
-        // Random translation
-        float x = (std::rand() % 200 - 100);
-        float z = (std::rand() % 200 - 100);
-        glm::mat4 translation = glm::translate(glm::mat4(1.0),glm::vec3(x, 0, z))*glm::rotate(glm::mat4(1.0),glm::radians(90.0f),glm::vec3(1,0,0));
-
-        glm::mat4 normalMatrix = glm::transpose(glm::inverse(translation));
-
-        models.push_back({translation, normalMatrix});
-    }
-
-    auto mesh = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "tree_Mesh.003")->children()[0]);
+    auto grass1Instance = std::make_shared<Prisma::InstancingGrassComponent>();
 
     
+    auto grass2Renderer = std::make_shared<Prisma::Node>();
 
-    treeRenderer->mesh(mesh);
+    grass2Renderer->name("Grass2Renderer");
 
-    treeRenderer->models(models);
+    auto grass2Instance = std::make_shared<Prisma::InstancingGrassComponent>();
 
-    tree->addComponent(treeRenderer);
+    std::vector<Prisma::Mesh::MeshData> models;
+    std::vector<Prisma::Mesh::MeshData> models1;
+    auto grass2 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Grass_2.250")->children()[0]);
+    auto grass1 = std::dynamic_pointer_cast<Prisma::Mesh>(nodeHelper.find(m_scene->root, "Grass_1.250")->children()[0]);
 
-    m_scene->root->addChild(tree);
+    int range = 2000;
+
+    for (int i = 0; i < 10000; ++i) {
+        // Random translation
+        float x = (std::rand() % range - range/2);
+        float z = (std::rand() % range - range/2);
+
+        float x1 = (std::rand() % range - range / 2);
+        float z1 = (std::rand() % range - range / 2);
+
+        glm::mat4 translation = glm::translate(grass2->parent()->matrix(), glm::vec3(x, 0, z)) * glm::rotate(glm::mat4(1.0), glm::radians(static_cast<float>(std::rand() % 360)), glm::vec3(0, 1, 0));
+        glm::mat4 translation1 = glm::translate(grass1->parent()->matrix(), glm::vec3(x1, 0, z1)) * glm::rotate(glm::mat4(1.0), glm::radians(static_cast<float>(std::rand() % 360)), glm::vec3(0, 1, 0));
+
+
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(translation));
+        glm::mat4 normalMatrix1 = glm::transpose(glm::inverse(translation1));
+
+        models.push_back({translation, normalMatrix});
+        models1.push_back({translation1, normalMatrix1});
+    }
+
+
+    grass1Instance->mesh(grass1);
+
+    grass1Instance->models(models);
+
+    grass1Renderer->addComponent(grass1Instance);
+
+    m_scene->root->addChild(grass1Renderer);
+
+    
+    grass2Instance->mesh(grass2);
+
+    grass2Instance->models(models1);
+
+    grass2Renderer->addComponent(grass2Instance);
+
+    m_scene->root->addChild(grass2Renderer);
 
     m_sphereMesh->visible(false);
 
@@ -229,7 +256,7 @@ void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
 }
 
 void PlayerController::update() {
-    //m_particleController.update();
+    m_particleController.update();
     target(m_animatedMesh->parent()->finalMatrix()[3]);
     updateCamera();
     updateKeyboard();
