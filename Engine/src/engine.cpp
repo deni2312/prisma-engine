@@ -83,10 +83,10 @@ bool Prisma::Engine::run() {
             PrismaFunc::getInstance().clear();            
 
             if (!data->debug) {
-                data->userData->update();
                 ComponentsHandler::getInstance().updateStart();
                 ComponentsHandler::getInstance().updateComponents();
                 Physics::getInstance().update(1.0f / fps());
+                data->userData->update();
             }
 
             data->sceneHandler->onBeginRender();
