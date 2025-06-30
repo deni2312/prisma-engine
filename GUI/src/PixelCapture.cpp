@@ -323,12 +323,12 @@ void Prisma::GUI::PixelCapture::createDrawPipeline() {
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
 
-    MeshIndirect::getInstance().addResizeHandler([&](auto buffer, auto& material)
+    MeshIndirect::getInstance().addResizeHandler({"PixelCaptureMesh handler" ,[&](auto buffer, auto& material)
         {
             m_srb.Release();
             m_pso->CreateShaderResourceBinding(&m_srb, true);
             m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBuffer()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
-        });
+        }});
     GlobalData::getInstance().addGlobalTexture({ m_pRTColor ,"PixelCapture",{contextData.swapChain->GetDesc().Width,contextData.swapChain->GetDesc().Height} });
 }
 
@@ -452,12 +452,12 @@ void Prisma::GUI::PixelCapture::createDrawAnimationPipeline()
             m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBufferAnimation()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     }
 
-    MeshIndirect::getInstance().addResizeHandler([&](auto buffer, auto& material)
+    MeshIndirect::getInstance().addResizeHandler({"PixelCaptureAnimation handler" ,[&](auto buffer, auto& material)
         {
             m_srbAnimation.Release();
             m_psoAnimation->CreateShaderResourceBinding(&m_srbAnimation, true);
             m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBufferAnimation()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
-        });
+        }});
 }
 
 void Prisma::GUI::PixelCapture::createScalePipeline()

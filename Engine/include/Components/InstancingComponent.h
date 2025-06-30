@@ -27,10 +27,11 @@ class InstancingComponent : public RenderComponent {
 
     void mesh(std::shared_ptr<Prisma::Mesh> mesh);
 
-    virtual void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
+    void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
 
-    virtual void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
+    void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
 
+    void destroy() override;
 
    private:
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;

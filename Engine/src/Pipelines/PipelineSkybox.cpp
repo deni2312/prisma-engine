@@ -172,9 +172,10 @@ bool Prisma::PipelineSkybox::isInit() {
     return m_init;
 }
 
-void Prisma::PipelineSkybox::addUpdate(std::function<void()> update) {
-    m_update.push_back(update);
-}
+void Prisma::PipelineSkybox::addUpdate(std::pair<std::string, std::function<void()>> update) {
+    m_update[update.first]=update.second; }
+
+void Prisma::PipelineSkybox::removeUpdate(const std::string& update) { m_update.erase(update); }
 
 Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineSkybox::skybox() {
     return m_pMSColorRTV;
@@ -249,6 +250,6 @@ void Prisma::PipelineSkybox::texture(Texture texture) {
     m_init = true;
 
     for (auto& update : m_update) {
-        update();
+        update.second();
     }
 }

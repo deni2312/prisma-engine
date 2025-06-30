@@ -200,9 +200,10 @@ Diligent::IDeviceObject* Prisma::LightHandler::dirShadowData() {
     return GlobalData::getInstance().dummyTextureArray()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
-void Prisma::LightHandler::addLightHandler(std::function<void()> update) {
-    m_updates.push_back(update);
-}
+void Prisma::LightHandler::addLightHandler(std::pair<std::string, std::function<void()>> update) {
+    m_updates[update.first]=update.second; }
+
+void Prisma::LightHandler::removeLightHandler(const std::string& update) { m_updates.erase(update); }
 
 bool Prisma::LightHandler::updateCascade() {
     return m_updateCascade;
@@ -230,7 +231,7 @@ void Prisma::LightHandler::update() {
 
     if (m_init || CacheScene::getInstance().updateSizeLights() || CacheScene::getInstance().updateStatus()) {
         for (auto update : m_updates) {
-            update();
+            update.second();
         }
     }
 

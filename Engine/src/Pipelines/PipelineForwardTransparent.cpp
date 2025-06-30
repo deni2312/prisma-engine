@@ -310,18 +310,18 @@ void Prisma::PipelineForwardTransparent::create() {
         };
 
     //CreateMSAARenderTarget();
-    MeshIndirect::getInstance().addResizeHandler([&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
+    MeshIndirect::getInstance().addResizeHandler({"Transparent handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
             m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
-        });
-    PipelineSkybox::getInstance().addUpdate([&]()
+        }});
+    PipelineSkybox::getInstance().addUpdate({"Transparent",[&]()
         {
             m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
-        });
-    LightHandler::getInstance().addLightHandler([&]()
+        }});
+    LightHandler::getInstance().addLightHandler({"Transparent",[&]()
         {
             m_updateData(m_srbTransparent,MeshIndirect::getInstance().indexBufferTransparent());
-        });
+        }});
 
     Diligent::TextureDesc RTColorDesc;
     RTColorDesc.Name = "Offscreen render target";

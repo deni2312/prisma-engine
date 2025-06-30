@@ -338,18 +338,18 @@ void Prisma::PipelineForward::create() {
         };
 
     //CreateMSAARenderTarget();
-    MeshIndirect::getInstance().addResizeHandler([&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
+    MeshIndirect::getInstance().addResizeHandler({"ForwardMesh handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
-        });
-    PipelineSkybox::getInstance().addUpdate([&]()
+        }});
+    PipelineSkybox::getInstance().addUpdate({"ForwardMesh",[&]()
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
-        });
-    LightHandler::getInstance().addLightHandler([&]()
+        }});
+    LightHandler::getInstance().addLightHandler({"ForwardMesh",[&]()
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
-        });
+        }});
 
     m_forwardTransparent=std::make_unique<Prisma::PipelineForwardTransparent>(m_width,m_height);
 }
@@ -594,18 +594,18 @@ void Prisma::PipelineForward::createAnimation()
         };
 
     //CreateMSAARenderTarget();
-    MeshIndirect::getInstance().addResizeHandler([&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
+    MeshIndirect::getInstance().addResizeHandler({"ForwardAnimation handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
             m_updateDataAnimation();
-        });
-    PipelineSkybox::getInstance().addUpdate([&]()
+        }});
+    PipelineSkybox::getInstance().addUpdate({"ForwardAnimation",[&]()
         {
             m_updateDataAnimation();
-        });
-    LightHandler::getInstance().addLightHandler([&]()
+        }});
+    LightHandler::getInstance().addLightHandler({"ForwardAnimation",[&]()
         {
             m_updateDataAnimation();
-        });
+        }});
 }
 
 void Prisma::PipelineForward::createCompositePipeline()

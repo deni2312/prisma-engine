@@ -339,12 +339,8 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
     UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index) {
         m_updateData();
     });
-    MeshIndirect::getInstance().addResizeHandler([&](auto vBuffer, auto iBuffer) {
-        m_updateData();
-    });
-    PipelineSkybox::getInstance().addUpdate([&]() {
-        m_updateData();
-    });
+    MeshIndirect::getInstance().addResizeHandler({"RayTracing handler", [&](auto vBuffer, auto iBuffer) { m_updateData(); }});
+    PipelineSkybox::getInstance().addUpdate({"RayTracing", [&]() { m_updateData(); }});
 }
 
 void Prisma::PipelineRayTracing::render() {

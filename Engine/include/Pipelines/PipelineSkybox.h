@@ -38,7 +38,9 @@ public:
 
     bool isInit();
 
-    void addUpdate(std::function<void()> update);
+    void addUpdate(std::pair<std::string,std::function<void()>> update);
+
+    void removeUpdate(const std::string& update);
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> skybox();
 
@@ -46,7 +48,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iblData;
     Diligent::RefCntAutoPtr<Diligent::ITextureView> m_pRTColor[6];
 
-    std::vector<std::function<void()>> m_update;
+    std::map<std::string,std::function<void()>> m_update;
 
     void calculateSkybox();
 

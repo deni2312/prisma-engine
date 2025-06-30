@@ -336,7 +336,7 @@ void Prisma::MeshIndirect::updateTextureDataAnimation() {
 
 void Prisma::MeshIndirect::updatePso() {
     for (auto resizeHandler : m_resizeHandler) {
-        resizeHandler(m_modelBuffer, m_textureViews);
+        resizeHandler.second(m_modelBuffer, m_textureViews);
     }
 }
 
@@ -1097,7 +1097,6 @@ void Prisma::MeshIndirect::setupBuffersAnimation() {
                                                  Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
-void Prisma::MeshIndirect::addResizeHandler(
-    std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)> resizeHandler) {
-    m_resizeHandler.push_back(resizeHandler);
-}
+void Prisma::MeshIndirect::addResizeHandler(std::pair<std::string, std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)>> resizeHandler) { m_resizeHandler[resizeHandler.first] = resizeHandler.second; }
+
+void Prisma::MeshIndirect::removeResizeHandler(const std::string& resizeHandler) { m_resizeHandler.erase(resizeHandler); }

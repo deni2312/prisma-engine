@@ -97,6 +97,33 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     tree->addComponent(treeRenderer);
 
     m_scene->root->addChild(tree);
+    m_sphereMesh->parent()->matrix(glm::translate(glm::mat4(0), glm::vec3(0, -1000, 0)));
+
+    for (int i = 0; i < m_maxBalls; i++) {
+        auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
+        auto lightParent = std::make_shared<Prisma::Node>();
+        ball->name("Ball");
+        auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
+        Prisma::LightType::LightOmni lightType;
+        light->type(lightType);
+        light->name("LightBall");
+        lightParent->name("LightParent");
+        lightParent->addChild(light);
+        ball->parent()->addChild(lightParent);
+
+        lightParent->matrix(glm::translate(glm::mat4(0),glm::vec3(0, -1000, 0)));
+
+        auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
+        ball->addComponent(physicsComponent);
+        m_balls.push_back(ball);
+
+        physicsComponent->collisionData({Prisma::Physics::Collider::SPHERE_COLLIDER, 1.0, false});
+        /* physicsComponent->onCollisionEnter([ballCopy, this](const auto& body) {
+            if (auto ballShared = ballCopy.lock()) {
+                this->m_balls.push_back(ballShared);
+            }
+        });*/
+    }
 
     m_areaLight = nodeHelper.find(m_scene->root, "ParentArea_74");
     createCamera();
@@ -205,13 +232,6 @@ void PlayerController::update() {
     target(m_animatedMesh->parent()->finalMatrix()[3]);
     updateCamera();
     updateKeyboard();
-    for (auto ball : m_balls) {
-        //auto shockwaveComponent = std::make_shared<ShockwaveComponent>();
-        //shockwaveComponent->position(ball->finalMatrix()[3]);
-        //ball->addComponent(shockwaveComponent);
-    }
-    m_balls.clear();
-    //m_areaLight->matrix(m_interpolator.next(1.0 / Prisma::Engine::getInstance().fps()));
 }
 
 std::shared_ptr<Prisma::CallbackHandler> PlayerController::callback() {
@@ -262,19 +282,9 @@ void PlayerController::createCamera() {
     };
     m_handler->mouseClick = [&](int button, int action, double x, double y) {
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-            auto ball = Prisma::Mesh::instantiate(m_sphereMesh);
-            auto lightParent = std::make_shared<Prisma::Node>();
-            ball->name("Ball");
-            auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
-            Prisma::LightType::LightOmni lightType;
-            light->type(lightType);
-            light->name("LightBall");
-            lightParent->name("LightParent");
-            lightParent->addChild(light);
-            ball->parent()->addChild(lightParent);
+            std::shared_ptr<Prisma::Mesh> ball = m_balls[m_ballIndex].lock();
 
-            auto physicsComponent = std::make_shared<Prisma::PhysicsMeshComponent>();
-            ball->addComponent(physicsComponent);
+            auto physicsComponent = std::dynamic_pointer_cast<Prisma::PhysicsMeshComponent>(ball->components()["Physics"]);
             auto position = m_gunPosition->finalMatrix()[3] + glm::vec4(
                                 Prisma::JfromVec3(m_currentDirection), 0.0f);
 
@@ -290,6 +300,7 @@ void PlayerController::createCamera() {
             });*/
             Prisma::Physics::getInstance().bodyInterface().AddImpulse(physicsComponent->physicsId(),
                                                                       m_currentDirection * 5);
+            m_ballIndex=(m_ballIndex+1)%m_maxBalls;
         }
     };
 }

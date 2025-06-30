@@ -55,7 +55,7 @@ class LightHandler : public InstanceData<LightHandler> {
 
     std::vector<Diligent::IDeviceObject*> m_omniData;
 
-    std::vector<std::function<void()>> m_updates;
+    std::map<std::string,std::function<void()>> m_updates;
 
 public:
     struct ClusterData {
@@ -67,7 +67,8 @@ public:
 
     Diligent::IDeviceObject* dirShadowData();
 
-    void addLightHandler(std::function<void()> update);
+    void addLightHandler(std::pair<std::string,std::function<void()>> update);
+    void removeLightHandler(const std::string& update);
 
     bool updateCascade();
 

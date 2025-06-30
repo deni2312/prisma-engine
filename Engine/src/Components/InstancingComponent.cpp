@@ -220,18 +220,18 @@ void Prisma::InstancingComponent::start() {
     m_updateData(m_srbOpaque);
 
     //CreateMSAARenderTarget();
-    MeshIndirect::getInstance().addResizeHandler([&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
+    MeshIndirect::getInstance().addResizeHandler({std::to_string(uuid()),[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
             m_updateData(m_srbOpaque);
-        });
-    PipelineSkybox::getInstance().addUpdate([&]()
+        }});
+    PipelineSkybox::getInstance().addUpdate({std::to_string(uuid()),[&]()
         {
             m_updateData(m_srbOpaque);
-        });
-    LightHandler::getInstance().addLightHandler([&]()
+        }});
+    LightHandler::getInstance().addLightHandler({std::to_string(uuid()),[&]()
         {
             m_updateData(m_srbOpaque);
-        });
+        }});
 }
 
 void Prisma::InstancingComponent::models(const std::vector<Mesh::MeshData>& models) { 
@@ -327,6 +327,14 @@ void Prisma::InstancingComponent::updatePostRender(Diligent::RefCntAutoPtr<Dilig
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
 
     contextData.immediateContext->DrawIndexed(DrawAttrs);
+}
+
+void Prisma::InstancingComponent::destroy()
+{
+    MeshIndirect::getInstance().removeResizeHandler(std::to_string(uuid()));
+    PipelineSkybox::getInstance().removeUpdate(std::to_string(uuid()));
+    LightHandler::getInstance().removeLightHandler(std::to_string(uuid()));
+    Component::destroy();
 }
 
 void Prisma::InstancingComponent::ui() { Component::ui(); }

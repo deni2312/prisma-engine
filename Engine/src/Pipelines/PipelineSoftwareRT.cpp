@@ -187,9 +187,9 @@ Prisma::PipelineSoftwareRT::PipelineSoftwareRT(unsigned int width, unsigned int 
                                                glm::value_ptr(totalSize),
                                                Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    MeshIndirect::getInstance().addResizeHandler([&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
+    MeshIndirect::getInstance().addResizeHandler({"Software Raytracing handler" ,[&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
         loadData();
-    });
+    }});
 }
 
 void Prisma::PipelineSoftwareRT::render() {

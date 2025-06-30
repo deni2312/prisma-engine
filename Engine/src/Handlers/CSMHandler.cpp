@@ -135,13 +135,11 @@ void Prisma::CSMHandler::create() {
             MeshIndirect::getInstance().modelBuffer()->
                                         GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     }
-    MeshIndirect::getInstance().addResizeHandler(
-        [&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
-            m_srb.Release();
-            m_pso->CreateShaderResourceBinding(&m_srb, true);
-            m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->
-                   Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
-        });
+    MeshIndirect::getInstance().addResizeHandler({"CSMMesh handler" ,[&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
+        m_srb.Release();
+        m_pso->CreateShaderResourceBinding(&m_srb, true);
+        m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+    }});
 }
 
 void Prisma::CSMHandler::createAnimation() {
@@ -261,14 +259,11 @@ void Prisma::CSMHandler::createAnimation() {
                             Diligent::BUFFER_VIEW_SHADER_RESOURCE));
     }
     MeshIndirect::getInstance().addResizeHandler(
-        [&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
-            m_srbAnimation.Release();
-            m_psoAnimation->CreateShaderResourceBinding(&m_srbAnimation, true);
-            m_srbAnimation->
-                GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->
-                Set(MeshIndirect::getInstance().modelBufferAnimation()->GetDefaultView(
-                    Diligent::BUFFER_VIEW_SHADER_RESOURCE));
-        });
+        {"CSMAnimation handler", [&](Diligent::RefCntAutoPtr<Diligent::IBuffer> buffers, MeshIndirect::MaterialView& materials) {
+             m_srbAnimation.Release();
+             m_psoAnimation->CreateShaderResourceBinding(&m_srbAnimation, true);
+             m_srbAnimation->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(MeshIndirect::getInstance().modelBufferAnimation()->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+         }});
 }
 
 void Prisma::CSMHandler::render(const CSMData& data) {

@@ -7,7 +7,6 @@
 #include "../GlobalData/InstanceData.h"
 #include "Graphics/GraphicsTools/interface/GraphicsUtilities.h"
 
-
 namespace Prisma {
 struct DrawElementsIndirectCommand {
     unsigned int count;
@@ -67,8 +66,8 @@ public:
     void setupBuffers();
     void setupBuffersAnimation();
 
-    void addResizeHandler(
-        std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)> resizeHandler);
+    void addResizeHandler(std::pair<std::string, std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)>> resizeHandler);
+    void removeResizeHandler(const std::string& resizeHandler);
 
     MeshIndirect();
 
@@ -125,7 +124,7 @@ private:
     void createMeshBuffer();
     void createMeshAnimationBuffer();
 
-    std::vector<std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)>> m_resizeHandler;
+    std::map<std::string, std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, MaterialView&)>> m_resizeHandler;
 
     //INDIRECT INDEX
 

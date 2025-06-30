@@ -108,11 +108,15 @@ private:
 
     ParticleController m_particleController;
 
-    std::vector<std::shared_ptr<Prisma::Mesh>> m_balls;
+    std::vector<std::weak_ptr<Prisma::Mesh>> m_balls;
 
     Prisma::Interpolator m_interpolator;
 
     std::shared_ptr<Prisma::Node> m_areaLight;
 
     bool m_hidden = false;
+
+    unsigned int m_ballIndex = 0;
+
+    const unsigned int m_maxBalls = 10;
 };
