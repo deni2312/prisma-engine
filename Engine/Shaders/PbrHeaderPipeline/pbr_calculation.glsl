@@ -33,16 +33,10 @@ const float PI = 3.14159265359;
 
 layout(location = 0) out vec4 FragColor;
 
-
-layout(location = 0) in vec2 outUv;
-layout(location = 1) in vec3 outFragPos; // Fragment position in world space
-layout(location = 2) in vec3 outNormal;
-layout(location = 3) in flat int outDrawId;
 //layout(location = 4) in mat3 outTBN;
 
 
 uniform sampler textureClamp_sampler;
-uniform sampler textureRepeat_sampler;
 
 
 uniform textureCube omniShadow[];

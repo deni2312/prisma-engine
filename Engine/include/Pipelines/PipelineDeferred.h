@@ -1,46 +1,39 @@
 #pragma once
 
-#include "../SceneObjects/Camera.h"
-#include "../SceneData/SceneLoader.h"
-#include "../Handlers/MeshHandler.h"
-#include "../SceneData/MeshIndirect.h"
-#include "PipelineFullScreen.h"
-#include "PipelineSSR.h"
 #include <memory>
+
+#include "../Handlers/MeshHandler.h"
+#include "../Helpers/Blit.h"
 #include "../Helpers/Settings.h"
+#include "../SceneData/MeshIndirect.h"
+#include "../SceneData/SceneLoader.h"
+#include "../SceneObjects/Camera.h"
+#include "PipelineFullScreen.h"
+#include "PipelinePrePass.h"
 
 namespace Prisma {
 class PipelineDeferred {
-public:
-    struct DeferredData {
-        uint64_t position;
-        uint64_t normal;
-        uint64_t albedo;
-        uint64_t depth;
-        uint64_t ambient;
-    };
-
-    PipelineDeferred(const unsigned int& width, const unsigned int& height, bool srgb);
+   public:
+    PipelineDeferred(Diligent::RefCntAutoPtr<Diligent::ITexture> albedo, Diligent::RefCntAutoPtr<Diligent::ITexture> normal, Diligent::RefCntAutoPtr<Diligent::ITexture> position);
     void render();
     ~PipelineDeferred();
 
-private:
-    unsigned int m_width;
-    unsigned int m_height;
-    //std::shared_ptr<Shader> m_shader;
-    //std::shared_ptr<Shader> m_shaderD;
-    //std::shared_ptr<Shader> m_shaderAnimate;
+   private:
 
-    DeferredData m_deferredData;
+    void create();
 
-    unsigned int m_positionLocation;
-    unsigned int m_normalLocation;
-    unsigned int m_albedoLocation;
-    unsigned int m_ambientLocation;
-    //std::shared_ptr<FBO> m_fboBuffer;
-    //std::shared_ptr<FBO> m_fbo;
-    std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
-    std::shared_ptr<PipelineSSR> m_ssr;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
+
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbOpaque;
+
+    std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&, Diligent::RefCntAutoPtr<Diligent::IBuffer>&)> m_updateData;
+
+    Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignatureAnimation;
+
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_positionTexture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_normalTexture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_albedoTexture;
 };
-}
+}  // namespace Prisma

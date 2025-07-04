@@ -11,6 +11,7 @@
 #include "PipelineForwardTransparent.h"
 #include "PipelineFullScreen.h"
 #include "PipelinePrePass.h"
+#include "PipelineDeferred.h"
 
 namespace Prisma {
 class PipelineDeferredForward {
@@ -25,27 +26,12 @@ class PipelineDeferredForward {
 
     void create();
     void createAnimation();
-    void createCompositePipeline();
-    void renderComposite();
-    /*std::shared_ptr<Shader> m_shader;
-    std::shared_ptr<Shader> m_shaderAnimate;
-    std::shared_ptr<Shader> m_shaderTransparent;
-    std::shared_ptr<FBO> m_fbo;
-    std::shared_ptr<FBO> m_fboCopy;
-    std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
 
-    std::shared_ptr<PipelinePrePass> m_prepass;*/
-
-    Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoComposite;
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
 
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbOpaque;
-
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbComposite;
 
     std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&, Diligent::RefCntAutoPtr<Diligent::IBuffer>&)> m_updateData;
 
@@ -57,12 +43,10 @@ class PipelineDeferredForward {
 
     std::function<void()> m_updateDataAnimation;
 
-    std::unique_ptr<Prisma::PipelineForwardTransparent> m_forwardTransparent;
-
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_compositeTexture;
-
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_positionTexture;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_normalTexture;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_albedoTexture;
+
+    std::unique_ptr<PipelineDeferred> m_deferredPipeline;
 };
 }  // namespace Prisma
