@@ -336,7 +336,7 @@ void Prisma::PipelineForward::create() {
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
             }
         };
-
+    m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
     //CreateMSAARenderTarget();
     MeshIndirect::getInstance().addResizeHandler({"ForwardMesh handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
@@ -592,7 +592,7 @@ void Prisma::PipelineForward::createAnimation()
                 m_srbAnimation->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
             }
         };
-
+    m_updateDataAnimation();
     //CreateMSAARenderTarget();
     MeshIndirect::getInstance().addResizeHandler({"ForwardAnimation handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {

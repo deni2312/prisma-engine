@@ -75,8 +75,10 @@ void Prisma::PipelineDeferredForward::render() {
         // Set texture SRV in the SRB
         contextData.immediateContext->CommitShaderResources(m_srbOpaque, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         MeshIndirect::getInstance().renderMeshesOpaque();
+        m_deferredPipeline->render();
+
     }
-    m_deferredPipeline->render();
+    
     /* contextData.immediateContext->SetPipelineState(m_psoAnimation);
     if (!meshesAnimation.empty() && PipelineSkybox::getInstance().isInit()) {
         MeshIndirect::getInstance().setupBuffersAnimation();
