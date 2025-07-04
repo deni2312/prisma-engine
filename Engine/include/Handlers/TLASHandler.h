@@ -16,9 +16,9 @@ struct TLASBuildInstanceData;
 }
 
 namespace Prisma {
-class UpdateTLAS : public InstanceData<UpdateTLAS> {
+class TLASHandler : public InstanceData<TLASHandler> {
 public:
-    UpdateTLAS();
+    TLASHandler();
     void update();
 
     void updateSizeTLAS();

@@ -40,8 +40,8 @@
 #include "GraphicsTypesX.hpp"
 #include "TextureUtilities.h"
 #include "Graphics/GraphicsTools/interface/ShaderMacroHelper.hpp"
-#include "Helpers/UpdateTLAS.h"
-#include "../Helpers/UpdateTLAS.cpp"
+#include "Handlers/TLASHandler.h"
+
 
 using namespace Diligent;
 
@@ -295,21 +295,21 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
 
     m_updateData = [&]() {
         m_srb.Release();
-        if (UpdateTLAS::getInstance().vertexData() && MeshIndirect::getInstance().statusBuffer() &&
+        if (TLASHandler::getInstance().vertexData() && MeshIndirect::getInstance().statusBuffer() &&
             PipelineSkybox::getInstance().isInit()) {
             auto materials = MeshIndirect::getInstance().textureViews();
             m_pResourceSignature->CreateShaderResourceBinding(&m_srb, true);
             m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_ColorBuffer")->Set(
                 m_colorBuffer->GetDefaultView(TEXTURE_VIEW_UNORDERED_ACCESS));
-            m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(UpdateTLAS::getInstance().TLAS());
+            m_srb->GetVariableByName(SHADER_TYPE_RAY_GEN, "g_TLAS")->Set(TLASHandler::getInstance().TLAS());
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "g_TLAS")->Set(
-                UpdateTLAS::getInstance().TLAS());
+                TLASHandler::getInstance().TLAS());
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "vertexBlas")->Set(
-                UpdateTLAS::getInstance().vertexData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+                TLASHandler::getInstance().vertexData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "primitiveBlas")->Set(
-                UpdateTLAS::getInstance().primitiveData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+                TLASHandler::getInstance().primitiveData()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT, "locationBlas")->Set(
-                UpdateTLAS::getInstance().vertexLocation()->GetDefaultView(
+                TLASHandler::getInstance().vertexLocation()->GetDefaultView(
                     BUFFER_VIEW_SHADER_RESOURCE));
             m_srb->GetVariableByName(SHADER_TYPE_RAY_CLOSEST_HIT,
                                      ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(
@@ -336,7 +336,7 @@ Prisma::PipelineRayTracing::PipelineRayTracing(const unsigned int& width, const 
         }
     };
 
-    UpdateTLAS::getInstance().addUpdates([&](auto vertex, auto primitive, auto index) {
+    TLASHandler::getInstance().addUpdates([&](auto vertex, auto primitive, auto index) {
         m_updateData();
     });
     MeshIndirect::getInstance().addResizeHandler({"RayTracing handler", [&](auto vBuffer, auto iBuffer) { m_updateData(); }});
@@ -366,7 +366,7 @@ void Prisma::PipelineRayTracing::render() {
         TraceRaysAttribs Attribs;
         Attribs.DimensionX = m_colorBuffer->GetDesc().Width;
         Attribs.DimensionY = m_colorBuffer->GetDesc().Height;
-        Attribs.pSBT = UpdateTLAS::getInstance().SBT();
+        Attribs.pSBT = TLASHandler::getInstance().SBT();
 
         contextData.immediateContext->TraceRays(Attribs);
         m_blitRT->blit();

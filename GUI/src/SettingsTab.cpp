@@ -9,7 +9,8 @@
 #include "../include/TextureInfo.h"
 #include <ThirdParty/imgui/imgui.h>
 
-#include "Helpers/UpdateTLAS.h"
+#include "Handlers/TLASHandler.h"
+
 #include "Pipelines/PipelineHandler.h"
 
 Prisma::GUI::ImguiDebug::ImGuiStatus m_status;
@@ -21,6 +22,7 @@ void Prisma::GUI::SettingsTab::init() {
     m_status.currentPostprocess = 0;
 
     m_status.items.push_back("FORWARD");
+    m_status.items.push_back("DEFERRED FORWARD");
     m_status.items.push_back("RAYTRACING");
     m_status.items.push_back("SOFTWARE RAYTRACING");
 
@@ -54,12 +56,15 @@ void Prisma::GUI::SettingsTab::drawSettings() {
                 case EngineSettings::Pipeline::FORWARD:
                     PipelineHandler::getInstance().forward();
                     break;
+                case EngineSettings::Pipeline::DEFERRED_FORWARD:
+                    PipelineHandler::getInstance().deferredForward();
+                    break;
                 case EngineSettings::Pipeline::SOFTWARE_RAYTRACING:
                     PipelineHandler::getInstance().softwareRt()->loadData();
                     break;
                 case EngineSettings::Pipeline::RAYTRACING:
                     PipelineHandler::getInstance().raytracing();
-                    UpdateTLAS::getInstance().updateSizeTLAS();
+                    TLASHandler::getInstance().updateSizeTLAS();
 
                     int maxHardware = PipelineHandler::getInstance().raytracing()->
                                                                      hardwareMaxReflection();

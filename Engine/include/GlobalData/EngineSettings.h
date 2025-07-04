@@ -3,6 +3,7 @@
 namespace Prisma::EngineSettings {
 enum class Pipeline {
     FORWARD,
+    DEFERRED_FORWARD,
     RAYTRACING,
     SOFTWARE_RAYTRACING
 };

@@ -1,4 +1,4 @@
-#include "Helpers/UpdateTLAS.h"
+#include "Handlers/TLASHandler.h"
 
 #include "GlobalData/CacheScene.h"
 #include "GlobalData/EngineSettings.h"
@@ -17,11 +17,11 @@
 #define PRIMARY_RAY_INDEX 0
 #define SHADOW_RAY_INDEX  1
 
-Prisma::UpdateTLAS::UpdateTLAS() {
+Prisma::TLASHandler::TLASHandler() {
     resizeTLAS();
 }
 
-void Prisma::UpdateTLAS::update() {
+void Prisma::TLASHandler::update() {
     // Create or update top-level acceleration structure
     if (Engine::getInstance().engineSettings().pipeline == EngineSettings::Pipeline::RAYTRACING) {
         auto meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -43,7 +43,7 @@ void Prisma::UpdateTLAS::update() {
     }
 }
 
-void Prisma::UpdateTLAS::resizeTLAS() {
+void Prisma::TLASHandler::resizeTLAS() {
     if (Engine::getInstance().engineSettings().pipeline == EngineSettings::Pipeline::RAYTRACING) {
         auto& contextData = PrismaFunc::getInstance().contextData();
         auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -132,29 +132,29 @@ void Prisma::UpdateTLAS::resizeTLAS() {
     }
 }
 
-Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> Prisma::UpdateTLAS::SBT() {
+Diligent::RefCntAutoPtr<Diligent::IShaderBindingTable> Prisma::TLASHandler::SBT() {
     return m_pSBT;
 }
 
-Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::UpdateTLAS::vertexData() {
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::TLASHandler::vertexData() {
     return m_vertexData;
 }
 
-Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::UpdateTLAS::primitiveData() {
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::TLASHandler::primitiveData() {
     return m_primitiveData;
 }
 
-Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::UpdateTLAS::vertexLocation() {
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::TLASHandler::vertexLocation() {
     return m_vertexLocation;
 }
 
-void Prisma::UpdateTLAS::addUpdates(
+void Prisma::TLASHandler::addUpdates(
     std::function<void(Diligent::RefCntAutoPtr<Diligent::IBuffer>, Diligent::RefCntAutoPtr<Diligent::IBuffer>,
                        Diligent::RefCntAutoPtr<Diligent::IBuffer>)> update) {
     m_updates.push_back(update);
 }
 
-void Prisma::UpdateTLAS::updateSizeTLAS() {
+void Prisma::TLASHandler::updateSizeTLAS() {
     resizeTLAS();
     auto& contextData = PrismaFunc::getInstance().contextData();
     auto meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
@@ -212,7 +212,7 @@ void Prisma::UpdateTLAS::updateSizeTLAS() {
     }
 }
 
-void Prisma::UpdateTLAS::updateTLAS(bool update) {
+void Prisma::TLASHandler::updateTLAS(bool update) {
     auto& contextData = PrismaFunc::getInstance().contextData();
     auto meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
     if (!meshes.empty()) {
@@ -291,6 +291,6 @@ void Prisma::UpdateTLAS::updateTLAS(bool update) {
     }
 }
 
-Diligent::RefCntAutoPtr<Diligent::ITopLevelAS> Prisma::UpdateTLAS::TLAS() {
+Diligent::RefCntAutoPtr<Diligent::ITopLevelAS> Prisma::TLASHandler::TLAS() {
     return m_pTLAS;
 }

@@ -25,7 +25,8 @@
 #include <Windows.h>
 #include "../include/Handlers/LoadingHandler.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
-#include "Helpers/UpdateTLAS.h"
+#include "Handlers/TLASHandler.h"
+
 #include "Helpers/FPSCounter.h"
 
 struct PrivateData {
@@ -92,7 +93,7 @@ bool Prisma::Engine::run() {
             data->sceneHandler->onBeginRender();
             MeshHandler::getInstance().updateCamera();
             MeshIndirect::getInstance().update();
-            UpdateTLAS::getInstance().update();
+            TLASHandler::getInstance().update();
             LightHandler::getInstance().update();
             if (data->debug) {
                 ComponentsHandler::getInstance().updateUi();
@@ -102,6 +103,10 @@ bool Prisma::Engine::run() {
                 case EngineSettings::Pipeline::FORWARD:
                     PipelineHandler::getInstance().forward()->render();
                     break;
+                case EngineSettings::Pipeline::DEFERRED_FORWARD:
+                    PipelineHandler::getInstance().deferredForward()->render();
+                    break;
+
                 case EngineSettings::Pipeline::RAYTRACING:
                     PipelineHandler::getInstance().raytracing()->render();
                     break;
