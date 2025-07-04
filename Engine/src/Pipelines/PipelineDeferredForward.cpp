@@ -36,21 +36,30 @@ using namespace Diligent;
 
 Prisma::PipelineDeferredForward::PipelineDeferredForward(const unsigned int& width, const unsigned int& height) : m_width{width}, m_height{height} {
     create();
-    createCompositePipeline();
-    createAnimation();
+    //createCompositePipeline();
+    //createAnimation();
 }
 
 void Prisma::PipelineDeferredForward::render() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
     auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 
+
+    ITextureView* textures[] = {
+        m_positionTexture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),
+        m_normalTexture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),
+        m_albedoTexture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),
+    };
+
     // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->SetRenderTargets(3, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->ClearRenderTarget(textures[0], value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->ClearRenderTarget(textures[1], value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->ClearRenderTarget(textures[2], value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
     contextData.immediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     Prisma::ComponentsHandler::getInstance().updatePreRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
@@ -68,7 +77,7 @@ void Prisma::PipelineDeferredForward::render() {
         MeshIndirect::getInstance().renderMeshesOpaque();
     }
 
-    contextData.immediateContext->SetPipelineState(m_psoAnimation);
+    /* contextData.immediateContext->SetPipelineState(m_psoAnimation);
     if (!meshesAnimation.empty() && PipelineSkybox::getInstance().isInit()) {
         MeshIndirect::getInstance().setupBuffersAnimation();
         // Set texture SRV in the SRB
@@ -89,7 +98,7 @@ void Prisma::PipelineDeferredForward::render() {
     }
     Physics::getInstance().drawDebug();
     renderComposite();
-
+    */
     // m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
     PrismaFunc::getInstance().bindMainRenderTarget();
 }
@@ -103,16 +112,18 @@ void Prisma::PipelineDeferredForward::create() {
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Forward Pipeline";
+    PSOCreateInfo.PSODesc.Name = "Deferred Forward Pipeline";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_GRAPHICS;
 
     // clang-format off
     // This tutorial will render to a single render target
-    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
+    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 3;
     // Set render target format which is the format of the swap chain's color buffer
     PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Prisma::PipelineHandler::getInstance().textureFormat();
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[1] = Prisma::PipelineHandler::getInstance().textureFormat();
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[2] = Prisma::PipelineHandler::getInstance().textureFormat();
     // Set depth buffer format which is the format of the swap chain's back buffer
     PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
@@ -146,8 +157,8 @@ void Prisma::PipelineDeferredForward::create() {
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Forward VS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.glsl";
+        ShaderCI.Desc.Name = "Deferred Forward VS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/DeferredForwardPipeline/vertex.glsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
     }
 
@@ -156,8 +167,8 @@ void Prisma::PipelineDeferredForward::create() {
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Forward PS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.glsl";
+        ShaderCI.Desc.Name = "Deferred Forward PS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/DeferredForwardPipeline/fragment.glsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
@@ -186,35 +197,19 @@ void Prisma::PipelineDeferredForward::create() {
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    std::string samplerClampName = "textureClamp_sampler";
     std::string samplerRepeatName = "textureRepeat_sampler";
 
     PipelineResourceDesc Resources[] = {
         {SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_INDEX_OPAQUE.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
 
-        {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LIGHT_SIZES.c_str(), 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_OMNI_DATA.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_DIR_DATA.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_CLUSTERS.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_CLUSTERS_DATA.c_str(), 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_DIR_DATA_SHADOW.c_str(), 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str(), Define::MAX_OMNI_SHADOW, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
-        {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str(), 5, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str(), Define::MAX_MESHES, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str(), Define::MAX_MESHES, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
         {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str(), Define::MAX_MESHES, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE, PIPELINE_RESOURCE_FLAG_RUNTIME_ARRAY},
 
-        {SHADER_TYPE_PIXEL, samplerClampName.c_str(), 1, SHADER_RESOURCE_TYPE_SAMPLER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, samplerRepeatName.c_str(), 1, SHADER_RESOURCE_TYPE_SAMPLER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-
-        {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LUT.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_PREFILTER.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-        {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-
+        {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
     };
 
     PipelineResourceSignatureDesc ResourceSignDesc;
@@ -247,32 +242,12 @@ void Prisma::PipelineDeferredForward::create() {
 
 
     contextData.device->CreatePipelineState(PSOCreateInfo, &m_pso);
-    contextData.device->CreateSampler(SamLinearClampDesc, &samplerClamp);
     contextData.device->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
 
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_DIR_DATA_SHADOW.c_str())->Set(CSMHandler::getInstance().shadowBuffer());
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_OMNI_DATA.c_str())->Set(LightHandler::getInstance().omniLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_DIR_DATA.c_str())->Set(LightHandler::getInstance().dirLights()->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_CLUSTERS.c_str())->Set(LightHandler::getInstance().clusters().clusters->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_CLUSTERS_DATA.c_str())->Set(LightHandler::getInstance().clusters().clustersData);
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LIGHT_SIZES.c_str())->Set(LightHandler::getInstance().lightSizes());
-
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LUT.c_str())->Set(PipelineLUT::getInstance().lutTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-
-    IDeviceObject* samplerDeviceClamp = samplerClamp;
     IDeviceObject* samplerDeviceRepeat = samplerRepeat;
 
-    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerClampName.c_str())->Set(samplerDeviceClamp);
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerRepeatName.c_str())->Set(samplerDeviceRepeat);
 
     // Create a shader resource binding object and bind all static resources in it
@@ -285,36 +260,53 @@ void Prisma::PipelineDeferredForward::create() {
             auto status = MeshIndirect::getInstance().statusBuffer();
             srb.Release();
             m_pResourceSignature->CreateShaderResourceBinding(&srb, true);
-            srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str())->SetArray(LightHandler::getInstance().omniData().data(), 0, LightHandler::getInstance().omniData().size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str())->Set(LightHandler::getInstance().dirShadowData());
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIFFUSE_TEXTURE.c_str())->SetArray(materials.diffuse.data(), 0, materials.diffuse.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_NORMAL_TEXTURE.c_str())->SetArray(materials.normal.data(), 0, materials.normal.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_ROUGHNESS_METALNESS_TEXTURE.c_str())->SetArray(materials.rm.data(), 0, materials.rm.size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
             srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str())->Set(buffers->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
             srb->GetVariableByName(SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_INDEX_OPAQUE.c_str())->Set(indexBuffer->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-
+            
             if (status) {
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str())->Set(status->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
-            }
-            if (PipelineSkybox::getInstance().isInit()) {
-                srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_PREFILTER.c_str())->Set(PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-                srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
             }
         };
 
     //CreateMSAARenderTarget();
-    MeshIndirect::getInstance().addResizeHandler({"ForwardMesh handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
+    MeshIndirect::getInstance().addResizeHandler({"DeferredForwardMesh handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
         }});
-    PipelineSkybox::getInstance().addUpdate({"ForwardMesh",[&]()
+    PipelineSkybox::getInstance().addUpdate({"DeferredForwardMesh",[&]()
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
         }});
-    LightHandler::getInstance().addLightHandler({"ForwardMesh",[&]()
+    LightHandler::getInstance().addLightHandler({"DeferredForwardMesh",[&]()
         {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
         }});
+
+    Diligent::TextureDesc RTColorDesc;
+    RTColorDesc.Name = "ALbedo Render Target";
+    RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
+    RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
+    RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
+    RTColorDesc.MipLevels = 1;
+    RTColorDesc.Format = PipelineHandler::getInstance().textureFormat();
+    // The render target can be bound as a shader resource and as a render target
+    RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
+    // Define optimal clear value
+    RTColorDesc.ClearValue.Format = RTColorDesc.Format;
+    RTColorDesc.ClearValue.Color[0] = 0.350f;
+    RTColorDesc.ClearValue.Color[1] = 0.350f;
+    RTColorDesc.ClearValue.Color[2] = 0.350f;
+    RTColorDesc.ClearValue.Color[3] = 1.f;
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_albedoTexture);
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_normalTexture);
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_positionTexture);
+
+    GlobalData::getInstance().addGlobalTexture({m_albedoTexture, "Deferred Albedo Texture"});
+    GlobalData::getInstance().addGlobalTexture({m_normalTexture, "Deferred Normal Texture"});
+    GlobalData::getInstance().addGlobalTexture({m_positionTexture, "Deferred Position Texture"});
 
     m_forwardTransparent=std::make_unique<Prisma::PipelineForwardTransparent>(m_width,m_height);
 }
@@ -327,7 +319,7 @@ void Prisma::PipelineDeferredForward::createAnimation()
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Forward Pipeline";
+    PSOCreateInfo.PSODesc.Name = "Deferred Forward Pipeline";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_GRAPHICS;
@@ -371,8 +363,8 @@ void Prisma::PipelineDeferredForward::createAnimation()
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Forward VS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.glsl";
+        ShaderCI.Desc.Name = "Deferred Forward VS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/DeferredForwardPipeline/vertex.glsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
     }
 
@@ -381,8 +373,8 @@ void Prisma::PipelineDeferredForward::createAnimation()
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Forward PS";
-        ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.glsl";
+        ShaderCI.Desc.Name = "Deferred Forward PS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/DeferredForwardPipeline/fragment.glsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
@@ -533,18 +525,21 @@ void Prisma::PipelineDeferredForward::createAnimation()
         };
 
     //CreateMSAARenderTarget();
-    MeshIndirect::getInstance().addResizeHandler({"ForwardAnimation handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
+    MeshIndirect::getInstance().addResizeHandler({"DeferredForwardAnimation handler" ,[&](RefCntAutoPtr<IBuffer> buffers, MeshIndirect::MaterialView& materials)
         {
             m_updateDataAnimation();
         }});
-    PipelineSkybox::getInstance().addUpdate({"ForwardAnimation",[&]()
+    PipelineSkybox::getInstance().addUpdate({"DeferredForwardAnimation",[&]()
         {
             m_updateDataAnimation();
         }});
-    LightHandler::getInstance().addLightHandler({"ForwardAnimation",[&]()
+    LightHandler::getInstance().addLightHandler({"DeferredForwardAnimation",[&]()
         {
             m_updateDataAnimation();
         }});
+
+
+
 }
 
 void Prisma::PipelineDeferredForward::createCompositePipeline()

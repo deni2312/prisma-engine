@@ -1,40 +1,112 @@
-#version 460 core
-layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 aNormal;
-layout(location = 2) in vec2 aTexCoords;
-layout(location = 3) in vec3 aTangent;
-layout(location = 4) in vec3 aBitangent;
+#extension GL_ARB_shader_draw_parameters : enable
 
-out vec3 FragPos;
+const int MAX_BONES = 128;
+const int MAX_BONE_INFLUENCE = 4;
 
-out vec2 TexCoords;
-
-out vec3 Normal;
-
-flat out uint drawId;
-
-layout(std140, binding = 1) uniform MeshData
+uniform ViewProjection
 {
     mat4 view;
     mat4 projection;
+    vec4 viewPos;
 };
 
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec2 inUV;
+layout(location = 3) in vec3 inTangent;
+layout(location = 4) in vec3 inBitangent;
+#ifdef ANIMATION
+layout(location = 5) in ivec4 boneIds;
+layout(location = 6) in vec4 weights;
+#endif
 
-layout(std430, binding = 1) buffer Matrices {
-    mat4 modelMatrices[];
+layout(location = 0) out vec2 outUv;
+layout(location = 1) out vec3 outFragPos;
+layout(location = 2) out vec3 outNormal;
+layout(location = 3) flat out int outDrawId;
+//layout(location = 4) out mat3 outTBN;
+
+struct MeshData
+{
+    mat4 model;
+    mat4 normal;
 };
 
-
-layout(std430, binding = 29) buffer Ids {
-    uint ids[];
+#ifdef ANIMATION
+  
+struct SSBOAnimation {
+    mat4 animations[MAX_BONES];
 };
+
+readonly buffer animations{
+    SSBOAnimation modelAnimations[];
+};
+
+#endif
+
+readonly buffer models{
+    MeshData modelsData[];
+};
+
+#ifndef ANIMATION
+readonly buffer opaqueIndices{
+    int opaqueIndicesData[];
+};
+#endif
 
 void main()
 {
-    drawId = ids[gl_DrawID];
-    FragPos = vec3(modelMatrices[drawId] * vec4(aPos, 1.0));
-    TexCoords = aTexCoords;
-    mat3 normalMatrix = mat3(transpose(inverse(mat3(modelMatrices[drawId]))));
-    Normal = normalMatrix * aNormal;
-    gl_Position = projection * view * vec4(FragPos, 1.0);
+#ifndef ANIMATION
+int currentId=opaqueIndicesData[gl_DrawIDARB];
+#else
+int currentId=gl_DrawIDARB;
+#endif
+
+
+#ifdef ANIMATION
+    vec4 totalPosition = vec4(0.0f);
+    vec3 localNormal = vec3(0.0f);
+    for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+    {
+        if (boneIds[i] == -1)
+            continue;
+        if (boneIds[i] >= MAX_BONES)
+        {
+            totalPosition = vec4(inPos, 1.0f);
+            break;
+        }
+        vec4 localPosition = modelAnimations[currentId].animations[boneIds[i]] * vec4(inPos, 1.0f);
+        totalPosition += localPosition * weights[i];
+        localNormal = mat3(modelAnimations[currentId].animations[boneIds[i]]) * inNormal;
+    }
+
+    mat4 modelMatrix = modelsData[currentId].model;
+    mat4 normalMatrix = modelsData[currentId].normal;
+    vec4 worldPos = modelMatrix * vec4(totalPosition.xyz, 1.0);
+    vec3 worldNormal = normalize(vec3(normalMatrix * vec4(localNormal, 0.0)));
+
+    outUv = inUV;
+    outFragPos = worldPos.xyz;
+    outNormal = worldNormal;
+    outDrawId = currentId;
+    gl_Position = projection * view * worldPos;
+#else
+    mat4 modelMatrix = modelsData[currentId].model;
+    mat4 normalMatrix = modelsData[currentId].normal;
+
+    vec4 worldPos = modelMatrix * vec4(inPos, 1.0);
+    vec3 worldNormal = normalize(vec3(normalMatrix * vec4(inNormal, 0.0)));
+    //vec3 worldTangent = normalize(vec3(normalMatrix * vec4(inTangent, 0.0)));
+    //vec3 worldBitangent = normalize(vec3(normalMatrix * vec4(inBitangent, 0.0)));
+
+    outUv = inUV;
+    outFragPos = worldPos.xyz;
+    outNormal = worldNormal;
+    outDrawId = currentId;
+
+    // Construct TBN matrix
+    //outTBN = mat3(worldTangent, worldBitangent, worldNormal);
+
+    gl_Position = projection * view * worldPos;
+#endif
 }

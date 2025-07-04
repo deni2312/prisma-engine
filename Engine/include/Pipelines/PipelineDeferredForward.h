@@ -60,5 +60,9 @@ class PipelineDeferredForward {
     std::unique_ptr<Prisma::PipelineForwardTransparent> m_forwardTransparent;
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_compositeTexture;
+
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_positionTexture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_normalTexture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_albedoTexture;
 };
 }  // namespace Prisma
