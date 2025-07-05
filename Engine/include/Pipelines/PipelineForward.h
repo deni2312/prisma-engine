@@ -17,6 +17,9 @@ class PipelineForward {
 public:
     PipelineForward(const unsigned int& width = 1920, const unsigned int& height = 1080);
     void render();
+    void renderComposite();
+    std::shared_ptr<Prisma::PipelineForwardTransparent> forwardTransparent();
+
     ~PipelineForward();
 
 private:
@@ -26,7 +29,6 @@ private:
     void create();
     void createAnimation();
     void createCompositePipeline();
-    void renderComposite();
     /*std::shared_ptr<Shader> m_shader;
     std::shared_ptr<Shader> m_shaderAnimate;
     std::shared_ptr<Shader> m_shaderTransparent;
@@ -57,7 +59,7 @@ private:
 
     std::function<void()> m_updateDataAnimation;
 
-    std::unique_ptr<Prisma::PipelineForwardTransparent> m_forwardTransparent;
+    std::shared_ptr<Prisma::PipelineForwardTransparent> m_forwardTransparent;
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_compositeTexture;
 

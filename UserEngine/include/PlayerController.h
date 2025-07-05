@@ -120,5 +120,5 @@ private:
 
     const unsigned int m_maxBalls = 10;
 
-    int m_numScene = 1;
+    int m_numScene = 0;
 };

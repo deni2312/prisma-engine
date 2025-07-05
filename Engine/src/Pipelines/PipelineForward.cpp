@@ -351,7 +351,7 @@ void Prisma::PipelineForward::create() {
             m_updateData(m_srbOpaque,MeshIndirect::getInstance().indexBufferOpaque());
         }});
 
-    m_forwardTransparent=std::make_unique<Prisma::PipelineForwardTransparent>(m_width,m_height);
+    m_forwardTransparent=std::make_shared<Prisma::PipelineForwardTransparent>(m_width,m_height);
 }
 
 void Prisma::PipelineForward::createAnimation()
@@ -784,3 +784,5 @@ void Prisma::PipelineForward::renderComposite() {
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.immediateContext->DrawIndexed(DrawAttrs);
 }
+
+std::shared_ptr<Prisma::PipelineForwardTransparent> Prisma::PipelineForward::forwardTransparent() { return m_forwardTransparent; }
