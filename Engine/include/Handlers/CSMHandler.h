@@ -28,6 +28,8 @@ class CSMHandler : public InstanceData<CSMHandler> {
 public:
     CSMHandler();
 
+    void createShadow(unsigned int width,unsigned int height);
+
     struct CSMShadow {
         glm::mat4 shadows[16];
         glm::vec4 cascadePlanes[16];
@@ -37,12 +39,20 @@ public:
     };
 
     struct CSMData {
-        Diligent::RefCntAutoPtr<Diligent::ITexture> depth;
         CSMShadow shadows;
     };
 
+    unsigned int m_width;
+    unsigned int m_height;
+
+    unsigned int m_size = 5;
+
     Diligent::RefCntAutoPtr<Diligent::IBuffer> shadowBuffer();
 
+    Diligent::RefCntAutoPtr<Diligent::ITexture> shadowTexture();
+
     void render(const CSMData& data);
+
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_depth;
 };
 }

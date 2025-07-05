@@ -28,7 +28,6 @@ public:
     void update(glm::vec3 lightPos) override;
 
     std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
-    Diligent::RefCntAutoPtr<Diligent::ITexture> shadowTexture() override;
 
     glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane);
 
@@ -63,7 +62,6 @@ private:
 
     CSMHandler::CSMShadow m_lightMatrices;
 
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_depth;
 
 };
 }

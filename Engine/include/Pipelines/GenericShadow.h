@@ -10,7 +10,7 @@ struct ITexture;
 namespace Prisma {
 class GenericShadow {
 public:
-    virtual Diligent::RefCntAutoPtr<Diligent::ITexture> shadowTexture() =0;
+    virtual Diligent::RefCntAutoPtr<Diligent::ITexture> shadowTexture() { return Diligent::RefCntAutoPtr<Diligent::ITexture>(); };
 
     virtual float farPlane() = 0;
     virtual void farPlane(float farPlane) = 0;

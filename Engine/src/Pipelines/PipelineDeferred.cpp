@@ -164,7 +164,7 @@ void Prisma::PipelineDeferred::create() {
         {SHADER_TYPE_PIXEL, "albedo", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, "normal", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, "position", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-        {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str(), 5, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, ShaderNames::STATIC_DIR_SHADOW.c_str(), 5, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, samplerClampName.c_str(), 1, SHADER_RESOURCE_TYPE_SAMPLER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 
         {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LUT.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -221,6 +221,7 @@ void Prisma::PipelineDeferred::create() {
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, "normal")->Set(m_normalTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, "position")->Set(m_positionTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::STATIC_DIR_SHADOW.c_str())->Set(LightHandler::getInstance().dirShadowData());
 
 
     IDeviceObject* samplerDeviceClamp = samplerClamp;
@@ -238,7 +239,6 @@ void Prisma::PipelineDeferred::create() {
             srb.Release();
             m_pResourceSignature->CreateShaderResourceBinding(&srb, true);
             srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_OMNI_DATA_SHADOW.c_str())->SetArray(LightHandler::getInstance().omniData().data(), 0, LightHandler::getInstance().omniData().size(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-            srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str())->Set(LightHandler::getInstance().dirShadowData());
             if (PipelineSkybox::getInstance().isInit()) {
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_PREFILTER.c_str())->Set(PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));

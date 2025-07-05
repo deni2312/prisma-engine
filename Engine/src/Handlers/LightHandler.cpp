@@ -189,16 +189,7 @@ std::vector<Diligent::IDeviceObject*>& Prisma::LightHandler::omniData() {
     return m_omniData;
 }
 
-Diligent::IDeviceObject* Prisma::LightHandler::dirShadowData() {
-    const auto& dirLights = GlobalData::getInstance().currentGlobalScene()->dirLights;
-
-    if (dirLights.size() > 0 && dirLights[0]->shadow() && dirLights[0]->hasShadow()) {
-        auto shadow = dirLights[0]->shadow();
-
-        return shadow->shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
-    }
-    return GlobalData::getInstance().dummyTextureArray()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE);
-}
+Diligent::IDeviceObject* Prisma::LightHandler::dirShadowData() { return CSMHandler::getInstance().shadowTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE); }
 
 void Prisma::LightHandler::addLightHandler(std::pair<std::string, std::function<void()>> update) {
     m_updates[update.first]=update.second; }

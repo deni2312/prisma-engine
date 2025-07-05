@@ -298,6 +298,8 @@ void Prisma::PrismaFunc::init() {
     GlobalData::getInstance().dummyTexture(pDummyTexture);
 
     GlobalData::getInstance().dummyTextureArray(pDummyTextureArray);
+
+    Prisma::CSMHandler::getInstance().createShadow(Prisma::Define::MAX_SHADOW_DIR_TEXTURE_SIZE, Prisma::Define::MAX_SHADOW_DIR_TEXTURE_SIZE);
 }
 
 void Prisma::PrismaFunc::poll() {
