@@ -17,6 +17,8 @@ Prisma::GUI::ImguiDebug::ImGuiStatus m_status;
 
 void Prisma::GUI::SettingsTab::init() {
     m_effects = std::make_shared<Effects>();
+    m_fxaa = std::make_shared<FXAA>();
+    Postprocess::getInstance().addPostProcess(m_fxaa);
     Postprocess::getInstance().addPostProcess(m_effects);
     m_status.currentitem = static_cast<unsigned int>(Engine::getInstance().engineSettings().pipeline);
     m_status.currentPostprocess = 0;
@@ -41,6 +43,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
     if (ImGui::BeginPopupModal("SettingsTab", &closed)) {
         if (!m_position) {
             ImGui::SetWindowPos(ImVec2(0, 100));
+            ImGui::SetWindowSize(ImVec2(600, 400));
             m_position = true;
         }
         ImGui::Text("CACHE STATUS:");
@@ -83,14 +86,20 @@ void Prisma::GUI::SettingsTab::drawSettings() {
             }
             CacheScene::getInstance().updateSizes(true);
         }
+
         ImGui::Combo("POSTPROCESS", &m_status.currentPostprocess, m_status.postprocess.data(),
                      m_status.postprocess.size());
+        bool isFxaa = m_fxaa->apply();
+
+        ImGui::Checkbox("FXAA", &isFxaa);
+
+        m_fxaa->apply(isFxaa);
 
         auto settings = Engine::getInstance().engineSettings();
 
-        ImGui::Checkbox("SCREEN SPACE REFLECTIONS", &settings.ssr);
+        //ImGui::Checkbox("SCREEN SPACE REFLECTIONS", &settings.ssr);
 
-        ImGui::Checkbox("SCREEN SPACE AMBIENT OCCLUSION", &settings.ssao);
+        //ImGui::Checkbox("SCREEN SPACE AMBIENT OCCLUSION", &settings.ssao);
         
         bool debugPhysics = Physics::getInstance().debug();
 

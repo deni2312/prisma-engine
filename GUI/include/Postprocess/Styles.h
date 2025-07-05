@@ -20,11 +20,12 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
-    void createShaderEffects();
-    void renderEffects(EFFECTS effect);
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_current;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
 
     std::unique_ptr<Blit> m_blit;
+
+    void createShaderEffects();
+    void renderEffects(EFFECTS effect);
 };
 }
