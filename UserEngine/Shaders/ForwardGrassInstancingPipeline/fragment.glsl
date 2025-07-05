@@ -2,6 +2,13 @@
 
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.glsl"
 
+uniform sampler textureRepeat_sampler;
+
+layout(location = 0) in vec2 outUv;
+layout(location = 1) in vec3 outFragPos; // Fragment position in world space
+layout(location = 2) in vec3 outNormal;
+layout(location = 3) in flat int outDrawId;
+
 uniform texture2D diffuseTexture;
 uniform texture2D normalTexture;
 uniform texture2D rmTexture;
