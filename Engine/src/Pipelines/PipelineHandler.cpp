@@ -12,10 +12,6 @@ std::shared_ptr<Prisma::PipelineForward> Prisma::PipelineHandler::forward() {
     return m_forwardPipeline;
 }
 
-std::shared_ptr<Prisma::PipelineDeferred> Prisma::PipelineHandler::deferred() {
-    return m_deferredPipeline;
-}
-
 std::shared_ptr<Prisma::PipelineDeferredForward> Prisma::PipelineHandler::deferredForward() {
     if (!m_deferredForwardPipeline) {
         auto settings = SettingsLoader::getInstance().getSettings();

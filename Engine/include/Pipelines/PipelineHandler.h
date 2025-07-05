@@ -21,7 +21,6 @@ public:
 
     void initScene();
     std::shared_ptr<PipelineForward> forward();
-    std::shared_ptr<PipelineDeferred> deferred();
     std::shared_ptr<PipelineDeferredForward> deferredForward();
     std::shared_ptr<PipelineRayTracing> raytracing();
     std::shared_ptr<PipelineSoftwareRT> softwareRt();
@@ -33,7 +32,6 @@ public:
 
 private:
     std::shared_ptr<PipelineForward> m_forwardPipeline;
-    std::shared_ptr<PipelineDeferred> m_deferredPipeline;
     std::shared_ptr<PipelineDeferredForward> m_deferredForwardPipeline;
     std::shared_ptr<PipelineRayTracing> m_raytracingPipeline;
     std::shared_ptr<PipelineSoftwareRT> m_softwarePipeline;
