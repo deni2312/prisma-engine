@@ -77,7 +77,7 @@ void Prisma::PipelineDeferred::create() {
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Blit Render";
+    PSOCreateInfo.PSODesc.Name = "Deferred Render";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
