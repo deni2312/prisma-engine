@@ -1,318 +1,178 @@
-#include "Components/CloudComponent.h"
-#include <chrono>
-#include <glm/gtx/string_cast.hpp>
-#include "Helpers/SettingsLoader.h"
+# include "Components/CloudComponent.h"
+
+#include "GlobalData/PrismaFunc.h"
 #include "Helpers/PrismaRender.h"
+#include "Pipelines/PipelineHandler.h"
+#include <Graphics/GraphicsTools/interface/MapHelper.hpp>
 
-Prisma::CloudComponent::CloudComponent() : Component{} {
-    name("Cloud");
+Prisma::CloudComponent::CloudComponent() { name("CloudComponent"); }
+
+void Prisma::CloudComponent::ui() { Prisma::Component::ui(); }
+
+void Prisma::CloudComponent::update() {
+
 }
 
+void Prisma::CloudComponent::start() {
+    Prisma::Component::start();
 
-void Prisma::CloudComponent::ui() {
-    Component::ui();
-    std::vector<ComponentType> components;
+    auto& contextData = PrismaFunc::getInstance().contextData();
 
-    components.push_back(std::make_tuple(TYPES::FLOAT, "CoverageScale", &m_cloudSSBO.coverageScale));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "AmbientColorScale", &m_cloudSSBO.ambientColorScale));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "CloudType", &m_cloudSSBO.cloudType));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "LowFrequencyNoiseScale",
-                                         &m_cloudSSBO.lowFrequencyNoiseScale));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "HighFrequencyNoiseScale",
-                                         &m_cloudSSBO.highFrequencyNoiseScale));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "HighFrequencyNoiseErodeMuliplier",
-                                         &m_cloudSSBO.highFrequencyNoiseErodeMuliplier));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "HighFrequencyHeightTransitionMultiplier",
-                                         &m_cloudSSBO.highFrequencyHeightTransitionMultiplier));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "AnvilBias", &m_cloudSSBO.anvilBias));
+    // Pipeline state object encompasses configuration of all GPU stages
 
-    // Add vec3 components
-    components.push_back(std::make_tuple(TYPES::VEC3, "CloudColor", &m_cloudSSBO.cloudColor));
-    components.push_back(std::make_tuple(TYPES::VEC3, "WindDirection", &m_cloudSSBO.windDirection));
+    Diligent::GraphicsPipelineStateCreateInfo PSOCreateInfo;
 
-    // Add more float components
-    components.push_back(std::make_tuple(TYPES::FLOAT, "RainCloudAbsorptionGain",
-                                         &m_cloudSSBO.rainCloudAbsorptionGain));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "CloudAttenuationScale",
-                                         &m_cloudSSBO.cloudAttenuationScale));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "PhaseEccentricity", &m_cloudSSBO.phaseEccentricity));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "PhaseSilverLiningIntensity",
-                                         &m_cloudSSBO.phaseSilverLiningIntensity));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "PhaseSilverLiningSpread",
-                                         &m_cloudSSBO.phaseSilverLiningSpread));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "ConeSpreadMultiplier", &m_cloudSSBO.coneSpreadMultplier));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "ShadowSampleConeSpreadMultiplier",
-                                         &m_cloudSSBO.shadowSampleConeSpreadMultiplier));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "PowderedSugarEffectMultiplier",
-                                         &m_cloudSSBO.powderedSugarEffectMultiplier));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "ToneMapperEyeExposure",
-                                         &m_cloudSSBO.toneMapperEyeExposure));
+    // Pipeline state name is used by the engine to report issues.
+    // It is always a good idea to give objects descriptive names.
+    PSOCreateInfo.PSODesc.Name = "CloudComponent Render";
 
-    // Add bool components
-    components.push_back(std::make_tuple(TYPES::BOOL, "IgnoreDetailNoise", &m_cloudSSBO.ignoreDetailNoise));
-    components.push_back(std::make_tuple(TYPES::BOOL, "UseEarlyExitAtFullOpacity",
-                                         &m_cloudSSBO.useEarlyExitAtFullOpacity));
-    components.push_back(std::make_tuple(TYPES::BOOL, "UseBayerFilter", &m_cloudSSBO.useBayerFilter));
+    // This is a graphics pipeline
+    PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
 
-    // Add raymarch settings
-    components.push_back(std::make_tuple(TYPES::FLOAT, "MaxRenderDistance", &m_cloudSSBO.maxRenderDistance));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "MaxHorizontalSampleCount",
-                                         &m_cloudSSBO.maxHorizontalSampleCount));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "MaxVerticalSampleCount",
-                                         &m_cloudSSBO.maxVerticalSampleCount));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "EarthRadius", &m_cloudSSBO.earthRadius));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "VolumetricCloudsStartRadius",
-                                         &m_cloudSSBO.volumetricCloudsStartRadius));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "VolumetricCloudsEndRadius",
-                                         &m_cloudSSBO.volumetricCloudsEndRadius));
+    // clang-format off
+    // This tutorial will render to a single render target
+    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
+    // Set render target format which is the format of the swap chain's color buffer
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
 
-    // Add wind settings
-    components.push_back(std::make_tuple(TYPES::FLOAT, "WindUpwardBias", &m_cloudSSBO.windUpwardBias));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "CloudSpeed", &m_cloudSSBO.cloudSpeed));
-    components.push_back(std::make_tuple(TYPES::FLOAT, "CloudTopOffset", &m_cloudSSBO.cloudTopOffset));
+    // Set depth buffer format which is the format of the swap chain's back buffer
+    // Primitive topology defines what kind of primitives will be rendered by this pipeline state
+    PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
+    // Cull back faces
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
+    // Enable depth testing
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
+    // clang-format on
 
-    // Add sun settings
-    components.push_back(std::make_tuple(TYPES::FLOAT, "SunIntensity", &m_cloudSSBO.sunIntensity));
+    Diligent::ShaderCreateInfo ShaderCI;
+    // Tell the system that the shader source code is in HLSL.
+    // For OpenGL, the engine will convert this into GLSL under the hood.
+    ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
 
-    ComponentType componentButton;
-    m_startButton = [&]() {
-        if (!isStart()) {
-            start();
-        }
-    };
-    componentButton = std::make_tuple(TYPES::BUTTON, "UI clouds", &m_startButton);
-
-    m_updateButton = [&]() {
-        if (isStart()) {
-            //m_ssbo->modifyData(0, sizeof(CloudSSBO), &m_cloudSSBO);
-        }
-    };
-    ComponentType updateButton = std::make_tuple(TYPES::BUTTON, "Update Clouds", &m_updateButton);
-    for (const auto& component : components) {
-        addGlobal({component, false});
+    // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
+    ShaderCI.Desc.UseCombinedTextureSamplers = true;
+    // In this tutorial, we will load shaders from file. To be able to do that,
+    // we need to create a shader source stream factory
+    Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
+    PrismaFunc::getInstance().contextData().engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
+    // Create a vertex shader
+    Diligent::RefCntAutoPtr<Diligent::IShader> pVS;
+    {
+        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
+        ShaderCI.EntryPoint = "main";
+        ShaderCI.Desc.Name = "Blit VS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/CloudPipeline/vertex.glsl";
+        contextData.device->CreateShader(ShaderCI, &pVS);
     }
-    addGlobal({componentButton, false});
 
-    addGlobal({updateButton, false});
+    // Create a pixel shader
+    Diligent::RefCntAutoPtr<Diligent::IShader> pPS;
+    {
+        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
+        ShaderCI.EntryPoint = "main";
+        ShaderCI.Desc.Name = "Blit PS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/CloudPipeline/fragment.glsl";
+        contextData.device->CreateShader(ShaderCI, &pPS);
+    }
+
+    // clang-format off
+    // Define vertex shader input layout
+	Diligent::LayoutElement LayoutElems[] =
+    {
+        // Attribute 0 - vertex position
+        Diligent::LayoutElement{0, 0, 3, Diligent::VT_FLOAT32, Diligent::False},
+        // Attribute 1 - texture coordinates
+        Diligent::LayoutElement{1, 0, 2, Diligent::VT_FLOAT32, Diligent::False}
+    };
+    // clang-format on
+    PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
+    PSOCreateInfo.GraphicsPipeline.InputLayout.NumElements = _countof(LayoutElems);
+
+    PSOCreateInfo.pVS = pVS;
+    PSOCreateInfo.pPS = pPS;
+
+    // Define variable type that will be used by default
+    PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+
+    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "Constants", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+    // clang-format on
+    PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
+    PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
+
+    contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
+
+
+    Diligent::BufferDesc CBDesc;
+    CBDesc.Name = "CloudComponent Constants";
+    CBDesc.Size = sizeof(CloudConstants);
+    CBDesc.Usage = Diligent::USAGE_DYNAMIC;
+    CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+    CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+    contextData.device->CreateBuffer(CBDesc, nullptr, &m_cloudConstants);
+
+    Diligent::TextureDesc RTColorDesc;
+    RTColorDesc.Name = "Offscreen render target";
+    RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
+    RTColorDesc.Width = contextData.swapChain->GetDesc().Width;
+    RTColorDesc.Height = contextData.swapChain->GetDesc().Height;
+    RTColorDesc.MipLevels = 1;
+    RTColorDesc.Format = Prisma::PipelineHandler::getInstance().textureFormat();
+    // The render target can be bound as a shader resource and as a render target
+    RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
+    // Define optimal clear value
+    RTColorDesc.ClearValue.Format = RTColorDesc.Format;
+    RTColorDesc.ClearValue.Color[0] = 0.350f;
+    RTColorDesc.ClearValue.Color[1] = 0.350f;
+    RTColorDesc.ClearValue.Color[2] = 0.350f;
+    RTColorDesc.ClearValue.Color[3] = 1.f;
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudTexture);
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "Constants")->Set(m_cloudConstants);
+
+    m_blit = std::make_unique<Blit>(m_cloudTexture);
+
+    m_pso->CreateShaderResourceBinding(&m_srb, true);
+    GlobalData::getInstance().addGlobalTexture({m_cloudTexture, "Cloud Texture"});
 }
 
-//void Prisma::CloudComponent::updatePostRender(std::shared_ptr<FBO> fbo)
-//{
-//	if (m_cloudShader)
-//	{
-//		glEnable(GL_BLEND);
-//		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-//		glViewport(0, 0, m_settings.width / m_downscale, m_settings.height / m_downscale);
-//
-//		m_fbo->bind();
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//		m_cloudShader->use();
-//
-//		setVariables();
-//
-//		//PrismaRender::getInstance().renderQuad();
-//		m_fbo->unbind();
-//		fbo->bind();
-//		glDepthMask(GL_FALSE);
-//		glViewport(0, 0, m_settings.width, m_settings.height);
-//		m_upscaleShader->use();
-//		m_upscaleShader->setInt64(m_upscalePos, m_fbo->texture());
-//		m_upscaleShader->setVec2(m_resUpscalePos, glm::vec2(m_settings.width, m_settings.height));
-//		m_upscaleShader->setInt(m_factorPos, m_downscale);
-//		//PrismaRender::getInstance().renderQuad();
-//		glDepthMask(GL_TRUE);
-//		glDisable(GL_BLEND);
-//	}
-//}
-//
-//void Prisma::CloudComponent::start()
-//{
-//	Component::start();
-//	m_settings = SettingsLoader::getInstance().getSettings();
-//	m_cloudShader = std::make_shared<Shader>("../../../Engine/Shaders/CloudPipeline/vertex.glsl",
-//	                                         "../../../Engine/Shaders/CloudPipeline/fragment.glsl");
-//	m_noiseShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/vertex.glsl",
-//	                                         "../../../Engine/Shaders/NoisePipeline/fragment.glsl");
-//	m_worleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computeWorley.glsl");
-//	m_perlinWorleyShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computePerlinWorley.glsl");
-//	m_weatherShader = std::make_shared<Shader>("../../../Engine/Shaders/NoisePipeline/computeWeather.glsl");
-//	m_upscaleShader = std::make_shared<Shader>("../../../Engine/Shaders/UpscalePipeline/vertex.glsl",
-//	                                           "../../../Engine/Shaders/UpscalePipeline/fragment.glsl");
-//
-//	FBO::FBOData fboData;
-//	fboData.width = m_settings.width / m_downscale;
-//	fboData.height = m_settings.height / m_downscale;
-//	fboData.enableDepth = true;
-//	fboData.internalFormat = GL_RGBA16F;
-//	fboData.internalType = GL_FLOAT;
-//	fboData.name = "CLOUDS";
-//
-//	m_cloudSSBO.resolution = glm::vec2(m_settings.width / m_downscale, m_settings.height / m_downscale);
-//
-//	m_fbo = std::make_shared<FBO>(fboData);
-//
-//	generateNoise();
-//
-//	m_upscaleShader->use();
-//	m_upscalePos = m_upscaleShader->getUniformPosition("screenTexture");
-//	m_resUpscalePos = m_upscaleShader->getUniformPosition("resolution");
-//	m_factorPos = m_upscaleShader->getUniformPosition("factor");
-//
-//	m_cloudShader->use();
-//
-//	m_modelPos = m_cloudShader->getUniformPosition("model");
-//
-//	m_lightPos = m_cloudShader->getUniformPosition("sunPosition");
-//
-//	m_perlworlPos = m_cloudShader->getUniformPosition("perlworl");
-//
-//	m_worlPos = m_cloudShader->getUniformPosition("worl");
-//
-//	m_timePos = m_cloudShader->getUniformPosition("time");
-//
-//	m_invViewPos = m_cloudShader->getUniformPosition("invView");
-//
-//	m_invProjPos = m_cloudShader->getUniformPosition("invProj");
-//
-//	m_camPos = m_cloudShader->getUniformPosition("camPos");
-//	// Initialize the start time
-//	m_start = std::chrono::system_clock::now();
-//	m_fbo->bind();
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//	m_noiseShader->use();
-//	//PrismaRender::getInstance().renderQuad();
-//	m_fbo->unbind();
-//
-//	m_ssbo = std::make_shared<SSBO>(11);
-//	m_ssbo->resize(sizeof(CloudSSBO));
-//
-//	m_ssbo->modifyData(0, sizeof(CloudSSBO), &m_cloudSSBO);
-//}
+void Prisma::CloudComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
+    auto& contextData = PrismaFunc::getInstance().contextData();
 
-void Prisma::CloudComponent::generateNoise() {
-    generateWorley();
-    generatePerlinWorley();
-    generateWeather();
+    auto color = m_cloudTexture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+
+    contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->SetPipelineState(m_pso);
+
+    auto quadBuffer = PrismaRender::getInstance().quadBuffer();
+
+    auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
+    Diligent::MapHelper<CloudConstants> cloudConstants(contextData.immediateContext, m_cloudConstants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+    cloudConstants->resolution = glm::vec4(1);
+
+    // Bind vertex and index buffers
+    constexpr Diligent::Uint64 offset = 0;
+    Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
+    contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+    contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    // Set texture SRV in the SRB
+    contextData.immediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+    DrawAttrs.IndexType = Diligent::VT_UINT32;  // Index type
+    DrawAttrs.NumIndices = quadBuffer.iBufferSize;
+    // Verify the state of vertex and index buffers
+    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+    contextData.immediateContext->DrawIndexed(DrawAttrs);
+    m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
+
+    
+    auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
+
+    // Clear the back buffer
+    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
 }
 
-void Prisma::CloudComponent::generateWorley() {
-    //GENERATE WORLEY
-    //m_worleyShader->use();
-    //glm::ivec3 size(32, 32, 32);
-    //// Generate a texture ID
-    //unsigned int textureId;
-
-    //glGenTextures(1, &textureId);
-
-    //// 2. Bind the texture as a 3D texture
-    //glBindTexture(GL_TEXTURE_3D, textureId);
-
-    //// 3. Allocate storage for the 3D texture with RGBA8 format
-    //glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, size.x, size.y, size.z, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-    //// 4. Set texture parameters (filtering and wrapping modes)
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glBindImageTexture(0, textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
-
-    //m_worley = glGetTextureHandleARB(textureId);
-    //glMakeTextureHandleResidentARB(m_worley);
-
-    //m_worleyShader->setInt64(m_worleyShader->getUniformPosition("outVolTex"), m_worley);
-
-    //m_worleyShader->dispatchCompute(size);
-    //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-}
-
-void Prisma::CloudComponent::generatePerlinWorley() {
-    //GENERATE PERLIN WORLEY
-    //m_perlinWorleyShader->use();
-    //glm::ivec3 size(128, 128, 128);
-    //// Generate a texture ID
-    //unsigned int textureId;
-
-    //glGenTextures(1, &textureId);
-
-    //// 2. Bind the texture as a 3D texture
-    //glBindTexture(GL_TEXTURE_3D, textureId);
-
-    //// 3. Allocate storage for the 3D texture with RGBA8 format
-    //glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, size.x, size.y, size.z, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-    //// 4. Set texture parameters (filtering and wrapping modes)
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glBindImageTexture(0, textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
-
-    //m_perlinWorley = glGetTextureHandleARB(textureId);
-    //glMakeTextureHandleResidentARB(m_perlinWorley);
-
-    //m_perlinWorleyShader->setInt64(m_perlinWorleyShader->getUniformPosition("outVolTex"), m_perlinWorley);
-
-    //m_perlinWorleyShader->dispatchCompute(size);
-    //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-}
-
-void Prisma::CloudComponent::generateWeather() {
-    //GENERATE WEATHER
-    //m_weatherShader->use();
-    //glm::ivec3 size(256, 256, 1);
-    //// Generate a texture ID
-    //unsigned int textureId;
-
-    //glGenTextures(1, &textureId);
-
-    //// 2. Bind the texture as a 3D texture
-    //glBindTexture(GL_TEXTURE_2D, textureId);
-
-    //// 3. Allocate storage for the 3D texture with RGBA8 format
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    //glBindImageTexture(0, textureId, 0, GL_TRUE, 0, GL_READ_WRITE, GL_RGBA8);
-
-    //m_weather = glGetTextureHandleARB(textureId);
-    //glMakeTextureHandleResidentARB(m_weather);
-
-    //m_weatherShader->setInt64(m_weatherShader->getUniformPosition("outWeatherTex"), m_weather);
-
-    //m_weatherShader->dispatchCompute(size);
-    //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-}
-
-void Prisma::CloudComponent::setVariables() {
-    //m_cloudShader->setVec3(m_camPos, Prisma::GlobalData::getInstance().currentGlobalScene()->camera->position());
-    //if (Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.size() > 0)
-    //{
-    //	m_cloudShader->setVec3(m_lightPos, normalize(
-    //		                       Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights[0]->parent()->
-    //		                       finalMatrix() * Prisma::GlobalData::getInstance().currentGlobalScene()->
-    //		                       dirLights[0]->type().direction));
-    //}
-    //// Calculate elapsed time since the first render call
-    //auto now = std::chrono::system_clock::now();
-    //auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_start).count();
-
-    //m_cloudShader->setFloat(m_timePos, static_cast<int>(static_cast<float>(elapsedTime)) / 1000.0f);
-
-    //m_cloudShader->setInt64(m_perlworlPos, m_perlinWorley);
-    //m_cloudShader->setInt64(m_worlPos, m_worley);
-
-    //// Setting the uniforms
-    //m_cloudShader->setMat4(m_invViewPos,
-    //                       glm::inverse(Prisma::GlobalData::getInstance().currentGlobalScene()->camera->matrix()));
-    //// Inverse View matrix
-    //m_cloudShader->setMat4(m_invProjPos, glm::inverse(Prisma::GlobalData::getInstance().currentProjection()));
-    //// Inverse Projection matrix
-}
+void Prisma::CloudComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
