@@ -42,8 +42,10 @@ void Prisma::CloudComponent::start() {
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
     // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
+    //PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthWriteEnable = false;
     // clang-format on
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
 
     Diligent::ShaderCreateInfo ShaderCI;
     // Tell the system that the shader source code is in HLSL.
@@ -139,9 +141,11 @@ void Prisma::CloudComponent::start() {
 void Prisma::CloudComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto color = m_cloudTexture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto pRTV = texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto pDSV = depth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
 
-    contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    // Clear the back buffer
+    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.immediateContext->SetPipelineState(m_pso);
 
     auto quadBuffer = PrismaRender::getInstance().quadBuffer();
@@ -164,14 +168,6 @@ void Prisma::CloudComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::I
     // Verify the state of vertex and index buffers
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.immediateContext->DrawIndexed(DrawAttrs);
-    m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
-
-    
-    auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
-    auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
-
-    // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 }
 
