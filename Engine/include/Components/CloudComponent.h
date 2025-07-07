@@ -5,34 +5,24 @@
 #include "Graphics/GraphicsEngine/interface/Texture.h"
 #include "Graphics/GraphicsEngine/interface/PipelineState.h"
 #include <Common/interface/RefCntAutoPtr.hpp>
-#include "RenderComponent.h"
 #include "Helpers/Blit.h"
+#include "Component.h"
+#include "Postprocess/CloudPostprocess.h"
 
 namespace Prisma {
-class CloudComponent : public RenderComponent {
+class CloudComponent : public Component {
    public:
     CloudComponent();
-    
+
     void ui() override;
 
     void update() override;
 
     void start() override;
 
-    void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
-
-    void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
+    void destroy() override;
 
    private:
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
-    std::unique_ptr<Blit> m_blit;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudTexture;
-    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cloudConstants;
-
-    struct CloudConstants {
-        glm::vec4 resolution;
-
-    };
+    std::shared_ptr<Prisma::CloudPostprocess> m_clouds;
 };
 }
