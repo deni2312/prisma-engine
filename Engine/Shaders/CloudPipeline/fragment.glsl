@@ -19,6 +19,7 @@ uniform Constants {
 #define SDF_DIST 0.01
 #define RAYMARCH_STEPS 50
 #define MAX_DIST 50.0
+#define STEP_SIZE 0.01
 
 struct Ray {
     vec3 dir;
@@ -66,7 +67,22 @@ RaymarchResult raymarch(Ray r) {
         float d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
         result.totalDistance += d;
         if (d < SDF_DIST){
-            result.found=true;
+                result.found=true;
+                while(d==0){
+                    pos = r.origin + r.dir * result.totalDistance;
+                    d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
+                    result.totalDistance += STEP_SIZE;
+                }
+                float base=result.totalDistance;
+                while(d < 0){
+                    pos = r.origin + r.dir * result.totalDistance;
+                    d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
+                    result.color=result.color+vec3(exp(-1*(abs(result.totalDistance-base))));
+                    result.totalDistance += STEP_SIZE;
+                }
+
+                
+                result.totalDistance=base;
             break;
         }
         
@@ -119,7 +135,7 @@ void main() {
         // Calculate the hit point in world space.
         vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
         float diffuse = calcShading(hitPoint);
-        FragColor = vec4(vec3(diffuse), 1.0); // Render the SDF with shading
+        FragColor = vec4(vec3(dist.color), 1.0); // Render the SDF with shading
         vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
         gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w); // Perspective divide to get NDC Z
         return;
