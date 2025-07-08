@@ -30,7 +30,9 @@ class CloudPostprocess : public PostprocessEffect {
     TimeCounter m_counter;
     
     struct CloudConstants {
-        glm::vec4 resolution;
+        glm::vec3 resolution;
+        float time;
+        glm::vec4 cloudPosition;
     };
 };
 }  // namespace Prisma

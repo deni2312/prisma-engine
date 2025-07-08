@@ -4,53 +4,83 @@ layout(location = 0) out vec4 FragColor;
 layout(location = 0) in vec2 TexCoords;
 
 uniform texture2D screenTexture;
-uniform sampler screenTexture_sampler; // Still used if you don't fully switch to samplerless
+uniform sampler screenTexture_sampler;
 
-uniform Constants{
-    vec3 resolution;
-    float time;
+uniform ViewProjection {
+    mat4 uView;
+    mat4 uProjection;
+    vec4 viewPos; // camera position
 };
 
-// Placeholder for a noise function (you'd implement a real one like Perlin noise)
-float noise(vec3 coord) {
-    // ... complex noise calculation based on coord and time ...
-    return fract(sin(dot(coord, vec3(12.9898, 78.233, 157.14))) * 43758.5453);
+uniform Constants {
+    vec3 resolution;
+    float time;
+    vec4 cloudPosition; // cloudPosition.rgb = world-space origin of cloud volume
+};
+
+
+#define SDF_DIST 0.01
+#define RAYMARCH_STEPS 50
+#define MAX_DIST 50.0
+
+struct Ray {
+    vec3 dir;
+    vec3 origin;
+};
+
+// Signed Distance Function: sphere
+float GetMinSceneDistanceFromPoint(vec3 point) {
+    vec4 sphere = vec4(0.0, 1.0, 6.0, 1.0); // position.xyz, radius
+    return length(point - sphere.xyz) - sphere.w;
 }
 
-// Another placeholder for a more advanced noise, e.g., for detail
-float fbm(vec3 coord) {
-    float value = 0.0;
-    float amplitude = 0.5;
-    float frequency = 1.0;
-    for (int i = 0; i < 4; ++i) { // Example: 4 octaves
-        value += amplitude * noise(coord * frequency);
-        frequency *= 2.0;
-        amplitude *= 0.5;
+// Estimate normal by sampling SDF gradient
+vec3 estimateNormal(vec3 p) {
+    vec2 eps = vec2(0.01, 0.0);
+    return normalize(vec3(
+        GetMinSceneDistanceFromPoint(p + eps.xyy) - GetMinSceneDistanceFromPoint(p - eps.xyy),
+        GetMinSceneDistanceFromPoint(p + eps.yxy) - GetMinSceneDistanceFromPoint(p - eps.yxy),
+        GetMinSceneDistanceFromPoint(p + eps.yyx) - GetMinSceneDistanceFromPoint(p - eps.yyx)
+    ));
+}
+
+// Basic diffuse shading
+float calcShading(vec3 p) {
+    vec3 lightPos = vec3(-5.0, 5.0, 2.0);
+    vec3 lightDir = normalize(lightPos - p);
+    vec3 normal = estimateNormal(p);
+    return clamp(dot(normal, lightDir), 0.0, 1.0);
+}
+
+// Raymarching loop
+float raymarch(Ray r) {
+    float totalDist = 0.0;
+    for (int i = 0; i < RAYMARCH_STEPS; i++) {
+        vec3 pos = r.origin + r.dir * totalDist;
+        float d = GetMinSceneDistanceFromPoint(pos);
+        totalDist += d;
+        if (d < SDF_DIST || totalDist > MAX_DIST) break;
     }
-    return value;
+    return totalDist;
 }
 
+void main() {
+    vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / resolution.y;
+    uv.y = -uv.y; // <- Vulkan Y-flip here
 
-void main()
-{
-    // Start with the background from the screen texture
-    vec3 baseColor = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords).rgb;
+    vec4 color=texture(sampler2D(screenTexture,screenTexture_sampler),TexCoords);
 
-    // Simulate 2D clouds for simplicity
-    // Adjust these values to control cloud appearance
-    vec2 cloudCoord = TexCoords * 5.0 + time * 0.05; // Scale and animate
-    float cloudDensity = fbm(vec3(cloudCoord, time * 0.1)) * 1.5; // Use 3D noise for slight depth feel
+    Ray ray;
+    ray.origin = vec3(0.0, 1.0, 0.0);
+    ray.dir = normalize(vec3(uv, 1.0));
 
-    // Remap density to a more cloud-like range
-    cloudDensity = smoothstep(0.3, 0.7, cloudDensity); // Sharpen the edges
-    cloudDensity = pow(cloudDensity, 2.0); // Make denser parts more prominent
+    float dist = raymarch(ray);
 
-    // Basic cloud color (e.g., white with some sky influence)
-    vec3 cloudColor = mix(baseColor, vec3(0.9, 0.9, 1.0), cloudDensity); // Blend with a light color
-
-    // Simple lighting effect (very basic)
-    // float lightInfluence = dot(normalize(vec3(1.0, 0.5, 0.0)), normalize(vec3(cloudDensity, cloudDensity, cloudDensity)));
-    // cloudColor *= (0.7 + 0.3 * lightInfluence);
-
-    FragColor = vec4(cloudColor, 1.0);
+    if (dist < MAX_DIST) {
+        vec3 hitPoint = ray.origin + ray.dir * dist;
+        float diffuse = calcShading(hitPoint);
+        FragColor = vec4(vec3(diffuse), 1.0);
+    } else {
+        FragColor = vec4(color.xyz,viewPos.x); // background
+    }
 }

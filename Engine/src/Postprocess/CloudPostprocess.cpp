@@ -4,6 +4,7 @@
 #include "Helpers/PrismaRender.h"
 #include "Pipelines/PipelineHandler.h"
 #include "Helpers/SettingsLoader.h"
+#include "GlobalData/GlobalShaderNames.h"
 
 Prisma::CloudPostprocess::CloudPostprocess() {
     auto& contextData = PrismaFunc::getInstance().contextData();
@@ -87,7 +88,9 @@ Prisma::CloudPostprocess::CloudPostprocess() {
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "Constants", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}, {Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "Constants", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                                                   {Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                                                   {Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
@@ -127,6 +130,7 @@ Prisma::CloudPostprocess::CloudPostprocess() {
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "Constants")->Set(m_cloudConstants);
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
     m_blit = std::make_unique<Blit>(m_cloudTexture);
 
@@ -150,7 +154,7 @@ void Prisma::CloudPostprocess::render() {
     auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
     Diligent::MapHelper<CloudConstants> cloudConstants(contextData.immediateContext, m_cloudConstants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
     cloudConstants->resolution = glm::vec4(m_settings.width, m_settings.height,0,m_counter.duration_seconds());
-
+    cloudConstants->cloudPosition = glm::vec4(0, 0, 0, 1);
     // Bind vertex and index buffers
     constexpr Diligent::Uint64 offset = 0;
     Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
