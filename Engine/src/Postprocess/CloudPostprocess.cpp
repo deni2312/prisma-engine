@@ -30,10 +30,12 @@ Prisma::CloudPostprocess::CloudPostprocess() {
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
     // Enable depth testing
-    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
     //PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthWriteEnable = false;
     // clang-format on
 
@@ -143,10 +145,11 @@ Prisma::CloudPostprocess::CloudPostprocess() {
 void Prisma::CloudPostprocess::render() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto pRTV = m_cloudTexture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
 
     // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(1, &pRTV, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.immediateContext->SetPipelineState(m_pso);
 
     auto quadBuffer = PrismaRender::getInstance().quadBuffer();
@@ -170,5 +173,5 @@ void Prisma::CloudPostprocess::render() {
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.immediateContext->DrawIndexed(DrawAttrs);
 
-    m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
+    //m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
 }

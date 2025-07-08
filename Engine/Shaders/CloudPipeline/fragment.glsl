@@ -107,6 +107,8 @@ void main() {
         vec3 hitPoint = ray.origin + ray.dir * dist;
         float diffuse = calcShading(hitPoint);
         FragColor = vec4(vec3(diffuse), 1.0); // Render the SDF with shading
+        vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
+        gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w); // Perspective divide to get NDC Z
     } else {
         FragColor = vec4(color.xyz, 1.0); // No hit, show background
     }
