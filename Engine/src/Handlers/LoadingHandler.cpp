@@ -11,12 +11,12 @@ void Prisma::LoadingHandler::load(std::string scene, SceneLoader::SceneParameter
 }
 
 void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera,
-                                    std::function<void(std::pair<std::string, int>)> loading) {
+                                    std::function<void(std::pair<std::string, int>)> loading,bool isDebug) {
     auto hasFinish = m_loader.hasFinish();
 
     if (!hasFinish && m_hasLoad) {
         m_loader.exporter().mutexData().lock();
-        if (loading) {
+        if (loading && isDebug) {
             loading(m_loader.exporter().status());
         }
         m_loader.exporter().mutexData().unlock();

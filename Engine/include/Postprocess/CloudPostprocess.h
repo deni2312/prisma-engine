@@ -9,6 +9,8 @@
 #include "Helpers/Blit.h"
 #include "PostprocessEffect.h"
 #include "glm/glm.hpp"
+#include "Helpers/Settings.h"
+#include <Helpers/TimeCounter.h>
 
 namespace Prisma {
 class CloudPostprocess : public PostprocessEffect {
@@ -23,7 +25,10 @@ class CloudPostprocess : public PostprocessEffect {
     std::unique_ptr<Blit> m_blit;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudTexture;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cloudConstants;
+    Settings m_settings;
 
+    TimeCounter m_counter;
+    
     struct CloudConstants {
         glm::vec4 resolution;
     };

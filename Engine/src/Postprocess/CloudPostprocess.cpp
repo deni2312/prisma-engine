@@ -3,6 +3,8 @@
 #include "GlobalData/PrismaFunc.h"
 #include "Helpers/PrismaRender.h"
 #include "Pipelines/PipelineHandler.h"
+#include "Helpers/SettingsLoader.h"
+
 Prisma::CloudPostprocess::CloudPostprocess() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
@@ -85,10 +87,16 @@ Prisma::CloudPostprocess::CloudPostprocess() {
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "Constants", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "Constants", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}, {Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
+
+    Diligent::SamplerDesc SamLinearClampDesc{Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP};
+    Diligent::ImmutableSamplerDesc ImtblSamplers[] = {{Diligent::SHADER_TYPE_PIXEL, "screenTexture", SamLinearClampDesc}};
+    // clang-format on
+    PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
+    PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
 
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
@@ -117,11 +125,15 @@ Prisma::CloudPostprocess::CloudPostprocess() {
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudTexture);
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "Constants")->Set(m_cloudConstants);
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+
 
     m_blit = std::make_unique<Blit>(m_cloudTexture);
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
     GlobalData::getInstance().addGlobalTexture({m_cloudTexture, "Cloud Texture"});
+    m_counter.start();
+    m_settings = Prisma::SettingsLoader::getInstance().getSettings();
 }
 
 void Prisma::CloudPostprocess::render() {
@@ -137,7 +149,7 @@ void Prisma::CloudPostprocess::render() {
 
     auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
     Diligent::MapHelper<CloudConstants> cloudConstants(contextData.immediateContext, m_cloudConstants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-    cloudConstants->resolution = glm::vec4(1);
+    cloudConstants->resolution = glm::vec4(m_settings.width, m_settings.height,0,m_counter.duration_seconds());
 
     // Bind vertex and index buffers
     constexpr Diligent::Uint64 offset = 0;
