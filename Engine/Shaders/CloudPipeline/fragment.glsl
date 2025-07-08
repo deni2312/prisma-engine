@@ -61,27 +61,38 @@ struct RaymarchResult{
 RaymarchResult raymarch(Ray r) {
     RaymarchResult result;
     result.totalDistance=0;
+    result.color=vec3(0);
     result.found=false;
     for (int i = 0; i < RAYMARCH_STEPS; i++) {
         vec3 pos = r.origin + r.dir * result.totalDistance;
         float d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
         result.totalDistance += d;
-        if (d < SDF_DIST){
+        if (d <= 0.01){
                 result.found=true;
-                while(d==0){
+                while(d>=0){
                     pos = r.origin + r.dir * result.totalDistance;
                     d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
                     result.totalDistance += STEP_SIZE;
+                    if(result.totalDistance > MAX_DIST){
+                        result.found=false;
+                        break;
+                    }
                 }
-                float base=result.totalDistance;
-                while(d < 0){
-                    pos = r.origin + r.dir * result.totalDistance;
-                    d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
-                    result.color=result.color+vec3(exp(-1*(abs(result.totalDistance-base))));
-                    result.totalDistance += STEP_SIZE;
+                if(!result.found){
+                    break;
                 }
 
-                
+                float base=result.totalDistance;
+                float radiusSize=1.0/STEP_SIZE;
+
+                while(d < 0){
+                    pos = r.origin + r.dir * result.totalDistance;
+                    //result.color+=vec3(1.0)*exp(-1*(abs(result.totalDistance-base)));
+                    d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
+                    result.totalDistance += STEP_SIZE;
+                }
+                result.color=result.color+vec3(1)-vec3(exp(-1*(abs(result.totalDistance-base))));
+
                 result.totalDistance=base;
             break;
         }
