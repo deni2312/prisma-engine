@@ -19,7 +19,6 @@ uniform Constants {
 #define SDF_DIST 0.01
 #define RAYMARCH_STEPS 50
 #define MAX_DIST 50.0
-#define STEP_SIZE 0.001
 
 struct Ray {
     vec3 dir;
@@ -51,47 +50,16 @@ float calcShading(vec3 p) {
     return clamp(dot(normal, lightDir), 0.0, 1.0);
 }
 
-struct RaymarchResult{
-    float totalDistance;
-    vec3 color;
-    bool found;
-};
-
 // Performs raymarching to find the intersection with the SDF.
-RaymarchResult raymarch(Ray r) {
-    RaymarchResult result;
-    
-    result.totalDistance = 0.0;
-    result.color = vec3(0.0);
-
+float raymarch(Ray r) {
+    float totalDist = 0.0;
     for (int i = 0; i < RAYMARCH_STEPS; i++) {
-        vec3 pos = r.origin + r.dir * result.totalDistance;
+        vec3 pos = r.origin + r.dir * totalDist;
         float d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
-        result.totalDistance += d;
-        if(d <= 0){
-           result.found=true; 
-           while(d==0){
-                pos = r.origin + r.dir * result.totalDistance;
-                d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
-                result.totalDistance += STEP_SIZE;
-           }
-           float base=result.totalDistance;
-           while(d < 0){
-                pos = r.origin + r.dir * result.totalDistance;
-                result.color=vec3(1.0);
-                d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
-                result.totalDistance += STEP_SIZE;
-           }
-           result.totalDistance=base;
-           break;
-        }
-
-        if (result.totalDistance > MAX_DIST){
-            result.found=false;
-            break;
-        }
+        totalDist += d;
+        if (d < SDF_DIST || totalDist > MAX_DIST) break;
     }
-    return result;
+    return totalDist;
 }
 
 void main() {
@@ -128,16 +96,14 @@ void main() {
     Ray ray;
     ray.origin = rayOriginWorld;
     ray.dir = rayDirWorld;
-    ray.origin = vec3(0.0, 1.0, 0.0);
-    ray.dir = normalize(vec3(uv, 1.0));
 
-    RaymarchResult dist = raymarch(ray);
+    float dist = raymarch(ray);
 
-    if (dist.found) {
+    if (dist < MAX_DIST) {
         // Calculate the hit point in world space.
-        vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
+        vec3 hitPoint = ray.origin + ray.dir * dist;
         float diffuse = calcShading(hitPoint);
-        FragColor = vec4(dist.color, 1.0); // Render the SDF with shading
+        FragColor = vec4(vec3(diffuse), 1.0); // Render the SDF with shading
         vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
         gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w); // Perspective divide to get NDC Z
         return;
