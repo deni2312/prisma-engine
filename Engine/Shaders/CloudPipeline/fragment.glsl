@@ -9,15 +9,14 @@ uniform sampler screenTexture_sampler;
 uniform ViewProjection {
     mat4 uView;
     mat4 uProjection;
-    vec4 viewPos; // camera position
+    vec4 viewPos; // camera position in world space
 };
 
 uniform Constants {
     vec3 resolution;
     float time;
-    vec4 cloudPosition; // cloudPosition.rgb = world-space origin of cloud volume
+    vec4 cloudPosition; // This uniform is available but not used in the provided SDF.
 };
-
 
 #define SDF_DIST 0.01
 #define RAYMARCH_STEPS 50
@@ -28,13 +27,14 @@ struct Ray {
     vec3 origin;
 };
 
-// Signed Distance Function: sphere
+// SDF: sphere
+// This function assumes 'point' is in world space.
 float GetMinSceneDistanceFromPoint(vec3 point) {
-    vec4 sphere = vec4(0.0, 1.0, 6.0, 1.0); // position.xyz, radius
+    vec4 sphere = vec4(0.0, 1.0, 6.0, 1.0); // position.xyz, radius (in world space)
     return length(point - sphere.xyz) - sphere.w;
 }
 
-// Estimate normal by sampling SDF gradient
+// Estimates the normal of the SDF at a given point in world space.
 vec3 estimateNormal(vec3 p) {
     vec2 eps = vec2(0.01, 0.0);
     return normalize(vec3(
@@ -44,20 +44,20 @@ vec3 estimateNormal(vec3 p) {
     ));
 }
 
-// Basic diffuse shading
+// Calculates basic diffuse shading.
 float calcShading(vec3 p) {
-    vec3 lightPos = vec3(-5.0, 5.0, 2.0);
+    vec3 lightPos = vec3(-5.0, 5.0, 2.0); // Light position in world space
     vec3 lightDir = normalize(lightPos - p);
     vec3 normal = estimateNormal(p);
     return clamp(dot(normal, lightDir), 0.0, 1.0);
 }
 
-// Raymarching loop
+// Performs raymarching to find the intersection with the SDF.
 float raymarch(Ray r) {
     float totalDist = 0.0;
     for (int i = 0; i < RAYMARCH_STEPS; i++) {
         vec3 pos = r.origin + r.dir * totalDist;
-        float d = GetMinSceneDistanceFromPoint(pos);
+        float d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
         totalDist += d;
         if (d < SDF_DIST || totalDist > MAX_DIST) break;
     }
@@ -65,22 +65,49 @@ float raymarch(Ray r) {
 }
 
 void main() {
-    vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / resolution.y;
-    uv.y = -uv.y; // <- Vulkan Y-flip here
+    // Calculate normalized device coordinates (NDC) from fragment coordinates.
+    vec2 uv = (gl_FragCoord.xy / resolution.xy) * 2.0 - 1.0;
+    uv.y = -uv.y; // Vulkan Y-flip (NDC is Y-up, Vulkan screen coords are Y-down)
 
-    vec4 color=texture(sampler2D(screenTexture,screenTexture_sampler),TexCoords);
+    // Sample the background from the screenTexture.
+    vec4 color = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords);
+
+    // Reconstruct clip space position. For raycasting, z=1 (far plane) is common.
+    vec4 clipPos = vec4(uv, 1.0, 1.0);
+
+    // Transform clip space direction to view space.
+    // The inverse of the projection matrix maps from clip space to view space.
+    vec4 viewDirH = inverse(uProjection) * clipPos;
+    // Perspective division to get a 3D vector in view space.
+    vec3 rayDirView = normalize(viewDirH.xyz / viewDirH.w);
+
+    // The ray origin in view space is (0,0,0) if the camera is at the origin of view space.
+    // However, the `viewPos` uniform gives the camera's world position.
+    // We need to construct the ray in world space to interact with the SDF defined in world space.
+
+    // Calculate the inverse of the view matrix to transform from view space to world space.
+    mat4 inverseView = inverse(uView);
+
+    // Ray origin in world space: This is simply the camera's position.
+    // The `viewPos` uniform is already the camera's position in world space.
+    vec3 rayOriginWorld = viewPos.xyz;
+
+    // Ray direction in world space: Transform the view space ray direction by the inverse view matrix
+    // (treating it as a direction vector, so the translation part of the matrix is ignored).
+    vec3 rayDirWorld = normalize((inverseView * vec4(rayDirView, 0.0)).xyz); // 0.0 for direction vector
 
     Ray ray;
-    ray.origin = vec3(0.0, 1.0, 0.0);
-    ray.dir = normalize(vec3(uv, 1.0));
+    ray.origin = rayOriginWorld;
+    ray.dir = rayDirWorld;
 
     float dist = raymarch(ray);
 
     if (dist < MAX_DIST) {
+        // Calculate the hit point in world space.
         vec3 hitPoint = ray.origin + ray.dir * dist;
         float diffuse = calcShading(hitPoint);
-        FragColor = vec4(vec3(diffuse), 1.0);
+        FragColor = vec4(vec3(diffuse), 1.0); // Render the SDF with shading
     } else {
-        FragColor = vec4(color.xyz,viewPos.x); // background
+        FragColor = vec4(color.xyz, 1.0); // No hit, show background
     }
 }
