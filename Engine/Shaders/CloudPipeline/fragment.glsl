@@ -50,16 +50,32 @@ float calcShading(vec3 p) {
     return clamp(dot(normal, lightDir), 0.0, 1.0);
 }
 
+struct RaymarchResult{
+    float totalDistance;
+    vec3 color;
+    bool found;
+};
+
 // Performs raymarching to find the intersection with the SDF.
-float raymarch(Ray r) {
-    float totalDist = 0.0;
+RaymarchResult raymarch(Ray r) {
+    RaymarchResult result;
+    result.totalDistance=0;
+    result.found=false;
     for (int i = 0; i < RAYMARCH_STEPS; i++) {
-        vec3 pos = r.origin + r.dir * totalDist;
+        vec3 pos = r.origin + r.dir * result.totalDistance;
         float d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
-        totalDist += d;
-        if (d < SDF_DIST || totalDist > MAX_DIST) break;
+        result.totalDistance += d;
+        if (d < SDF_DIST){
+            result.found=true;
+            break;
+        }
+        
+        if(result.totalDistance > MAX_DIST){
+            result.found=false;
+            break;
+        }
     }
-    return totalDist;
+    return result;
 }
 
 void main() {
@@ -97,11 +113,11 @@ void main() {
     ray.origin = rayOriginWorld;
     ray.dir = rayDirWorld;
 
-    float dist = raymarch(ray);
+    RaymarchResult dist = raymarch(ray);
 
-    if (dist < MAX_DIST) {
+    if (dist.found) {
         // Calculate the hit point in world space.
-        vec3 hitPoint = ray.origin + ray.dir * dist;
+        vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
         float diffuse = calcShading(hitPoint);
         FragColor = vec4(vec3(diffuse), 1.0); // Render the SDF with shading
         vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
