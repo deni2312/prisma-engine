@@ -3,8 +3,6 @@
 layout(location = 0) out vec4 FragColor;
 layout(location = 0) in vec2 TexCoords;
 
-uniform texture2D screenTexture;
-uniform sampler screenTexture_sampler;
 
 uniform ViewProjection {
     mat4 uView;
@@ -65,12 +63,11 @@ float raymarch(Ray r) {
 }
 
 void main() {
-    // Calculate normalized device coordinates (NDC) from fragment coordinates.
-    vec2 uv = (gl_FragCoord.xy / resolution.xy) * 2.0 - 1.0;
-    uv.y = -uv.y; // Vulkan Y-flip (NDC is Y-up, Vulkan screen coords are Y-down)
 
-    // Sample the background from the screenTexture.
-    vec4 color = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords);
+    vec2 fragPos=gl_FragCoord.xy;
+    fragPos.y=resolution.y-fragPos.y;
+    // Calculate normalized device coordinates (NDC) from fragment coordinates.
+    vec2 uv = (fragPos / resolution.xy) * 2.0 - 1.0;
 
     // Reconstruct clip space position. For raycasting, z=1 (far plane) is common.
     vec4 clipPos = vec4(uv, 1.0, 1.0);
@@ -109,7 +106,8 @@ void main() {
         FragColor = vec4(vec3(diffuse), 1.0); // Render the SDF with shading
         vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
         gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w); // Perspective divide to get NDC Z
-    } else {
-        FragColor = vec4(color.xyz, 1.0); // No hit, show background
-    }
+        return;
+    } 
+    discard;
+   
 }

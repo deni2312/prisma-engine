@@ -6,11 +6,12 @@
 #include "Graphics/GraphicsEngine/interface/PipelineState.h"
 #include <Common/interface/RefCntAutoPtr.hpp>
 #include "Helpers/Blit.h"
-#include "Component.h"
+#include "RenderComponent.h"
 #include "Postprocess/CloudPostprocess.h"
+#include "Helpers/Settings.h"
 
 namespace Prisma {
-class CloudComponent : public Component {
+class CloudComponent : public RenderComponent {
    public:
     CloudComponent();
 
@@ -22,7 +23,24 @@ class CloudComponent : public Component {
 
     void destroy() override;
 
+    void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
+
+    void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
+
    private:
-    std::shared_ptr<Prisma::CloudPostprocess> m_clouds;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+    std::unique_ptr<Blit> m_blit;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudTexture;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cloudConstants;
+    Settings m_settings;
+
+    TimeCounter m_counter;
+
+    struct CloudConstants {
+        glm::vec3 resolution;
+        float time;
+        glm::vec4 cloudPosition;
+    };
 };
 }
