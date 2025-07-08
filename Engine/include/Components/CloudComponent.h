@@ -7,8 +7,8 @@
 #include <Common/interface/RefCntAutoPtr.hpp>
 #include "Helpers/Blit.h"
 #include "RenderComponent.h"
-#include "Postprocess/CloudPostprocess.h"
 #include "Helpers/Settings.h"
+#include "Helpers/TimeCounter.h"
 
 namespace Prisma {
 class CloudComponent : public RenderComponent {
