@@ -93,9 +93,9 @@ void Prisma::PipelineDeferredForward::render() {
     // Clear the back buffer
     contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    Prisma::ComponentsHandler::getInstance().updatePostRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
-
     PipelineSkybox::getInstance().render();
+
+    Prisma::ComponentsHandler::getInstance().updatePostRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
 
     Prisma::PipelineHandler::getInstance().forward()->forwardTransparent()->render();
 
