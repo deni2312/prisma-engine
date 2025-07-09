@@ -29,8 +29,15 @@ struct Ray {
 // SDF: sphere
 // This function assumes 'point' is in world space.
 float sdSphere(vec3 point) {
-    vec4 sphere = vec4(0.0, 1.0, 6.0, 1.0); // position.xyz, radius (in world space)
+    point=point-vec3(cloudPosition);
+    vec4 sphere = vec4(0.0, 0.0, 0.0, 1.0); // position.xyz, radius (in world space)
     return length(point - sphere.xyz) - sphere.w;
+}
+
+float sdBox(vec3 p, vec3 size) {
+    p=p-vec3(cloudPosition);
+    vec3 d = abs(p) - size;
+    return length(max(d, 0.0)) + min(max(d.x, max(d.y, d.z)), 0.0);
 }
 
 struct RaymarchResult{
@@ -45,15 +52,16 @@ RaymarchResult raymarch(Ray r) {
     result.totalDistance=0;
     result.color=vec4(0);
     result.found=false;
+    vec3 halfSize = vec3(1.0, 1.0,1.0);    // Square of size 2x2
     for (int i = 0; i < RAYMARCH_STEPS; i++) {
         vec3 pos = r.origin + r.dir * result.totalDistance;
-        float d = sdSphere(pos); // 'pos' is in world space
+        float d = sdBox(pos,halfSize); // 'pos' is in world space
         result.totalDistance += d;
         if (d <= 0.01){
                 result.found=true;
                 while(d>=0){
                     pos = r.origin + r.dir * result.totalDistance;
-                    d = sdSphere(pos); // 'pos' is in world space
+                    d =  sdBox(pos,halfSize); // 'pos' is in world space
                     result.totalDistance += STEP_SIZE;
                     if(result.totalDistance > MAX_DIST){
                         result.found=false;
@@ -70,7 +78,7 @@ RaymarchResult raymarch(Ray r) {
                 while(d < 0){
                     pos = r.origin + r.dir * result.totalDistance;
                     //result.color+=vec3(1.0)*exp(-1*(abs(result.totalDistance-base)));
-                    d = sdSphere(pos); // 'pos' is in world space
+                    d =  sdBox(pos,halfSize); // 'pos' is in world space
                     result.totalDistance += STEP_SIZE;
                 }
                 result.color=result.color+vec4(1.0)-vec4(exp(-0.1*(abs(result.totalDistance-base))));

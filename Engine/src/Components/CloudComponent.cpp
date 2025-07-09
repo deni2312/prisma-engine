@@ -178,7 +178,7 @@ void Prisma::CloudComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
     auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
     Diligent::MapHelper<CloudConstants> cloudConstants(contextData.immediateContext, m_cloudConstants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
     cloudConstants->resolution = glm::vec4(m_settings.width, m_settings.height, 0, m_counter.duration_seconds());
-    cloudConstants->cloudPosition = glm::vec4(0, 0, 0, 1);
+    cloudConstants->cloudPosition = parent()->finalMatrix()[3];
     // Bind vertex and index buffers
     constexpr Diligent::Uint64 offset = 0;
     Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
