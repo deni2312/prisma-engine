@@ -28,27 +28,9 @@ struct Ray {
 
 // SDF: sphere
 // This function assumes 'point' is in world space.
-float GetMinSceneDistanceFromPoint(vec3 point) {
+float sdSphere(vec3 point) {
     vec4 sphere = vec4(0.0, 1.0, 6.0, 1.0); // position.xyz, radius (in world space)
     return length(point - sphere.xyz) - sphere.w;
-}
-
-// Estimates the normal of the SDF at a given point in world space.
-vec3 estimateNormal(vec3 p) {
-    vec2 eps = vec2(0.01, 0.0);
-    return normalize(vec3(
-        GetMinSceneDistanceFromPoint(p + eps.xyy) - GetMinSceneDistanceFromPoint(p - eps.xyy),
-        GetMinSceneDistanceFromPoint(p + eps.yxy) - GetMinSceneDistanceFromPoint(p - eps.yxy),
-        GetMinSceneDistanceFromPoint(p + eps.yyx) - GetMinSceneDistanceFromPoint(p - eps.yyx)
-    ));
-}
-
-// Calculates basic diffuse shading.
-float calcShading(vec3 p) {
-    vec3 lightPos = vec3(-5.0, 5.0, 2.0); // Light position in world space
-    vec3 lightDir = normalize(lightPos - p);
-    vec3 normal = estimateNormal(p);
-    return clamp(dot(normal, lightDir), 0.0, 1.0);
 }
 
 struct RaymarchResult{
@@ -65,13 +47,13 @@ RaymarchResult raymarch(Ray r) {
     result.found=false;
     for (int i = 0; i < RAYMARCH_STEPS; i++) {
         vec3 pos = r.origin + r.dir * result.totalDistance;
-        float d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
+        float d = sdSphere(pos); // 'pos' is in world space
         result.totalDistance += d;
         if (d <= 0.01){
                 result.found=true;
                 while(d>=0){
                     pos = r.origin + r.dir * result.totalDistance;
-                    d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
+                    d = sdSphere(pos); // 'pos' is in world space
                     result.totalDistance += STEP_SIZE;
                     if(result.totalDistance > MAX_DIST){
                         result.found=false;
@@ -88,7 +70,7 @@ RaymarchResult raymarch(Ray r) {
                 while(d < 0){
                     pos = r.origin + r.dir * result.totalDistance;
                     //result.color+=vec3(1.0)*exp(-1*(abs(result.totalDistance-base)));
-                    d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
+                    d = sdSphere(pos); // 'pos' is in world space
                     result.totalDistance += STEP_SIZE;
                 }
                 result.color=result.color+vec4(1.0)-vec4(exp(-0.1*(abs(result.totalDistance-base))));
@@ -145,7 +127,6 @@ void main() {
     if (dist.found) {
         // Calculate the hit point in world space.
         vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
-        float diffuse = calcShading(hitPoint);
         FragColor = dist.color; // Render the SDF with shading
         vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
         gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w); // Perspective divide to get NDC Z
