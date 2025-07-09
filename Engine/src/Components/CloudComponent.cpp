@@ -61,6 +61,11 @@ void Prisma::CloudComponent::start() {
     RT0.DestBlendAlpha = Diligent::BLEND_FACTOR_ONE;
     RT0.BlendOpAlpha = Diligent::BLEND_OPERATION_ADD;
     RT0.RenderTargetWriteMask = Diligent::COLOR_MASK_ALL;
+    auto& DepthStencilDesc = PSOCreateInfo.GraphicsPipeline.DepthStencilDesc;
+    DepthStencilDesc.DepthEnable = Diligent::True;
+    DepthStencilDesc.DepthWriteEnable = Diligent::False;
+    DepthStencilDesc.DepthFunc = Diligent::COMPARISON_FUNC_LESS;
+
     Diligent::ShaderCreateInfo ShaderCI;
     // Tell the system that the shader source code is in HLSL.
     // For OpenGL, the engine will convert this into GLSL under the hood.
