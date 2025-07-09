@@ -91,6 +91,8 @@ void Prisma::PipelineForward::render() {
 
     m_forwardTransparent->render();
 
+    Prisma::ComponentsHandler::getInstance().updateTransparentRender(m_forwardTransparent->accum(), m_forwardTransparent->reveal(), PipelineHandler::getInstance().textureData().pDepthDSV);
+
     auto& sprites = GlobalData::getInstance().currentGlobalScene()->sprites;
 
     for (auto& sprite : sprites) {

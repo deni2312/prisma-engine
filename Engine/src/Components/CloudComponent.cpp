@@ -27,33 +27,32 @@ void Prisma::CloudComponent::start() {
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
     PSOCreateInfo.PSODesc.Name = "CloudComponent Render";
-
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
 
     // clang-format off
-    // This tutorial will render to a single render target
-    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
+    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 2;
     // Set render target format which is the format of the swap chain's color buffer
     PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = PipelineHandler::getInstance().textureFormat();
-
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[1] = Diligent::TEX_FORMAT_R16_FLOAT;
     // Set depth buffer format which is the format of the swap chain's back buffer
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
-    PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
-
     // Cull back faces
-    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
-    //PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthWriteEnable = false;
-    // clang-format on
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthWriteEnable = false;
 
-    auto& BlendDesc = PSOCreateInfo.GraphicsPipeline.BlendDesc;
-    BlendDesc.IndependentBlendEnable = Diligent::False;
-    auto& RT0 = BlendDesc.RenderTargets[0];
-    RT0.BlendEnable = Diligent::True;
+    // Enable blending
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.AlphaToCoverageEnable = false;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc.IndependentBlendEnable = true;
+
+    // Configure blending for Render Target 0
+    auto& RT0 = PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[0];
+    RT0.BlendEnable = true;
     RT0.SrcBlend = Diligent::BLEND_FACTOR_ONE;
     RT0.DestBlend = Diligent::BLEND_FACTOR_ONE;
     RT0.BlendOp = Diligent::BLEND_OPERATION_ADD;
@@ -61,10 +60,17 @@ void Prisma::CloudComponent::start() {
     RT0.DestBlendAlpha = Diligent::BLEND_FACTOR_ONE;
     RT0.BlendOpAlpha = Diligent::BLEND_OPERATION_ADD;
     RT0.RenderTargetWriteMask = Diligent::COLOR_MASK_ALL;
-    auto& DepthStencilDesc = PSOCreateInfo.GraphicsPipeline.DepthStencilDesc;
-    DepthStencilDesc.DepthEnable = Diligent::True;
-    DepthStencilDesc.DepthWriteEnable = Diligent::False;
-    DepthStencilDesc.DepthFunc = Diligent::COMPARISON_FUNC_LESS;
+
+    // Configure blending for Render Target 1
+    auto& RT1 = PSOCreateInfo.GraphicsPipeline.BlendDesc.RenderTargets[1];
+    RT1.BlendEnable = true;
+    RT1.SrcBlend = Diligent::BLEND_FACTOR_ZERO;
+    RT1.DestBlend = Diligent::BLEND_FACTOR_INV_SRC_COLOR;
+    RT1.BlendOp = Diligent::BLEND_OPERATION_ADD;
+    RT1.SrcBlendAlpha = Diligent::BLEND_FACTOR_ZERO;
+    RT1.DestBlendAlpha = Diligent::BLEND_FACTOR_INV_SRC_COLOR;
+    RT1.BlendOpAlpha = Diligent::BLEND_OPERATION_ADD;
+    RT1.RenderTargetWriteMask = Diligent::COLOR_MASK_ALL;
 
     Diligent::ShaderCreateInfo ShaderCI;
     // Tell the system that the shader source code is in HLSL.
@@ -83,7 +89,7 @@ void Prisma::CloudComponent::start() {
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Blit VS";
+        ShaderCI.Desc.Name = "Cloud VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/CloudPipeline/vertex.glsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
     }
@@ -93,7 +99,7 @@ void Prisma::CloudComponent::start() {
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Blit PS";
+        ShaderCI.Desc.Name = "Cloud PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/CloudPipeline/fragment.glsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
@@ -170,12 +176,20 @@ void Prisma::CloudComponent::destroy() {
 void Prisma::CloudComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
 
 void Prisma::CloudComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
+
+}
+
+void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto pRTV = texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
-    auto pDSV = depth->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
+    auto accumData = accum->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto revealData = reveal->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    Diligent::ITextureView* textures[] = {accumData, revealData};
+    auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
+
     // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->SetRenderTargets(2, textures, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    // Clear the back buffer
     contextData.immediateContext->SetPipelineState(m_pso);
 
     auto quadBuffer = PrismaRender::getInstance().quadBuffer();
@@ -198,5 +212,10 @@ void Prisma::CloudComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
     // Verify the state of vertex and index buffers
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.immediateContext->DrawIndexed(DrawAttrs);
+
+    auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+
+    // Clear the back buffer
+    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 

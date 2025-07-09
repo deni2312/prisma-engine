@@ -22,6 +22,8 @@ public:
 
     void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
 
+    void updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth);
+
     void addComponent(std::shared_ptr<Component> component);
 
     void removeComponent(std::shared_ptr<Component> component);

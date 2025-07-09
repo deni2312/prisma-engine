@@ -43,6 +43,14 @@ void Prisma::ComponentsHandler::updatePostRender(Diligent::RefCntAutoPtr<Diligen
     }
 }
 
+void Prisma::ComponentsHandler::updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
+    for (const auto& component : m_renderComponents) {
+        if (component && component->isStart()) {
+            component->updateTransparentRender(accum,reveal, depth);
+        }
+    }
+}
+
 //
 //void Prisma::ComponentsHandler::updateRender(std::shared_ptr<FBO> fbo)
 //{

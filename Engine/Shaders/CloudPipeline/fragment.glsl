@@ -1,6 +1,8 @@
 #extension GL_EXT_samplerless_texture_functions : require
 
-layout(location = 0) out vec4 FragColor;
+layout(location = 0) out vec4 accum;
+layout(location = 1) out float reveal;
+
 layout(location = 0) in vec2 TexCoords;
 
 
@@ -81,7 +83,7 @@ RaymarchResult raymarch(Ray r) {
                     d =  sdBox(pos,halfSize); // 'pos' is in world space
                     result.totalDistance += STEP_SIZE;
                 }
-                result.color=result.color+vec4(1.0)-vec4(exp(-0.1*(abs(result.totalDistance-base))));
+                result.color=result.color+vec4(1.0)-vec4(exp(-0.5*(abs(result.totalDistance-base))));
 
                 result.totalDistance=base;
             break;
@@ -135,9 +137,16 @@ void main() {
     if (dist.found) {
         // Calculate the hit point in world space.
         vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
-        FragColor = dist.color; // Render the SDF with shading
         vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
         gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w); // Perspective divide to get NDC Z
+
+        float weight = clamp(pow(min(1.0, dist.color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragDepth * 0.9, 3.0), 1e-2, 3e3);
+
+        accum = vec4(dist.color.rgb * dist.color.a, dist.color.a) * weight;
+
+        reveal=dist.color.a;
+
+
         return;
     } 
     discard;
