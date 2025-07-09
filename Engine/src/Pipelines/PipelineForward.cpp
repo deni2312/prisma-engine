@@ -85,9 +85,9 @@ void Prisma::PipelineForward::render() {
         MeshIndirect::getInstance().renderAnimateMeshes();
     }
 
-    Prisma::ComponentsHandler::getInstance().updatePostRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
-
     PipelineSkybox::getInstance().render();
+
+    Prisma::ComponentsHandler::getInstance().updatePostRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
 
     m_forwardTransparent->render();
 

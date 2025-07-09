@@ -53,7 +53,7 @@ float calcShading(vec3 p) {
 
 struct RaymarchResult{
     float totalDistance;
-    vec3 color;
+    vec4 color;
     bool found;
 };
 
@@ -61,7 +61,7 @@ struct RaymarchResult{
 RaymarchResult raymarch(Ray r) {
     RaymarchResult result;
     result.totalDistance=0;
-    result.color=vec3(0);
+    result.color=vec4(0);
     result.found=false;
     for (int i = 0; i < RAYMARCH_STEPS; i++) {
         vec3 pos = r.origin + r.dir * result.totalDistance;
@@ -91,7 +91,7 @@ RaymarchResult raymarch(Ray r) {
                     d = GetMinSceneDistanceFromPoint(pos); // 'pos' is in world space
                     result.totalDistance += STEP_SIZE;
                 }
-                result.color=result.color+vec3(1)-vec3(exp(-1*(abs(result.totalDistance-base))));
+                result.color=result.color+vec4(1.0)-vec4(exp(-0.1*(abs(result.totalDistance-base))));
 
                 result.totalDistance=base;
             break;
@@ -146,7 +146,7 @@ void main() {
         // Calculate the hit point in world space.
         vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
         float diffuse = calcShading(hitPoint);
-        FragColor = vec4(vec3(dist.color), 1.0); // Render the SDF with shading
+        FragColor = dist.color; // Render the SDF with shading
         vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
         gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w); // Perspective divide to get NDC Z
         return;
