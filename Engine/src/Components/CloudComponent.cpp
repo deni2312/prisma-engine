@@ -10,7 +10,17 @@
 
 Prisma::CloudComponent::CloudComponent() { name("CloudComponent"); }
 
-void Prisma::CloudComponent::ui() { Prisma::Component::ui(); }
+void Prisma::CloudComponent::ui() { 
+    
+    Prisma::Component::ui(); 
+    ComponentType componentAmplitude;
+    componentAmplitude = std::make_tuple(TYPES::FLOAT, "Cloud Amplitude", &m_constants.amplitude);
+    addGlobal({componentAmplitude, false});
+
+    ComponentType componentFrequency;
+    componentFrequency = std::make_tuple(TYPES::FLOAT, "Cloud Frequency", &m_constants.frequency);
+    addGlobal({componentFrequency, false});
+}
 
 void Prisma::CloudComponent::update() {
 
@@ -167,6 +177,8 @@ void Prisma::CloudComponent::start() {
     GlobalData::getInstance().addGlobalTexture({m_cloudTexture, "Cloud Texture"});
     m_counter.start();
     m_settings = Prisma::SettingsLoader::getInstance().getSettings();
+
+    m_constants.resolution = glm::vec4(m_settings.width, m_settings.height, 0,0);
 }
 
 void Prisma::CloudComponent::destroy() { 
@@ -194,11 +206,15 @@ void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Dil
 
     auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
+    m_constants.cloudPosition = parent()->finalMatrix()[3];
+    m_constants.time = m_counter.duration_seconds();
+
     auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
     Diligent::MapHelper<CloudConstants> cloudConstants(contextData.immediateContext, m_cloudConstants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-    cloudConstants->resolution = glm::vec4(m_settings.width, m_settings.height, 0, m_counter.duration_seconds());
-    cloudConstants->cloudPosition = parent()->finalMatrix()[3];
-    // Bind vertex and index buffers
+
+    *cloudConstants = m_constants;
+
+
     constexpr Diligent::Uint64 offset = 0;
     Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
     contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
@@ -217,5 +233,6 @@ void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Dil
 
     // Clear the back buffer
     contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    
 }
 

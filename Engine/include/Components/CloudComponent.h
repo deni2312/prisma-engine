@@ -40,9 +40,18 @@ class CloudComponent : public RenderComponent {
     TimeCounter m_counter;
 
     struct CloudConstants {
-        glm::vec3 resolution;
-        float time;
-        glm::vec4 cloudPosition;
+        glm::vec4 resolution;
+        glm::vec4 cloudPosition=glm::vec4(0);  // This uniform is available but not used in the provided SDF.
+
+        float time=0;
+
+        float amplitude=0.1;
+
+        float frequency=1;
+
+        float paddingConstants;
     };
+
+    CloudConstants m_constants;
 };
 }
