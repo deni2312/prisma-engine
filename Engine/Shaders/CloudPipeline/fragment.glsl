@@ -116,7 +116,7 @@ RaymarchResult raymarch(Ray r) {
                     pos = r.origin + r.dir * result.totalDistance;
                     //result.color+=vec3(1.0)*exp(-1*(abs(result.totalDistance-base)));
                     d =  sdInterface(pos,halfSize); // 'pos' is in world space
-                    density += noise(pos * frequency * time) * amplitude; // Scale and amplitude of noise
+                    density += noise((pos-cloudPosition.xyz) * frequency * time) * amplitude; // Scale and amplitude of noise
 
                     result.totalDistance += STEP_SIZE;
                 }
