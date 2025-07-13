@@ -5,7 +5,7 @@
 #include "Pipelines/PipelineHandler.h"
 
 
-Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(const std::string& vertex, const std::string& fragment, glm::vec2 resolution, const std::string& name) {
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(const std::string& vertex, const std::string& fragment, glm::vec2 resolution, const std::string& name, NoiseType type) {
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> srb;
 
@@ -104,21 +104,36 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(con
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> texture;
 
+    
+
+
     Diligent::TextureDesc RTColorDesc;
     RTColorDesc.Name = "Noise Texture";
-    RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;
+
+    switch (type) { case NoiseType::TEXTURE_2D:
+            {
+                RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;  // Set cubemap type
+            }
+            break;
+        case NoiseType::TEXTURE_3D:
+            {
+                RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_CUBE;  // Set cubemap type
+                RTColorDesc.ArraySize = 6;
+            }
+            break;
+
+    }
     RTColorDesc.Width = resolution.x;
     RTColorDesc.Height = resolution.y;
-    RTColorDesc.MipLevels = 1;
-    RTColorDesc.Format = PipelineHandler::getInstance().textureFormat();
-    // The render target can be bound as a shader resource and as a render target
+    RTColorDesc.MipLevels = 8;
+    RTColorDesc.Format = Diligent::TEX_FORMAT_RGBA16_FLOAT;
+    // Specify 6 faces for cubemap
+    // Allow it to be used as both a shader resource and a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
     RTColorDesc.ClearValue.Format = RTColorDesc.Format;
-    RTColorDesc.ClearValue.Color[0] = 0.350f;
-    RTColorDesc.ClearValue.Color[1] = 0.350f;
-    RTColorDesc.ClearValue.Color[2] = 0.350f;
-    RTColorDesc.ClearValue.Color[3] = 1.f;
+    RTColorDesc.MiscFlags = Diligent::MISC_TEXTURE_FLAG_GENERATE_MIPS;
+    // Create the cubemap texture
     contextData.device->CreateTexture(RTColorDesc, nullptr, &texture);
 
     auto color = texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
@@ -126,24 +141,49 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(con
     contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     contextData.immediateContext->SetPipelineState(pso);
 
-    auto quadBuffer = PrismaRender::getInstance().quadBuffer();
+    switch (type) {
+        case NoiseType::TEXTURE_2D: {
+            auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
-    // Bind vertex and index buffers
-    constexpr Diligent::Uint64 offset = 0;
-    Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
-    contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-    contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    // Set texture SRV in the SRB
-    contextData.immediateContext->CommitShaderResources(srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            // Bind vertex and index buffers
+            constexpr Diligent::Uint64 offset = 0;
+            Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
+            contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+            contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            // Set texture SRV in the SRB
+            contextData.immediateContext->CommitShaderResources(srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
-    DrawAttrs.IndexType = Diligent::VT_UINT32;  // Index type
-    DrawAttrs.NumIndices = quadBuffer.iBufferSize;
-    // Verify the state of vertex and index buffers
-    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
-    contextData.immediateContext->DrawIndexed(DrawAttrs);
+            Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+            DrawAttrs.IndexType = Diligent::VT_UINT32;  // Index type
+            DrawAttrs.NumIndices = quadBuffer.iBufferSize;
+            // Verify the state of vertex and index buffers
+            DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+            contextData.immediateContext->DrawIndexed(DrawAttrs);
 
-    GlobalData::getInstance().addGlobalTexture({texture, name});
+            GlobalData::getInstance().addGlobalTexture({texture, name});
+        } break;
+        case NoiseType::TEXTURE_3D: {
+            auto cubeBuffer = PrismaRender::getInstance().cubeBuffer();
+
+            // Bind vertex and index buffers
+            constexpr Diligent::Uint64 offset = 0;
+            Diligent::IBuffer* pBuffs[] = {cubeBuffer.vBuffer};
+            contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+            contextData.immediateContext->SetIndexBuffer(cubeBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            // Set texture SRV in the SRB
+            contextData.immediateContext->CommitShaderResources(srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+            Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+            DrawAttrs.IndexType = Diligent::VT_UINT32;  // Index type
+            DrawAttrs.NumIndices = cubeBuffer.iBufferSize;
+            // Verify the state of vertex and index buffers
+            DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+            contextData.immediateContext->DrawIndexed(DrawAttrs);
+
+            GlobalData::getInstance().addGlobalTexture({texture, name});
+        } break;
+    }
+
 
     return texture;
 }

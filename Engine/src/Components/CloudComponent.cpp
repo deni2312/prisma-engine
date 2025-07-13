@@ -192,7 +192,7 @@ void Prisma::CloudComponent::start() {
     RTColorDesc.ClearValue.Color[2] = 0.350f;
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudTexture);
-    m_texture = Prisma::NoiseGenerator::getInstance().generate("../../../Engine/Shaders/PerlinPipeline/vertex.glsl", "../../../Engine/Shaders/PerlinPipeline/fragment.glsl", {512, 512}, "Perlin Texture");
+    m_texture = Prisma::NoiseGenerator::getInstance().generate("../../../Engine/Shaders/PerlinPipeline/vertex.glsl", "../../../Engine/Shaders/PerlinPipeline/fragment.glsl", {512, 512}, "Perlin Texture",NoiseGenerator::NoiseType::TEXTURE_3D);
 
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "Constants")->Set(m_cloudConstants);
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "perlinTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));

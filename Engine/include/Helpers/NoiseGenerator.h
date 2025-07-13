@@ -12,7 +12,13 @@
 namespace Prisma {
 class NoiseGenerator : public InstanceData<NoiseGenerator> {
    public:
-    Diligent::RefCntAutoPtr<Diligent::ITexture> generate(const std::string& vertex, const std::string& fragment, glm::vec2 resolution, const std::string& name);
+
+       enum class NoiseType {
+           TEXTURE_2D,
+           TEXTURE_3D
+
+       };
+    Diligent::RefCntAutoPtr<Diligent::ITexture> generate(const std::string& vertex, const std::string& fragment, glm::vec2 resolution, const std::string& name, NoiseType type);
 
 };
 }  // namespace Prisma
