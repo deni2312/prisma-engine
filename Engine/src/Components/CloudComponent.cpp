@@ -20,6 +20,12 @@ void Prisma::CloudComponent::ui() {
     ComponentType componentFrequency;
     componentFrequency = std::make_tuple(TYPES::FLOAT, "Cloud Frequency", &m_constants.frequency);
     addGlobal({componentFrequency, false});
+
+    ComponentType componentBeers;
+    componentBeers = std::make_tuple(TYPES::FLOAT, "Cloud Beers", &m_constants.beersLaw);
+    addGlobal({componentBeers, false});
+
+
 }
 
 void Prisma::CloudComponent::update() {

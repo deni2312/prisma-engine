@@ -18,7 +18,7 @@ uniform Constants {
     float time;
     float amplitude;
     float frequency;
-    float paddingConstants;
+    float beers;
 };
 
 #define SDF_DIST 0.01
@@ -120,7 +120,7 @@ RaymarchResult raymarch(Ray r) {
 
                     result.totalDistance += STEP_SIZE;
                 }
-                result.color=result.color+vec4(1.0)-vec4(exp(-density*(abs(result.totalDistance-base))));
+                result.color=result.color+vec4(1.0)-vec4(exp(-density*beers*(abs(result.totalDistance-base))));
 
                 result.totalDistance=base;
             break;

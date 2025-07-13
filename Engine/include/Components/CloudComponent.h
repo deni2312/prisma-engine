@@ -49,7 +49,7 @@ class CloudComponent : public RenderComponent {
 
         float frequency=1;
 
-        float paddingConstants;
+        float beersLaw=1;
     };
 
     CloudConstants m_constants;
