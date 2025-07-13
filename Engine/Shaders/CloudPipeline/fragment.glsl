@@ -5,6 +5,10 @@ layout(location = 1) out float reveal;
 
 layout(location = 0) in vec2 TexCoords;
 
+uniform texture2D perlinTexture;
+
+uniform sampler perlinTexture_sampler;
+
 
 uniform ViewProjection {
     mat4 uView;
@@ -116,7 +120,7 @@ RaymarchResult raymarch(Ray r) {
                     pos = r.origin + r.dir * result.totalDistance;
                     //result.color+=vec3(1.0)*exp(-1*(abs(result.totalDistance-base)));
                     d =  sdInterface(pos,halfSize); // 'pos' is in world space
-                    density += noise((pos-cloudPosition.xyz) * frequency * time) * amplitude; // Scale and amplitude of noise
+                    density += (texture(sampler2D(perlinTexture,perlinTexture_sampler),pos.xy-cloudPosition.xy) * frequency * time * amplitude).r; // Scale and amplitude of noise
 
                     result.totalDistance += STEP_SIZE;
                 }

@@ -141,12 +141,30 @@ void Prisma::CloudComponent::start() {
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
     Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "Constants", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-                                                   {Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+                                                   {Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+                                                   {Diligent::SHADER_TYPE_PIXEL, "perlinTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
 
-    Diligent::SamplerDesc SamLinearClampDesc{Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP};
+
+        // Define variable type that will be used by default
+    PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+
+    // clang-format off
+	// Define immutable sampler for g_Texture. Immutable samplers should be used whenever possible
+	Diligent::SamplerDesc SamLinearClampDesc
+    {
+	    Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
+	    Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
+    };
+	Diligent::ImmutableSamplerDesc ImtblSamplers[] =
+    {
+        {Diligent::SHADER_TYPE_PIXEL, "perlinTexture", SamLinearClampDesc}
+    };
+    // clang-format on
+    PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
+    PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
 
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_pso);
 
@@ -174,7 +192,11 @@ void Prisma::CloudComponent::start() {
     RTColorDesc.ClearValue.Color[2] = 0.350f;
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudTexture);
+    m_texture = Prisma::NoiseGenerator::getInstance().generate("../../../Engine/Shaders/PerlinPipeline/vertex.glsl", "../../../Engine/Shaders/PerlinPipeline/fragment.glsl", {512, 512}, "Perlin Texture");
+
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "Constants")->Set(m_cloudConstants);
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "perlinTexture")->Set(m_texture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+
 
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
@@ -187,7 +209,6 @@ void Prisma::CloudComponent::start() {
 
     m_constants.resolution = glm::vec4(m_settings.width, m_settings.height, 0,0);
 
-    m_texture = Prisma::NoiseGenerator::getInstance().generate("../../../Engine/Shaders/PerlinPipeline/vertex.glsl", "../../../Engine/Shaders/PerlinPipeline/fragment.glsl", {512, 512}, "Perlin Texture");
 }
 
 void Prisma::CloudComponent::destroy() { 
