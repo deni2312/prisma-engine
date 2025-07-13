@@ -7,6 +7,7 @@
 #include "Postprocess/Postprocess.h"
 #include <GlobalData/GlobalShaderNames.h>
 #include "Helpers/SettingsLoader.h"
+#include <Helpers/NoiseGenerator.h>
 
 Prisma::CloudComponent::CloudComponent() { name("CloudComponent"); }
 
@@ -185,6 +186,8 @@ void Prisma::CloudComponent::start() {
     m_settings = Prisma::SettingsLoader::getInstance().getSettings();
 
     m_constants.resolution = glm::vec4(m_settings.width, m_settings.height, 0,0);
+
+    m_texture = Prisma::NoiseGenerator::getInstance().generate("../../../Engine/Shaders/PerlinPipeline/vertex.glsl", "../../../Engine/Shaders/PerlinPipeline/fragment.glsl", {512, 512}, "Perlin Texture");
 }
 
 void Prisma::CloudComponent::destroy() { 

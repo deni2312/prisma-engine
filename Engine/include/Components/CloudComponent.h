@@ -53,5 +53,7 @@ class CloudComponent : public RenderComponent {
     };
 
     CloudConstants m_constants;
+
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
 };
 }
