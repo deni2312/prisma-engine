@@ -43,7 +43,7 @@ class CloudComponent : public RenderComponent {
         glm::vec4 resolution;
         glm::vec4 cloudPosition=glm::vec4(0);  // This uniform is available but not used in the provided SDF.
         glm::vec4 dirLight = glm::vec4(0, 1, 0, 0);
-
+        glm::vec4 color = glm::vec4(1.0);
 
         float time=0;
 

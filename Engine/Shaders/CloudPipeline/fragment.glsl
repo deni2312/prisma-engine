@@ -18,6 +18,7 @@ uniform Constants {
     vec4 resolution;
     vec4 cloudPosition;
     vec4 lightDirection;
+    vec4 cloudColor;
     float time;
     float amplitude;
     float frequency;
@@ -134,8 +135,8 @@ RaymarchResult raymarch(Ray ray) {
             
             float diffuse = clamp((scene(p,size) - scene(p + 0.3 * lightDirection.rgb,size)) / 0.3, 0.0, 1.0 );
             vec3 lin = vec3(0.60,0.60,0.75) * 1.1 + 0.8 * vec3(1.0,0.6,0.3) * diffuse;
-            vec4 color = vec4(mix(vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, 0.0), density), density );
-            color.rgb *= lin;
+            vec4 color = vec4(mix(vec3(1.0,1.0,1.0), vec3(0.0, 0.0, 0.0), density), density );
+            color.rgb *= lin*cloudColor.rgb;
             color.rgb *= color.a;
             // In first phase is (1-0)*color, but color.a is density so next phase will be (1-density)*color decreasing the contribution
             accumColor += color * (1.0 - accumColor.a);

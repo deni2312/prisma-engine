@@ -248,16 +248,19 @@ void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Dil
     auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
     glm::vec4 cloudDirection=glm::vec4(0,1,0,0);
+    glm::vec4 cloudColor=glm::vec4(1);
 
     if (!Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.empty()) {
         auto light=Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights[0];
 
         cloudDirection = glm::normalize(light->finalMatrix() * light->type().direction);
+        cloudColor=light->type().diffuse*light->intensity();
     }
 
     m_constants.cloudPosition = parent()->finalMatrix()[3];
     m_constants.time = m_counter.duration_seconds();
     m_constants.dirLight=cloudDirection;
+    m_constants.color=cloudColor;
 
     auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
     Diligent::MapHelper<CloudConstants> cloudConstants(contextData.immediateContext, m_cloudConstants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
