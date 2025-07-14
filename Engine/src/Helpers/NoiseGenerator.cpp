@@ -3,6 +3,7 @@
 #include "GlobalData/PrismaFunc.h"
 #include "Helpers/PrismaRender.h"
 #include "Pipelines/PipelineHandler.h"
+#include <Graphics/GraphicsTools/interface/MapHelper.hpp>
 
 
 Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(const std::string& vertex, const std::string& fragment, glm::vec2 resolution, const std::string& name, NoiseType type) {
@@ -33,7 +34,7 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(con
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
-    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
     // clang-format on
@@ -45,8 +46,6 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(con
 
     std::string widthStr = std::to_string(static_cast<int>(resolution.x));
     std::string heightStr = std::to_string(static_cast<int>(resolution.y));
-
-    std::cout << resolution.x << " " << resolution.y << std::endl;
 
     Diligent::ShaderMacro Macros[] = {
         {"WIDTH", widthStr.c_str()}, {"HEIGHT", heightStr.c_str()}
@@ -97,52 +96,61 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(con
 
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &pso);
 
-    pso->CreateShaderResourceBinding(&srb, true);
-
-    Diligent::RefCntAutoPtr<Diligent::ITexture> texture;
-
     
-
+    Diligent::RefCntAutoPtr<Diligent::ITexture> texture;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> buffer;
 
     Diligent::TextureDesc RTColorDesc;
     RTColorDesc.Name = "Noise Texture";
 
-    switch (type) { case NoiseType::TEXTURE_2D:
-            {
-                RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;  // Set cubemap type
-            }
-            break;
-        case NoiseType::TEXTURE_3D:
-            {
-                RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_CUBE;  // Set cubemap type
-                RTColorDesc.ArraySize = 6;
-            }
-            break;
+    switch (type) {
+        case NoiseType::TEXTURE_2D: {
+            RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_2D;  // Set cubemap type
+        } break;
+        case NoiseType::TEXTURE_3D: {
+            RTColorDesc.Type = Diligent::RESOURCE_DIM_TEX_CUBE;  // Set cubemap type
+            RTColorDesc.ArraySize = 6;
 
+
+            Diligent::BufferDesc CBDesc;
+            CBDesc.Name = "Constants";
+            CBDesc.Size = sizeof(PipelineSkybox::IBLViewProjection);
+            CBDesc.Usage = Diligent::USAGE_DYNAMIC;
+            CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+            CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+
+            contextData.device->CreateBuffer(CBDesc, nullptr, &buffer);
+
+            pso->GetStaticVariableByName(Diligent::SHADER_TYPE_VERTEX, "Constants")->Set(buffer);
+
+        } break;
     }
     RTColorDesc.Width = resolution.x;
     RTColorDesc.Height = resolution.y;
-    RTColorDesc.MipLevels = 8;
     RTColorDesc.Format = Diligent::TEX_FORMAT_RGBA16_FLOAT;
     // Specify 6 faces for cubemap
     // Allow it to be used as both a shader resource and a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
     // Define optimal clear value
     RTColorDesc.ClearValue.Format = RTColorDesc.Format;
-    RTColorDesc.MiscFlags = Diligent::MISC_TEXTURE_FLAG_GENERATE_MIPS;
     // Create the cubemap texture
     contextData.device->CreateTexture(RTColorDesc, nullptr, &texture);
 
-    auto color = texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
 
-    contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->SetPipelineState(pso);
+    pso->CreateShaderResourceBinding(&srb, true);
+
+
+
+
+
 
     switch (type) {
         case NoiseType::TEXTURE_2D: {
+            auto color = texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+            contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            contextData.immediateContext->SetPipelineState(pso);
             auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
             // Bind vertex and index buffers
@@ -163,24 +171,52 @@ Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::NoiseGenerator::generate(con
             GlobalData::getInstance().addGlobalTexture({texture, name});
         } break;
         case NoiseType::TEXTURE_3D: {
-            auto cubeBuffer = PrismaRender::getInstance().cubeBuffer();
+            auto color = texture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+            Diligent::RefCntAutoPtr<Diligent::ITextureView> pRTColor[6];
+            const PipelineSkybox::IBLData transform;
+                // Create render target views for each face
+            for (int i = 0; i < 6; ++i) {
+                Diligent::TextureViewDesc RTVDesc;
+                RTVDesc.ViewType = Diligent::TEXTURE_VIEW_RENDER_TARGET;
+                RTVDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+                RTVDesc.MostDetailedMip = 0;
+                RTVDesc.NumMipLevels = 1;
+                RTVDesc.FirstArraySlice = i;  // Select the specific face
+                RTVDesc.NumArraySlices = 1;
 
-            // Bind vertex and index buffers
-            constexpr Diligent::Uint64 offset = 0;
-            Diligent::IBuffer* pBuffs[] = {cubeBuffer.vBuffer};
-            contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-            contextData.immediateContext->SetIndexBuffer(cubeBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-            // Set texture SRV in the SRB
-            contextData.immediateContext->CommitShaderResources(srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                texture->CreateView(RTVDesc, &pRTColor[i]);
 
-            Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
-            DrawAttrs.IndexType = Diligent::VT_UINT32;  // Index type
-            DrawAttrs.NumIndices = cubeBuffer.iBufferSize;
-            // Verify the state of vertex and index buffers
-            DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
-            contextData.immediateContext->DrawIndexed(DrawAttrs);
+                Diligent::MapHelper<PipelineSkybox::IBLViewProjection> viewProjection(contextData.immediateContext, buffer, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+                viewProjection->view = transform.captureViews[i];
+                viewProjection->projection = transform.captureProjection;
 
-            GlobalData::getInstance().addGlobalTexture({texture, name});
+
+
+                contextData.immediateContext->SetRenderTargets(1, &pRTColor[i], nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+                contextData.immediateContext->ClearRenderTarget(pRTColor[i], value_ptr(Define::CLEAR_COLOR), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+                contextData.immediateContext->SetPipelineState(pso);
+
+                auto cubeBuffer = PrismaRender::getInstance().cubeBuffer();
+
+                // Bind vertex and index buffers
+                constexpr Diligent::Uint64 offset = 0;
+                Diligent::IBuffer* pBuffs[] = {cubeBuffer.vBuffer};
+                contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+                contextData.immediateContext->SetIndexBuffer(cubeBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+                // Set texture SRV in the SRB
+                contextData.immediateContext->CommitShaderResources(srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+                Diligent::DrawIndexedAttribs DrawAttrs;     // This is an indexed draw call
+                DrawAttrs.IndexType = Diligent::VT_UINT32;  // Index type
+                DrawAttrs.NumIndices = cubeBuffer.iBufferSize;
+                // Verify the state of vertex and index buffers
+                DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+                contextData.immediateContext->DrawIndexed(DrawAttrs);
+                //GlobalData::getInstance().addGlobalTexture({texture, name});
+            }
         } break;
     }
 

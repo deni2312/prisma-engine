@@ -5,10 +5,8 @@ layout(location = 1) out float reveal;
 
 layout(location = 0) in vec2 TexCoords;
 
-uniform textureCube perlinTexture;
-
+uniform texture2D perlinTexture;
 uniform sampler perlinTexture_sampler;
-
 
 uniform ViewProjection {
     mat4 uView;
@@ -18,156 +16,115 @@ uniform ViewProjection {
 
 uniform Constants {
     vec4 resolution;
-    vec4 cloudPosition; // This uniform is available but not used in the provided SDF.
+    vec4 cloudPosition;
     float time;
     float amplitude;
     float frequency;
     float beers;
 };
 
-#define SDF_DIST 0.01
-#define RAYMARCH_STEPS 50
-#define MAX_DIST 50.0
-#define STEP_SIZE 0.01
+#define MAX_STEPS 128
+#define MARCH_SIZE 0.08
+
+// Access to perlin noise
+#define uNoise perlinTexture
+#define uTime time
 
 struct Ray {
-    vec3 dir;
     vec3 origin;
+    vec3 dir;
 };
 
-// SDF: sphere
-// This function assumes 'point' is in world space.
-float sdSphere(vec3 point,float size) {
-    point=point-vec3(cloudPosition);
-    vec4 sphere = vec4(0.0, 0.0, 0.0,size); // position.xyz, radius (in world space)
-    return length(point - sphere.xyz) - sphere.w;
-}
-
-float sdBox(vec3 p, vec3 size) {
-    p=p-vec3(cloudPosition);
-    vec3 d = abs(p) - size;
-    return length(max(d, 0.0)) + min(max(d.x, max(d.y, d.z)), 0.0);
-}
-
-#define SPHERE
-
-float sdInterface(vec3 point,vec3 size){
-#ifdef SPHERE
-    return sdSphere(point,size.x);
-#endif
-
-#ifdef BOX
-    return sdBox(point,size);
-#endif
-
-}
-
-struct RaymarchResult{
+struct RaymarchResult {
+    bool found;
     float totalDistance;
     vec4 color;
-    bool found;
 };
 
-// Simple 3D Perlin noise stub (replace with your preferred noise function)
-float hash(vec3 p) {
-    return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
+// SDF: Sphere
+float sdSphere(vec3 p, float radius) {
+    return length(p) - radius;
 }
 
-float noise(vec3 p) {
-    vec3 i = floor(p);
-    vec3 f = fract(p);
-    f = f*f*(3.0 - 2.0*f); // smootherstep
+// Perlin noise
+float noise(vec3 x) {
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
 
-    float n = mix(
-        mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
-            mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
-        mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
-            mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
-    return n;
+    vec2 uv = (p.xy + vec2(37.0, 239.0) * p.z) + f.xy;
+    vec2 tex = textureLod(sampler2D(uNoise, perlinTexture_sampler), (uv + 0.5) / 256.0, 0.0).yx;
+
+    return mix(tex.x, tex.y, f.z) * 2.0 - 1.0;
 }
 
-// Performs raymarching to find the intersection with the SDF.
-RaymarchResult raymarch(Ray r) {
-    RaymarchResult result;
-    result.totalDistance=0;
-    result.color=vec4(0);
-    result.found=false;
-    vec3 halfSize = vec3(1.0, 1.0,1.0);    // Square of size 2x2
-    for (int i = 0; i < RAYMARCH_STEPS; i++) {
-        vec3 pos = r.origin + r.dir * result.totalDistance;
-        float d = sdInterface(pos,halfSize); // 'pos' is in world space
-        result.totalDistance += d;
-        if (d <= 0.01){
-                result.found=true;
-                while(d>=0){
-                    pos = r.origin + r.dir * result.totalDistance;
-                    d =  sdInterface(pos,halfSize); // 'pos' is in world space
-                    result.totalDistance += STEP_SIZE;
-                    if(result.totalDistance > MAX_DIST){
-                        result.found=false;
-                        break;
-                    }
-                }
-                if(!result.found){
-                    break;
-                }
+// Fractional Brownian Motion (FBM)
+float fbm(vec3 p) {
+    vec3 q = p + uTime * 0.5 * vec3(1.0, -0.2, -1.0);
+    float f = 0.0;
+    float scale = 0.5;
+    float factor = 2.02;
 
-                float base=result.totalDistance;
-                float radiusSize=1.0/STEP_SIZE;
-                float density =0.0;
-                //Raymarching
-                while(d < 0){
-                    pos = r.origin + r.dir * result.totalDistance;
-                    //result.color+=vec3(1.0)*exp(-1*(abs(result.totalDistance-base)));
-                    d =  sdInterface(pos,halfSize); // 'pos' is in world space
-                    density += (texture(samplerCube(perlinTexture,perlinTexture_sampler),pos-cloudPosition.xyz * frequency * time) * amplitude).r; // Scale and amplitude of noise
-
-                    result.totalDistance += STEP_SIZE;
-                }
-                result.color=result.color+vec4(1.0)-vec4(exp(-density*beers*(abs(result.totalDistance-base))));
-
-                result.totalDistance=base;
-            break;
-        }
-        
-        if(result.totalDistance > MAX_DIST){
-            result.found=false;
-            break;
-        }
+    for (int i = 0; i < 6; i++) {
+        f += scale * noise(q);
+        q *= factor;
+        factor += 0.21;
+        scale *= 0.5;
     }
+
+    return f;
+}
+
+// Scene function using sphere + noise
+float scene(vec3 p) {
+    float distance = sdSphere(p, 1.0);
+    float f = fbm(p);
+    return -distance + f;
+}
+
+// Raymarch with accumulation
+RaymarchResult raymarch(Ray ray) {
+    float depth = 0.0;
+    vec3 p;
+    vec4 accumColor = vec4(0.0);
+
+    for (int i = 0; i < MAX_STEPS; i++) {
+        p = ray.origin + depth * ray.dir;
+        float density = scene(p);
+
+        if (density > 0.0) {
+            vec4 color = vec4(mix(vec3(1.0), vec3(0.0), density), density);
+            color.rgb *= color.a;
+            accumColor += color * (1.0 - accumColor.a);
+
+            if (accumColor.a > 0.99) {
+                break;
+            }
+        }
+
+        depth += MARCH_SIZE;
+    }
+
+    RaymarchResult result;
+    result.found = accumColor.a > 0.01;
+    result.totalDistance = depth;
+    result.color = accumColor;
+
     return result;
 }
 
 void main() {
-
-    vec2 fragPos=gl_FragCoord.xy;
-    fragPos.y=resolution.y-fragPos.y;
-    // Calculate normalized device coordinates (NDC) from fragment coordinates.
+    vec2 fragPos = gl_FragCoord.xy;
+    fragPos.y = resolution.y - fragPos.y;
     vec2 uv = (fragPos / resolution.xy) * 2.0 - 1.0;
 
-    // Reconstruct clip space position. For raycasting, z=1 (far plane) is common.
     vec4 clipPos = vec4(uv, 1.0, 1.0);
-
-    // Transform clip space direction to view space.
-    // The inverse of the projection matrix maps from clip space to view space.
     vec4 viewDirH = inverse(uProjection) * clipPos;
-    // Perspective division to get a 3D vector in view space.
     vec3 rayDirView = normalize(viewDirH.xyz / viewDirH.w);
 
-    // The ray origin in view space is (0,0,0) if the camera is at the origin of view space.
-    // However, the `viewPos` uniform gives the camera's world position.
-    // We need to construct the ray in world space to interact with the SDF defined in world space.
-
-    // Calculate the inverse of the view matrix to transform from view space to world space.
     mat4 inverseView = inverse(uView);
-
-    // Ray origin in world space: This is simply the camera's position.
-    // The `viewPos` uniform is already the camera's position in world space.
     vec3 rayOriginWorld = viewPos.xyz;
-
-    // Ray direction in world space: Transform the view space ray direction by the inverse view matrix
-    // (treating it as a direction vector, so the translation part of the matrix is ignored).
-    vec3 rayDirWorld = normalize((inverseView * vec4(rayDirView, 0.0)).xyz); // 0.0 for direction vector
+    vec3 rayDirWorld = normalize((inverseView * vec4(rayDirView, 0.0)).xyz);
 
     Ray ray;
     ray.origin = rayOriginWorld;
@@ -176,20 +133,16 @@ void main() {
     RaymarchResult dist = raymarch(ray);
 
     if (dist.found) {
-        // Calculate the hit point in world space.
         vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
         vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
-        gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w); // Perspective divide to get NDC Z
+        gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w);
 
         float weight = clamp(pow(min(1.0, dist.color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragDepth * 0.9, 3.0), 1e-2, 3e3);
 
         accum = vec4(dist.color.rgb * dist.color.a, dist.color.a) * weight;
-
-        reveal=dist.color.a;
-
-
+        reveal = dist.color.a;
         return;
-    } 
+    }
+
     discard;
-   
 }

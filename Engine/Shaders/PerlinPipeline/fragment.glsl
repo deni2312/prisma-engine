@@ -41,8 +41,18 @@ float noise(vec2 p) {
 }
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / vec2(WIDTH, HEIGHT); // adjust to your resolution
-    float n = noise(uv * 8.0); // adjust scale here
-    n = 0.5 + 0.5 * n; // normalize to [0, 1]
-    FragColor = vec4(vec3(n), 1.0);
+    vec2 uv = gl_FragCoord.xy / vec2(WIDTH, HEIGHT); // Replace WIDTH and HEIGHT with your actual resolution
+    float scale = 8.0;
+
+    // Different offsets for each color channel
+    float r = noise(uv * scale + vec2(0.0, 0.0));
+    float g = noise(uv * scale + vec2(10.0, 5.0));
+    float b = noise(uv * scale + vec2(-5.0, 15.0));
+
+    // Normalize to [0, 1]
+    r = 0.5 + 0.5 * r;
+    g = 0.5 + 0.5 * g;
+    b = 0.5 + 0.5 * b;
+
+    FragColor = vec4(r, g, b, 1.0);
 }
