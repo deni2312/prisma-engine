@@ -5,6 +5,12 @@
 #include "Helpers/PrismaRender.h"
 #include "Pipelines/PipelineHandler.h"
 
+#include "Helpers/Logger.h"
+#include "TextureLoader/interface/TextureLoader.h"
+#include "TextureLoader/interface/TextureUtilities.h"
+#include "Helpers/SettingsLoader.h"
+#include "Helpers/NoiseGenerator.h"
+
 void Prisma::GUI::PostprocessingStyles::render(EFFECTS effect) {
     if (effect == EFFECTS::CARTOON || effect == EFFECTS::SEPPIA || effect == EFFECTS::VIGNETTE) {
         renderEffects(effect);
@@ -68,7 +74,7 @@ void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
         contextData.device->CreateShader(ShaderCI, &pVS);
         Diligent::BufferDesc CBDesc;
         CBDesc.Name = "VS";
-        CBDesc.Size = sizeof(glm::ivec4);
+        CBDesc.Size = sizeof(StylesData);
         CBDesc.Usage = Diligent::USAGE_DYNAMIC;
         CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
         CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
@@ -114,6 +120,7 @@ void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
         Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
         Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
     };
+
     Diligent::ImmutableSamplerDesc ImtblSamplers[] =
     {
         {Diligent::SHADER_TYPE_PIXEL, "screenTexture", SamLinearClampDesc}
@@ -140,13 +147,23 @@ void Prisma::GUI::PostprocessingStyles::createShaderEffects() {
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_texture);
 
-    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    Diligent::TextureLoadInfo loadInfo;
+    loadInfo.IsSRGB = false;
+    loadInfo.MipLevels = 8;
+
+    //CreateTextureFromFile("../../../Resources/res/perlinNoise.png", loadInfo, PrismaFunc::getInstance().contextData().device, &m_textureCloud);
+
+     m_textureCloud = Prisma::NoiseGenerator::getInstance().generate("../../../Engine/Shaders/PerlinPipeline/vertex.glsl", "../../../Engine/Shaders/PerlinPipeline/fragment.glsl", {512, 1024}, "Perlin Texture",NoiseGenerator::NoiseType::TEXTURE_2D);
+
+    m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(m_textureCloud->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "Constants")->Set(m_current);
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
 
     m_blit = std::make_unique<Blit>(m_texture);
     GlobalData::getInstance().addGlobalTexture({m_texture, "Texture effects"});
+    m_counter.start();
+
 }
 
 void Prisma::GUI::PostprocessingStyles::renderEffects(EFFECTS effect) {
@@ -166,8 +183,11 @@ void Prisma::GUI::PostprocessingStyles::renderEffects(EFFECTS effect) {
     contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     {
         // Map the buffer and write current world-view-projection matrix
-        Diligent::MapHelper<glm::ivec4> constants(contextData.immediateContext, m_current, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
-        *constants = glm::ivec4(effect, 0, 0, 0);
+        Diligent::MapHelper<StylesData> constants(contextData.immediateContext, m_current, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+
+
+        constants->resolution = glm::vec4(Prisma::SettingsLoader::getInstance().getSettings().width, Prisma::SettingsLoader::getInstance().getSettings().height, 0, 0);
+        constants->time.r = m_counter.duration_seconds();
     }
     // Set texture SRV in the SRB
     contextData.immediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

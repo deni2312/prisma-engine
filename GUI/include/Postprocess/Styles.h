@@ -6,7 +6,8 @@
 #include <Common/interface/RefCntAutoPtr.hpp>
 
 #include "Helpers/Blit.h"
-
+#include "Helpers/TimeCounter.h"
+#include "glm/glm.hpp"
 
 namespace Prisma::GUI {
 class PostprocessingStyles {
@@ -22,10 +23,20 @@ private:
 
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_current;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_textureCloud;
 
     std::unique_ptr<Blit> m_blit;
 
     void createShaderEffects();
     void renderEffects(EFFECTS effect);
+    struct StylesData {
+        glm::vec4 a;
+        glm::vec2 resolution;
+        glm::vec2 time;
+
+    };
+
+    TimeCounter m_counter;
+
 };
 }

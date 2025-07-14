@@ -9,75 +9,83 @@ uniform sampler screenTexture_sampler;
 
 uniform Constants{
     ivec4 currentStyle;
+    vec2 resolution;
+    vec2 time;
 };
 
-vec3 vignette(){
-    float strength = 0.5;
-    vec2 texCoordsNormalized = TexCoords * 2.0 - 1.0;
-    float radius = length(texCoordsNormalized);
-    vec3 color = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords).rgb;
+#define MAX_STEPS 128
+#define MARCH_SIZE 0.08
 
-    // Vignette calculation
-    float vignette = smoothstep(1.0, 1.0 - strength, radius);
+float noise(vec3 x) {
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
 
-    return color * vignette;
+    vec2 uv = (p.xy + vec2(37.0, 239.0) * p.z) + f.xy;
+    vec2 tex = texture(sampler2D(screenTexture,screenTexture_sampler), (uv + 0.5) / 512.0).yx;
+
+    return mix(tex.x, tex.y, f.z) * 2.0 - 1.0;
 }
 
-vec3 seppia(){
-    // Sample the input texture
-    vec4 texColor = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords);
+float fbm(vec3 p) {
+    vec3 q = p + time.r * 0.5 * vec3(1.0, -0.2, -1.0);
+    float f = 0.0;
+    float scale = 0.5;
+    float factor = 2.02;
 
-    // Sepia tone conversion
-    float r = texColor.r * 0.393 + texColor.g * 0.769 + texColor.b * 0.189;
-    float g = texColor.r * 0.349 + texColor.g * 0.686 + texColor.b * 0.168;
-    float b = texColor.r * 0.272 + texColor.g * 0.534 + texColor.b * 0.131;
+    for (int i = 0; i < 6; i++) {
+        f += scale * noise(q);
+        q *= factor;
+        factor += 0.21;
+        scale *= 0.5;
+    }
 
-    // Make sure values are clamped between 0 and 1
-    r = clamp(r, 0.0, 1.0);
-    g = clamp(g, 0.0, 1.0);
-    b = clamp(b, 0.0, 1.0);
-
-    // Output the final color
-    return vec3(r, g, b);
+    return f;
 }
 
-vec3 cartoon(){
-        vec3 color= vec3(0.0);
-        // Get the size of a single texel
-        vec2 texelSize = 1.0 / textureSize(screenTexture, 0);
-        color = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords).rgb;
-        color.r=currentStyle.r;
-        // Sobel edge detection
-        vec3 sobel = vec3(0.0);
-        sobel += texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords + texelSize * vec2(-1, -1)).rgb * 1.0;
-        sobel += texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords + texelSize * vec2(-1, 0)).rgb * 2.0;
-        sobel += texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords + texelSize * vec2(-1, 1)).rgb * 1.0;
-        sobel += texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords + texelSize * vec2(1, -1)).rgb * -1.0;
-        sobel += texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords + texelSize * vec2(1, 0)).rgb * -2.0;
-        sobel += texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords + texelSize * vec2(1, 1)).rgb * -1.0;
-
-        float sobelLength = length(sobel);
-        vec3 edge = vec3(step(0.4, sobelLength)); // Adjust the threshold for edge detection
-
-        // Reduce number of colors
-        color = floor(color * 5.0) / 5.0;
-
-        // Combine color and edge
-        color = mix(color, vec3(0.0), edge);
-        return color;
+float sdSphere(vec3 p, float radius) {
+    return length(p) - radius;
 }
 
-void main()
-{
-    vec3 color= vec3(0.0);
-    if(currentStyle.r==1){
-        color=seppia();
+float scene(vec3 p) {
+    float distance = sdSphere(p, 1.0);
+    float f = fbm(p);
+    return -distance + f;
+}
+
+vec4 raymarch(vec3 ro, vec3 rd) {
+    float depth = 0.0;
+    vec3 p;
+    vec4 accumColor = vec4(0.0);
+
+    for (int i = 0; i < MAX_STEPS; i++) {
+        p = ro + depth * rd;
+        float density = scene(p);
+
+        if (density > 0.0) {
+            vec4 color = vec4(mix(vec3(1.0), vec3(0.0), density), density);
+            color.rgb *= color.a;
+            accumColor += color * (1.0 - accumColor.a);
+
+            if (accumColor.a > 0.99) {
+                break;
+            }
+        }
+
+        depth += MARCH_SIZE;
     }
-    if(currentStyle.r==2){
-        color=cartoon();
-    }
-    if(currentStyle.r==3){
-        color=vignette();
-    }
-    FragColor = vec4(color, 1.0);
+
+    return accumColor;
+}
+
+void main() {
+    vec2 uv = (gl_FragCoord.xy / resolution.xy) * 2.0 - 1.0;
+    uv.x *= resolution.x / resolution.y;
+
+    // Camera setup
+    vec3 ro = vec3(0.0, 0.0, 3.0);
+    vec3 rd = normalize(vec3(uv, -1.0));
+
+    vec4 result = raymarch(ro, rd);
+    FragColor = result;
 }
