@@ -42,6 +42,8 @@ class CloudComponent : public RenderComponent {
     struct CloudConstants {
         glm::vec4 resolution;
         glm::vec4 cloudPosition=glm::vec4(0);  // This uniform is available but not used in the provided SDF.
+        glm::vec4 dirLight = glm::vec4(0, 1, 0, 0);
+
 
         float time=0;
 

@@ -17,6 +17,7 @@ uniform ViewProjection {
 uniform Constants {
     vec4 resolution;
     vec4 cloudPosition;
+    vec4 lightDirection;
     float time;
     float amplitude;
     float frequency;
@@ -27,8 +28,6 @@ uniform Constants {
 #define MARCH_SIZE 0.1
 #define MARCH_LONG 1
 #define MAX_DISTANCE 50
-
-const vec3 SUN_POSITION = vec3(1.0, 0.0, 0.0);
 
 
 struct Ray {
@@ -122,7 +121,6 @@ RaymarchResult raymarch(Ray ray) {
     bool foundLong=false;
     float currentDepth=0;
     vec3 size=vec3(1);
-    vec3 sunDirection = normalize(SUN_POSITION);
 
     for (int i = 0; i < MAX_STEPS; i++) {
         p = ray.origin + depth * ray.dir;
@@ -134,7 +132,7 @@ RaymarchResult raymarch(Ray ray) {
                 found=true;
             }
             
-            float diffuse = clamp((scene(p,size) - scene(p + 0.3 * sunDirection,size)) / 0.3, 0.0, 1.0 );
+            float diffuse = clamp((scene(p,size) - scene(p + 0.3 * lightDirection.rgb,size)) / 0.3, 0.0, 1.0 );
             vec3 lin = vec3(0.60,0.60,0.75) * 1.1 + 0.8 * vec3(1.0,0.6,0.3) * diffuse;
             vec4 color = vec4(mix(vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, 0.0), density), density );
             color.rgb *= lin;
