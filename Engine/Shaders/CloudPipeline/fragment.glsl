@@ -131,9 +131,8 @@ RaymarchResult raymarch(Ray ray) {
         if (density > 0.0) {
             if(!found){
                 currentDepth=depth;
+                found=true;
             }
-
-            found=true;
             
             float diffuse = clamp((scene(p,size) - scene(p + 0.3 * sunDirection,size)) / 0.3, 0.0, 1.0 );
             vec3 lin = vec3(0.60,0.60,0.75) * 1.1 + 0.8 * vec3(1.0,0.6,0.3) * diffuse;
@@ -150,8 +149,13 @@ RaymarchResult raymarch(Ray ray) {
         if(depth>MAX_DISTANCE){
             break;
         }
+        float stepSize=sdInterface(p,size);
 
-        depth += sdInterface(p,size);
+        if(stepSize>0.01){
+            depth += sdInterface(p,size);
+        }else{
+            depth += MARCH_SIZE;
+        }
     }
 
     RaymarchResult result;
