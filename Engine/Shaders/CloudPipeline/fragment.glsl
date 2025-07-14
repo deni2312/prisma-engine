@@ -137,6 +137,7 @@ RaymarchResult raymarch(Ray ray) {
             vec4 color = vec4(mix(vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, 0.0), density), density );
             color.rgb *= lin;
             color.rgb *= color.a;
+            // In first phase is (1-0)*color, but color.a is density so next phase will be (1-density)*color decreasing the contribution
             accumColor += color * (1.0 - accumColor.a);
 
             if (accumColor.a > 0.95) {
