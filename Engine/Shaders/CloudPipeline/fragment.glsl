@@ -37,6 +37,7 @@ struct Ray {
 };
 
 struct RaymarchResult {
+    bool found;
     float totalDistance;
     vec4 color;
 };
@@ -118,19 +119,20 @@ RaymarchResult raymarch(Ray ray) {
     float depth = 0.0;
     vec3 p;
     vec4 accumColor = vec4(0.0);
-    bool found=false;
-    bool foundLong=false;
     float currentDepth=0;
     vec3 size=vec3(1);
+    RaymarchResult result;
+    result.found=false;
 
     for (int i = 0; i < MAX_STEPS; i++) {
         p = ray.origin + depth * ray.dir;
         float density = scene(p,size);
 
         if (density > 0.0) {
-            if(!found){
-                currentDepth=depth;
-                found=true;
+            if(!result.found){
+                float f = fbm(p);
+                currentDepth=depth+f;
+                result.found=true;
             }
             
             float diffuse = clamp((scene(p,size) - scene(p + 0.3 * lightDirection.rgb,size)) / 0.3, 0.0, 1.0 );
@@ -154,7 +156,6 @@ RaymarchResult raymarch(Ray ray) {
         }
     }
 
-    RaymarchResult result;
     result.totalDistance = currentDepth;
     result.color = accumColor;
 
@@ -179,14 +180,16 @@ void main() {
     ray.dir = rayDirWorld;
 
     RaymarchResult dist = raymarch(ray);
+    if(dist.found){
+        vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
+        vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
+        gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w);
 
-    vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
-    vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
-    gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w);
+        float weight = clamp(pow(min(1.0, dist.color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragDepth * 0.9, 3.0), 1e-2, 3e3);
 
-    float weight = clamp(pow(min(1.0, dist.color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragDepth * 0.9, 3.0), 1e-2, 3e3);
-
-    accum = vec4(dist.color.rgb * dist.color.a, dist.color.a) * weight;
-    reveal = dist.color.a;
-
+        accum = vec4(dist.color.rgb * dist.color.a, dist.color.a) * weight;
+        reveal = dist.color.a;
+        return;
+    }
+    discard;
 }
