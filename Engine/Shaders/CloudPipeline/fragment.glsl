@@ -5,8 +5,8 @@ layout(location = 1) out float reveal;
 
 layout(location = 0) in vec2 TexCoords;
 
-uniform texture2D perlinTexture;
-uniform sampler perlinTexture_sampler;
+//uniform texture2D perlinTexture;
+//uniform sampler perlinTexture_sampler;
 
 uniform ViewProjection {
     mat4 uView;
@@ -26,17 +26,12 @@ uniform Constants {
 #define MAX_STEPS 128
 #define MARCH_SIZE 0.08
 
-// Access to perlin noise
-#define uNoise perlinTexture
-#define uTime time
-
 struct Ray {
     vec3 origin;
     vec3 dir;
 };
 
 struct RaymarchResult {
-    bool found;
     float totalDistance;
     vec4 color;
 };
@@ -46,21 +41,30 @@ float sdSphere(vec3 p, float radius) {
     return length(p) - radius;
 }
 
-// Perlin noise
-float noise(vec3 x) {
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453);
+}
+
+float noise( in vec3 x )
+{
     vec3 p = floor(x);
     vec3 f = fract(x);
-    f = f * f * (3.0 - 2.0 * f);
 
-    vec2 uv = (p.xy + vec2(37.0, 239.0) * p.z) + f.xy;
-    vec2 tex = textureLod(sampler2D(uNoise, perlinTexture_sampler), (uv + 0.5) / 256.0, 0.0).yx;
+    f = f*f*(3.0-2.0*f);
 
-    return mix(tex.x, tex.y, f.z) * 2.0 - 1.0;
+    float n = p.x + p.y*57.0 + 113.0*p.z;
+
+    float res = mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                        mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+                    mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                        mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+    return res;
 }
 
 // Fractional Brownian Motion (FBM)
 float fbm(vec3 p) {
-    vec3 q = p + uTime * 0.5 * vec3(1.0, -0.2, -1.0);
+    vec3 q = p + time * 0.5 * vec3(1.0, -0.2, -1.0);
     float f = 0.0;
     float scale = 0.5;
     float factor = 2.02;
@@ -87,17 +91,24 @@ RaymarchResult raymarch(Ray ray) {
     float depth = 0.0;
     vec3 p;
     vec4 accumColor = vec4(0.0);
-
+    bool found=false;
+    float currentDepth=0;
     for (int i = 0; i < MAX_STEPS; i++) {
         p = ray.origin + depth * ray.dir;
         float density = scene(p);
 
         if (density > 0.0) {
+            if(!found){
+                currentDepth=depth;
+            }
+
+            found=true;
+            
             vec4 color = vec4(mix(vec3(1.0), vec3(0.0), density), density);
             color.rgb *= color.a;
             accumColor += color * (1.0 - accumColor.a);
 
-            if (accumColor.a > 0.99) {
+            if (accumColor.a > 0.95) {
                 break;
             }
         }
@@ -106,8 +117,7 @@ RaymarchResult raymarch(Ray ray) {
     }
 
     RaymarchResult result;
-    result.found = accumColor.a > 0.01;
-    result.totalDistance = depth;
+    result.totalDistance = currentDepth;
     result.color = accumColor;
 
     return result;
@@ -132,17 +142,13 @@ void main() {
 
     RaymarchResult dist = raymarch(ray);
 
-    if (dist.found) {
-        vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
-        vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
-        gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w);
+    vec3 hitPoint = ray.origin + ray.dir * dist.totalDistance;
+    vec4 clipSpaceHit = uProjection * uView * vec4(hitPoint, 1.0);
+    gl_FragDepth = (clipSpaceHit.z / clipSpaceHit.w);
 
-        float weight = clamp(pow(min(1.0, dist.color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragDepth * 0.9, 3.0), 1e-2, 3e3);
+    float weight = clamp(pow(min(1.0, dist.color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragDepth * 0.9, 3.0), 1e-2, 3e3);
 
-        accum = vec4(dist.color.rgb * dist.color.a, dist.color.a) * weight;
-        reveal = dist.color.a;
-        return;
-    }
+    accum = vec4(dist.color.rgb * dist.color.a, dist.color.a) * weight;
+    reveal = dist.color.a;
 
-    discard;
 }
