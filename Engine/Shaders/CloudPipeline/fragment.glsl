@@ -23,8 +23,11 @@ uniform Constants {
     float beers;
 };
 
-#define MAX_STEPS 128
-#define MARCH_SIZE 0.08
+#define MAX_STEPS 64
+#define MARCH_SIZE 0.1
+#define MARCH_LONG 1
+#define MAX_DISTANCE 50
+
 
 struct Ray {
     vec3 origin;
@@ -36,9 +39,31 @@ struct RaymarchResult {
     vec4 color;
 };
 
-// SDF: Sphere
-float sdSphere(vec3 p, float radius) {
-    return length(p) - radius;
+// SDF: sphere
+// This function assumes 'point' is in world space.
+float sdSphere(vec3 point,float size) {
+    point=point-vec3(cloudPosition);
+    vec4 sphere = vec4(0.0, 0.0, 0.0,size); // position.xyz, radius (in world space)
+    return length(point - sphere.xyz) - sphere.w;
+}
+
+float sdBox(vec3 p, vec3 size) {
+    p=p-vec3(cloudPosition);
+    vec3 d = abs(p) - size;
+    return length(max(d, 0.0)) + min(max(d.x, max(d.y, d.z)), 0.0);
+}
+
+#define BOX
+
+float sdInterface(vec3 point,vec3 size){
+#ifdef SPHERE
+    return sdSphere(point,size.x);
+#endif
+
+#ifdef BOX
+    return sdBox(point,size);
+#endif
+
 }
 
 float hash( float n )
@@ -80,8 +105,8 @@ float fbm(vec3 p) {
 }
 
 // Scene function using sphere + noise
-float scene(vec3 p) {
-    float distance = sdSphere(p, 1.0);
+float scene(vec3 p,vec3 size) {
+    float distance = sdInterface(p,size);
     float f = fbm(p);
     return -distance + f;
 }
@@ -92,10 +117,13 @@ RaymarchResult raymarch(Ray ray) {
     vec3 p;
     vec4 accumColor = vec4(0.0);
     bool found=false;
+    bool foundLong=false;
     float currentDepth=0;
+    vec3 size=vec3(1);
+
     for (int i = 0; i < MAX_STEPS; i++) {
         p = ray.origin + depth * ray.dir;
-        float density = scene(p);
+        float density = scene(p,size);
 
         if (density > 0.0) {
             if(!found){
@@ -113,7 +141,11 @@ RaymarchResult raymarch(Ray ray) {
             }
         }
 
-        depth += MARCH_SIZE;
+        if(depth>MAX_DISTANCE){
+            break;
+        }
+
+        depth += sdInterface(p,size);
     }
 
     RaymarchResult result;
