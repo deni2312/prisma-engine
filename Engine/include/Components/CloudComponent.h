@@ -13,6 +13,8 @@
 namespace Prisma {
 class CloudComponent : public RenderComponent {
    public:
+    enum class CLOUD_TYPE { BOX, SPHERE,DONUT };
+
     CloudComponent();
 
     void ui() override;
@@ -28,6 +30,10 @@ class CloudComponent : public RenderComponent {
     void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
 
     void updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
+
+    void cloudType(CLOUD_TYPE type);
+
+    CLOUD_TYPE cloudType();
 
    private:
 
@@ -52,7 +58,7 @@ class CloudComponent : public RenderComponent {
         glm::vec4 cloudPosition=glm::vec4(0);  // This uniform is available but not used in the provided SDF.
         glm::vec4 dirLight = glm::vec4(0, 1, 0, 0);
         glm::vec4 color = glm::vec4(1.0);
-
+        glm::ivec4 type = glm::ivec4(0);
         float time=0;
         int maxSteps=64;
         float marchSize=0.01;
@@ -65,5 +71,9 @@ class CloudComponent : public RenderComponent {
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_upSamplePso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_upSampleSrb;
+
+    CLOUD_TYPE m_type = CLOUD_TYPE::BOX;
+
+    ComponentList m_status;
 };
 }

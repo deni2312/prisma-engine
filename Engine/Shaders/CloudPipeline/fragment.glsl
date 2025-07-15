@@ -19,11 +19,11 @@ uniform Constants {
     vec4 cloudPosition;
     vec4 lightDirection;
     vec4 cloudColor;
+    ivec4 type;
     float time;
     int maxSteps;
     float marchSize;
     float maxDistance;
-
 };
 
 #define MAX_STEPS 64
@@ -45,28 +45,30 @@ struct RaymarchResult {
 // SDF: sphere
 // This function assumes 'point' is in world space.
 float sdSphere(vec3 point,float size) {
-    point=point-vec3(cloudPosition);
     vec4 sphere = vec4(0.0, 0.0, 0.0,size); // position.xyz, radius (in world space)
     return length(point - sphere.xyz) - sphere.w;
 }
 
 float sdBox(vec3 p, vec3 size) {
-    p=p-vec3(cloudPosition);
     vec3 d = abs(p) - size;
     return length(max(d, 0.0)) + min(max(d.x, max(d.y, d.z)), 0.0);
 }
 
-#define BOX
+// Donut SDF - centered at `pos`, with major radius R and minor radius r
+float sdDonut(vec3 p, float R) {
+    vec2 t = vec2(length(p.xz) - R, p.y); // flatten to 2D donut cross-section
+    return length(t) - 0.25;
+}
 
 float sdInterface(vec3 point,vec3 size){
-#ifdef SPHERE
-    return sdSphere(point,size.x);
-#endif
-
-#ifdef BOX
-    return sdBox(point,size);
-#endif
-
+    vec3 position=point-vec3(cloudPosition);
+    if(type.r==0){
+        return sdBox(position,size);
+    }else if(type.r==1){
+        return sdSphere(position,size.x);
+    }else if(type.r==2){
+        return sdDonut(position,size.x);
+    }
 }
 
 float hash( float n )

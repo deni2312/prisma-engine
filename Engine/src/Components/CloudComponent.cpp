@@ -30,6 +30,15 @@ void Prisma::CloudComponent::ui() {
     componentSize = std::make_tuple(TYPES::FLOAT, "Cloud March Size", &m_constants.marchSize);
     addGlobal({componentSize, false});
 
+    
+    ComponentType componentCloudType;
+    m_status.items.push_back("BOX");
+    m_status.items.push_back("SPHERE");
+    m_status.items.push_back("DONUT");
+
+    componentCloudType = std::make_tuple(TYPES::STRINGLIST, "Cloud Type", &m_status);
+    addGlobal({componentCloudType, false});
+
     ComponentType componentRun;
     m_run = [&]() { 
             if (!isStart())
@@ -40,14 +49,9 @@ void Prisma::CloudComponent::ui() {
     componentRun = std::make_tuple(TYPES::BUTTON, "Run UI", &m_run);
     addGlobal({componentRun, false});
 
-
-
-
 }
 
-void Prisma::CloudComponent::update() {
-
-}
+void Prisma::CloudComponent::update() { m_type = static_cast<CLOUD_TYPE>(m_status.currentitem); }
 
 void Prisma::CloudComponent::start() {
     Component::start();
@@ -89,11 +93,12 @@ void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Dil
         cloudDirection = glm::normalize(light->finalMatrix() * light->type().direction);
         cloudColor=light->type().diffuse*light->intensity();
     }
-
+    m_type = static_cast<CLOUD_TYPE>(m_status.currentitem);
     m_constants.cloudPosition = parent()->finalMatrix()[3];
     m_constants.time = m_counter.duration_seconds();
     m_constants.dirLight=cloudDirection;
     m_constants.color=cloudColor;
+    m_constants.type.r = static_cast<int>(m_type);
 
     auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
     Diligent::MapHelper<CloudConstants> cloudConstants(contextData.immediateContext, m_cloudConstants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
@@ -120,6 +125,13 @@ void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Dil
     // Clear the back buffer
     contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
+
+void Prisma::CloudComponent::cloudType(CLOUD_TYPE type) {
+    m_type = type; 
+    m_status.currentitem = static_cast<int>(m_type);
+}
+
+Prisma::CloudComponent::CLOUD_TYPE Prisma::CloudComponent::cloudType() { return m_type; }
 
 void Prisma::CloudComponent::createCloud()
 {
