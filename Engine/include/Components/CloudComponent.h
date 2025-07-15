@@ -39,13 +39,10 @@ class CloudComponent : public RenderComponent {
    private:
     void createCloud();
 
-    void createUpSample();
-
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
-    std::unique_ptr<Blit> m_blit;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudTexture;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cloudConstants;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
     Settings m_settings;
 
     std::function<void()> m_run;
@@ -63,16 +60,10 @@ class CloudComponent : public RenderComponent {
         float marchSize = 0.01;
         float maxDistance = 50.0;
     };
-
     CloudConstants m_constants;
-
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
-
-    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_upSamplePso;
-    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_upSampleSrb;
 
     CLOUD_TYPE m_type = CLOUD_TYPE::BOX;
 
     ComponentList m_status;
 };
-}  // namespace Prisma
+} 
