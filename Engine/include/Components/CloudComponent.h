@@ -1,19 +1,20 @@
 #pragma once
 
+#include <Common/interface/RefCntAutoPtr.hpp>
+
 #include "GlobalData/Platform.h"
 #include "Graphics/GraphicsEngine/interface/Buffer.h"
-#include "Graphics/GraphicsEngine/interface/Texture.h"
 #include "Graphics/GraphicsEngine/interface/PipelineState.h"
-#include <Common/interface/RefCntAutoPtr.hpp>
+#include "Graphics/GraphicsEngine/interface/Texture.h"
 #include "Helpers/Blit.h"
-#include "RenderComponent.h"
 #include "Helpers/Settings.h"
 #include "Helpers/TimeCounter.h"
+#include "RenderComponent.h"
 
 namespace Prisma {
 class CloudComponent : public RenderComponent {
    public:
-    enum class CLOUD_TYPE { BOX, SPHERE,DONUT };
+    enum class CLOUD_TYPE { BOX, SPHERE, DONUT };
 
     CloudComponent();
 
@@ -36,17 +37,14 @@ class CloudComponent : public RenderComponent {
     CLOUD_TYPE cloudType();
 
    private:
-
     void createCloud();
 
     void createUpSample();
 
-
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
     std::unique_ptr<Blit> m_blit;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudAccumTexture;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudRevealTexture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudTexture;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cloudConstants;
     Settings m_settings;
 
@@ -56,14 +54,14 @@ class CloudComponent : public RenderComponent {
 
     struct CloudConstants {
         glm::vec4 resolution;
-        glm::vec4 cloudPosition=glm::vec4(0);  // This uniform is available but not used in the provided SDF.
+        glm::vec4 cloudPosition = glm::vec4(0);  // This uniform is available but not used in the provided SDF.
         glm::vec4 dirLight = glm::vec4(0, 1, 0, 0);
         glm::vec4 color = glm::vec4(1.0);
         glm::ivec4 type = glm::ivec4(0);
-        float time=0;
-        int maxSteps=64;
-        float marchSize=0.01;
-        float maxDistance=50.0;
+        float time = 0;
+        int maxSteps = 64;
+        float marchSize = 0.01;
+        float maxDistance = 50.0;
     };
 
     CloudConstants m_constants;
@@ -77,4 +75,4 @@ class CloudComponent : public RenderComponent {
 
     ComponentList m_status;
 };
-}
+}  // namespace Prisma

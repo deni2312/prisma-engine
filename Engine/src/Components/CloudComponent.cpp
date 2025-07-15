@@ -1,23 +1,23 @@
-# include "Components/CloudComponent.h"
+#include "Components/CloudComponent.h"
 
-#include "GlobalData/PrismaFunc.h"
-#include "Helpers/PrismaRender.h"
-#include "Pipelines/PipelineHandler.h"
-#include <Graphics/GraphicsTools/interface/MapHelper.hpp>
-#include "Postprocess/Postprocess.h"
 #include <GlobalData/GlobalShaderNames.h>
-#include "Helpers/SettingsLoader.h"
 #include <Helpers/NoiseGenerator.h>
 
+#include <Graphics/GraphicsTools/interface/MapHelper.hpp>
+
+#include "GlobalData/PrismaFunc.h"
 #include "Helpers/Logger.h"
+#include "Helpers/PrismaRender.h"
+#include "Helpers/SettingsLoader.h"
+#include "Pipelines/PipelineHandler.h"
+#include "Postprocess/Postprocess.h"
 #include "TextureLoader/interface/TextureLoader.h"
 #include "TextureLoader/interface/TextureUtilities.h"
 
 Prisma::CloudComponent::CloudComponent() { name("CloudComponent"); }
 
-void Prisma::CloudComponent::ui() { 
-    
-    Prisma::Component::ui(); 
+void Prisma::CloudComponent::ui() {
+    Prisma::Component::ui();
     ComponentType componentSteps;
     componentSteps = std::make_tuple(TYPES::INT, "Cloud Max Steps", &m_constants.maxSteps);
     addGlobal({componentSteps, false});
@@ -30,7 +30,6 @@ void Prisma::CloudComponent::ui() {
     componentSize = std::make_tuple(TYPES::FLOAT, "Cloud March Size", &m_constants.marchSize);
     addGlobal({componentSize, false});
 
-    
     ComponentType componentCloudType;
     m_status.items.push_back("BOX");
     m_status.items.push_back("SPHERE");
@@ -40,15 +39,13 @@ void Prisma::CloudComponent::ui() {
     addGlobal({componentCloudType, false});
 
     ComponentType componentRun;
-    m_run = [&]() { 
-            if (!isStart())
-            {
-                    start();
-            }
-        };
+    m_run = [&]() {
+        if (!isStart()) {
+            start();
+        }
+    };
     componentRun = std::make_tuple(TYPES::BUTTON, "Run UI", &m_run);
     addGlobal({componentRun, false});
-
 }
 
 void Prisma::CloudComponent::update() { m_type = static_cast<CLOUD_TYPE>(m_status.currentitem); }
@@ -59,55 +56,47 @@ void Prisma::CloudComponent::start() {
     createUpSample();
 }
 
-void Prisma::CloudComponent::destroy() { 
-    Component::destroy(); 
-}
+void Prisma::CloudComponent::destroy() { Component::destroy(); }
 
 void Prisma::CloudComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
 
-void Prisma::CloudComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
-
-}
+void Prisma::CloudComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
 
 void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto accumData = m_cloudAccumTexture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
-    auto revealData = m_cloudRevealTexture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto accumData = accum->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto revealData = reveal->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
     Diligent::ITextureView* textures[] = {accumData, revealData};
     auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
-    contextData.immediateContext->SetRenderTargets(2, textures, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    contextData.immediateContext->ClearRenderTarget(accumData, value_ptr(glm::vec4(0)), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->ClearRenderTarget(revealData, value_ptr(glm::vec4(1)), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // Clear the back buffer
+    contextData.immediateContext->SetRenderTargets(2, textures, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     // Clear the back buffer
     contextData.immediateContext->SetPipelineState(m_pso);
 
     auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
-    glm::vec4 cloudDirection=glm::vec4(0,1,0,0);
-    glm::vec4 cloudColor=glm::vec4(1);
+    glm::vec4 cloudDirection = glm::vec4(0, 1, 0, 0);
+    glm::vec4 cloudColor = glm::vec4(1);
 
     if (!Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights.empty()) {
-        auto light=Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights[0];
+        auto light = Prisma::GlobalData::getInstance().currentGlobalScene()->dirLights[0];
 
         cloudDirection = glm::normalize(light->finalMatrix() * light->type().direction);
-        cloudColor=light->type().diffuse*light->intensity();
+        cloudColor = light->type().diffuse * light->intensity();
     }
     m_type = static_cast<CLOUD_TYPE>(m_status.currentitem);
     m_constants.cloudPosition = parent()->finalMatrix()[3];
     m_constants.time = m_counter.duration_seconds();
-    m_constants.dirLight=cloudDirection;
-    m_constants.color=cloudColor;
+    m_constants.dirLight = cloudDirection;
+    m_constants.color = cloudColor;
     m_constants.type.r = static_cast<int>(m_type);
 
     auto camera = GlobalData::getInstance().currentGlobalScene()->camera;
     Diligent::MapHelper<CloudConstants> cloudConstants(contextData.immediateContext, m_cloudConstants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
 
     *cloudConstants = m_constants;
-
 
     constexpr Diligent::Uint64 offset = 0;
     Diligent::IBuffer* pBuffs[] = {quadBuffer.vBuffer};
@@ -130,14 +119,13 @@ void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Dil
 }
 
 void Prisma::CloudComponent::cloudType(CLOUD_TYPE type) {
-    m_type = type; 
+    m_type = type;
     m_status.currentitem = static_cast<int>(m_type);
 }
 
 Prisma::CloudComponent::CLOUD_TYPE Prisma::CloudComponent::cloudType() { return m_type; }
 
-void Prisma::CloudComponent::createCloud()
-{
+void Prisma::CloudComponent::createCloud() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
@@ -288,12 +276,13 @@ void Prisma::CloudComponent::createCloud()
     RTColorDesc.Format = Prisma::PipelineHandler::getInstance().textureFormat();
     // The render target can be bound as a shader resource and as a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
-    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudAccumTexture);
-    RTColorDesc.Format = Diligent::TEX_FORMAT_R16_FLOAT;
-    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudRevealTexture);
-
-
-
+    // Define optimal clear value
+    RTColorDesc.ClearValue.Format = RTColorDesc.Format;
+    RTColorDesc.ClearValue.Color[0] = 0.350f;
+    RTColorDesc.ClearValue.Color[1] = 0.350f;
+    RTColorDesc.ClearValue.Color[2] = 0.350f;
+    RTColorDesc.ClearValue.Color[3] = 1.f;
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudTexture);
     Diligent::TextureLoadInfo loadInfo;
     loadInfo.IsSRGB = false;
     loadInfo.MipLevels = 8;
@@ -308,12 +297,10 @@ void Prisma::CloudComponent::createCloud()
 
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
+    m_blit = std::make_unique<Blit>(m_cloudTexture);
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
-
-
-    GlobalData::getInstance().addGlobalTexture({m_cloudAccumTexture, "Cloud Texture Accum"});
-    GlobalData::getInstance().addGlobalTexture({m_cloudRevealTexture, "Cloud Texture Reveal"});
+    GlobalData::getInstance().addGlobalTexture({m_cloudTexture, "Cloud Texture"});
     m_counter.start();
     m_settings = Prisma::SettingsLoader::getInstance().getSettings();
 
@@ -423,9 +410,7 @@ void Prisma::CloudComponent::createUpSample()
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_upSamplePso);
 
-    m_upSamplePso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(m_cloudAccumTexture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_upSamplePso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(m_cloudTexture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 
     m_upSamplePso->CreateShaderResourceBinding(&m_upSampleSrb, true);
-
 }
-
