@@ -72,13 +72,16 @@ void Prisma::CloudComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
 void Prisma::CloudComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
-    auto accumData = accum->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
-    auto revealData = reveal->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto accumData = m_cloudAccumTexture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+    auto revealData = m_cloudRevealTexture->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
     Diligent::ITextureView* textures[] = {accumData, revealData};
     auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(Diligent::TEXTURE_VIEW_DEPTH_STENCIL);
+    contextData.immediateContext->SetRenderTargets(2, textures, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    contextData.immediateContext->ClearRenderTarget(accumData, value_ptr(glm::vec4(0)), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->ClearRenderTarget(revealData, value_ptr(glm::vec4(1)), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(2, textures, pDSV, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     // Clear the back buffer
     contextData.immediateContext->SetPipelineState(m_pso);
 
@@ -285,13 +288,12 @@ void Prisma::CloudComponent::createCloud()
     RTColorDesc.Format = Prisma::PipelineHandler::getInstance().textureFormat();
     // The render target can be bound as a shader resource and as a render target
     RTColorDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_RENDER_TARGET;
-    // Define optimal clear value
-    RTColorDesc.ClearValue.Format = RTColorDesc.Format;
-    RTColorDesc.ClearValue.Color[0] = 0.350f;
-    RTColorDesc.ClearValue.Color[1] = 0.350f;
-    RTColorDesc.ClearValue.Color[2] = 0.350f;
-    RTColorDesc.ClearValue.Color[3] = 1.f;
-    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudTexture);
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudAccumTexture);
+    RTColorDesc.Format = Diligent::TEX_FORMAT_R16_FLOAT;
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_cloudRevealTexture);
+
+
+
     Diligent::TextureLoadInfo loadInfo;
     loadInfo.IsSRGB = false;
     loadInfo.MipLevels = 8;
@@ -306,10 +308,12 @@ void Prisma::CloudComponent::createCloud()
 
     m_pso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, Prisma::ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(Prisma::MeshHandler::getInstance().viewProjection());
 
-    m_blit = std::make_unique<Blit>(m_cloudTexture);
 
     m_pso->CreateShaderResourceBinding(&m_srb, true);
-    GlobalData::getInstance().addGlobalTexture({m_cloudTexture, "Cloud Texture"});
+
+
+    GlobalData::getInstance().addGlobalTexture({m_cloudAccumTexture, "Cloud Texture Accum"});
+    GlobalData::getInstance().addGlobalTexture({m_cloudRevealTexture, "Cloud Texture Reveal"});
     m_counter.start();
     m_settings = Prisma::SettingsLoader::getInstance().getSettings();
 
@@ -419,7 +423,7 @@ void Prisma::CloudComponent::createUpSample()
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_upSamplePso);
 
-    m_upSamplePso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(m_cloudTexture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_upSamplePso->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(m_cloudAccumTexture->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 
     m_upSamplePso->CreateShaderResourceBinding(&m_upSampleSrb, true);
 

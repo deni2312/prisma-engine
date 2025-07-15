@@ -45,7 +45,8 @@ class CloudComponent : public RenderComponent {
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
     std::unique_ptr<Blit> m_blit;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudTexture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudAccumTexture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudRevealTexture;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cloudConstants;
     Settings m_settings;
 
