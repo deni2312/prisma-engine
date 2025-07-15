@@ -152,7 +152,7 @@ RaymarchResult raymarch(Ray ray) {
         float stepSize=sdInterface(p,size);
 
         if(stepSize>0.01){
-            depth += sdInterface(p,size);
+            depth += stepSize;
         }else{
             depth += marchSize;
         }
