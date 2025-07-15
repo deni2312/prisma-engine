@@ -74,14 +74,6 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
         grass1Renderer->name("Grass1Renderer");
 
-         auto cloudRenderer = std::make_shared<Prisma::Node>();
-
-        cloudRenderer->name("cloudRenderer");
-
-        auto cloud = std::make_shared<Prisma::CloudComponent>();
-
-        cloudRenderer->addComponent(cloud);
-
         auto grass1Instance = std::make_shared<Prisma::InstancingGrassComponent>();
 
         auto grass2Renderer = std::make_shared<Prisma::Node>();
@@ -131,7 +123,6 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
         m_scene->root->addChild(grass2Renderer);
 
-        m_scene->root->addChild(cloudRenderer);
     }
 
     m_sphereMesh->visible(false);
