@@ -20,14 +20,14 @@ uniform Constants {
     vec4 lightDirection;
     vec4 cloudColor;
     float time;
-    float amplitude;
-    float frequency;
-    float beers;
+    int maxSteps;
+    float marchSize;
+    float maxDistance;
+
 };
 
 #define MAX_STEPS 64
-#define MARCH_SIZE 0.1
-#define MARCH_LONG 1
+#define MARCH_SIZE 0.16
 #define MAX_DISTANCE 50
 
 
@@ -124,7 +124,7 @@ RaymarchResult raymarch(Ray ray) {
     RaymarchResult result;
     result.found=false;
 
-    for (int i = 0; i < MAX_STEPS; i++) {
+    for (int i = 0; i < maxSteps; i++) {
         p = ray.origin + depth * ray.dir;
         float density = scene(p,size);
 
@@ -144,7 +144,7 @@ RaymarchResult raymarch(Ray ray) {
             accumColor += color * (1.0 - accumColor.a);
         }
 
-        if(depth>MAX_DISTANCE){
+        if(depth>maxDistance){
             break;
         }
         float stepSize=sdInterface(p,size);
@@ -152,7 +152,7 @@ RaymarchResult raymarch(Ray ray) {
         if(stepSize>0.01){
             depth += sdInterface(p,size);
         }else{
-            depth += MARCH_SIZE;
+            depth += marchSize;
         }
     }
 

@@ -30,12 +30,20 @@ class CloudComponent : public RenderComponent {
     void updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
 
    private:
+
+    void createCloud();
+
+    void createUpSample();
+
+
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
     std::unique_ptr<Blit> m_blit;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_cloudTexture;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_cloudConstants;
     Settings m_settings;
+
+    std::function<void()> m_run;
 
     TimeCounter m_counter;
 
@@ -46,16 +54,16 @@ class CloudComponent : public RenderComponent {
         glm::vec4 color = glm::vec4(1.0);
 
         float time=0;
-
-        float amplitude=0.1;
-
-        float frequency=1;
-
-        float beersLaw=1;
+        int maxSteps=64;
+        float marchSize=0.01;
+        float maxDistance=50.0;
     };
 
     CloudConstants m_constants;
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
+
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_upSamplePso;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_upSampleSrb;
 };
 }
