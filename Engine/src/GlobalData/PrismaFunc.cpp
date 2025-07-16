@@ -22,6 +22,9 @@
 
 #include "glm/gtc/type_ptr.inl"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "Helpers/stb_image.h"
+
 using namespace Diligent;
 
 
@@ -117,6 +120,8 @@ void Prisma::PrismaFunc::init() {
     SettingsLoader::getInstance().settings(m_settings);
 
     m_window = glfwCreateWindow(m_settings.width, m_settings.height, m_settings.name.c_str(), nullptr, nullptr);
+
+
     if (m_window == nullptr) {
         LOG_ERROR_MESSAGE("Failed to create GLFW window");
     }
@@ -365,7 +370,13 @@ void Prisma::PrismaFunc::msaa(bool isMsaa, int samples) {
 }
 
 GLFWwindow* Prisma::PrismaFunc::window() {
-    return m_window;
+    return m_window; }
+
+void Prisma::PrismaFunc::setIcon(const std::string& icon) {
+    GLFWimage images[1];
+    images[0].pixels = stbi_load("../../../bin/images/prism.png", &images[0].width, &images[0].height, 0, 4);
+    glfwSetWindowIcon(m_window, 1, images);
+    stbi_image_free(images[0].pixels);
 }
 
 void* Prisma::PrismaFunc::windowNative() {

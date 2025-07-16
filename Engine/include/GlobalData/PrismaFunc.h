@@ -53,6 +53,8 @@ public:
 
     GLFWwindow* window();
 
+    void setIcon(const std::string& icon);
+
     void* windowNative();
 
     void destroy();
