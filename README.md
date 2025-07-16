@@ -7,9 +7,9 @@ Prisma Engine
 </center>
 
 ## Features
-Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 3D applications. It is a personal project created to showcase the capabilities of modern OpenGL. The engine is constantly evolving, so there could be significant changes from one version to another.
+Prisma Engine is an Diligent-based rendering engine designed for creating dynamic 3D applications. It is a personal project created to showcase the capabilities of modern engine. The engine is constantly evolving, so there could be significant changes from one version to another.
 
-- **OpenGL 4.6 Support**
+- **Diligent Engine**
 - **Clustered rendering pipelines**
 - **Directional and Omni Lights**
 - **Area Lights**
@@ -35,6 +35,7 @@ Prisma Engine is an OpenGL-based rendering engine designed for creating dynamic 
 - **Thread safe animations**
 - **GPU frustum culled meshes**
 - **Rigidbodies and soft bodies**
+- **Hardware raytracing**
 - **Editor:**
     - **Run/Debug modes**
     - **Transform Modifier**
