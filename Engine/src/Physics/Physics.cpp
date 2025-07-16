@@ -92,9 +92,6 @@ void Prisma::Physics::drawDebug() {
 #ifdef JPH_DEBUG_RENDERER
 
     if (m_debug) {
-        m_drawDebugger->line.setMVP(
-            GlobalData::getInstance().currentProjection() * GlobalData::getInstance().
-                                                            currentGlobalScene()->camera->matrix());
         BodyManager::DrawSettings settings;
         settings.mDrawShape = true;
         physicsWorldJolt->physics_system.DrawBodies(settings, m_drawDebugger);

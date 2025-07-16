@@ -1,7 +1,6 @@
 #pragma once
 #ifdef JPH_DEBUG_RENDERER
 
-#include "Line.h"
 #include <Jolt/Jolt.h>
 #include <Jolt/Renderer/DebugRenderer.h>
 #include <iostream>
@@ -10,12 +9,11 @@
 #include "Graphics/GraphicsEngine/interface/RenderDevice.h"
 #include "Graphics/GraphicsEngine/interface/DeviceContext.h"
 #include "Common/interface/RefCntAutoPtr.hpp";
-
+#include <glm/glm.hpp>
 
 namespace Prisma {
 class DrawDebugger : public JPH::DebugRenderer {
 public:
-    Line line;
     void DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor) override;
     void DrawText3D(JPH::RVec3Arg inPosition, const std::string_view& inString, JPH::ColorArg inColor,
                     float inHeight) override;

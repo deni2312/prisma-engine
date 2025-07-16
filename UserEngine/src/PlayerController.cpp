@@ -1,6 +1,5 @@
 #include "../include/PlayerController.h"
 #include "Components/PhysicsMeshComponent.h"
-#include "Components/CullingComponent.h"
 #include "Components/InstancingComponent.h"
 #include <glm/gtx/string_cast.hpp>
 

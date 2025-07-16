@@ -9,7 +9,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include "GlobalData/CacheScene.h"
 #include "Helpers/SettingsLoader.h"
-#include "Helpers/FrustumCulling.h"
 #include "GlobalData/GlobalShaderNames.h"
 
 
