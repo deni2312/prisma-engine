@@ -10,12 +10,17 @@ void UserEngine::start() {
                                                true, [&](std::shared_ptr<Prisma::Scene> scene) {
                                                    m_player = std::make_shared<PlayerController>(scene);
                                                    m_player->scene(scene);
+                                                   //When no gui set the callback on run
+                                                   //Prisma::Engine::getInstance().setCallback(m_player->callback());
+                                                   m_init = true;
                                                }
                                            });
 }
 
 void UserEngine::update() {
-    m_player->update();
+    if (m_init) {
+        m_player->update();
+    }
 }
 
 void UserEngine::finish() {

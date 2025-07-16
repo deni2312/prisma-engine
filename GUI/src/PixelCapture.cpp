@@ -6,7 +6,6 @@
 #include "GlobalData/GlobalData.h"
 #include "Handlers/MeshHandler.h"
 #include "GlobalData/GlobalShaderNames.h"
-#include "../include/ScenePipeline.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 

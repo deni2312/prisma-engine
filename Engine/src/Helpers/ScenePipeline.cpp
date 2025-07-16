@@ -1,4 +1,4 @@
-#include "../include/ScenePipeline.h"
+#include "Helpers/ScenePipeline.h"
 
 #include "GlobalData/PrismaFunc.h"
 #include "Helpers/PrismaRender.h"
@@ -6,7 +6,7 @@
 #include "Graphics/GraphicsEngine/interface/GraphicsTypes.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 
-Prisma::GUI::ScenePipeline::ScenePipeline() {
+Prisma::ScenePipeline::ScenePipeline() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
@@ -59,7 +59,7 @@ Prisma::GUI::ScenePipeline::ScenePipeline() {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "ImGui VS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/vertex.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/SceneRender/vertex.hlsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
         // Create dynamic uniform buffer that will store our transformation matrix
         // Dynamic buffers can be frequently updated by the CPU
@@ -78,7 +78,7 @@ Prisma::GUI::ScenePipeline::ScenePipeline() {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "ImGui PS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/fragment.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/SceneRender/fragment.hlsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
@@ -133,7 +133,7 @@ Prisma::GUI::ScenePipeline::ScenePipeline() {
     m_pso->CreateShaderResourceBinding(&m_srb, true);
 }
 
-void Prisma::GUI::ScenePipeline::render(glm::mat4 model, Diligent::ITextureView* color, Diligent::ITextureView* depth) {
+void Prisma::ScenePipeline::render(glm::mat4 model, Diligent::ITextureView* color, Diligent::ITextureView* depth) {
     auto& contextData = PrismaFunc::getInstance().contextData();
     contextData.immediateContext->SetRenderTargets(1, &color, depth,
                                                    Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

@@ -1,7 +1,27 @@
 #include "Pipelines/PipelineHandler.h"
 #include "Helpers/SettingsLoader.h"
+#include "Helpers/ScenePipeline.h"
+#include "engine.h"
 
-void Prisma::PipelineHandler::initScene() {
+void Prisma::PipelineHandler::initScene(bool init) {
+    if (!init) {
+        auto sceneHandler = std::make_shared<SceneHandler>();
+        sceneHandler->onBeginRender = []() {};
+        sceneHandler->onEndRender = []() {
+            auto& contextData = PrismaFunc::getInstance().contextData();
+            glm::mat4 model = glm::mat4(1);
+            auto pRTV = contextData.swapChain->GetCurrentBackBufferRTV();
+            auto pDSV = contextData.swapChain->GetDepthBufferDSV();
+            Prisma::ScenePipeline::getInstance().render(model, pRTV, pDSV);
+        };
+        sceneHandler->onDestroy = []() {};
+        sceneHandler->onLoading = [](auto node) {};
+        Prisma::Engine::getInstance().setGuiData(sceneHandler);
+        Prisma::Engine::getInstance().debug(false);
+        auto camera = std::make_shared<Camera>();
+        Prisma::Engine::getInstance().mainCamera(camera);
+        std::cout << "aaaaaaaaaaaaaaaaaaaa" << std::endl;
+    }
 }
 
 std::shared_ptr<Prisma::PipelineForward> Prisma::PipelineHandler::forward() {

@@ -19,7 +19,7 @@ public:
         Diligent::RefCntAutoPtr<Diligent::ITexture> pDepthDSV;
     };
 
-    void initScene();
+    void initScene(bool init);
     std::shared_ptr<PipelineForward> forward();
     std::shared_ptr<PipelineDeferredForward> deferredForward();
     std::shared_ptr<PipelineRayTracing> raytracing();

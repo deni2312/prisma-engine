@@ -26,6 +26,7 @@
 #include "../include/Handlers/LoadingHandler.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 #include "Handlers/TLASHandler.h"
+#include "Helpers/ScenePipeline.h"
 
 #include "Helpers/FPSCounter.h"
 
@@ -64,8 +65,6 @@ Prisma::Engine::Engine() {
     data->engineSettings.ssao = false;
 
     data->settings = SettingsLoader::getInstance().getSettings();
-
-    data->sceneHandler = std::make_shared<SceneHandler>();
 
     GlobalData::getInstance().currentGlobalScene(std::make_shared<Scene>());
 
@@ -140,8 +139,9 @@ void Prisma::Engine::setUserEngine(std::shared_ptr<UserData> userData) {
 }
 
 void Prisma::Engine::initScene() {
+       
     data->userData->start();
-    PipelineHandler::getInstance().initScene();
+    PipelineHandler::getInstance().initScene(static_cast<bool>(data->sceneHandler));
 }
 
 void Prisma::Engine::setGuiData(std::shared_ptr<SceneHandler> guiData) {

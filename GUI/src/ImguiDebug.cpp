@@ -14,11 +14,10 @@
 #include "SceneData/MeshIndirect.h"
 #include "ImGuiTabs.h"
 #include "NodeViewer.h"
-#include "ScenePipeline.h"
 #include "Imgui/interface/ImGuiImplWin32.hpp"
 #include "../imguizmo/imguizmo.h"
 #include "PixelCapture.h"
-
+#include "Helpers/ScenePipeline.h"
 
 struct PrivateIO {
     ImGuiIO io;
@@ -410,7 +409,7 @@ void Prisma::GUI::ImguiDebug::drawScene() {
 
     auto pRTV = contextData.swapChain->GetCurrentBackBufferRTV();
     auto pDSV = contextData.swapChain->GetDepthBufferDSV();
-    ScenePipeline::getInstance().render(model, pRTV, pDSV);
+    Prisma::ScenePipeline::getInstance().render(model, pRTV, pDSV);
 }
 
 void Prisma::GUI::ImguiDebug::initStatus() {

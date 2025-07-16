@@ -8,7 +8,7 @@
 #include "Graphics/GraphicsEngine/interface/TextureView.h"
 #include <glm/glm.hpp>
 
-namespace Prisma::GUI {
+namespace Prisma {
 class ScenePipeline : public InstanceData<ScenePipeline> {
 public:
     ScenePipeline();
