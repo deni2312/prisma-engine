@@ -98,21 +98,7 @@ bool Prisma::Engine::run() {
                 ComponentsHandler::getInstance().updateUi();
             }
 
-            switch (data->engineSettings.pipeline) {
-                case EngineSettings::Pipeline::FORWARD:
-                    PipelineHandler::getInstance().forward()->render();
-                    break;
-                case EngineSettings::Pipeline::DEFERRED_FORWARD:
-                    PipelineHandler::getInstance().deferredForward()->render();
-                    break;
-
-                case EngineSettings::Pipeline::RAYTRACING:
-                    PipelineHandler::getInstance().raytracing()->render();
-                    break;
-                case EngineSettings::Pipeline::SOFTWARE_RAYTRACING:
-                    PipelineHandler::getInstance().softwareRt()->render();
-                    break;
-            }
+            Prisma::PipelineHandler::getInstance().render(data->engineSettings.pipeline);
 
             Postprocess::getInstance().render();
 

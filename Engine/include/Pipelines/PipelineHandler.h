@@ -10,6 +10,7 @@
 #include <memory>
 #include "PipelineDeferredForward.h"
 #include "PipelineSoftwareRT.h"
+#include "GlobalData/EngineSettings.h"
 
 namespace Prisma {
 class PipelineHandler : public InstanceData<PipelineHandler> {
@@ -25,6 +26,8 @@ public:
     std::shared_ptr<PipelineRayTracing> raytracing();
     std::shared_ptr<PipelineSoftwareRT> softwareRt();
     PipelineHandler();
+
+    void render(Prisma::EngineSettings::Pipeline pipeline);
 
     Diligent::TEXTURE_FORMAT textureFormat();
 

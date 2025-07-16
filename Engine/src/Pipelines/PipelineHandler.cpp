@@ -91,6 +91,24 @@ Prisma::PipelineHandler::PipelineHandler() {
     // Store the depth-stencil view
 }
 
+void Prisma::PipelineHandler::render(Prisma::EngineSettings::Pipeline pipeline) {
+    switch (pipeline) {
+        case EngineSettings::Pipeline::FORWARD:
+            PipelineHandler::getInstance().forward()->render();
+            break;
+        case EngineSettings::Pipeline::DEFERRED_FORWARD:
+            PipelineHandler::getInstance().deferredForward()->render();
+            break;
+
+        case EngineSettings::Pipeline::RAYTRACING:
+            PipelineHandler::getInstance().raytracing()->render();
+            break;
+        case EngineSettings::Pipeline::SOFTWARE_RAYTRACING:
+            PipelineHandler::getInstance().softwareRt()->render();
+            break;
+    }
+}
+
 Diligent::TEXTURE_FORMAT Prisma::PipelineHandler::textureFormat() { return m_format; }
 
 Prisma::PipelineHandler::TextureData Prisma::PipelineHandler::textureData() {
