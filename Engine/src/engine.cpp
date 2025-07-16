@@ -77,7 +77,7 @@ Prisma::Engine::Engine() {
 bool Prisma::Engine::run() {
     initScene();
     while (!PrismaFunc::getInstance().shouldClose()) {
-        if (Prisma::GlobalData::getInstance().currentGlobalScene()->camera && GlobalData::getInstance().currentGlobalScene()) {
+        if (GlobalData::getInstance().currentGlobalScene() && Prisma::GlobalData::getInstance().currentGlobalScene()->camera) {
             PrismaFunc::getInstance().bindMainRenderTarget();
             PrismaFunc::getInstance().clear();            
 

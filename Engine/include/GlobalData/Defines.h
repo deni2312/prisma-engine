@@ -9,6 +9,8 @@
 #define DIR_DEFAULT_SETTINGS "../../../Resources/configuration/settings.json"
 #define DIR_DEFAULT_LTC1 "../../../Resources/res/ltc1.txt"
 #define DIR_DEFAULT_LTC2 "../../../Resources/res/ltc2.txt"
+#define DIR_DEFAULT_SKYBOX "../../../Resources/Skybox/cloudy.hdr"
+
 
 namespace Prisma::Define {
 constexpr int MAX_DIR_LIGHTS = 1024;

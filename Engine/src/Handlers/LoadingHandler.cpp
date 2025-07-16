@@ -1,12 +1,26 @@
 #include "Handlers/LoadingHandler.h"
 #include "SceneData/MeshIndirect.h"
 #include "Helpers/StringHelper.h"
+#include "Pipelines/PipelineSkybox.h"
 
 void Prisma::LoadingHandler::load(std::string scene, SceneLoader::SceneParameters sceneParameters) {
     if (StringHelper::getInstance().endsWith(scene, "prisma")) {
         m_sceneParameters = sceneParameters;
         m_loader.loadSceneAsync(scene, sceneParameters);
         m_hasLoad = true;
+    } else if (scene.empty()) {
+        auto sceneData = std::make_shared<Scene>();
+        sceneData->name = "Empty";
+
+        auto root = std::make_shared<Node>();
+        root->name("Root");
+        sceneData->root = root;
+        sceneData->camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
+
+        GlobalData::getInstance().currentGlobalScene(sceneData);
+        Texture texture;
+        texture.loadTexture({DIR_DEFAULT_SKYBOX, true});
+        Prisma::PipelineSkybox::getInstance().texture(texture);
     }
 }
 
