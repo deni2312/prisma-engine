@@ -33,7 +33,6 @@
 struct PrivateData {
     Prisma::Settings settings;
     std::shared_ptr<Prisma::CallbackHandler> callbackHandler;
-    std::shared_ptr<Prisma::Camera> camera;
     Prisma::SceneLoader::SceneParameters sceneParameters;
     Prisma::EngineSettings::Settings engineSettings;
     std::shared_ptr<Prisma::SceneHandler> sceneHandler;
@@ -72,13 +71,13 @@ Prisma::Engine::Engine() {
 
     data->debug = true;
 
-    data->camera = nullptr;
+    Prisma::GlobalData::getInstance().currentGlobalScene()->camera = nullptr;
 }
 
 bool Prisma::Engine::run() {
     initScene();
     while (!PrismaFunc::getInstance().shouldClose()) {
-        if (data->camera && GlobalData::getInstance().currentGlobalScene()) {
+        if (Prisma::GlobalData::getInstance().currentGlobalScene()->camera && GlobalData::getInstance().currentGlobalScene()) {
             PrismaFunc::getInstance().bindMainRenderTarget();
             PrismaFunc::getInstance().clear();            
 
@@ -102,7 +101,7 @@ bool Prisma::Engine::run() {
 
             Postprocess::getInstance().render();
 
-            LoadingHandler::getInstance().update(data->camera, data->sceneHandler->onLoading, data->debug);
+            LoadingHandler::getInstance().update(Prisma::GlobalData::getInstance().currentGlobalScene()->camera, data->sceneHandler->onLoading, data->debug);
 
             data->sceneHandler->onEndRender();
 
@@ -153,8 +152,7 @@ float Prisma::Engine::fps() const {
 }
 
 void Prisma::Engine::mainCamera(const std::shared_ptr<Camera>& camera) {
-    data->camera = camera;
-    GlobalData::getInstance().currentGlobalScene()->camera = data->camera;
+    Prisma::GlobalData::getInstance().currentGlobalScene()->camera = camera;
 }
 
 void Prisma::Engine::debug(bool debug) {
