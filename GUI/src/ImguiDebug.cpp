@@ -18,6 +18,7 @@
 #include "../imguizmo/imguizmo.h"
 #include "PixelCapture.h"
 #include "Helpers/ScenePipeline.h"
+#include <Helpers/Logger.h>
 
 struct PrivateIO {
     ImGuiIO io;
@@ -27,7 +28,7 @@ std::shared_ptr<PrivateIO> data;
 
 Prisma::GUI::ImguiDebug::ImguiDebug() : m_lastFrameTime{glfwGetTime()}, m_fps{60.0f} {
     auto& contextData = PrismaFunc::getInstance().contextData();
-
+    Prisma::Logger::getInstance().log(Prisma::LogLevel::INFO, "Scene Initialized Correctly");
     m_imguiDiligent = Diligent::ImGuiImplWin32::Create(
         Diligent::ImGuiDiligentCreateInfo{contextData.device, contextData.swapChain->GetDesc()},
         static_cast<HWND>(PrismaFunc::getInstance().windowNative()));

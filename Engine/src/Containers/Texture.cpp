@@ -13,6 +13,7 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters) {
     Diligent::TextureLoadInfo loadInfo;
     loadInfo.IsSRGB = m_parameters.srgb;
     m_name = m_parameters.texture;
+
     if (m_parameters.compress) {
         loadInfo.CompressMode = Diligent::TEXTURE_LOAD_COMPRESS_MODE_BC;
     }
@@ -22,9 +23,11 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters) {
     if (m_texture) {
         m_data.width = m_texture->GetDesc().GetWidth();
         m_data.height = m_texture->GetDesc().GetHeight();
+        // Multithread
+        /* Prisma::Logger::getInstance().log(Prisma::LogLevel::INFO, "Texture: " + m_name + " correctly loaded");
         if (m_parameters.addGlobalList) {
             GlobalData::getInstance().addGlobalTexture({m_texture, m_parameters.texture.c_str()});
-        }
+        }*/
     }
     return m_texture;
 }
