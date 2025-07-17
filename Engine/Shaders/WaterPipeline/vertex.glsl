@@ -17,8 +17,9 @@ layout(location = 4) in vec4 inBitangent;
 layout(location = 0) out vec2 outUv;
 layout(location = 1) out vec3 outFragPos;
 layout(location = 2) out vec3 outNormal;
-layout(location = 3) flat out int outDrawId;
-//layout(location = 4) out mat3 outTBN;
+layout(location = 3) out vec3 outLocalPos;
+
+
 
 struct ModelData{
     mat4 model;
@@ -34,16 +35,11 @@ void main()
 
     vec4 worldPos = model.model * vec4(inPos.xyz, 1.0);
     vec3 worldNormal = normalize(vec3(model.normal * vec4(inNormal.xyz, 0.0)));
-    //vec3 worldTangent = normalize(vec3(normalMatrix * vec4(inTangent, 0.0)));
-    //vec3 worldBitangent = normalize(vec3(normalMatrix * vec4(inBitangent, 0.0)));
 
     outUv = inUV.xy;
     outFragPos = worldPos.xyz;
     outNormal = worldNormal.xyz;
-    outDrawId = 1;
-
-    // Construct TBN matrix
-    //outTBN = mat3(worldTangent, worldBitangent, worldNormal);
+    outLocalPos=inPos.xyz;
 
     gl_Position = projection * view * worldPos;
 }

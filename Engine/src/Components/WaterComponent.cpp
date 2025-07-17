@@ -32,7 +32,6 @@ void Prisma::WaterComponent::update() {  }
 
 void Prisma::WaterComponent::start() {
     Component::start();
-    Component::start();
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     Diligent::GraphicsPipelineStateCreateInfo PSOCreateInfo;
@@ -53,7 +52,6 @@ void Prisma::WaterComponent::start() {
     PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FillMode = Diligent::FILL_MODE_WIREFRAME;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
@@ -153,6 +151,7 @@ void Prisma::WaterComponent::start() {
 
         {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LUT.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_PREFILTER.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_PIXEL, "skybox", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
 
     };
@@ -233,7 +232,12 @@ void Prisma::WaterComponent::start() {
             if (status) {
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str())->Set(status->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
             }
+
+
+
             if (PipelineSkybox::getInstance().isInit()) {
+                auto skybox=PipelineSkybox::getInstance().skybox();
+                srb->GetVariableByName(SHADER_TYPE_PIXEL, "skybox")->Set(skybox->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_PREFILTER.c_str())->Set(PipelinePrefilter::getInstance().prefilterTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
                 srb->GetVariableByName(SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_IRRADIANCE.c_str())->Set(PipelineDiffuseIrradiance::getInstance().irradianceTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
             }
