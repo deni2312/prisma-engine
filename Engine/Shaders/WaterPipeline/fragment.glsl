@@ -53,7 +53,7 @@ void main()
     float foamHeight = clamp((outLocalPos.y - 0.2) * 5.0, 0.0, 1.0);
 
     // Optional animated noise foam breakup (move with time or UV)
-    float foamNoise = noise(outUv * 8.0);
+    float foamNoise = noise(outUv);
 
     // Combine foam factors
     foam = foamHeight * foamNoise;
