@@ -17,7 +17,7 @@ uniform Constants {
     float waveAmplitude;
     float waveFrequency;
     float waveSpeed;
-    float padding;
+    int size;
 };
 
 // Optional: wave direction struct
@@ -95,7 +95,7 @@ float getTotalWaveDisplacement(vec2 positionXZ, float timeValue,
 
 void main()
 {
-    uint tileIndex = gl_GlobalInvocationID.x;
+    uint tileIndex = gl_GlobalInvocationID.y * size + gl_GlobalInvocationID.x;
     Vertex v = waterMesh_data[tileIndex];
 
     vec2 posXZ = v.position.xz;

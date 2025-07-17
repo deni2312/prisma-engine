@@ -52,7 +52,7 @@ void Prisma::WaterComponent::update() {  }
 
 void Prisma::WaterComponent::start() {
     Component::start();
-
+    m_waterConstants.size = m_resolution;
     createPlaneMesh();
     createCompute();
     auto& contextData = PrismaFunc::getInstance().contextData();
@@ -483,8 +483,8 @@ void Prisma::WaterComponent::computeWater() {
     *waterData = m_waterConstants;
 
     Diligent::DispatchComputeAttribs DispatAttribs;
-    DispatAttribs.ThreadGroupCountX = m_resolution*m_resolution;
-    DispatAttribs.ThreadGroupCountY = 1;
+    DispatAttribs.ThreadGroupCountX = m_resolution;
+    DispatAttribs.ThreadGroupCountY = m_resolution;
     DispatAttribs.ThreadGroupCountZ = 1;
     contextData.immediateContext->SetPipelineState(m_psoCompute);
     contextData.immediateContext->CommitShaderResources(m_srbCompute, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

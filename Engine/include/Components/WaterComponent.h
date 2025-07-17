@@ -22,7 +22,7 @@ class WaterComponent : public RenderComponent {
         float waveAmplitude=0.1;
         float waveFrequency=1.2;
         float waveSpeed=0.5;
-        float padding;
+        int size;
     };
 
     WaterComponent();
@@ -72,7 +72,7 @@ class WaterComponent : public RenderComponent {
     TimeCounter m_counter;
 
     unsigned int m_iBufferSize;
-    int m_resolution = 1024;
+    int m_resolution = 512;
     float m_length = 100;
     std::function<void()> m_run;
 
