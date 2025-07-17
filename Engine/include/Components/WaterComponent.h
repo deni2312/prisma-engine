@@ -19,10 +19,10 @@ class WaterComponent : public RenderComponent {
    public:
     struct WaterConstants {
         glm::vec4 time=glm::vec4(0.0);
-        float waveAmplitude=0.1;
-        float waveFrequency=1.2;
-        float waveSpeed=0.5;
-        int size;
+        float waveAmplitude=1;
+        float waveFrequency=1;
+        float waveSpeed=1;
+        int size=1;
     };
 
     WaterComponent();

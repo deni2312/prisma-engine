@@ -49,9 +49,9 @@ void main()
     for (int i = 0; i < NUM_WAVES; ++i) {
         vec2 dir = normalize(waveDirections[i]);
         float phase = dot(dir, pos.xz);
-        float omega = waveFrequencies[i];
-        float k = waveSpeeds[i];
-        float amplitude = waveAmplitudes[i];
+        float omega = waveFrequencies[i]*waveFrequency;
+        float k = waveSpeeds[i]*waveSpeed;
+        float amplitude = waveAmplitudes[i]*waveAmplitude;
 
         float wave = amplitude * sin(omega * phase + time.x * k);
         height += wave;
