@@ -23,6 +23,8 @@ class WaterComponent : public RenderComponent {
         float waveFrequency=1;
         float waveSpeed=1;
         int size=1;
+        glm::vec3 touchPosition = glm::vec3(0.0f);
+        float radius = 0;
     };
 
     WaterComponent();
@@ -40,7 +42,12 @@ class WaterComponent : public RenderComponent {
     void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
 
     void updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
-   private:
+   
+    void nodePosition(std::shared_ptr<Prisma::Node> node);
+
+    void radius(float radius);
+
+private:
     struct AlignedVertex {
         glm::vec4 position;
         glm::vec4 normal;
@@ -77,5 +84,7 @@ class WaterComponent : public RenderComponent {
     std::function<void()> m_run;
 
     WaterConstants m_waterConstants;
+
+    std::shared_ptr<Prisma::Node> m_node;
 };
 }  // namespace Prisma

@@ -6,6 +6,7 @@
 #include "engine.h"
 #include "../Components/include/InstancingGrassComponent.h"
 #include <Components/CloudComponent.h>
+#include <Components/WaterComponent.h>
 
 PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_scene{scene} {
     Prisma::NodeHelper nodeHelper;
@@ -66,6 +67,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
 
     m_interpolator.timeframe(timeframes);
 
+
     if (m_numScene == 0) {
         m_particleController.init(m_scene->root);
 
@@ -121,6 +123,20 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
         grass2Renderer->addComponent(grass2Instance);
 
         m_scene->root->addChild(grass2Renderer);
+
+        auto water = std::make_shared<Prisma::Node>();
+
+        water->name("WaterNode");
+
+        auto waterComponent = std::make_shared<Prisma::WaterComponent>();
+
+        waterComponent->nodePosition(m_bboxMesh);
+
+        waterComponent->radius(5);
+
+        water->addComponent(waterComponent);
+
+        m_scene->root->addChild(water);
 
     }
 

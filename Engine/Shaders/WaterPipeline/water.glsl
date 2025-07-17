@@ -18,6 +18,8 @@ layout(std140, binding = 1) uniform Constants {
     float waveFrequency;
     float waveSpeed;
     int size;
+    vec3 touchPosition;
+    float radius;
 };
 
 // Number of waves
@@ -56,15 +58,29 @@ void main()
         float wave = amplitude * sin(omega * phase + time.x * k);
         height += wave;
 
-        // Calculate partial derivatives for normal approximation
         float dx = amplitude * omega * dir.x * cos(omega * phase + time.x * k);
         float dz = amplitude * omega * dir.y * cos(omega * phase + time.x * k);
         normal += vec3(-dx, 1.0, -dz);
     }
 
+    vec3 diff = pos - touchPosition;
+    float dist = length(diff);
+    if (dist < radius) {
+        float normalizedDist = dist / radius;
+        float attenuation = exp(-normalizedDist * normalizedDist * 4.0);  // Gaussian-style falloff
+
+        float pulse = sin(10.0 * dist - time.x * 5.0);  // Ripple style
+        float bumpHeight = attenuation * pulse * 0.1 * waveAmplitude;  // scale bump
+
+        height += bumpHeight;
+
+        // Normal contribution of bump
+        vec3 bumpNormal = vec3(diff.x, -bumpHeight, diff.y);
+        normal += normalize(bumpNormal) * attenuation;
+    }
+
     pos.y = height;
     v.position.y = pos.y;
-
     v.normal = vec4(normalize(normal), 0.0);
 
     waterMesh_data[tileIndex] = v;

@@ -295,6 +295,7 @@ void Prisma::WaterComponent::destroy() {
 void Prisma::WaterComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
 
 void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
+
     RenderComponent::updatePostRender(texture, depth);
     computeWater();
     auto& contextData = PrismaFunc::getInstance().contextData();
@@ -326,6 +327,16 @@ void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
 }
 
 void Prisma::WaterComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
+}
+
+void Prisma::WaterComponent::nodePosition(std::shared_ptr<Prisma::Node> node)
+{
+    m_node=node;
+}
+
+void Prisma::WaterComponent::radius(float radius)
+{
+    m_waterConstants.radius=radius;
 }
 
 void Prisma::WaterComponent::createPlaneMesh()
@@ -476,7 +487,13 @@ void Prisma::WaterComponent::createCompute()
 
 void Prisma::WaterComponent::computeWater() {
     auto& contextData = PrismaFunc::getInstance().contextData();
+    if (m_node) {
+        m_waterConstants.touchPosition = m_node->finalMatrix()[3];
+    }
+
     m_waterConstants.time.r = m_counter.duration_seconds();
+
+
 
     Diligent::MapHelper<WaterConstants> waterData(contextData.immediateContext, m_constants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
 
