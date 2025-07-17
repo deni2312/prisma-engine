@@ -53,9 +53,10 @@ void Prisma::WaterComponent::start() {
     PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FillMode = Diligent::FILL_MODE_WIREFRAME;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
-    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
     // clang-format on
@@ -102,15 +103,15 @@ void Prisma::WaterComponent::start() {
     LayoutElement LayoutElems[] =
     {
         // Attribute 0 - vertex position
-        LayoutElement{0, 0, 3, VT_FLOAT32, False},
+        LayoutElement{0, 0, 4, VT_FLOAT32, False},
         // Attribute 1 - texture coordinates
-        LayoutElement{1, 0, 3, VT_FLOAT32, False},
+        LayoutElement{1, 0, 4, VT_FLOAT32, False},
 
-        LayoutElement{2, 0, 2, VT_FLOAT32, False},
+        LayoutElement{2, 0, 4, VT_FLOAT32, False},
 
-        LayoutElement{3, 0, 3, VT_FLOAT32, False},
+        LayoutElement{3, 0, 4, VT_FLOAT32, False},
 
-        LayoutElement{4, 0, 3, VT_FLOAT32, False}
+        LayoutElement{4, 0, 4, VT_FLOAT32, False}
     };
     // clang-format on
     PSOCreateInfo.GraphicsPipeline.InputLayout.LayoutElements = LayoutElems;
@@ -119,6 +120,14 @@ void Prisma::WaterComponent::start() {
     PSOCreateInfo.pVS = pVS;
     PSOCreateInfo.pPS = pPS;
 
+    Diligent::BufferDesc CBDesc;
+    CBDesc.Name = "WaterModel Constants";
+    CBDesc.Size = sizeof(Prisma::Mesh::MeshData);
+    CBDesc.Usage = Diligent::USAGE_DYNAMIC;
+    CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+    CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+    contextData.device->CreateBuffer(CBDesc, nullptr, &m_modelConstant);
+
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
@@ -126,7 +135,7 @@ void Prisma::WaterComponent::start() {
     std::string samplerRepeatName = "textureRepeat_sampler";
 
     PipelineResourceDesc Resources[] = {
-        {SHADER_TYPE_VERTEX, ShaderNames::MUTABLE_MODELS.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+        {SHADER_TYPE_VERTEX, "ModelConstant", 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 
         {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_STATUS.c_str(), 1, SHADER_RESOURCE_TYPE_BUFFER_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -183,6 +192,8 @@ void Prisma::WaterComponent::start() {
 
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
+
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_VERTEX, "ModelConstant")->Set(m_modelConstant);
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
 
@@ -243,20 +254,32 @@ void Prisma::WaterComponent::start() {
         {
             m_updateData(m_srb);
         }});
-    createPlaneMesh(100,128);
+    createPlaneMesh();
+    createCompute();
 }
 
-void Prisma::WaterComponent::destroy() { Component::destroy(); }
+void Prisma::WaterComponent::destroy() { 
+    
+    MeshIndirect::getInstance().removeResizeHandler(std::to_string(uuid()));
+    PipelineSkybox::getInstance().removeUpdate(std::to_string(uuid()));
+    LightHandler::getInstance().removeLightHandler(std::to_string(uuid()));
+    Component::destroy();
+}
 
 void Prisma::WaterComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
 
 void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
-
     RenderComponent::updatePostRender(texture, depth);
+    computeWater();
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     contextData.immediateContext->SetPipelineState(m_pso);
+    
+    Diligent::MapHelper<Prisma::Mesh::MeshData> m_modelConstant(contextData.immediateContext, m_modelConstant, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
 
+    auto finalMatrix=parent()->finalMatrix();
+
+    *m_modelConstant = {finalMatrix,glm::transpose(glm::inverse(finalMatrix))};
     // Bind vertex and index buffers
     constexpr Diligent::Uint64 offset = 0;
     Diligent::IBuffer* pBuffs[] = {m_vBuffer};
@@ -279,50 +302,49 @@ void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
 void Prisma::WaterComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
 }
 
-void Prisma::WaterComponent::createPlaneMesh(float width, int resolution)
+void Prisma::WaterComponent::createPlaneMesh()
 {
-    auto verticesData = std::make_shared<Prisma::Mesh::VerticesData>();
 
-    std::vector<Prisma::Mesh::Vertex>& vertices = verticesData->vertices;
-    std::vector<unsigned int>& indices = verticesData->indices;
+    std::vector<AlignedVertex> vertices;
+    std::vector<unsigned int> indices;
 
-    float halfWidth = width / 2.0f;
-    float step = width / (resolution - 1);
+    float halfWidth = m_length / 2.0f;
+    float step = m_length / (m_resolution - 1);
 
-    for (int z = 0; z < resolution; ++z)
+    for (int z = 0; z < m_resolution; ++z)
     {
-        for (int x = 0; x < resolution; ++x)
+        for (int x = 0; x < m_resolution; ++x)
         {
-            Prisma::Mesh::Vertex v;
+            AlignedVertex v;
 
             float xpos = -halfWidth + x * step;
             float zpos = -halfWidth + z * step;
 
             // Set position
-            v.position = glm::vec3(xpos, 0.0f, zpos);
+            v.position = glm::vec4(xpos, 0.0f, zpos,1);
 
             // Set normal pointing up
-            v.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+            v.normal = glm::vec4(0.0f, 1.0f, 0.0f,1);
 
             // Tangent along +X, bitangent along +Z
-            v.tangent = glm::vec3(1.0f, 0.0f, 0.0f);
-            v.bitangent = glm::vec3(0.0f, 0.0f, 1.0f);
+            v.tangent = glm::vec4(1.0f, 0.0f, 0.0f,1);
+            v.bitangent = glm::vec4(0.0f, 0.0f, 1.0f,1);
 
             // Texture coordinates from 0 to 1
-            v.texCoords = glm::vec2((float)x / (resolution - 1), (float)z / (resolution - 1));
+            v.texCoords = glm::vec4((float)x / (m_resolution - 1), (float)z / (m_resolution - 1),1,1);
 
             vertices.push_back(v);
         }
     }
 
     // Generate indices (two triangles per quad)
-    for (int z = 0; z < resolution - 1; ++z)
+    for (int z = 0; z < m_resolution - 1; ++z)
     {
-        for (int x = 0; x < resolution - 1; ++x)
+        for (int x = 0; x < m_resolution - 1; ++x)
         {
-            int topLeft = z * resolution + x;
+            int topLeft = z * m_resolution + x;
             int topRight = topLeft + 1;
-            int bottomLeft = (z + 1) * resolution + x;
+            int bottomLeft = (z + 1) * m_resolution + x;
             int bottomRight = bottomLeft + 1;
 
             // First triangle
@@ -342,8 +364,10 @@ void Prisma::WaterComponent::createPlaneMesh(float width, int resolution)
     Diligent::BufferDesc VertBuffDesc;
     VertBuffDesc.Name = "Vertices Data";
     VertBuffDesc.Usage = Diligent::USAGE_DEFAULT;
-    VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER;
-    VertBuffDesc.Size = sizeof(Prisma::Mesh::Vertex) * vertices.size();
+    VertBuffDesc.BindFlags = Diligent::BIND_VERTEX_BUFFER | Diligent::BIND_UNORDERED_ACCESS;
+    VertBuffDesc.Size = sizeof(AlignedVertex) * vertices.size();
+    VertBuffDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    VertBuffDesc.ElementByteStride = sizeof(AlignedVertex);
 
     Diligent::BufferData VBData;
     VBData.pData = vertices.data();
@@ -365,4 +389,78 @@ void Prisma::WaterComponent::createPlaneMesh(float width, int resolution)
     m_iBufferSize = indices.size();
     PrismaFunc::getInstance().contextData().device->CreateBuffer(
         IndBuffDesc, &IBData, &m_iBuffer);
+}
+
+void Prisma::WaterComponent::createCompute()
+{
+    auto& contextData = PrismaFunc::getInstance().contextData();
+
+    Diligent::ShaderCreateInfo ShaderCI;
+    // Tell the system that the shader source code is in HLSL.
+    // For OpenGL, the engine will convert this into GLSL under the hood.
+    ShaderCI.SourceLanguage = Diligent::SHADER_SOURCE_LANGUAGE_GLSL;
+
+    // Create a shader source stream factory to load shaders from files.
+    Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
+    contextData.engineFactory->CreateDefaultShaderSourceStreamFactory(nullptr, &pShaderSourceFactory);
+    ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
+
+    Diligent::RefCntAutoPtr<Diligent::IShader> pResetParticleListsCS;
+    {
+        ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_COMPUTE;
+        ShaderCI.EntryPoint = "main";
+        ShaderCI.Desc.Name = "Water CS";
+        ShaderCI.FilePath = "../../../Engine/Shaders/WaterPipeline/water.glsl";
+        contextData.device->CreateShader(ShaderCI, &pResetParticleListsCS);
+    }
+
+    Diligent::BufferDesc CBDesc;
+    CBDesc.Name = "WaterComponent Constants";
+    CBDesc.Size = sizeof(WaterConstants);
+    CBDesc.Usage = Diligent::USAGE_DYNAMIC;
+    CBDesc.BindFlags = Diligent::BIND_UNIFORM_BUFFER;
+    CBDesc.CPUAccessFlags = Diligent::CPU_ACCESS_WRITE;
+    contextData.device->CreateBuffer(CBDesc, nullptr, &m_constants);
+
+    Diligent::ComputePipelineStateCreateInfo PSOCreateInfo;
+    Diligent::PipelineStateDesc& PSODesc = PSOCreateInfo.PSODesc;
+
+    // This is a compute pipeline
+    PSODesc.PipelineType = Diligent::PIPELINE_TYPE_COMPUTE;
+
+    PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+	// clang-format off
+	Diligent::ShaderResourceVariableDesc Vars[] =
+	{
+		{Diligent::SHADER_TYPE_COMPUTE, "WaterMesh", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {Diligent::SHADER_TYPE_COMPUTE, "Constants", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+	};
+    // clang-format on
+    PSODesc.ResourceLayout.Variables = Vars;
+    PSODesc.ResourceLayout.NumVariables = _countof(Vars);
+
+    PSODesc.Name = "Cluster";
+    PSOCreateInfo.pCS = pResetParticleListsCS;
+    contextData.device->CreateComputePipelineState(PSOCreateInfo, &m_psoCompute);
+    m_psoCompute->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "WaterMesh")->Set(m_vBuffer->GetDefaultView(BUFFER_VIEW_UNORDERED_ACCESS));
+    m_psoCompute->GetStaticVariableByName(Diligent::SHADER_TYPE_COMPUTE, "Constants")->Set(m_constants);
+    m_psoCompute->CreateShaderResourceBinding(&m_srbCompute, true);
+    m_counter.start();
+}
+
+void Prisma::WaterComponent::computeWater() {
+    auto& contextData = PrismaFunc::getInstance().contextData();
+    m_waterConstants.time.r = m_counter.duration_seconds();
+
+    Diligent::MapHelper<WaterConstants> waterData(contextData.immediateContext, m_constants, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+
+    *waterData = m_waterConstants;
+
+    Diligent::DispatchComputeAttribs DispatAttribs;
+    DispatAttribs.ThreadGroupCountX = m_resolution*m_resolution;
+    DispatAttribs.ThreadGroupCountY = 1;
+    DispatAttribs.ThreadGroupCountZ = 1;
+    contextData.immediateContext->SetPipelineState(m_psoCompute);
+    contextData.immediateContext->CommitShaderResources(m_srbCompute, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->DispatchCompute(DispatAttribs);
 }

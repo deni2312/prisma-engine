@@ -11,10 +11,20 @@
 #include "Helpers/TimeCounter.h"
 #include "RenderComponent.h"
 #include "SceneObjects/Mesh.h"
+#include "Helpers/TimeCounter.h"
+#include <glm/glm.hpp>
 
 namespace Prisma {
 class WaterComponent : public RenderComponent {
    public:
+       struct WaterConstants {
+            glm::vec4 time=glm::vec4(0.0);
+            float waveAmplitude=0.1;
+            float waveFrequency=1.2;
+            float waveSpeed=0.5;
+            float padding;
+       };
+
     WaterComponent();
 
     void ui() override;
@@ -31,14 +41,40 @@ class WaterComponent : public RenderComponent {
 
     void updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
    private:
-    void createPlaneMesh(float width, int resolution);
+    struct AlignedVertex {
+        glm::vec4 position;
+        glm::vec4 normal;
+        glm::vec4 texCoords;
+        glm::vec4 tangent;
+        glm::vec4 bitangent;
+    };
+
+
+    void createPlaneMesh();
+    void createCompute();
+    void computeWater();
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoCompute;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbCompute;
+
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
     std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&)> m_updateData;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_constants;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelConstant;
+
+    std::shared_ptr<Prisma::Mesh> m_mesh;
+
+    TimeCounter m_counter;
+
     unsigned int m_iBufferSize;
+    int m_resolution = 128;
+    float m_length = 100;
+
+    WaterConstants m_waterConstants;
 };
 }  // namespace Prisma

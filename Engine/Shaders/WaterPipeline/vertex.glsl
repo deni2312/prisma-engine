@@ -8,11 +8,11 @@ uniform ViewProjection
     vec4 viewPos;
 };
 
-layout(location = 0) in vec3 inPos;
-layout(location = 1) in vec3 inNormal;
-layout(location = 2) in vec2 inUV;
-layout(location = 3) in vec3 inTangent;
-layout(location = 4) in vec3 inBitangent;
+layout(location = 0) in vec4 inPos;
+layout(location = 1) in vec4 inNormal;
+layout(location = 2) in vec4 inUV;
+layout(location = 3) in vec4 inTangent;
+layout(location = 4) in vec4 inBitangent;
 
 layout(location = 0) out vec2 outUv;
 layout(location = 1) out vec3 outFragPos;
@@ -20,19 +20,26 @@ layout(location = 2) out vec3 outNormal;
 layout(location = 3) flat out int outDrawId;
 //layout(location = 4) out mat3 outTBN;
 
+struct ModelData{
+    mat4 model;
+    mat4 normal;
+};
+
+uniform ModelConstant{
+    ModelData model;
+};
+
 void main()
 {
-    mat4 modelMatrix=mat4(1);
-    mat4 normalMatrix=mat4(1);
 
-    vec4 worldPos = modelMatrix * vec4(inPos, 1.0);
-    vec3 worldNormal = normalize(vec3(normalMatrix * vec4(inNormal, 0.0)));
+    vec4 worldPos = model.model * vec4(inPos.xyz, 1.0);
+    vec3 worldNormal = normalize(vec3(model.normal * vec4(inNormal.xyz, 0.0)));
     //vec3 worldTangent = normalize(vec3(normalMatrix * vec4(inTangent, 0.0)));
     //vec3 worldBitangent = normalize(vec3(normalMatrix * vec4(inBitangent, 0.0)));
 
-    outUv = inUV;
+    outUv = inUV.xy;
     outFragPos = worldPos.xyz;
-    outNormal = worldNormal;
+    outNormal = worldNormal.xyz;
     outDrawId = 1;
 
     // Construct TBN matrix
