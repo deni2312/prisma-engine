@@ -32,8 +32,46 @@ float computeWave(vec2 positionXZ, float time, Wave wave) {
     float phase = dot(positionXZ, wave.direction) * wave.frequency + time * wave.speed;
     return sin(phase) * wave.amplitude;
 }
+// GLSL 2D Perlin noise function
+float fade(float t) {
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+}
 
-// Function to compute the total wave displacement at a given XZ position
+float lerp(float a, float b, float t) {
+    return a + t * (b - a);
+}
+
+float grad(int hash, float x, float y) {
+    int h = hash & 7;
+    float u = h < 4 ? x : y;
+    float v = h < 4 ? y : x;
+    return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+}
+
+vec2 permute(vec2 x) {
+    return mod(((x * 34.0) + 1.0) * x, 289.0);
+}
+
+float perlinNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+
+    float u = fade(f.x);
+    float v = fade(f.y);
+
+    int a = int(mod(i.x + i.y * 57.0, 256.0));
+    int b = int(mod(i.x + 1.0 + i.y * 57.0, 256.0));
+    int c = int(mod(i.x + (i.y + 1.0) * 57.0, 256.0));
+    int d = int(mod(i.x + 1.0 + (i.y + 1.0) * 57.0, 256.0));
+
+    float res = lerp(
+        lerp(grad(a, f.x, f.y), grad(b, f.x - 1.0, f.y), u),
+        lerp(grad(c, f.x, f.y - 1.0), grad(d, f.x - 1.0, f.y - 1.0), u),
+        v
+    );
+    return res;
+}
+
 float getTotalWaveDisplacement(vec2 positionXZ, float timeValue,
                                float amp, float freq, float speed) {
     Wave wave1 = Wave(amp * 0.6, freq, speed, normalize(vec2(1.0, 0.3)));
@@ -44,6 +82,13 @@ float getTotalWaveDisplacement(vec2 positionXZ, float timeValue,
     totalWave += computeWave(positionXZ, timeValue, wave1);
     totalWave += computeWave(positionXZ, timeValue, wave2);
     totalWave += computeWave(positionXZ, timeValue, wave3);
+
+    // Add Perlin noise for surface detail
+    float noiseScale = 0.5;
+    float noiseStrength = 0.2;
+    float perlin = perlinNoise(positionXZ * noiseScale + vec2(timeValue * 0.1));
+    totalWave += perlin * noiseStrength;
+
     return totalWave;
 }
 

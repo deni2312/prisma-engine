@@ -17,13 +17,13 @@
 namespace Prisma {
 class WaterComponent : public RenderComponent {
    public:
-       struct WaterConstants {
-            glm::vec4 time=glm::vec4(0.0);
-            float waveAmplitude=0.1;
-            float waveFrequency=1.2;
-            float waveSpeed=0.5;
-            float padding;
-       };
+    struct WaterConstants {
+        glm::vec4 time=glm::vec4(0.0);
+        float waveAmplitude=0.1;
+        float waveFrequency=1.2;
+        float waveSpeed=0.5;
+        float padding;
+    };
 
     WaterComponent();
 
@@ -72,8 +72,9 @@ class WaterComponent : public RenderComponent {
     TimeCounter m_counter;
 
     unsigned int m_iBufferSize;
-    int m_resolution = 128;
+    int m_resolution = 1024;
     float m_length = 100;
+    std::function<void()> m_run;
 
     WaterConstants m_waterConstants;
 };

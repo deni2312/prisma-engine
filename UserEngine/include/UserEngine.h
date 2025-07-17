@@ -15,5 +15,5 @@ public:
 
 private:
     std::shared_ptr<PlayerController> m_player;
- std::atomic_bool m_init = false;
+    std::atomic_bool m_init = false;
 };

@@ -43,7 +43,7 @@ void main()
     vec3 reflectedColor = texture(samplerCube(skybox, textureClamp_sampler), reflect(I, N)).rgb;
 
     // Simulated depth by height
-    float heightFactor = clamp((outFragPos.y + 1.0) * 0.5, 0.0, 1.0);
+    float heightFactor = clamp((outLocalPos.y + 1.0) * 0.5, 0.0, 1.0);
     vec3 baseColor = mix(deepColor, shallowColor, heightFactor);
 
     // -------- FOAM CALCULATION --------

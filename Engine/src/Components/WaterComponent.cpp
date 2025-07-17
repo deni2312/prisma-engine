@@ -25,13 +25,36 @@ Prisma::WaterComponent::WaterComponent() { name("WaterComponent"); }
 
 void Prisma::WaterComponent::ui() {
     Prisma::Component::ui();
+    ComponentType componentSpeed;
+    componentSpeed = std::make_tuple(TYPES::FLOAT, "Speed", &m_waterConstants.waveSpeed);
+    addGlobal({componentSpeed, false});
 
+    ComponentType componentAmplitude;
+    componentAmplitude = std::make_tuple(TYPES::FLOAT, "Amplitude", &m_waterConstants.waveAmplitude);
+    addGlobal({componentAmplitude, false});
+
+    ComponentType componentFrequency;
+    componentFrequency = std::make_tuple(TYPES::FLOAT, "Frequency", &m_waterConstants.waveFrequency);
+    addGlobal({componentFrequency, false});
+
+
+    ComponentType componentRun;
+    m_run = [&]() {
+        if (!isStart()) {
+            start();
+        }
+    };
+    componentRun = std::make_tuple(TYPES::BUTTON, "Run UI", &m_run);
+    addGlobal({componentRun, false});
 }
 
 void Prisma::WaterComponent::update() {  }
 
 void Prisma::WaterComponent::start() {
     Component::start();
+
+    createPlaneMesh();
+    createCompute();
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     Diligent::GraphicsPipelineStateCreateInfo PSOCreateInfo;
@@ -258,8 +281,7 @@ void Prisma::WaterComponent::start() {
         {
             m_updateData(m_srb);
         }});
-    createPlaneMesh();
-    createCompute();
+
 }
 
 void Prisma::WaterComponent::destroy() { 
