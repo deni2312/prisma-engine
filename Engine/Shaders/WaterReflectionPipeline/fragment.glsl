@@ -123,50 +123,6 @@ vec3 SSR(vec3 position, vec3 reflection) {
 	return vec3(0.0);
 }
 
-vec3 getNormalFromDepth(vec2 uv, vec2 screenSize)
-{
-    // Get the world position of the current fragment
-    float centerDepth = texture(sampler2D(depthTexture,screenTexture_sampler), uv).r;
-    vec3 p_center = reconstructWorldPos(uv, centerDepth);
-
-    // Calculate pixel offset for sampling neighbors
-    vec2 offset = 1.0 / screenSize;
-
-    // Sample depth and reconstruct world positions for neighbors
-    float dxDepth = texture(sampler2D(depthTexture,screenTexture_sampler), uv + vec2(offset.x, 0.0)).r;
-    float dyDepth = texture(sampler2D(depthTexture,screenTexture_sampler), uv + vec2(0.0, offset.y)).r;
-
-    vec3 p_dx = reconstructWorldPos(uv + vec2(offset.x, 0.0), dxDepth);
-    vec3 p_dy = reconstructWorldPos(uv + vec2(0.0, offset.y), dyDepth);
-
-    // Calculate two vectors on the surface
-    vec3 v1 = p_dx - p_center;
-    vec3 v2 = p_dy - p_center;
-
-    // Handle degenerate cases where vectors might be too short (e.g., flat surfaces, precision issues)
-    // This prevents NaN normals from cross products of nearly identical vectors.
-    if (length(v1) < 0.0001 || length(v2) < 0.0001) {
-        // Fallback: Use a default normal (e.g., world up vector) or a normal derived from view direction
-        // For reflections, a normal pointing somewhat towards the camera might be a better fallback
-        vec3 viewDirection = normalize(viewPos.xyz - p_center);
-        // If the surface is nearly perpendicular to the view, the normal is roughly viewDirection
-        return normalize(vec3(0.0, 1.0, 0.0)); // Default to world up
-    }
-
-    // Calculate the normal using the cross product
-    vec3 normal = normalize(cross(v1, v2));
-
-    // Ensure the normal points towards the camera (or away from the surface from the camera's perspective).
-    // This is important because depth buffer normals can sometimes point inwards or outwards depending on reconstruction.
-    vec3 viewDirection = normalize(viewPos.xyz - p_center);
-    if (dot(normal, viewDirection) < 0.0) {
-        normal = -normal;
-    }
-
-    return normal;
-}
-
-
 void main()
 {
     // Calculate screen size vector from uniforms
@@ -174,7 +130,7 @@ void main()
 
     // 1. Get current fragment data
     // The red channel of waterMaskTexture indicates if the fragment is water (1.0 for water, 0.0 otherwise)
-    float waterMask = texture(sampler2D(waterMaskTexture,screenTexture_sampler), TexCoords).r;
+    float waterMask = texture(sampler2D(waterMaskTexture,screenTexture_sampler), TexCoords).a;
     // Get the original color of the scene at the current fragment
     vec4 originalColor = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords);
 
@@ -186,9 +142,9 @@ void main()
 
     // 2. Reconstruct world position and calculate normal for the current fragment
     float currentDepth = texture(sampler2D(depthTexture,screenTexture_sampler), TexCoords).r;
-    vec3 currentWorldPos = reconstructWorldPos(TexCoords, currentDepth);
+    vec3 currentWorldPos = generatePositionFromDepth(TexCoords, currentDepth);
 
-    vec3 normal = getNormalFromDepth(TexCoords, screenSize);
+    vec3 normal = vec3(view*vec4(texture(sampler2D(waterMaskTexture,screenTexture_sampler), TexCoords).rgb,1));
 
     // 3. Calculate reflection vector
     // View direction: vector from the camera's world position to the current fragment's world position
@@ -203,6 +159,6 @@ void main()
 		outColor = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords);
 	}
 
-    FragColor=outColor;
+    FragColor=vec4(currentWorldPos,outColor.r);
 
 }
