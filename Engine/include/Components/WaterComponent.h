@@ -59,6 +59,8 @@ private:
 
     void createPlaneMesh();
     void createCompute();
+    void createReflection();
+    void renderReflection();
     void computeWater();
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
@@ -67,12 +69,19 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoCompute;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbCompute;
 
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoReflection;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbReflection;
+
     Diligent::RefCntAutoPtr<Diligent::IPipelineResourceSignature> m_pResourceSignature;
     std::function<void(Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding>&)> m_updateData;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_vBuffer;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_iBuffer;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_constants;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelConstant;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_reflection;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_finalReflection;
+
+    std::unique_ptr<Prisma::Blit> m_blit;
 
     std::shared_ptr<Prisma::Mesh> m_mesh;
 

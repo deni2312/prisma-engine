@@ -6,6 +6,9 @@ layout(location = 0) in vec2 outUv;
 layout(location = 1) in vec3 outFragPos;
 layout(location = 2) in vec3 outNormal;
 layout(location = 3) in vec3 outLocalPos;
+
+layout(location = 1) out vec4 Reflection;
+
 uniform textureCube skybox;
 
 // Simple hash noise function (optional)
@@ -65,4 +68,5 @@ void main()
     vec3 finalColor = mix(foamColor, reflectedColor, fresnel);
 
     FragColor = vec4(finalColor, 1.0);
+    Reflection=vec4(1);
 }

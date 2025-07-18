@@ -28,6 +28,8 @@ bool Prisma::Texture::loadTexture(const Parameters& parameters) {
         if (m_parameters.addGlobalList) {
             GlobalData::getInstance().addGlobalTexture({m_texture, m_parameters.texture.c_str()});
         }*/
+    } else {
+        m_texture = Prisma::GlobalData::getInstance().defaultBlack().texture();
     }
     return m_texture;
 }
