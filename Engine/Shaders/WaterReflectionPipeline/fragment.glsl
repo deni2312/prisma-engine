@@ -123,42 +123,21 @@ vec3 SSR(vec3 position, vec3 reflection) {
 	return vec3(0.0);
 }
 
-void main()
+
+void main(void)
 {
-    // Calculate screen size vector from uniforms
-    vec2 screenSize = vec2(WIDTH, HEIGHT);
-
-    // 1. Get current fragment data
-    // The red channel of waterMaskTexture indicates if the fragment is water (1.0 for water, 0.0 otherwise)
-    float waterMask = texture(sampler2D(waterMaskTexture,screenTexture_sampler), TexCoords).a;
-    // Get the original color of the scene at the current fragment
-    vec4 originalColor = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords);
-
-    // If the current fragment is not water, just output the original color and exit
-    if (waterMask < 0.5) { // Using 0.5 as a threshold for the water mask
-        FragColor = originalColor;
-        return;
-    }
-
-    // 2. Reconstruct world position and calculate normal for the current fragment
-    float currentDepth = texture(sampler2D(depthTexture,screenTexture_sampler), vec2(TexCoords.x,1-TexCoords.y)).r;
-    vec3 currentWorldPos = generatePositionFromDepth(vec2(TexCoords.x,1-TexCoords.y), currentDepth);
-
-    vec3 normal = vec3(view*vec4(texture(sampler2D(waterMaskTexture,screenTexture_sampler), TexCoords).rgb,1));
-
-    // 3. Calculate reflection vector
-    // View direction: vector from the camera's world position to the current fragment's world position
-    vec3 viewDir = normalize(currentWorldPos - viewPos.xyz);
-    // Reflection direction: calculated using the incident view direction and the surface normal
-    vec3 reflectionDir = reflect(viewDir, normal);
-
-
-    vec3 reflectionDirection = normalize(reflect(currentWorldPos, normalize(normal.xyz)));
-	vec4 outColor = vec4(SSR(currentWorldPos, normalize(reflectionDirection)), 1.f);
-	if (outColor.xyz == vec3(0.f)) {
-		outColor = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords);
+    vec3 albedo = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords).rgb;
+    float metallic = texture(sampler2D(waterMaskTexture,screenTexture_sampler), TexCoords).r;
+	vec3 position = generatePositionFromDepth(TexCoords, texture(sampler2D(depthTexture,screenTexture_sampler), TexCoords).x);
+	vec4 normal = view * vec4(texture(sampler2D(waterMaskTexture,screenTexture_sampler), TexCoords).xyz, 0.0);
+	if (metallic < 0.01) {
+		FragColor = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords);
 	}
-
-    FragColor=vec4(currentWorldPos,outColor.r);
-
+	else {
+		vec3 reflectionDirection = normalize(reflect(position, normalize(normal.xyz)));
+		FragColor = vec4(SSR(position, normalize(reflectionDirection)), 1.f);
+		if (FragColor.xyz == vec3(0.f)) {
+			FragColor = texture(sampler2D(screenTexture,screenTexture_sampler), TexCoords);
+		}
+	}
 }
