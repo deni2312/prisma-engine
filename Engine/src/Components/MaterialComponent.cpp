@@ -100,25 +100,44 @@ void Prisma::MaterialComponent::ui() {
     };
 
      
-    auto hover = [&](const std::string& type, std::vector<Prisma::Texture>& textures) {
+    auto hover = [&](const std::string& type) {
          return [=]() {
+             std::vector<Prisma::Texture> textures;
+             if (type == "diffuse") {
+                 textures = diffuse();
+             }
+             if (type == "normal") {
+                 textures = normal();
+             }
+             if (type == "metalness roughness") {
+                 textures = roughnessMetalness();
+             }
+             if (type == "specular") {
+                 textures = specular();
+             }
+             if (type == "ambient occlusion") {
+                 textures = ambientOcclusion();
+             }
+
+
              std::string typeText = type;
              ImGui::BeginTooltip();
              ImGui::Text(("Type: " + typeText).c_str());
              ImGui::Text(("Name: " + textures[0].name()).c_str());
              ImGui::Text(("Size: " + std::to_string(textures[0].data().width) + "x" + std::to_string(textures[0].data().height)).c_str());
              ImGui::Text("Srgb: %s", textures[0].parameters().srgb ? "Yes" : "No");
+             std::cout << textures[0].parameters().compress << std::endl;
              ImGui::Text("Compress: %s", textures[0].parameters().compress ? "Yes" : "No");
 
              ImGui::EndTooltip();
          };
      };
 
-    m_diffuseImage.hover = hover("diffuse", diffuse());
-    m_normalImage.hover = hover("normal", normal());
-    m_metalnessRoughnessImage.hover = hover("metalness roughness", roughnessMetalness());
-    m_specularImage.hover = hover("specular", specular());
-    m_ambientOcclusionImage.hover = hover("ambient occlusion", ambientOcclusion());
+    m_diffuseImage.hover = hover("diffuse");
+    m_normalImage.hover = hover("normal");
+    m_metalnessRoughnessImage.hover = hover("metalness roughness");
+    m_specularImage.hover = hover("specular");
+    m_ambientOcclusionImage.hover = hover("ambient occlusion");
 
 
     if (m_diffuse.size() > 0) {
