@@ -80,6 +80,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelConstant;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_reflection;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_finalReflection;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_position;
 
     std::unique_ptr<Prisma::Blit> m_blit;
 

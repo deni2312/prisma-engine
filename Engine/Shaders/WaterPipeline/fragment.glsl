@@ -8,6 +8,7 @@ layout(location = 2) in vec3 outNormal;
 layout(location = 3) in vec3 outLocalPos;
 
 layout(location = 1) out vec4 Reflection;
+layout(location = 2) out vec4 Position;
 
 uniform textureCube skybox;
 
@@ -69,4 +70,6 @@ void main()
 
     FragColor = vec4(finalColor, 1.0);
     Reflection=vec4(N,1);
+    Position=vec4(vec3(view*vec4(outFragPos,1)),1);
+
 }

@@ -68,10 +68,11 @@ void Prisma::WaterComponent::start() {
 
     // clang-format off
     // This tutorial will render to a single render target
-    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 2;
+    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 3;
     // Set render target format which is the format of the swap chain's color buffer
     PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = Prisma::PipelineHandler::getInstance().textureFormat();
     PSOCreateInfo.GraphicsPipeline.RTVFormats[1] = Prisma::PipelineHandler::getInstance().textureFormat();
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[2] = Prisma::PipelineHandler::getInstance().textureFormat();
     // Set depth buffer format which is the format of the swap chain's back buffer
     PSOCreateInfo.GraphicsPipeline.DSVFormat = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
@@ -173,6 +174,7 @@ void Prisma::WaterComponent::start() {
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_reflection);
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_finalReflection);
+    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_position);
 
     PipelineResourceDesc Resources[] = {
         {SHADER_TYPE_VERTEX, "ModelConstant", 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -298,7 +300,9 @@ void Prisma::WaterComponent::start() {
         {
             m_updateData(m_srb);
         }});
-    GlobalData::getInstance().addGlobalTexture({m_reflection, "Reflection Texture"});
+    GlobalData::getInstance().addGlobalTexture({m_reflection, "Water Reflection Texture"});
+    GlobalData::getInstance().addGlobalTexture({m_position, "Water Position Texture"});
+
     createReflection();
 }
 
@@ -320,10 +324,10 @@ void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
     auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 
     auto& contextData = PrismaFunc::getInstance().contextData();
-    ITextureView* textures[] = {texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET)};
+    ITextureView* textures[] = {texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),m_position->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET)};
 
     // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(2, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    contextData.immediateContext->SetRenderTargets(3, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     contextData.immediateContext->ClearRenderTarget(m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), value_ptr(glm::vec4(0)), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
@@ -631,7 +635,7 @@ void Prisma::WaterComponent::createReflection() {
 
     m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "waterMaskTexture")->Set(m_reflection->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "depthTexture")->Set(PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "positionTexture")->Set(m_position->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoReflection->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
 
     m_psoReflection->CreateShaderResourceBinding(&m_srbReflection, true);
