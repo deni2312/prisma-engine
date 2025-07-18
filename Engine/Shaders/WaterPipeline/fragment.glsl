@@ -68,5 +68,5 @@ void main()
     vec3 finalColor = mix(foamColor, reflectedColor, fresnel);
 
     FragColor = vec4(finalColor, 1.0);
-    Reflection=vec4(1);
+    Reflection=vec4(1,N);
 }

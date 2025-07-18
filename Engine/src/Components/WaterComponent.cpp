@@ -555,6 +555,14 @@ void Prisma::WaterComponent::createReflection() {
 
     // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
     ShaderCI.Desc.UseCombinedTextureSamplers = true;
+
+    auto settings = Prisma::SettingsLoader::getInstance().getSettings();
+
+    std::string widthStr = std::to_string(static_cast<int>(settings.width));
+    std::string heightStr = std::to_string(static_cast<int>(settings.height));
+
+    Diligent::ShaderMacro Macros[] = {{"WIDTH", widthStr.c_str()}, {"HEIGHT", heightStr.c_str()}};
+    ShaderCI.Macros = {Macros, _countof(Macros)};
     // In this tutorial, we will load shaders from file. To be able to do that,
     // we need to create a shader source stream factory
     Diligent::RefCntAutoPtr<Diligent::IShaderSourceInputStreamFactory> pShaderSourceFactory;
@@ -599,7 +607,8 @@ void Prisma::WaterComponent::createReflection() {
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}, 
+        {Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
@@ -621,6 +630,9 @@ void Prisma::WaterComponent::createReflection() {
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_psoReflection);
 
     m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "waterMaskTexture")->Set(m_reflection->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "depthTexture")->Set(PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoReflection->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
 
     m_psoReflection->CreateShaderResourceBinding(&m_srbReflection, true);
 
