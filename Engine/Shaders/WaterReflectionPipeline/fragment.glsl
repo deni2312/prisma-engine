@@ -141,8 +141,8 @@ void main()
     }
 
     // 2. Reconstruct world position and calculate normal for the current fragment
-    float currentDepth = texture(sampler2D(depthTexture,screenTexture_sampler), TexCoords).r;
-    vec3 currentWorldPos = generatePositionFromDepth(TexCoords, currentDepth);
+    float currentDepth = texture(sampler2D(depthTexture,screenTexture_sampler), vec2(TexCoords.x,1-TexCoords.y)).r;
+    vec3 currentWorldPos = generatePositionFromDepth(vec2(TexCoords.x,1-TexCoords.y), currentDepth);
 
     vec3 normal = vec3(view*vec4(texture(sampler2D(waterMaskTexture,screenTexture_sampler), TexCoords).rgb,1));
 
