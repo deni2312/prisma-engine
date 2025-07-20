@@ -18,6 +18,7 @@
 #include "Pipelines/PipelineLUT.h"
 #include "Pipelines/PipelinePrefilter.h"
 #include "Pipelines/PipelineDiffuseIrradiance.h"
+#include "engine.h"
 
 using namespace Diligent;
 
@@ -174,7 +175,7 @@ void Prisma::WaterComponent::start() {
     RTColorDesc.ClearValue.Color[3] = 1.f;
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_reflection);
     contextData.device->CreateTexture(RTColorDesc, nullptr, &m_finalReflection);
-    contextData.device->CreateTexture(RTColorDesc, nullptr, &m_position);
+    GlobalData::getInstance().addGlobalTexture({m_finalReflection, "Reflection Final Texture"});
 
     PipelineResourceDesc Resources[] = {
         {SHADER_TYPE_VERTEX, "ModelConstant", 1, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -301,7 +302,6 @@ void Prisma::WaterComponent::start() {
             m_updateData(m_srb);
         }});
     GlobalData::getInstance().addGlobalTexture({m_reflection, "Water Reflection Texture"});
-    GlobalData::getInstance().addGlobalTexture({m_position, "Water Position Texture"});
 
     createReflection();
 }
@@ -319,48 +319,51 @@ void Prisma::WaterComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::I
 void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
 
     RenderComponent::updatePostRender(texture, depth);
-    computeWater();
 
-    auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
+    if (Prisma::Engine::getInstance().engineSettings().pipeline == Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD) {
 
-    auto& contextData = PrismaFunc::getInstance().contextData();
-    ITextureView* textures[] = {texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),m_position->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET)};
+        computeWater();
 
-    // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(3, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 
-    contextData.immediateContext->ClearRenderTarget(m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), value_ptr(glm::vec4(0)), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        ITextureView* textures[] = {texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET)};
 
-    contextData.immediateContext->SetPipelineState(m_pso);
+        // Clear the back buffer
+        contextData.immediateContext->SetRenderTargets(3, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        contextData.immediateContext->ClearRenderTarget(m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), value_ptr(glm::vec4(0)), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        contextData.immediateContext->SetPipelineState(m_pso);
     
-    Diligent::MapHelper<Prisma::Mesh::MeshData> m_modelConstant(contextData.immediateContext, m_modelConstant, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+        Diligent::MapHelper<Prisma::Mesh::MeshData> m_modelConstant(contextData.immediateContext, m_modelConstant, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
 
-    auto finalMatrix=parent()->finalMatrix();
+        auto finalMatrix=parent()->finalMatrix();
 
-    *m_modelConstant = {finalMatrix,glm::transpose(glm::inverse(finalMatrix))};
-    // Bind vertex and index buffers
-    constexpr Diligent::Uint64 offset = 0;
-    Diligent::IBuffer* pBuffs[] = {m_vBuffer};
-    contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-    contextData.immediateContext->SetIndexBuffer(m_iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        *m_modelConstant = {finalMatrix,glm::transpose(glm::inverse(finalMatrix))};
+        // Bind vertex and index buffers
+        constexpr Diligent::Uint64 offset = 0;
+        Diligent::IBuffer* pBuffs[] = {m_vBuffer};
+        contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.immediateContext->SetIndexBuffer(m_iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    // Set texture SRV in the SRB
-    contextData.immediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        // Set texture SRV in the SRB
+        contextData.immediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
-    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
-    DrawAttrs.NumIndices = m_iBufferSize;
-    // Verify the state of vertex and index buffers
-    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+        Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
+        DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+        DrawAttrs.NumIndices = m_iBufferSize;
+        // Verify the state of vertex and index buffers
+        DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
 
-    contextData.immediateContext->DrawIndexed(DrawAttrs);
+        contextData.immediateContext->DrawIndexed(DrawAttrs);
+        
+        renderReflection();
 
-    renderReflection();
+        auto mainTexture=texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
 
-    auto mainTexture=texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
-
-    contextData.immediateContext->SetRenderTargets(1, &mainTexture, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
+        contextData.immediateContext->SetRenderTargets(1, &mainTexture, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    }
 }
 
 void Prisma::WaterComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
@@ -547,7 +550,7 @@ void Prisma::WaterComponent::createReflection() {
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = Diligent::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.FrontCounterClockwise = true;
     // Cull back faces
-    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_BACK;
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = Diligent::CULL_MODE_NONE;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = false;
     // clang-format on
@@ -611,8 +614,12 @@ void Prisma::WaterComponent::createReflection() {
     // Define variable type that will be used by default
     PSOCreateInfo.PSODesc.ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
-    Diligent::ShaderResourceVariableDesc Vars[] = {{Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}, 
-        {Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+   Diligent::ShaderResourceVariableDesc Vars[] = {
+        {Diligent::SHADER_TYPE_PIXEL, "screenTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        //{Diligent::SHADER_TYPE_PIXEL, "waterMaskTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        //{Diligent::SHADER_TYPE_PIXEL, "positionTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        //{Diligent::SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC}};
+    };
     // clang-format on
     PSOCreateInfo.PSODesc.ResourceLayout.Variables = Vars;
     PSOCreateInfo.PSODesc.ResourceLayout.NumVariables = _countof(Vars);
@@ -635,13 +642,12 @@ void Prisma::WaterComponent::createReflection() {
 
     m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "waterMaskTexture")->Set(m_reflection->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "positionTexture")->Set(m_position->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "positionTexture")->Set(Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET));
     m_psoReflection->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
-
+    
     m_psoReflection->CreateShaderResourceBinding(&m_srbReflection, true);
 
-    m_blit = std::make_unique<Blit>(m_finalReflection);
-    GlobalData::getInstance().addGlobalTexture({m_finalReflection, "Reflection Final Texture"});
+    //m_blit = std::make_unique<Blit>(m_finalReflection);
 }
 
 void Prisma::WaterComponent::renderReflection() {
@@ -670,7 +676,7 @@ void Prisma::WaterComponent::renderReflection() {
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.immediateContext->DrawIndexed(DrawAttrs);
 
-    m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
+    //m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
 }
 
 void Prisma::WaterComponent::computeWater() {

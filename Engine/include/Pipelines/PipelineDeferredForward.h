@@ -19,7 +19,9 @@ class PipelineDeferredForward {
     PipelineDeferredForward(const unsigned int& width = 1920, const unsigned int& height = 1080);
     void render();
     ~PipelineDeferredForward();
-
+    Diligent::RefCntAutoPtr<Diligent::ITexture> positionTexture();
+    Diligent::RefCntAutoPtr<Diligent::ITexture> normalTexture();
+    Diligent::RefCntAutoPtr<Diligent::ITexture> albedoTexture();
    private:
     unsigned int m_width;
     unsigned int m_height;

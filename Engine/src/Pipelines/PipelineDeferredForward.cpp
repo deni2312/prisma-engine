@@ -88,6 +88,8 @@ void Prisma::PipelineDeferredForward::render() {
         m_deferredPipeline->render();
     }
 
+    Prisma::ComponentsHandler::getInstance().updatePostRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
+
     auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
 
     // Clear the back buffer
@@ -95,7 +97,6 @@ void Prisma::PipelineDeferredForward::render() {
 
     PipelineSkybox::getInstance().render();
 
-    Prisma::ComponentsHandler::getInstance().updatePostRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
 
     Prisma::PipelineHandler::getInstance().forward()->forwardTransparent()->render();
 
@@ -116,6 +117,12 @@ void Prisma::PipelineDeferredForward::render() {
 }
 
 Prisma::PipelineDeferredForward::~PipelineDeferredForward() {}
+
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineDeferredForward::positionTexture() { return m_positionTexture; }
+
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineDeferredForward::normalTexture() { return m_normalTexture; }
+
+Diligent::RefCntAutoPtr<Diligent::ITexture> Prisma::PipelineDeferredForward::albedoTexture() { return m_albedoTexture; }
 
 void Prisma::PipelineDeferredForward::create() {
     auto& contextData = PrismaFunc::getInstance().contextData();

@@ -3,75 +3,108 @@
 layout(location = 0) out vec4 FragColor;
 layout(location = 0) in vec2 TexCoords;
 
-uniform texture2D screenTexture;
-uniform texture2D waterMaskTexture;
-uniform texture2D positionTexture;
-uniform sampler screenTexture_sampler; // Sampler for screenTexture
-
 uniform ViewProjection
 {
     mat4 view;
     mat4 projection;
-    vec4 viewPos; // Camera's world position
+    vec4 viewPos;
 };
 
-// Constants for SSR
-const int MAX_STEPS = 64;
-const float STEP_SIZE = 0.1;
-const float THICKNESS = 0.05;
+uniform texture2D screenTexture;
+uniform texture2D waterMaskTexture;
+uniform texture2D positionTexture;
+uniform sampler screenTexture_sampler;
 
-// Reconstruct screen-space position to NDC
-vec2 WorldToScreen(vec3 worldPos) {
-    vec4 clipPos = projection * view * vec4(worldPos, 1.0);
-    vec3 ndc = clipPos.xyz / clipPos.w;
-    return ndc.xy * 0.5 + 0.5;
+const float rayStep = 0.2f;
+const int iterationCount = 100;
+const float distanceBias = 0.05f;
+const bool isExponentialStepEnabled = false;
+const bool isAdaptiveStepEnabled = true;
+const bool isBinarySearchEnabled = true;
+
+float random(vec2 uv) {
+	return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+vec3 generatePositionFromDepth(vec2 texturePos, float depth) {
+	return texture(sampler2D(positionTexture, screenTexture_sampler), texturePos).rgb;
+}
+
+vec2 generateProjectedPosition(vec3 pos) {
+    vec4 samplePosition = projection * vec4(pos, 1.f);
+    vec2 ndc_xy = samplePosition.xy / samplePosition.w;
+
+    // Adjust for Vulkan's inverted Y in NDC
+    ndc_xy.y = -ndc_xy.y; // Flip the Y-coordinate
+
+    // Now transform to [0, 1] range
+    vec2 projectedPos = ndc_xy * 0.5 + 0.5;
+    return projectedPos;
+}
+
+vec3 SSR(vec3 position, vec3 reflection) {
+	vec3 step = rayStep * reflection;
+	vec3 marchingPosition = position + step;
+	float delta;
+	float depthFromScreen;
+	vec2 screenPosition;
+
+	int i = 0;
+	for (; i < iterationCount; i++) {
+		screenPosition = generateProjectedPosition(marchingPosition);
+		depthFromScreen = abs(generatePositionFromDepth(screenPosition, 0).z);
+		delta = abs(marchingPosition.z) - depthFromScreen;
+		if (abs(delta) < distanceBias) {
+			vec3 color = vec3(1);
+			return color;
+		}
+		if (isBinarySearchEnabled && delta > 0) {
+			break;
+		}
+		if (isAdaptiveStepEnabled) {
+			float directionSign = sign(abs(marchingPosition.z) - depthFromScreen);
+			step = step * (1.0 - rayStep * max(directionSign, 0.0));
+			marchingPosition += step * (-directionSign);
+		}
+		else {
+			marchingPosition += step;
+		}
+		if (isExponentialStepEnabled) {
+			step *= 1.05;
+		}
+	}
+	if (isBinarySearchEnabled) {
+		for (; i < iterationCount; i++) {
+
+			step *= 0.5;
+			marchingPosition = marchingPosition - step * sign(delta);
+
+			screenPosition = generateProjectedPosition(marchingPosition);
+			depthFromScreen = abs(generatePositionFromDepth(screenPosition, 0).z);
+			delta = abs(marchingPosition.z) - depthFromScreen;
+
+			if (abs(delta) < distanceBias) {
+				vec3 color = vec3(1);
+				return color;
+			}
+		}
+	}
+	return vec3(0.0);
 }
 
 void main(void)
 {
-    vec3 albedo = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords).rgb;
-    float metallic = texture(sampler2D(waterMaskTexture, screenTexture_sampler), TexCoords).r;
-    vec3 worldPos = texture(sampler2D(positionTexture, screenTexture_sampler), TexCoords).xyz;
-
-    if (metallic < 0.01) {
-        FragColor = vec4(albedo, 1.0);
-        return;
-    }
-
-    // Fetch normal from waterMaskTexture and transform to world space
-    vec3 normal = normalize((view * vec4(texture(sampler2D(waterMaskTexture, screenTexture_sampler), TexCoords).xyz, 0.0)).xyz);
-    vec3 viewDir = normalize(viewPos.xyz - worldPos);
-
-    // Reflect view direction around the normal
-    vec3 reflDir = reflect(-viewDir, normal);
-
-    vec3 reflPos = worldPos;
-    vec3 lastPos = reflPos;
-
-    vec3 result = vec3(0.0);
-    bool hit = false;
-
-    for (int i = 0; i < MAX_STEPS; ++i) {
-        reflPos += reflDir * STEP_SIZE;
-
-        vec2 screenUV = WorldToScreen(reflPos);
-        if (screenUV.x < 0.0 || screenUV.x > 1.0 || screenUV.y < 0.0 || screenUV.y > 1.0)
-            break;
-
-        float sceneDepth = texture(sampler2D(positionTexture, screenTexture_sampler), screenUV).z;
-        float depthDiff = reflPos.z - sceneDepth;
-
-        if (abs(depthDiff) < THICKNESS) {
-            result = texture(sampler2D(screenTexture, screenTexture_sampler), screenUV).rgb;
-            hit = true;
-            break;
-        }
-
-        lastPos = reflPos;
-    }
-
-    vec3 reflection = hit ? result : vec3(0.0);
-    float reflectance = metallic; // Could be based on Fresnel/roughness
-
-    FragColor = vec4(mix(albedo, reflection, reflectance), 1.0);
+    float metallic = texture(sampler2D(waterMaskTexture, screenTexture_sampler), TexCoords).a;
+	vec3 position = generatePositionFromDepth(TexCoords, 0);
+	vec4 normal = view * vec4(texture(sampler2D(waterMaskTexture, screenTexture_sampler), TexCoords).xyz, 0.0);
+	if (metallic < 0.01) {
+		FragColor = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords);
+	}
+	else {
+		vec3 reflectionDirection = normalize(reflect(position, normalize(normal.xyz)));
+		FragColor = vec4(SSR(position, normalize(reflectionDirection)), 1.f);
+		if (FragColor.xyz == vec3(0.f)) {
+			FragColor = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords);
+		}
+	}
 }

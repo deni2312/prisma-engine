@@ -69,7 +69,7 @@ void main()
     vec3 finalColor = mix(foamColor, reflectedColor, fresnel);
 
     FragColor = vec4(finalColor, 1.0);
-    Reflection=vec4(N,1);
-    Position=vec4(vec3(view*vec4(outFragPos,1)),1);
+    Reflection = vec4(N,1);
+    Position = vec4(vec3(view*vec4(outFragPos,1)),1);
 
 }
