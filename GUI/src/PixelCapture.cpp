@@ -511,7 +511,7 @@ void Prisma::GUI::PixelCapture::createScalePipeline()
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "ImGui VS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/vertex.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/SceneRender/vertex.hlsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
         // Create dynamic uniform buffer that will store our transformation matrix
         // Dynamic buffers can be frequently updated by the CPU
@@ -530,7 +530,7 @@ void Prisma::GUI::PixelCapture::createScalePipeline()
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
         ShaderCI.Desc.Name = "ImGui PS";
-        ShaderCI.FilePath = "../../../GUI/Shaders/SceneRender/fragment_capture.hlsl";
+        ShaderCI.FilePath = "../../../Engine/Shaders/SceneRender/fragment_capture.hlsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
 
