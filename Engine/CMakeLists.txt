@@ -39,7 +39,5 @@ find_package(glm CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 
-target_link_libraries(PrismaEngineDll PRIVATE Jolt glfw glm::glm assimp::assimp nlohmann_json::nlohmann_json Diligent-GraphicsEngineD3D11-static
-    Diligent-GraphicsEngineOpenGL-static
-    Diligent-GraphicsEngineD3D12-static
+target_link_libraries(PrismaEngineDll PRIVATE Jolt glfw glm::glm assimp::assimp nlohmann_json::nlohmann_json
     Diligent-GraphicsEngineVk-static Diligent-Imgui Diligent-TextureLoader Diligent-HLSL2GLSLConverterLib)
