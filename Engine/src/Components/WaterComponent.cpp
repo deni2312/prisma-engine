@@ -327,7 +327,7 @@ void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
         auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 
         auto& contextData = PrismaFunc::getInstance().contextData();
-        ITextureView* textures[] = {texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET)};
+        /*ITextureView* textures[] = {texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET)};
 
         // Clear the back buffer
         contextData.immediateContext->SetRenderTargets(3, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -357,7 +357,7 @@ void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
         DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
 
         contextData.immediateContext->DrawIndexed(DrawAttrs);
-        
+        */
         renderReflection();
 
         auto mainTexture=texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
@@ -640,14 +640,14 @@ void Prisma::WaterComponent::createReflection() {
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
     contextData.device->CreateGraphicsPipelineState(PSOCreateInfo, &m_psoReflection);
 
-    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "waterMaskTexture")->Set(m_reflection->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "positionTexture")->Set(Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET));
+    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(Prisma::PipelineHandler::getInstance().deferredForward()->albedoTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "waterMaskTexture")->Set(Prisma::PipelineHandler::getInstance().deferredForward()->normalTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "positionTexture")->Set(Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoReflection->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
     
     m_psoReflection->CreateShaderResourceBinding(&m_srbReflection, true);
 
-    //m_blit = std::make_unique<Blit>(m_finalReflection);
+    m_blit = std::make_unique<Blit>(m_finalReflection);
 }
 
 void Prisma::WaterComponent::renderReflection() {
@@ -676,7 +676,7 @@ void Prisma::WaterComponent::renderReflection() {
     DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
     contextData.immediateContext->DrawIndexed(DrawAttrs);
 
-    //m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
+    m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
 }
 
 void Prisma::WaterComponent::computeWater() {

@@ -126,7 +126,6 @@ void Prisma::MaterialComponent::ui() {
              ImGui::Text(("Name: " + textures[0].name()).c_str());
              ImGui::Text(("Size: " + std::to_string(textures[0].data().width) + "x" + std::to_string(textures[0].data().height)).c_str());
              ImGui::Text("Srgb: %s", textures[0].parameters().srgb ? "Yes" : "No");
-             std::cout << textures[0].parameters().compress << std::endl;
              ImGui::Text("Compress: %s", textures[0].parameters().compress ? "Yes" : "No");
 
              ImGui::EndTooltip();

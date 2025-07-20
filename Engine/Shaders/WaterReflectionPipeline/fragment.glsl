@@ -27,7 +27,7 @@ float random(vec2 uv) {
 }
 
 vec3 generatePositionFromDepth(vec2 texturePos, float depth) {
-	return texture(sampler2D(positionTexture, screenTexture_sampler), texturePos).rgb;
+	return vec3(view*vec4(texture(sampler2D(positionTexture, screenTexture_sampler), texturePos).rgb,1));
 }
 
 vec2 generateProjectedPosition(vec3 pos) {
@@ -56,7 +56,7 @@ vec3 SSR(vec3 position, vec3 reflection) {
 		delta = abs(marchingPosition.z) - depthFromScreen;
 		if (abs(delta) < distanceBias) {
 			vec3 color = vec3(1);
-			return color;
+			return texture(sampler2D(screenTexture, screenTexture_sampler), screenPosition).rgb*color;
 		}
 		if (isBinarySearchEnabled && delta > 0) {
 			break;
@@ -85,7 +85,7 @@ vec3 SSR(vec3 position, vec3 reflection) {
 
 			if (abs(delta) < distanceBias) {
 				vec3 color = vec3(1);
-				return color;
+				return texture(sampler2D(screenTexture, screenTexture_sampler), screenPosition).rgb*color;
 			}
 		}
 	}
@@ -94,7 +94,7 @@ vec3 SSR(vec3 position, vec3 reflection) {
 
 void main(void)
 {
-    float metallic = texture(sampler2D(waterMaskTexture, screenTexture_sampler), TexCoords).a;
+    float metallic = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords).a;
 	vec3 position = generatePositionFromDepth(TexCoords, 0);
 	vec4 normal = view * vec4(texture(sampler2D(waterMaskTexture, screenTexture_sampler), TexCoords).xyz, 0.0);
 	if (metallic < 0.01) {

@@ -20,7 +20,6 @@ void Prisma::PipelineHandler::initScene(bool init) {
         Prisma::Engine::getInstance().debug(false);
         auto camera = std::make_shared<Camera>();
         Prisma::Engine::getInstance().mainCamera(camera);
-        std::cout << "aaaaaaaaaaaaaaaaaaaa" << std::endl;
     }
 }
 
