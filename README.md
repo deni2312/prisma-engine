@@ -64,13 +64,18 @@ cd vcpkg
 cd ..
 .\vcpkg\vcpkg install
   ```
-3. Open the project with visual studio
 
-4. Open Tools -> Options -> Vcpkg then change the vcpkg directory to the path of vcpkg executable
+3. Install Vulkan SDK from LunarG(https://www.lunarg.com/vulkan-sdk/)
 
-5. Click on main.cpp and run the default scene
+4. Open the project with visual studio
 
-6. (Optionally) In  `configuration\settings.json` file you can change some settings like width, height and name of the window.
+5. Open Tools -> Options -> Vcpkg then change the vcpkg directory to the path of vcpkg executable
+
+6. Click on main.cpp and run the default scene
+
+7. (Optionally) In  `configuration\settings.json` file you can change some settings like width, height and name of the window.
+
+8. (Optionally) Raytracing support needs to download from here DXC compiler (https://github.com/microsoft/DirectXShaderCompiler/releases) then copy the x64 folder and paste it into your out executable folder and rename `dxcompiler.dll` to `spv_dxcompiler.dll`
 
 ## Demos
 
