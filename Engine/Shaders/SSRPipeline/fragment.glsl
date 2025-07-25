@@ -54,6 +54,10 @@ vec3 SSR(vec3 position, vec3 reflection) {
 	int i = 0;
 	for (; i < iterationCount; i++) {
 		screenPosition = generateProjectedPosition(marchingPosition);
+		if (screenPosition.x < 0.0 || screenPosition.x > 1.0 ||
+			screenPosition.y < 0.0 || screenPosition.y > 1.0) {
+			return vec3(0.0); // No valid reflection
+		}
 		depthFromScreen = abs(generatePositionFromDepth(screenPosition, 0).z);
 		delta = abs(marchingPosition.z) - depthFromScreen;
 		if (abs(delta) < distanceBias) {
