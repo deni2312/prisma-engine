@@ -320,50 +320,50 @@ void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::
 
     RenderComponent::updatePostRender(texture, depth);
 
-    //if (Prisma::Engine::getInstance().engineSettings().pipeline == Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD) {
+    if (Prisma::Engine::getInstance().engineSettings().pipeline == Prisma::EngineSettings::Pipeline::DEFERRED_FORWARD) {
 
-    computeWater();
+        computeWater();
 
-    auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
+        auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 
-    auto& contextData = PrismaFunc::getInstance().contextData();
-    ITextureView* textures[] = {texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET)};
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        /*ITextureView* textures[] = {texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET),Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET)};
 
-    // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(3, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        // Clear the back buffer
+        contextData.immediateContext->SetRenderTargets(3, textures, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    contextData.immediateContext->ClearRenderTarget(m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), value_ptr(glm::vec4(0)), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearRenderTarget(m_reflection->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET), value_ptr(glm::vec4(0)), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    contextData.immediateContext->SetPipelineState(m_pso);
+        contextData.immediateContext->SetPipelineState(m_pso);
     
-    Diligent::MapHelper<Prisma::Mesh::MeshData> m_modelConstant(contextData.immediateContext, m_modelConstant, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
+        Diligent::MapHelper<Prisma::Mesh::MeshData> m_modelConstant(contextData.immediateContext, m_modelConstant, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
 
-    auto finalMatrix=parent()->finalMatrix();
+        auto finalMatrix=parent()->finalMatrix();
 
-    *m_modelConstant = {finalMatrix,glm::transpose(glm::inverse(finalMatrix))};
-    // Bind vertex and index buffers
-    constexpr Diligent::Uint64 offset = 0;
-    Diligent::IBuffer* pBuffs[] = {m_vBuffer};
-    contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
-    contextData.immediateContext->SetIndexBuffer(m_iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        *m_modelConstant = {finalMatrix,glm::transpose(glm::inverse(finalMatrix))};
+        // Bind vertex and index buffers
+        constexpr Diligent::Uint64 offset = 0;
+        Diligent::IBuffer* pBuffs[] = {m_vBuffer};
+        contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
+        contextData.immediateContext->SetIndexBuffer(m_iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    // Set texture SRV in the SRB
-    contextData.immediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        // Set texture SRV in the SRB
+        contextData.immediateContext->CommitShaderResources(m_srb, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
-    DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
-    DrawAttrs.NumIndices = m_iBufferSize;
-    // Verify the state of vertex and index buffers
-    DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
+        Diligent::DrawIndexedAttribs DrawAttrs; // This is an indexed draw call
+        DrawAttrs.IndexType = Diligent::VT_UINT32; // Index type
+        DrawAttrs.NumIndices = m_iBufferSize;
+        // Verify the state of vertex and index buffers
+        DrawAttrs.Flags = Diligent::DRAW_FLAG_VERIFY_ALL;
 
-    contextData.immediateContext->DrawIndexed(DrawAttrs);
-        
-    //renderReflection();
+        contextData.immediateContext->DrawIndexed(DrawAttrs);
+        */
+        renderReflection();
 
-    auto mainTexture=texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+        auto mainTexture=texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
 
-    contextData.immediateContext->SetRenderTargets(1, &mainTexture, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    //}
+        contextData.immediateContext->SetRenderTargets(1, &mainTexture, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    }
 }
 
 void Prisma::WaterComponent::updateTransparentRender(Diligent::RefCntAutoPtr<Diligent::ITexture> accum, Diligent::RefCntAutoPtr<Diligent::ITexture> reveal, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {

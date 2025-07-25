@@ -78,18 +78,23 @@ vec3 SSR(vec3 position, vec3 reflection) {
 			step *= 1.05;
 		}
 	}
+
 	if (isBinarySearchEnabled) {
 		for (; i < iterationCount; i++) {
 
 			step *= 0.5;
 			marchingPosition = marchingPosition - step * sign(delta);
+			screenPosition = generateProjectedPosition(marchingPosition);
 			if (screenPosition.x < 0.0 || screenPosition.x > 1.0 ||
 				screenPosition.y < 0.0 || screenPosition.y > 1.0) {
 				return vec3(0.0); // No valid reflection
 			}
-			screenPosition = generateProjectedPosition(marchingPosition);
 			depthFromScreen = abs(generatePositionFromDepth(screenPosition, 0).z);
 			delta = abs(marchingPosition.z) - depthFromScreen;
+
+			if (depthFromScreen <= 0.001 || depthFromScreen >= 1.0) {
+				break;
+			}
 
 			if (abs(delta) < distanceBias) {
 				vec3 color = vec3(1);
@@ -104,7 +109,7 @@ void main(void)
 {
     float metallic = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords).a;
 	vec3 position = generatePositionFromDepth(TexCoords, 0);
-	vec4 normal = view * vec4(texture(sampler2D(waterMaskTexture, screenTexture_sampler), TexCoords).xyz, 0.0);
+	vec4 normal = normalize(view * vec4(texture(sampler2D(waterMaskTexture, screenTexture_sampler), TexCoords).xyz, 0.0));
 	if (metallic < 0.01) {
 		FragColor = texture(sampler2D(screenTexture, screenTexture_sampler), TexCoords);
 	}
