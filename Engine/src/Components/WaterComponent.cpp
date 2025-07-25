@@ -642,7 +642,7 @@ void Prisma::WaterComponent::createReflection() {
 
     m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "screenTexture")->Set(Prisma::PipelineHandler::getInstance().deferredForward()->albedoTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "waterMaskTexture")->Set(Prisma::PipelineHandler::getInstance().deferredForward()->normalTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
-    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "positionTexture")->Set(Prisma::PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    m_psoReflection->GetStaticVariableByName(Diligent::SHADER_TYPE_PIXEL, "positionTexture")->Set(Prisma::PipelineHandler::getInstance().deferredForward()->positionTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
     m_psoReflection->GetStaticVariableByName(SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
     
     m_psoReflection->CreateShaderResourceBinding(&m_srbReflection, true);
