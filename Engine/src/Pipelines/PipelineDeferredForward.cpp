@@ -31,6 +31,7 @@
 #include "SceneObjects/Mesh.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "engine.h"
 
 using namespace Diligent;
 
@@ -112,6 +113,10 @@ void Prisma::PipelineDeferredForward::render() {
     Physics::getInstance().drawDebug();
     Prisma::PipelineHandler::getInstance().forward()->renderComposite();
     
+    if (Prisma::Engine::getInstance().engineSettings().ssr) {
+        m_ssr->update();
+    }
+
     // m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
     PrismaFunc::getInstance().bindMainRenderTarget();
 }
@@ -327,6 +332,7 @@ void Prisma::PipelineDeferredForward::create() {
     GlobalData::getInstance().addGlobalTexture({m_positionTexture, "Deferred Position Texture"});
 
     m_deferredPipeline=std::make_unique<PipelineDeferred>(m_albedoTexture,m_normalTexture,m_positionTexture);
+    m_ssr=std::make_unique<PipelineSSR>(m_albedoTexture,m_normalTexture,m_positionTexture);
 }
 
 void Prisma::PipelineDeferredForward::createAnimation()

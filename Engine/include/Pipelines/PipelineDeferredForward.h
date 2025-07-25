@@ -12,6 +12,7 @@
 #include "PipelineFullScreen.h"
 #include "PipelinePrePass.h"
 #include "PipelineDeferred.h"
+#include "PipelineSSR.h"
 
 namespace Prisma {
 class PipelineDeferredForward {
@@ -50,5 +51,7 @@ class PipelineDeferredForward {
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_albedoTexture;
 
     std::unique_ptr<PipelineDeferred> m_deferredPipeline;
+
+    std::unique_ptr<PipelineSSR> m_ssr;
 };
 }  // namespace Prisma

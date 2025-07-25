@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iostream>
 
 #include "../include/SettingsTab.h"
 #include "GlobalData/PrismaFunc.h"
@@ -97,7 +98,7 @@ void Prisma::GUI::SettingsTab::drawSettings() {
 
         auto settings = Engine::getInstance().engineSettings();
 
-        //ImGui::Checkbox("SCREEN SPACE REFLECTIONS", &settings.ssr);
+        ImGui::Checkbox("SCREEN SPACE REFLECTIONS", &settings.ssr);
 
         //ImGui::Checkbox("SCREEN SPACE AMBIENT OCCLUSION", &settings.ssao);
         

@@ -1,24 +1,32 @@
 #pragma once
 
 #include <memory>
+#include <Common/interface/RefCntAutoPtr.hpp>
+
+#include "GlobalData/Platform.h"
+#include "Graphics/GraphicsEngine/interface/Buffer.h"
+#include "Graphics/GraphicsEngine/interface/PipelineState.h"
+#include "Graphics/GraphicsEngine/interface/Texture.h"
+#include "Helpers/Blit.h"
+#include "Helpers/Settings.h"
+#include <glm/glm.hpp>
 
 namespace Prisma {
 class PipelineSSR {
 public:
-    PipelineSSR();
+    PipelineSSR(Diligent::RefCntAutoPtr<Diligent::ITexture> albedo, Diligent::RefCntAutoPtr<Diligent::ITexture> normal, Diligent::RefCntAutoPtr<Diligent::ITexture> position);
 
-    void update(uint64_t albedo, uint64_t position, uint64_t normal, uint64_t finalImage, uint64_t depth);
+    void update();
 
     //std::shared_ptr<FBO> texture();
 
 private:
-    //std::shared_ptr<Shader> m_shader;
-    //std::shared_ptr<FBO> m_fboSSR;
-    unsigned int m_albedoPos;
-    unsigned int m_normalPos;
-    unsigned int m_positionPos;
-    unsigned int m_finalImagePos;
-    unsigned int m_depthPos;
-    unsigned int m_invProjPos;
+
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoReflection;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srbReflection;
+
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_finalReflection;
+
+    std::unique_ptr<Prisma::Blit> m_blit;
 };
 }
