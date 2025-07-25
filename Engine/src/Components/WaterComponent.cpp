@@ -628,7 +628,7 @@ void Prisma::WaterComponent::createReflection() {
 	// Define immutable sampler for g_Texture. Immutable samplers should be used whenever possible
 	Diligent::SamplerDesc SamLinearClampDesc
     {
-	    Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
+	    Diligent::FILTER_TYPE_POINT, Diligent::FILTER_TYPE_POINT, Diligent::FILTER_TYPE_POINT,
 	    Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
     };
 
