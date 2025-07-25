@@ -57,7 +57,7 @@ vec3 SSR(vec3 position, vec3 reflection) {
 		}
 		depthFromScreen = abs(generatePositionFromDepth(screenPosition, 0).z);
 		delta = abs(marchingPosition.z) - depthFromScreen;
-		if (abs(delta) < distanceBias) {
+		if (abs(delta) < distanceBias && length(texture(sampler2D(normalTexture,screenTexture_sampler), screenPosition).xyz)>0.01) {
 			vec3 color = vec3(1);
 			if(debugDraw)
 				color = vec3( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2);
@@ -90,7 +90,7 @@ vec3 SSR(vec3 position, vec3 reflection) {
 			depthFromScreen = abs(generatePositionFromDepth(screenPosition, 0).z);
 			delta = abs(marchingPosition.z) - depthFromScreen;
 			
-			if (abs(delta) < distanceBias) {
+			if (abs(delta) < distanceBias && length(texture(sampler2D(normalTexture,screenTexture_sampler), screenPosition).xyz)>0.01) {
                 vec3 color = vec3(1);
                 if(debugDraw)
                     color = vec3( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2);
