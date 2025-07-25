@@ -114,7 +114,7 @@ Prisma::PipelineSSR::PipelineSSR(Diligent::RefCntAutoPtr<Diligent::ITexture> alb
 	Diligent::SamplerDesc SamLinearClampDesc
     {
 	    Diligent::FILTER_TYPE_POINT, Diligent::FILTER_TYPE_POINT, Diligent::FILTER_TYPE_POINT,
-	    Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
+	    Diligent::TEXTURE_ADDRESS_CLAMP, Diligent::TEXTURE_ADDRESS_CLAMP, Diligent::TEXTURE_ADDRESS_CLAMP
     };
 
 	Diligent::ImmutableSamplerDesc ImtblSamplers[] =
