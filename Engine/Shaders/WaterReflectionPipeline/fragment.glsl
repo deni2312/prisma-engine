@@ -19,8 +19,8 @@ const float rayStep = 0.2f;
 const int iterationCount = 100;
 const float distanceBias = 0.05f;
 const bool isExponentialStepEnabled = false;
-const bool isAdaptiveStepEnabled = true;
-const bool isBinarySearchEnabled = true;
+const bool isAdaptiveStepEnabled = false;
+const bool isBinarySearchEnabled = false;
 
 float random(vec2 uv) {
 	return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123);

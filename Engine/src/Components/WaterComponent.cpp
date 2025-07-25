@@ -631,6 +631,7 @@ void Prisma::WaterComponent::createReflection() {
 	    Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
 	    Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP
     };
+
 	Diligent::ImmutableSamplerDesc ImtblSamplers[] =
     {
         {Diligent::SHADER_TYPE_PIXEL, "screenTexture", SamLinearClampDesc}
