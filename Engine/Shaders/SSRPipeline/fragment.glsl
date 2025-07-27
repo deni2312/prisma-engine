@@ -22,7 +22,6 @@ const float distanceBias = 0.05f;
 const bool isExponentialStepEnabled = false;
 const bool isAdaptiveStepEnabled = true;
 const bool isBinarySearchEnabled = true;
-const bool debugDraw = false;
 
 float random (vec2 uv) {
 	return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123); //simple random function
@@ -69,8 +68,6 @@ SSRData SSR(vec3 position, vec3 reflection) {
 		delta = abs(marchingPosition.z) - depthFromScreen;
 		if (abs(delta) < distanceBias && length(texture(sampler2D(normalTexture,screenTexture_sampler), screenPosition).xyz)>0.01) {
 			vec3 color = vec3(1);
-			if(debugDraw)
-				color = vec3( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2);
 
 			result.color=texture(sampler2D(screenTexture,screenTexture_sampler), screenPosition).xyz * color;
 			result.found=true;
@@ -105,8 +102,6 @@ SSRData SSR(vec3 position, vec3 reflection) {
 			
 			if (abs(delta) < distanceBias && length(texture(sampler2D(normalTexture,screenTexture_sampler), screenPosition).xyz)>0.01) {
                 vec3 color = vec3(1);
-                if(debugDraw)
-                    color = vec3( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2);
 				result.color=texture(sampler2D(screenTexture,screenTexture_sampler), screenPosition).xyz * color;
 				result.found=true;
 				return result;
