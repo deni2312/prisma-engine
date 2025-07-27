@@ -27,7 +27,6 @@ const int kernelSize = 64;
 const float radius = 0.5;
 const float bias = 0.025;
 
-
 void main()
 {
     vec2 noiseScale = vec2(WIDTH/4.0, HEIGHT/4.0); 
@@ -56,7 +55,7 @@ void main()
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
         
         // get sample depth
-        float sampleDepth = texture(sampler2D(positionTexture,positionTexture_sampler), offset.xy).z; // get depth value of kernel sample
+        float sampleDepth = vec3(view*vec4(texture(sampler2D(positionTexture,positionTexture_sampler), offset.xy).xyz,1)).z; // get depth value of kernel sample
         
         // range check & accumulate
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
