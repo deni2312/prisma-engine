@@ -70,6 +70,6 @@ void main()
 
     FragColor = vec4(finalColor, 1.0);
     Reflection = vec4(N,1);
-    Position = vec4(vec3(view*vec4(outFragPos,1)),1);
+    Position = vec4(outFragPos,1);
 
 }

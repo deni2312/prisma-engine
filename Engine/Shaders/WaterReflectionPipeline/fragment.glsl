@@ -11,6 +11,7 @@ uniform ViewProjection
 };
 
 uniform texture2D screenTexture;
+uniform texture2D normalTexture;
 uniform texture2D waterMaskTexture;
 uniform texture2D positionTexture;
 uniform sampler screenTexture_sampler;
@@ -18,13 +19,9 @@ uniform sampler screenTexture_sampler;
 const float rayStep = 0.2f;
 const int iterationCount = 100;
 const float distanceBias = 0.05f;
-const bool enableSSR = false;
-const int sampleCount = 4;
-const bool isSamplingEnabled = false;
 const bool isExponentialStepEnabled = false;
 const bool isAdaptiveStepEnabled = true;
 const bool isBinarySearchEnabled = true;
-const bool debugDraw = false;
 
 float random (vec2 uv) {
 	return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123); //simple random function
@@ -43,23 +40,38 @@ vec2 generateProjectedPosition(vec3 pos){
 	return samplePosition.xy;
 }
 
-vec3 SSR(vec3 position, vec3 reflection) {
+struct SSRData{
+	vec3 color;
+	bool found;
+};
+
+SSRData SSR(vec3 position, vec3 reflection) {
 	vec3 step = rayStep * reflection;
 	vec3 marchingPosition = position + step;
 	float delta;
 	float depthFromScreen;
 	vec2 screenPosition;
 	
+	SSRData result;
+
+	result.color=vec3(0);
+	result.found=false;
+
 	int i = 0;
 	for (; i < iterationCount; i++) {
 		screenPosition = generateProjectedPosition(marchingPosition);
+		if (screenPosition.x < 0.0 || screenPosition.x > 1.0 ||
+			screenPosition.y < 0.0 || screenPosition.y > 1.0) {
+			return result; // No valid reflection
+		}
 		depthFromScreen = abs(generatePositionFromDepth(screenPosition, 0).z);
 		delta = abs(marchingPosition.z) - depthFromScreen;
-		if (abs(delta) < distanceBias) {
+		if (abs(delta) < distanceBias && length(texture(sampler2D(normalTexture,screenTexture_sampler), screenPosition).xyz)>0.01) {
 			vec3 color = vec3(1);
-			if(debugDraw)
-				color = vec3( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2);
-			return texture(sampler2D(screenTexture,screenTexture_sampler), screenPosition).xyz * color;
+
+			result.color=texture(sampler2D(screenTexture,screenTexture_sampler), screenPosition).xyz * color;
+			result.found=true;
+			return result;
 		}
 		if (isBinarySearchEnabled && delta > 0) {
 			break;
@@ -88,16 +100,16 @@ vec3 SSR(vec3 position, vec3 reflection) {
 			depthFromScreen = abs(generatePositionFromDepth(screenPosition, 0).z);
 			delta = abs(marchingPosition.z) - depthFromScreen;
 			
-			if (abs(delta) < distanceBias) {
+			if (abs(delta) < distanceBias && length(texture(sampler2D(normalTexture,screenTexture_sampler), screenPosition).xyz)>0.01) {
                 vec3 color = vec3(1);
-                if(debugDraw)
-                    color = vec3( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2);
-				return texture(sampler2D(screenTexture,screenTexture_sampler), screenPosition).xyz * color;
+				result.color=texture(sampler2D(screenTexture,screenTexture_sampler), screenPosition).xyz * color;
+				result.found=true;
+				return result;
 			}
 		}
 	}
 	
-    return vec3(0.0);
+    return result;
 }
 
 void main(){
@@ -110,8 +122,11 @@ void main(){
 		FragColor = texture(sampler2D(screenTexture,screenTexture_sampler), UV);
 	} else {
 		vec3 reflectionDirection = normalize(reflect(position, normalize(normal.xyz)));
-		FragColor = vec4(SSR(position, normalize(reflectionDirection)), 1.f);
-		if (FragColor.xyz == vec3(0.f)){
+
+		SSRData result=SSR(position, normalize(reflectionDirection));
+		if(result.found){
+			FragColor = vec4(result.color, 1.f);
+		}else{
 			FragColor = texture(sampler2D(screenTexture,screenTexture_sampler), UV);
 		}
 	}

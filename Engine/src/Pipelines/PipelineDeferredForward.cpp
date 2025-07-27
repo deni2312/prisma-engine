@@ -89,8 +89,6 @@ void Prisma::PipelineDeferredForward::render() {
         m_deferredPipeline->render();
     }
 
-    Prisma::ComponentsHandler::getInstance().updatePostRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
-
     auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
 
     // Clear the back buffer
@@ -98,6 +96,7 @@ void Prisma::PipelineDeferredForward::render() {
 
     PipelineSkybox::getInstance().render();
 
+    Prisma::ComponentsHandler::getInstance().updatePostRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
 
     Prisma::PipelineHandler::getInstance().forward()->forwardTransparent()->render();
 
@@ -110,6 +109,7 @@ void Prisma::PipelineDeferredForward::render() {
     for (auto& sprite : sprites) {
         sprite->render();
     }
+
 
     if (Prisma::Engine::getInstance().engineSettings().ssr) {
         m_ssr->update();
