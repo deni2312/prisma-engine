@@ -13,7 +13,7 @@ Prisma::Blur::Blur(Diligent::RefCntAutoPtr<Diligent::ITexture> texture) {
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Bloom PingPong Render";
+    PSOCreateInfo.PSODesc.Name = "Blur Render";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = Diligent::PIPELINE_TYPE_GRAPHICS;
@@ -50,7 +50,7 @@ Prisma::Blur::Blur(Diligent::RefCntAutoPtr<Diligent::ITexture> texture) {
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Bloom PingPong VS";
+        ShaderCI.Desc.Name = "Blur VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/Blur/vertex.glsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
         // Create dynamic uniform buffer that will store our transformation matrix
@@ -69,7 +69,7 @@ Prisma::Blur::Blur(Diligent::RefCntAutoPtr<Diligent::ITexture> texture) {
     {
         ShaderCI.Desc.ShaderType = Diligent::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Bloom PingPong PS";
+        ShaderCI.Desc.Name = "Blur PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/Blur/fragment.glsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }

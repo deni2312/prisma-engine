@@ -6,20 +6,19 @@
 #include <Common/interface/RefCntAutoPtr.hpp>
 
 #include "Helpers/Blit.h"
+#include <Common/interface/RefCntAutoPtr.hpp>
 #include "Postprocess/PostprocessEffect.h"
 #include "Helpers/Settings.h"
 
 namespace Prisma::GUI {
-class FXAA : public PostprocessEffect {
+class SSAO : public Prisma::PostprocessEffect {
    public:
-    FXAA();
-
     void render() override;
-
+    SSAO();
 
     void apply(bool apply);
 
-    bool apply() const;
+    bool apply();
 
    private:
     bool m_apply = false;
@@ -27,16 +26,11 @@ class FXAA : public PostprocessEffect {
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
 
-    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_current;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_buffer;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_noiseTexture;
 
-    std::unique_ptr<Blit> m_blit;
-
-   private:
-    struct FXAAData {
-        glm::vec4 resolution;
-    };
-
-    Prisma::Settings m_settings;
+    std::unique_ptr<Prisma::Blit> m_blit;
+    float ourLerp(float a, float b, float f);
 };
 }  // namespace Prisma::GUI
