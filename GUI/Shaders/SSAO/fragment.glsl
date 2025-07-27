@@ -34,8 +34,8 @@ void main()
 
     // get input for SSAO algorithm
     vec3 fragPos = vec3(view*vec4(texture(sampler2D(positionTexture,positionTexture_sampler), TexCoords).xyz,1));
-    vec3 normal = vec3(view*vec4(normalize(texture(sampler2D(normalTexture,positionTexture_sampler), TexCoords).rgb),1));
-    vec3 randomVec = normalize(texture(sampler2D(noiseTexture,positionTexture_sampler), TexCoords * noiseScale).xyz);
+    vec3 normal = normalize(mat3(view)*texture(sampler2D(normalTexture,positionTexture_sampler), TexCoords).rgb);
+    vec3 randomVec = normalize(texture(sampler2D(noiseTexture,screenTexture_sampler), TexCoords * noiseScale).xyz);
     // create TBN change-of-basis matrix: from tangent-space to view-space
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);
@@ -51,8 +51,8 @@ void main()
         // project sample position (to sample texture) (to get position on screen/texture)
         vec4 offset = vec4(samplePos, 1.0);
         offset = projection * offset; // from view to clip-space
-        offset.xyz /= offset.w; // perspective divide
         offset.y = -offset.y; // Flip Y to match Vulkan’s NDC
+        offset.xyz /= offset.w; // perspective divide
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
         
         // get sample depth
