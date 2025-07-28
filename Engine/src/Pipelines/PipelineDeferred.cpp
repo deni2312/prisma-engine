@@ -31,6 +31,7 @@
 #include "SceneObjects/Mesh.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "engine.h"
 
 using namespace Diligent;
 
@@ -41,6 +42,16 @@ Prisma::PipelineDeferred::PipelineDeferred(Diligent::RefCntAutoPtr<Diligent::ITe
 
 void Prisma::PipelineDeferred::render() {
     auto& contextData = PrismaFunc::getInstance().contextData();
+
+            
+    if (Prisma::Engine::getInstance().engineSettings().ssao) {
+        m_ssao->render();
+    } else {
+        auto color = m_ssao->ssaoTexture()->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
+
+        contextData.immediateContext->SetRenderTargets(1, &color, nullptr, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearRenderTarget(color, glm::value_ptr(glm::vec4(1)), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    }
 
     auto color = Prisma::PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(Diligent::TEXTURE_VIEW_RENDER_TARGET);
 
@@ -70,6 +81,8 @@ Prisma::PipelineDeferred::~PipelineDeferred() {}
 
 void Prisma::PipelineDeferred::create() {
     auto& contextData = PrismaFunc::getInstance().contextData();
+
+    m_ssao = std::make_unique<PipelineSSAO>(m_normalTexture, m_positionTexture);
 
     // Pipeline state object encompasses configuration of all GPU stages
 
@@ -164,6 +177,7 @@ void Prisma::PipelineDeferred::create() {
         {SHADER_TYPE_PIXEL, "albedo", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, "normal", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, "position", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL, "ssao", 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_DIR_SHADOW.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV, SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
         {SHADER_TYPE_PIXEL, samplerClampName.c_str(), 1, SHADER_RESOURCE_TYPE_SAMPLER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 
@@ -222,6 +236,7 @@ void Prisma::PipelineDeferred::create() {
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, "position")->Set(m_positionTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
 
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, "ssao")->Set(m_ssao->ssaoTexture()->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
 
     IDeviceObject* samplerDeviceClamp = samplerClamp;
 

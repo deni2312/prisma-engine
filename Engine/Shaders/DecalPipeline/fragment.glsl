@@ -45,7 +45,7 @@ void main()
 
         vec3 N = getNormalFromMap();
 
-        vec3 pbrColor = pbrCalculation(FragPos, N, albedo, aoSpecular,roughness,metallic);
+        vec3 pbrColor = pbrCalculation(FragPos, N, albedo, aoSpecular,roughness,metallic,1);
         FragColor = vec4(pbrColor, diffuseTexture.a);
     }
 

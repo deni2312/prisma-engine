@@ -303,7 +303,7 @@ vec3 ShadowCalculationDirectionalDebug(vec3 fragPosWorldSpace, vec3 lightPos, ve
 
 }
 
-vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float roughness,float metallic) {
+vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float roughness,float metallic,float ssao) {
 
     float specularMap = aoSpecular.r;
     float ao = aoSpecular.g;
@@ -430,7 +430,7 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
     vec2 brdf = texture(sampler2D(lut,textureClamp_sampler), vec2(max(dot(N, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-    vec3 ambient = (kD * diffuse + specular) * ao;
+    vec3 ambient = (kD * diffuse + specular) * ao * ssao;
     Lo = ambient + Lo;
 
     vec3 L = normalize(vec3(dirData_data[0].direction));

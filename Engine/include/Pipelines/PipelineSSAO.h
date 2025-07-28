@@ -1,32 +1,33 @@
 #pragma once
+#include <Common/interface/RefCntAutoPtr.hpp>
 
-#include <memory>
-
-#include "glm/glm.hpp"
+#include "GlobalData/Platform.h"
+#include "Graphics/GraphicsEngine/interface/Buffer.h"
+#include "Graphics/GraphicsEngine/interface/PipelineState.h"
+#include "Graphics/GraphicsEngine/interface/Texture.h"
+#include "Helpers/Blit.h"
+#include "Helpers/Blur.h"
+#include "Helpers/Settings.h"
 
 namespace Prisma {
 class PipelineSSAO {
-public:
-    PipelineSSAO();
+   public:
+    void render();
+    PipelineSSAO(Diligent::RefCntAutoPtr<Diligent::ITexture> normal, Diligent::RefCntAutoPtr<Diligent::ITexture> position);
 
-    void update(uint64_t depth, uint64_t position);
+    Diligent::RefCntAutoPtr<Diligent::ITexture> ssaoTexture();
 
-    //std::shared_ptr<FBO> texture();
 
-private:
+   private:
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
+
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_buffer;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_texture;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_noiseTexture;
+
+    std::unique_ptr<Prisma::Blur> m_blur;
+
     float ourLerp(float a, float b, float f);
-    //std::shared_ptr<Shader> m_shader;
-    //std::shared_ptr<Shader> m_shaderBlur;
-    //std::shared_ptr<FBO> m_fbo;
-    //std::shared_ptr<FBO> m_fboBlur;
-
-    unsigned int m_depthPos;
-    uint64_t m_noise;
-    unsigned int m_noisePos;
-    unsigned int m_positionPos;
-    //std::shared_ptr<Prisma::Ubo> m_ubo;
-    unsigned int m_noiseScalePos;
-    glm::vec2 m_scale;
-    unsigned int m_ssaoPos;
 };
-}
+}  // namespace Prisma::GUI

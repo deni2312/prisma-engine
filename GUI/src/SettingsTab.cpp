@@ -19,9 +19,7 @@ Prisma::GUI::ImguiDebug::ImGuiStatus m_status;
 void Prisma::GUI::SettingsTab::init() {
     m_effects = std::make_shared<Effects>();
     m_fxaa = std::make_shared<FXAA>();
-    m_ssao = std::make_shared<SSAO>();
     Postprocess::getInstance().addPostProcess(m_fxaa);
-    Postprocess::getInstance().addPostProcess(m_ssao);
     Postprocess::getInstance().addPostProcess(m_effects);
     m_status.currentitem = static_cast<unsigned int>(Engine::getInstance().engineSettings().pipeline);
     m_status.currentPostprocess = 0;
@@ -99,14 +97,9 @@ void Prisma::GUI::SettingsTab::drawSettings() {
 
         m_fxaa->apply(isFxaa);
 
-                
-        bool isSSao = m_ssao->apply();
-
-        ImGui::Checkbox("SSAO", &isSSao);
-
-        m_ssao->apply(isSSao);
-
         auto settings = Engine::getInstance().engineSettings();
+
+        ImGui::Checkbox("SSAO", &settings.ssao);
 
         ImGui::Checkbox("SCREEN SPACE REFLECTIONS", &settings.ssr);
 

@@ -8,7 +8,7 @@ uniform texture2D noiseTexture;
 uniform texture2D normalTexture;
 uniform texture2D positionTexture;
 
-uniform sampler screenTexture_sampler;
+uniform sampler normalTexture_sampler;
 uniform sampler positionTexture_sampler;
 
 uniform Constants{
@@ -34,7 +34,7 @@ void main()
     // get input for SSAO algorithm
     vec3 fragPos = vec3(view*vec4(texture(sampler2D(positionTexture,positionTexture_sampler), TexCoords).xyz,1));
     vec3 normal = normalize(mat3(view)*texture(sampler2D(normalTexture,positionTexture_sampler), TexCoords).rgb);
-    vec3 randomVec = normalize(texture(sampler2D(noiseTexture,screenTexture_sampler), TexCoords * noiseScale).xyz);
+    vec3 randomVec = normalize(texture(sampler2D(noiseTexture,normalTexture_sampler), TexCoords * noiseScale).xyz);
     // create TBN change-of-basis matrix: from tangent-space to view-space
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);

@@ -50,7 +50,7 @@ void main()
     float metallic = rm.b;
     float roughness = rm.g;
     
-    vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse), vec4(1.0), roughness, metallic);
+    vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse), vec4(1.0), roughness, metallic,1);
         
     FragColor = vec4(color,1);
 }

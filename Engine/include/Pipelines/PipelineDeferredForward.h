@@ -13,6 +13,7 @@
 #include "PipelinePrePass.h"
 #include "PipelineDeferred.h"
 #include "PipelineSSR.h"
+#include "PipelineSSAO.h"
 
 namespace Prisma {
 class PipelineDeferredForward {

@@ -110,14 +110,12 @@ void Prisma::PipelineDeferredForward::render() {
         sprite->render();
     }
 
-
     if (Prisma::Engine::getInstance().engineSettings().ssr) {
         m_ssr->update();
     }
 
     Physics::getInstance().drawDebug();
     Prisma::PipelineHandler::getInstance().forward()->renderComposite();
-
     // m_blit->render(PipelineHandler::getInstance().textureData().pColorRTV);
     PrismaFunc::getInstance().bindMainRenderTarget();
 }

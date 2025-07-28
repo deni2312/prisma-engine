@@ -10,6 +10,7 @@
 #include "../SceneObjects/Camera.h"
 #include "PipelineFullScreen.h"
 #include "PipelinePrePass.h"
+#include "PipelineSSAO.h"
 
 namespace Prisma {
 class PipelineDeferred {
@@ -35,5 +36,6 @@ class PipelineDeferred {
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_positionTexture;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_normalTexture;
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_albedoTexture;
+    std::unique_ptr<PipelineSSAO> m_ssao;
 };
 }  // namespace Prisma

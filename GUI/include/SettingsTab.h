@@ -4,7 +4,6 @@
 #include "Postprocess/Effects.h"
 #include "Postprocess/Bloom.h"
 #include "Postprocess/FXAA.h"
-#include "Postprocess/SSAO.h"
 
 
 namespace Prisma::GUI {
@@ -27,6 +26,5 @@ private:
     std::unique_ptr<VolumetricLight> m_volumetricRender;
 
     std::shared_ptr<Prisma::GUI::FXAA> m_fxaa;
-    std::shared_ptr<Prisma::GUI::SSAO> m_ssao;
 };
 }

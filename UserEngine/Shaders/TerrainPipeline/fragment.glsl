@@ -103,6 +103,6 @@ void main()
 
     vec3 N = normalize(blendedNormal);  // Use the blended normal in lighting calculations
 
-    vec3 pbrColor = pbrCalculation(FragPos, N, blendedColor.xyz, vec4(1.0),blendedRoughness,0.0);
+    vec3 pbrColor = pbrCalculation(FragPos, N, blendedColor.xyz, vec4(1.0),blendedRoughness,0.0,1);
     FragColor = vec4(pbrColor, 1.0);
 }
