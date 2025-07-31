@@ -24,7 +24,7 @@ layout(location = 0) out vec2 outUv;
 layout(location = 1) out vec3 outFragPos;
 layout(location = 2) out vec3 outNormal;
 layout(location = 3) flat out int outDrawId;
-//layout(location = 4) out mat3 outTBN;
+layout(location = 4) out mat3 outTBN;
 
 struct MeshData
 {
@@ -66,6 +66,9 @@ int currentId=gl_DrawIDARB;
 #ifdef ANIMATION
     vec4 totalPosition = vec4(0.0f);
     vec3 localNormal = vec3(0.0f);
+    vec3 localTangent = vec3(0.0f);
+    vec3 localBitangent = vec3(0.0f);
+
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
     {
         if (boneIds[i] == -1)
@@ -78,12 +81,19 @@ int currentId=gl_DrawIDARB;
         vec4 localPosition = modelAnimations[currentId].animations[boneIds[i]] * vec4(inPos, 1.0f);
         totalPosition += localPosition * weights[i];
         localNormal = mat3(modelAnimations[currentId].animations[boneIds[i]]) * inNormal;
+        localTangent = mat3(modelAnimations[currentId].animations[boneIds[i]]) * inTangent;
+        localBitangent = mat3(modelAnimations[currentId].animations[boneIds[i]]) * inBitangent;
     }
 
     mat4 modelMatrix = modelsData[currentId].model;
     mat4 normalMatrix = modelsData[currentId].normal;
     vec4 worldPos = modelMatrix * vec4(totalPosition.xyz, 1.0);
     vec3 worldNormal = normalize(vec3(normalMatrix * vec4(localNormal, 0.0)));
+    vec3 worldTangent = normalize(vec3(normalMatrix * vec4(localTangent, 0.0)));
+    vec3 worldBitangent = normalize(vec3(normalMatrix * vec4(localBitangent, 0.0)));
+    // Construct TBN matrix
+    outTBN = mat3(worldTangent, worldBitangent, worldNormal);
+
 
     outUv = inUV;
     outFragPos = worldPos.xyz;
@@ -96,16 +106,17 @@ int currentId=gl_DrawIDARB;
 
     vec4 worldPos = modelMatrix * vec4(inPos, 1.0);
     vec3 worldNormal = normalize(vec3(normalMatrix * vec4(inNormal, 0.0)));
-    //vec3 worldTangent = normalize(vec3(normalMatrix * vec4(inTangent, 0.0)));
-    //vec3 worldBitangent = normalize(vec3(normalMatrix * vec4(inBitangent, 0.0)));
+    vec3 worldTangent = normalize(vec3(normalMatrix * vec4(inTangent, 0.0)));
+    vec3 worldBitangent = normalize(vec3(normalMatrix * vec4(inBitangent, 0.0)));
+    // Construct TBN matrix
+    outTBN = mat3(worldTangent, worldBitangent, worldNormal);
+
 
     outUv = inUV;
     outFragPos = worldPos.xyz;
     outNormal = worldNormal;
     outDrawId = currentId;
 
-    // Construct TBN matrix
-    //outTBN = mat3(worldTangent, worldBitangent, worldNormal);
 
     gl_Position = projection * view * worldPos;
 #endif

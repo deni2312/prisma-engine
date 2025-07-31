@@ -6,6 +6,7 @@ layout(location = 0) in vec2 outUv;
 layout(location = 1) in vec3 outFragPos; // Fragment position in world space
 layout(location = 2) in vec3 outNormal;
 layout(location = 3) in flat int outDrawId;
+layout(location = 4) in mat3 outTBN;
 
 struct StatusData
 {
@@ -71,7 +72,6 @@ void main()
     //tangentNormal = tangentNormal * 2.0 - 1.0;
 
     // Transform from tangent space to world space
-    vec3 worldNormal = getNormalFromMap();
 
     vec4 rm = texture(sampler2D(rmTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
 
@@ -97,8 +97,12 @@ void main()
 
     // store the fragment position vector in the first gbuffer texture
     gPosition.rgb = outFragPos;
+    
+    // Sample the normal map
+    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
+
     // also store the per-fragment normals into the gbuffer
-    gNormal.rgb = getNormalFromMap();
+    gNormal.rgb = normalize(outTBN*normalize(tangentNormal * 2.0 - 1.0));
 
     gAlbedoSpec.rgb = diffuse.rgb;
     

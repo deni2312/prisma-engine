@@ -3,6 +3,7 @@
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.glsl"
 #include "../../../Engine/Shaders/ForwardPipeline/common.glsl"
 
+layout(location = 4) in mat3 outTBN;
 
 void main()
 {
@@ -11,13 +12,9 @@ void main()
         discard;
     }
     // Sample the normal map
-    //vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
-    
-    // Remap from [0, 1] to [-1, 1]
-    //tangentNormal = tangentNormal * 2.0 - 1.0;
+    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
 
-    // Transform from tangent space to world space
-    vec3 worldNormal = getNormalFromMap();
+    vec3 worldNormal = normalize(outTBN*normalize(tangentNormal * 2.0 - 1.0));
 
     vec4 rm = texture(sampler2D(rmTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
 
