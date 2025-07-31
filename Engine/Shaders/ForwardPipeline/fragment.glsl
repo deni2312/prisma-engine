@@ -14,6 +14,9 @@ void main()
     // Sample the normal map
     vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
 
+    //OpenGL to Vulkan
+    tangentNormal.y=1-tangentNormal.y;
+
     vec3 worldNormal = normalize(outTBN*normalize(tangentNormal * 2.0 - 1.0));
 
     vec4 rm = texture(sampler2D(rmTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);

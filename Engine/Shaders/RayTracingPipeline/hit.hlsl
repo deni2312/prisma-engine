@@ -60,6 +60,9 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
 
     // Sample and decode normal map
     float3 normalMap = normalTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz;
+    
+    //OpenGL to Vulkan
+    normalMap.y = 1 - normalMap.y;
     normalMap = normalMap * 2.0 - 1.0;
 
     // Transform to world space
