@@ -91,53 +91,60 @@ std::shared_ptr<Prisma::Node> Prisma::GUI::NodeCreator::createSphere(int subDivi
     std::vector<Mesh::Vertex> vertices;
     std::vector<unsigned int> indices;
 
-    // Generate vertices (latitudes and longitudes)
-    for (int lat = 0; lat <= subDivisions; ++lat) {
-        float theta = lat * PI / subDivisions; // Latitude angle (0 to PI)
+for (int lat = 0; lat <= subDivisions; ++lat) {
+        float theta = lat * PI / subDivisions;
+        float sinTheta = sin(theta);
+        float cosTheta = cos(theta);
 
         for (int lon = 0; lon <= subDivisions; ++lon) {
-            float phi = lon * 2 * PI / subDivisions; // Longitude angle (0 to 2*PI)
-
-            // Position (x, y, z)
-            float x = radius * sin(theta) * cos(phi);
-            float y = radius * cos(theta);
-            float z = radius * sin(theta) * sin(phi);
+            float phi = lon * 2.0f * PI / subDivisions;
+            float sinPhi = sin(phi);
+            float cosPhi = cos(phi);
 
             Mesh::Vertex vertex;
+
+            // Position
+            float x = radius * sinTheta * cosPhi;
+            float y = radius * cosTheta;
+            float z = radius * sinTheta * sinPhi;
             vertex.position = glm::vec3(x, y, z);
 
-            // Normal is just the normalized position vector
-            vertex.normal = normalize(vertex.position);
+            // Normal
+            vertex.normal = glm::normalize(vertex.position);
 
-            // Texture coordinates (UV)
-            vertex.texCoords = glm::vec2(static_cast<float>(lon) / subDivisions,
-                                         static_cast<float>(lat) / subDivisions);
+            // Texture Coordinates
+            if (lat == 0) {
+                vertex.texCoords = glm::vec2(0.5f, 1.0f);  // top pole
+            } else if (lat == subDivisions) {
+                vertex.texCoords = glm::vec2(0.5f, 0.0f);  // bottom pole
+            } else {
+                vertex.texCoords = glm::vec2(static_cast<float>(lon) / subDivisions, 1.0f - static_cast<float>(lat) / subDivisions);
+            }
 
-            // Add the vertex to the list
             vertices.push_back(vertex);
         }
     }
 
-    // Generate indices for triangles (two per rectangle)
+    // Index generation
     for (int lat = 0; lat < subDivisions; ++lat) {
         for (int lon = 0; lon < subDivisions; ++lon) {
-            unsigned int first = lat * (subDivisions + 1) + lon;
-            unsigned int second = first + (subDivisions + 1);
+            int current = lat * (subDivisions + 1) + lon;
+            int next = current + subDivisions + 1;
 
-            // Triangle 1 (clockwise order)
-            indices.push_back(first);
-            indices.push_back(first + 1);
-            indices.push_back(second);
+            // Triangle 1
+            indices.push_back(current);
+            indices.push_back(current + 1);
+            indices.push_back(next);
 
-            // Triangle 2 (clockwise order)
-            indices.push_back(second);
-            indices.push_back(first + 1);
-            indices.push_back(second + 1);
+            // Triangle 2
+            indices.push_back(next);
+            indices.push_back(current + 1);
+            indices.push_back(next + 1);
         }
     }
 
-    // Calculate tangent and bitangent for each triangle
-    for (int i = 0; i < indices.size(); i += 3) {
+    // Tangent and Bitangent Calculation
+    for (size_t i = 0; i < indices.size(); i += 3) {
         Mesh::Vertex& v0 = vertices[indices[i]];
         Mesh::Vertex& v1 = vertices[indices[i + 1]];
         Mesh::Vertex& v2 = vertices[indices[i + 2]];
@@ -148,10 +155,16 @@ std::shared_ptr<Prisma::Node> Prisma::GUI::NodeCreator::createSphere(int subDivi
         glm::vec2 deltaUV1 = v1.texCoords - v0.texCoords;
         glm::vec2 deltaUV2 = v2.texCoords - v0.texCoords;
 
-        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+        float denom = deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y;
+        if (fabs(denom) < 1e-6f) continue;  // skip degenerate UVs
+
+        float f = 1.0f / denom;
 
         glm::vec3 tangent = f * (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y);
         glm::vec3 bitangent = f * (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x);
+
+        tangent = glm::normalize(tangent);
+        bitangent = glm::normalize(bitangent);
 
         v0.tangent = tangent;
         v1.tangent = tangent;
