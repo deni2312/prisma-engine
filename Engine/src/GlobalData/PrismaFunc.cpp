@@ -234,6 +234,9 @@ void Prisma::PrismaFunc::init() {
             EngineCI.Features.NativeMultiDraw = DEVICE_FEATURE_STATE_ENABLED;
             EngineCI.Features.WireframeFill = DEVICE_FEATURE_STATE_ENABLED;
             EngineCI.Features.IndependentBlend = DEVICE_FEATURE_STATE_ENABLED;
+            // Max  SepSm  CmbSm  SmpImg StrImg   UB     SB    UTxB   StTxB  InptAtt  AccelSt
+            EngineCI.MainDescriptorPoolSize.NumSampledImageDescriptors = 16384;
+
             /* DebugMessageCallbackType debugType = [](enum DEBUG_MESSAGE_SEVERITY Severity,
                                                            const Char*                 Message,
                                                            const Char*                 Function,
