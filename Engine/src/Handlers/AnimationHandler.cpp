@@ -24,7 +24,7 @@ Prisma::AnimationHandler::AnimationHandler() {
     MatBufferDesc.Usage = Diligent::USAGE_DEFAULT;
     MatBufferDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE;
     MatBufferDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    MatBufferDesc.ElementByteStride = sizeof(Mesh::MeshData);
+    MatBufferDesc.ElementByteStride = sizeof(SSBOAnimation);
     auto size = sizeof(SSBOAnimation) * Define::MAX_ANIMATION_MESHES;
     MatBufferDesc.Size = size; // Ensure enough space
     contextData.device->CreateBuffer(MatBufferDesc, nullptr, &m_animation);
