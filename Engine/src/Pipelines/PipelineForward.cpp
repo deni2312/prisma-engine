@@ -200,6 +200,8 @@ void Prisma::PipelineForward::create() {
 
     std::string samplerClampName = "textureClamp_sampler";
     std::string samplerRepeatName = "textureRepeat_sampler";
+    std::string samplerAnisotropicName = "textureAnisotropic_sampler";
+
 
     PipelineResourceDesc Resources[] =
     {
@@ -244,7 +246,7 @@ void Prisma::PipelineForward::create() {
          SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, samplerRepeatName.c_str(), 1, SHADER_RESOURCE_TYPE_SAMPLER,
          SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
-
+        {SHADER_TYPE_PIXEL, samplerAnisotropicName.c_str(), 1, SHADER_RESOURCE_TYPE_SAMPLER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LUT.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV,
          SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, ShaderNames::MUTABLE_PREFILTER.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV,
@@ -272,8 +274,15 @@ void Prisma::PipelineForward::create() {
         TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP
     };
 
+    SamplerDesc SamAnisotropicRepeatDesc = {
+        FILTER_TYPE_ANISOTROPIC, FILTER_TYPE_ANISOTROPIC, FILTER_TYPE_ANISOTROPIC,
+        TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP
+    };
+    SamAnisotropicRepeatDesc.MaxAnisotropy = 16;
+
     RefCntAutoPtr<ISampler> samplerClamp;
     RefCntAutoPtr<ISampler> samplerRepeat;
+    RefCntAutoPtr<ISampler> samplerAnisotropic;
 
     contextData.device->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignature);
 
@@ -286,6 +295,7 @@ void Prisma::PipelineForward::create() {
     contextData.device->CreatePipelineState(PSOCreateInfo, &m_pso);
     contextData.device->CreateSampler(SamLinearClampDesc, &samplerClamp);
     contextData.device->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
+    contextData.device->CreateSampler(SamAnisotropicRepeatDesc, &samplerAnisotropic);
 
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
@@ -308,9 +318,11 @@ void Prisma::PipelineForward::create() {
 
     IDeviceObject* samplerDeviceClamp = samplerClamp;
     IDeviceObject* samplerDeviceRepeat = samplerRepeat;
+    IDeviceObject* samplerDeviceAnisotropic = samplerAnisotropic;
 
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerClampName.c_str())->Set(samplerDeviceClamp);
     m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerRepeatName.c_str())->Set(samplerDeviceRepeat);
+    m_pResourceSignature->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerAnisotropicName.c_str())->Set(samplerDeviceAnisotropic);
 
     // Create a shader resource binding object and bind all static resources in it
     m_pResourceSignature->CreateShaderResourceBinding(&m_srbOpaque, true);
@@ -364,7 +376,7 @@ void Prisma::PipelineForward::createAnimation()
 
     // Pipeline state name is used by the engine to report issues.
     // It is always a good idea to give objects descriptive names.
-    PSOCreateInfo.PSODesc.Name = "Forward Pipeline";
+    PSOCreateInfo.PSODesc.Name = "Forward Animation Pipeline";
 
     // This is a graphics pipeline
     PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_GRAPHICS;
@@ -408,7 +420,7 @@ void Prisma::PipelineForward::createAnimation()
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Forward VS";
+        ShaderCI.Desc.Name = "Forward Animation VS";
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/vertex.glsl";
         contextData.device->CreateShader(ShaderCI, &pVS);
     }
@@ -418,7 +430,7 @@ void Prisma::PipelineForward::createAnimation()
     {
         ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint = "main";
-        ShaderCI.Desc.Name = "Forward PS";
+        ShaderCI.Desc.Name = "Forward Animation PS";
         ShaderCI.FilePath = "../../../Engine/Shaders/ForwardPipeline/fragment.glsl";
         contextData.device->CreateShader(ShaderCI, &pPS);
     }
@@ -455,6 +467,7 @@ void Prisma::PipelineForward::createAnimation()
 
     std::string samplerClampName = "textureClamp_sampler";
     std::string samplerRepeatName = "textureRepeat_sampler";
+    std::string samplerAnisotropicName = "textureAnisotropic_sampler";
 
     PipelineResourceDesc Resources[] =
     {
@@ -499,6 +512,7 @@ void Prisma::PipelineForward::createAnimation()
          SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
         {SHADER_TYPE_PIXEL, samplerRepeatName.c_str(), 1, SHADER_RESOURCE_TYPE_SAMPLER,
          SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+        {SHADER_TYPE_PIXEL, samplerAnisotropicName.c_str(), 1, SHADER_RESOURCE_TYPE_SAMPLER, SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 
         {SHADER_TYPE_PIXEL, ShaderNames::CONSTANT_LUT.c_str(), 1, SHADER_RESOURCE_TYPE_TEXTURE_SRV,
          SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
@@ -527,8 +541,15 @@ void Prisma::PipelineForward::createAnimation()
         TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP
     };
 
+    SamplerDesc SamAnisotropicRepeatDesc = {
+        FILTER_TYPE_ANISOTROPIC, FILTER_TYPE_ANISOTROPIC, FILTER_TYPE_ANISOTROPIC,
+        TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP, TEXTURE_ADDRESS_WRAP
+    };
+    SamAnisotropicRepeatDesc.MaxAnisotropy = 16;
+
     RefCntAutoPtr<ISampler> samplerClamp;
     RefCntAutoPtr<ISampler> samplerRepeat;
+    RefCntAutoPtr<ISampler> samplerAnisotropic;
 
     contextData.device->CreatePipelineResourceSignature(ResourceSignDesc, &m_pResourceSignatureAnimation);
 
@@ -541,7 +562,7 @@ void Prisma::PipelineForward::createAnimation()
     contextData.device->CreatePipelineState(PSOCreateInfo, &m_psoAnimation);
     contextData.device->CreateSampler(SamLinearClampDesc, &samplerClamp);
     contextData.device->CreateSampler(SamLinearRepeatDesc, &samplerRepeat);
-
+    contextData.device->CreateSampler(SamAnisotropicRepeatDesc, &samplerAnisotropic);
 
     m_pResourceSignatureAnimation->GetStaticVariableByName(SHADER_TYPE_VERTEX, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str())->Set(MeshHandler::getInstance().viewProjection());
 
@@ -565,9 +586,11 @@ void Prisma::PipelineForward::createAnimation()
 
     IDeviceObject* samplerDeviceClamp = samplerClamp;
     IDeviceObject* samplerDeviceRepeat = samplerRepeat;
+    IDeviceObject* samplerDeviceAnisotropic = samplerAnisotropic;
 
     m_pResourceSignatureAnimation->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerClampName.c_str())->Set(samplerDeviceClamp);
     m_pResourceSignatureAnimation->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerRepeatName.c_str())->Set(samplerDeviceRepeat);
+    m_pResourceSignatureAnimation->GetStaticVariableByName(SHADER_TYPE_PIXEL, samplerAnisotropicName.c_str())->Set(samplerDeviceAnisotropic);
 
     // Create a shader resource binding object and bind all static resources in it
     m_pResourceSignatureAnimation->CreateShaderResourceBinding(&m_srbAnimation, true);

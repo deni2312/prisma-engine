@@ -3,16 +3,18 @@
 #include "../../../Engine/Shaders/PbrHeaderPipeline/pbr_calculation.glsl"
 #include "../../../Engine/Shaders/ForwardPipeline/common.glsl"
 
+uniform sampler textureAnisotropic_sampler;
+
 layout(location = 4) in mat3 outTBN;
 
 void main()
 {
-    vec4 diffuse = texture(sampler2D(diffuseTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
+    vec4 diffuse = texture(sampler2D(diffuseTexture[nonuniformEXT(outDrawId)],textureAnisotropic_sampler),outUv);
     if(diffuse.a<0.1){
         discard;
     }
     // Sample the normal map
-    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
+    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureAnisotropic_sampler),outUv).rgb;
 
     //OpenGL to Vulkan
     tangentNormal.y=1-tangentNormal.y;
