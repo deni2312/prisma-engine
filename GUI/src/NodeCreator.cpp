@@ -196,6 +196,9 @@ std::shared_ptr<Prisma::Node> Prisma::GUI::NodeCreator::createDirectional() {
     auto parent = std::make_shared<Node>();
     parent->name("ParentDirectional_" + std::to_string(parent->uuid()));
     auto light = std::make_shared<Light<LightType::LightDir>>();
+
+    parent->matrix(glm::rotate(glm::mat4(1), glm::radians(45.0f), glm::vec3(0.1, 1, 0.1)));
+
     light->name("Directional" + std::to_string(light->uuid()));
     light->createShadow(Define::MAX_SHADOW_DIR_TEXTURE_SIZE, Define::MAX_SHADOW_DIR_TEXTURE_SIZE);
     parent->addChild(light);
