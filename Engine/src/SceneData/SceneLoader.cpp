@@ -506,43 +506,63 @@ void Prisma::SceneLoader::loadLights(const aiScene* currentScene, std::shared_pt
 }
 
 void Prisma::SceneLoader::setVertexBoneData(AnimatedMesh::AnimateVertex& vertex, int boneID, float weight) {
+    // Try to find an empty slot
     for (int i = 0; i < Define::MAX_BONE_INFLUENCE; ++i) {
-        if (vertex.m_BoneIDs[i] < 0) {
-            vertex.m_Weights[i] = weight;
+        if (vertex.m_BoneIDs[i] < 0 || vertex.m_Weights[i] == 0.0f) {
             vertex.m_BoneIDs[i] = boneID;
-            break;
+            vertex.m_Weights[i] = weight;
+            return;
         }
+    }
+
+    // All slots are filled, replace the smallest weight if the new one is larger
+    int minIndex = 0;
+    for (int i = 1; i < Define::MAX_BONE_INFLUENCE; ++i) {
+        if (vertex.m_Weights[i] < vertex.m_Weights[minIndex]) {
+            minIndex = i;
+        }
+    }
+
+    if (weight > vertex.m_Weights[minIndex]) {
+        vertex.m_BoneIDs[minIndex] = boneID;
+        vertex.m_Weights[minIndex] = weight;
+        // Optional: Log replacement
+        // std::cerr << "Replaced lowest weight bone influence for vertex.\n";
+    } else {
+        // Optional: Log skipped weight
+        // std::cerr << "Skipped adding bone ID " << boneID << " with weight " << weight << " due to low influence.\n";
     }
 }
 
-
-void Prisma::SceneLoader::extractBoneWeightForVertices(std::shared_ptr<AnimatedMesh> animatedMesh,
-                                                       std::shared_ptr<AnimatedMesh::AnimateVerticesData> vertices,
-                                                       aiMesh* mesh, const aiScene* scene) {
+void Prisma::SceneLoader::extractBoneWeightForVertices(std::shared_ptr<AnimatedMesh> animatedMesh, std::shared_ptr<AnimatedMesh::AnimateVerticesData> vertices, aiMesh* mesh, const aiScene* scene) {
     auto& boneInfoMap = animatedMesh->boneInfoMap();
     int& boneCount = animatedMesh->boneInfoCounter();
 
     for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
         int boneID = -1;
         std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+
+        // Assign or retrieve bone ID
         if (boneInfoMap.find(boneName) == boneInfoMap.end()) {
             BoneInfo newBoneInfo;
             newBoneInfo.id = boneCount;
             newBoneInfo.offset = getTransform(mesh->mBones[boneIndex]->mOffsetMatrix);
             boneInfoMap[boneName] = newBoneInfo;
-            boneID = boneCount;
-            boneCount++;
+            boneID = boneCount++;
         } else {
             boneID = boneInfoMap[boneName].id;
         }
+
         assert(boneID != -1);
+
         auto weights = mesh->mBones[boneIndex]->mWeights;
         int numWeights = mesh->mBones[boneIndex]->mNumWeights;
 
         for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex) {
             int vertexId = weights[weightIndex].mVertexId;
             float weight = weights[weightIndex].mWeight;
-            assert(vertexId <= vertices->vertices.size());
+
+            assert(vertexId < vertices->vertices.size());  // Fixed comparison
             setVertexBoneData(vertices->vertices[vertexId], boneID, weight);
         }
     }
