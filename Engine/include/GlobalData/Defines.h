@@ -26,7 +26,7 @@ constexpr int MAX_SHADOW_DIR_TEXTURE_SIZE = 4096;
 constexpr int MAX_MESHES = 4096;
 constexpr int MAX_SPRITES = 512;
 constexpr int MAX_RAYTRACING_MESHES = 4096;
-constexpr int DEFAULT_MIPS = 4;
+constexpr int DEFAULT_MIPS = 8;
 
 constexpr auto CLEAR_COLOR = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }
