@@ -165,8 +165,6 @@ private:
     std::vector<unsigned int> m_cacheAdd;
     std::vector<unsigned int> m_cacheRemove;
 
-    void sort() const;
-    void updateStatusShader() const;
     void updateIndirectBuffer();
     void updateIndirectBufferAnimation();
 

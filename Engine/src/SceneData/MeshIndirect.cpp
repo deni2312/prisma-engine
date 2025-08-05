@@ -11,50 +11,6 @@
 #include "Helpers/SettingsLoader.h"
 #include "GlobalData/GlobalShaderNames.h"
 
-
-void Prisma::MeshIndirect::sort() const {
-    //auto& meshes = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes;
-    //if (!meshes.empty())
-    //{
-    //	m_shaderCopy->use();
-    //	m_shaderCopy->setInt(m_indicesCopyLocation, 0);
-    //	m_shaderCopy->dispatchCompute({1, 1, 1});
-    //	m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-    //	auto camera = Prisma::GlobalData::getInstance().currentGlobalScene()->camera;
-    //	Prisma::Settings globalSettings = Prisma::SettingsLoader::getInstance().getSettings();
-    //	CameraData data;
-    //	data.zFar = camera->farPlane();
-    //	data.zNear = camera->nearPlane();
-    //	data.fovY = glm::radians(camera->angle());
-    //	data.aspect = static_cast<float>(globalSettings.width) / static_cast<float>(globalSettings.height);
-    //	m_ssboCamera->modifyData(0, sizeof(CameraData), &data);
-    //	m_shaderCopy->setInt(m_indicesCopyLocation, 1);
-    //	m_shaderCopy->dispatchCompute({ meshes.size(), 1, 1 });
-    //	m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-    //	if (Prisma::GlobalData::getInstance().transparencies()) {
-    //		m_shader->use();
-    //		m_shader->dispatchCompute({ 1, 1, 1 });
-    //		m_shader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-    //	}
-    //	m_shaderCopy->use();
-    //	m_shaderCopy->setInt(m_indicesCopyLocation, 2);
-    //	m_shaderCopy->dispatchCompute({ meshes.size(), 1, 1 });
-    //	m_shaderCopy->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-    //}
-}
-
-void Prisma::MeshIndirect::updateStatusShader() const {
-    //int size = Prisma::GlobalData::getInstance().currentGlobalScene()->meshes.size();
-    //m_statusShader->use();
-    //m_statusShader->setInt(m_sizeLocation, size);
-    //m_statusShader->dispatchCompute({
-    //	size +
-    //	Prisma::GlobalData::getInstance().currentGlobalScene()->animateMeshes.size(),
-    //	1, 1
-    //});
-    //m_statusShader->wait(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-}
-
 void Prisma::MeshIndirect::updateIndirectBuffer() {
     std::vector<DrawElementsIndirectCommand> drawCommandsAll;
     std::vector<DrawElementsIndirectCommand> drawCommandsOpaque;
@@ -443,7 +399,6 @@ void Prisma::MeshIndirect::update() {
             updateStatusAnimation();
         }
     }
-    sort();
 }
 
 void Prisma::MeshIndirect::updateSize() {
