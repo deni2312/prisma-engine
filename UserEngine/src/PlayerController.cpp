@@ -148,6 +148,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
         ball->name("Ball");
         auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
         Prisma::LightType::LightOmni lightType;
+        lightType.diffuse = glm::vec4(8);
         light->type(lightType);
         light->name("LightBall");
         lightParent->name("LightParent");

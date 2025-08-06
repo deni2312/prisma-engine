@@ -41,10 +41,8 @@ vec3 lineIntersectionWithZPlane(vec3 startPoint, vec3 endPoint, float zDistance)
 }
 vec3 screenToView(vec2 screenCoord)
 {
-    // normalize screenCoord to [-1, 1] and
-    // set the depth of the coordinate to be on the near plane. This is -1 by
-    // default in OpenGL.
-    vec4 ndc = vec4(screenCoord / screenDimensions.xy * 2.0 - 1.0, -1.0, 1.0);
+    //Vulkan uses z = 0 OpenGL uses z = -1 
+    vec4 ndc = vec4(screenCoord / screenDimensions.xy * 2.0 - 1.0,0, 1.0);
 
     vec4 viewCoord = inverseProjection * ndc;
     viewCoord = viewCoord / viewCoord.w;

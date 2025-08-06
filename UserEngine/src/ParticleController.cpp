@@ -8,6 +8,8 @@
 #include "GlobalData/PrismaFunc.h"
 #include "Graphics/GraphicsTools/interface/MapHelper.hpp"
 #include "Handlers/LightHandler.h"
+#include <random>
+
 
 void ParticleController::init(std::shared_ptr<Prisma::Node> root, int numParticles) {
     m_numParticles = numParticles;
@@ -122,10 +124,16 @@ void ParticleController::update() {
 }
 
 void ParticleController::createPointLights(std::shared_ptr<Prisma::Node> root) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(0.1f, 1.0f);
+
+    // Create a random diffuse color
     for (int x = 0; x < m_numParticles; ++x) {
         auto light = std::make_shared<Prisma::Light<Prisma::LightType::LightOmni>>();
         Prisma::LightType::LightOmni lightType;
-        lightType.diffuse = lightType.diffuse * glm::vec4(8);
+        glm::vec4 diffuse(dis(gen), dis(gen), dis(gen), 1.0f);
+        lightType.diffuse = diffuse * glm::vec4(8);
         lightType.radius = 2;
         light->type(lightType);
         light->name("PointLight_" + std::to_string(x));
