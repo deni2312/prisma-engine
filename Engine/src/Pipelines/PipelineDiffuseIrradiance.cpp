@@ -144,7 +144,7 @@ Prisma::PipelineDiffuseIrradiance::PipelineDiffuseIrradiance() {
     for (int i = 0; i < 6; ++i) {
         Diligent::TextureViewDesc RTVDesc;
         RTVDesc.ViewType = Diligent::TEXTURE_VIEW_RENDER_TARGET;
-        RTVDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+        RTVDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D;
         RTVDesc.MostDetailedMip = 0;
         RTVDesc.NumMipLevels = 1;
         RTVDesc.FirstArraySlice = i; // Select the specific face
@@ -165,10 +165,6 @@ void Prisma::PipelineDiffuseIrradiance::texture(Diligent::RefCntAutoPtr<Diligent
             contextData.immediateContext, m_iblData, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
         viewProjection->view = m_iblTransform.captureViews[i];
         viewProjection->projection = m_iblTransform.captureProjection;
-
-        Diligent::TextureViewDesc RTVDesc{"Skybox", Diligent::TEXTURE_VIEW_RENDER_TARGET,
-                                          Diligent::RESOURCE_DIM_TEX_2D_ARRAY};
-
         Diligent::ITextureView* ppRTVs[] = {m_pRTColor[i]};
 
         contextData.immediateContext->SetRenderTargets(1, ppRTVs, nullptr,

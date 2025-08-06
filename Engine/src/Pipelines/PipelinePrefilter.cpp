@@ -173,7 +173,7 @@ void Prisma::PipelinePrefilter::texture(Diligent::RefCntAutoPtr<Diligent::ITextu
 
         Diligent::TextureViewDesc RTVDesc;
         RTVDesc.ViewType = Diligent::TEXTURE_VIEW_RENDER_TARGET;
-        RTVDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D_ARRAY;
+        RTVDesc.TextureDim = Diligent::RESOURCE_DIM_TEX_2D;
         RTVDesc.MostDetailedMip = mip;
         RTVDesc.NumMipLevels = 1;
 
@@ -195,10 +195,6 @@ void Prisma::PipelinePrefilter::texture(Diligent::RefCntAutoPtr<Diligent::ITextu
             Diligent::RefCntAutoPtr<Diligent::ITextureView> pRTV;
 
             m_pMSColorRTV->CreateView(RTVDesc, &pRTV);
-
-            Diligent::TextureViewDesc RTVDesc{"Skybox", Diligent::TEXTURE_VIEW_RENDER_TARGET,
-                                              Diligent::RESOURCE_DIM_TEX_2D_ARRAY};
-
             Diligent::ITextureView* ppRTVs[] = {pRTV};
 
             contextData.immediateContext->SetRenderTargets(
