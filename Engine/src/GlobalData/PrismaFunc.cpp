@@ -106,35 +106,58 @@ void Prisma::PrismaFunc::init() {
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // Allow resizing
-    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+    if (m_settings.fullscreen) {
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);  // Allow resizing
+        glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
 
-    int x, y, width, height;
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    glfwGetMonitorWorkarea(monitor, &x, &y, &width, &height);
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-    // Set settings to match monitor work area
-    m_settings.width = width;
-    m_settings.height = height;
-    SettingsLoader::getInstance().settings(m_settings);
+        // Set settings to match monitor work area
+        m_settings.width = mode->width;
+        m_settings.height = mode->height;
+        SettingsLoader::getInstance().settings(m_settings);
 
-    m_window = glfwCreateWindow(m_settings.width, m_settings.height, m_settings.name.c_str(), nullptr, nullptr);
+        m_window = glfwCreateWindow(m_settings.width, m_settings.height, m_settings.name.c_str(), monitor, nullptr);
 
+        if (m_window == nullptr) {
+            LOG_ERROR_MESSAGE("Failed to create GLFW window");
+        }
 
-    if (m_window == nullptr) {
-        LOG_ERROR_MESSAGE("Failed to create GLFW window");
+        glfwSetWindowUserPointer(m_window, this);
+    
+    } else {
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);  // Allow resizing
+        glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+
+        int x, y, width, height;
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        glfwGetMonitorWorkarea(monitor, &x, &y, &width, &height);
+
+        // Set settings to match monitor work area
+        m_settings.width = width;
+        m_settings.height = height;
+        SettingsLoader::getInstance().settings(m_settings);
+
+        m_window = glfwCreateWindow(m_settings.width, m_settings.height, m_settings.name.c_str(), nullptr, nullptr);
+
+        if (m_window == nullptr) {
+            LOG_ERROR_MESSAGE("Failed to create GLFW window");
+        }
+        glfwSetWindowPos(m_window, x, y);
+        glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
+
+        glfwSetWindowUserPointer(m_window, this);
+
+        HWND hwnd = glfwGetWin32Window(m_window);
+        LONG style = GetWindowLong(hwnd, GWL_STYLE);
+        style &= ~WS_MINIMIZEBOX;  // Remove minimize button
+        SetWindowLong(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    
     }
-    glfwSetWindowPos(m_window, x, y);
-    glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
 
-    glfwSetWindowUserPointer(m_window, this);
-
-    HWND hwnd = glfwGetWin32Window(m_window);
-    LONG style = GetWindowLong(hwnd, GWL_STYLE);
-    style &= ~WS_MINIMIZEBOX;  // Remove minimize button
-    SetWindowLong(hwnd, GWL_STYLE, style);
-    SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 #if PLATFORM_WIN32
     Win32NativeWindow Window{glfwGetWin32Window(m_window)};
 #endif
