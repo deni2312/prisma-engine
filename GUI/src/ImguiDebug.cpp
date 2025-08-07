@@ -123,7 +123,7 @@ void Prisma::GUI::ImguiDebug::drawGui() {
 
             if (ImGui::MenuItem("Add model")) {
                 std::string model = WindowsHelper::getInstance().openFolder("All Files");
-                if (model != "") {
+                if (model != "" && (StringHelper::getInstance().endsWith(model, ".prisma") || StringHelper::getInstance().endsWith(model, ".gltf"))) {
                     if (StringHelper::getInstance().endsWith(model, ".prisma")) {
                         if (GlobalData::getInstance().currentGlobalScene()->root) {
                             LoadingHandler::getInstance().
@@ -143,6 +143,8 @@ void Prisma::GUI::ImguiDebug::drawGui() {
                         }
                     }
                     MeshIndirect::getInstance().init();
+                } else {
+                    Prisma::Logger::getInstance().log(Prisma::LogLevel::ERRORS, "Wrong format, Prisma Engine accepts only GLTF or .prisma formats");
                 }
             }
 

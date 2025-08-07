@@ -5,6 +5,7 @@
 #include "SceneData/MeshIndirect.h"
 #include "../include/TextureInfo.h"
 #include "ThirdParty/imgui/imgui.h"
+#include <Helpers/Logger.h>
 
 
 std::string Prisma::GUI::FileBrowser::windowsToString(std::wstring wStr) {
@@ -61,32 +62,27 @@ void Prisma::GUI::FileBrowser::listDirectoryContents() {
                                 itemSize);
                             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
                                 auto path = windowsToString(entry.path().c_str());
-
-                                if (StringHelper::getInstance().endsWith(
-                                    path, ".prisma")) {
-                                    if (GlobalData::getInstance().
-                                        currentGlobalScene()->root) {
-                                        LoadingHandler::getInstance().load(
-                                            path, {true, nullptr, true});
+                                if (StringHelper::getInstance().endsWith(path, ".prisma") || StringHelper::getInstance().endsWith(path, ".gltf")) {
+                                    if (StringHelper::getInstance().endsWith(path, ".prisma")) {
+                                        if (GlobalData::getInstance().currentGlobalScene()->root) {
+                                            LoadingHandler::getInstance().load(path, {true, nullptr, true});
+                                        } else {
+                                            LoadingHandler::getInstance().load(path, {true, nullptr, false});
+                                        }
                                     } else {
-                                        LoadingHandler::getInstance().load(
-                                            path, {true, nullptr, false});
+                                        SceneLoader loader;
+                                        auto scene = loader.loadScene(path, {true});
+                                        if (GlobalData::getInstance().currentGlobalScene()->root) {
+                                            GlobalData::getInstance().currentGlobalScene()->root->addChild(scene->root);
+                                        } else {
+                                            GlobalData::getInstance().currentGlobalScene(scene);
+                                        }
                                     }
+                                    MeshIndirect::getInstance().init();
+                                    CacheScene::getInstance().updateSizes(true);
                                 } else {
-                                    SceneLoader loader;
-                                    auto scene = loader.loadScene(path, {true});
-                                    if (GlobalData::getInstance().
-                                        currentGlobalScene()->root) {
-                                        GlobalData::getInstance().
-                                            currentGlobalScene()->root->
-                                            addChild(scene->root);
-                                    } else {
-                                        GlobalData::getInstance().
-                                            currentGlobalScene(scene);
-                                    }
+                                    Prisma::Logger::getInstance().log(Prisma::LogLevel::ERRORS, "Wrong format, Prisma Engine accepts only GLTF or .prisma formats");
                                 }
-                                MeshIndirect::getInstance().init();
-                                CacheScene::getInstance().updateSizes(true);
                             }
                         }
                         ImGui::PopStyleColor();
