@@ -7,8 +7,8 @@ uniform sampler screenTexture_sampler;
 
 void main()
 {
-    ivec2 texSize = ivec2(WIDTH,HEIGHT); 
-    ivec2 texelCoord = ivec2(TexCoords * texSize);
+    
+    ivec2 texelCoord = ivec2(gl_FragCoord.xy);
 
     float minDepth = 1.0;
 

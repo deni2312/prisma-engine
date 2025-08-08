@@ -3,7 +3,7 @@
 #include "Helpers/PrismaRender.h"
 #include "Pipelines/PipelineHandler.h"
 
-Prisma::PipelineDepthResolve::PipelineDepthResolve(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, unsigned int samplerCount, unsigned int width, unsigned int height) {
+Prisma::PipelineDepthResolve::PipelineDepthResolve(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, unsigned int samplerCount) {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
     // Pipeline state object encompasses configuration of all GPU stages
@@ -37,11 +37,7 @@ Prisma::PipelineDepthResolve::PipelineDepthResolve(Diligent::RefCntAutoPtr<Dilig
     Diligent::ShaderCreateInfo ShaderCI;
 
     std::string samplerCountString = std::to_string(samplerCount);
-
-    std::string widthStr = std::to_string(width);
-    std::string heightStr = std::to_string(height);
-
-    Diligent::ShaderMacro Macros[] = {{"SAMPLER_COUNT", samplerCountString.c_str()}, {"WIDTH", widthStr.c_str()}, {"HEIGHT", heightStr.c_str()}};
+    Diligent::ShaderMacro Macros[] = {{"SAMPLER_COUNT", samplerCountString.c_str()}};
 
     ShaderCI.Macros = {Macros, _countof(Macros)};
 
