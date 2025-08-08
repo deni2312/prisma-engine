@@ -865,7 +865,7 @@ void Prisma::PipelineForward::createMSAA() {
 
         contextData.device->CreateTexture(DepthDesc, nullptr, &m_msaaDepth);
 
-        m_depthResolve = std::make_unique<PipelineDepthResolve>(m_msaaDepth, m_sampleCount);
+        m_depthResolve = std::make_unique<PipelineDepthResolve>(m_msaaDepth, m_sampleCount, m_settings.width, m_settings.height);
     
     }
 }

@@ -7,7 +7,7 @@ uniform sampler screenTexture_sampler;
 
 void main()
 {
-    ivec2 texSize = textureSize(screenTexture); 
+    ivec2 texSize = ivec2(WIDTH,HEIGHT); 
     ivec2 texelCoord = ivec2(TexCoords * texSize);
 
     float minDepth = 1.0;

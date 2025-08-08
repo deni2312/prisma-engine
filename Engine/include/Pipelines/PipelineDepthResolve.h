@@ -10,7 +10,7 @@
 namespace Prisma {
 class PipelineDepthResolve {
    public:
-    PipelineDepthResolve(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, unsigned int samplerCount);
+    PipelineDepthResolve(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, unsigned int samplerCount,unsigned int width,unsigned int height);
     void render(Diligent::RefCntAutoPtr<Diligent::ITexture> texture);
 
    private:
