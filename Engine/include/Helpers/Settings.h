@@ -12,6 +12,7 @@ struct Settings {
     unsigned int height = 1080;
     bool fullscreen = false;
     int vsync = 0;
+    bool msaa = false;
 };
 
 struct CallbackHandler {

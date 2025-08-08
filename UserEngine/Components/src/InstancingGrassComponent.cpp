@@ -315,10 +315,6 @@ void Prisma::InstancingGrassComponent::mesh(std::shared_ptr<Prisma::Mesh> mesh)
     IndBuffDesc, &IBData, &m_bufferData.iBuffer);
 }
 
-void Prisma::InstancingGrassComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 
-	RenderComponent::updatePreRender(texture, depth); 
-}
-
 void Prisma::InstancingGrassComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) { 
 	RenderComponent::updatePostRender(texture, depth);
     auto& contextData = PrismaFunc::getInstance().contextData();

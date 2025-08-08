@@ -12,6 +12,7 @@ void from_json(const nlohmann::json& j, Prisma::Settings& s) {
     j.at("height").get_to(s.height);
     j.at("fullscreen").get_to(s.fullscreen);
     j.at("vsync").get_to(s.vsync);
+    j.at("msaa").get_to(s.msaa);
 }
 
 // Load method to read settings from a file

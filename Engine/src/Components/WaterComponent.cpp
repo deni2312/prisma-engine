@@ -314,8 +314,6 @@ void Prisma::WaterComponent::destroy() {
     Component::destroy();
 }
 
-void Prisma::WaterComponent::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {}
-
 void Prisma::WaterComponent::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
 
     RenderComponent::updatePostRender(texture, depth);

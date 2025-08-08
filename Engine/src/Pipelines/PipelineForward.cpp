@@ -43,6 +43,7 @@ using namespace Diligent;
 Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsigned int& height) : m_width{
                                                                                                       width
                                                                                                   }, m_height{height} {
+    createMSAA();
     create();
     createCompositePipeline();
     createAnimation();
@@ -51,17 +52,29 @@ Prisma::PipelineForward::PipelineForward(const unsigned int& width, const unsign
 void Prisma::PipelineForward::render() {
     auto& contextData = PrismaFunc::getInstance().contextData();
 
+
+    
     auto pRTV = PipelineHandler::getInstance().textureData().pColorRTV->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
     auto pDSV = PipelineHandler::getInstance().textureData().pDepthDSV->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
+    if (m_settings.msaa) {
+        auto pRTVMSAA = m_msaaColor->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+        auto pDSVMSAA = m_msaaDepth->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 
-    // Clear the back buffer
-    contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        // Clear the back buffer
+        contextData.immediateContext->SetRenderTargets(1, &pRTVMSAA, pDSVMSAA, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    //contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    contextData.immediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        // contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearRenderTarget(pRTVMSAA, value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearDepthStencil(pDSVMSAA, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    
+    } else {
+        // Clear the back buffer
+        contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    Prisma::ComponentsHandler::getInstance().updatePreRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
+        // contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR),RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearRenderTarget(pRTV, value_ptr(Define::CLEAR_COLOR), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        contextData.immediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    }
 
     // Set the pipeline state
     contextData.immediateContext->SetPipelineState(m_pso);
@@ -83,6 +96,20 @@ void Prisma::PipelineForward::render() {
         contextData.immediateContext->CommitShaderResources(m_srbAnimation,
                                                             RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         MeshIndirect::getInstance().renderAnimateMeshes();
+    }
+
+    if (m_settings.msaa) {
+        ResolveTextureSubresourceAttribs ResolveAttribs;
+        ResolveAttribs.SrcTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+        ResolveAttribs.DstTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+        contextData.immediateContext->ResolveTextureSubresource(m_msaaColor, pRTV->GetTexture(), ResolveAttribs);
+        contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        contextData.immediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        m_depthResolve->render(PipelineHandler::getInstance().textureData().pDepthDSV);
+
+        contextData.immediateContext->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
 
     PipelineSkybox::getInstance().render();
@@ -134,9 +161,14 @@ void Prisma::PipelineForward::create() {
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = CULL_MODE_BACK;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
-    // clang-format on
 
+    if (m_settings.msaa) {
+        PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_sampleCount; // For 4x MSAA
+    }
+
+    // clang-format on
     ShaderCreateInfo ShaderCI;
+
 
     // Tell the system that the shader source code is in HLSL.
     // For OpenGL, the engine will convert this into GLSL under the hood.
@@ -395,7 +427,10 @@ void Prisma::PipelineForward::createAnimation()
     PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = CULL_MODE_BACK;
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
-    // clang-format on
+
+    if (m_settings.msaa) {
+        PSOCreateInfo.GraphicsPipeline.SmplDesc.Count = m_sampleCount;  // For 4x MSAA
+    }
 
     ShaderCreateInfo ShaderCI;
 
@@ -780,6 +815,59 @@ Diligent::LayoutElement LayoutElems[] =
 
     m_psoComposite->CreateShaderResourceBinding(&m_srbComposite, true);
 
+}
+
+void Prisma::PipelineForward::createMSAA() {
+    m_settings = Prisma::SettingsLoader::getInstance().getSettings();
+
+    if (m_settings.msaa) {
+        auto& contextData = PrismaFunc::getInstance().contextData();
+
+        const TextureFormatInfoExt& ColorFmtInfo = contextData.device->GetTextureFormatInfoExt(Prisma::PipelineHandler::getInstance().textureFormat());
+        const TextureFormatInfoExt& DepthFmtInfo = contextData.device->GetTextureFormatInfoExt(PrismaFunc::getInstance().renderFormat().DepthBufferFormat);
+
+        m_supportedSampleCounts = ColorFmtInfo.SampleCounts & DepthFmtInfo.SampleCounts;
+        if (m_supportedSampleCounts & SAMPLE_COUNT_4)
+            m_sampleCount = 4;
+        else if (m_supportedSampleCounts & SAMPLE_COUNT_2)
+            m_sampleCount = 2;
+
+        // Create window-size multi-sampled offscreen render target
+        TextureDesc ColorDesc;
+        ColorDesc.Name = "Multisampled render target";
+        ColorDesc.Type = RESOURCE_DIM_TEX_2D;
+        ColorDesc.BindFlags = BIND_RENDER_TARGET;
+        ColorDesc.Width = m_settings.width;
+        ColorDesc.Height = m_settings.height;
+        ColorDesc.MipLevels = 1;
+        ColorDesc.Format = Prisma::PipelineHandler::getInstance().textureFormat();
+
+        // Set the desired number of samples
+        ColorDesc.SampleCount = m_sampleCount;
+        // Define optimal clear value
+        ColorDesc.ClearValue.Format = Prisma::PipelineHandler::getInstance().textureFormat();
+        ColorDesc.ClearValue.Color[0] = 0.125f;
+        ColorDesc.ClearValue.Color[1] = 0.125f;
+        ColorDesc.ClearValue.Color[2] = 0.125f;
+        ColorDesc.ClearValue.Color[3] = 1.f;
+
+        contextData.device->CreateTexture(ColorDesc, nullptr, &m_msaaColor);
+
+        // Create window-size multi-sampled depth buffer
+        TextureDesc DepthDesc = ColorDesc;
+        DepthDesc.Name = "Multisampled depth buffer";
+        DepthDesc.Format = PrismaFunc::getInstance().renderFormat().DepthBufferFormat;
+        DepthDesc.BindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
+        // Define optimal clear value
+        DepthDesc.ClearValue.Format = DepthDesc.Format;
+        DepthDesc.ClearValue.DepthStencil.Depth = 1;
+        DepthDesc.ClearValue.DepthStencil.Stencil = 0;
+
+        contextData.device->CreateTexture(DepthDesc, nullptr, &m_msaaDepth);
+
+        m_depthResolve = std::make_unique<PipelineDepthResolve>(m_msaaDepth, m_sampleCount);
+    
+    }
 }
 
 void Prisma::PipelineForward::renderComposite() {

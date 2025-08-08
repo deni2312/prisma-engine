@@ -62,8 +62,6 @@ void Prisma::PipelineDeferredForward::render() {
 
     contextData.immediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    Prisma::ComponentsHandler::getInstance().updatePreRender(PipelineHandler::getInstance().textureData().pColorRTV, PipelineHandler::getInstance().textureData().pDepthDSV);
-
     // Set the pipeline state
     contextData.immediateContext->SetPipelineState(m_pso);
     // Commit shader resources. RESOURCE_STATE_TRANSITION_MODE_TRANSITION mode

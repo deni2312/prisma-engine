@@ -29,8 +29,6 @@ class InstancingGrassComponent : public RenderComponent {
 
     void mesh(std::shared_ptr<Prisma::Mesh> mesh);
 
-    void updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
-
     void updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) override;
 
     void destroy() override;

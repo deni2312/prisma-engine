@@ -11,6 +11,7 @@
 #include <memory>
 #include "PipelinePrePass.h"
 #include "PipelineForwardTransparent.h"
+#include "PipelineDepthResolve.h"
 
 namespace Prisma {
 class PipelineForward {
@@ -29,16 +30,9 @@ private:
     void create();
     void createAnimation();
     void createCompositePipeline();
-    /*std::shared_ptr<Shader> m_shader;
-    std::shared_ptr<Shader> m_shaderAnimate;
-    std::shared_ptr<Shader> m_shaderTransparent;
-    std::shared_ptr<FBO> m_fbo;
-    std::shared_ptr<FBO> m_fboCopy;
-    std::shared_ptr<PipelineFullScreen> m_fullscreenPipeline;
 
-    std::shared_ptr<PipelinePrePass> m_prepass;*/
-
-    Diligent::SAMPLE_COUNT m_SupportedSampleCounts;
+    Diligent::SAMPLE_COUNT m_supportedSampleCounts;
+    unsigned int m_sampleCount;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
 
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_psoComposite;
@@ -62,6 +56,16 @@ private:
     std::shared_ptr<Prisma::PipelineForwardTransparent> m_forwardTransparent;
 
     Diligent::RefCntAutoPtr<Diligent::ITexture> m_compositeTexture;
+
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_msaaColor;
+
+    Diligent::RefCntAutoPtr<Diligent::ITexture> m_msaaDepth;
+
+    void createMSAA();
+
+    std::unique_ptr<Prisma::PipelineDepthResolve> m_depthResolve;
+
+    Settings m_settings;
 
 };
 }

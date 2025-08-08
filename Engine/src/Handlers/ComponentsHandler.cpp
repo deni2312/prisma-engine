@@ -27,14 +27,6 @@ void Prisma::ComponentsHandler::updateComponents() {
     }
 }
 
-void Prisma::ComponentsHandler::updatePreRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
-    for (const auto& component : m_renderComponents) {
-        if (component && component->isStart()) {
-            component->updatePreRender(texture, depth);
-        }
-    }
-}
-
 void Prisma::ComponentsHandler::updatePostRender(Diligent::RefCntAutoPtr<Diligent::ITexture> texture, Diligent::RefCntAutoPtr<Diligent::ITexture> depth) {
     for (const auto& component : m_renderComponents) {
         if (component && component->isStart()) {

@@ -1,7 +1,8 @@
 {
-    "fullscreen": false,
-    "height": 1080,
-    "name": "Default",
-    "width": 1920,
-    "vsync": 0
+  "fullscreen": false,
+  "msaa": true,
+  "height": 1080,
+  "name": "Default",
+  "width": 1920,
+  "vsync": 0
 }
