@@ -12,12 +12,6 @@
 #include "SceneData/MeshIndirect.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
-//
-// static std::shared_ptr<Prisma::Shader> shader = nullptr;
-//
-// static std::shared_ptr<Prisma::Shader> shaderAnimation = nullptr;
-//
-// static std::shared_ptr<Prisma::SSBO> ssbo = nullptr;
 
 Prisma::PipelineCSM::PipelineCSM(unsigned int width, unsigned int height, bool post) : m_width{width}, m_height{height} {
     if (!post) {
