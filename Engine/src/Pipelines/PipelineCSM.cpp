@@ -32,31 +32,6 @@ void Prisma::PipelineCSM::update(glm::vec3 lightPos) {
     m_lightMatrices.sizeCSM = m_size - 1;
     m_lightMatrices.resolutionCSM = glm::vec2(m_width, m_height);
     CSMHandler::getInstance().render({m_depth, m_lightMatrices});
-    // if (ssbo)
-    //{
-    /*auto lightMatrices = getLightSpaceMatrices();
-
-    ssbo->modifyData(0, lightMatrices.size() * sizeof(glm::mat4), lightMatrices.data());
-
-    shader->use();
-
-    glViewport(0, 0, m_width, m_height);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glCullFace(GL_FRONT); // peter panning
-    MeshIndirect::getInstance().renderMeshesCopy();
-
-    shaderAnimation->use();
-
-    MeshIndirect::getInstance().renderAnimateMeshes();
-
-    glCullFace(GL_BACK);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, Prisma::SettingsLoader().getInstance().getSettings().width,
-            Prisma::SettingsLoader().getInstance().getSettings().height);
-    // don't forget to configure the viewport to the capture dimensions.*/
-    //}
 }
 
 std::vector<glm::vec4> Prisma::PipelineCSM::getFrustumCornersWorldSpace(const glm::mat4& projview) {
@@ -154,50 +129,6 @@ void Prisma::PipelineCSM::farPlane(float farPlane) {
 }
 
 void Prisma::PipelineCSM::init() {
-    /*m_settings = SettingsLoader::getInstance().getSettings();
-
-    if (!shader)
-    {
-            shader = std::make_shared<Shader>("../../../Engine/Shaders/CSMPipeline/vertex.glsl",
-                    "../../../Engine/Shaders/CSMPipeline/fragment.glsl",
-                    "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
-            shaderAnimation = std::make_shared<Shader>("../../../Engine/Shaders/AnimationPipeline/vertex_CSM.glsl",
-                    "../../../Engine/Shaders/CSMPipeline/fragment.glsl",
-                    "../../../Engine/Shaders/CSMPipeline/geometry.glsl");
-            ssbo = std::make_shared<SSBO>(10);
-            ssbo->resize(sizeof(glm::mat4) * 16);
-    }
-
-    m_shadowCascadeLevels = { m_farPlane / 50.0f, m_farPlane / 25.0f, m_farPlane / 10.0f, m_farPlane / 2.0f };
-
-    glGenFramebuffers(1, &m_fbo);
-
-    unsigned int lightDepthMaps;
-
-    glGenTextures(1, &lightDepthMaps);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, lightDepthMaps);
-
-
-    glTexImage3D(
-            GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, m_width, m_height,
-            static_cast<int>(m_shadowCascadeLevels.size()) + 1,
-            0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-    constexpr float bordercolor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, bordercolor);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, lightDepthMaps, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    m_id = glGetTextureHandleARB(lightDepthMaps);
-    glMakeTextureHandleResidentARB(m_id);*/
     if (!m_init) {
         auto& contextData = PrismaFunc::getInstance().contextData();
         farPlane(m_farPlane);
