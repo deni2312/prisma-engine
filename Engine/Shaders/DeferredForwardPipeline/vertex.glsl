@@ -77,11 +77,14 @@ int currentId=gl_DrawIDARB;
             totalPosition = vec4(inPos, 1.0f);
             break;
         }
-        vec4 localPosition = modelAnimations[currentId].animations[boneIds[i]] * vec4(inPos, 1.0f);
-        totalPosition += localPosition * weights[i];
-        localNormal = mat3(modelAnimations[currentId].animations[boneIds[i]]) * inNormal;
-        localTangent = mat3(modelAnimations[currentId].animations[boneIds[i]]) * inTangent;
-        localBitangent = mat3(modelAnimations[currentId].animations[boneIds[i]]) * inBitangent;
+
+        mat4 boneTransform = modelAnimations[currentId].animations[boneIds[i]];
+        mat3 boneRotation = mat3(boneTransform); // Extract rotation/scale part
+
+        totalPosition += boneTransform * vec4(inPos, 1.0) * weights[i];
+        localNormal += boneRotation * inNormal * weights[i];
+        localTangent += boneRotation * inTangent * weights[i];
+        localBitangent += boneRotation * inBitangent * weights[i];
     }
 
     mat4 modelMatrix = modelsData[currentId].model;
