@@ -233,7 +233,7 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
 	m_numSprites = numSprites;
 	//m_ssbo->resize(sizeof(glm::mat4) * m_numSprites);
 	//m_ssboIds->resize(sizeof(glm::ivec4) * m_numSprites);
-	std::vector<glm::mat4> spriteModels;
+	std::vector<SpriteData> spriteModels;
     std::vector<glm::ivec4> spriteIndices;
 	spriteModels.resize(m_numSprites);
     spriteIndices.resize(m_numSprites);
@@ -241,7 +241,8 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     glm::ivec4 defaultIndices(0.0f);
 	for (int i = 0; i < m_numSprites; i++)
 	{
-		spriteModels[i] = defaultData;
+		spriteModels[i].model = defaultData;
+        spriteModels[i].color = glm::vec4(1);
         spriteIndices[i] = defaultIndices;
 	}
 	//m_ssbo->modifyData(0, sizeof(glm::mat4) * m_numSprites, spriteModels.data());
