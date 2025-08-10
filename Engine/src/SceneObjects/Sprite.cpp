@@ -255,8 +255,8 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     ModelDesc.Usage = Diligent::USAGE_DEFAULT;
     ModelDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
     ModelDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    ModelDesc.ElementByteStride = sizeof(glm::mat4);
-    ModelDesc.Size = sizeof(glm::mat4)*m_numSprites;
+    ModelDesc.ElementByteStride = sizeof(SpriteData);
+    ModelDesc.Size = sizeof(SpriteData)*m_numSprites;
 	Diligent::BufferData modelData;
     modelData.DataSize = ModelDesc.Size;
     modelData.pData = spriteModels.data();

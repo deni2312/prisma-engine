@@ -1,6 +1,11 @@
+struct Data{
+    mat4 model;
+    vec4 color;
+};
+
 readonly buffer SpritesData
 {
-    mat4 modelSprite[]; 
+    Data modelSprite[]; 
 };
 
 layout(location = 0) in vec3 aPos;
@@ -8,6 +13,7 @@ layout(location = 1) in vec2 aTexCoords;
 
 layout(location = 0) out vec2 TexCoords;
 layout(location = 1) flat out int drawId;
+layout(location = 2) flat out vec4 color;
 
 uniform ViewProjection
 {
@@ -30,7 +36,7 @@ void main()
     vec3 CameraUp_worldspace = vec3(view[0][1], view[1][1], view[2][1]);
 
     // Calculate the center position of the particle or sprite in world space
-    vec3 particleCenter_worldspace = vec3(model * modelSprite[gl_InstanceIndex][3]);
+    vec3 particleCenter_worldspace = vec3(model * modelSprite[gl_InstanceIndex].model[3]);
 
     drawId = gl_InstanceIndex;
 
@@ -41,6 +47,8 @@ void main()
 
     // Set the texture coordinates for the fragment shader
     TexCoords = aTexCoords;
+
+    color=modelSprite[gl_InstanceIndex].color;
 
     // Project the vertex position to clip space
     gl_Position = projection * view * vec4(vertexPosition_worldspace, 1.0);

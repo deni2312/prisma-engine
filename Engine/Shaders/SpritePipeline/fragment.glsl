@@ -5,6 +5,7 @@ out vec4 FragColor;
 
 layout(location = 0) in vec2 TexCoords;
 layout(location = 1) flat in int drawId;
+layout(location = 2) flat in vec4 color;
 
 uniform sampler textureClamp_sampler;
 
@@ -21,5 +22,5 @@ void main()
     if (spriteTexture.a < 0.1) {
         discard;
     }
-    FragColor = spriteTexture;
+    FragColor = spriteTexture*color;
 }

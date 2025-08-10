@@ -1,9 +1,13 @@
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-// Buffer containing model matrices for each sprite
+struct Data{
+    mat4 model;
+    vec4 color;
+};
+
 buffer SpritesData
 {
-    mat4 modelSprite[]; 
+    Data modelSprite[]; 
 };
 
 uniform TimeData {
@@ -132,16 +136,13 @@ vec3 effect_metablob(vec2 base, float time)
     return vec3(x, y, z);
 }
 
-// --------------------------------
-// Main Shader Execution
-// --------------------------------
 void main()
 {
     uint idx = gl_GlobalInvocationID.x;
 
     if (idx >= modelSprite.length()) return; // safety
 
-    mat4 model = modelSprite[idx];
+    mat4 model = modelSprite[idx].model;
 
     float gridSize = ceil(sqrt(float(numParticles)));
     float halfGrid = gridSize * 0.5;
@@ -162,7 +163,8 @@ void main()
 
     model = translationMatrix * rotationMatrix;
 
-    modelSprite[idx] = model;
+    modelSprite[idx].model = model;
+    modelSprite[idx].color = vec4(1);
     omniData_data[idx].position = model[3];
 
     int idSprite = 0;
