@@ -136,6 +136,27 @@ vec3 effect_metablob(vec2 base, float time)
     return vec3(x, y, z);
 }
 
+vec3 effect_tornado(vec2 base, float time)
+{
+    float dist = length(base) + 0.1;          // prevent division by zero
+    float height = time * 5.0 + dist * 2.0;   // upward movement
+    float swirlSpeed = 4.0 / dist;            // faster swirl near center
+    float angle = atan(base.y, base.x) + time * swirlSpeed;
+
+    // radius decreases with height for a funnel shape
+    float radius = 1;
+
+    // Add a bit of random horizontal sway
+    float sway = sin(time * 2.0 + dist * 5.0) * 0.2;
+    float x = (radius + sway) * cos(angle);
+    float z = (radius + sway) * sin(angle);
+
+    // Height cycles upward endlessly
+    float y = mod(height, 30.0); // keeps looping
+
+    return vec3(x, y, z);
+}
+
 void main()
 {
     uint idx = gl_GlobalInvocationID.x;
@@ -154,7 +175,7 @@ void main()
     vec2 base = vec2(baseX, baseZ);
 
     // --- Pick the effect ---
-    vec3 finalPos = effect_wavy_noise(base, time); // <<< just call different functions here
+    vec3 finalPos = effect_tornado(base, time); // <<< just call different functions here
 
     mat4 translationMatrix = mat4(1.0);
     translationMatrix[3] = vec4(finalPos, 1.0);
