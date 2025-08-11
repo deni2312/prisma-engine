@@ -66,10 +66,10 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
     }
 
     m_interpolator.timeframe(timeframes);
+    m_particleController.init(m_scene->root);
 
 
     if (m_numScene == 0) {
-        m_particleController.init(m_scene->root);
 
         auto grass1Renderer = std::make_shared<Prisma::Node>();
 
@@ -272,8 +272,9 @@ void PlayerController::scene(std::shared_ptr<Prisma::Scene> scene) {
 }
 
 void PlayerController::update() {
+    m_particleController.update();    
     if (m_numScene == 0) {
-        m_particleController.update();    
+        
     }
     target(m_animatedMesh->parent()->finalMatrix()[3]);
     updateCamera();

@@ -5,6 +5,9 @@
 
 
 layout(location = 1) out float reveal;
+
+layout(location = 4) in mat3 outTBN;
+
 void main()
 {
     vec4 diffuse = texture(sampler2D(diffuseTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
@@ -18,7 +21,11 @@ void main()
     //tangentNormal = tangentNormal * 2.0 - 1.0;
 
     // Transform from tangent space to world space
-    vec3 worldNormal = getNormalFromMap();
+    vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
+
+    tangentNormal.y=1-tangentNormal.y;
+
+    vec3 worldNormal = normalize(outTBN*normalize(tangentNormal * 2.0 - 1.0));
 
     vec4 rm = texture(sampler2D(rmTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv);
 

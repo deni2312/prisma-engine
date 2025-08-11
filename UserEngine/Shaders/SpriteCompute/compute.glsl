@@ -17,9 +17,16 @@ uniform TimeData {
     float padding;
 };
 
+struct SpriteIdsData{
+    int id;
+    int maxSize;
+    ivec2 padding;
+};
+
+
 buffer SpriteIds
 {
-    ivec4 spriteId[];
+    SpriteIdsData spriteId[];
 };
 
 struct OmniData
@@ -175,7 +182,7 @@ void main()
     vec2 base = vec2(baseX, baseZ);
 
     // --- Pick the effect ---
-    vec3 finalPos = effect_tornado(base, time); // <<< just call different functions here
+    vec3 finalPos = effect_wavy_noise(base, time); // <<< just call different functions here
 
     mat4 translationMatrix = mat4(1.0);
     translationMatrix[3] = vec4(finalPos, 1.0);
@@ -185,9 +192,11 @@ void main()
     model = translationMatrix * rotationMatrix;
 
     modelSprite[idx].model = model;
-    modelSprite[idx].color = vec4(1);
+    modelSprite[idx].color = vec4(8);
     omniData_data[idx].position = model[3];
 
     int idSprite = 0;
-    spriteId[idx].r = idSprite;
+    int maxSize=1;
+    spriteId[idx].id = idSprite;
+    spriteId[idx].maxSize = maxSize;
 }

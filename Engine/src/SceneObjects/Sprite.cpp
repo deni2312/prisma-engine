@@ -195,8 +195,8 @@ Prisma::Sprite::Sprite() {
     SpriteDesc.Usage = Diligent::USAGE_DEFAULT;
     SpriteDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE| Diligent::BIND_UNORDERED_ACCESS;
     SpriteDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    SpriteDesc.ElementByteStride = sizeof(glm::ivec4);
-    SpriteDesc.Size = sizeof(glm::ivec4);
+    SpriteDesc.ElementByteStride = sizeof(SpriteIds);
+    SpriteDesc.Size = sizeof(SpriteIds);
     contextData.device->CreateBuffer(SpriteDesc, nullptr, &m_spriteIds);
 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, "SpritesData")->Set(m_models->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
@@ -234,16 +234,18 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
 	//m_ssbo->resize(sizeof(glm::mat4) * m_numSprites);
 	//m_ssboIds->resize(sizeof(glm::ivec4) * m_numSprites);
 	std::vector<SpriteData> spriteModels;
-    std::vector<glm::ivec4> spriteIndices;
+    std::vector<SpriteIds> spriteIndices;
 	spriteModels.resize(m_numSprites);
     spriteIndices.resize(m_numSprites);
 	glm::mat4 defaultData(1.0f);
-    glm::ivec4 defaultIndices(0.0f);
+    int defaultIndices=0;
+    int defaultMax=1;
 	for (int i = 0; i < m_numSprites; i++)
 	{
 		spriteModels[i].model = defaultData;
         spriteModels[i].color = glm::vec4(1);
-        spriteIndices[i] = defaultIndices;
+        spriteIndices[i].id = defaultIndices;
+        spriteIndices[i].maxSprites = defaultMax;
 	}
 	//m_ssbo->modifyData(0, sizeof(glm::mat4) * m_numSprites, spriteModels.data());
     m_models.Release();

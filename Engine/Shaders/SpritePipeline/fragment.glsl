@@ -11,14 +11,20 @@ uniform sampler textureClamp_sampler;
 
 uniform texture2D spriteTextures[];
 
+struct SpriteIdsData{
+    int id;
+    int maxSize;
+    ivec2 padding;
+};
+
 readonly buffer SpriteIds
 {
-    ivec4 spriteId[];
+    SpriteIdsData spriteId[];
 };
 
 void main()
 {
-    vec4 spriteTexture = texture(sampler2D(spriteTextures[nonuniformEXT(spriteId[drawId].r)],textureClamp_sampler), TexCoords);
+    vec4 spriteTexture = texture(sampler2D(spriteTextures[nonuniformEXT(spriteId[drawId].id)],textureClamp_sampler), TexCoords);
     if (spriteTexture.a < 0.1) {
         discard;
     }

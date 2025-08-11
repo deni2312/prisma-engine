@@ -37,6 +37,12 @@ private:
         glm::vec4 color=glm::vec4(1);
     };
 
+    struct SpriteIds {
+        int id;
+        int maxSprites;
+        glm::ivec2 padding;
+    };
+
     unsigned int m_numSprites = 0;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> m_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> m_srb;
