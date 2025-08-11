@@ -14,6 +14,7 @@ layout(location = 1) in vec2 aTexCoords;
 layout(location = 0) out vec2 TexCoords;
 layout(location = 1) flat out int drawId;
 layout(location = 2) flat out vec4 color;
+layout(location = 3) flat out float timeData;
 
 uniform ViewProjection
 {
@@ -26,7 +27,8 @@ uniform ModelSizes
 {
     mat4 model;
     vec2 billboardSize;
-    vec2 padding;
+    float time;
+    float padding;
 };
 
 void main()
@@ -49,7 +51,7 @@ void main()
     TexCoords = aTexCoords;
 
     color=modelSprite[gl_InstanceIndex].color;
-
+    timeData=time;
     // Project the vertex position to clip space
     gl_Position = projection * view * vec4(vertexPosition_worldspace, 1.0);
 }

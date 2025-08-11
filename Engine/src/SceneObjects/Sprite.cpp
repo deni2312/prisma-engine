@@ -246,6 +246,8 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
         spriteModels[i].color = glm::vec4(1);
         spriteIndices[i].id = defaultIndices;
         spriteIndices[i].maxSprites = defaultMax;
+        spriteIndices[i].width=1;
+        spriteIndices[i].height=1;
 	}
 	//m_ssbo->modifyData(0, sizeof(glm::mat4) * m_numSprites, spriteModels.data());
     m_models.Release();
@@ -287,6 +289,7 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "SpriteIds")->Set(m_spriteIds->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "spriteTextures")->SetArray(m_sprites.data(), 0, m_sprites.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+    m_counter.start();
 }
 
 void Prisma::Sprite::size(glm::vec2 size)
@@ -319,6 +322,7 @@ void Prisma::Sprite::render()
         Diligent::MapHelper<ModelSizes> modelSizes(contextData.immediateContext, m_modelSizes, Diligent::MAP_WRITE, Diligent::MAP_FLAG_DISCARD);
         modelSizes->model = finalMatrix();
         modelSizes->size = m_size;
+        modelSizes->time=m_counter.duration_seconds();
 
         auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 

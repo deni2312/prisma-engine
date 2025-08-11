@@ -6,6 +6,7 @@
 #include "Containers/Texture.h"
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "Graphics/GraphicsEngine/interface/RenderDevice.h"
+#include "Helpers/TimeCounter.h"
 
 namespace Diligent {
 struct IPipelineResourceSignature;
@@ -29,7 +30,8 @@ private:
     struct ModelSizes {
         glm::mat4 model;
         glm::vec2 size;
-        glm::vec2 padding;
+        float time;
+        float padding;
     };
 
     struct SpriteData {
@@ -40,7 +42,8 @@ private:
     struct SpriteIds {
         int id;
         int maxSprites;
-        glm::ivec2 padding;
+        int width;
+        int height;
     };
 
     unsigned int m_numSprites = 0;
@@ -55,5 +58,7 @@ private:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_modelSizes;
 
     glm::vec2 m_size = glm::vec2(1);
+
+    Prisma::TimeCounter m_counter;
 };
 }

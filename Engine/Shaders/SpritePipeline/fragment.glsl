@@ -6,6 +6,7 @@ out vec4 FragColor;
 layout(location = 0) in vec2 TexCoords;
 layout(location = 1) flat in int drawId;
 layout(location = 2) flat in vec4 color;
+layout(location = 3) flat in float timeData;
 
 uniform sampler textureClamp_sampler;
 
@@ -14,7 +15,8 @@ uniform texture2D spriteTextures[];
 struct SpriteIdsData{
     int id;
     int maxSize;
-    ivec2 padding;
+    int width;
+    int height;
 };
 
 readonly buffer SpriteIds

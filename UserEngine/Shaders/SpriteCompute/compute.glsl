@@ -20,7 +20,8 @@ uniform TimeData {
 struct SpriteIdsData{
     int id;
     int maxSize;
-    ivec2 padding;
+    int width;
+    int height;
 };
 
 
