@@ -239,13 +239,11 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
     spriteIndices.resize(m_numSprites);
 	glm::mat4 defaultData(1.0f);
     int defaultIndices=0;
-    int defaultMax=1;
 	for (int i = 0; i < m_numSprites; i++)
 	{
 		spriteModels[i].model = defaultData;
         spriteModels[i].color = glm::vec4(1);
         spriteIndices[i].id = defaultIndices;
-        spriteIndices[i].maxSprites = defaultMax;
         spriteIndices[i].width=1;
         spriteIndices[i].height=1;
 	}

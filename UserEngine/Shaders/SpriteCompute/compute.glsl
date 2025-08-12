@@ -19,9 +19,9 @@ uniform TimeData {
 
 struct SpriteIdsData{
     int id;
-    int maxSize;
     int width;
     int height;
+    int speed;
 };
 
 
@@ -197,7 +197,8 @@ void main()
     omniData_data[idx].position = model[3];
 
     int idSprite = 0;
-    int maxSize=1;
     spriteId[idx].id = idSprite;
-    spriteId[idx].maxSize = maxSize;
+    spriteId[idx].width = 5;
+    spriteId[idx].height = 5;
+    spriteId[idx].speed = 10;
 }

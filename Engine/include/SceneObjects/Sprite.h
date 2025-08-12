@@ -41,9 +41,9 @@ private:
 
     struct SpriteIds {
         int id;
-        int maxSprites;
         int width;
         int height;
+        int speed;
     };
 
     unsigned int m_numSprites = 0;
