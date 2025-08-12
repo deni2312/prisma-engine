@@ -16,7 +16,7 @@ public:
 
     static std::shared_ptr<Node> createDirectional();
 
-    static std::shared_ptr<Node> createArea();
+    static std::shared_ptr<Node> createSpot();
 
     static std::shared_ptr<Node> createNode();
 

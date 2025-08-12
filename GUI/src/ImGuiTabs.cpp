@@ -48,7 +48,7 @@ void Prisma::GUI::ImGuiTabs::dispatch(std::shared_ptr<Node> node, glm::vec2 size
                 Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(size.x, size.y));
     } else if (std::dynamic_pointer_cast<Light<LightType::LightOmni>>(node) || std::dynamic_pointer_cast<Light<
                    LightType::LightDir>>(node) || std::dynamic_pointer_cast<Light<
-                   LightType::LightArea>>(node)) {
+                   LightType::LightSpot>>(node)) {
         ImGui::Image(
             m_lightTexture->texture()->GetDefaultView(
                 Diligent::TEXTURE_VIEW_TYPE::TEXTURE_VIEW_SHADER_RESOURCE), ImVec2(size.x, size.y));

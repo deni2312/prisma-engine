@@ -15,20 +15,20 @@ class LightHandler : public InstanceData<LightHandler> {
         std::vector<LightType::LightOmni> lights;
     };
 
-    struct SSBODataArea {
-        std::vector<LightType::LightArea> lights;
+    struct SSBODataSpot {
+        std::vector<LightType::LightSpot> lights;
     };
 
     struct LightSizes {
         int omni = 0;
         int dir = 0;
-        int area = 0;
+        int spot = 0;
         int padding = 0;
     };
 
     std::shared_ptr<SSBODataDirectional> m_dataDirectional;
     std::shared_ptr<SSBODataOmni> m_dataOmni;
-    std::shared_ptr<SSBODataArea> m_dataArea;
+    std::shared_ptr<SSBODataSpot> m_dataSpot;
 
 
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_omniLights;
@@ -37,11 +37,13 @@ class LightHandler : public InstanceData<LightHandler> {
 
     Diligent::RefCntAutoPtr<Diligent::IBuffer> m_lightSizes;
 
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> m_spotLights;
+
     LightSizes m_sizes;
 
     void updateDirectional();
 
-    void updateArea();
+    void updateSpot();
 
     void updateOmni();
 
@@ -76,7 +78,7 @@ public:
 
     void update();
     Diligent::RefCntAutoPtr<Diligent::IBuffer> lightSizes() const;
-    std::shared_ptr<SSBODataArea> dataArea() const;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> spotLights();
 
     Diligent::RefCntAutoPtr<Diligent::IBuffer> omniLights();
     Diligent::RefCntAutoPtr<Diligent::IBuffer> dirLights() const;

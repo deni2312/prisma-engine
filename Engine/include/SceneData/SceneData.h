@@ -15,7 +15,7 @@ class Light;
 namespace LightType {
 struct LightDir;
 struct LightOmni;
-struct LightArea;
+struct LightSpot;
 }
 
 struct SceneHandler {
@@ -43,7 +43,7 @@ struct Scene {
     std::vector<std::shared_ptr<AnimatedMesh>> animateMeshes;
     std::vector<std::shared_ptr<Light<LightType::LightDir>>> dirLights;
     std::vector<std::shared_ptr<Light<LightType::LightOmni>>> omniLights;
-    std::vector<std::shared_ptr<Light<LightType::LightArea>>> areaLights;
+    std::vector<std::shared_ptr<Light<LightType::LightSpot>>> spotLights;
     std::vector<std::shared_ptr<Sprite>> sprites;
     std::string name;
 };

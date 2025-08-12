@@ -211,7 +211,7 @@ void Prisma::GUI::ImguiDebug::drawGui() {
             addRow("Animate Meshes:", "%zu", GlobalData::getInstance().currentGlobalScene()->animateMeshes.size());
             addRow("Omni Lights:", "%zu", GlobalData::getInstance().currentGlobalScene()->omniLights.size());
             addRow("Dir Lights:", "%zu", GlobalData::getInstance().currentGlobalScene()->dirLights.size());
-            addRow("Area Lights:", "%zu", GlobalData::getInstance().currentGlobalScene()->areaLights.size());
+            addRow("Spot Lights:", "%zu", GlobalData::getInstance().currentGlobalScene()->spotLights.size());
             addRow("Input Vertices:", "%d", query.PipelineStats.InputVertices);
             addRow("Input Primitives:", "%d", query.PipelineStats.InputPrimitives);
             addRow("VS Invocations:", "%d", query.PipelineStats.VSInvocations);
@@ -290,8 +290,7 @@ void Prisma::GUI::ImguiDebug::drawGui() {
                 m_imguiCamera.currentSelect());
             auto currentSelectLightOmni = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(
                 m_imguiCamera.currentSelect());
-            auto currentSelectLightArea = std::dynamic_pointer_cast<Light<LightType::LightArea>>(
-                m_imguiCamera.currentSelect());
+            auto currentSelectLightSpot = std::dynamic_pointer_cast<Light<LightType::LightSpot>>(m_imguiCamera.currentSelect());
             NodeViewer::NodeData nodeData;
             nodeData.camera = m_camera;
             nodeData.projection = m_model * m_projection;
@@ -306,10 +305,11 @@ void Prisma::GUI::ImguiDebug::drawGui() {
                 meshInfo.showSelected(nodeData);
             } else if (currentSelectLightDir) {
                 lightInfo.showSelectedDir(currentSelectLightDir, nodeData);
-            } else if (currentSelectLightOmni) {
+            } 
+            else if (currentSelectLightOmni) {
                 lightInfo.showSelectedOmni(currentSelectLightOmni, nodeData);
-            } else if (currentSelectLightArea) {
-                lightInfo.showSelectedArea(currentSelectLightArea, nodeData);
+            } else if (currentSelectLightSpot) {
+                lightInfo.showSelectedSpot(currentSelectLightSpot, nodeData);
             } else {
                 NodeViewer::getInstance().showSelected(nodeData);
             }

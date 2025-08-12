@@ -14,10 +14,9 @@ public:
                          const NodeViewer::NodeData& meshData);
     void showSelectedOmni(std::shared_ptr<Light<LightType::LightOmni>> lightData,
                           const NodeViewer::NodeData& meshData);
-    void showSelectedArea(std::shared_ptr<Light<LightType::LightArea>> lightData,
-                          const NodeViewer::NodeData& meshData);
+    void showSelectedSpot(std::shared_ptr<Light<LightType::LightSpot>> lightData, const NodeViewer::NodeData& meshData);
 
-private:
+   private:
     glm::vec3 directionToEulerAngles(const glm::vec3& direction);
 };
 }

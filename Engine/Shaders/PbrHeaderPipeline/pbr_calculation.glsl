@@ -91,7 +91,7 @@ uniform LightSizes
 {
     int omniSize;
     int dirSize;
-    int areaSize;
+    int spotSize;
     int padding;
 };
 
@@ -102,6 +102,16 @@ struct Cluster
     uint count;
     uint lightIndices[MAX_CLUSTER_SIZE];
 };
+struct SpotData {
+    vec4 direction;
+    vec4 diffuse;
+    vec4 specular;
+    vec4 position;
+    float innerCutoff;
+    float outerCutoff;
+    vec2 padding;
+};
+
 
 readonly buffer omniData{
     OmniData omniData_data[];
@@ -109,6 +119,10 @@ readonly buffer omniData{
 
 readonly buffer dirData{
     DirectionalData dirData_data[];
+};
+
+readonly buffer spotData{
+    SpotData spotData_data[];
 };
 
 readonly buffer clusters{
@@ -348,6 +362,51 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
         else {
             Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1 - ShadowCalculationDirectional(FragPos, L, N, i));
         }
+    }
+
+    for (int i = 0; i < spotSize; i++) {
+        vec3 lightPos = vec3(spotData_data[i].position);
+        vec3 lightDir = normalize(vec3(spotData_data[i].direction));
+        vec3 toFrag = FragPos - lightPos;
+        float distanceToLight = length(toFrag);
+        vec3 L = normalize(-toFrag); // from frag to light
+
+        // Spotlight cone factor
+        float theta = dot(L, normalize(-lightDir));
+        float innerCutoff = cos(radians(spotData_data[i].innerCutoff)); // inner cone
+        float outerCutoff = cos(radians(spotData_data[i].outerCutoff)); // outer cone
+        float epsilon = innerCutoff - outerCutoff;
+        float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
+
+        if (intensity > 0.0) {
+            vec3 H = normalize(V + L);
+
+            // PBR terms
+            float NDF = DistributionGGX(N, H, roughness);
+            float G = GeometrySmith(N, V, L, roughness);
+            vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+            vec3 numerator = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+            vec3 specular = numerator / denominator;
+
+            vec3 kS = F * specularMap;
+            vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
+
+            // Attenuation
+            float attenuation = 1.0 / (1.0 + 0.09 * distanceToLight + 0.032 * distanceToLight * distanceToLight);
+            attenuation *= clamp(1.0 - distanceToLight / 50.0, 0.0, 1.0);
+
+            vec3 radiance = vec3(spotData_data[i].diffuse);
+
+            // Shadow check (optional)
+            float shadow = 0.0;
+            // shadow = SpotShadowCalculation(...); // If implemented
+
+            float NdotL = max(dot(N, L), 0.0);
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL * attenuation * intensity * (1.0 - shadow);
+        }
+
     }
 
     vec3 fragViewPos = vec3(view * vec4(FragPos, 1.0));

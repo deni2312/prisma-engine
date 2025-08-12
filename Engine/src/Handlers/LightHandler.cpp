@@ -31,6 +31,15 @@ Prisma::LightHandler::LightHandler() {
     DirDesc.Size = Define::MAX_DIR_LIGHTS * sizeof(LightType::LightDir);
     contextData.device->CreateBuffer(DirDesc, nullptr, &m_dirLights);
 
+    Diligent::BufferDesc SpotDesc;
+    SpotDesc.Name = "Spot Light Buffer";
+    SpotDesc.Usage = Diligent::USAGE_DEFAULT;
+    SpotDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
+    SpotDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
+    SpotDesc.ElementByteStride = sizeof(LightType::LightSpot);
+    SpotDesc.Size = Define::MAX_SPOT_LIGHTS * sizeof(LightType::LightSpot);
+    contextData.device->CreateBuffer(SpotDesc, nullptr, &m_spotLights);
+
     Diligent::BufferDesc LightSizeDesc;
     LightSizeDesc.Name = "Light sizes";
     LightSizeDesc.Usage = Diligent::USAGE_DEFAULT;
@@ -53,12 +62,12 @@ void Prisma::LightHandler::updateDirectional() {
             m_dataDirectional->lights.push_back(scene->dirLights[i]->type());
             const auto& dirMatrix = scene->dirLights[i]->finalMatrix();
             auto shadow = std::dynamic_pointer_cast<PipelineCSM>(light->shadow());
-            const auto& dirMult = normalize(dirMatrix * m_dataDirectional->lights[i].direction);
-            m_dataDirectional->lights[i].diffuse =
-                m_dataDirectional->lights[i].diffuse * light->intensity();
-            m_dataDirectional->lights[i].direction = dirMult;
-            m_dataDirectional->lights[i].hasShadow = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
-            m_dataDirectional->lights[i].bias = shadow->bias();
+            const auto& dirMult = normalize(dirMatrix * m_dataDirectional->lights[numVisible].direction);
+            m_dataDirectional->lights[numVisible].diffuse =
+                m_dataDirectional->lights[numVisible].diffuse * light->intensity();
+            m_dataDirectional->lights[numVisible].direction = dirMult;
+            m_dataDirectional->lights[numVisible].hasShadow = scene->dirLights[i]->hasShadow() ? 2.0f : 0.0f;
+            m_dataDirectional->lights[numVisible].bias = shadow->bias();
             numVisible++;
         }
     }
@@ -72,34 +81,28 @@ void Prisma::LightHandler::updateDirectional() {
     }
 }
 
-void Prisma::LightHandler::updateArea() {
+void Prisma::LightHandler::updateSpot() {
     const auto& scene = GlobalData::getInstance().currentGlobalScene();
 
-    m_dataArea = std::make_shared<SSBODataArea>();
+    m_dataSpot = std::make_shared<SSBODataSpot>();
     int numVisible = 0;
-    for (int i = 0; i < scene->areaLights.size(); i++) {
-        const auto& light = scene->areaLights[i];
+    for (int i = 0; i < scene->spotLights.size(); i++) {
+        const auto& light = scene->spotLights[i];
         if (light->visible()) {
-            m_dataArea->lights.push_back(light->type());
-            glm::mat4 areaMatrix;
-            if (light->parent()) {
-                areaMatrix = light->parent()->finalMatrix();
-            } else {
-                areaMatrix = light->matrix();
-            }
-            for (int j = 0; j < 4; j++) {
-                m_dataArea->lights[i].position[j] = areaMatrix * m_dataArea->lights[i].position[j];
-            }
-            m_dataArea->lights[i].diffuse = m_dataArea->lights[i].diffuse * light->intensity();
+            m_dataSpot->lights.push_back(light->type());
 
+            m_dataSpot->lights[numVisible].diffuse = m_dataSpot->lights[numVisible].diffuse * light->intensity();
+            m_dataSpot->lights[numVisible].position = glm::translate(glm::mat4(1), glm::vec3(scene->spotLights[i]->finalMatrix()[3])) * glm::vec4(glm::vec3(m_dataSpot->lights[numVisible].position),1);
+            m_dataSpot->lights[numVisible].direction = glm::normalize(glm::mat4(glm::mat3(scene->spotLights[i]->finalMatrix())) * glm::vec4(glm::vec3(m_dataSpot->lights[numVisible].direction),1));
             numVisible++;
         }
     }
+    m_sizes.spot = numVisible;
 
-    glm::ivec4 areaLength;
-    areaLength.r = numVisible;
-    //m_areaLights->modifyData(0, sizeof(glm::vec4),value_ptr(areaLength));
-    //m_areaLights->modifyData(sizeof(glm::vec4), numVisible * sizeof(LightType::LightArea),m_dataArea->lights.data());
+    if (!m_dataSpot->lights.empty()) {
+        auto& contextData = PrismaFunc::getInstance().contextData();
+        contextData.immediateContext->UpdateBuffer(m_spotLights, 0, numVisible * sizeof(LightType::LightSpot), m_dataSpot->lights.data(), Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    }
 }
 
 void Prisma::LightHandler::updateOmni() {
@@ -121,18 +124,18 @@ void Prisma::LightHandler::updateOmni() {
                 } else {
                     omniMatrix = light->matrix();
                 }
-                m_dataOmni->lights[i].position = omniMatrix * m_dataOmni->lights[i].position;
+                m_dataOmni->lights[numVisible].position = omniMatrix * m_dataOmni->lights[numVisible].position;
                 if (light->shadow() && light->hasShadow()) {
-                    light->shadow()->update(m_dataOmni->lights[i].position);
-                    m_dataOmni->lights[i].farPlane.x = light->shadow()->farPlane();
-                    m_dataOmni->lights[i].shadowIndex = numShadow;
+                    light->shadow()->update(m_dataOmni->lights[numVisible].position);
+                    m_dataOmni->lights[numVisible].farPlane.x = light->shadow()->farPlane();
+                    m_dataOmni->lights[numVisible].shadowIndex = numShadow;
                     m_omniData.push_back(
                         light->shadow()->shadowTexture()->GetDefaultView(
                             Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
                     numShadow++;
                 }
-                m_dataOmni->lights[i].hasShadow = light->hasShadow() ? 2.0f : 0.0f;
-                m_dataOmni->lights[i].diffuse = m_dataOmni->lights[i].diffuse * light->intensity();
+                m_dataOmni->lights[numVisible].hasShadow = light->hasShadow() ? 2.0f : 0.0f;
+                m_dataOmni->lights[numVisible].diffuse = m_dataOmni->lights[numVisible].diffuse * light->intensity();
                 numVisible++;
             }
         }
@@ -218,11 +221,13 @@ void Prisma::LightHandler::update() {
     if (m_init || CacheScene::getInstance().updateData() || CacheScene::getInstance().updateSizes() ||
         CacheScene::getInstance().updateLights() || CacheScene::getInstance().updateStatus() ||
         CacheScene::getInstance().updateSizeLights() || CacheScene::getInstance().updateShadows()) {
+        
+        
         if (scene->dirLights.size() < Define::MAX_DIR_LIGHTS && scene->omniLights.size() <
-            Define::MAX_OMNI_LIGHTS && scene->areaLights.size() < Define::MAX_AREA_LIGHTS) {
+            Define::MAX_OMNI_LIGHTS && scene->spotLights.size() < Define::MAX_SPOT_LIGHTS) {
             updateDirectional();
             updateOmni();
-            updateArea();
+            updateSpot();
             updateSizes();
         } else {
             Logger::getInstance().log(LogLevel::ERRORS, "Too many lights");
@@ -243,15 +248,12 @@ void Prisma::LightHandler::update() {
 }
 
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::lightSizes() const {
-    return m_lightSizes;
-}
+    return m_lightSizes; }
+
+Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::spotLights() { return m_spotLights; }
 
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::dirLights() const {
     return m_dirLights;
-}
-
-std::shared_ptr<Prisma::LightHandler::SSBODataArea> Prisma::LightHandler::dataArea() const {
-    return m_dataArea;
 }
 
 Diligent::RefCntAutoPtr<Diligent::IBuffer> Prisma::LightHandler::omniLights() {

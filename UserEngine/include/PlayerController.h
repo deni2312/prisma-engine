@@ -112,8 +112,6 @@ private:
 
     Prisma::Interpolator m_interpolator;
 
-    std::shared_ptr<Prisma::Node> m_areaLight;
-
     bool m_hidden = false;
 
     unsigned int m_ballIndex = 0;

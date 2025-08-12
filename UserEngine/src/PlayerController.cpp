@@ -172,7 +172,6 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
         });*/
     }
 
-    m_areaLight = nodeHelper.find(m_scene->root, "ParentArea_74");
     createCamera();
     createKeyboard();
 }
