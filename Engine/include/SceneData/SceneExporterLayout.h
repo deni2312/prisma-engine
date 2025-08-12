@@ -295,6 +295,16 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         j["farPlane"] = light->type().farPlane.x;
         j["shadow"] = light->hasShadow();
         j["intensity"] = light->intensity();
+    } else if (std::dynamic_pointer_cast<Light<LightType::LightSpot>>(n)) {
+        j["type"] = "LIGHT_SPOT";
+        auto light = std::dynamic_pointer_cast<Light<LightType::LightSpot>>(n);
+        j["position"] = {light->type().position.x, light->type().position.y, light->type().position.z};
+        j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
+        j["specular"] = {light->type().specular.x, light->type().specular.y, light->type().specular.z};
+        j["direction"] = {light->type().direction.x, light->type().direction.y, light->type().direction.z};
+        j["innerCutoff"] = light->type().innerCutoff;
+        j["outerCutoff"] = light->type().outerCutoff;
+        j["intensity"] = light->intensity();
     }
 
     std::vector<std::pair<std::string, json>> componentJson;
@@ -338,6 +348,8 @@ void from_json(json& j, std::shared_ptr<Node> n) {
             child = std::make_shared<Light<LightType::LightDir>>();
         } else if (childJson["type"] == "LIGHT_OMNI") {
             child = std::make_shared<Light<LightType::LightOmni>>();
+        }else if (childJson["type"] == "LIGHT_SPOT") {
+            child = std::make_shared<Light<LightType::LightSpot>>();
         } else if (childJson["type"] == "MESH_ANIMATE") {
             child = std::make_shared<AnimatedMesh>();
         }
@@ -530,6 +542,19 @@ void from_json(json& j, std::shared_ptr<Node> n) {
         light->createShadow(Define::MAX_SHADOW_OMNI_TEXTURE_SIZE, Define::MAX_SHADOW_OMNI_TEXTURE_SIZE, true);
         float intensity = 1;
         j.at("intensity").get_to(intensity);
+        light->intensity(intensity);
+    } else if (type == "LIGHT_SPOT") {
+        auto light = std::dynamic_pointer_cast<Light<LightType::LightSpot>>(n);
+        LightType::LightSpot lightType;
+        lightType.position = glm::vec4(j.at("position").get<std::vector<float>>().at(0), j.at("position").get<std::vector<float>>().at(1), j.at("position").get<std::vector<float>>().at(2), 1.0);
+        lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0), j.at("diffuse").get<std::vector<float>>().at(1), j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
+        lightType.specular = glm::vec4(j.at("specular").get<std::vector<float>>().at(0), j.at("specular").get<std::vector<float>>().at(1), j.at("specular").get<std::vector<float>>().at(2), 1.0);
+        lightType.direction = glm::vec4(j.at("direction").get<std::vector<float>>().at(0), j.at("direction").get<std::vector<float>>().at(1), j.at("direction").get<std::vector<float>>().at(2), 1.0);
+        lightType.innerCutoff = j.at("innerCutoff").get<float>();
+        lightType.outerCutoff = j.at("outerCutoff").get<float>();
+        float intensity = 1;
+        j.at("intensity").get_to(intensity);
+        light->type(lightType);
         light->intensity(intensity);
     } else if (type == "MESH_ANIMATE") {
         auto mesh = std::dynamic_pointer_cast<AnimatedMesh>(n);
