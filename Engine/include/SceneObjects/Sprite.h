@@ -16,7 +16,12 @@ struct IPipelineState;
 namespace Prisma {
 class Sprite : public Node {
 public:
-    Sprite();
+    enum class BLENDING {
+        ALPHA,
+        ADDITIVE
+    };
+
+    Sprite(BLENDING blending);
     void loadSprites(std::vector<std::shared_ptr<Texture>> textures);
     void numSprites(unsigned int numSprites);
     void size(glm::vec2 size);
