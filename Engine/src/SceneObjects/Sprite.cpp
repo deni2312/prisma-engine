@@ -16,7 +16,7 @@ struct PrivateSprite {
 
 static PrivateSprite privateSprite;
 
-Prisma::Sprite::Sprite() {
+Prisma::Sprite::Sprite(BLENDING blending) : Prisma::Node{} {
     //m_spriteShader = std::make_shared<Shader>("../../../Engine/Shaders/SpritePipeline/vertex.glsl",
     //                                          "../../../Engine/Shaders/SpritePipeline/fragment.glsl", nullptr);
     //m_spriteShader->use();
@@ -58,13 +58,31 @@ Prisma::Sprite::Sprite() {
     BlendDesc.IndependentBlendEnable = Diligent::False;
     auto& RT0 = BlendDesc.RenderTargets[0];
     RT0.BlendEnable = Diligent::True;
-    RT0.SrcBlend = Diligent::BLEND_FACTOR_ONE;
-    RT0.DestBlend = Diligent::BLEND_FACTOR_ONE;
-    RT0.BlendOp = Diligent::BLEND_OPERATION_ADD;
-    RT0.SrcBlendAlpha = Diligent::BLEND_FACTOR_ONE;
-    RT0.DestBlendAlpha = Diligent::BLEND_FACTOR_ONE;
-    RT0.BlendOpAlpha = Diligent::BLEND_OPERATION_ADD;
-    RT0.RenderTargetWriteMask = Diligent::COLOR_MASK_ALL;
+    switch (blending) {
+        case Prisma::Sprite::BLENDING::ALPHA:
+            {
+                RT0.SrcBlend      = Diligent::BLEND_FACTOR_SRC_ALPHA;
+                RT0.DestBlend     = Diligent::BLEND_FACTOR_INV_SRC_ALPHA;
+                RT0.BlendOp       = Diligent::BLEND_OPERATION_ADD;
+                RT0.SrcBlendAlpha = Diligent::BLEND_FACTOR_ONE;
+                RT0.DestBlendAlpha= Diligent::BLEND_FACTOR_INV_SRC_ALPHA;
+                RT0.BlendOpAlpha  = Diligent::BLEND_OPERATION_ADD;
+            }
+            break;
+         case Prisma::Sprite::BLENDING::ADDITIVE:
+            {
+                RT0.SrcBlend = Diligent::BLEND_FACTOR_ONE;
+                RT0.DestBlend = Diligent::BLEND_FACTOR_ONE;
+                RT0.BlendOp = Diligent::BLEND_OPERATION_ADD;
+                RT0.SrcBlendAlpha = Diligent::BLEND_FACTOR_ONE;
+                RT0.DestBlendAlpha = Diligent::BLEND_FACTOR_ONE;
+                RT0.BlendOpAlpha = Diligent::BLEND_OPERATION_ADD;
+                RT0.RenderTargetWriteMask = Diligent::COLOR_MASK_ALL;
+            }
+            break;
+ 
+
+    }
 
     // Depth settings
     auto& DepthStencilDesc = PSOCreateInfo.GraphicsPipeline.DepthStencilDesc;
