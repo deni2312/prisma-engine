@@ -295,21 +295,6 @@ void to_json(json& j, std::shared_ptr<Node> n) {
         j["farPlane"] = light->type().farPlane.x;
         j["shadow"] = light->hasShadow();
         j["intensity"] = light->intensity();
-    } else if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(n)) {
-        j["type"] = "LIGHT_AREA";
-        auto light = std::dynamic_pointer_cast<Light<LightType::LightArea>>(n);
-        j["position"][0] = {light->type().position[0].x, light->type().position[0].y,
-                            light->type().position[0].z};
-        j["position"][1] = {light->type().position[1].x, light->type().position[1].y,
-                            light->type().position[1].z};
-        j["position"][2] = {light->type().position[2].x, light->type().position[2].y,
-                            light->type().position[2].z};
-        j["position"][3] = {light->type().position[3].x, light->type().position[3].y,
-                            light->type().position[3].z};
-        j["diffuse"] = {light->type().diffuse.x, light->type().diffuse.y, light->type().diffuse.z};
-        j["doubleSide"] = light->type().doubleSide;
-        j["shadow"] = light->hasShadow();
-        j["intensity"] = light->intensity();
     }
 
     std::vector<std::pair<std::string, json>> componentJson;
@@ -353,8 +338,6 @@ void from_json(json& j, std::shared_ptr<Node> n) {
             child = std::make_shared<Light<LightType::LightDir>>();
         } else if (childJson["type"] == "LIGHT_OMNI") {
             child = std::make_shared<Light<LightType::LightOmni>>();
-        } else if (childJson["type"] == "LIGHT_AREA") {
-            child = std::make_shared<Light<LightType::LightArea>>();
         } else if (childJson["type"] == "MESH_ANIMATE") {
             child = std::make_shared<AnimatedMesh>();
         }
@@ -545,37 +528,6 @@ void from_json(json& j, std::shared_ptr<Node> n) {
         light->hasShadow(hasShadow);
         light->type(lightType);
         light->createShadow(Define::MAX_SHADOW_OMNI_TEXTURE_SIZE, Define::MAX_SHADOW_OMNI_TEXTURE_SIZE, true);
-        float intensity = 1;
-        j.at("intensity").get_to(intensity);
-        light->intensity(intensity);
-    } else if (type == "LIGHT_AREA") {
-        auto light = std::dynamic_pointer_cast<Light<LightType::LightArea>>(n);
-        LightType::LightArea lightType;
-        lightType.position[0] = glm::vec4(j.at("position").at(0).get<std::vector<float>>().at(0),
-                                          j.at("position").at(0).get<std::vector<float>>().at(1),
-                                          j.at("position").at(0).get<std::vector<float>>().at(2), 1.0);
-        lightType.position[1] = glm::vec4(j.at("position").at(1).get<std::vector<float>>().at(0),
-                                          j.at("position").at(1).get<std::vector<float>>().at(1),
-                                          j.at("position").at(1).get<std::vector<float>>().at(2), 1.0);
-        lightType.position[2] = glm::vec4(j.at("position").at(2).get<std::vector<float>>().at(0),
-                                          j.at("position").at(2).get<std::vector<float>>().at(1),
-                                          j.at("position").at(2).get<std::vector<float>>().at(2), 1.0);
-        lightType.position[3] = glm::vec4(j.at("position").at(3).get<std::vector<float>>().at(0),
-                                          j.at("position").at(3).get<std::vector<float>>().at(1),
-                                          j.at("position").at(3).get<std::vector<float>>().at(2), 1.0);
-        lightType.diffuse = glm::vec4(j.at("diffuse").get<std::vector<float>>().at(0),
-                                      j.at("diffuse").get<std::vector<float>>().at(1),
-                                      j.at("diffuse").get<std::vector<float>>().at(2), 1.0);
-
-        bool hasShadow = false;
-        j.at("shadow").get_to(hasShadow);
-
-        int doubleSide = 0;
-
-        j.at("doubleSide").get_to(doubleSide);
-        lightType.doubleSide = doubleSide;
-        light->hasShadow(hasShadow);
-        light->type(lightType);
         float intensity = 1;
         j.at("intensity").get_to(intensity);
         light->intensity(intensity);

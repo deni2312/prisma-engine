@@ -162,6 +162,7 @@ void Prisma::ClusterCalculation::createLight() {
 		{Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_LIGHT_SIZES.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 		{ Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_VIEW_PROJECTION.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
 		{Diligent::SHADER_TYPE_COMPUTE, ShaderNames::CONSTANT_OMNI_DATA.c_str(), Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC},
+
 	};
     // clang-format on
     PSODesc.ResourceLayout.Variables = Vars;

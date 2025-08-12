@@ -23,9 +23,10 @@ void Prisma::GUI::ImGuiAddingMenu::addMenu(ImGuiCamera& camera) const {
         if (ImGui::MenuItem("Add Directional")) {
             NodeCreator::createDirectional();
         }
-        if (ImGui::MenuItem("Add Area")) {
-            NodeCreator::createArea();
+        if (ImGui::MenuItem("Add Spot")) {
+            NodeCreator::createSpot();
         }
+
         ImGui::EndPopup();
     }
 }

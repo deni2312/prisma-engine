@@ -45,7 +45,6 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
             auto isMesh = std::dynamic_pointer_cast<Mesh>(node);
             auto isLightDir = std::dynamic_pointer_cast<Light<LightType::LightDir>>(node);
             auto isLightOmni = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(node);
-            auto isLightArea = std::dynamic_pointer_cast<Light<LightType::LightArea>>(node);
             if (isAnimateMesh) {
                 m_scene->animateMeshes.push_back(isAnimateMesh);
             } else if (isMesh) {
@@ -54,8 +53,6 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::loadScene(std::string scene,
                 m_scene->dirLights.push_back(isLightDir);
             } else if (isLightOmni) {
                 m_scene->omniLights.push_back(isLightOmni);
-            } else if (isLightArea) {
-                m_scene->areaLights.push_back(isLightArea);
             }
         });
 
@@ -129,7 +126,6 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::hasFinish() {
             auto isMesh = std::dynamic_pointer_cast<Mesh>(node);
             auto isLightDir = std::dynamic_pointer_cast<Light<LightType::LightDir>>(node);
             auto isLightOmni = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(node);
-            auto isLightArea = std::dynamic_pointer_cast<Light<LightType::LightArea>>(node);
             if (isAnimateMesh) {
                 m_scene->animateMeshes.push_back(isAnimateMesh);
             } else if (isMesh) {
@@ -138,8 +134,6 @@ std::shared_ptr<Prisma::Scene> Prisma::SceneLoader::hasFinish() {
                 m_scene->dirLights.push_back(isLightDir);
             } else if (isLightOmni) {
                 m_scene->omniLights.push_back(isLightOmni);
-            } else if (isLightArea) {
-                m_scene->areaLights.push_back(isLightArea);
             }
         });
         return m_scene;

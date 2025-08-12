@@ -3,6 +3,7 @@
 
 namespace Prisma::ShaderNames {
 const std::string CONSTANT_OMNI_DATA = "omniData";
+const std::string CONSTANT_SPOT_DATA = "spotData";
 const std::string CONSTANT_ANIMATION = "animations";
 const std::string MUTABLE_OMNI_DATA_SHADOW = "omniShadow";
 const std::string MUTABLE_DIR_SHADOW = "csmShadow";

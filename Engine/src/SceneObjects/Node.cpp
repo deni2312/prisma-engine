@@ -72,9 +72,8 @@ void Prisma::Node::removeChild(uint64_t uuid, bool removeRecursive) {
         } else if (std::dynamic_pointer_cast<Sprite>(m_children[index])) {
             VectorHelper::getInstance().remove<Sprite>(
                 GlobalData::getInstance().currentGlobalScene()->sprites, uuid);
-        } else if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(m_children[index])) {
-            VectorHelper::getInstance().remove<Light<LightType::LightArea>>(
-                GlobalData::getInstance().currentGlobalScene()->areaLights, uuid);
+        } else if (std::dynamic_pointer_cast<Light<LightType::LightSpot>>(m_children[index])) {
+            VectorHelper::getInstance().remove<Light<LightType::LightSpot>>(GlobalData::getInstance().currentGlobalScene()->spotLights, uuid);
             CacheScene::getInstance().updateSizeLights(true);
         }
 
@@ -206,24 +205,20 @@ void Prisma::Node::dispatch(std::shared_ptr<Node> child) {
         }
     }
 
+    if (std::dynamic_pointer_cast<Light<LightType::LightSpot>>(child) && child->addGlobalList() && GlobalData::getInstance().currentGlobalScene()->spotLights.size() + 1 < Define::MAX_OMNI_LIGHTS) {
+        if (nodeHelper.findUUID<Light<LightType::LightSpot>>(GlobalData::getInstance().currentGlobalScene()->spotLights, child->uuid()) < 0) {
+            GlobalData::getInstance().currentGlobalScene()->spotLights.push_back(std::dynamic_pointer_cast<Light<LightType::LightSpot>>(child));
+            CacheScene::getInstance().updateLights(true);
+            CacheScene::getInstance().updateSizeLights(true);
+        }
+    }
+
     if (std::dynamic_pointer_cast<Sprite>(child) &&
         child->addGlobalList()) {
         if (nodeHelper.findUUID<Sprite>(GlobalData::getInstance().currentGlobalScene()->sprites,
                                         child->uuid()) < 0) {
             GlobalData::getInstance().currentGlobalScene()->sprites.push_back(
                 std::dynamic_pointer_cast<Sprite>(child));
-        }
-    }
-
-    if (std::dynamic_pointer_cast<Light<LightType::LightArea>>(child) &&
-        child->addGlobalList() && GlobalData::getInstance().currentGlobalScene()->dirLights.size() + 1 <
-        Define::MAX_AREA_LIGHTS) {
-        if (nodeHelper.findUUID<Light<LightType::LightArea>>(
-                GlobalData::getInstance().currentGlobalScene()->areaLights, child->uuid()) < 0) {
-            GlobalData::getInstance().currentGlobalScene()->areaLights.push_back(
-                std::dynamic_pointer_cast<Light<LightType::LightArea>>(child));
-            CacheScene::getInstance().updateLights(true);
-            CacheScene::getInstance().updateSizeLights(true);
         }
     }
 
