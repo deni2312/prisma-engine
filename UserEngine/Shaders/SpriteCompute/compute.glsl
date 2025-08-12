@@ -198,7 +198,7 @@ void main()
 
     int idSprite = 0;
     spriteId[idx].id = idSprite;
-    spriteId[idx].width = 5;
-    spriteId[idx].height = 5;
-    spriteId[idx].speed = 10;
+    spriteId[idx].width = 1;
+    spriteId[idx].height = 1;
+    spriteId[idx].speed = 1;
 }
