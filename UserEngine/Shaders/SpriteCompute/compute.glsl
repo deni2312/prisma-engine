@@ -192,13 +192,15 @@ void main()
 
     model = translationMatrix * rotationMatrix;
 
+    model=model*inverse(model);
+
     modelSprite[idx].model = model;
-    modelSprite[idx].color = vec4(8);
+    modelSprite[idx].color = vec4(1);
     omniData_data[idx].position = model[3];
 
     int idSprite = 0;
     spriteId[idx].id = idSprite;
-    spriteId[idx].width = 1;
-    spriteId[idx].height = 1;
-    spriteId[idx].speed = 1;
+    spriteId[idx].width = 5;
+    spriteId[idx].height = 5;
+    spriteId[idx].speed = 10;
 }
