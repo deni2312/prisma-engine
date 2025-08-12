@@ -67,6 +67,45 @@ void Prisma::GUI::LightInfo::showSelectedDir(std::shared_ptr<Light<LightType::Li
     ImGui::End();
 }
 
+void Prisma::GUI::LightInfo::showSelectedSpot(std::shared_ptr<Light<LightType::LightSpot>> lightData, const NodeViewer::NodeData& meshData) {
+    auto type = lightData->type();
+    float windowWidth = meshData.translate * meshData.width / 2.0f;
+    auto nextRight = [&](float pos) {
+        ImGui::SetNextWindowPos(ImVec2(windowWidth + meshData.scale * meshData.width, pos));
+        ImGui::SetNextWindowSize(ImVec2(windowWidth, 0));
+    };
+    nextRight(meshData.initOffset);
+    ImGui::Begin(lightData->name().c_str(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+    ImGuiStyles::getInstance().treeStyle();
+    if (ImGui::CollapsingHeader("Spot data")) {
+        ImGuiStyles::getInstance().clearTreeStyle();
+        if (ImGui::ColorPicker3("Diffuse ", value_ptr(type.diffuse))) {
+            lightData->type(type);
+        }
+
+        float intensity = lightData->intensity();
+
+        if (ImGui::InputFloat("Intensity ", &intensity)) {
+            lightData->intensity(intensity);
+        }
+
+        
+        if (ImGui::InputFloat("Inner Cutoff ", &type.innerCutoff)) {
+            lightData->type(type);
+        }
+
+        
+        if (ImGui::InputFloat("Outer Cutoff ", &type.outerCutoff)) {
+            lightData->type(type);
+        }
+
+    } else {
+        ImGuiStyles::getInstance().clearTreeStyle();
+    }
+
+    ImGui::End();
+}
+
 void Prisma::GUI::LightInfo::showSelectedOmni(std::shared_ptr<Light<LightType::LightOmni>> lightData,
                                               const NodeViewer::NodeData& meshData) {
     auto type = lightData->type();

@@ -93,8 +93,7 @@ void Prisma::LightHandler::updateSpot() {
 
             m_dataSpot->lights[numVisible].diffuse = m_dataSpot->lights[i].diffuse * light->intensity();
             m_dataSpot->lights[numVisible].position = glm::translate(glm::mat4(1), glm::vec3(scene->spotLights[i]->finalMatrix()[3])) * glm::vec4(glm::vec3(m_dataSpot->lights[numVisible].position),1);
-            std::cout << glm::to_string(m_dataSpot->lights[numVisible].position) << std::endl;
-            m_dataSpot->lights[numVisible].direction = glm::normalize(glm::mat4(glm::mat3(scene->spotLights[i]->finalMatrix())) * m_dataSpot->lights[numVisible].direction);
+            m_dataSpot->lights[numVisible].direction = glm::normalize(glm::mat4(glm::mat3(scene->spotLights[i]->finalMatrix())) * glm::vec4(glm::vec3(m_dataSpot->lights[numVisible].direction),1));
             numVisible++;
         }
     }

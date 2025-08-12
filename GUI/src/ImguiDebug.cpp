@@ -290,6 +290,7 @@ void Prisma::GUI::ImguiDebug::drawGui() {
                 m_imguiCamera.currentSelect());
             auto currentSelectLightOmni = std::dynamic_pointer_cast<Light<LightType::LightOmni>>(
                 m_imguiCamera.currentSelect());
+            auto currentSelectLightSpot = std::dynamic_pointer_cast<Light<LightType::LightSpot>>(m_imguiCamera.currentSelect());
             NodeViewer::NodeData nodeData;
             nodeData.camera = m_camera;
             nodeData.projection = m_model * m_projection;
@@ -304,8 +305,11 @@ void Prisma::GUI::ImguiDebug::drawGui() {
                 meshInfo.showSelected(nodeData);
             } else if (currentSelectLightDir) {
                 lightInfo.showSelectedDir(currentSelectLightDir, nodeData);
-            } else if (currentSelectLightOmni) {
+            } 
+            else if (currentSelectLightOmni) {
                 lightInfo.showSelectedOmni(currentSelectLightOmni, nodeData);
+            } else if (currentSelectLightSpot) {
+                lightInfo.showSelectedSpot(currentSelectLightSpot, nodeData);
             } else {
                 NodeViewer::getInstance().showSelected(nodeData);
             }

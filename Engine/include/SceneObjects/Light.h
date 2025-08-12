@@ -32,10 +32,14 @@ struct LightOmni {
 };
 
 struct LightSpot {
-    glm::vec4 direction = glm::vec4(0, 0.9, 0, 0);
+    glm::vec4 direction = glm::vec4(0, -1, 0, 0);
     glm::vec4 diffuse = glm::vec4(1, 1, 1, 0);
     glm::vec4 specular = glm::vec4(1, 1, 1, 0);
-    glm::vec4 position = glm::vec4(0, 0.9, 0, 0);
+    glm::vec4 position = glm::vec4(0, 0, 0, 0);
+    float innerCutoff=12.5;
+    float outerCutoff=17.5;
+    glm::vec2 padding;
+
 };
 };
 

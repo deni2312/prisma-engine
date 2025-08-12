@@ -107,6 +107,9 @@ struct SpotData {
     vec4 diffuse;
     vec4 specular;
     vec4 position;
+    float innerCutoff;
+    float outerCutoff;
+    vec2 padding;
 };
 
 
@@ -370,8 +373,8 @@ vec3 pbrCalculation(vec3 FragPos, vec3 N, vec3 albedo, vec4 aoSpecular,float rou
 
         // Spotlight cone factor
         float theta = dot(L, normalize(-lightDir));
-        float innerCutoff = cos(radians(12.5)); // inner cone
-        float outerCutoff = cos(radians(17.5)); // outer cone
+        float innerCutoff = cos(radians(spotData_data[i].innerCutoff)); // inner cone
+        float outerCutoff = cos(radians(spotData_data[i].outerCutoff)); // outer cone
         float epsilon = innerCutoff - outerCutoff;
         float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
 
