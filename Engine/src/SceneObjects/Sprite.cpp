@@ -89,6 +89,7 @@ Prisma::Sprite::Sprite(BLENDING blending) : Prisma::Node{} {
     DepthStencilDesc.DepthEnable = Diligent::True;
     DepthStencilDesc.DepthWriteEnable = Diligent::False;
     DepthStencilDesc.DepthFunc = Diligent::COMPARISON_FUNC_LESS;
+
     // clang-format on
     if (!privateSprite.createShader) {
         Diligent::ShaderCreateInfo ShaderCI;

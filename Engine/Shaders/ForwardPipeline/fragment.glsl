@@ -17,7 +17,7 @@ void main()
     vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureAnisotropic_sampler),outUv).rgb;
 
     //OpenGL to Vulkan
-    tangentNormal.y=1-tangentNormal.y;
+    //tangentNormal.y=1-tangentNormal.y;
 
     vec3 worldNormal = normalize(outTBN*normalize(tangentNormal * 2.0 - 1.0));
 

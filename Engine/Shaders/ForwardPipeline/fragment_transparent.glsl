@@ -23,7 +23,7 @@ void main()
     // Transform from tangent space to world space
     vec3 tangentNormal = texture(sampler2D(normalTexture[nonuniformEXT(outDrawId)],textureRepeat_sampler),outUv).rgb;
 
-    tangentNormal.y=1-tangentNormal.y;
+    //tangentNormal.y=1-tangentNormal.y;
 
     vec3 worldNormal = normalize(outTBN*normalize(tangentNormal * 2.0 - 1.0));
 
