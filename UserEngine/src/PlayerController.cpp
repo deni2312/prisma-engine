@@ -255,10 +255,6 @@ void PlayerController::updateKeyboard() {
             m_previousClick = Prisma::KEY_D;
             m_previousAnimations = WALK;
         }
-        if (glfwGetKey(m_window, Prisma::KEY_G) == GLFW_PRESS) {
-            m_hidden = !m_hidden;
-            Prisma::PrismaFunc::getInstance().hiddenMouse(m_hidden);
-        }
         clearVelocity();
     }
     Prisma::Physics::getInstance().bodyInterface().ActivateBody(id);

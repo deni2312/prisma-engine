@@ -22,7 +22,7 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root, int numParticl
     auto spriteBurst = std::make_shared<Prisma::Texture>();
     spriteBurst->loadTexture({"../../../Resources/DefaultScene/sprites/burst.png", true});
 
-    auto sprite = std::make_shared<Prisma::Sprite>(Prisma::Sprite::BLENDING::ADDITIVE);
+    auto sprite = std::make_shared<Prisma::Sprite>(Prisma::Sprite::BLENDING::ADDITIVE,Prisma::Sprite::DEPTH_WRITE::FALSE);
 
     sprite->loadSprites({spriteFire, spriteBurst});
     sprite->numSprites(m_numParticles);

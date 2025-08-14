@@ -16,7 +16,7 @@ struct PrivateSprite {
 
 static PrivateSprite privateSprite;
 
-Prisma::Sprite::Sprite(BLENDING blending) : Prisma::Node{} {
+Prisma::Sprite::Sprite(BLENDING blending, DEPTH_WRITE depthWrite) : Prisma::Node{} {
     //m_spriteShader = std::make_shared<Shader>("../../../Engine/Shaders/SpritePipeline/vertex.glsl",
     //                                          "../../../Engine/Shaders/SpritePipeline/fragment.glsl", nullptr);
     //m_spriteShader->use();
@@ -86,8 +86,9 @@ Prisma::Sprite::Sprite(BLENDING blending) : Prisma::Node{} {
 
     // Depth settings
     auto& DepthStencilDesc = PSOCreateInfo.GraphicsPipeline.DepthStencilDesc;
-    DepthStencilDesc.DepthEnable = Diligent::True;
-    DepthStencilDesc.DepthWriteEnable = Diligent::False;
+
+    DepthStencilDesc.DepthEnable = true;
+    DepthStencilDesc.DepthWriteEnable = static_cast<bool>(depthWrite);
     DepthStencilDesc.DepthFunc = Diligent::COMPARISON_FUNC_LESS;
 
     // clang-format on

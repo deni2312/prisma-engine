@@ -21,7 +21,12 @@ public:
         ADDITIVE
     };
 
-    Sprite(BLENDING blending);
+    enum class DEPTH_WRITE {
+        FALSE,
+        TRUE
+    };
+
+    Sprite(BLENDING blending, DEPTH_WRITE depthWrite);
     void loadSprites(std::vector<std::shared_ptr<Texture>> textures);
     void numSprites(unsigned int numSprites);
     void size(glm::vec2 size);
