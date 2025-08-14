@@ -165,31 +165,6 @@ float3 ImportanceSampleCosineHemisphere(float2 xi, float3 N)
     return normalize(tangentX * H.x + tangentY * H.y + N * H.z);
 }
 
-float3 RayTracedIrradiance(float3 pos, float3 normal, uint Recursion, int sampleCount)
-{
-    /*
-    float3 irradiance = float3(0.0, 0.0, 0.0);
-
-    for (int i = 0; i < sampleCount; ++i)
-    {
-        // Generate stratified sample direction in hemisphere
-        float2 xi = Hammersley(i, sampleCount);
-        float3 sampleDir = ImportanceSampleCosineHemisphere(xi, normal);
-
-        // Cast ray
-        PrimaryRayPayload payload = CastReflectionRay(pos, sampleDir, Recursion);
-
-        // Weight by cosine
-        float weight = max(dot(normal, sampleDir), 0.0);
-        irradiance += payload.Color * weight;
-    }
-
-    irradiance /= PI * sampleCount;
-    return irradiance;*/
-    return float3(0.0, 0.0, 0.0);
-
-}
-
 
 // Bitwise reverse for radical inverse
 float RadicalInverse_VdC(uint bits)
@@ -201,90 +176,7 @@ float RadicalInverse_VdC(uint bits)
     bits = ((bits & 0x00FF00FFu) << 8) | ((bits & 0xFF00FF00u) >> 8);
     return float(bits) * 2.3283064365386963e-10; // = 1.0 / (2^32)
 }
-/*
-// Hammersley point generator
-float2 Hammersley(uint i, uint N)
-{
-    return float2((float) i / float(N), RadicalInverse_VdC(i));
-}
 
-float3 CosineSampleHemisphere(uint sampleIndex, uint sampleCount, float3 normal)
-{
-    // Generate quasi-random values using Hammersley sequence
-    float2 Xi = Hammersley(sampleIndex, sampleCount);
-
-    float phi = 2.0 * 3.14159265 * Xi.x;
-    float cosTheta = sqrt(1.0 - Xi.y);
-    float sinTheta = sqrt(Xi.y);
-
-    // Spherical to Cartesian
-    float3 tangentSample = float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
-
-    // Create TBN basis from normal
-    float3 up = abs(normal.z) < 0.999 ? float3(0.0, 0.0, 1.0) : float3(1.0, 0.0, 0.0);
-    float3 tangent = normalize(cross(up, normal));
-    float3 bitangent = cross(normal, tangent);
-
-    // Transform sample to world space
-    float3 sampleDir = tangentSample.x * tangent + tangentSample.y * bitangent + tangentSample.z * normal;
-    return normalize(sampleDir);
-}
-
-float3 AccumulateDiffuseGI(float3 Pos, float3 Norm, uint Recursion, float3 albedo, float metalness)
-{
-    const int sampleCount = 16;
-    float3 irradiance = float3(0.0, 0.0, 0.0);
-
-    for (int i = 0; i < sampleCount; ++i)
-    {
-        float3 sampleDir = CosineSampleHemisphere(i, sampleCount, Norm); // You implement this
-        PrimaryRayPayload payload = CastReflectionRay(Pos, sampleDir, Recursion, Norm);
-        irradiance += payload.Color; // Assume payload contains indirect bounce color
-    }
-
-    irradiance /= sampleCount;
-
-    float3 kD = 1.0 - lerp(float3(0.04, 0.04, 0.04), albedo, metalness);
-    kD *= 1.0 - metalness;
-
-    return (albedo / PI) * irradiance * kD;
-}
-
-float3 ImportanceSampleGGX(float3 V, float2 Xi, float3 N, float roughness)
-{
-    float a = roughness * roughness;
-
-    float phi = 2.0 * 3.14159265 * Xi.x;
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
-    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
-
-    float3 H;
-    H.x = cos(phi) * sinTheta;
-    H.y = sin(phi) * sinTheta;
-    H.z = cosTheta;
-
-    // Transform H to world space
-    float3 up = abs(N.z) < 0.999 ? float3(0.0, 0.0, 1.0) : float3(1.0, 0.0, 0.0);
-    float3 tangent = normalize(cross(up, N));
-    float3 bitangent = cross(N, tangent);
-    float3 Hworld = tangent * H.x + bitangent * H.y + N * H.z;
-
-    // Reflect view vector V around H to get sample direction
-    return reflect(-V, normalize(Hworld));
-}
-
-float3 ComputeSpecularGI(float3 Pos, float3 Norm, float3 V, float3 F0, float roughness, uint Recursion)
-{
-    float3 R = ImportanceSampleGGX(V, 0, Norm, roughness);
-    PrimaryRayPayload reflPayload = CastReflectionRay(Pos, R, Recursion, Norm);
-
-    float NdotV = max(dot(Norm, V), 0.0);
-    float3 F = fresnelSchlickRoughness(NdotV, F0, roughness);
-    float2 brdf = lut.SampleLevel(skybox_sampler, float2(NdotV, roughness), 0);
-    float3 specular = reflPayload.Color * (F * brdf.x + brdf.y);
-    return specular;
-}
-*/
 
 void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion, float metalness, float roughness)
 {
