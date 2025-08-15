@@ -405,7 +405,6 @@ void Prisma::MeshIndirect::updateSize() {
     auto& meshes = GlobalData::getInstance().currentGlobalScene()->meshes;
 
     //CLEAR DATA
-    m_materialData.clear();
     m_updateModels.clear();
     auto& contextData = PrismaFunc::getInstance().contextData();
 
@@ -783,7 +782,6 @@ void Prisma::MeshIndirect::updateAnimation() {
     auto& meshes = GlobalData::getInstance().currentGlobalScene()->animateMeshes;
 
     //CLEAR DATA
-    m_materialDataAnimation.clear();
     m_updateModelsAnimate.clear();
     if (!meshes.empty()) {
         std::vector<Mesh::MeshData> models;
@@ -956,8 +954,7 @@ void Prisma::MeshIndirect::updateStatus(bool update) {
                               material->isSpecular(), rtMaterial.GlassReflectionColorMask,
                               rtMaterial.GlassAbsorption, rtMaterial.GlassMaterialColor,
                               rtMaterial.GlassIndexOfRefraction, rtMaterial.GlassEnableDispersion,
-                              rtMaterial.DispersionSampleCount, material->metalness(),
-                              material->roughness()});
+                              rtMaterial.DispersionSampleCount, material->metalness(), material->roughness(), material->emission()});
         }
 
         Diligent::BufferDesc statusDesc;
@@ -1007,8 +1004,7 @@ void Prisma::MeshIndirect::updateStatusAnimation(bool update) {
                               material->isSpecular(), rtMaterial.GlassReflectionColorMask,
                               rtMaterial.GlassAbsorption, rtMaterial.GlassMaterialColor,
                               rtMaterial.GlassIndexOfRefraction, rtMaterial.GlassEnableDispersion,
-                              rtMaterial.DispersionSampleCount, material->metalness(),
-                              material->roughness()});
+                              rtMaterial.DispersionSampleCount, material->metalness(), material->roughness(), material->emission()});
         }
 
         Diligent::BufferDesc statusDesc;

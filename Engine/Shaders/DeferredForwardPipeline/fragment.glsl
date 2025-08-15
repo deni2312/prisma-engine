@@ -24,7 +24,8 @@ struct StatusData
     int DispersionSampleCount;
     float metalness;
     float roughness;
-    vec2 padding;
+    float emission;
+    float padding;
 };
 
 readonly buffer statusData{
@@ -107,7 +108,7 @@ void main()
     // also store the per-fragment normals into the gbuffer
     gNormal.rgb = normalize(outTBN*normalize(tangentNormal * 2.0 - 1.0));
 
-    gAlbedoSpec.rgb = diffuse.rgb;
+    gAlbedoSpec.rgb = diffuse.rgb*statusData_data[outDrawId].emission;
     
     gAlbedoSpec.a= metallic;
     gNormal.a = roughness;

@@ -43,7 +43,7 @@ void main()
     metallic =  clamp(metallic+statusData_data[outDrawId].metalness,0,1);
     roughness = clamp(roughness+statusData_data[outDrawId].roughness,0,1);
     
-    vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse), vec4(1.0), roughness, metallic,1);
+    vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse)*statusData_data[outDrawId].emission, vec4(1.0), roughness, metallic,1);
         
     FragColor = vec4(color,1);
 }

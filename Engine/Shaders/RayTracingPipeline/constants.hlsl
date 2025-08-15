@@ -53,7 +53,8 @@ struct StatusData
     unsigned int DispersionSampleCount; // 1..16
     float metalness;
     float roughness;
-    float2 padding;
+    float emission;
+    float padding;
 };
 
 #define NUM_LIGHTS          2

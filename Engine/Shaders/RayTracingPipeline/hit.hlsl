@@ -90,7 +90,7 @@ void main(inout PrimaryRayPayload payload, in BuiltInTriangleIntersectionAttribu
     metallic = saturate(metallic + statusData[InstanceID()].metalness);
     roughness = saturate(roughness + statusData[InstanceID()].roughness);
     // Sample texturing. Ray tracing shaders don't support LOD calculation, so we must specify LOD and apply filtering.
-    payload.Color = diffuseTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz;
+    payload.Color = diffuseTexture[NonUniformResourceIndex(InstanceID())].SampleLevel(g_SamLinearWrap, uv, 0).xyz * float3(statusData[InstanceID()].emission, statusData[InstanceID()].emission, statusData[InstanceID()].emission);
 
 	payload.Depth = RayTCurrent();
 

@@ -153,9 +153,6 @@ private:
     AnimatedMesh::AnimateVerticesData m_verticesDataAnimation;
     std::vector<DrawElementsIndirectCommand> m_drawCommandsAnimation;
 
-    std::vector<MaterialData> m_materialData;
-    std::vector<MaterialData> m_materialDataAnimation;
-
     void updateAnimation();
 
     std::vector<unsigned int> m_cacheAddAnimate;
@@ -196,7 +193,8 @@ private:
         unsigned int DispersionSampleCount = 4; // 1..16
         float metalness = 0;
         float roughness = 0;
-        glm::vec2 padding;
+        float emission = 0;
+        float padding;
     };
 
     void updateTextureData();

@@ -49,7 +49,7 @@ void main()
     metallic =  metallic+statusData_data[outDrawId].metalness;
     roughness = roughness+statusData_data[outDrawId].roughness;
     
-    vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse), vec4(1.0), roughness, metallic,1);
+    vec3 color = pbrCalculation(outFragPos, worldNormal, vec3(diffuse)*statusData_data[outDrawId].emission, vec4(1.0), roughness, metallic,1);
     float weight = clamp(pow(min(1.0, diffuse.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - gl_FragCoord.z * 0.9, 3.0), 1e-2, 3e3);
 
     reveal = diffuse.a;

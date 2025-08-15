@@ -26,7 +26,8 @@ struct StatusData
     int DispersionSampleCount;
     float metalness;
     float roughness;
-    vec2 padding;
+    float emission;
+    float padding;
 };
 
 const float PI = 3.14159265359;

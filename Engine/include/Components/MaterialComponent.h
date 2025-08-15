@@ -11,16 +11,6 @@ struct IPipelineState;
 }
 
 namespace Prisma {
-struct MaterialData {
-    uint64_t diffuse;
-    uint64_t normal;
-    uint64_t roughness_metalness;
-    uint64_t specular;
-    uint64_t ambient_occlusion;
-    int transparent;
-    float padding;
-    glm::vec4 color = glm::vec4(0);
-};
 
 class MaterialComponent : public Component {
 public:
@@ -94,6 +84,10 @@ public:
 
     float metalness() const;
 
+    void emission(float emission);
+
+    float emission() const;
+
 private:
     std::vector<Texture> m_diffuse;
     std::vector<Texture> m_normal;
@@ -143,5 +137,6 @@ private:
 
     float m_roughness = 0;
     float m_metalness = 0;
+    float m_emission = 1;
 };
 }

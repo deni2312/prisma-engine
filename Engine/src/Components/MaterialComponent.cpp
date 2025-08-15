@@ -237,6 +237,9 @@ void Prisma::MaterialComponent::ui() {
     ComponentType componentRoughness;
     componentRoughness = std::make_tuple(TYPES::FLOAT, "RoughnessData", &m_roughness);
 
+    ComponentType componentEmission;
+    componentEmission = std::make_tuple(TYPES::FLOAT, "EmissionData", &m_emission);
+
     m_apply = []() {
         CacheScene::getInstance().updateTextures(true);
         CacheScene::getInstance().updateLights(true);
@@ -259,6 +262,7 @@ void Prisma::MaterialComponent::ui() {
     addGlobal({componentDispersionSampleCount, false});
     addGlobal({componentMetalness, false});
     addGlobal({componentRoughness, false});
+    addGlobal({componentEmission, false});
     addGlobal({componentButton, false});
 
     uiRemovable(false);
@@ -370,5 +374,8 @@ void Prisma::MaterialComponent::metalness(float metalness) {
 }
 
 float Prisma::MaterialComponent::metalness() const {
-    return m_metalness;
-}
+    return m_metalness; }
+
+void Prisma::MaterialComponent::emission(float emission) { m_emission = emission; }
+
+float Prisma::MaterialComponent::emission() const { return m_emission; }
