@@ -336,10 +336,15 @@ std::shared_ptr<Prisma::Mesh> Prisma::SceneLoader::getMesh(aiMesh* mesh, const a
     currentMaterial->ambientOcclusion(loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION));
     float roughness = 0;
     float metalness = 0;
+    float emission = 0;
     material->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
     material->Get(AI_MATKEY_METALLIC_FACTOR, metalness);
+    material->Get(AI_MATKEY_EMISSIVE_INTENSITY, emission);
+
     currentMaterial->roughness(roughness);
     currentMaterial->metalness(metalness);
+    //currentMaterial->emission(emission);
+
     /*std::vector<Texture> emptyVector;
     if (currentMaterial->diffuse().empty())
     {

@@ -282,6 +282,7 @@ void Prisma::MaterialComponent::roughnessMetalness(std::vector<Texture> roughnes
 
 void Prisma::MaterialComponent::specular(std::vector<Texture> specular) {
     m_specular = specular;
+    CacheScene::getInstance().updateTextures(true);
 }
 
 std::vector<Prisma::Texture>& Prisma::MaterialComponent::specular() {
@@ -294,6 +295,7 @@ std::vector<Prisma::Texture>& Prisma::MaterialComponent::roughnessMetalness() {
 
 void Prisma::MaterialComponent::ambientOcclusion(std::vector<Texture> ambientOcclusion) {
     m_ambientOcclusion = ambientOcclusion;
+    CacheScene::getInstance().updateTextures(true);
 }
 
 std::vector<Prisma::Texture>& Prisma::MaterialComponent::ambientOcclusion() {
@@ -347,6 +349,7 @@ bool Prisma::MaterialComponent::plain() {
 
 void Prisma::MaterialComponent::rtMaterial(RayTracingMaterial rtMaterial) {
     m_rtMaterial = rtMaterial;
+    CacheScene::getInstance().updateStatus(true);
 }
 
 Prisma::MaterialComponent::RayTracingMaterial Prisma::MaterialComponent::rtMaterial() {
@@ -355,6 +358,7 @@ Prisma::MaterialComponent::RayTracingMaterial Prisma::MaterialComponent::rtMater
 
 void Prisma::MaterialComponent::isSpecular(bool specular) {
     m_isSpecular = specular;
+    CacheScene::getInstance().updateStatus(true);
 }
 
 bool Prisma::MaterialComponent::isSpecular() {
@@ -363,6 +367,7 @@ bool Prisma::MaterialComponent::isSpecular() {
 
 void Prisma::MaterialComponent::roughness(float roughness) {
     m_roughness = roughness;
+    CacheScene::getInstance().updateStatus(true);
 }
 
 float Prisma::MaterialComponent::roughness() const {
@@ -371,11 +376,15 @@ float Prisma::MaterialComponent::roughness() const {
 
 void Prisma::MaterialComponent::metalness(float metalness) {
     m_metalness = metalness;
+    CacheScene::getInstance().updateStatus(true);
 }
 
 float Prisma::MaterialComponent::metalness() const {
     return m_metalness; }
 
-void Prisma::MaterialComponent::emission(float emission) { m_emission = emission; }
+void Prisma::MaterialComponent::emission(float emission) { 
+    m_emission = emission; 
+    CacheScene::getInstance().updateStatus(true);
+}
 
 float Prisma::MaterialComponent::emission() const { return m_emission; }
