@@ -248,7 +248,7 @@ void Prisma::Sprite::loadSprites(std::vector<std::shared_ptr<Texture>> textures)
 	//m_ssboTextures->modifyData(0, sizeof(SpriteData) * m_spritesData.size(), m_spritesData.data());
 }
 
-void Prisma::Sprite::numSprites(unsigned int numSprites)
+void Prisma::Sprite::numSprites(unsigned int numSprites, SpriteUserData userData)
 {
 	m_numSprites = numSprites;
 	//m_ssbo->resize(sizeof(glm::mat4) * m_numSprites);
@@ -262,10 +262,11 @@ void Prisma::Sprite::numSprites(unsigned int numSprites)
 	for (int i = 0; i < m_numSprites; i++)
 	{
 		spriteModels[i].model = defaultData;
-        spriteModels[i].color = glm::vec4(1);
+        spriteModels[i].color = glm::vec4(userData.color,1);
         spriteIndices[i].id = defaultIndices;
-        spriteIndices[i].width=1;
-        spriteIndices[i].height=1;
+        spriteIndices[i].width=userData.width;
+        spriteIndices[i].height=userData.height;
+        spriteIndices[i].speed=userData.speed;
 	}
 	//m_ssbo->modifyData(0, sizeof(glm::mat4) * m_numSprites, spriteModels.data());
     m_models.Release();

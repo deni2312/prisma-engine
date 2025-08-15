@@ -42,6 +42,8 @@ private:
 
     void updateAnimations();
 
+    void createParticles();
+
     std::shared_ptr<Prisma::CallbackHandler> m_handler;
 
     glm::vec3 m_position = glm::vec3(0.0f);
@@ -117,6 +119,4 @@ private:
     unsigned int m_ballIndex = 0;
 
     const unsigned int m_maxBalls = 10;
-
-    int m_numScene = 1;
 };

@@ -3,7 +3,7 @@
 #include "glm/glm.hpp"
 #define DIR_DEFAULT_BLACK "../../../Resources/res/black.png"
 #define DIR_DEFAULT_ROUGHNESS "../../../Resources/res/max_roughness.png"
-#define DIR_DEFAULT_WHITE "../../../Resources/res/white.jpg"
+#define DIR_DEFAULT_WHITE "../../../Resources/res/white.png"
 #define DIR_DEFAULT_SCENE "../../../Resources/BasicScene/BasicScene.gltf"
 #define DIR_DEFAULT_NORMAL "../../../Resources/res/normal.jpg"
 #define DIR_DEFAULT_SETTINGS "../../../Resources/configuration/settings.json"

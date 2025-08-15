@@ -26,9 +26,16 @@ public:
         TRUE
     };
 
+    struct SpriteUserData {
+        unsigned int width = 1;
+        unsigned int height = 1;
+        unsigned int speed = 1;
+        glm::vec3 color = glm::vec3(1);
+    };
+
     Sprite(BLENDING blending, DEPTH_WRITE depthWrite);
     void loadSprites(std::vector<std::shared_ptr<Texture>> textures);
-    void numSprites(unsigned int numSprites);
+    void numSprites(unsigned int numSprites, SpriteUserData userData);
     void size(glm::vec2 size);
     void render();
     Diligent::RefCntAutoPtr<Diligent::IBuffer> models();

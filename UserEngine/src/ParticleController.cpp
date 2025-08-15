@@ -25,7 +25,7 @@ void ParticleController::init(std::shared_ptr<Prisma::Node> root, int numParticl
     auto sprite = std::make_shared<Prisma::Sprite>(Prisma::Sprite::BLENDING::ADDITIVE,Prisma::Sprite::DEPTH_WRITE::FALSE);
 
     sprite->loadSprites({spriteFire, spriteBurst});
-    sprite->numSprites(m_numParticles);
+    sprite->numSprites(m_numParticles,{1,1,1,glm::vec3(1)});
     sprite->size(glm::vec2(0.1f, 0.1f));
     sprite->name("Sprite");
     /*m_compute = std::make_shared<Prisma::Shader>("../../../UserEngine/Shaders/SpriteCompute/compute.glsl");
