@@ -282,10 +282,10 @@ void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion, f
     float3 irradianceData = irradiance.SampleLevel(skybox_sampler, Norm, 0).rgb;
     float3 diffuseIBL = irradianceData * albedo;
     
-    /*const float MAX_REFLECTION_LOD = 8.0;
-    float3 prefilteredColor = prefilter.SampleLevel(skybox_sampler, R, roughness * MAX_REFLECTION_LOD).rgb;
+    const float MAX_REFLECTION_LOD = 8.0;
+    //float3 prefilteredColor = prefilter.SampleLevel(skybox_sampler, R, roughness * MAX_REFLECTION_LOD).rgb;
     float2 brdf = lut.SampleLevel(skybox_sampler,float2(max(dot(Norm, V), 0.0), roughness), 0).rg;
-    float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    //float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     
     float3 reflectionColor = float3(0.0, 0.0, 0.0);
     if (Recursion < g_ConstantsCB.MaxRecurionReflection)
@@ -295,17 +295,7 @@ void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion, f
     }
 
     // Blend reflection using Fresnel (kS)
-    float3 specularReflection = (kD * diffuseIBL) + lerp(reflectionColor, specular,roughness);*/
-    
-    float3 reflectionColor = float3(0.0, 0.0, 0.0);
-    if (Recursion < g_ConstantsCB.MaxRecurionReflection)
-    {
-        PrimaryRayPayload reflectionPayload = CastReflectionRay(Pos, R, Recursion,Norm);
-        reflectionColor = reflectionPayload.Color;
-    }
-
-    // Blend reflection using Fresnel (kS)
-    float3 specularReflection = (kD * diffuseIBL)+kS * reflectionColor * (1.0 - roughness*roughness);
+    float3 specularReflection = (kD * diffuseIBL) + reflectionColor;
 
     // Final output
     Color = Lo + specularReflection;
