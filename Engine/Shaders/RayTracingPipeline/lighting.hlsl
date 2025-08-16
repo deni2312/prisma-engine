@@ -295,7 +295,7 @@ void LightingPass(inout float3 Color, float3 Pos, float3 Norm, uint Recursion, f
     }
 
     // Blend reflection using Fresnel (kS)
-    float3 specularReflection = (kD * diffuseIBL) + reflectionColor;
+    float3 specularReflection = (kD * diffuseIBL) + reflectionColor * (F * brdf.x + brdf.y);
 
     // Final output
     Color = Lo + specularReflection;
