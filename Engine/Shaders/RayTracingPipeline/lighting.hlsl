@@ -116,7 +116,7 @@ float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
 
 PrimaryRayPayload CastReflectionRay(float3 origin, float3 direction, uint Recursion,float3 normal)
 {
-    PrimaryRayPayload payload = { float3(0.0, 0.0, 0.0),0, Recursion + 1 };
+    PrimaryRayPayload payload = { float3(0.0, 0.0, 0.0),0, Recursion };
 
     if (Recursion >= g_ConstantsCB.MaxRecurionReflection)
         return payload;
