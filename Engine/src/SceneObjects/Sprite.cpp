@@ -206,8 +206,8 @@ Prisma::Sprite::Sprite(BLENDING blending, DEPTH_WRITE depthWrite) : Prisma::Node
     ModelDesc.Usage = Diligent::USAGE_DEFAULT;
     ModelDesc.BindFlags = Diligent::BIND_SHADER_RESOURCE | Diligent::BIND_UNORDERED_ACCESS;
     ModelDesc.Mode = Diligent::BUFFER_MODE_STRUCTURED;
-    ModelDesc.ElementByteStride = sizeof(glm::mat4);
-    ModelDesc.Size = sizeof(glm::mat4);
+    ModelDesc.ElementByteStride = sizeof(SpriteData);
+    ModelDesc.Size = sizeof(SpriteData);
     contextData.device->CreateBuffer(ModelDesc, nullptr, &m_models);
 
     Diligent::BufferDesc SpriteDesc;
@@ -233,7 +233,14 @@ void Prisma::Sprite::loadSprites(std::vector<std::shared_ptr<Texture>> textures)
 
 	for (auto sprite : textures)
 	{
-		m_sprites.push_back(sprite->texture()->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+		m_sprites.push_back(sprite->texture());
+	}
+
+    std::vector<Diligent::IDeviceObject*> spriteReferences;
+
+    for (auto sprite : m_sprites)
+	{
+		spriteReferences.push_back(sprite->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
 	}
 
     m_srb.Release();
@@ -243,7 +250,7 @@ void Prisma::Sprite::loadSprites(std::vector<std::shared_ptr<Texture>> textures)
 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "SpriteIds")->Set(m_spriteIds->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
 
-    m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "spriteTextures")->SetArray(m_sprites.data(), 0, m_sprites.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "spriteTextures")->SetArray(spriteReferences.data(), 0, spriteReferences.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
 	//m_ssboTextures->resize(sizeof(SpriteData) * m_spritesData.size());
 	//m_ssboTextures->modifyData(0, sizeof(SpriteData) * m_spritesData.size(), m_spritesData.data());
 }
@@ -306,8 +313,14 @@ void Prisma::Sprite::numSprites(unsigned int numSprites, SpriteUserData userData
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_VERTEX, "SpritesData")->Set(m_models->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
 
     m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "SpriteIds")->Set(m_spriteIds->GetDefaultView(Diligent::BUFFER_VIEW_SHADER_RESOURCE));
+    std::vector<Diligent::IDeviceObject*> spriteReferences;
 
-    m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "spriteTextures")->SetArray(m_sprites.data(), 0, m_sprites.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+    for (auto sprite : m_sprites)
+	{
+		spriteReferences.push_back(sprite->GetDefaultView(Diligent::TEXTURE_VIEW_SHADER_RESOURCE));
+	}
+
+    m_srb->GetVariableByName(Diligent::SHADER_TYPE_PIXEL, "spriteTextures")->SetArray(spriteReferences.data(), 0, spriteReferences.size(), Diligent::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
     m_counter.start();
 }
 
@@ -346,7 +359,7 @@ void Prisma::Sprite::render()
         auto quadBuffer = PrismaRender::getInstance().quadBuffer();
 
         // Bind vertex and index buffers
-                constexpr Diligent::Uint64 offset = 0;
+        constexpr Diligent::Uint64 offset = 0;
         Diligent::IBuffer* pBuffs[] = { quadBuffer.vBuffer };
         contextData.immediateContext->SetVertexBuffers(0, 1, pBuffs, &offset, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::SET_VERTEX_BUFFERS_FLAG_RESET);
         contextData.immediateContext->SetIndexBuffer(quadBuffer.iBuffer, 0, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

@@ -42,7 +42,7 @@ public:
     Diligent::RefCntAutoPtr<Diligent::IBuffer> spriteIds();
 
 private:
-    std::vector<Diligent::IDeviceObject*> m_sprites;
+    std::vector<Diligent::RefCntAutoPtr<Diligent::ITexture>> m_sprites;
 
     struct ModelSizes {
         glm::mat4 model;
