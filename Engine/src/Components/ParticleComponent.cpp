@@ -49,9 +49,14 @@ void Prisma::ParticleComponent::ui() {
         if (!isStart()) {
             start();
         }
+
     };
 
     m_loadTexture = [&]() {
+        if (!isStart()) {
+            start();
+        }
+
         auto openFolder = WindowsHelper::getInstance().openFolder("All Files");
         if (!openFolder.empty() && Prisma::StringHelper::getInstance().endsWith(openFolder,"png")) {
                 auto sprite = std::make_shared<Prisma::Texture>();
@@ -61,6 +66,10 @@ void Prisma::ParticleComponent::ui() {
         };
 
     m_apply = [&]() {
+        if (!isStart()) {
+            start();
+        }
+
         m_sprite->numSprites(1, {m_width, m_height, m_speed, glm::vec3(1)});
         m_sprite->size(m_size);
     };
