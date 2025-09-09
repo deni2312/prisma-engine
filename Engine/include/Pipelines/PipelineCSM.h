@@ -49,7 +49,7 @@ private:
 
     uint64_t m_id;
 
-    float m_farPlane = 200.0f;
+    float m_farPlane = 1000.0f;
 
     float m_nearPlane = 0.1f;
 
