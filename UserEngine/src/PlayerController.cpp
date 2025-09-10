@@ -95,7 +95,7 @@ PlayerController::PlayerController(std::shared_ptr<Prisma::Scene> scene) : m_sce
             }
         });*/
     }
-    createParticles();
+    //createParticles();
     createCamera();
     createKeyboard();
 }
