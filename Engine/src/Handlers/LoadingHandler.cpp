@@ -47,6 +47,7 @@ void Prisma::LoadingHandler::update(std::shared_ptr<Camera> camera,
         if (m_sceneParameters.onLoad) {
             m_sceneParameters.onLoad(hasFinish);
         }
+        AnimationHandler::getInstance().fill();
         MeshIndirect::getInstance().init();
         m_hasLoad = false;
     }
