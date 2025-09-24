@@ -79,6 +79,18 @@ cd ..
 
 ## Demos
 
+
+
+### Diligent Backend Demo
+
+A demo that shows all the  features implemented with the Diligent Backend
+
+https://youtube.com/watch?si=i_kFfJJ4FhN71HG0&v=A6Amrfwip54
+
+[![Sponza](https://img.youtube.com/vi/A6Amrfwip54/0.jpg)](https://www.youtube.com/watch?v=A6Amrfwip54)
+
+
+
 ### Soft bodies
 
 An example of a Sponza scene with softbodies
